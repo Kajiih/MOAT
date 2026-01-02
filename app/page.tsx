@@ -10,10 +10,12 @@ import {
   DragOverEvent,
   useDroppable,
   closestCenter,
+  rectIntersection,
   KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors
+  useSensors,
+  useDndContext
 } from '@dnd-kit/core';
 import { 
   SortableContext, 
@@ -21,9 +23,9 @@ import {
   sortableKeyboardCoordinates, 
   rectSortingStrategy 
 } from '@dnd-kit/sortable';
-import { Album, TierMap } from '@/lib/types';
+import { MediaItem, MediaType, TierMap } from '@/lib/types';
 import { AlbumCard, SortableAlbumCard } from '@/components/AlbumCard';
-import { Download, Upload, Trash2, Search, Eye, EyeOff } from 'lucide-react';
+import { Download, Upload, Trash2, Search, Eye, EyeOff, Disc, Mic2, Music } from 'lucide-react';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
 const TIER_COLORS: Record<string, string> = {
@@ -31,22 +33,45 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 // Sub-component for a Tier Row
-function TierRow({ id, albums, onRemove }: { id: string, albums: Album[], onRemove: (id: string) => void }) {
-  const { setNodeRef, isOver } = useDroppable({ id });
+function TierRow({ id, albums, onRemove }: { id: string, albums: MediaItem[], onRemove: (id: string) => void }) {
+  // Use `useDroppable` for the container ref
+  const { setNodeRef } = useDroppable({ 
+    id,
+    data: { isTierContainer: true } 
+  });
+
+  const { over } = useDndContext();
+
+  const isOverRow = useMemo(() => {
+    if (!over) return false;
+    // 1. Is the cursor directly over the container?
+    if (over.id === id) return true;
+    // 2. Is the cursor over any item strictly inside this container?
+    return albums.some(a => a.id === over.id);
+  }, [over, id, albums]);
 
   return (
-    <div className="flex bg-neutral-900 border border-neutral-800 min-h-[7rem] mb-2 overflow-hidden rounded-lg">
+    <div className={`flex bg-neutral-900 border min-h-[7rem] mb-2 overflow-hidden rounded-lg transition-colors duration-200 ${isOverRow ? 'border-neutral-500 bg-neutral-800' : 'border-neutral-800'}`}>
       <div className={`w-24 flex items-center justify-center text-3xl font-black text-black select-none ${TIER_COLORS[id]}`}>
         {id}
       </div>
       <div 
         ref={setNodeRef} 
-        className={`flex-1 flex flex-wrap items-center gap-2 p-3 transition-colors ${isOver ? 'bg-neutral-800' : ''}`}
+        className="flex-1 flex flex-wrap items-center gap-2 p-3 relative"
       >
+        {isOverRow && <div className="absolute inset-0 bg-white/5 pointer-events-none" />}
         <SortableContext id={id} items={albums.map(a => a.id)} strategy={rectSortingStrategy}>
-          {albums.map((album) => (
-            <SortableAlbumCard key={album.id} album={album} tierId={id} onRemove={(albId) => onRemove(albId)} />
-          ))}
+          {albums.map((item) => {
+            return (
+              <SortableAlbumCard 
+                key={item.id} 
+                item={item} 
+                id={item.id} 
+                tierId={id} 
+                onRemove={(albId) => onRemove(albId)} 
+              />
+            );
+          })}
         </SortableContext>
       </div>
     </div>
@@ -59,20 +84,26 @@ export default function TierListApp() {
 
   // App State
   const [tiers, setTiers] = useState<TierMap>(INITIAL_TIERS);
-  const [activeAlbum, setActiveAlbum] = useState<Album | null>(null);
+  const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null); // Track active draggable ID
   
   // Search State
-  const [search, setSearch] = useState({ title: '', artist: '', year: '' });
+  const [searchType, setSearchType] = useState<MediaType>('album');
+  const [search, setSearch] = useState({ query: '', artist: '', year: '' });
   const [debouncedSearch] = useDebounce(search, 500);
-  const [searchResults, setSearchResults] = useState<Album[]>([]);
+  const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showAdded, setShowAdded] = useState(true);
 
-  // Derived State: Set of all Added Album IDs
+  // Derived State: Set of all Added Album IDs (Clean IDs)
   const addedAlbumIds = useMemo(() => {
     const ids = new Set<string>();
     Object.values(tiers).forEach(tierList => {
-        tierList.forEach(album => ids.add(album.id));
+        tierList.forEach(item => {
+            // Strip "search-" prefix if present
+            const cleanId = item.id.replace(/^search-/, '');
+            ids.add(cleanId);
+        });
     });
     return ids;
   }, [tiers]);
@@ -106,8 +137,8 @@ export default function TierListApp() {
 
   // Fetch Logic
   useEffect(() => {
-    const { title, artist, year } = debouncedSearch;
-    if (!title && !artist && !year) {
+    const { query, artist, year } = debouncedSearch;
+    if (!query && !artist && !year) {
         setSearchResults([]);
         return;
     }
@@ -116,7 +147,8 @@ export default function TierListApp() {
       setIsSearching(true);
       try {
         const params = new URLSearchParams();
-        if(title) params.append('title', title);
+        params.append('type', searchType);
+        if(query) params.append('query', query);
         if(artist) params.append('artist', artist);
         if(year) params.append('year', year);
 
@@ -130,7 +162,13 @@ export default function TierListApp() {
       }
     }
     fetchData();
-  }, [debouncedSearch]);
+  }, [debouncedSearch, searchType]); // Re-run when type changes
+
+  // Clear search results when type changes to avoid confusion
+  useEffect(() => {
+      setSearchResults([]);
+      setSearch({ query: '', artist: '', year: '' });
+  }, [searchType]);
 
   // Actions
   const handleExport = () => {
@@ -158,27 +196,25 @@ export default function TierListApp() {
     if(confirm("Clear everything?")) setTiers(INITIAL_TIERS);
   };
 
-  const removeAlbumFromTier = (tierId: string, albumId: string) => {
+  const removeAlbumFromTier = (tierId: string, itemId: string) => {
+    // Handle both clean IDs and temporary search IDs
     setTiers(prev => ({
         ...prev,
-        [tierId]: prev[tierId].filter(a => a.id !== albumId)
+        [tierId]: prev[tierId].filter(a => a.id !== itemId && a.id !== `search-${itemId}`)
     }));
   };
 
   const handleLocate = (id: string) => {
-    // Only locate items on the tier board, which have ID `album-card-{id}`
-    // Search items have `album-card-search-{id}`
-    const el = document.getElementById(`album-card-${id}`);
+    const el = document.getElementById(`media-card-${id}`);
     if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // Optional: Add a temporary highlight effect
         el.style.transition = 'box-shadow 0.3s';
         el.style.boxShadow = '0 0 20px 5px rgba(255, 255, 255, 0.5)';
         setTimeout(() => {
             el.style.boxShadow = '';
         }, 1500);
     } else {
-        alert("Could not locate album on board.");
+        alert("Could not locate item on board.");
     }
   };
 
@@ -189,28 +225,87 @@ export default function TierListApp() {
   };
 
   const handleDragStart = (e: DragStartEvent) => {
-    setActiveAlbum(e.active.data.current?.album);
+    setActiveItem(e.active.data.current?.album);
+    setActiveId(e.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     const activeTierId = active.data.current?.sourceTier;
     
-    // Only handle Tier->Tier sorting in DragOver
-    if (!over || !activeTierId) return;
+    // We allow logic even if sourceTier is missing (Search -> Tier)
+    if (!over) return;
 
     const activeId = active.id;
     const overId = over.id;
 
     // Find the containers
-    const activeContainer = activeTierId;
+    const activeContainer = activeTierId || findContainer(activeId as string); 
     const overContainer = findContainer(overId as string);
 
-    if (!activeContainer || !overContainer || activeContainer === overContainer) {
-      return;
+    if (!overContainer) {
+        return; // Dropped outside valid containers
     }
 
-    // Move between containers during drag (visual feedback)
+    if (!activeContainer) {
+        // Case: Search Item -> Tier (First Entry)
+        // GLOBAL DUPLICATE CHECK (During Drag)
+        const cleanId = active.data.current?.album.id;
+        if (addedAlbumIds.has(cleanId)) return; 
+
+        setTiers((prev) => {
+            const activeItem = active.data.current?.album;
+            if(!activeItem) return prev;
+
+            const overItems = prev[overContainer];
+            const overIndex = overItems.findIndex((item) => item.id === overId);
+            
+            let newIndex;
+            if (overId in prev) {
+                newIndex = overItems.length + 1;
+            } else {
+                const isBelowOverItem =
+                  over &&
+                  active.rect.current.translated &&
+                  active.rect.current.translated.top > over.rect.top + over.rect.height;
+                const modifier = isBelowOverItem ? 1 : 0;
+                newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+            }
+
+            // Create a temporary album object with the SEARCH ID
+            const tempItem = { ...activeItem, id: activeId as string };
+
+            return {
+                ...prev,
+                [overContainer]: [
+                    ...prev[overContainer].slice(0, newIndex),
+                    tempItem,
+                    ...prev[overContainer].slice(newIndex, prev[overContainer].length),
+                ],
+            };
+        });
+        return;
+    }
+
+    if (activeContainer === overContainer) {
+        setTiers((prev) => {
+            const activeItems = prev[activeContainer];
+            const overItems = prev[overContainer];
+            const activeIndex = activeItems.findIndex((item) => item.id === activeId);
+            const overIndex = overItems.findIndex((item) => item.id === overId);
+            
+            if (activeIndex !== overIndex) {
+                 return {
+                    ...prev,
+                    [activeContainer]: arrayMove(prev[activeContainer], activeIndex, overIndex),
+                 };
+            }
+            return prev;
+        });
+        return;
+    }
+
+    // Move between different containers
     setTiers((prev) => {
       const activeItems = prev[activeContainer];
       const overItems = prev[overContainer];
@@ -219,7 +314,6 @@ export default function TierListApp() {
 
       let newIndex;
       if (overId in prev) {
-        // We're at the root droppable of a container
         newIndex = overItems.length + 1;
       } else {
         const isBelowOverItem =
@@ -247,50 +341,34 @@ export default function TierListApp() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    const activeAlbumData = active.data.current?.album as Album;
-    const sourceTier = active.data.current?.sourceTier;
+    setActiveItem(null);
+    setActiveId(null);
 
-    if (!over || !activeAlbumData) {
-      setActiveAlbum(null);
-      return;
-    }
+    // Clean up temporary IDs
+    setTiers(prev => {
+        const next = { ...prev };
+        let modified = false;
 
-    const overId = over.id as string;
-    const overContainer = findContainer(overId);
+        Object.keys(next).forEach(key => {
+            const list = next[key];
+            const needsFix = list.some(a => a.id.startsWith('search-'));
+            
+            if (needsFix) {
+                next[key] = list.map(a => {
+                    if (a.id.startsWith('search-')) {
+                        const originalId = a.id.replace('search-', '');
+                        return { ...a, id: originalId };
+                    }
+                    return a;
+                });
+                modified = true;
+            }
+        });
 
-    // Case 1: Reordering within same tier
-    if (sourceTier && overContainer && sourceTier === overContainer) {
-        const activeIndex = tiers[sourceTier].findIndex(a => a.id === active.id); // active.id matches album.id for tier items
-        const overIndex = tiers[overContainer].findIndex(a => a.id === overId);
-        
-        if (activeIndex !== overIndex) {
-            setTiers((prev) => ({
-                ...prev,
-                [sourceTier]: arrayMove(prev[sourceTier], activeIndex, overIndex)
-            }));
-        }
-    } 
-    // Case 2: Dropping from Search -> Tier
-    else if (!sourceTier && overContainer) {
-        // GLOBAL DUPLICATE CHECK
-        const isAlreadyAddedGlobal = addedAlbumIds.has(activeAlbumData.id);
+        return modified ? next : prev;
+    });
 
-        if (!isAlreadyAddedGlobal) {
-            setTiers((prev) => {
-                const newTierList = [...prev[overContainer]];
-                const overIndex = newTierList.findIndex(a => a.id === overId);
-                
-                if (overIndex >= 0) {
-                     newTierList.splice(overIndex, 0, activeAlbumData);
-                } else {
-                     newTierList.push(activeAlbumData);
-                }
-                return { ...prev, [overContainer]: newTierList };
-            });
-        }
-    }
-
-    setActiveAlbum(null);
+    if (!over) return;
   };
 
   // --- 3. RETURN LOADING STATE IF NOT MOUNTED ---
@@ -330,7 +408,7 @@ export default function TierListApp() {
 
         <DndContext 
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={rectIntersection}
             onDragStart={handleDragStart} 
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
@@ -344,7 +422,7 @@ export default function TierListApp() {
                             key={tier} 
                             id={tier} 
                             albums={tiers[tier]} 
-                            onRemove={(albumId) => removeAlbumFromTier(tier, albumId)} 
+                            onRemove={(itemId) => removeAlbumFromTier(tier, itemId)} 
                         />
                     ))}
                 </div>
@@ -360,34 +438,67 @@ export default function TierListApp() {
                         <button 
                             onClick={() => setShowAdded(!showAdded)}
                             className={`ml-auto flex items-center gap-2 text-xs px-2 py-1 rounded border ${showAdded ? 'bg-neutral-800 border-neutral-600 text-neutral-300' : 'bg-transparent border-neutral-800 text-neutral-500'}`}
-                            title={showAdded ? "Hide albums already on board" : "Show albums already on board"}
+                            title={showAdded ? "Hide items already on board" : "Show items already on board"}
                         >
                             {showAdded ? <Eye size={14} /> : <EyeOff size={14} />}
                         </button>
                     </div>
 
+                    {/* Type Tabs */}
+                    <div className="grid grid-cols-3 gap-1 p-1 bg-black rounded-lg mb-4 shrink-0 border border-neutral-800">
+                        {(['album', 'artist', 'song'] as const).map((t) => (
+                            <button
+                                key={t}
+                                onClick={() => setSearchType(t)}
+                                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all
+                                    ${searchType === t ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}
+                                `}
+                            >
+                                {t === 'album' && <Disc size={12} />}
+                                {t === 'artist' && <Mic2 size={12} />}
+                                {t === 'song' && <Music size={12} />}
+                                <span className="capitalize">{t}</span>
+                            </button>
+                        ))}
+                    </div>
+
                     <div className="grid grid-cols-1 gap-2 mb-4 shrink-0">
                         <input 
-                            placeholder="Album Title..." 
+                            placeholder={`Search ${searchType}s...`} 
                             className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                            value={search.title}
-                            onChange={e => setSearch({...search, title: e.target.value})}
+                            value={search.query}
+                            onChange={e => setSearch({...search, query: e.target.value})}
                         />
-                        <div className="grid grid-cols-2 gap-2">
-                            <input 
-                                placeholder="Artist..." 
-                                className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                value={search.artist}
-                                onChange={e => setSearch({...search, artist: e.target.value})}
-                            />
-                            <input 
-                                placeholder="Year..." 
+                        
+                        {/* Only show artist filter for Album/Song types */}
+                        {searchType !== 'artist' && (
+                             <div className="grid grid-cols-2 gap-2">
+                                <input 
+                                    placeholder="Filter by Artist..." 
+                                    className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                    value={search.artist}
+                                    onChange={e => setSearch({...search, artist: e.target.value})}
+                                />
+                                <input 
+                                    placeholder="Year..." 
+                                    type="number"
+                                    className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                    value={search.year}
+                                    onChange={e => setSearch({...search, year: e.target.value})}
+                                />
+                            </div>
+                        )}
+                        
+                        {/* Only show Year for Artist */}
+                        {searchType === 'artist' && (
+                             <input 
+                                placeholder="Year (Est.)..." 
                                 type="number"
                                 className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
                                 value={search.year}
                                 onChange={e => setSearch({...search, year: e.target.value})}
                             />
-                        </div>
+                        )}
                     </div>
 
                     {/* Scrollable Results Area */}
@@ -395,15 +506,15 @@ export default function TierListApp() {
                         {isSearching && <div className="text-xs text-neutral-500 animate-pulse mb-2">Querying API...</div>}
                         
                         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
-                            {searchResults.map(album => {
-                                const isAdded = addedAlbumIds.has(album.id);
+                            {searchResults.map(item => {
+                                const isAdded = addedAlbumIds.has(item.id);
                                 if (!showAdded && isAdded) return null;
 
                                 return (
                                     <AlbumCard 
-                                        key={album.id} 
-                                        album={album}
-                                        id={`search-${album.id}`} // Prefix ID for search results
+                                        key={item.id} 
+                                        item={item}
+                                        id={`search-${item.id}`} 
                                         isAdded={isAdded}
                                         onLocate={handleLocate}
                                     />
@@ -411,7 +522,7 @@ export default function TierListApp() {
                             })}
                         </div>
                         
-                        {!isSearching && searchResults.length === 0 && (search.title || search.artist) && (
+                        {!isSearching && searchResults.length === 0 && (search.query || search.artist) && (
                             <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
                         )}
                     </div>
@@ -420,7 +531,7 @@ export default function TierListApp() {
 
             {/* Drag Overlay */}
             <DragOverlay>
-                {activeAlbum ? <AlbumCard album={activeAlbum} /> : null}
+                {activeItem ? <AlbumCard item={activeItem} /> : null}
             </DragOverlay>
 
         </DndContext>
