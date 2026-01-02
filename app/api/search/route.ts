@@ -11,27 +11,25 @@ export async function GET(request: Request) {
   const queryParam = searchParams.get('query') || ''; 
   const artistParam = searchParams.get('artist');
   const artistIdParam = searchParams.get('artistId');
-  
-  // Year params
   const minYear = searchParams.get('minYear');
   const maxYear = searchParams.get('maxYear');
+  
+  // Pagination
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = 15;
+  const offset = (page - 1) * limit;
 
   // Basic validation
   if (!queryParam && !artistParam && !artistIdParam && !minYear && !maxYear) {
-    return NextResponse.json({ results: [] });
+    return NextResponse.json({ results: [], page, totalPages: 0 });
   }
 
   // 1. Construct Lucene Query
   let endpoint = '';
   const queryParts: string[] = [];
 
-  // Determine correct date field based on type
-  // album -> firstreleasedate
-  // artist -> begin (birth/founding date)
-  // song -> firstreleasedate (or date)
   let dateField = 'firstreleasedate'; 
   if (type === 'artist') dateField = 'begin';
-  // for song, firstreleasedate is often reliable for "when was this song released"
 
   switch (type) {
     case 'artist':
@@ -77,7 +75,7 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `${MB_BASE_URL}/${endpoint}/?query=${encodeURIComponent(query)}&fmt=json&limit=15`,
+      `${MB_BASE_URL}/${endpoint}/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}&offset=${offset}`,
       {
         headers: { 'User-Agent': USER_AGENT },
         next: { revalidate: 3600 } 
@@ -114,7 +112,8 @@ export async function GET(request: Request) {
             type: 'artist',
             title: item.name, 
             year: item['life-span']?.begin?.split('-')[0] || '',
-            imageUrl: undefined 
+            imageUrl: undefined,
+            disambiguation: item.disambiguation 
         }));
     } else if (type === 'song' && parsed.data.recordings) {
         results = parsed.data.recordings.map((item) => ({
@@ -128,7 +127,12 @@ export async function GET(request: Request) {
         }));
     }
 
-    return NextResponse.json({ results });
+    // Determine Total Count (MusicBrainz usually returns 'count' or 'count' inside list key)
+    // Note: MusicBrainz search API format puts count/offset in root usually
+    const totalCount = rawData.count || rawData['release-group-count'] || rawData['artist-count'] || rawData['recording-count'] || 0;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return NextResponse.json({ results, page, totalPages, totalCount });
 
   } catch (error) {
     console.error(error);

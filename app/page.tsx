@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
+import useSWR, { preload } from 'swr';
 import { 
   DndContext, 
   DragEndEvent, 
@@ -26,16 +27,17 @@ import {
 import { MediaItem, MediaType, TierMap } from '@/lib/types';
 import { AlbumCard, SortableAlbumCard } from '@/components/AlbumCard';
 import { ArtistPicker } from '@/components/ArtistPicker'; 
-import { Download, Upload, Trash2, Search, Eye, EyeOff, Disc, Mic2, Music } from 'lucide-react';
+import { Download, Upload, Trash2, Search, Eye, EyeOff, Disc, Mic2, Music, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
 const TIER_COLORS: Record<string, string> = {
   S: 'bg-red-500', A: 'bg-orange-500', B: 'bg-yellow-500', C: 'bg-green-500', D: 'bg-blue-500'
 };
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 // Sub-component for a Tier Row
 function TierRow({ id, albums, onRemove }: { id: string, albums: MediaItem[], onRemove: (id: string) => void }) {
-  // Use `useDroppable` for the container ref
   const { setNodeRef } = useDroppable({ 
     id,
     data: { isTierContainer: true } 
@@ -45,9 +47,7 @@ function TierRow({ id, albums, onRemove }: { id: string, albums: MediaItem[], on
 
   const isOverRow = useMemo(() => {
     if (!over) return false;
-    // 1. Is the cursor directly over the container?
     if (over.id === id) return true;
-    // 2. Is the cursor over any item strictly inside this container?
     return albums.some(a => a.id === over.id);
   }, [over, id, albums]);
 
@@ -80,13 +80,12 @@ function TierRow({ id, albums, onRemove }: { id: string, albums: MediaItem[], on
 }
 
 export default function TierListApp() {
-  // --- 1. MOUNT CHECK STATE ---
   const [isMounted, setIsMounted] = useState(false);
 
   // App State
   const [tiers, setTiers] = useState<TierMap>(INITIAL_TIERS);
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null); // Track active draggable ID
+  const [activeId, setActiveId] = useState<string | null>(null); 
   
   // Search State
   const [searchType, setSearchType] = useState<MediaType>('album');
@@ -94,24 +93,49 @@ export default function TierListApp() {
   // Filter States
   const [search, setSearch] = useState({ query: '', minYear: '', maxYear: '' });
   const [selectedArtist, setSelectedArtist] = useState<{id: string, name: string} | null>(null);
+  const [page, setPage] = useState(1);
   
   const [debouncedSearch] = useDebounce(search, 500);
-  const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [showAdded, setShowAdded] = useState(true);
 
-  // Derived State: Set of all Added Album IDs (Clean IDs)
   const addedAlbumIds = useMemo(() => {
     const ids = new Set<string>();
     Object.values(tiers).forEach(tierList => {
         tierList.forEach(item => {
-            // Strip "search-" prefix if present
             const cleanId = item.id.replace(/^search-/, '');
             ids.add(cleanId);
         });
     });
     return ids;
   }, [tiers]);
+
+  // --- SWR Data Fetching ---
+  const shouldFetch = debouncedSearch.query || debouncedSearch.minYear || debouncedSearch.maxYear || selectedArtist;
+  
+  const searchParams = new URLSearchParams();
+  searchParams.append('type', searchType);
+  searchParams.append('page', page.toString());
+  if(debouncedSearch.query) searchParams.append('query', debouncedSearch.query);
+  if(debouncedSearch.minYear) searchParams.append('minYear', debouncedSearch.minYear);
+  if(debouncedSearch.maxYear) searchParams.append('maxYear', debouncedSearch.maxYear);
+  if(selectedArtist) searchParams.append('artistId', selectedArtist.id);
+
+  const { data, isLoading: isSearching } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
+    shouldFetch ? `/api/search?${searchParams.toString()}` : null,
+    fetcher
+  );
+
+  const searchResults = data?.results || [];
+  const totalPages = data?.totalPages || 0;
+
+  // Pagination Prefetching
+  useEffect(() => {
+      if (data && page < totalPages) {
+          const nextParams = new URLSearchParams(searchParams);
+          nextParams.set('page', (page + 1).toString());
+          preload(`/api/search?${nextParams.toString()}`, fetcher);
+      }
+  }, [data, page, totalPages, searchParams]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -120,69 +144,32 @@ export default function TierListApp() {
     })
   );
 
-  // --- 2. MOUNT EFFECT ---
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  useEffect(() => { setIsMounted(true); }, []);
 
-  // Load from LocalStorage (Only runs on client)
   useEffect(() => {
-    if (!isMounted) return; // Wait for mount
+    if (!isMounted) return; 
     const saved = localStorage.getItem('julian-tierlist');
     if (saved) {
       try { setTiers(JSON.parse(saved)); } catch (e) { console.error("Save Corrupt", e); }
     }
   }, [isMounted]);
 
-  // Save to LocalStorage
   useEffect(() => {
     if (!isMounted) return;
     localStorage.setItem('julian-tierlist', JSON.stringify(tiers));
   }, [tiers, isMounted]);
 
-  // Fetch Logic
+  // Reset pagination when filters change
   useEffect(() => {
-    const { query, minYear, maxYear } = debouncedSearch;
-    // We can fetch if we have a query OR a selected artist OR a year filter
-    if (!query && !minYear && !maxYear && !selectedArtist) {
-        setSearchResults([]);
-        return;
-    }
-
-    async function fetchData() {
-      setIsSearching(true);
-      try {
-        const params = new URLSearchParams();
-        params.append('type', searchType);
-        if(query) params.append('query', query);
-        if(minYear) params.append('minYear', minYear);
-        if(maxYear) params.append('maxYear', maxYear);
-        
-        // Pass artist ID if selected
-        if(selectedArtist) {
-            params.append('artistId', selectedArtist.id);
-        }
-
-        const res = await fetch(`/api/search?${params.toString()}`);
-        const data = await res.json();
-        setSearchResults(data.results || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsSearching(false);
-      }
-    }
-    fetchData();
-  }, [debouncedSearch, searchType, selectedArtist]); // Re-run when filters change
+      setPage(1);
+  }, [searchType, debouncedSearch, selectedArtist]);
 
   // Clear search results/inputs when type changes
   useEffect(() => {
-      setSearchResults([]);
       setSearch({ query: '', minYear: '', maxYear: '' });
       setSelectedArtist(null);
   }, [searchType]);
 
-  // Actions
   const handleExport = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tiers));
     const a = document.createElement('a');
@@ -209,7 +196,6 @@ export default function TierListApp() {
   };
 
   const removeAlbumFromTier = (tierId: string, itemId: string) => {
-    // Handle both clean IDs and temporary search IDs
     setTiers(prev => ({
         ...prev,
         [tierId]: prev[tierId].filter(a => a.id !== itemId && a.id !== `search-${itemId}`)
@@ -230,7 +216,6 @@ export default function TierListApp() {
     }
   };
 
-  // DND Logic Helper
   const findContainer = (id: string) => {
     if (id in tiers) return id;
     return Object.keys(tiers).find((key) => tiers[key].find((a) => a.id === id));
@@ -245,23 +230,19 @@ export default function TierListApp() {
     const { active, over } = event;
     const activeTierId = active.data.current?.sourceTier;
     
-    // We allow logic even if sourceTier is missing (Search -> Tier)
     if (!over) return;
 
     const activeId = active.id;
     const overId = over.id;
 
-    // Find the containers
     const activeContainer = activeTierId || findContainer(activeId as string); 
     const overContainer = findContainer(overId as string);
 
     if (!overContainer) {
-        return; // Dropped outside valid containers
+        return; 
     }
 
     if (!activeContainer) {
-        // Case: Search Item -> Tier (First Entry)
-        // GLOBAL DUPLICATE CHECK (During Drag)
         const cleanId = active.data.current?.album.id;
         if (addedAlbumIds.has(cleanId)) return; 
 
@@ -284,7 +265,6 @@ export default function TierListApp() {
                 newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
             }
 
-            // Create a temporary album object with the SEARCH ID
             const tempItem = { ...activeItem, id: activeId as string };
 
             return {
@@ -317,7 +297,6 @@ export default function TierListApp() {
         return;
     }
 
-    // Move between different containers
     setTiers((prev) => {
       const activeItems = prev[activeContainer];
       const overItems = prev[overContainer];
@@ -356,7 +335,6 @@ export default function TierListApp() {
     setActiveItem(null);
     setActiveId(null);
 
-    // Clean up temporary IDs
     setTiers(prev => {
         const next = { ...prev };
         let modified = false;
@@ -383,7 +361,6 @@ export default function TierListApp() {
     if (!over) return;
   };
 
-  // --- 3. RETURN LOADING STATE IF NOT MOUNTED ---
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans flex flex-col items-center justify-center gap-4">
@@ -395,12 +372,10 @@ export default function TierListApp() {
     );
   }
 
-  // --- 4. RENDER ACTUAL APP ---
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans">
       <div className="max-w-[1600px] mx-auto">
         
-        {/* Header */}
         <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <h1 className="text-4xl font-black tracking-tighter text-white">TIER<span className="text-red-600">MASTER</span></h1>
           
@@ -456,7 +431,6 @@ export default function TierListApp() {
                         </button>
                     </div>
 
-                    {/* Type Tabs */}
                     <div className="grid grid-cols-3 gap-1 p-1 bg-black rounded-lg mb-4 shrink-0 border border-neutral-800">
                         {(['album', 'artist', 'song'] as const).map((t) => (
                             <button
@@ -552,6 +526,27 @@ export default function TierListApp() {
                         
                         {!isSearching && searchResults.length === 0 && (search.query || selectedArtist || search.minYear || search.maxYear) && (
                             <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
+                        )}
+
+                        {/* Pagination */}
+                        {!isSearching && searchResults.length > 0 && totalPages > 1 && (
+                            <div className="flex justify-center items-center gap-4 mt-6">
+                                <button 
+                                    disabled={page <= 1}
+                                    onClick={() => setPage(p => p - 1)}
+                                    className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <span className="text-xs text-neutral-400">Page {page} of {totalPages}</span>
+                                <button 
+                                    disabled={page >= totalPages}
+                                    onClick={() => setPage(p => p + 1)}
+                                    className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>

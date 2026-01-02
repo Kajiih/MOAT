@@ -40,6 +40,18 @@ function BaseAlbumCard({
     return <div ref={setNodeRef} style={style} className="w-24 h-24 bg-neutral-800/50 border-2 border-dashed border-neutral-600 rounded-md opacity-50 z-50" />;
   }
 
+  // Construct subtitle
+  let subtitle = '';
+  if (item.type === 'artist') {
+      const parts = [];
+      if (item.disambiguation) parts.push(`(${item.disambiguation})`);
+      if (item.year) parts.push(`Est. ${item.year}`);
+      subtitle = parts.length > 0 ? parts.join(' ') : 'Artist';
+  } else {
+      // Album or Song
+      subtitle = `${item.artist || 'Unknown'} ${item.year ? `(${item.year})` : ''}`;
+  }
+
   return (
     <div 
       ref={setNodeRef} 
@@ -66,8 +78,6 @@ function BaseAlbumCard({
           onError={(e) => { 
             // If image fails, hide it and show placeholder
             e.currentTarget.style.display = 'none';
-            // We can't easily trigger the fallback UI below from here without state, 
-            // but hiding the broken image reveals the background which is OK for now.
           }}
         />
       ) : (
@@ -83,10 +93,7 @@ function BaseAlbumCard({
         
         {/* Subtitle logic varies by type */}
         <p className="text-[9px] text-neutral-400 truncate">
-            {item.type === 'artist' 
-                ? (item.year ? `Est. ${item.year}` : 'Artist') 
-                : `${item.artist || 'Unknown'} ${item.year ? `(${item.year})` : ''}`
-            }
+            {subtitle}
         </p>
       </div>
 

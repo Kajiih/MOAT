@@ -11,6 +11,7 @@ export type MediaItem = {
   album?: string;      // Only for songs
   year?: string;
   imageUrl?: string;
+  disambiguation?: string; // New field
 };
 
 export type TierMap = Record<string, MediaItem[]>;
@@ -36,6 +37,7 @@ export const MusicBrainzArtistSchema = z.object({
   name: z.string(),
   'life-span': z.object({ begin: z.string().optional() }).optional(),
   country: z.string().optional(),
+  disambiguation: z.string().optional(), // New field
 });
 
 // 3. Recording (Song)

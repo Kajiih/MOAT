@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
+import useSWR, { preload } from 'swr';
 import { Check, Search, X } from 'lucide-react';
 import { MediaItem } from '@/lib/types';
 
@@ -10,39 +11,36 @@ interface ArtistPickerProps {
   selectedArtist: { id: string; name: string } | null;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
   const [query, setQuery] = useState('');
   const [debouncedQuery] = useDebounce(query, 500);
-  const [results, setResults] = useState<MediaItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
+  // SWR Hook for data fetching
+  const { data, isLoading } = useSWR<{ results: MediaItem[] }>(
+    debouncedQuery ? `/api/search?type=artist&query=${encodeURIComponent(debouncedQuery)}` : null,
+    fetcher
+  );
+
+  const results = data?.results || [];
+
+  // Automatically open dropdown when results arrive or loading starts (if user is typing)
   useEffect(() => {
-    if (!debouncedQuery) {
-        setResults([]);
-        return;
-    }
-
-    async function fetchArtists() {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/search?type=artist&query=${encodeURIComponent(debouncedQuery)}`);
-        const data = await res.json();
-        setResults(data.results || []);
-        setIsOpen(true);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);
+      if ((results.length > 0 || isLoading) && query) {
+          setIsOpen(true);
       }
-    }
-    fetchArtists();
-  }, [debouncedQuery]);
+  }, [results, isLoading, query]);
 
   const handleSelect = (artist: MediaItem) => {
     onSelect({ id: artist.id, name: artist.title });
     setIsOpen(false);
-    setQuery(''); // Reset search input
+    setQuery('');
+    
+    // PREFETCH
+    const prefetchUrl = `/api/search?type=album&artistId=${artist.id}`;
+    preload(prefetchUrl, fetcher);
   };
 
   const clearSelection = () => {
@@ -71,32 +69,34 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
             onChange={(e) => {
                 setQuery(e.target.value);
                 if (e.target.value === '') setIsOpen(false);
+                else setIsOpen(true); // Open immediately on type
             }}
-            onFocus={() => { if(results.length > 0) setIsOpen(true); }}
+            onFocus={() => { if(results.length > 0 || query) setIsOpen(true); }}
             onBlur={() => {
-                 // Slight delay to allow click on dropdown item
                  setTimeout(() => setIsOpen(false), 200); 
             }}
         />
         {isLoading && <div className="w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin ml-2" />}
       </div>
 
-      {isOpen && results.length > 0 && (
+      {isOpen && (results.length > 0) && (
         <div className="absolute z-50 left-0 right-0 mt-1 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl max-h-60 overflow-y-auto custom-scrollbar">
             {results.map((artist) => (
                 <button
                     key={artist.id}
                     className="w-full text-left px-3 py-2 hover:bg-neutral-800 text-sm text-neutral-200 border-b border-neutral-800 last:border-0 flex items-center justify-between group"
                     onMouseDown={(e) => {
-                        e.preventDefault(); // Prevent input blur
+                        e.preventDefault(); 
                         handleSelect(artist);
                     }}
                 >
-                    <div className="flex flex-col">
-                        <span className="font-medium text-white group-hover:text-red-500 transition-colors">{artist.title}</span>
-                        {artist.year && <span className="text-[10px] text-neutral-500">Est. {artist.year}</span>}
+                    <div className="flex flex-col overflow-hidden">
+                        <span className="font-medium text-white group-hover:text-red-500 transition-colors truncate">{artist.title}</span>
+                        <div className="flex items-center gap-1 text-[10px] text-neutral-500 truncate">
+                            {artist.disambiguation && <span className="italic">({artist.disambiguation})</span>}
+                            {artist.year && <span>• Est. {artist.year}</span>}
+                        </div>
                     </div>
-                    {/* Add visual check if needed, though selection closes dropdown */}
                 </button>
             ))}
         </div>
