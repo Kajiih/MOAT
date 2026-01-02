@@ -34,7 +34,10 @@ function TierRow({ id, albums, onRemove }: { id: string, albums: Album[], onRemo
 }
 
 export default function TierListApp() {
-  // State
+  // --- 1. MOUNT CHECK STATE ---
+  const [isMounted, setIsMounted] = useState(false);
+
+  // App State
   const [tiers, setTiers] = useState<TierMap>(INITIAL_TIERS);
   const [activeAlbum, setActiveAlbum] = useState<Album | null>(null);
   
@@ -44,18 +47,25 @@ export default function TierListApp() {
   const [searchResults, setSearchResults] = useState<Album[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Load from LocalStorage
+  // --- 2. MOUNT EFFECT ---
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Load from LocalStorage (Only runs on client)
+  useEffect(() => {
+    if (!isMounted) return; // Wait for mount
     const saved = localStorage.getItem('julian-tierlist');
     if (saved) {
       try { setTiers(JSON.parse(saved)); } catch (e) { console.error("Save Corrupt", e); }
     }
-  }, []);
+  }, [isMounted]);
 
   // Save to LocalStorage
   useEffect(() => {
+    if (!isMounted) return;
     localStorage.setItem('julian-tierlist', JSON.stringify(tiers));
-  }, [tiers]);
+  }, [tiers, isMounted]);
 
   // Fetch Logic
   useEffect(() => {
@@ -101,7 +111,7 @@ export default function TierListApp() {
     reader.onload = (ev) => {
         try {
             const parsed = JSON.parse(ev.target?.result as string);
-            setTiers(parsed); // Add validation here if you want to be stricter
+            setTiers(parsed); 
         } catch(err) { alert("Invalid JSON file"); }
     };
     reader.readAsText(file);
@@ -128,16 +138,11 @@ export default function TierListApp() {
 
     setTiers(prev => {
         const next = { ...prev };
-        
-        // 1. Remove from source tier (if applicable)
         if (sourceTier && next[sourceTier]) {
             next[sourceTier] = next[sourceTier].filter(a => a.id !== activeAlbum.id);
         }
-
-        // 2. Remove from target tier (prevent duplicates)
         if (next[targetTier]) {
             next[targetTier] = next[targetTier].filter(a => a.id !== activeAlbum.id);
-            // 3. Add to target
             next[targetTier].push(activeAlbum);
         }
         return next;
@@ -152,6 +157,19 @@ export default function TierListApp() {
     }));
   };
 
+  // --- 3. RETURN LOADING STATE IF NOT MOUNTED ---
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans flex flex-col items-center justify-center gap-4">
+        <h1 className="text-4xl font-black tracking-tighter text-white animate-pulse">
+            TIER<span className="text-red-600">MASTER</span>
+        </h1>
+        <div className="text-neutral-500 text-sm">Loading application...</div>
+      </div>
+    );
+  }
+
+  // --- 4. RENDER ACTUAL APP ---
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans">
       <div className="max-w-6xl mx-auto">
