@@ -6,7 +6,7 @@ import { MediaItem } from '@/lib/types';
 import { X, Eye, Music, User, Disc } from 'lucide-react'; 
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
-interface BaseAlbumCardProps {
+interface BaseMediaCardProps {
   item: MediaItem;
   tierId?: string;
   onRemove?: (id: string) => void;
@@ -20,7 +20,7 @@ interface BaseAlbumCardProps {
   domId?: string;
 }
 
-function BaseAlbumCard({ 
+function BaseMediaCard({ 
   item, 
   tierId, 
   onRemove, 
@@ -32,7 +32,7 @@ function BaseAlbumCard({
   isAdded,
   onLocate,
   domId
-}: BaseAlbumCardProps) {
+}: BaseMediaCardProps) {
   
   // Icon based on type
   const TypeIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
@@ -129,8 +129,8 @@ function BaseAlbumCard({
   );
 }
 
-interface AlbumCardProps {
-  item: MediaItem; // Renamed from album to item
+interface MediaCardProps {
+  item: MediaItem; 
   id?: string;
   tierId?: string;
   onRemove?: (id: string) => void;
@@ -138,12 +138,12 @@ interface AlbumCardProps {
   onLocate?: (id: string) => void;
 }
 
-export function AlbumCard(props: AlbumCardProps) {
+export function MediaCard(props: MediaCardProps) {
   const draggableId = props.id || props.item.id;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: draggableId,
-    data: { album: props.item, sourceTier: props.tierId }, // Keep data key as 'album' for now to minimize refactor or rename to 'item' later
+    data: { mediaItem: props.item, sourceTier: props.tierId }, 
     disabled: props.isAdded 
   });
 
@@ -152,9 +152,9 @@ export function AlbumCard(props: AlbumCardProps) {
   } : undefined;
 
   return (
-    <BaseAlbumCard 
+    <BaseMediaCard 
       {...props} 
-      domId={`media-card-${draggableId}`} // Updated ID prefix
+      domId={`media-card-${draggableId}`} 
       setNodeRef={setNodeRef} 
       style={style} 
       attributes={attributes} 
@@ -165,7 +165,7 @@ export function AlbumCard(props: AlbumCardProps) {
   );
 }
 
-export function SortableAlbumCard(props: AlbumCardProps) {
+export function SortableMediaCard(props: MediaCardProps) {
     const draggableId = props.id || props.item.id;
 
     const {
@@ -177,7 +177,7 @@ export function SortableAlbumCard(props: AlbumCardProps) {
         isDragging
     } = useSortable({
         id: draggableId,
-        data: { album: props.item, sourceTier: props.tierId }
+        data: { mediaItem: props.item, sourceTier: props.tierId }
     });
 
     const style = {
@@ -186,7 +186,7 @@ export function SortableAlbumCard(props: AlbumCardProps) {
     };
 
     return (
-      <BaseAlbumCard 
+      <BaseMediaCard 
         {...props} 
         domId={`media-card-${draggableId}`}
         setNodeRef={setNodeRef} 

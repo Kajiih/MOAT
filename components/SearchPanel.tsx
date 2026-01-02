@@ -4,15 +4,15 @@ import { useState } from 'react';
 import { Search, Eye, EyeOff, Disc, Mic2, Music, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MediaType } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
-import { AlbumCard } from '@/components/AlbumCard';
+import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
 
 interface SearchPanelProps {
-  addedAlbumIds: Set<string>;
+  addedItemIds: Set<string>;
   onLocate: (id: string) => void;
 }
 
-export function SearchPanel({ addedAlbumIds, onLocate }: SearchPanelProps) {
+export function SearchPanel({ addedItemIds, onLocate }: SearchPanelProps) {
   // Search State
   const [searchType, setSearchType] = useState<MediaType>('album');
   const [selectedArtist, setSelectedArtist] = useState<{id: string; name: string; imageUrl?: string} | null>(null);
@@ -132,11 +132,11 @@ export function SearchPanel({ addedAlbumIds, onLocate }: SearchPanelProps) {
             
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
                 {searchResults.map(item => {
-                    const isAdded = addedAlbumIds.has(item.id);
+                    const isAdded = addedItemIds.has(item.id);
                     if (!showAdded && isAdded) return null;
 
                     return (
-                        <AlbumCard 
+                        <MediaCard 
                             key={item.id} 
                             item={item}
                             id={`search-${item.id}`} 

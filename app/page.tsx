@@ -18,7 +18,7 @@ import {
   sortableKeyboardCoordinates, 
 } from '@dnd-kit/sortable';
 import { MediaItem, TierMap } from '@/lib/types';
-import { AlbumCard } from '@/components/AlbumCard';
+import { MediaCard } from '@/components/MediaCard';
 import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
@@ -33,7 +33,7 @@ export default function TierListApp() {
   const [tiers, setTiers] = useState<TierMap>(INITIAL_TIERS);
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
   
-  const addedAlbumIds = useMemo(() => {
+  const addedItemIds = useMemo(() => {
     const ids = new Set<string>();
     Object.values(tiers).forEach(tierList => {
         tierList.forEach(item => {
@@ -102,7 +102,7 @@ export default function TierListApp() {
     if(confirm("Clear everything?")) setTiers(INITIAL_TIERS);
   };
 
-  const removeAlbumFromTier = (tierId: string, itemId: string) => {
+  const removeItemFromTier = (tierId: string, itemId: string) => {
     setTiers(prev => ({
         ...prev,
         [tierId]: prev[tierId].filter(a => a.id !== itemId && a.id !== `search-${itemId}`)
@@ -129,7 +129,7 @@ export default function TierListApp() {
   };
 
   const handleDragStart = (e: DragStartEvent) => {
-    setActiveItem(e.active.data.current?.album);
+    setActiveItem(e.active.data.current?.mediaItem);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -149,11 +149,11 @@ export default function TierListApp() {
     }
 
     if (!activeContainer) {
-        const cleanId = event.active.data.current?.album.id;
-        if (addedAlbumIds.has(cleanId)) return; 
+        const cleanId = event.active.data.current?.mediaItem.id;
+        if (addedItemIds.has(cleanId)) return; 
 
         setTiers((prev) => {
-            const activeItem = event.active.data.current?.album;
+            const activeItem = event.active.data.current?.mediaItem;
             if(!activeItem) return prev;
 
             const overItems = prev[overContainer];
@@ -296,20 +296,20 @@ export default function TierListApp() {
                         <TierRow 
                             key={tier} 
                             id={tier} 
-                            albums={tiers[tier]} 
-                            onRemove={(itemId) => removeAlbumFromTier(tier, itemId)} 
+                            items={tiers[tier]} 
+                            onRemove={(itemId) => removeItemFromTier(tier, itemId)} 
                         />
                     ))}
                 </div>
 
                 <SearchPanel 
-                    addedAlbumIds={addedAlbumIds}
+                    addedItemIds={addedItemIds}
                     onLocate={handleLocate}
                 />
             </div>
 
             <DragOverlay>
-                {activeItem ? <AlbumCard item={activeItem} /> : null}
+                {activeItem ? <MediaCard item={activeItem} /> : null}
             </DragOverlay>
 
         </DndContext>
