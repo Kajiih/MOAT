@@ -1,26 +1,25 @@
 import Image from 'next/image';
 import { useDraggable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Album } from '@/lib/types';
-import { X } from 'lucide-react'; // Icon library
+import { X } from 'lucide-react'; 
 
-interface AlbumCardProps {
+interface BaseAlbumCardProps {
   album: Album;
-  tierId?: string; // If present, card is in a tier (show delete button)
+  tierId?: string;
   onRemove?: (id: string) => void;
+  setNodeRef?: (node: HTMLElement | null) => void;
+  style?: React.CSSProperties;
+  attributes?: any;
+  listeners?: any;
+  isDragging?: boolean;
 }
 
-export function AlbumCard({ album, tierId, onRemove }: AlbumCardProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: album.id,
-    data: { album, sourceTier: tierId }, // Pass data for drag events
-  });
-
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  } : undefined;
-
+function BaseAlbumCard({ album, tierId, onRemove, setNodeRef, style, attributes, listeners, isDragging }: BaseAlbumCardProps) {
   if (isDragging) {
-    return <div ref={setNodeRef} style={style} className="w-24 h-24 bg-neutral-800/50 border-2 border-dashed border-neutral-600 rounded-md opacity-50" />;
+    // Keep placeholder simple and visually distinct
+    return <div ref={setNodeRef} style={style} className="w-24 h-24 bg-neutral-800/50 border-2 border-dashed border-neutral-600 rounded-md opacity-50 z-50" />;
   }
 
   return (
@@ -29,7 +28,7 @@ export function AlbumCard({ album, tierId, onRemove }: AlbumCardProps) {
       style={style} 
       {...listeners} 
       {...attributes} 
-      className="relative group w-24 h-24 bg-neutral-800 rounded-md cursor-grab active:cursor-grabbing overflow-hidden shadow-sm hover:ring-2 hover:ring-neutral-400 transition-all"
+      className="relative group w-24 h-24 bg-neutral-800 rounded-md cursor-grab active:cursor-grabbing overflow-hidden shadow-sm hover:ring-2 hover:ring-neutral-400 transition-all touch-none"
     >
       <Image 
         src={album.imageUrl} 
@@ -49,8 +48,9 @@ export function AlbumCard({ album, tierId, onRemove }: AlbumCardProps) {
       {/* Delete Button (Only if in a tier) */}
       {tierId && onRemove && (
         <button 
+          onPointerDown={(e) => e.stopPropagation()} // Stop propagation to prevent drag start on click
           onClick={(e) => {
-            e.stopPropagation(); // Prevent drag start
+            e.stopPropagation(); 
             onRemove(album.id);
           }}
           className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -60,4 +60,44 @@ export function AlbumCard({ album, tierId, onRemove }: AlbumCardProps) {
       )}
     </div>
   );
+}
+
+interface AlbumCardProps {
+  album: Album;
+  tierId?: string;
+  onRemove?: (id: string) => void;
+}
+
+export function AlbumCard(props: AlbumCardProps) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: props.album.id,
+    data: { album: props.album, sourceTier: props.tierId },
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+
+  return <BaseAlbumCard {...props} setNodeRef={setNodeRef} style={style} attributes={attributes} listeners={listeners} isDragging={isDragging} />;
+}
+
+export function SortableAlbumCard(props: AlbumCardProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({
+        id: props.album.id,
+        data: { album: props.album, sourceTier: props.tierId }
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return <BaseAlbumCard {...props} setNodeRef={setNodeRef} style={style} attributes={attributes} listeners={listeners} isDragging={isDragging} />;
 }

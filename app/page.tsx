@@ -2,9 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useDroppable } from '@dnd-kit/core';
+import { 
+  DndContext, 
+  DragEndEvent, 
+  DragOverlay, 
+  DragStartEvent, 
+  DragOverEvent,
+  useDroppable,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core';
+import { 
+  SortableContext, 
+  arrayMove, 
+  sortableKeyboardCoordinates, 
+  rectSortingStrategy 
+} from '@dnd-kit/sortable';
 import { Album, TierMap } from '@/lib/types';
-import { AlbumCard } from '@/components/AlbumCard';
+import { AlbumCard, SortableAlbumCard } from '@/components/AlbumCard';
 import { Download, Upload, Trash2, Search } from 'lucide-react';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
@@ -25,9 +43,11 @@ function TierRow({ id, albums, onRemove }: { id: string, albums: Album[], onRemo
         ref={setNodeRef} 
         className={`flex-1 flex flex-wrap items-center gap-2 p-3 transition-colors ${isOver ? 'bg-neutral-800' : ''}`}
       >
-        {albums.map((album) => (
-          <AlbumCard key={album.id} album={album} tierId={id} onRemove={(albId) => onRemove(albId)} />
-        ))}
+        <SortableContext id={id} items={albums.map(a => a.id)} strategy={rectSortingStrategy}>
+          {albums.map((album) => (
+            <SortableAlbumCard key={album.id} album={album} tierId={id} onRemove={(albId) => onRemove(albId)} />
+          ))}
+        </SortableContext>
       </div>
     </div>
   );
@@ -46,6 +66,13 @@ export default function TierListApp() {
   const [debouncedSearch] = useDebounce(search, 500);
   const [searchResults, setSearchResults] = useState<Album[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // --- 2. MOUNT EFFECT ---
   useEffect(() => {
@@ -121,40 +148,126 @@ export default function TierListApp() {
     if(confirm("Clear everything?")) setTiers(INITIAL_TIERS);
   };
 
-  // DND Handlers
-  const handleDragStart = (e: DragStartEvent) => {
-    setActiveAlbum(e.active.data.current?.album);
-  };
-
-  const handleDragEnd = (e: DragEndEvent) => {
-    const { active, over } = e;
-    if (!over || !activeAlbum) {
-        setActiveAlbum(null);
-        return;
-    }
-
-    const sourceTier = active.data.current?.sourceTier;
-    const targetTier = over.id as string;
-
-    setTiers(prev => {
-        const next = { ...prev };
-        if (sourceTier && next[sourceTier]) {
-            next[sourceTier] = next[sourceTier].filter(a => a.id !== activeAlbum.id);
-        }
-        if (next[targetTier]) {
-            next[targetTier] = next[targetTier].filter(a => a.id !== activeAlbum.id);
-            next[targetTier].push(activeAlbum);
-        }
-        return next;
-    });
-    setActiveAlbum(null);
-  };
-
   const removeAlbumFromTier = (tierId: string, albumId: string) => {
     setTiers(prev => ({
         ...prev,
         [tierId]: prev[tierId].filter(a => a.id !== albumId)
     }));
+  };
+
+  // DND Logic Helper
+  const findContainer = (id: string) => {
+    if (id in tiers) return id;
+    return Object.keys(tiers).find((key) => tiers[key].find((a) => a.id === id));
+  };
+
+  const handleDragStart = (e: DragStartEvent) => {
+    setActiveAlbum(e.active.data.current?.album);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    const activeTierId = active.data.current?.sourceTier;
+    
+    // Only handle Tier->Tier sorting in DragOver
+    if (!over || !activeTierId) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    // Find the containers
+    const activeContainer = activeTierId;
+    const overContainer = findContainer(overId as string);
+
+    if (!activeContainer || !overContainer || activeContainer === overContainer) {
+      return;
+    }
+
+    // Move between containers during drag (visual feedback)
+    setTiers((prev) => {
+      const activeItems = prev[activeContainer];
+      const overItems = prev[overContainer];
+      const activeIndex = activeItems.findIndex((item) => item.id === activeId);
+      const overIndex = overItems.findIndex((item) => item.id === overId);
+
+      let newIndex;
+      if (overId in prev) {
+        // We're at the root droppable of a container
+        newIndex = overItems.length + 1;
+      } else {
+        const isBelowOverItem =
+          over &&
+          active.rect.current.translated &&
+          active.rect.current.translated.top > over.rect.top + over.rect.height;
+
+        const modifier = isBelowOverItem ? 1 : 0;
+        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+      }
+
+      return {
+        ...prev,
+        [activeContainer]: [
+          ...prev[activeContainer].filter((item) => item.id !== activeId),
+        ],
+        [overContainer]: [
+          ...prev[overContainer].slice(0, newIndex),
+          activeItems[activeIndex],
+          ...prev[overContainer].slice(newIndex, prev[overContainer].length),
+        ],
+      };
+    });
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    const activeAlbumData = active.data.current?.album as Album;
+    const sourceTier = active.data.current?.sourceTier;
+
+    if (!over || !activeAlbumData) {
+      setActiveAlbum(null);
+      return;
+    }
+
+    const overId = over.id as string;
+    const overContainer = findContainer(overId);
+
+    // Case 1: Reordering within same tier
+    if (sourceTier && overContainer && sourceTier === overContainer) {
+        const activeIndex = tiers[sourceTier].findIndex(a => a.id === active.id);
+        const overIndex = tiers[overContainer].findIndex(a => a.id === overId);
+        
+        if (activeIndex !== overIndex) {
+            setTiers((prev) => ({
+                ...prev,
+                [sourceTier]: arrayMove(prev[sourceTier], activeIndex, overIndex)
+            }));
+        }
+    } 
+    // Case 2: Dropping from Search -> Tier
+    else if (!sourceTier && overContainer) {
+        // Prevent adding if already in that specific tier (basic de-dupe for that tier)
+        // Global de-dupe could be added here if desired
+        const alreadyInTier = tiers[overContainer].some(a => a.id === activeAlbumData.id);
+        
+        if (!alreadyInTier) {
+            setTiers((prev) => {
+                const newTierList = [...prev[overContainer]];
+                // Check if dropped on a specific item to insert at position
+                const overIndex = newTierList.findIndex(a => a.id === overId);
+                
+                if (overIndex >= 0) {
+                     // Insert before the item we dropped on
+                     newTierList.splice(overIndex, 0, activeAlbumData);
+                } else {
+                     // Dropped on container or empty space -> Append
+                     newTierList.push(activeAlbumData);
+                }
+                return { ...prev, [overContainer]: newTierList };
+            });
+        }
+    }
+
+    setActiveAlbum(null);
   };
 
   // --- 3. RETURN LOADING STATE IF NOT MOUNTED ---
@@ -192,7 +305,13 @@ export default function TierListApp() {
           </div>
         </header>
 
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext 
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart} 
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+        >
             
             {/* Board */}
             <div className="mb-12 space-y-2">
