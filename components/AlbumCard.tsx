@@ -16,6 +16,7 @@ interface BaseAlbumCardProps {
   isDragging?: boolean;
   isAdded?: boolean;
   onLocate?: () => void;
+  domId?: string;
 }
 
 function BaseAlbumCard({ 
@@ -28,7 +29,8 @@ function BaseAlbumCard({
   listeners, 
   isDragging,
   isAdded,
-  onLocate 
+  onLocate,
+  domId
 }: BaseAlbumCardProps) {
   
   if (isDragging) {
@@ -38,7 +40,7 @@ function BaseAlbumCard({
   return (
     <div 
       ref={setNodeRef} 
-      id={`album-card-${album.id}`} // DOM ID for scrolling
+      id={domId || `album-card-${album.id}`} // DOM ID for scrolling
       style={style} 
       {...listeners} 
       {...attributes} 
@@ -92,6 +94,7 @@ function BaseAlbumCard({
 
 interface AlbumCardProps {
   album: Album;
+  id?: string; // Explicit ID for dnd-kit
   tierId?: string;
   onRemove?: (id: string) => void;
   isAdded?: boolean;
@@ -99,8 +102,11 @@ interface AlbumCardProps {
 }
 
 export function AlbumCard(props: AlbumCardProps) {
+  // Use explicit ID if provided, otherwise fallback to album.id
+  const draggableId = props.id || props.album.id;
+
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: props.album.id,
+    id: draggableId,
     data: { album: props.album, sourceTier: props.tierId },
     disabled: props.isAdded // Disable drag if already added
   });
@@ -112,6 +118,7 @@ export function AlbumCard(props: AlbumCardProps) {
   return (
     <BaseAlbumCard 
       {...props} 
+      domId={`album-card-${draggableId}`}
       setNodeRef={setNodeRef} 
       style={style} 
       attributes={attributes} 
@@ -123,6 +130,8 @@ export function AlbumCard(props: AlbumCardProps) {
 }
 
 export function SortableAlbumCard(props: AlbumCardProps) {
+    const draggableId = props.id || props.album.id;
+
     const {
         attributes,
         listeners,
@@ -131,7 +140,7 @@ export function SortableAlbumCard(props: AlbumCardProps) {
         transition,
         isDragging
     } = useSortable({
-        id: props.album.id,
+        id: draggableId,
         data: { album: props.album, sourceTier: props.tierId }
     });
 
@@ -140,5 +149,16 @@ export function SortableAlbumCard(props: AlbumCardProps) {
         transition,
     };
 
-    return <BaseAlbumCard {...props} setNodeRef={setNodeRef} style={style} attributes={attributes} listeners={listeners} isDragging={isDragging} />;
+    return (
+      <BaseAlbumCard 
+        {...props} 
+        domId={`album-card-${draggableId}`}
+        setNodeRef={setNodeRef} 
+        style={style} 
+        attributes={attributes} 
+        listeners={listeners} 
+        isDragging={isDragging} 
+        onLocate={props.onLocate ? () => props.onLocate!(props.album.id) : undefined}
+      />
+    );
 }

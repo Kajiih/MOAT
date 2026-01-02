@@ -166,6 +166,8 @@ export default function TierListApp() {
   };
 
   const handleLocate = (id: string) => {
+    // Only locate items on the tier board, which have ID `album-card-{id}`
+    // Search items have `album-card-search-{id}`
     const el = document.getElementById(`album-card-${id}`);
     if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -258,7 +260,7 @@ export default function TierListApp() {
 
     // Case 1: Reordering within same tier
     if (sourceTier && overContainer && sourceTier === overContainer) {
-        const activeIndex = tiers[sourceTier].findIndex(a => a.id === active.id);
+        const activeIndex = tiers[sourceTier].findIndex(a => a.id === active.id); // active.id matches album.id for tier items
         const overIndex = tiers[overContainer].findIndex(a => a.id === overId);
         
         if (activeIndex !== overIndex) {
@@ -400,7 +402,8 @@ export default function TierListApp() {
                                 return (
                                     <AlbumCard 
                                         key={album.id} 
-                                        album={album} 
+                                        album={album}
+                                        id={`search-${album.id}`} // Prefix ID for search results
                                         isAdded={isAdded}
                                         onLocate={handleLocate}
                                     />
