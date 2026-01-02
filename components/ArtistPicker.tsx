@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useDebounce } from 'use-debounce';
-import useSWR, { preload } from 'swr';
-import { Check, Search, X, User } from 'lucide-react';
+import { useState } from 'react';
+import { preload } from 'swr';
+import { Search, X, User } from 'lucide-react';
 import { MediaItem } from '@/lib/types';
+import { getSearchUrl } from '@/lib/api';
+import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
 
 interface ArtistPickerProps {
@@ -15,32 +16,24 @@ interface ArtistPickerProps {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
-  const [query, setQuery] = useState('');
-  const [debouncedQuery] = useDebounce(query, 500);
+  const { 
+    query, 
+    setQuery, 
+    results, 
+    isLoading 
+  } = useMediaSearch('artist');
+  
   const [isOpen, setIsOpen] = useState(false);
 
-  // SWR Hook for data fetching
-  const { data, isLoading } = useSWR<{ results: MediaItem[] }>(
-    debouncedQuery ? `/api/search?type=artist&query=${encodeURIComponent(debouncedQuery)}` : null,
-    fetcher
-  );
-
-  const results = data?.results || [];
-
-  // Automatically open dropdown when results arrive or loading starts (if user is typing)
-  useEffect(() => {
-      if ((results.length > 0 || isLoading) && query) {
-          setIsOpen(true);
-      }
-  }, [results, isLoading, query]);
+  // useEffect removed
 
   const handleSelect = (artist: MediaItem) => {
     onSelect({ id: artist.id, name: artist.title, imageUrl: artist.imageUrl });
     setIsOpen(false);
     setQuery('');
     
-    // PREFETCH
-    const prefetchUrl = `/api/search?type=album&artistId=${artist.id}`;
+    // PREFETCH: Use normalized URL for album search too
+    const prefetchUrl = getSearchUrl({ type: 'album', artistId: artist.id, page: 1 });
     preload(prefetchUrl, fetcher);
   };
 
@@ -52,7 +45,6 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
     return (
       <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded p-1 pr-2 text-sm text-neutral-200">
         <div className="flex items-center gap-2 overflow-hidden">
-            {/* Selected Artist Thumbnail */}
             <div className="relative w-8 h-8 rounded bg-neutral-700 shrink-0 overflow-hidden">
                 {selectedArtist.imageUrl ? (
                     <Image 
@@ -86,10 +78,9 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
             value={query}
             onChange={(e) => {
                 setQuery(e.target.value);
-                if (e.target.value === '') setIsOpen(false);
-                else setIsOpen(true); // Open immediately on type
+                setIsOpen(!!e.target.value);
             }}
-            onFocus={() => { if(results.length > 0 || query) setIsOpen(true); }}
+            onFocus={() => { if(query) setIsOpen(true); }}
             onBlur={() => {
                  setTimeout(() => setIsOpen(false), 200); 
             }}
@@ -108,7 +99,6 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
                         handleSelect(artist);
                     }}
                 >
-                    {/* Dropdown Thumbnail */}
                     <div className="relative w-8 h-8 rounded bg-neutral-800 shrink-0 overflow-hidden border border-neutral-700">
                         {artist.imageUrl ? (
                             <Image 

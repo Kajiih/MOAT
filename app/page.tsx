@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useDebounce } from 'use-debounce';
-import useSWR, { preload } from 'swr';
 import { 
   DndContext, 
   DragEndEvent, 
@@ -27,14 +25,13 @@ import {
 import { MediaItem, MediaType, TierMap } from '@/lib/types';
 import { AlbumCard, SortableAlbumCard } from '@/components/AlbumCard';
 import { ArtistPicker } from '@/components/ArtistPicker'; 
+import { useMediaSearch } from '@/lib/hooks';
 import { Download, Upload, Trash2, Search, Eye, EyeOff, Disc, Mic2, Music, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
 const TIER_COLORS: Record<string, string> = {
   S: 'bg-red-500', A: 'bg-orange-500', B: 'bg-yellow-500', C: 'bg-green-500', D: 'bg-blue-500'
 };
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // Sub-component for a Tier Row
 function TierRow({ id, albums, onRemove }: { id: string, albums: MediaItem[], onRemove: (id: string) => void }) {
@@ -89,14 +86,21 @@ export default function TierListApp() {
   
   // Search State
   const [searchType, setSearchType] = useState<MediaType>('album');
-  
-  // Filter States
-  const [search, setSearch] = useState({ query: '', minYear: '', maxYear: '' });
-  const [selectedArtist, setSelectedArtist] = useState<{id: string, name: string} | null>(null);
-  const [page, setPage] = useState(1);
-  
-  const [debouncedSearch] = useDebounce(search, 500);
+  const [selectedArtist, setSelectedArtist] = useState<{id: string; name: string; imageUrl?: string} | null>(null);
   const [showAdded, setShowAdded] = useState(true);
+
+  // Use Shared Search Hook
+  const { 
+    query, setQuery,
+    minYear, setMinYear,
+    maxYear, setMaxYear,
+    page, setPage,
+    setArtistId,
+    reset,
+    results: searchResults,
+    totalPages,
+    isLoading: isSearching
+  } = useMediaSearch(searchType);
 
   const addedAlbumIds = useMemo(() => {
     const ids = new Set<string>();
@@ -108,34 +112,6 @@ export default function TierListApp() {
     });
     return ids;
   }, [tiers]);
-
-  // --- SWR Data Fetching ---
-  const shouldFetch = debouncedSearch.query || debouncedSearch.minYear || debouncedSearch.maxYear || selectedArtist;
-  
-  const searchParams = new URLSearchParams();
-  searchParams.append('type', searchType);
-  searchParams.append('page', page.toString());
-  if(debouncedSearch.query) searchParams.append('query', debouncedSearch.query);
-  if(debouncedSearch.minYear) searchParams.append('minYear', debouncedSearch.minYear);
-  if(debouncedSearch.maxYear) searchParams.append('maxYear', debouncedSearch.maxYear);
-  if(selectedArtist) searchParams.append('artistId', selectedArtist.id);
-
-  const { data, isLoading: isSearching } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
-    shouldFetch ? `/api/search?${searchParams.toString()}` : null,
-    fetcher
-  );
-
-  const searchResults = data?.results || [];
-  const totalPages = data?.totalPages || 0;
-
-  // Pagination Prefetching
-  useEffect(() => {
-      if (data && page < totalPages) {
-          const nextParams = new URLSearchParams(searchParams);
-          nextParams.set('page', (page + 1).toString());
-          preload(`/api/search?${nextParams.toString()}`, fetcher);
-      }
-  }, [data, page, totalPages, searchParams]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -159,16 +135,11 @@ export default function TierListApp() {
     localStorage.setItem('julian-tierlist', JSON.stringify(tiers));
   }, [tiers, isMounted]);
 
-  // Reset pagination when filters change
-  useEffect(() => {
-      setPage(1);
-  }, [searchType, debouncedSearch, selectedArtist]);
-
-  // Clear search results/inputs when type changes
-  useEffect(() => {
-      setSearch({ query: '', minYear: '', maxYear: '' });
+  const handleSearchTypeChange = (type: MediaType) => {
+      setSearchType(type);
       setSelectedArtist(null);
-  }, [searchType]);
+      reset();
+  };
 
   const handleExport = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tiers));
@@ -402,7 +373,6 @@ export default function TierListApp() {
         >
             
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
-                {/* Board */}
                 <div className="space-y-2">
                     {Object.keys(tiers).map(tier => (
                         <TierRow 
@@ -414,7 +384,6 @@ export default function TierListApp() {
                     ))}
                 </div>
 
-                {/* Search Sidebar */}
                 <div className="sticky top-4 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl max-h-[calc(100vh-2rem)] flex flex-col">
                     <div className="flex flex-wrap items-center gap-4 mb-4 text-white shrink-0">
                         <div className="flex items-center gap-2">
@@ -435,7 +404,7 @@ export default function TierListApp() {
                         {(['album', 'artist', 'song'] as const).map((t) => (
                             <button
                                 key={t}
-                                onClick={() => setSearchType(t)}
+                                onClick={() => handleSearchTypeChange(t)}
                                 className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all
                                     ${searchType === t ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}
                                 `}
@@ -452,58 +421,58 @@ export default function TierListApp() {
                         <input 
                             placeholder={`Search ${searchType}s...`} 
                             className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                            value={search.query}
-                            onChange={e => setSearch({...search, query: e.target.value})}
+                            value={query}
+                            onChange={e => setQuery(e.target.value)}
                         />
                         
-                        {/* Only show artist filter for Album/Song types */}
                         {searchType !== 'artist' && (
                              <div className="grid grid-cols-1 gap-2">
                                 <ArtistPicker 
                                     selectedArtist={selectedArtist}
-                                    onSelect={setSelectedArtist}
+                                    onSelect={(artist) => {
+                                      setSelectedArtist(artist);
+                                      setArtistId(artist?.id);
+                                    }}
                                 />
                                 <div className="grid grid-cols-2 gap-2">
                                     <input 
                                         placeholder="From Year..." 
                                         type="number"
                                         className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                        value={search.minYear}
-                                        onChange={e => setSearch({...search, minYear: e.target.value})}
+                                        value={minYear}
+                                        onChange={e => setMinYear(e.target.value)}
                                     />
                                     <input 
                                         placeholder="To Year..." 
                                         type="number"
                                         className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                        value={search.maxYear}
-                                        onChange={e => setSearch({...search, maxYear: e.target.value})}
+                                        value={maxYear}
+                                        onChange={e => setMaxYear(e.target.value)}
                                     />
                                 </div>
                             </div>
                         )}
                         
-                        {/* Only show Year for Artist */}
                         {searchType === 'artist' && (
                              <div className="grid grid-cols-2 gap-2">
                                 <input 
                                     placeholder="Est. From..." 
                                     type="number"
                                     className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                    value={search.minYear}
-                                    onChange={e => setSearch({...search, minYear: e.target.value})}
+                                    value={minYear}
+                                    onChange={e => setMinYear(e.target.value)}
                                 />
                                 <input 
                                     placeholder="Est. To..." 
                                     type="number"
                                     className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                    value={search.maxYear}
-                                    onChange={e => setSearch({...search, maxYear: e.target.value})}
+                                    value={maxYear}
+                                    onChange={e => setMaxYear(e.target.value)}
                                 />
                             </div>
                         )}
                     </div>
 
-                    {/* Scrollable Results Area */}
                     <div className="overflow-y-auto min-h-[200px] flex-1 pr-1 custom-scrollbar">
                         {isSearching && <div className="text-xs text-neutral-500 animate-pulse mb-2">Querying API...</div>}
                         
@@ -524,11 +493,10 @@ export default function TierListApp() {
                             })}
                         </div>
                         
-                        {!isSearching && searchResults.length === 0 && (search.query || selectedArtist || search.minYear || search.maxYear) && (
+                        {!isSearching && searchResults.length === 0 && (query || selectedArtist || minYear || maxYear) && (
                             <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
                         )}
 
-                        {/* Pagination */}
                         {!isSearching && searchResults.length > 0 && totalPages > 1 && (
                             <div className="flex justify-center items-center gap-4 mt-6">
                                 <button 
@@ -552,7 +520,6 @@ export default function TierListApp() {
                 </div>
             </div>
 
-            {/* Drag Overlay */}
             <DragOverlay>
                 {activeItem ? <AlbumCard item={activeItem} /> : null}
             </DragOverlay>
