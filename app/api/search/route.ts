@@ -2,6 +2,59 @@ import { NextResponse } from 'next/server';
 import { MusicBrainzSearchResponseSchema, MediaItem, MediaType } from '@/lib/types';
 import { getArtistThumbnail, MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
 
+interface SearchOptions {
+    fuzzy: boolean;
+    wildcard: boolean;
+}
+
+/**
+ * Constructs a flexible Lucene query string for MusicBrainz.
+ * Converts "michael j" into `field:((michael* OR michael~) AND (j* OR j~))` to support partial matches and fuzzy search (typos).
+ */
+function constructLuceneQuery(field: string, term: string, options: SearchOptions): string {
+  if (!term) return '';
+  
+  // Remove special characters that might break Lucene syntax, keep alphanumeric and spaces
+  const cleanTerm = term.replace(/[^\w\s]/g, '').trim();
+  if (!cleanTerm) return '';
+
+  const words = cleanTerm.split(/\s+/);
+  
+  if (words.length === 0) return '';
+
+  const queryParts = words.map(word => {
+      const parts = [];
+      
+      // 1. Wildcard (Prefix) Strategy
+      if (options.wildcard) {
+          parts.push(`${word}*`);
+      }
+
+      // 2. Fuzzy Strategy
+      // Don't apply fuzzy to very short words to avoid noise
+      if (options.fuzzy && word.length >= 3) {
+          parts.push(`${word}~`);
+      }
+
+      // If no advanced strategies, fallback to exact match
+      if (parts.length === 0) {
+          return word;
+      }
+
+      // If only one strategy, return it directly
+      if (parts.length === 1) {
+          return parts[0];
+      }
+
+      // If multiple, OR them together
+      return `(${parts.join(' OR ')})`;
+  });
+
+  const query = queryParts.join(' AND ');
+  
+  return `${field}:(${query})`;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = (searchParams.get('type') as MediaType) || 'album';
@@ -11,6 +64,12 @@ export async function GET(request: Request) {
   const minYear = searchParams.get('minYear');
   const maxYear = searchParams.get('maxYear');
   
+  // Read Search Configuration (default to true if not specified)
+  const fuzzy = searchParams.get('fuzzy') !== 'false';
+  const wildcard = searchParams.get('wildcard') !== 'false';
+  
+  const options: SearchOptions = { fuzzy, wildcard };
+
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = 15;
   const offset = (page - 1) * limit;
@@ -27,12 +86,16 @@ export async function GET(request: Request) {
   switch (type) {
     case 'artist':
       endpoint = 'artist';
-      if (queryParam) queryParts.push(`artist:"${queryParam}"`);
+      if (queryParam) {
+          queryParts.push(constructLuceneQuery('artist', queryParam, options));
+      }
       break;
       
     case 'song':
       endpoint = 'recording';
-      if (queryParam) queryParts.push(`recording:"${queryParam}"`);
+      if (queryParam) {
+          queryParts.push(constructLuceneQuery('recording', queryParam, options));
+      }
       if (artistIdParam) {
           queryParts.push(`arid:${artistIdParam}`);
       } else if (artistParam) {
@@ -43,7 +106,9 @@ export async function GET(request: Request) {
     case 'album':
     default:
       endpoint = 'release-group';
-      if (queryParam) queryParts.push(`release-group:"${queryParam}"`);
+      if (queryParam) {
+          queryParts.push(constructLuceneQuery('release-group', queryParam, options));
+      }
       if (artistIdParam) {
           queryParts.push(`arid:${artistIdParam}`);
       } else if (artistParam) {
@@ -59,14 +124,16 @@ export async function GET(request: Request) {
   }
 
   if (queryParts.length === 0 && queryParam) {
+      // Fallback if type logic didn't catch it, though switch covers all types
       queryParts.push(queryParam);
   }
 
-  const query = queryParts.join(' AND ');
+  // Remove empty parts just in case
+  const finalQuery = queryParts.filter(Boolean).join(' AND ');
 
   try {
     const response = await fetch(
-      `${MB_BASE_URL}/${endpoint}/?query=${encodeURIComponent(query)}&fmt=json&limit=${limit}&offset=${offset}`,
+      `${MB_BASE_URL}/${endpoint}/?query=${encodeURIComponent(finalQuery)}&fmt=json&limit=${limit}&offset=${offset}`,
       {
         headers: { 'User-Agent': USER_AGENT },
         next: { revalidate: 3600 } 

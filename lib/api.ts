@@ -7,6 +7,8 @@ export interface SearchParams {
   minYear?: string;
   maxYear?: string;
   page?: number;
+  fuzzy?: boolean;
+  wildcard?: boolean;
 }
 
 /**
@@ -25,6 +27,10 @@ export function getSearchUrl(params: SearchParams): string {
   if (params.artistId) urlParams.append('artistId', params.artistId);
   if (params.minYear) urlParams.append('minYear', params.minYear);
   if (params.maxYear) urlParams.append('maxYear', params.maxYear);
+  
+  // 3. Search Config
+  if (params.fuzzy !== undefined) urlParams.append('fuzzy', params.fuzzy.toString());
+  if (params.wildcard !== undefined) urlParams.append('wildcard', params.wildcard.toString());
 
   return `/api/search?${urlParams.toString()}`;
 }

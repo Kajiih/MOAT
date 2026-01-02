@@ -11,17 +11,19 @@ import Image from 'next/image';
 interface ArtistPickerProps {
   onSelect: (artist: { id: string; name: string; imageUrl?: string } | null) => void;
   selectedArtist: { id: string; name: string; imageUrl?: string } | null;
+  fuzzy?: boolean;
+  wildcard?: boolean;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
+export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: ArtistPickerProps) {
   const { 
     query, 
     setQuery, 
     results, 
     isLoading 
-  } = useMediaSearch('artist');
+  } = useMediaSearch('artist', { fuzzy, wildcard });
   
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,7 +35,7 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
     setQuery('');
     
     // PREFETCH: Use normalized URL for album search too
-    const prefetchUrl = getSearchUrl({ type: 'album', artistId: artist.id, page: 1 });
+    const prefetchUrl = getSearchUrl({ type: 'album', artistId: artist.id, page: 1, fuzzy, wildcard });
     preload(prefetchUrl, fetcher);
   };
 

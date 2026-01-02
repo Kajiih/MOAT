@@ -13,13 +13,23 @@ interface SearchTabProps {
   onLocate: (id: string) => void;
   isHidden: boolean;
   showAdded: boolean;
+  globalFuzzy: boolean;
+  globalWildcard: boolean;
 }
 
 /**
  * A self-contained tab content for a specific search type.
  * Preserves its own search state (query, page, filters) even when hidden.
  */
-export function SearchTab({ type, addedItemIds, onLocate, isHidden, showAdded }: SearchTabProps) {
+export function SearchTab({ 
+    type, 
+    addedItemIds, 
+    onLocate, 
+    isHidden, 
+    showAdded,
+    globalFuzzy,
+    globalWildcard
+}: SearchTabProps) {
   const [selectedArtist, setSelectedArtist] = useState<{id: string; name: string; imageUrl?: string} | null>(null);
 
   const { 
@@ -31,7 +41,7 @@ export function SearchTab({ type, addedItemIds, onLocate, isHidden, showAdded }:
     results: searchResults,
     totalPages,
     isLoading: isSearching
-  } = useMediaSearch(type);
+  } = useMediaSearch(type, { fuzzy: globalFuzzy, wildcard: globalWildcard });
 
   if (isHidden) {
     return <div className="hidden" />;
@@ -55,6 +65,8 @@ export function SearchTab({ type, addedItemIds, onLocate, isHidden, showAdded }:
                           setSelectedArtist(artist);
                           setArtistId(artist?.id);
                         }}
+                        fuzzy={globalFuzzy}
+                        wildcard={globalWildcard}
                     />
                     <div className="grid grid-cols-2 gap-2">
                         <input 
