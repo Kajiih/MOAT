@@ -6,6 +6,7 @@ import { MediaType } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
+import { SkeletonCard } from '@/components/SkeletonCard';
 
 interface SearchTabProps {
   type: MediaType;
@@ -108,25 +109,31 @@ export function SearchTab({
         </div>
 
         <div className="overflow-y-auto min-h-[200px] flex-1 pr-1 custom-scrollbar">
-            {isSearching && <div className="text-xs text-neutral-500 animate-pulse mb-2">Querying API...</div>}
-            
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
-                {searchResults.map((item, index) => {
-                    const isAdded = addedItemIds.has(item.id);
-                    if (!showAdded && isAdded) return null;
+            {isSearching ? (
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
+                    {Array.from({ length: 15 }).map((_, i) => (
+                        <SkeletonCard key={i} />
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
+                    {searchResults.map((item, index) => {
+                        const isAdded = addedItemIds.has(item.id);
+                        if (!showAdded && isAdded) return null;
 
-                    return (
-                        <MediaCard 
-                            key={item.id} 
-                            item={item}
-                            id={`search-${item.id}`} 
-                            isAdded={isAdded}
-                            onLocate={onLocate}
-                            priority={index < 10}
-                        />
-                    );
-                })}
-            </div>
+                        return (
+                            <MediaCard 
+                                key={item.id} 
+                                item={item}
+                                id={`search-${item.id}`} 
+                                isAdded={isAdded}
+                                onLocate={onLocate}
+                                priority={index < 10}
+                            />
+                        );
+                    })}
+                </div>
+            )}
             
             {!isSearching && searchResults.length === 0 && (query || selectedArtist || minYear || maxYear) && (
                 <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
