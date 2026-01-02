@@ -6,6 +6,17 @@ import { MediaType, MediaItem } from '@/lib/types';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+/**
+ * Custom hook to manage the state and data fetching for media searches.
+ * 
+ * Handles:
+ * - Local state for query params (text, year range, artist filter).
+ * - Debouncing of inputs to prevent excessive API calls.
+ * - SWR integration for data fetching, caching, and revalidation.
+ * - Automatic prefetching of the next page of results.
+ * 
+ * @param type - The type of media to search for ('album', 'artist', 'song').
+ */
 export function useMediaSearch(type: MediaType) {
   const [query, setQuery] = useState('');
   const [artistId, setArtistId] = useState<string | undefined>(undefined);

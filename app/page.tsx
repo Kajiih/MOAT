@@ -25,6 +25,15 @@ import { SearchPanel } from '@/components/SearchPanel';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
 
+/**
+ * The main application component for TierMaster.
+ * 
+ * Responsibilities:
+ * 1. Manages the global state of the tier list (items in S, A, B...).
+ * 2. Handles local storage persistence (loading on mount, saving on change).
+ * 3. Orchestrates the Drag and Drop context (`DndContext`) for the entire application.
+ * 4. Coordinates complex drag logic (adding from search, moving between tiers, reordering).
+ */
 export default function TierListApp() {
   const [isMounted, setIsMounted] = useState(false);
   const hasLoadedSaved = useRef(false);

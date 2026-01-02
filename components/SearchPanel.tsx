@@ -8,10 +8,17 @@ import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
 
 interface SearchPanelProps {
+  /** Set of item IDs that are already present on the tier list board. */
   addedItemIds: Set<string>;
+  /** Callback to scroll to an item that is already on the board. */
   onLocate: (id: string) => void;
 }
 
+/**
+ * The sidebar component responsible for searching and filtering media items.
+ * It maintains its own search state (query, type, filters) via the `useMediaSearch` hook
+ * and displays results as draggable `MediaCard` components.
+ */
 export function SearchPanel({ addedItemIds, onLocate }: SearchPanelProps) {
   // Search State
   const [searchType, setSearchType] = useState<MediaType>('album');

@@ -6,6 +6,9 @@ import { MediaItem } from '@/lib/types';
 import { X, Eye, Music, User, Disc } from 'lucide-react'; 
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
+/**
+ * Props for the visual representation of a media card.
+ */
 interface BaseMediaCardProps {
   item: MediaItem;
   tierId?: string;
@@ -20,6 +23,10 @@ interface BaseMediaCardProps {
   domId?: string;
 }
 
+/**
+ * The pure presentation component for a media item.
+ * Handles rendering of the cover art, labels, and interaction buttons (remove, locate).
+ */
 function BaseMediaCard({ 
   item, 
   tierId, 
@@ -130,14 +137,24 @@ function BaseMediaCard({
 }
 
 interface MediaCardProps {
+  /** The media data object (Album, Artist, or Song). */
   item: MediaItem; 
+  /** Optional override for the draggable ID. Defaults to item.id. */
   id?: string;
+  /** The ID of the tier this card belongs to, if any. */
   tierId?: string;
+  /** Callback to remove this item from its tier. */
   onRemove?: (id: string) => void;
+  /** Whether this item is already present on the board (used in Search results). */
   isAdded?: boolean;
+  /** Callback to locate this item on the board. */
   onLocate?: (id: string) => void;
 }
 
+/**
+ * A Draggable media card component.
+ * Used primarily in the Search Panel where items can be dragged FROM but not sorted within.
+ */
 export function MediaCard(props: MediaCardProps) {
   const draggableId = props.id || props.item.id;
 
@@ -165,6 +182,10 @@ export function MediaCard(props: MediaCardProps) {
   );
 }
 
+/**
+ * A Sortable media card component.
+ * Used within Tier Rows where items can be reordered (sorted) relative to each other.
+ */
 export function SortableMediaCard(props: MediaCardProps) {
     const draggableId = props.id || props.item.id;
 
