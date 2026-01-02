@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'coverartarchive.org' },
       { protocol: 'https', hostname: 'placehold.co' },
+      { protocol: 'https', hostname: 'assets.fanart.tv' },
+      { protocol: 'https', hostname: 'commons.wikimedia.org' },
     ],
   },
 };

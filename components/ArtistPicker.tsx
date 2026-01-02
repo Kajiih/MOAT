@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
-import { Check, Search, X } from 'lucide-react';
+import { Check, Search, X, User } from 'lucide-react';
 import { MediaItem } from '@/lib/types';
+import Image from 'next/image';
 
 interface ArtistPickerProps {
-  onSelect: (artist: { id: string; name: string } | null) => void;
-  selectedArtist: { id: string; name: string } | null;
+  onSelect: (artist: { id: string; name: string; imageUrl?: string } | null) => void;
+  selectedArtist: { id: string; name: string; imageUrl?: string } | null;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -34,7 +35,7 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
   }, [results, isLoading, query]);
 
   const handleSelect = (artist: MediaItem) => {
-    onSelect({ id: artist.id, name: artist.title });
+    onSelect({ id: artist.id, name: artist.title, imageUrl: artist.imageUrl });
     setIsOpen(false);
     setQuery('');
     
@@ -49,10 +50,27 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
 
   if (selectedArtist) {
     return (
-      <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-sm text-neutral-200">
-        <span className="truncate flex-1 font-medium text-white">{selectedArtist.name}</span>
-        <button onClick={clearSelection} className="ml-2 hover:text-red-400">
-            <X size={14} />
+      <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded p-1 pr-2 text-sm text-neutral-200">
+        <div className="flex items-center gap-2 overflow-hidden">
+            {/* Selected Artist Thumbnail */}
+            <div className="relative w-8 h-8 rounded bg-neutral-700 shrink-0 overflow-hidden">
+                {selectedArtist.imageUrl ? (
+                    <Image 
+                        src={selectedArtist.imageUrl} 
+                        alt={selectedArtist.name} 
+                        fill 
+                        className="object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                        <User size={14} />
+                    </div>
+                )}
+            </div>
+            <span className="truncate font-medium text-white">{selectedArtist.name}</span>
+        </div>
+        <button onClick={clearSelection} className="ml-2 text-neutral-400 hover:text-red-400">
+            <X size={16} />
         </button>
       </div>
     );
@@ -84,12 +102,28 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
             {results.map((artist) => (
                 <button
                     key={artist.id}
-                    className="w-full text-left px-3 py-2 hover:bg-neutral-800 text-sm text-neutral-200 border-b border-neutral-800 last:border-0 flex items-center justify-between group"
+                    className="w-full text-left px-3 py-2 hover:bg-neutral-800 text-sm text-neutral-200 border-b border-neutral-800 last:border-0 flex items-center gap-3 group"
                     onMouseDown={(e) => {
                         e.preventDefault(); 
                         handleSelect(artist);
                     }}
                 >
+                    {/* Dropdown Thumbnail */}
+                    <div className="relative w-8 h-8 rounded bg-neutral-800 shrink-0 overflow-hidden border border-neutral-700">
+                        {artist.imageUrl ? (
+                            <Image 
+                                src={artist.imageUrl} 
+                                alt={artist.title} 
+                                fill 
+                                className="object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                                <User size={14} />
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex flex-col overflow-hidden">
                         <span className="font-medium text-white group-hover:text-red-500 transition-colors truncate">{artist.title}</span>
                         <div className="flex items-center gap-1 text-[10px] text-neutral-500 truncate">

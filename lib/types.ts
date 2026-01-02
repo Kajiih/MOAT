@@ -11,7 +11,7 @@ export type MediaItem = {
   album?: string;      // Only for songs
   year?: string;
   imageUrl?: string;
-  disambiguation?: string; // New field
+  disambiguation?: string; 
 };
 
 export type TierMap = Record<string, MediaItem[]>;
@@ -37,7 +37,7 @@ export const MusicBrainzArtistSchema = z.object({
   name: z.string(),
   'life-span': z.object({ begin: z.string().optional() }).optional(),
   country: z.string().optional(),
-  disambiguation: z.string().optional(), // New field
+  disambiguation: z.string().optional(), 
 });
 
 // 3. Recording (Song)
@@ -46,7 +46,10 @@ export const MusicBrainzRecordingSchema = z.object({
   title: z.string(),
   'first-release-date': z.string().optional(),
   'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
-  releases: z.array(z.object({ title: z.string() })).optional(), // To get album name
+  releases: z.array(z.object({ 
+    id: z.string(),
+    title: z.string() 
+  })).optional(), 
 });
 
 export const MusicBrainzSearchResponseSchema = z.object({
