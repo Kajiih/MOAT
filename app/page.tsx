@@ -24,6 +24,7 @@ import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
+const LOCAL_STORAGE_KEY = 'kj-tierlist';
 
 /**
  * The main application component for TierMaster.
@@ -62,7 +63,7 @@ export default function TierListApp() {
 
   useEffect(() => { 
     if (!hasLoadedSaved.current) {
-        const saved = localStorage.getItem('julian-tierlist');
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
         let parsed = null;
         if (saved) {
             try { 
@@ -83,7 +84,7 @@ export default function TierListApp() {
 
   useEffect(() => {
     if (!isMounted) return;
-    localStorage.setItem('julian-tierlist', JSON.stringify(tiers));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tiers));
   }, [tiers, isMounted]);
 
   const handleExport = () => {

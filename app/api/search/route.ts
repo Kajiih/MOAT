@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { MusicBrainzSearchResponseSchema, MediaItem, MediaType } from '@/lib/types';
 import { getArtistThumbnail, MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
 
+const SEARCH_CACHE_TTL = 3600; // 1 hour
+const SEARCH_LIMIT = 15;
+const COVER_ART_ARCHIVE_BASE_URL = 'https://coverartarchive.org';
+
 interface SearchOptions {
     fuzzy: boolean;
     wildcard: boolean;
@@ -71,7 +75,7 @@ export async function GET(request: Request) {
   const options: SearchOptions = { fuzzy, wildcard };
 
   const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = 15;
+  const limit = SEARCH_LIMIT;
   const offset = (page - 1) * limit;
 
   if (!queryParam && !artistParam && !artistIdParam && !minYear && !maxYear) {
@@ -136,7 +140,7 @@ export async function GET(request: Request) {
       `${MB_BASE_URL}/${endpoint}/?query=${encodeURIComponent(finalQuery)}&fmt=json&limit=${limit}&offset=${offset}`,
       {
         headers: { 'User-Agent': USER_AGENT },
-        next: { revalidate: 3600 } 
+        next: { revalidate: SEARCH_CACHE_TTL } 
       }
     );
 
@@ -161,7 +165,7 @@ export async function GET(request: Request) {
             title: item.title,
             artist: item['artist-credit']?.[0]?.name || 'Unknown',
             year: item['first-release-date']?.split('-')[0] || '',
-            imageUrl: `https://coverartarchive.org/release-group/${item.id}/front`,
+            imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front`,
         }));
     } else if (type === 'artist' && parsed.data.artists) {
         results = await Promise.all(parsed.data.artists.map(async (item) => {
@@ -185,7 +189,7 @@ export async function GET(request: Request) {
                 artist: item['artist-credit']?.[0]?.name || 'Unknown',
                 album: item.releases?.[0]?.title, 
                 year: item['first-release-date']?.split('-')[0] || '',
-                imageUrl: releaseId ? `https://coverartarchive.org/release/${releaseId}/front` : undefined
+                imageUrl: releaseId ? `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front` : undefined
             };
         });
     }

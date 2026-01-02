@@ -1,6 +1,11 @@
-export const USER_AGENT = 'JulianTierList/1.0.0 ( contact@yourdomain.com )';
+export const USER_AGENT = 'KJTierList/1.0.0 ( itskajih@gmail.com )';
 export const MB_BASE_URL = 'https://musicbrainz.org/ws/2';
+
 const FANART_API_KEY = process.env.FANART_API_KEY;
+const FANART_BASE_URL = 'https://webservice.fanart.tv/v3/music';
+const WIKIDATA_API_URL = 'https://www.wikidata.org/w/api.php';
+const WIKIMEDIA_FILE_PATH_URL = 'https://commons.wikimedia.org/wiki/Special:FilePath';
+const IMAGE_CACHE_TTL = 86400; // 24 hours
 
 /**
  * Fetches an artist thumbnail from Fanart.tv if available.
@@ -8,8 +13,8 @@ const FANART_API_KEY = process.env.FANART_API_KEY;
 export async function getFanartImage(mbid: string): Promise<string | undefined> {
   if (!FANART_API_KEY) return undefined;
   try {
-    const res = await fetch(`https://webservice.fanart.tv/v3/music/${mbid}?api_key=${FANART_API_KEY}`, {
-        next: { revalidate: 86400 } 
+    const res = await fetch(`${FANART_BASE_URL}/${mbid}?api_key=${FANART_API_KEY}`, {
+        next: { revalidate: IMAGE_CACHE_TTL } 
     });
     if (!res.ok) return undefined;
     const data = await res.json();
@@ -28,7 +33,7 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
     // 1. Get Wikidata ID from MusicBrainz
     const mbRes = await fetch(`${MB_BASE_URL}/artist/${mbid}?inc=url-rels&fmt=json`, {
         headers: { 'User-Agent': USER_AGENT },
-        next: { revalidate: 86400 }
+        next: { revalidate: IMAGE_CACHE_TTL }
     });
     if (!mbRes.ok) return undefined;
     const mbData = await mbRes.json();
@@ -43,8 +48,8 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
 
     // 2. Get Image from Wikidata
     // P18 is the "image" property
-    const wdRes = await fetch(`https://www.wikidata.org/w/api.php?action=wbgetclaims&property=P18&entity=${qid}&format=json`, {
-        next: { revalidate: 86400 }
+    const wdRes = await fetch(`${WIKIDATA_API_URL}?action=wbgetclaims&property=P18&entity=${qid}&format=json`, {
+        next: { revalidate: IMAGE_CACHE_TTL }
     });
     if (!wdRes.ok) return undefined;
     const wdData = await wdRes.json();
@@ -55,7 +60,7 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
     // 3. Convert Wiki Filename to URL (MD5 Hash method for Wikimedia Commons)
     // Actually, simpler is to use the Special:FilePath redirect
     // BUT we need to encode it properly.
-    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}`;
+    return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}`;
 
   } catch (e) {
     console.error(`Wikidata fetch failed for mbid ${mbid}:`, e);
