@@ -31,7 +31,15 @@ export function TierRow({ id, items, onRemove }: TierRowProps) {
   }, [over, id, items]);
 
   return (
-    <div className={`flex bg-neutral-900 border min-h-[7rem] mb-2 overflow-hidden rounded-lg transition-colors duration-200 ${isOverRow ? 'border-neutral-500 bg-neutral-800' : 'border-neutral-800'}`}>
+    <div 
+        className={`
+            flex bg-neutral-900 border min-h-[7rem] mb-2 overflow-hidden rounded-lg transition-all duration-200 ease-out
+            ${isOverRow 
+                ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30' 
+                : 'border-neutral-800'
+            }
+        `}
+    >
       <div className={`w-24 flex items-center justify-center text-3xl font-black text-black select-none ${TIER_COLORS[id]}`}>
         {id}
       </div>
@@ -39,7 +47,7 @@ export function TierRow({ id, items, onRemove }: TierRowProps) {
         ref={setNodeRef} 
         className="flex-1 flex flex-wrap items-center gap-2 p-3 relative"
       >
-        {isOverRow && <div className="absolute inset-0 bg-white/5 pointer-events-none" />}
+        {isOverRow && <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />}
         <SortableContext id={id} items={items.map(a => a.id)} strategy={rectSortingStrategy}>
           {items.map((item) => {
             return (

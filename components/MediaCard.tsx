@@ -47,7 +47,13 @@ function BaseMediaCard({
   const TypeIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
 
   if (isDragging) {
-    return <div ref={setNodeRef} style={style} className="w-24 h-24 bg-neutral-800/50 border-2 border-dashed border-neutral-600 rounded-md opacity-50 z-50" />;
+    return (
+        <div 
+            ref={setNodeRef} 
+            style={style} 
+            className="w-24 h-24 bg-blue-500/10 border-2 border-dashed border-blue-500/50 rounded-md z-0" 
+        />
+    );
   }
 
   // Construct subtitle
