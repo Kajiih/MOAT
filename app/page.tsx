@@ -306,7 +306,7 @@ export default function TierListApp() {
   // --- 4. RENDER ACTUAL APP ---
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1600px] mx-auto">
         
         {/* Header */}
         <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -334,76 +334,84 @@ export default function TierListApp() {
             onDragEnd={handleDragEnd}
         >
             
-            {/* Board */}
-            <div className="mb-12 space-y-2">
-                {Object.keys(tiers).map(tier => (
-                    <TierRow 
-                        key={tier} 
-                        id={tier} 
-                        albums={tiers[tier]} 
-                        onRemove={(albumId) => removeAlbumFromTier(tier, albumId)} 
-                    />
-                ))}
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
+                {/* Board */}
+                <div className="space-y-2">
+                    {Object.keys(tiers).map(tier => (
+                        <TierRow 
+                            key={tier} 
+                            id={tier} 
+                            albums={tiers[tier]} 
+                            onRemove={(albumId) => removeAlbumFromTier(tier, albumId)} 
+                        />
+                    ))}
+                </div>
 
-            {/* Search */}
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl">
-                <div className="flex flex-wrap items-center gap-4 mb-4 text-white">
-                    <div className="flex items-center gap-2">
-                        <Search size={20} />
-                        <h2 className="text-xl font-bold">Search Database</h2>
+                {/* Search Sidebar */}
+                <div className="sticky top-4 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl max-h-[calc(100vh-2rem)] flex flex-col">
+                    <div className="flex flex-wrap items-center gap-4 mb-4 text-white shrink-0">
+                        <div className="flex items-center gap-2">
+                            <Search size={20} />
+                            <h2 className="text-xl font-bold">Search</h2>
+                        </div>
+                        
+                        <button 
+                            onClick={() => setShowAdded(!showAdded)}
+                            className={`ml-auto flex items-center gap-2 text-xs px-2 py-1 rounded border ${showAdded ? 'bg-neutral-800 border-neutral-600 text-neutral-300' : 'bg-transparent border-neutral-800 text-neutral-500'}`}
+                            title={showAdded ? "Hide albums already on board" : "Show albums already on board"}
+                        >
+                            {showAdded ? <Eye size={14} /> : <EyeOff size={14} />}
+                        </button>
                     </div>
-                    
-                    <button 
-                        onClick={() => setShowAdded(!showAdded)}
-                        className={`ml-auto flex items-center gap-2 text-xs px-2 py-1 rounded border ${showAdded ? 'bg-neutral-800 border-neutral-600 text-neutral-300' : 'bg-transparent border-neutral-800 text-neutral-500'}`}
-                    >
-                        {showAdded ? <Eye size={14} /> : <EyeOff size={14} />}
-                        {showAdded ? "Showing Added" : "Hiding Added"}
-                    </button>
 
-                    {isSearching && <span className="text-xs text-neutral-500 animate-pulse">Querying API...</span>}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <input 
-                        placeholder="Album Title..." 
-                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none"
-                        value={search.title}
-                        onChange={e => setSearch({...search, title: e.target.value})}
-                    />
-                    <input 
-                        placeholder="Artist..." 
-                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none"
-                        value={search.artist}
-                        onChange={e => setSearch({...search, artist: e.target.value})}
-                    />
-                    <input 
-                        placeholder="Year..." 
-                        type="number"
-                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none"
-                        value={search.year}
-                        onChange={e => setSearch({...search, year: e.target.value})}
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 min-h-[100px]">
-                    {searchResults.map(album => {
-                        const isAdded = addedAlbumIds.has(album.id);
-                        if (!showAdded && isAdded) return null;
-
-                        return (
-                            <AlbumCard 
-                                key={album.id} 
-                                album={album} 
-                                isAdded={isAdded}
-                                onLocate={handleLocate}
+                    <div className="grid grid-cols-1 gap-2 mb-4 shrink-0">
+                        <input 
+                            placeholder="Album Title..." 
+                            className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                            value={search.title}
+                            onChange={e => setSearch({...search, title: e.target.value})}
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                            <input 
+                                placeholder="Artist..." 
+                                className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                value={search.artist}
+                                onChange={e => setSearch({...search, artist: e.target.value})}
                             />
-                        );
-                    })}
-                    {!isSearching && searchResults.length === 0 && (search.title || search.artist) && (
-                        <div className="col-span-full text-center text-neutral-600 italic mt-8">No results found.</div>
-                    )}
+                            <input 
+                                placeholder="Year..." 
+                                type="number"
+                                className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                value={search.year}
+                                onChange={e => setSearch({...search, year: e.target.value})}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Scrollable Results Area */}
+                    <div className="overflow-y-auto min-h-[200px] flex-1 pr-1 custom-scrollbar">
+                        {isSearching && <div className="text-xs text-neutral-500 animate-pulse mb-2">Querying API...</div>}
+                        
+                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
+                            {searchResults.map(album => {
+                                const isAdded = addedAlbumIds.has(album.id);
+                                if (!showAdded && isAdded) return null;
+
+                                return (
+                                    <AlbumCard 
+                                        key={album.id} 
+                                        album={album} 
+                                        isAdded={isAdded}
+                                        onLocate={handleLocate}
+                                    />
+                                );
+                            })}
+                        </div>
+                        
+                        {!isSearching && searchResults.length === 0 && (search.title || search.artist) && (
+                            <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
+                        )}
+                    </div>
                 </div>
             </div>
 
