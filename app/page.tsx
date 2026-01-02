@@ -1,65 +1,240 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useDroppable } from '@dnd-kit/core';
+import { Album, TierMap } from '@/lib/types';
+import { AlbumCard } from '@/components/AlbumCard';
+import { Download, Upload, Trash2, Search } from 'lucide-react';
+
+const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
+const TIER_COLORS: Record<string, string> = {
+  S: 'bg-red-500', A: 'bg-orange-500', B: 'bg-yellow-500', C: 'bg-green-500', D: 'bg-blue-500'
+};
+
+// Sub-component for a Tier Row
+function TierRow({ id, albums, onRemove }: { id: string, albums: Album[], onRemove: (id: string) => void }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="flex bg-neutral-900 border border-neutral-800 min-h-[7rem] mb-2 overflow-hidden rounded-lg">
+      <div className={`w-24 flex items-center justify-center text-3xl font-black text-black select-none ${TIER_COLORS[id]}`}>
+        {id}
+      </div>
+      <div 
+        ref={setNodeRef} 
+        className={`flex-1 flex flex-wrap items-center gap-2 p-3 transition-colors ${isOver ? 'bg-neutral-800' : ''}`}
+      >
+        {albums.map((album) => (
+          <AlbumCard key={album.id} album={album} tierId={id} onRemove={(albId) => onRemove(albId)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function TierListApp() {
+  // State
+  const [tiers, setTiers] = useState<TierMap>(INITIAL_TIERS);
+  const [activeAlbum, setActiveAlbum] = useState<Album | null>(null);
+  
+  // Search State
+  const [search, setSearch] = useState({ title: '', artist: '', year: '' });
+  const [debouncedSearch] = useDebounce(search, 500);
+  const [searchResults, setSearchResults] = useState<Album[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Load from LocalStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('julian-tierlist');
+    if (saved) {
+      try { setTiers(JSON.parse(saved)); } catch (e) { console.error("Save Corrupt", e); }
+    }
+  }, []);
+
+  // Save to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('julian-tierlist', JSON.stringify(tiers));
+  }, [tiers]);
+
+  // Fetch Logic
+  useEffect(() => {
+    const { title, artist, year } = debouncedSearch;
+    if (!title && !artist && !year) {
+        setSearchResults([]);
+        return;
+    }
+
+    async function fetchData() {
+      setIsSearching(true);
+      try {
+        const params = new URLSearchParams();
+        if(title) params.append('title', title);
+        if(artist) params.append('artist', artist);
+        if(year) params.append('year', year);
+
+        const res = await fetch(`/api/search?${params.toString()}`);
+        const data = await res.json();
+        setSearchResults(data.results || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+    fetchData();
+  }, [debouncedSearch]);
+
+  // Actions
+  const handleExport = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tiers));
+    const a = document.createElement('a');
+    a.href = dataStr;
+    a.download = `tierlist-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        try {
+            const parsed = JSON.parse(ev.target?.result as string);
+            setTiers(parsed); // Add validation here if you want to be stricter
+        } catch(err) { alert("Invalid JSON file"); }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleClear = () => {
+    if(confirm("Clear everything?")) setTiers(INITIAL_TIERS);
+  };
+
+  // DND Handlers
+  const handleDragStart = (e: DragStartEvent) => {
+    setActiveAlbum(e.active.data.current?.album);
+  };
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || !activeAlbum) {
+        setActiveAlbum(null);
+        return;
+    }
+
+    const sourceTier = active.data.current?.sourceTier;
+    const targetTier = over.id as string;
+
+    setTiers(prev => {
+        const next = { ...prev };
+        
+        // 1. Remove from source tier (if applicable)
+        if (sourceTier && next[sourceTier]) {
+            next[sourceTier] = next[sourceTier].filter(a => a.id !== activeAlbum.id);
+        }
+
+        // 2. Remove from target tier (prevent duplicates)
+        if (next[targetTier]) {
+            next[targetTier] = next[targetTier].filter(a => a.id !== activeAlbum.id);
+            // 3. Add to target
+            next[targetTier].push(activeAlbum);
+        }
+        return next;
+    });
+    setActiveAlbum(null);
+  };
+
+  const removeAlbumFromTier = (tierId: string, albumId: string) => {
+    setTiers(prev => ({
+        ...prev,
+        [tierId]: prev[tierId].filter(a => a.id !== albumId)
+    }));
+  };
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <h1 className="text-4xl font-black tracking-tighter text-white">TIER<span className="text-red-600">MASTER</span></h1>
+          
+          <div className="flex gap-2">
+            <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm">
+                <Upload size={16} /> Import
+                <input type="file" onChange={handleImport} accept=".json" className="hidden" />
+            </label>
+            <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm">
+                <Download size={16} /> Export
+            </button>
+            <button onClick={handleClear} className="flex items-center gap-2 px-3 py-2 bg-red-900/20 text-red-500 rounded hover:bg-red-900/40 text-sm border border-red-900/50">
+                <Trash2 size={16} /> Clear
+            </button>
+          </div>
+        </header>
+
+        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            
+            {/* Board */}
+            <div className="mb-12 space-y-2">
+                {Object.keys(tiers).map(tier => (
+                    <TierRow 
+                        key={tier} 
+                        id={tier} 
+                        albums={tiers[tier]} 
+                        onRemove={(albumId) => removeAlbumFromTier(tier, albumId)} 
+                    />
+                ))}
+            </div>
+
+            {/* Search */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl">
+                <div className="flex items-center gap-2 mb-4 text-white">
+                    <Search size={20} />
+                    <h2 className="text-xl font-bold">Search Database</h2>
+                    {isSearching && <span className="text-xs text-neutral-500 animate-pulse ml-auto">Querying API...</span>}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <input 
+                        placeholder="Album Title..." 
+                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none"
+                        value={search.title}
+                        onChange={e => setSearch({...search, title: e.target.value})}
+                    />
+                    <input 
+                        placeholder="Artist..." 
+                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none"
+                        value={search.artist}
+                        onChange={e => setSearch({...search, artist: e.target.value})}
+                    />
+                    <input 
+                        placeholder="Year..." 
+                        type="number"
+                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none"
+                        value={search.year}
+                        onChange={e => setSearch({...search, year: e.target.value})}
+                    />
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 min-h-[100px]">
+                    {searchResults.map(album => (
+                        <AlbumCard key={album.id} album={album} />
+                    ))}
+                    {!isSearching && searchResults.length === 0 && (search.title || search.artist) && (
+                        <div className="col-span-full text-center text-neutral-600 italic mt-8">No results found.</div>
+                    )}
+                </div>
+            </div>
+
+            {/* Drag Overlay */}
+            <DragOverlay>
+                {activeAlbum ? <AlbumCard album={activeAlbum} /> : null}
+            </DragOverlay>
+
+        </DndContext>
+      </div>
     </div>
   );
 }
