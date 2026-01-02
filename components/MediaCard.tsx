@@ -21,6 +21,7 @@ interface BaseMediaCardProps {
   isAdded?: boolean;
   onLocate?: () => void;
   domId?: string;
+  priority?: boolean;
 }
 
 /**
@@ -38,7 +39,8 @@ function BaseMediaCard({
   isDragging,
   isAdded,
   onLocate,
-  domId
+  domId,
+  priority = false
 }: BaseMediaCardProps) {
   
   // Icon based on type
@@ -82,6 +84,7 @@ function BaseMediaCard({
           alt={item.title} 
           fill 
           sizes="96px"
+          priority={priority}
           className="object-cover pointer-events-none" 
           onError={(e) => { 
             // If image fails, hide it and show placeholder
@@ -149,6 +152,8 @@ interface MediaCardProps {
   isAdded?: boolean;
   /** Callback to locate this item on the board. */
   onLocate?: (id: string) => void;
+  /** Whether to prioritize loading the image (eager load). Defaults to false. */
+  priority?: boolean;
 }
 
 /**

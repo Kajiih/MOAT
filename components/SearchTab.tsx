@@ -99,7 +99,7 @@ export function SearchTab({ type, addedItemIds, onLocate, isHidden, showAdded }:
             {isSearching && <div className="text-xs text-neutral-500 animate-pulse mb-2">Querying API...</div>}
             
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
-                {searchResults.map(item => {
+                {searchResults.map((item, index) => {
                     const isAdded = addedItemIds.has(item.id);
                     if (!showAdded && isAdded) return null;
 
@@ -110,6 +110,7 @@ export function SearchTab({ type, addedItemIds, onLocate, isHidden, showAdded }:
                             id={`search-${item.id}`} 
                             isAdded={isAdded}
                             onLocate={onLocate}
+                            priority={index < 10}
                         />
                     );
                 })}
