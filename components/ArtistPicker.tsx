@@ -51,6 +51,7 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
                         src={selectedArtist.imageUrl} 
                         alt={selectedArtist.name} 
                         fill 
+                        sizes="96px"
                         className="object-cover"
                     />
                 ) : (
@@ -105,6 +106,7 @@ export function ArtistPicker({ onSelect, selectedArtist }: ArtistPickerProps) {
                                 src={artist.imageUrl} 
                                 alt={artist.title} 
                                 fill 
+                                sizes="96px"
                                 className="object-cover"
                             />
                         ) : (
