@@ -30,10 +30,11 @@ export function SearchPanel({ addedItemIds, onLocate }: SearchPanelProps) {
             
             <button 
                 onClick={() => setShowAdded(!showAdded)}
-                className={`ml-auto flex items-center gap-2 text-xs px-2 py-1 rounded border ${showAdded ? 'bg-neutral-800 border-neutral-600 text-neutral-300' : 'bg-transparent border-neutral-800 text-neutral-500'}`}
-                title={showAdded ? "Hide items already on board" : "Show items already on board"}
+                className={`ml-auto flex items-center gap-2 text-[10px] font-medium px-2 py-1 rounded border transition-colors ${showAdded ? 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:bg-neutral-700' : 'bg-blue-900/10 border-blue-900/40 text-blue-400'}`}
+                title={showAdded ? "Hide items already on the board" : "Show items already on the board"}
             >
-                {showAdded ? <Eye size={14} /> : <EyeOff size={14} />}
+                {showAdded ? <EyeOff size={12} /> : <Eye size={12} />}
+                <span>{showAdded ? "Hide Added" : "Show Added"}</span>
             </button>
         </div>
 
