@@ -41,7 +41,8 @@ export function SearchTab({
     setArtistId,
     results: searchResults,
     totalPages,
-    isLoading: isSearching
+    isLoading: isSearching,
+    searchNow
   } = useMediaSearch(type, { fuzzy: globalFuzzy, wildcard: globalWildcard });
 
   if (isHidden) {
@@ -56,6 +57,11 @@ export function SearchTab({
                 className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm w-full"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    searchNow();
+                  }
+                }}
             />
             
             {type !== 'artist' && (

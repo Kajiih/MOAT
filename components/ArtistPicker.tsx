@@ -22,7 +22,8 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
     query, 
     setQuery, 
     results, 
-    isLoading 
+    isLoading,
+    searchNow
   } = useMediaSearch('artist', { fuzzy, wildcard });
   
   const [isOpen, setIsOpen] = useState(false);
@@ -82,6 +83,12 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
             onChange={(e) => {
                 setQuery(e.target.value);
                 setIsOpen(!!e.target.value);
+            }}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    searchNow();
+                    setIsOpen(true);
+                }
             }}
             onFocus={() => { if(query) setIsOpen(true); }}
             onBlur={() => {

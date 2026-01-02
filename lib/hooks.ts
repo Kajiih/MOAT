@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
@@ -34,6 +34,7 @@ interface UseMediaSearchResult<T extends MediaItem> {
   wildcard: boolean;
   setWildcard: (val: boolean) => void;
   reset: () => void;
+  searchNow: () => void; // Manually trigger search (flush debounce)
   results: T[];
   totalPages: number;
   isLoading: boolean;
@@ -70,10 +71,19 @@ export function useMediaSearch<T extends MediaType>(
   const isFuzzy = config?.fuzzy ?? internalFuzzy;
   const isWildcard = config?.wildcard ?? internalWildcard;
 
+  const debounceDelay = 300; // milliseconds
+
   // Debounce text inputs to avoid excessive API calls
-  const [debouncedQuery] = useDebounce(query, 500);
-  const [debouncedMinYear] = useDebounce(minYear, 500);
-  const [debouncedMaxYear] = useDebounce(maxYear, 500);
+  const [debouncedQuery, controlQuery] = useDebounce(query, debounceDelay);
+  const [debouncedMinYear, controlMinYear] = useDebounce(minYear, debounceDelay);
+  const [debouncedMaxYear, controlMaxYear] = useDebounce(maxYear, debounceDelay);
+  
+  // Explicit flush for immediate search (e.g., on Enter key)
+  const searchNow = () => {
+    controlQuery.flush();
+    controlMinYear.flush();
+    controlMaxYear.flush();
+  };
   
   // Wrappers to reset page on filter change
   const handleSetQuery = (val: string) => { setQuery(val); setPage(1); };
@@ -88,6 +98,29 @@ export function useMediaSearch<T extends MediaType>(
     setMaxYear('');
     setPage(1);
   };
+
+  // Determine if filters have changed to toggle keepPreviousData
+  // We construct a "fingerprint" of the filters (excluding page)
+  const filterKey = JSON.stringify({
+    type,
+    query: debouncedQuery,
+    artistId,
+    minYear: debouncedMinYear,
+    maxYear: debouncedMaxYear,
+    fuzzy: isFuzzy,
+    wildcard: isWildcard
+  });
+
+  const prevFilterKey = useRef(filterKey);
+
+  // If filters changed, we should NOT keep previous data (show loading state)
+  // If filters are same (just page changed), we SHOULD keep previous data (pagination)
+  const shouldKeepPreviousData = filterKey === prevFilterKey.current;
+
+  // Update ref after render
+  useEffect(() => {
+    prevFilterKey.current = filterKey;
+  }, [filterKey]);
 
   const searchUrl = useMemo(() => {
     const hasFilters = debouncedQuery || artistId || debouncedMinYear || debouncedMaxYear;
@@ -108,7 +141,7 @@ export function useMediaSearch<T extends MediaType>(
   const { data, isLoading, isValidating } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
     searchUrl,
     fetcher,
-    { keepPreviousData: true }
+    { keepPreviousData: shouldKeepPreviousData }
   );
   
   // Pagination Prefetching
@@ -139,6 +172,7 @@ export function useMediaSearch<T extends MediaType>(
     fuzzy: isFuzzy, setFuzzy: setInternalFuzzy,
     wildcard: isWildcard, setWildcard: setInternalWildcard,
     reset,
+    searchNow,
     
     // Data
     results: (data?.results || []) as MediaItemMap[T][],
