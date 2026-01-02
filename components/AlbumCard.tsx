@@ -3,7 +3,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Album } from '@/lib/types';
-import { X } from 'lucide-react'; 
+import { X, Eye } from 'lucide-react'; 
 
 interface BaseAlbumCardProps {
   album: Album;
@@ -14,21 +14,42 @@ interface BaseAlbumCardProps {
   attributes?: any;
   listeners?: any;
   isDragging?: boolean;
+  isAdded?: boolean;
+  onLocate?: () => void;
 }
 
-function BaseAlbumCard({ album, tierId, onRemove, setNodeRef, style, attributes, listeners, isDragging }: BaseAlbumCardProps) {
+function BaseAlbumCard({ 
+  album, 
+  tierId, 
+  onRemove, 
+  setNodeRef, 
+  style, 
+  attributes, 
+  listeners, 
+  isDragging,
+  isAdded,
+  onLocate 
+}: BaseAlbumCardProps) {
+  
   if (isDragging) {
-    // Keep placeholder simple and visually distinct
     return <div ref={setNodeRef} style={style} className="w-24 h-24 bg-neutral-800/50 border-2 border-dashed border-neutral-600 rounded-md opacity-50 z-50" />;
   }
 
   return (
     <div 
       ref={setNodeRef} 
+      id={`album-card-${album.id}`} // DOM ID for scrolling
       style={style} 
       {...listeners} 
       {...attributes} 
-      className="relative group w-24 h-24 bg-neutral-800 rounded-md cursor-grab active:cursor-grabbing overflow-hidden shadow-sm hover:ring-2 hover:ring-neutral-400 transition-all touch-none"
+      onClick={isAdded && onLocate ? onLocate : undefined}
+      className={`
+        relative group w-24 h-24 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-none
+        ${isAdded 
+            ? 'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0' 
+            : 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400'
+        }
+      `}
     >
       <Image 
         src={album.imageUrl} 
@@ -45,10 +66,17 @@ function BaseAlbumCard({ album, tierId, onRemove, setNodeRef, style, attributes,
         <p className="text-[9px] text-neutral-300 truncate">{album.artist} {album.year ? `(${album.year})` : ''}</p>
       </div>
 
+      {/* Added Indicator / Locate Overlay */}
+      {isAdded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <Eye className="text-white drop-shadow-md" size={24} />
+        </div>
+      )}
+
       {/* Delete Button (Only if in a tier) */}
       {tierId && onRemove && (
         <button 
-          onPointerDown={(e) => e.stopPropagation()} // Stop propagation to prevent drag start on click
+          onPointerDown={(e) => e.stopPropagation()} 
           onClick={(e) => {
             e.stopPropagation(); 
             onRemove(album.id);
@@ -66,19 +94,32 @@ interface AlbumCardProps {
   album: Album;
   tierId?: string;
   onRemove?: (id: string) => void;
+  isAdded?: boolean;
+  onLocate?: (id: string) => void;
 }
 
 export function AlbumCard(props: AlbumCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: props.album.id,
     data: { album: props.album, sourceTier: props.tierId },
+    disabled: props.isAdded // Disable drag if already added
   });
 
   const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
   } : undefined;
 
-  return <BaseAlbumCard {...props} setNodeRef={setNodeRef} style={style} attributes={attributes} listeners={listeners} isDragging={isDragging} />;
+  return (
+    <BaseAlbumCard 
+      {...props} 
+      setNodeRef={setNodeRef} 
+      style={style} 
+      attributes={attributes} 
+      listeners={listeners} 
+      isDragging={isDragging}
+      onLocate={() => props.onLocate?.(props.album.id)}
+    />
+  );
 }
 
 export function SortableAlbumCard(props: AlbumCardProps) {

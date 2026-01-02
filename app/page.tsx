@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 import { 
   DndContext, 
@@ -23,7 +23,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Album, TierMap } from '@/lib/types';
 import { AlbumCard, SortableAlbumCard } from '@/components/AlbumCard';
-import { Download, Upload, Trash2, Search } from 'lucide-react';
+import { Download, Upload, Trash2, Search, Eye, EyeOff } from 'lucide-react';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
 const TIER_COLORS: Record<string, string> = {
@@ -66,6 +66,16 @@ export default function TierListApp() {
   const [debouncedSearch] = useDebounce(search, 500);
   const [searchResults, setSearchResults] = useState<Album[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showAdded, setShowAdded] = useState(true);
+
+  // Derived State: Set of all Added Album IDs
+  const addedAlbumIds = useMemo(() => {
+    const ids = new Set<string>();
+    Object.values(tiers).forEach(tierList => {
+        tierList.forEach(album => ids.add(album.id));
+    });
+    return ids;
+  }, [tiers]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -153,6 +163,21 @@ export default function TierListApp() {
         ...prev,
         [tierId]: prev[tierId].filter(a => a.id !== albumId)
     }));
+  };
+
+  const handleLocate = (id: string) => {
+    const el = document.getElementById(`album-card-${id}`);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Optional: Add a temporary highlight effect
+        el.style.transition = 'box-shadow 0.3s';
+        el.style.boxShadow = '0 0 20px 5px rgba(255, 255, 255, 0.5)';
+        setTimeout(() => {
+            el.style.boxShadow = '';
+        }, 1500);
+    } else {
+        alert("Could not locate album on board.");
+    }
   };
 
   // DND Logic Helper
@@ -245,21 +270,17 @@ export default function TierListApp() {
     } 
     // Case 2: Dropping from Search -> Tier
     else if (!sourceTier && overContainer) {
-        // Prevent adding if already in that specific tier (basic de-dupe for that tier)
-        // Global de-dupe could be added here if desired
-        const alreadyInTier = tiers[overContainer].some(a => a.id === activeAlbumData.id);
-        
-        if (!alreadyInTier) {
+        // GLOBAL DUPLICATE CHECK
+        const isAlreadyAddedGlobal = addedAlbumIds.has(activeAlbumData.id);
+
+        if (!isAlreadyAddedGlobal) {
             setTiers((prev) => {
                 const newTierList = [...prev[overContainer]];
-                // Check if dropped on a specific item to insert at position
                 const overIndex = newTierList.findIndex(a => a.id === overId);
                 
                 if (overIndex >= 0) {
-                     // Insert before the item we dropped on
                      newTierList.splice(overIndex, 0, activeAlbumData);
                 } else {
-                     // Dropped on container or empty space -> Append
                      newTierList.push(activeAlbumData);
                 }
                 return { ...prev, [overContainer]: newTierList };
@@ -327,10 +348,21 @@ export default function TierListApp() {
 
             {/* Search */}
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl">
-                <div className="flex items-center gap-2 mb-4 text-white">
-                    <Search size={20} />
-                    <h2 className="text-xl font-bold">Search Database</h2>
-                    {isSearching && <span className="text-xs text-neutral-500 animate-pulse ml-auto">Querying API...</span>}
+                <div className="flex flex-wrap items-center gap-4 mb-4 text-white">
+                    <div className="flex items-center gap-2">
+                        <Search size={20} />
+                        <h2 className="text-xl font-bold">Search Database</h2>
+                    </div>
+                    
+                    <button 
+                        onClick={() => setShowAdded(!showAdded)}
+                        className={`ml-auto flex items-center gap-2 text-xs px-2 py-1 rounded border ${showAdded ? 'bg-neutral-800 border-neutral-600 text-neutral-300' : 'bg-transparent border-neutral-800 text-neutral-500'}`}
+                    >
+                        {showAdded ? <Eye size={14} /> : <EyeOff size={14} />}
+                        {showAdded ? "Showing Added" : "Hiding Added"}
+                    </button>
+
+                    {isSearching && <span className="text-xs text-neutral-500 animate-pulse">Querying API...</span>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -356,9 +388,19 @@ export default function TierListApp() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 min-h-[100px]">
-                    {searchResults.map(album => (
-                        <AlbumCard key={album.id} album={album} />
-                    ))}
+                    {searchResults.map(album => {
+                        const isAdded = addedAlbumIds.has(album.id);
+                        if (!showAdded && isAdded) return null;
+
+                        return (
+                            <AlbumCard 
+                                key={album.id} 
+                                album={album} 
+                                isAdded={isAdded}
+                                onLocate={handleLocate}
+                            />
+                        );
+                    })}
                     {!isSearching && searchResults.length === 0 && (search.title || search.artist) && (
                         <div className="col-span-full text-center text-neutral-600 italic mt-8">No results found.</div>
                     )}
