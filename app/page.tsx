@@ -25,6 +25,7 @@ import {
 } from '@dnd-kit/sortable';
 import { MediaItem, MediaType, TierMap } from '@/lib/types';
 import { AlbumCard, SortableAlbumCard } from '@/components/AlbumCard';
+import { ArtistPicker } from '@/components/ArtistPicker'; 
 import { Download, Upload, Trash2, Search, Eye, EyeOff, Disc, Mic2, Music } from 'lucide-react';
 
 const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
@@ -89,7 +90,11 @@ export default function TierListApp() {
   
   // Search State
   const [searchType, setSearchType] = useState<MediaType>('album');
-  const [search, setSearch] = useState({ query: '', artist: '', year: '' });
+  
+  // Filter States
+  const [search, setSearch] = useState({ query: '', minYear: '', maxYear: '' });
+  const [selectedArtist, setSelectedArtist] = useState<{id: string, name: string} | null>(null);
+  
   const [debouncedSearch] = useDebounce(search, 500);
   const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -137,8 +142,9 @@ export default function TierListApp() {
 
   // Fetch Logic
   useEffect(() => {
-    const { query, artist, year } = debouncedSearch;
-    if (!query && !artist && !year) {
+    const { query, minYear, maxYear } = debouncedSearch;
+    // We can fetch if we have a query OR a selected artist OR a year filter
+    if (!query && !minYear && !maxYear && !selectedArtist) {
         setSearchResults([]);
         return;
     }
@@ -149,8 +155,13 @@ export default function TierListApp() {
         const params = new URLSearchParams();
         params.append('type', searchType);
         if(query) params.append('query', query);
-        if(artist) params.append('artist', artist);
-        if(year) params.append('year', year);
+        if(minYear) params.append('minYear', minYear);
+        if(maxYear) params.append('maxYear', maxYear);
+        
+        // Pass artist ID if selected
+        if(selectedArtist) {
+            params.append('artistId', selectedArtist.id);
+        }
 
         const res = await fetch(`/api/search?${params.toString()}`);
         const data = await res.json();
@@ -162,12 +173,13 @@ export default function TierListApp() {
       }
     }
     fetchData();
-  }, [debouncedSearch, searchType]); // Re-run when type changes
+  }, [debouncedSearch, searchType, selectedArtist]); // Re-run when filters change
 
-  // Clear search results when type changes to avoid confusion
+  // Clear search results/inputs when type changes
   useEffect(() => {
       setSearchResults([]);
-      setSearch({ query: '', artist: '', year: '' });
+      setSearch({ query: '', minYear: '', maxYear: '' });
+      setSelectedArtist(null);
   }, [searchType]);
 
   // Actions
@@ -472,32 +484,48 @@ export default function TierListApp() {
                         
                         {/* Only show artist filter for Album/Song types */}
                         {searchType !== 'artist' && (
-                             <div className="grid grid-cols-2 gap-2">
-                                <input 
-                                    placeholder="Filter by Artist..." 
-                                    className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                    value={search.artist}
-                                    onChange={e => setSearch({...search, artist: e.target.value})}
+                             <div className="grid grid-cols-1 gap-2">
+                                <ArtistPicker 
+                                    selectedArtist={selectedArtist}
+                                    onSelect={setSelectedArtist}
                                 />
-                                <input 
-                                    placeholder="Year..." 
-                                    type="number"
-                                    className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                    value={search.year}
-                                    onChange={e => setSearch({...search, year: e.target.value})}
-                                />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <input 
+                                        placeholder="From Year..." 
+                                        type="number"
+                                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                        value={search.minYear}
+                                        onChange={e => setSearch({...search, minYear: e.target.value})}
+                                    />
+                                    <input 
+                                        placeholder="To Year..." 
+                                        type="number"
+                                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                        value={search.maxYear}
+                                        onChange={e => setSearch({...search, maxYear: e.target.value})}
+                                    />
+                                </div>
                             </div>
                         )}
                         
                         {/* Only show Year for Artist */}
                         {searchType === 'artist' && (
-                             <input 
-                                placeholder="Year (Est.)..." 
-                                type="number"
-                                className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
-                                value={search.year}
-                                onChange={e => setSearch({...search, year: e.target.value})}
-                            />
+                             <div className="grid grid-cols-2 gap-2">
+                                <input 
+                                    placeholder="Est. From..." 
+                                    type="number"
+                                    className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                    value={search.minYear}
+                                    onChange={e => setSearch({...search, minYear: e.target.value})}
+                                />
+                                <input 
+                                    placeholder="Est. To..." 
+                                    type="number"
+                                    className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm"
+                                    value={search.maxYear}
+                                    onChange={e => setSearch({...search, maxYear: e.target.value})}
+                                />
+                            </div>
                         )}
                     </div>
 
@@ -522,7 +550,7 @@ export default function TierListApp() {
                             })}
                         </div>
                         
-                        {!isSearching && searchResults.length === 0 && (search.query || search.artist) && (
+                        {!isSearching && searchResults.length === 0 && (search.query || selectedArtist || search.minYear || search.maxYear) && (
                             <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
                         )}
                     </div>
