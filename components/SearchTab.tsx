@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { MediaType } from '@/lib/types';
+import { MediaType, ArtistSelection } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
@@ -31,7 +31,7 @@ export function SearchTab({
     globalFuzzy,
     globalWildcard
 }: SearchTabProps) {
-  const [selectedArtist, setSelectedArtist] = useState<{id: string; name: string; imageUrl?: string} | null>(null);
+  const [selectedArtist, setSelectedArtist] = useState<ArtistSelection | null>(null);
 
   const { 
     query, setQuery,

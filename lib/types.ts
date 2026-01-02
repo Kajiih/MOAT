@@ -10,27 +10,51 @@ import { z } from 'zod';
  */
 export type MediaType = 'album' | 'artist' | 'song';
 
-/**
- * Represents a single normalized media item in the application.
- * This structure unifies data from different MusicBrainz entities (Release Group, Artist, Recording).
- */
-export type MediaItem = {
+
+export interface BaseMediaItem {
   /** Unique identifier (MusicBrainz ID) */
   id: string;
-  /** The type of the media item */
-  type: MediaType;
   /** The primary title (Album name, Artist name, or Song title) */
   title: string;
-  /** The artist name. Undefined for 'artist' type items. */
-  artist?: string;
-  /** The album name. Only defined for 'song' type items. */
-  album?: string;
   /** The release year or formation year. */
   year?: string;
   /** URL to the cover art or artist image. */
   imageUrl?: string;
+}
+
+export interface AlbumItem extends BaseMediaItem {
+  type: 'album';
+  /** The artist name. */
+  artist: string;
+}
+
+export interface ArtistItem extends BaseMediaItem {
+  type: 'artist';
   /** Disambiguation comment (mostly for artists with same names). */
-  disambiguation?: string; 
+  disambiguation?: string;
+}
+
+export interface SongItem extends BaseMediaItem {
+  type: 'song';
+  /** The artist name. */
+  artist: string;
+  /** The album name. */
+  album?: string;
+}
+
+/**
+ * Represents a single normalized media item in the application.
+ * This structure unifies data from different MusicBrainz entities (Release Group, Artist, Recording).
+ */
+export type MediaItem = AlbumItem | ArtistItem | SongItem;
+
+/**
+ * Represents a simplified artist object used for selection state.
+ */
+export type ArtistSelection = {
+  id: string;
+  name: string;
+  imageUrl?: string;
 };
 
 /**

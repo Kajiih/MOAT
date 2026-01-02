@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { preload } from 'swr';
 import { Search, X, User } from 'lucide-react';
-import { MediaItem } from '@/lib/types';
+import { MediaItem, ArtistSelection } from '@/lib/types';
 import { getSearchUrl } from '@/lib/api';
 import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
 
 interface ArtistPickerProps {
-  onSelect: (artist: { id: string; name: string; imageUrl?: string } | null) => void;
-  selectedArtist: { id: string; name: string; imageUrl?: string } | null;
+  onSelect: (artist: ArtistSelection | null) => void;
+  selectedArtist: ArtistSelection | null;
   fuzzy?: boolean;
   wildcard?: boolean;
 }

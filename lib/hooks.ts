@@ -2,13 +2,42 @@ import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
-import { MediaType, MediaItem } from '@/lib/types';
+import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem } from '@/lib/types';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface UseMediaSearchConfig {
   fuzzy?: boolean;
   wildcard?: boolean;
+}
+
+// Map each MediaType to its specific item type
+type MediaItemMap = {
+  artist: ArtistItem;
+  album: AlbumItem;
+  song: SongItem;
+};
+
+interface UseMediaSearchResult<T extends MediaItem> {
+  query: string;
+  setQuery: (val: string) => void;
+  artistId: string | undefined;
+  setArtistId: (val: string | undefined) => void;
+  minYear: string;
+  setMinYear: (val: string) => void;
+  maxYear: string;
+  setMaxYear: (val: string) => void;
+  page: number;
+  setPage: (val: number | ((prev: number) => number)) => void;
+  fuzzy: boolean;
+  setFuzzy: (val: boolean) => void;
+  wildcard: boolean;
+  setWildcard: (val: boolean) => void;
+  reset: () => void;
+  results: T[];
+  totalPages: number;
+  isLoading: boolean;
+  isValidating: boolean;
 }
 
 /**
@@ -23,7 +52,10 @@ interface UseMediaSearchConfig {
  * @param type - The type of media to search for ('album', 'artist', 'song').
  * @param config - Optional configuration overrides for search settings.
  */
-export function useMediaSearch(type: MediaType, config?: UseMediaSearchConfig) {
+export function useMediaSearch<T extends MediaType>(
+  type: T, 
+  config?: UseMediaSearchConfig
+): UseMediaSearchResult<MediaItemMap[T]> {
   const [query, setQuery] = useState('');
   const [artistId, setArtistId] = useState<string | undefined>(undefined);
   const [minYear, setMinYear] = useState('');
@@ -109,7 +141,7 @@ export function useMediaSearch(type: MediaType, config?: UseMediaSearchConfig) {
     reset,
     
     // Data
-    results: data?.results || [],
+    results: (data?.results || []) as MediaItemMap[T][],
     totalPages: data?.totalPages || 0,
     isLoading,
     isValidating
