@@ -1,9 +1,10 @@
 import Image from 'next/image';
-import { useDraggable } from '@dnd-kit/core';
+import { useDraggable, DraggableAttributes } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MediaItem } from '@/lib/types';
 import { X, Eye, Music, User, Disc } from 'lucide-react'; 
+import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 interface BaseAlbumCardProps {
   item: MediaItem;
@@ -11,8 +12,8 @@ interface BaseAlbumCardProps {
   onRemove?: (id: string) => void;
   setNodeRef?: (node: HTMLElement | null) => void;
   style?: React.CSSProperties;
-  attributes?: any;
-  listeners?: any;
+  attributes?: DraggableAttributes;
+  listeners?: SyntheticListenerMap;
   isDragging?: boolean;
   isAdded?: boolean;
   onLocate?: () => void;

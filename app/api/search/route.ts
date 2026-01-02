@@ -19,6 +19,7 @@ async function getFanartImage(mbid: string): Promise<string | undefined> {
     const data = await res.json();
     return data.artistthumb?.[0]?.url;
   } catch (e) {
+    console.error(`Fanart.tv fetch failed for mbid ${mbid}:`, e);
     return undefined;
   }
 }
@@ -37,7 +38,7 @@ async function getWikidataImage(mbid: string): Promise<string | undefined> {
     const mbData = await mbRes.json();
     
     // Find relation type 'wikidata'
-    const wikidataRel = mbData.relations?.find((r: any) => r.type === 'wikidata');
+    const wikidataRel = mbData.relations?.find((r: { type: string; url?: { resource: string } }) => r.type === 'wikidata');
     if (!wikidataRel?.url?.resource) return undefined;
 
     // Extract QID (e.g. Q12345 from url)
@@ -61,6 +62,7 @@ async function getWikidataImage(mbid: string): Promise<string | undefined> {
     return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}`;
 
   } catch (e) {
+    console.error(`Wikidata fetch failed for mbid ${mbid}:`, e);
     return undefined;
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   DndContext, 
   DragEndEvent, 
@@ -8,7 +8,6 @@ import {
   DragStartEvent, 
   DragOverEvent,
   useDroppable,
-  closestCenter,
   rectIntersection,
   KeyboardSensor,
   PointerSensor,
@@ -78,11 +77,11 @@ function TierRow({ id, albums, onRemove }: { id: string, albums: MediaItem[], on
 
 export default function TierListApp() {
   const [isMounted, setIsMounted] = useState(false);
+  const hasLoadedSaved = useRef(false);
 
   // App State
   const [tiers, setTiers] = useState<TierMap>(INITIAL_TIERS);
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null); 
   
   // Search State
   const [searchType, setSearchType] = useState<MediaType>('album');
@@ -120,15 +119,26 @@ export default function TierListApp() {
     })
   );
 
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => { 
+    if (!hasLoadedSaved.current) {
+        const saved = localStorage.getItem('julian-tierlist');
+        let parsed = null;
+        if (saved) {
+            try { 
+                parsed = JSON.parse(saved);
+            } catch (e) { 
+                console.error("Save Corrupt", e); 
+            }
+        }
+        
+        setTimeout(() => {
+            if (parsed) setTiers(parsed);
+            setIsMounted(true);
+        }, 0);
 
-  useEffect(() => {
-    if (!isMounted) return; 
-    const saved = localStorage.getItem('julian-tierlist');
-    if (saved) {
-      try { setTiers(JSON.parse(saved)); } catch (e) { console.error("Save Corrupt", e); }
+        hasLoadedSaved.current = true;
     }
-  }, [isMounted]);
+  }, []);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -157,7 +167,7 @@ export default function TierListApp() {
         try {
             const parsed = JSON.parse(ev.target?.result as string);
             setTiers(parsed); 
-        } catch(err) { alert("Invalid JSON file"); }
+        } catch { alert("Invalid JSON file"); }
     };
     reader.readAsText(file);
   };
@@ -194,16 +204,15 @@ export default function TierListApp() {
 
   const handleDragStart = (e: DragStartEvent) => {
     setActiveItem(e.active.data.current?.album);
-    setActiveId(e.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    const activeTierId = active.data.current?.sourceTier;
+    const { over } = event;
+    const activeTierId = event.active.data.current?.sourceTier;
     
     if (!over) return;
 
-    const activeId = active.id;
+    const activeId = event.active.id;
     const overId = over.id;
 
     const activeContainer = activeTierId || findContainer(activeId as string); 
@@ -214,11 +223,11 @@ export default function TierListApp() {
     }
 
     if (!activeContainer) {
-        const cleanId = active.data.current?.album.id;
+        const cleanId = event.active.data.current?.album.id;
         if (addedAlbumIds.has(cleanId)) return; 
 
         setTiers((prev) => {
-            const activeItem = active.data.current?.album;
+            const activeItem = event.active.data.current?.album;
             if(!activeItem) return prev;
 
             const overItems = prev[overContainer];
@@ -230,8 +239,8 @@ export default function TierListApp() {
             } else {
                 const isBelowOverItem =
                   over &&
-                  active.rect.current.translated &&
-                  active.rect.current.translated.top > over.rect.top + over.rect.height;
+                  event.active.rect.current.translated &&
+                  event.active.rect.current.translated.top > over.rect.top + over.rect.height;
                 const modifier = isBelowOverItem ? 1 : 0;
                 newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
             }
@@ -280,8 +289,8 @@ export default function TierListApp() {
       } else {
         const isBelowOverItem =
           over &&
-          active.rect.current.translated &&
-          active.rect.current.translated.top > over.rect.top + over.rect.height;
+          event.active.rect.current.translated &&
+          event.active.rect.current.translated.top > over.rect.top + over.rect.height;
 
         const modifier = isBelowOverItem ? 1 : 0;
         newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
@@ -302,9 +311,8 @@ export default function TierListApp() {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+    const { over } = event;
     setActiveItem(null);
-    setActiveId(null);
 
     setTiers(prev => {
         const next = { ...prev };
