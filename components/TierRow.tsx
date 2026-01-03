@@ -7,7 +7,12 @@ import { MediaItem } from '@/lib/types';
 import { SortableMediaCard } from '@/components/MediaCard';
 
 const TIER_COLORS: Record<string, string> = {
-  S: 'bg-red-500', A: 'bg-orange-500', B: 'bg-yellow-500', C: 'bg-green-500', D: 'bg-blue-500'
+  S: 'bg-red-500', 
+  A: 'bg-orange-500', 
+  B: 'bg-yellow-500', 
+  C: 'bg-green-500', 
+  D: 'bg-blue-500',
+  Unranked: 'bg-neutral-500'
 };
 
 interface TierRowProps {
@@ -40,7 +45,7 @@ export function TierRow({ id, items, onRemove }: TierRowProps) {
             }
         `}
     >
-      <div className={`w-24 flex items-center justify-center text-3xl font-black text-black select-none ${TIER_COLORS[id]}`}>
+      <div className={`w-24 flex items-center justify-center font-black text-black select-none ${TIER_COLORS[id]} ${id === 'Unranked' ? 'text-sm px-1 text-center break-all' : 'text-3xl'}`}>
         {id}
       </div>
       <div 

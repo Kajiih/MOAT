@@ -23,7 +23,7 @@ import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
 
-const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [] };
+const INITIAL_TIERS: TierMap = { S: [], A: [], B: [], C: [], D: [], Unranked: [] };
 const LOCAL_STORAGE_KEY = 'kj-tierlist';
 
 /**
@@ -74,7 +74,9 @@ export default function TierListApp() {
         }
         
         setTimeout(() => {
-            if (parsed) setTiers(parsed);
+            if (parsed) {
+              setTiers(prev => ({ ...INITIAL_TIERS, ...parsed }));
+            }
             setIsMounted(true);
         }, 0);
 
@@ -102,7 +104,7 @@ export default function TierListApp() {
     reader.onload = (ev) => {
         try {
             const parsed = JSON.parse(ev.target?.result as string);
-            setTiers(parsed); 
+            setTiers({ ...INITIAL_TIERS, ...parsed }); 
         } catch { alert("Invalid JSON file"); }
     };
     reader.readAsText(file);
