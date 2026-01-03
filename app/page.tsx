@@ -160,18 +160,10 @@ export default function TierListApp() {
         color: 'bg-neutral-500'
     };
     
-    setState(prev => {
-        const unrankedIndex = prev.tierDefs.findIndex(t => t.id === 'Unranked');
-        const insertIndex = unrankedIndex === -1 ? prev.tierDefs.length : unrankedIndex;
-        
-        const newDefs = [...prev.tierDefs];
-        newDefs.splice(insertIndex, 0, newTier);
-
-        return {
-            tierDefs: newDefs,
-            items: { ...prev.items, [newId]: [] }
-        };
-    });
+    setState(prev => ({
+        tierDefs: [...prev.tierDefs, newTier],
+        items: { ...prev.items, [newId]: [] }
+    }));
   };
 
   const handleUpdateTier = (id: string, updates: Partial<TierDefinition>) => {
