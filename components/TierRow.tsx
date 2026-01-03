@@ -109,16 +109,17 @@ export function TierRow({
   return (
     <div 
         className={twMerge(
-            "flex bg-neutral-900 border min-h-[7rem] mb-2 overflow-hidden rounded-lg transition-all duration-200 ease-out group relative",
+            "flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out group relative",
             isOverRow 
-                ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30' 
-                : 'border-neutral-800'
+                ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20' 
+                : 'border-neutral-800',
+            showSettings ? 'z-30' : 'z-0'
         )}
     >
       {/* Label / Header Column */}
       <div 
         className={twMerge(
-            "w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors",
+            "w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg",
             tier.color
         )}
       >
