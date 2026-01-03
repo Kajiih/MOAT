@@ -6,6 +6,8 @@ export interface SearchParams {
   artistId?: string;
   minYear?: string;
   maxYear?: string;
+  albumPrimaryTypes?: string[];
+  albumSecondaryTypes?: string[];
   page?: number;
   fuzzy?: boolean;
   wildcard?: boolean;
@@ -27,6 +29,15 @@ export function getSearchUrl(params: SearchParams): string {
   if (params.artistId) urlParams.append('artistId', params.artistId);
   if (params.minYear) urlParams.append('minYear', params.minYear);
   if (params.maxYear) urlParams.append('maxYear', params.maxYear);
+  
+  if (params.albumPrimaryTypes && params.albumPrimaryTypes.length > 0) {
+      // Sort to ensure cache consistency regardless of selection order
+      [...params.albumPrimaryTypes].sort().forEach(t => urlParams.append('albumPrimaryTypes', t));
+  }
+  
+  if (params.albumSecondaryTypes && params.albumSecondaryTypes.length > 0) {
+      [...params.albumSecondaryTypes].sort().forEach(t => urlParams.append('albumSecondaryTypes', t));
+  }
   
   // 3. Search Config
   if (params.fuzzy !== undefined) urlParams.append('fuzzy', params.fuzzy.toString());

@@ -68,6 +68,9 @@ export async function GET(request: Request) {
   const minYear = searchParams.get('minYear');
   const maxYear = searchParams.get('maxYear');
   
+  const albumPrimaryTypes = searchParams.getAll('albumPrimaryTypes');
+  const albumSecondaryTypes = searchParams.getAll('albumSecondaryTypes');
+  
   // Read Search Configuration (default to true if not specified)
   const fuzzy = searchParams.get('fuzzy') !== 'false';
   const wildcard = searchParams.get('wildcard') !== 'false';
@@ -78,7 +81,8 @@ export async function GET(request: Request) {
   const limit = SEARCH_LIMIT;
   const offset = (page - 1) * limit;
 
-  if (!queryParam && !artistParam && !artistIdParam && !minYear && !maxYear) {
+  // If no main filters, return empty
+  if (!queryParam && !artistParam && !artistIdParam && !minYear && !maxYear && albumPrimaryTypes.length === 0 && albumSecondaryTypes.length === 0) {
     return NextResponse.json({ results: [], page, totalPages: 0 });
   }
 
@@ -118,6 +122,16 @@ export async function GET(request: Request) {
       } else if (artistParam) {
           queryParts.push(`artist:"${artistParam}"`);
       }
+      
+      if (albumPrimaryTypes.length > 0) {
+          const typeQuery = albumPrimaryTypes.map(t => `"${t}"`).join(' OR ');
+          queryParts.push(`primarytype:(${typeQuery})`);
+      }
+      
+      if (albumSecondaryTypes.length > 0) {
+          const typeQuery = albumSecondaryTypes.map(t => `"${t}"`).join(' OR ');
+          queryParts.push(`secondarytype:(${typeQuery})`);
+      }
       break;
   }
 
@@ -128,7 +142,7 @@ export async function GET(request: Request) {
   }
 
   if (queryParts.length === 0 && queryParam) {
-      // Fallback if type logic didn't catch it, though switch covers all types
+      // Fallback if type logic didn't catch it
       queryParts.push(queryParam);
   }
 
@@ -166,6 +180,8 @@ export async function GET(request: Request) {
             artist: item['artist-credit']?.[0]?.name || 'Unknown',
             year: item['first-release-date']?.split('-')[0] || '',
             imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front`,
+            primaryType: item['primary-type'],
+            secondaryTypes: item['secondary-types']
         }));
     } else if (type === 'artist' && parsed.data.artists) {
         results = await Promise.all(parsed.data.artists.map(async (item) => {

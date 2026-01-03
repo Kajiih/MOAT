@@ -26,6 +26,10 @@ export interface AlbumItem extends BaseMediaItem {
   type: 'album';
   /** The artist name. */
   artist: string;
+  /** Primary type (e.g., Album, Single, EP) */
+  primaryType?: string;
+  /** Secondary types (e.g., Live, Compilation, Remix) */
+  secondaryTypes?: string[];
 }
 
 export interface ArtistItem extends BaseMediaItem {
@@ -89,6 +93,8 @@ export const MusicBrainzReleaseGroupSchema = z.object({
   title: z.string(),
   'first-release-date': z.string().optional(),
   'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
+  'primary-type': z.string().optional(),
+  'secondary-types': z.array(z.string()).optional(),
 });
 
 // 2. Artist
@@ -117,3 +123,28 @@ export const MusicBrainzSearchResponseSchema = z.object({
   'artists': z.array(MusicBrainzArtistSchema).optional(),
   'recordings': z.array(MusicBrainzRecordingSchema).optional(),
 });
+
+// --- MusicBrainz Constants ---
+
+export const PRIMARY_TYPES = [
+  'Album',
+  'Single',
+  'EP',
+  'Broadcast',
+  'Other'
+] as const;
+
+export const SECONDARY_TYPES = [
+  'Compilation',
+  'Soundtrack',
+  'Spokenword',
+  'Interview',
+  'Audiobook',
+  'Audio drama',
+  'Live',
+  'Remix',
+  'DJ-mix',
+  'Mixtape/Street',
+  'Demo',
+  'Field recording'
+] as const;

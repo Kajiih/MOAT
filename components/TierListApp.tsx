@@ -40,7 +40,7 @@ const INITIAL_STATE: TierListState = {
   items: { S: [], A: [], B: [], C: [], D: [], Unranked: [] }
 };
 
-const LOCAL_STORAGE_KEY = 'kj-tierlist';
+const LOCAL_STORAGE_KEY = 'moat-tierlist';
 
 export default function TierListApp() {
   // App State managed by custom hook. Synchronous on client.

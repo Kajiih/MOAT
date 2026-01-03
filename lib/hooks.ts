@@ -27,6 +27,10 @@ interface UseMediaSearchResult<T extends MediaItem> {
   setMinYear: (val: string) => void;
   maxYear: string;
   setMaxYear: (val: string) => void;
+  albumPrimaryTypes: string[];
+  setAlbumPrimaryTypes: (val: string[]) => void;
+  albumSecondaryTypes: string[];
+  setAlbumSecondaryTypes: (val: string[]) => void;
   page: number;
   setPage: (val: number | ((prev: number) => number)) => void;
   fuzzy: boolean;
@@ -61,6 +65,8 @@ export function useMediaSearch<T extends MediaType>(
   const [artistId, setArtistId] = useState<string | undefined>(undefined);
   const [minYear, setMinYear] = useState('');
   const [maxYear, setMaxYear] = useState('');
+  const [internalAlbumPrimaryTypes, setInternalAlbumPrimaryTypes] = useState<string[]>([]);
+  const [internalAlbumSecondaryTypes, setInternalAlbumSecondaryTypes] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   
   // Internal State (used if no config provided)
@@ -70,6 +76,8 @@ export function useMediaSearch<T extends MediaType>(
   // Determine effective values
   const isFuzzy = config?.fuzzy ?? internalFuzzy;
   const isWildcard = config?.wildcard ?? internalWildcard;
+  const albumPrimaryTypes = internalAlbumPrimaryTypes;
+  const albumSecondaryTypes = internalAlbumSecondaryTypes;
 
   const debounceDelay = 300; // milliseconds
 
@@ -90,12 +98,16 @@ export function useMediaSearch<T extends MediaType>(
   const handleSetArtistId = (val: string | undefined) => { setArtistId(val); setPage(1); };
   const handleSetMinYear = (val: string) => { setMinYear(val); setPage(1); };
   const handleSetMaxYear = (val: string) => { setMaxYear(val); setPage(1); };
+  const handleSetAlbumPrimaryTypes = (val: string[]) => { setInternalAlbumPrimaryTypes(val); setPage(1); };
+  const handleSetAlbumSecondaryTypes = (val: string[]) => { setInternalAlbumSecondaryTypes(val); setPage(1); };
 
   const reset = () => {
     setQuery('');
     setArtistId(undefined);
     setMinYear('');
     setMaxYear('');
+    setInternalAlbumPrimaryTypes([]);
+    setInternalAlbumSecondaryTypes([]);
     setPage(1);
   };
 
@@ -107,6 +119,8 @@ export function useMediaSearch<T extends MediaType>(
     artistId,
     minYear: debouncedMinYear,
     maxYear: debouncedMaxYear,
+    albumPrimaryTypes,
+    albumSecondaryTypes,
     fuzzy: isFuzzy,
     wildcard: isWildcard
   });
@@ -123,7 +137,7 @@ export function useMediaSearch<T extends MediaType>(
   }, [filterKey]);
 
   const searchUrl = useMemo(() => {
-    const hasFilters = debouncedQuery || artistId || debouncedMinYear || debouncedMaxYear;
+    const hasFilters = debouncedQuery || artistId || debouncedMinYear || debouncedMaxYear || albumPrimaryTypes.length > 0 || albumSecondaryTypes.length > 0;
     if (!hasFilters) return null;
 
     return getSearchUrl({
@@ -133,10 +147,12 @@ export function useMediaSearch<T extends MediaType>(
       artistId,
       minYear: debouncedMinYear,
       maxYear: debouncedMaxYear,
+      albumPrimaryTypes,
+      albumSecondaryTypes,
       fuzzy: isFuzzy,
       wildcard: isWildcard
     });
-  }, [type, page, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, isFuzzy, isWildcard]);
+  }, [type, page, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, isFuzzy, isWildcard]);
 
   const { data, isLoading, isValidating } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
     searchUrl,
@@ -154,12 +170,14 @@ export function useMediaSearch<T extends MediaType>(
             artistId,
             minYear: debouncedMinYear,
             maxYear: debouncedMaxYear,
+            albumPrimaryTypes,
+            albumSecondaryTypes,
             fuzzy: isFuzzy,
             wildcard: isWildcard
           });
           preload(nextUrl, fetcher);
       }
-  }, [data, page, type, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, isFuzzy, isWildcard]);
+  }, [data, page, type, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, isFuzzy, isWildcard]);
 
   return {
     // State
@@ -167,6 +185,8 @@ export function useMediaSearch<T extends MediaType>(
     artistId, setArtistId: handleSetArtistId,
     minYear, setMinYear: handleSetMinYear,
     maxYear, setMaxYear: handleSetMaxYear,
+    albumPrimaryTypes, setAlbumPrimaryTypes: handleSetAlbumPrimaryTypes,
+    albumSecondaryTypes, setAlbumSecondaryTypes: handleSetAlbumSecondaryTypes,
     page, setPage,
     // Setters update internal state (which acts as fallback/default)
     fuzzy: isFuzzy, setFuzzy: setInternalFuzzy,
