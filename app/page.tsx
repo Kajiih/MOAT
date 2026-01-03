@@ -75,7 +75,7 @@ export default function TierListApp() {
         
         setTimeout(() => {
             if (parsed) {
-              setTiers(prev => ({ ...INITIAL_TIERS, ...parsed }));
+              setTiers(() => ({ ...INITIAL_TIERS, ...parsed }));
             }
             setIsMounted(true);
         }, 0);

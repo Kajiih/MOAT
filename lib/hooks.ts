@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
@@ -111,15 +111,15 @@ export function useMediaSearch<T extends MediaType>(
     wildcard: isWildcard
   });
 
-  const prevFilterKey = useRef(filterKey);
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
 
   // If filters changed, we should NOT keep previous data (show loading state)
   // If filters are same (just page changed), we SHOULD keep previous data (pagination)
-  const shouldKeepPreviousData = filterKey === prevFilterKey.current;
+  const shouldKeepPreviousData = filterKey === prevFilterKey;
 
-  // Update ref after render
+  // Update prevFilterKey after render when filterKey changes
   useEffect(() => {
-    prevFilterKey.current = filterKey;
+    setPrevFilterKey(filterKey);
   }, [filterKey]);
 
   const searchUrl = useMemo(() => {
