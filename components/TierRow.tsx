@@ -135,8 +135,9 @@ export function TierRow({
             />
         ) : (
             <div 
-                onClick={() => setIsEditing(true)}
+                onDoubleClick={() => setIsEditing(true)}
                 className="w-full h-full flex items-center justify-center text-center font-black text-black select-none cursor-pointer hover:bg-black/5 rounded transition-colors break-words overflow-hidden"
+                title="Double click to rename"
                 style={{ fontSize: tier.label.length > 5 ? '1rem' : '1.75rem', lineHeight: '1.1' }}
             >
                 {tier.label}
