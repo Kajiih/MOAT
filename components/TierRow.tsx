@@ -2,10 +2,11 @@
 
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { useDroppable, useDndContext } from '@dnd-kit/core';
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { MediaItem, TierDefinition } from '@/lib/types';
 import { SortableMediaCard } from '@/components/MediaCard';
-import { Settings, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Settings, Trash2, GripVertical } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 export const TIER_COLOR_OPTIONS = [
@@ -20,11 +21,7 @@ interface TierRowProps {
   onRemoveItem: (itemId: string) => void;
   onUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
   onDeleteTier: (id: string) => void;
-  onMoveTierUp: (id: string) => void;
-  onMoveTierDown: (id: string) => void;
-  isFirst: boolean;
-  isLast: boolean;
-  canDelete: boolean; // e.g., Unranked might be undeletable, or maybe not
+  canDelete: boolean;
 }
 
 export function TierRow({ 
@@ -33,30 +30,54 @@ export function TierRow({
   onRemoveItem, 
   onUpdateTier, 
   onDeleteTier, 
-  onMoveTierUp,
-  onMoveTierDown,
-  isFirst,
-  isLast,
   canDelete
 }: TierRowProps) {
-  const { setNodeRef } = useDroppable({ 
+  // Sortable logic for the Tier itself
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setSortableRef,
+    transform,
+    transition,
+    isDragging: isDraggingTier,
+  } = useSortable({
     id: tier.id,
-    data: { isTierContainer: true } 
+    data: {
+        type: 'tier',
+        tier
+    }
   });
+
+  // Droppable logic for items being dropped into the tier
+  const { setNodeRef: setDroppableRef } = useDroppable({ 
+    id: tier.id,
+    data: { 
+        isTierContainer: true,
+        type: 'tier' 
+    } 
+  });
+
+  // Combine refs
+  const setCombinedRef = (node: HTMLDivElement | null) => {
+    setSortableRef(node);
+    setDroppableRef(node);
+  };
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
 
   const { over } = useDndContext();
   const [isEditing, setIsEditing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   
-  // State for the input value
   const [labelInput, setLabelInput] = useState(tier.label);
-  // Track previous prop value to sync state if prop changes
   const [prevLabel, setPrevLabel] = useState(tier.label);
 
   const settingsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Sync local state if prop changes (State from props pattern)
   if (tier.label !== prevLabel) {
     setPrevLabel(tier.label);
     setLabelInput(tier.label);
@@ -75,7 +96,6 @@ export function TierRow({
     }
   }, [isEditing]);
 
-  // Close settings when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
@@ -90,7 +110,7 @@ export function TierRow({
     if (labelInput.trim()) {
       onUpdateTier(tier.id, { label: labelInput.trim() });
     } else {
-      setLabelInput(tier.label); // Revert if empty
+      setLabelInput(tier.label);
     }
     setIsEditing(false);
   };
@@ -108,12 +128,15 @@ export function TierRow({
 
   return (
     <div 
+        ref={setCombinedRef}
+        style={style}
         className={twMerge(
             "flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out group relative",
             isOverRow 
                 ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20' 
                 : 'border-neutral-800',
-            showSettings ? 'z-30' : 'z-0'
+            showSettings ? 'z-30' : 'z-0',
+            isDraggingTier && "opacity-50 border-blue-500 ring-2 ring-blue-500/50 scale-95"
         )}
     >
       {/* Label / Header Column */}
@@ -123,6 +146,15 @@ export function TierRow({
             tier.color
         )}
       >
+        {/* Drag Handle */}
+        <div 
+            {...attributes} 
+            {...listeners}
+            className="absolute top-1 left-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black"
+        >
+            <GripVertical size={16} />
+        </div>
+
         {isEditing ? (
             <textarea
                 ref={inputRef}
@@ -184,22 +216,6 @@ export function TierRow({
 
                 {/* Actions */}
                 <div className="flex flex-col gap-1">
-                     <div className="flex gap-1">
-                        <button 
-                            disabled={isFirst}
-                            onClick={() => onMoveTierUp(tier.id)}
-                            className="flex-1 flex items-center justify-center gap-2 bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:hover:bg-neutral-800 rounded p-1 text-xs"
-                        >
-                            <ArrowUp size={14} /> Up
-                        </button>
-                        <button 
-                            disabled={isLast}
-                            onClick={() => onMoveTierDown(tier.id)}
-                            className="flex-1 flex items-center justify-center gap-2 bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:hover:bg-neutral-800 rounded p-1 text-xs"
-                        >
-                            <ArrowDown size={14} /> Down
-                        </button>
-                    </div>
                     {canDelete && (
                         <button 
                             onClick={() => { if(confirm('Delete tier?')) onDeleteTier(tier.id); }}
@@ -208,6 +224,9 @@ export function TierRow({
                             <Trash2 size={14} /> Delete Tier
                         </button>
                     )}
+                    <div className="text-[10px] text-neutral-600 text-center mt-2">
+                        Tip: Drag the grip handle on the left to reorder
+                    </div>
                 </div>
             </div>
         )}
@@ -215,7 +234,6 @@ export function TierRow({
 
       {/* Items Column */}
       <div 
-        ref={setNodeRef} 
         className="flex-1 flex flex-wrap items-center gap-2 p-3 relative min-h-[100px]"
       >
         {isOverRow && <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />}

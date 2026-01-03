@@ -11,10 +11,13 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragEndEvent,
 } from '@dnd-kit/core';
 import { 
   arrayMove, 
   sortableKeyboardCoordinates, 
+  SortableContext,
+  verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { MediaItem, TierListState, TierDefinition, LegacyTierMap } from '@/lib/types';
 import { MediaCard } from '@/components/MediaCard';
@@ -44,6 +47,7 @@ export default function TierListApp() {
   // App State
   const [state, setState] = useState<TierListState>(INITIAL_STATE);
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
+  const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
   
   const addedItemIds = useMemo(() => {
     const ids = new Set<string>();
@@ -79,20 +83,15 @@ export default function TierListApp() {
         
         setTimeout(() => {
             if (parsed) {
-                // Check if Legacy Format (parsed is just an object of arrays, not containing tierDefs)
                 if (!('tierDefs' in parsed)) {
                     console.log("Migrating legacy data...");
                     const legacy = parsed as LegacyTierMap;
                     const items: Record<string, MediaItem[]> = { ...INITIAL_STATE.items };
                     
-                    // Map legacy keys to initial keys if they match, otherwise add to Unranked or ignore?
-                    // Legacy keys were S, A, B, C, D, Unranked.
-                    // If user modified keys in local storage manually, it might break, but standard usage matches INITIAL_STATE ids.
                     Object.keys(legacy).forEach(key => {
                         if (key in items) {
                             items[key] = legacy[key];
                         } else {
-                            // If an unknown key exists (e.g. from a dev version), move items to Unranked
                             items['Unranked'] = [...items['Unranked'], ...legacy[key]];
                         }
                     });
@@ -131,9 +130,7 @@ export default function TierListApp() {
     reader.onload = (ev) => {
         try {
             const parsed = JSON.parse(ev.target?.result as string);
-             // Simple migration check for import
              if (!('tierDefs' in parsed)) {
-                // Legacy Import
                 const legacy = parsed as LegacyTierMap;
                 const items: Record<string, MediaItem[]> = { ...INITIAL_STATE.items };
                 Object.keys(legacy).forEach(key => {
@@ -164,7 +161,7 @@ export default function TierListApp() {
     };
     
     setState(prev => ({
-        tierDefs: [newTier, ...prev.tierDefs], // Add to top
+        tierDefs: [newTier, ...prev.tierDefs],
         items: { ...prev.items, [newId]: [] }
     }));
   };
@@ -181,8 +178,6 @@ export default function TierListApp() {
         const tierIndex = prev.tierDefs.findIndex(t => t.id === id);
         if (tierIndex === -1) return prev;
 
-        // Move items to Unranked (or last tier if Unranked is deleted?)
-        // Let's assume Unranked always exists or we find a fallback
         const fallbackId = prev.tierDefs.find(t => t.id !== id)?.id;
         
         const orphanedItems = prev.items[id] || [];
@@ -197,22 +192,6 @@ export default function TierListApp() {
             tierDefs: prev.tierDefs.filter(t => t.id !== id),
             items: newItems
         };
-    });
-  };
-
-  const handleMoveTier = (id: string, direction: 'up' | 'down') => {
-    setState(prev => {
-        const index = prev.tierDefs.findIndex(t => t.id === id);
-        if (index === -1) return prev;
-        
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= prev.tierDefs.length) return prev;
-
-        const newDefs = [...prev.tierDefs];
-        const [moved] = newDefs.splice(index, 1);
-        newDefs.splice(newIndex, 0, moved);
-
-        return { ...prev, tierDefs: newDefs };
     });
   };
 
@@ -248,16 +227,24 @@ export default function TierListApp() {
   };
 
   const handleDragStart = (e: DragStartEvent) => {
-    setActiveItem(e.active.data.current?.mediaItem);
+    const { active } = e;
+    if (active.data.current?.type === 'tier') {
+        setActiveTier(active.data.current.tier);
+    } else {
+        setActiveItem(active.data.current?.mediaItem);
+    }
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event;
-    const activeTierId = event.active.data.current?.sourceTier;
+    const { active, over } = event;
+    
+    if (active.data.current?.type === 'tier') return;
+
+    const activeTierId = active.data.current?.sourceTier;
     
     if (!over) return;
 
-    const activeId = event.active.id;
+    const activeId = active.id;
     const overId = over.id;
 
     const activeContainer = activeTierId || findContainer(activeId as string); 
@@ -267,11 +254,11 @@ export default function TierListApp() {
 
     // 1. Dragging from Search Panel to Board
     if (!activeContainer) {
-        const cleanId = event.active.data.current?.mediaItem.id;
+        const cleanId = active.data.current?.mediaItem.id;
         if (addedItemIds.has(cleanId)) return; 
 
         setState((prev) => {
-            const activeItem = event.active.data.current?.mediaItem;
+            const activeItem = active.data.current?.mediaItem;
             if(!activeItem) return prev;
 
             const overItems = prev.items[overContainer];
@@ -283,8 +270,8 @@ export default function TierListApp() {
             } else {
                 const isBelowOverItem =
                   over &&
-                  event.active.rect.current.translated &&
-                  event.active.rect.current.translated.top > over.rect.top + over.rect.height;
+                  active.rect.current.translated &&
+                  active.rect.current.translated.top > over.rect.top + over.rect.height;
                 const modifier = isBelowOverItem ? 1 : 0;
                 newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
             }
@@ -341,8 +328,8 @@ export default function TierListApp() {
       } else {
         const isBelowOverItem =
           over &&
-          event.active.rect.current.translated &&
-          event.active.rect.current.translated.top > over.rect.top + over.rect.height;
+          active.rect.current.translated &&
+          active.rect.current.translated.top > over.rect.top + over.rect.height;
 
         const modifier = isBelowOverItem ? 1 : 0;
         newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
@@ -365,10 +352,27 @@ export default function TierListApp() {
     });
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
     setActiveItem(null);
+    setActiveTier(null);
 
-    // Finalize IDs (remove 'search-' prefix if persisted)
+    // Case 1: Tier Reordering
+    if (active.data.current?.type === 'tier' && over) {
+        if (active.id !== over.id) {
+            setState((prev) => {
+                const oldIndex = prev.tierDefs.findIndex((t) => t.id === active.id);
+                const newIndex = prev.tierDefs.findIndex((t) => t.id === over.id);
+                return {
+                    ...prev,
+                    tierDefs: arrayMove(prev.tierDefs, oldIndex, newIndex),
+                };
+            });
+        }
+        return;
+    }
+
+    // Case 2: Media Item (Clean IDs)
     setState(prev => {
         const nextItems = { ...prev.items };
         let modified = false;
@@ -427,21 +431,22 @@ export default function TierListApp() {
                     </button>
 
                     <div className="space-y-2">
-                        {state.tierDefs.map((tier, index) => (
-                            <TierRow 
-                                key={tier.id} 
-                                tier={tier}
-                                items={state.items[tier.id] || []} 
-                                onRemoveItem={(itemId) => removeItemFromTier(tier.id, itemId)} 
-                                onUpdateTier={handleUpdateTier}
-                                onDeleteTier={handleDeleteTier}
-                                onMoveTierUp={() => handleMoveTier(tier.id, 'up')}
-                                onMoveTierDown={() => handleMoveTier(tier.id, 'down')}
-                                isFirst={index === 0}
-                                isLast={index === state.tierDefs.length - 1}
-                                canDelete={true}
-                            />
-                        ))}
+                        <SortableContext 
+                            items={state.tierDefs.map(t => t.id)} 
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {state.tierDefs.map((tier) => (
+                                <TierRow 
+                                    key={tier.id} 
+                                    tier={tier}
+                                    items={state.items[tier.id] || []} 
+                                    onRemoveItem={(itemId) => removeItemFromTier(tier.id, itemId)} 
+                                    onUpdateTier={handleUpdateTier}
+                                    onDeleteTier={handleDeleteTier}
+                                    canDelete={true}
+                                />
+                            ))}
+                        </SortableContext>
                     </div>
                 </div>
 
@@ -452,7 +457,20 @@ export default function TierListApp() {
             </div>
 
             <DragOverlay>
-                {activeItem ? <MediaCard item={activeItem} /> : null}
+                {activeTier ? (
+                    <div className="w-full opacity-80 pointer-events-none">
+                         <TierRow 
+                            tier={activeTier} 
+                            items={state.items[activeTier.id] || []}
+                            onRemoveItem={() => {}}
+                            onUpdateTier={() => {}}
+                            onDeleteTier={() => {}}
+                            canDelete={false}
+                        />
+                    </div>
+                ) : activeItem ? (
+                    <MediaCard item={activeItem} />
+                ) : null}
             </DragOverlay>
 
         </DndContext>
