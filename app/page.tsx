@@ -25,7 +25,7 @@ import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
 import { Plus } from 'lucide-react';
-import { TIER_COLORS } from '@/lib/colors';
+import { TIER_COLORS, getTextColor } from '@/lib/colors';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
@@ -171,36 +171,21 @@ export default function TierListApp() {
         color: randomColorObj.bg
     };
     
-    setState(prev => {
-        const unrankedIndex = prev.tierDefs.findIndex(t => t.id === 'Unranked');
-        const insertIndex = unrankedIndex === -1 ? prev.tierDefs.length : unrankedIndex;
-        
-        const newDefs = [...prev.tierDefs];
-        newDefs.splice(insertIndex, 0, newTier);
-
-        return {
-            tierDefs: newDefs,
-            items: { ...prev.items, [newId]: [] }
-        };
-    });
+    setState(prev => ({
+        tierDefs: [...prev.tierDefs, newTier],
+        items: { ...prev.items, [newId]: [] }
+    }));
   };
 
   const handleRandomizeColors = () => {
     setState(prev => {
-        // Create a pool of colors
         let pool = [...TIER_COLORS];
         
         const newDefs = prev.tierDefs.map(tier => {
-            // Refill pool if empty
             if (pool.length === 0) pool = [...TIER_COLORS];
-            
-            // Pick a random index
             const index = Math.floor(Math.random() * pool.length);
             const color = pool[index];
-            
-            // Remove from pool to avoid immediate duplicates if possible
             pool.splice(index, 1);
-            
             return { ...tier, color: color.bg };
         });
 
@@ -214,7 +199,6 @@ export default function TierListApp() {
         tierDefs: prev.tierDefs.map(t => t.id === id ? { ...t, ...updates } : t)
     }));
   };
-
 
   const handleDeleteTier = (id: string) => {
     setState(prev => {
@@ -446,7 +430,7 @@ export default function TierListApp() {
         <h1 className="text-4xl font-black tracking-tighter uppercase italic animate-pulse select-none flex">
             {INITIAL_STATE.tierDefs.slice(0, 4).map((tier, i) => {
                 const letter = ['M', 'O', 'A', 'T'][i];
-                const colorClass = tier.color.replace('bg-', 'text-');
+                const colorClass = getTextColor(tier.color);
                 return <span key={tier.id} className={colorClass}>{letter}</span>;
             })}
         </h1>
@@ -490,6 +474,7 @@ export default function TierListApp() {
                                     onUpdateTier={handleUpdateTier}
                                     onDeleteTier={handleDeleteTier}
                                     canDelete={true}
+                                    isAnyDragging={!!activeItem || !!activeTier}
                                 />
                             ))}
                         </SortableContext>

@@ -17,6 +17,7 @@ interface TierRowProps {
   onUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
   onDeleteTier: (id: string) => void;
   canDelete: boolean;
+  isAnyDragging?: boolean;
 }
 
 export function TierRow({ 
@@ -25,7 +26,8 @@ export function TierRow({
   onRemoveItem, 
   onUpdateTier, 
   onDeleteTier, 
-  canDelete
+  canDelete,
+  isAnyDragging
 }: TierRowProps) {
   // Sortable logic for the Tier itself
   const {
@@ -148,7 +150,10 @@ export function TierRow({
         <div 
             {...attributes} 
             {...listeners}
-            className="absolute top-1 left-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black"
+            className={twMerge(
+                "absolute top-1 left-1 p-1 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black",
+                isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"
+            )}
         >
             <GripVertical size={16} />
         </div>
@@ -177,7 +182,10 @@ export function TierRow({
         {/* Settings Button */}
         <button 
             onClick={() => setShowSettings(!showSettings)}
-            className="absolute bottom-1 right-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 hover:bg-black/40 rounded text-black"
+            className={twMerge(
+                "absolute bottom-1 right-1 p-1 transition-opacity bg-black/20 hover:bg-black/40 rounded text-black",
+                isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"
+            )}
         >
             <Settings size={14} />
         </button>
