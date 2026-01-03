@@ -401,10 +401,11 @@ export default function TierListApp() {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans flex flex-col items-center justify-center gap-4">
         <h1 className="text-4xl font-black tracking-tighter uppercase italic animate-pulse select-none flex">
-            <span className="text-red-500">M</span>
-            <span className="text-orange-500">O</span>
-            <span className="text-amber-400">A</span>
-            <span className="text-green-500">T</span>
+            {INITIAL_STATE.tierDefs.slice(0, 4).map((tier, i) => {
+                const letter = ['M', 'O', 'A', 'T'][i];
+                const colorClass = tier.color.replace('bg-', 'text-');
+                return <span key={tier.id} className={colorClass}>{letter}</span>;
+            })}
         </h1>
         <div className="text-neutral-500 text-sm">Loading application...</div>
       </div>
