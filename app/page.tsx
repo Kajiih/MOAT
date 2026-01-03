@@ -24,6 +24,7 @@ import { MediaCard } from '@/components/MediaCard';
 import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
+import { Plus } from 'lucide-react';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
@@ -159,10 +160,18 @@ export default function TierListApp() {
         color: 'bg-neutral-500'
     };
     
-    setState(prev => ({
-        tierDefs: [newTier, ...prev.tierDefs],
-        items: { ...prev.items, [newId]: [] }
-    }));
+    setState(prev => {
+        const unrankedIndex = prev.tierDefs.findIndex(t => t.id === 'Unranked');
+        const insertIndex = unrankedIndex === -1 ? prev.tierDefs.length : unrankedIndex;
+        
+        const newDefs = [...prev.tierDefs];
+        newDefs.splice(insertIndex, 0, newTier);
+
+        return {
+            tierDefs: newDefs,
+            items: { ...prev.items, [newId]: [] }
+        };
+    });
   };
 
   const handleUpdateTier = (id: string, updates: Partial<TierDefinition>) => {
@@ -418,7 +427,6 @@ export default function TierListApp() {
             onImport={handleImport} 
             onExport={handleExport} 
             onClear={handleClear} 
-            onAddTier={handleAddTier}
             colors={state.tierDefs.slice(0, 4).map(t => t.color)}
         />
 
@@ -450,6 +458,13 @@ export default function TierListApp() {
                             ))}
                         </SortableContext>
                     </div>
+                    
+                    <button 
+                        onClick={handleAddTier}
+                        className="w-full py-3 border border-dashed border-neutral-700 rounded-lg text-neutral-500 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold"
+                    >
+                        <Plus size={20} /> Add Tier
+                    </button>
                 </div>
 
                 <SearchPanel 

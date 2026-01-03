@@ -1,17 +1,16 @@
 'use client';
 
-import { Upload, Download, Trash2, Plus } from 'lucide-react';
+import { Upload, Download, Trash2 } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
   onClear: () => void;
-  onAddTier: () => void;
   colors: string[]; // Expecting at least 4 colors
 }
 
-export function Header({ onImport, onExport, onClear, onAddTier, colors }: HeaderProps) {
+export function Header({ onImport, onExport, onClear, colors }: HeaderProps) {
   const letters = ['M', 'O', 'A', 'T'];
 
   return (
@@ -33,9 +32,6 @@ export function Header({ onImport, onExport, onClear, onAddTier, colors }: Heade
       </h1>
       
       <div className="flex gap-2">
-        <button onClick={onAddTier} className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm">
-            <Plus size={16} /> Add Tier
-        </button>
         <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm">
             <Upload size={16} /> Import
             <input type="file" onChange={onImport} accept=".json" className="hidden" />
