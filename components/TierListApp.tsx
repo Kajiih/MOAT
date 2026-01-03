@@ -12,7 +12,6 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-  useDndContext,
 } from '@dnd-kit/core';
 import { 
   arrayMove, 
@@ -25,7 +24,7 @@ import { MediaCard } from '@/components/MediaCard';
 import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
-import { Plus } from 'lucide-react';
+import { Plus, Dices } from 'lucide-react';
 import { TIER_COLORS } from '@/lib/colors';
 import { usePersistentState } from '@/lib/hooks';
 
@@ -399,13 +398,12 @@ export default function TierListApp() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans">
+    <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans relative">
       <div className="max-w-[1600px] mx-auto">
         <Header 
             onImport={handleImport} 
             onExport={handleExport} 
             onClear={handleClear} 
-            onRandomizeColors={handleRandomizeColors}
             colors={headerColors}
         />
 
@@ -472,6 +470,15 @@ export default function TierListApp() {
 
         </DndContext>
       </div>
+
+      {/* Floating Randomize Colors Button */}
+      <button 
+        onClick={handleRandomizeColors} 
+        className="fixed bottom-8 right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50"
+        title="Randomize Colors"
+      >
+          <Dices size={24} className="group-hover:rotate-12 transition-transform" />
+      </button>
     </div>
   );
 }

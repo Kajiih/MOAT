@@ -1,6 +1,6 @@
 'use client';
 
-import { Upload, Download, Trash2, Dices } from 'lucide-react';
+import { Upload, Download, Trash2 } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { getColorTheme } from '@/lib/colors';
 
@@ -8,11 +8,10 @@ interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
   onClear: () => void;
-  onRandomizeColors: () => void;
   colors: string[]; // Array of Semantic Color IDs (e.g. ['red', 'blue', ...])
 }
 
-export function Header({ onImport, onExport, onClear, onRandomizeColors, colors }: HeaderProps) {
+export function Header({ onImport, onExport, onClear, colors }: HeaderProps) {
   const letters = ['M', 'O', 'A', 'T'];
 
   return (
@@ -21,7 +20,7 @@ export function Header({ onImport, onExport, onClear, onRandomizeColors, colors 
         {letters.map((letter, i) => {
             const colorId = colors[i];
             const theme = getColorTheme(colorId);
-            const className = theme.text; // Use the text color defined in the theme
+            const className = theme.text;
 
             return (
                 <span key={i} className={twMerge(className, "transition-all duration-500")}>
@@ -32,9 +31,6 @@ export function Header({ onImport, onExport, onClear, onRandomizeColors, colors 
       </h1>
       
       <div className="flex gap-2">
-        <button onClick={onRandomizeColors} className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm" title="Randomize Colors">
-            <Dices size={16} />
-        </button>
         <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm">
             <Upload size={16} /> Import
             <input type="file" onChange={onImport} accept=".json" className="hidden" />
