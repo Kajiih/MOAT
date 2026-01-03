@@ -20,8 +20,8 @@ export const COLOR_PALETTE: Record<string, ColorTheme> = {
   purple: { id: 'purple', label: 'Purple', bg: 'bg-purple-500', text: 'text-purple-400' },
   pink: { id: 'pink', label: 'Pink', bg: 'bg-pink-500', text: 'text-pink-400' },
   rose: { id: 'rose', label: 'Rose', bg: 'bg-rose-500', text: 'text-rose-500' },
-  neutral: { id: 'neutral', label: 'Neutral', bg: 'bg-neutral-500', text: 'text-neutral-400' },
-  slate: { id: 'slate', label: 'Slate', bg: 'bg-slate-700', text: 'text-slate-400' },
+  neutral: { id: 'neutral', label: 'Neutral', bg: 'bg-neutral-500', text: 'text-neutral-500' },
+  slate: { id: 'slate', label: 'Slate', bg: 'bg-slate-700', text: 'text-slate-600' },
 };
 
 // Ordered list for pickers
