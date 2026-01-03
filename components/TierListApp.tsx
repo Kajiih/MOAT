@@ -12,6 +12,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  useDndContext,
 } from '@dnd-kit/core';
 import { 
   arrayMove, 
@@ -48,6 +49,7 @@ export default function TierListApp() {
   
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   
   const addedItemIds = useMemo(() => {
     const ids = new Set<string>();
@@ -66,6 +68,27 @@ export default function TierListApp() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // --- Dynamic Header Colors ---
+  const headerColors = useMemo(() => {
+    // If not dragging a tier, or not over anything, return current state
+    if (!activeTier || !overId) {
+        return state.tierDefs.slice(0, 4).map(t => t.color);
+    }
+
+    // Determine projected order
+    const oldIndex = state.tierDefs.findIndex(t => t.id === activeTier.id);
+    const newIndex = state.tierDefs.findIndex(t => t.id === overId);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+        // Create a temporary array reflecting the move
+        const projectedDefs = arrayMove(state.tierDefs, oldIndex, newIndex);
+        return projectedDefs.slice(0, 4).map(t => t.color);
+    }
+    
+    return state.tierDefs.slice(0, 4).map(t => t.color);
+  }, [state.tierDefs, activeTier, overId]);
+
 
   // --- Actions ---
 
@@ -212,6 +235,9 @@ export default function TierListApp() {
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     
+    // Track where we are hovering for dynamic header colors
+    setOverId(over?.id as string || null);
+    
     if (active.data.current?.type === 'tier') return;
 
     const activeTierId = active.data.current?.sourceTier;
@@ -330,6 +356,7 @@ export default function TierListApp() {
     const { active, over } = event;
     setActiveItem(null);
     setActiveTier(null);
+    setOverId(null); // Reset hover tracking
 
     // Case 1: Tier Reordering
     if (active.data.current?.type === 'tier' && over) {
@@ -379,7 +406,7 @@ export default function TierListApp() {
             onExport={handleExport} 
             onClear={handleClear} 
             onRandomizeColors={handleRandomizeColors}
-            colors={state.tierDefs.slice(0, 4).map(t => t.color)}
+            colors={headerColors}
         />
 
         <DndContext 
