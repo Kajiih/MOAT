@@ -181,3 +181,46 @@ export function useMediaSearch<T extends MediaType>(
     isValidating
   };
 }
+
+/**
+ * A custom hook that synchronizes state with localStorage.
+ * Handles hydration to ensure server/client match initially.
+ */
+export function usePersistentState<T>(key: string, initialValue: T) {
+  const [state, setState] = useState<T>(initialValue);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // 1. Initial Load (Hydration)
+  useEffect(() => {
+    // Wrap in setTimeout to avoid "synchronous setState in effect" lint error.
+    // This defers the state update to the next tick, preventing render cascading warnings.
+    const t = setTimeout(() => {
+        try {
+          const item = window.localStorage.getItem(key);
+          if (item) {
+            const parsed = JSON.parse(item);
+            if (parsed) {
+               setState(parsed);
+            }
+          }
+        } catch (error) {
+          console.error(`Error reading localStorage key "${key}":`, error);
+        }
+        setIsHydrated(true);
+    }, 0);
+    
+    return () => clearTimeout(t);
+  }, [key]);
+
+  // 2. Persist Updates
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      window.localStorage.setItem(key, JSON.stringify(state));
+    } catch (error) {
+      console.error(`Error writing localStorage key "${key}":`, error);
+    }
+  }, [key, state, isHydrated]);
+
+  return [state, setState, isHydrated] as const;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   DndContext, 
   DragOverlay, 
@@ -26,6 +26,7 @@ import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
 import { Plus } from 'lucide-react';
 import { TIER_COLORS, getColorTheme } from '@/lib/colors';
+import { usePersistentState } from '@/lib/hooks';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
@@ -42,11 +43,9 @@ const INITIAL_STATE: TierListState = {
 const LOCAL_STORAGE_KEY = 'kj-tierlist';
 
 export default function TierListApp() {
-  const [isMounted, setIsMounted] = useState(false);
-  const hasLoadedSaved = useRef(false);
-
-  // App State
-  const [state, setState] = useState<TierListState>(INITIAL_STATE);
+  // App State managed by custom hook
+  const [state, setState, isMounted] = usePersistentState<TierListState>(LOCAL_STORAGE_KEY, INITIAL_STATE);
+  
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
   
@@ -67,36 +66,6 @@ export default function TierListApp() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  // --- Persistence ---
-
-  useEffect(() => { 
-    if (!hasLoadedSaved.current) {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        let parsed = null;
-        if (saved) {
-            try { 
-                parsed = JSON.parse(saved);
-            } catch (e) { 
-                console.error("Save Corrupt", e); 
-            }
-        }
-        
-        setTimeout(() => {
-            if (parsed && 'tierDefs' in parsed) {
-                setState(parsed);
-            }
-            setIsMounted(true);
-        }, 0);
-
-        hasLoadedSaved.current = true;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted) return;
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-  }, [state, isMounted]);
 
   // --- Actions ---
 
