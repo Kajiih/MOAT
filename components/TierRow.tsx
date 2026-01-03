@@ -8,12 +8,7 @@ import { MediaItem, TierDefinition } from '@/lib/types';
 import { SortableMediaCard } from '@/components/MediaCard';
 import { Settings, Trash2, GripVertical } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-
-export const TIER_COLOR_OPTIONS = [
-  'bg-red-500', 'bg-orange-500', 'bg-amber-400', 'bg-yellow-300', 'bg-lime-400',
-  'bg-green-500', 'bg-teal-400', 'bg-cyan-400', 'bg-blue-500', 'bg-indigo-500', 
-  'bg-purple-500', 'bg-pink-500', 'bg-rose-500', 'bg-neutral-500', 'bg-slate-700'
-];
+import { TIER_COLORS } from '@/lib/colors';
 
 interface TierRowProps {
   tier: TierDefinition;
@@ -203,15 +198,15 @@ export function TierRow({
                 <div>
                     <div className="text-xs text-neutral-500 mb-1">Color</div>
                     <div className="flex flex-wrap gap-1">
-                        {TIER_COLOR_OPTIONS.map(c => (
+                        {TIER_COLORS.map(c => (
                             <button
-                                key={c}
+                                key={c.bg}
                                 className={twMerge(
                                     "w-6 h-6 rounded-full border border-transparent hover:scale-110 transition-transform",
-                                    c,
-                                    tier.color === c && "border-white ring-1 ring-white"
+                                    c.bg,
+                                    tier.color === c.bg && "border-white ring-1 ring-white"
                                 )}
-                                onClick={() => onUpdateTier(tier.id, { color: c })}
+                                onClick={() => onUpdateTier(tier.id, { color: c.bg })}
                             />
                         ))}
                     </div>

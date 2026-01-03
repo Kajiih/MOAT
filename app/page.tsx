@@ -25,6 +25,7 @@ import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
 import { Plus } from 'lucide-react';
+import { TIER_COLORS } from '@/lib/colors';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
@@ -154,10 +155,20 @@ export default function TierListApp() {
 
   const handleAddTier = () => {
     const newId = crypto.randomUUID();
+    
+    // Find a color that isn't used yet
+    const usedColors = new Set(state.tierDefs.map(t => t.color));
+    const availableColors = TIER_COLORS.filter(c => !usedColors.has(c.bg));
+    
+    // Pick from available, or just random if all used
+    const randomColorObj = availableColors.length > 0 
+        ? availableColors[Math.floor(Math.random() * availableColors.length)]
+        : TIER_COLORS[Math.floor(Math.random() * TIER_COLORS.length)];
+
     const newTier: TierDefinition = {
         id: newId,
         label: 'New Tier',
-        color: 'bg-neutral-500'
+        color: randomColorObj.bg
     };
     
     setState(prev => ({
