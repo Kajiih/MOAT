@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TierMaster",
-  description: "Rank your favorite albums",
+    title: "MOAT",
+    description: "🎵 Rank your music",
 };
 
 export default function RootLayout({

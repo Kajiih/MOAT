@@ -11,8 +11,8 @@ interface HeaderProps {
 export function Header({ onImport, onExport, onClear }: HeaderProps) {
   return (
     <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-      <h1 className="text-4xl font-black tracking-tighter text-white">
-        TIER<span className="text-red-600">MASTER</span>
+      <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic">
+        MO<span className="text-red-600">AT</span>
       </h1>
       
       <div className="flex gap-2">

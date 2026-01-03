@@ -119,7 +119,7 @@ export default function TierListApp() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
     const a = document.createElement('a');
     a.href = dataStr;
-    a.download = `tierlist-${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `moat-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
   };
 
@@ -400,8 +400,8 @@ export default function TierListApp() {
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans flex flex-col items-center justify-center gap-4">
-        <h1 className="text-4xl font-black tracking-tighter text-white animate-pulse">
-            TIER<span className="text-red-600">MASTER</span>
+        <h1 className="text-4xl font-black tracking-tighter text-white animate-pulse uppercase">
+            M<span className="text-red-600">OAT</span>
         </h1>
         <div className="text-neutral-500 text-sm">Loading application...</div>
       </div>

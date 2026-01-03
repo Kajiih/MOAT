@@ -1,4 +1,4 @@
-export const USER_AGENT = 'KJTierList/1.0.0 ( itskajih@gmail.com )';
+export const USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
 export const MB_BASE_URL = 'https://musicbrainz.org/ws/2';
 
 const FANART_API_KEY = process.env.FANART_API_KEY;
