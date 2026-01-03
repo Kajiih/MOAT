@@ -24,7 +24,6 @@ import { MediaCard } from '@/components/MediaCard';
 import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
-import { Plus } from 'lucide-react';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
@@ -419,6 +418,7 @@ export default function TierListApp() {
             onImport={handleImport} 
             onExport={handleExport} 
             onClear={handleClear} 
+            onAddTier={handleAddTier}
             colors={state.tierDefs.slice(0, 4).map(t => t.color)}
         />
 
@@ -432,13 +432,6 @@ export default function TierListApp() {
             
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
                 <div className="space-y-4">
-                    <button 
-                        onClick={handleAddTier}
-                        className="w-full py-3 border border-dashed border-neutral-700 rounded-lg text-neutral-500 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold"
-                    >
-                        <Plus size={20} /> Add Tier
-                    </button>
-
                     <div className="space-y-2">
                         <SortableContext 
                             items={state.tierDefs.map(t => t.id)} 
