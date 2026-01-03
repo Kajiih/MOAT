@@ -1,35 +1,18 @@
 'use client';
 
-import { Upload, Download, Trash2 } from 'lucide-react';
+import { Upload, Download, Trash2, Dices } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import { getTextColor } from '@/lib/colors';
 
 interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
   onClear: () => void;
+  onRandomizeColors: () => void;
   colors: string[]; // Expecting at least 4 colors
 }
 
-// Map tier background colors to optimal text colors for the logo
-const LOGO_COLOR_MAP: Record<string, string> = {
-  'bg-red-500': 'text-red-500',
-  'bg-orange-500': 'text-orange-500',
-  'bg-amber-400': 'text-amber-400',
-  'bg-yellow-300': 'text-yellow-300',
-  'bg-lime-400': 'text-lime-400',
-  'bg-green-500': 'text-green-500',
-  'bg-teal-400': 'text-teal-400',
-  'bg-cyan-400': 'text-cyan-400',
-  'bg-blue-500': 'text-blue-400', // Lighter for better contrast
-  'bg-indigo-500': 'text-indigo-400', // Lighter
-  'bg-purple-500': 'text-purple-400', // Lighter
-  'bg-pink-500': 'text-pink-400', // Lighter
-  'bg-rose-500': 'text-rose-500',
-  'bg-neutral-500': 'text-neutral-400',
-  'bg-slate-700': 'text-slate-400',
-};
-
-export function Header({ onImport, onExport, onClear, colors }: HeaderProps) {
+export function Header({ onImport, onExport, onClear, onRandomizeColors, colors }: HeaderProps) {
   const letters = ['M', 'O', 'A', 'T'];
 
   return (
@@ -42,7 +25,7 @@ export function Header({ onImport, onExport, onClear, colors }: HeaderProps) {
             let className = 'opacity-0 pointer-events-none';
             
             if (bgClass) {
-                className = LOGO_COLOR_MAP[bgClass] || bgClass.replace('bg-', 'text-');
+                className = getTextColor(bgClass);
             }
 
             return (
@@ -54,6 +37,9 @@ export function Header({ onImport, onExport, onClear, colors }: HeaderProps) {
       </h1>
       
       <div className="flex gap-2">
+        <button onClick={onRandomizeColors} className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm" title="Randomize Colors">
+            <Dices size={16} />
+        </button>
         <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm">
             <Upload size={16} /> Import
             <input type="file" onChange={onImport} accept=".json" className="hidden" />

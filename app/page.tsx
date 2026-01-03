@@ -171,10 +171,41 @@ export default function TierListApp() {
         color: randomColorObj.bg
     };
     
-    setState(prev => ({
-        tierDefs: [...prev.tierDefs, newTier],
-        items: { ...prev.items, [newId]: [] }
-    }));
+    setState(prev => {
+        const unrankedIndex = prev.tierDefs.findIndex(t => t.id === 'Unranked');
+        const insertIndex = unrankedIndex === -1 ? prev.tierDefs.length : unrankedIndex;
+        
+        const newDefs = [...prev.tierDefs];
+        newDefs.splice(insertIndex, 0, newTier);
+
+        return {
+            tierDefs: newDefs,
+            items: { ...prev.items, [newId]: [] }
+        };
+    });
+  };
+
+  const handleRandomizeColors = () => {
+    setState(prev => {
+        // Create a pool of colors
+        let pool = [...TIER_COLORS];
+        
+        const newDefs = prev.tierDefs.map(tier => {
+            // Refill pool if empty
+            if (pool.length === 0) pool = [...TIER_COLORS];
+            
+            // Pick a random index
+            const index = Math.floor(Math.random() * pool.length);
+            const color = pool[index];
+            
+            // Remove from pool to avoid immediate duplicates if possible
+            pool.splice(index, 1);
+            
+            return { ...tier, color: color.bg };
+        });
+
+        return { ...prev, tierDefs: newDefs };
+    });
   };
 
   const handleUpdateTier = (id: string, updates: Partial<TierDefinition>) => {
@@ -183,6 +214,7 @@ export default function TierListApp() {
         tierDefs: prev.tierDefs.map(t => t.id === id ? { ...t, ...updates } : t)
     }));
   };
+
 
   const handleDeleteTier = (id: string) => {
     setState(prev => {
@@ -430,6 +462,7 @@ export default function TierListApp() {
             onImport={handleImport} 
             onExport={handleExport} 
             onClear={handleClear} 
+            onRandomizeColors={handleRandomizeColors}
             colors={state.tierDefs.slice(0, 4).map(t => t.color)}
         />
 
