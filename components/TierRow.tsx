@@ -68,7 +68,7 @@ export function TierRow({
     transition,
   };
 
-  const { over } = useDndContext();
+  const { over, active } = useDndContext();
   const [isEditing, setIsEditing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   
@@ -85,9 +85,12 @@ export function TierRow({
 
   const isOverRow = useMemo(() => {
     if (!over) return false;
+    // Don't highlight if we are dragging a tier
+    if (active?.data.current?.type === 'tier') return false;
+
     if (over.id === tier.id) return true;
     return items.some(a => a.id === over.id);
-  }, [over, tier.id, items]);
+  }, [over, active, tier.id, items]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
