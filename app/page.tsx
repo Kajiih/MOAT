@@ -400,8 +400,11 @@ export default function TierListApp() {
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans flex flex-col items-center justify-center gap-4">
-        <h1 className="text-4xl font-black tracking-tighter text-white animate-pulse uppercase">
-            M<span className="text-red-600">OAT</span>
+        <h1 className="text-4xl font-black tracking-tighter uppercase italic animate-pulse select-none flex">
+            <span className="text-red-500">M</span>
+            <span className="text-orange-500">O</span>
+            <span className="text-amber-400">A</span>
+            <span className="text-green-500">T</span>
         </h1>
         <div className="text-neutral-500 text-sm">Loading application...</div>
       </div>
@@ -411,7 +414,12 @@ export default function TierListApp() {
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans">
       <div className="max-w-[1600px] mx-auto">
-        <Header onImport={handleImport} onExport={handleExport} onClear={handleClear} />
+        <Header 
+            onImport={handleImport} 
+            onExport={handleExport} 
+            onClear={handleClear} 
+            colors={state.tierDefs.slice(0, 4).map(t => t.color)}
+        />
 
         <DndContext 
             sensors={sensors}

@@ -1,18 +1,34 @@
 'use client';
 
 import { Upload, Download, Trash2 } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
 
 interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
   onClear: () => void;
+  colors: string[]; // Expecting at least 4 colors
 }
 
-export function Header({ onImport, onExport, onClear }: HeaderProps) {
+export function Header({ onImport, onExport, onClear, colors }: HeaderProps) {
+  const letters = ['M', 'O', 'A', 'T'];
+
   return (
     <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-      <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic">
-        MO<span className="text-red-600">AT</span>
+      <h1 className="text-4xl font-black tracking-tighter uppercase italic select-none flex">
+        {letters.map((letter, i) => {
+            const bgClass = colors[i];
+            // If color exists, use it. Otherwise, hide the letter
+            const className = bgClass 
+                ? bgClass.replace('bg-', 'text-') 
+                : 'opacity-0 pointer-events-none';
+
+            return (
+                <span key={i} className={twMerge(className, "transition-all duration-500")}>
+                    {letter}
+                </span>
+            );
+        })}
       </h1>
       
       <div className="flex gap-2">
