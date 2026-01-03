@@ -19,22 +19,22 @@ import {
   SortableContext,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { MediaItem, TierListState, TierDefinition, LegacyTierMap } from '@/lib/types';
+import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
 import { MediaCard } from '@/components/MediaCard';
 import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
 import { Plus } from 'lucide-react';
-import { TIER_COLORS, getTextColor } from '@/lib/colors';
+import { TIER_COLORS, getColorTheme } from '@/lib/colors';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
-    { id: 'S', label: 'S', color: 'bg-red-500' },
-    { id: 'A', label: 'A', color: 'bg-orange-500' },
-    { id: 'B', label: 'B', color: 'bg-amber-400' },
-    { id: 'C', label: 'C', color: 'bg-green-500' },
-    { id: 'D', label: 'D', color: 'bg-blue-500' },
-    { id: 'Unranked', label: 'Unranked', color: 'bg-neutral-500' },
+    { id: 'S', label: 'S', color: 'red' },
+    { id: 'A', label: 'A', color: 'orange' },
+    { id: 'B', label: 'B', color: 'amber' },
+    { id: 'C', label: 'C', color: 'green' },
+    { id: 'D', label: 'D', color: 'blue' },
+    { id: 'Unranked', label: 'Unranked', color: 'neutral' },
   ],
   items: { S: [], A: [], B: [], C: [], D: [], Unranked: [] }
 };
@@ -68,7 +68,7 @@ export default function TierListApp() {
     })
   );
 
-  // --- Persistence & Migration ---
+  // --- Persistence ---
 
   useEffect(() => { 
     if (!hasLoadedSaved.current) {
@@ -83,24 +83,8 @@ export default function TierListApp() {
         }
         
         setTimeout(() => {
-            if (parsed) {
-                if (!('tierDefs' in parsed)) {
-                    console.log("Migrating legacy data...");
-                    const legacy = parsed as LegacyTierMap;
-                    const items: Record<string, MediaItem[]> = { ...INITIAL_STATE.items };
-                    
-                    Object.keys(legacy).forEach(key => {
-                        if (key in items) {
-                            items[key] = legacy[key];
-                        } else {
-                            items['Unranked'] = [...items['Unranked'], ...legacy[key]];
-                        }
-                    });
-                    
-                    setState({ ...INITIAL_STATE, items });
-                } else {
-                    setState(parsed);
-                }
+            if (parsed && 'tierDefs' in parsed) {
+                setState(parsed);
             }
             setIsMounted(true);
         }, 0);
@@ -131,17 +115,11 @@ export default function TierListApp() {
     reader.onload = (ev) => {
         try {
             const parsed = JSON.parse(ev.target?.result as string);
-             if (!('tierDefs' in parsed)) {
-                const legacy = parsed as LegacyTierMap;
-                const items: Record<string, MediaItem[]> = { ...INITIAL_STATE.items };
-                Object.keys(legacy).forEach(key => {
-                    if (key in items) items[key] = legacy[key];
-                    else items['Unranked'] = [...items['Unranked'], ...legacy[key]];
-                });
-                setState({ ...INITIAL_STATE, items });
-             } else {
+            if (parsed && 'tierDefs' in parsed) {
                 setState(parsed);
-             }
+            } else {
+                alert("Invalid JSON file: missing tier definitions");
+            }
         } catch { alert("Invalid JSON file"); }
     };
     reader.readAsText(file);
@@ -158,7 +136,7 @@ export default function TierListApp() {
     
     // Find a color that isn't used yet
     const usedColors = new Set(state.tierDefs.map(t => t.color));
-    const availableColors = TIER_COLORS.filter(c => !usedColors.has(c.bg));
+    const availableColors = TIER_COLORS.filter(c => !usedColors.has(c.id));
     
     // Pick from available, or just random if all used
     const randomColorObj = availableColors.length > 0 
@@ -168,7 +146,7 @@ export default function TierListApp() {
     const newTier: TierDefinition = {
         id: newId,
         label: 'New Tier',
-        color: randomColorObj.bg
+        color: randomColorObj.id
     };
     
     setState(prev => ({
@@ -186,7 +164,7 @@ export default function TierListApp() {
             const index = Math.floor(Math.random() * pool.length);
             const color = pool[index];
             pool.splice(index, 1);
-            return { ...tier, color: color.bg };
+            return { ...tier, color: color.id };
         });
 
         return { ...prev, tierDefs: newDefs };
@@ -430,8 +408,8 @@ export default function TierListApp() {
         <h1 className="text-4xl font-black tracking-tighter uppercase italic animate-pulse select-none flex">
             {INITIAL_STATE.tierDefs.slice(0, 4).map((tier, i) => {
                 const letter = ['M', 'O', 'A', 'T'][i];
-                const colorClass = getTextColor(tier.color);
-                return <span key={tier.id} className={colorClass}>{letter}</span>;
+                const theme = getColorTheme(tier.color);
+                return <span key={tier.id} className={theme.text}>{letter}</span>;
             })}
         </h1>
         <div className="text-neutral-500 text-sm">Loading application...</div>

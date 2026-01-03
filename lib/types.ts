@@ -63,7 +63,7 @@ export type ArtistSelection = {
 export interface TierDefinition {
   id: string;
   label: string;
-  color: string; // Tailwind bg class, e.g., 'bg-red-500'
+  color: string; // Semantic Color ID (e.g., 'red', 'blue'), mapped in lib/colors.ts
 }
 
 /**
@@ -75,12 +75,6 @@ export interface TierListState {
   tierDefs: TierDefinition[];
   items: Record<string, MediaItem[]>;
 }
-
-/**
- * Legacy Type: Kept for migration purposes.
- * Represents the old state where keys were labels.
- */
-export type LegacyTierMap = Record<string, MediaItem[]>;
 
 // --- Zod Schemas for MusicBrainz API ---
 

@@ -8,7 +8,7 @@ import { MediaItem, TierDefinition } from '@/lib/types';
 import { SortableMediaCard } from '@/components/MediaCard';
 import { Settings, Trash2, GripVertical } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-import { TIER_COLORS } from '@/lib/colors';
+import { TIER_COLORS, getColorTheme } from '@/lib/colors';
 
 interface TierRowProps {
   tier: TierDefinition;
@@ -29,6 +29,9 @@ export function TierRow({
   canDelete,
   isAnyDragging
 }: TierRowProps) {
+  // Resolve the full color theme from the ID
+  const tierTheme = getColorTheme(tier.color);
+
   // Sortable logic for the Tier itself
   const {
     attributes,
@@ -143,7 +146,7 @@ export function TierRow({
       <div 
         className={twMerge(
             "w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg",
-            tier.color
+            tierTheme.bg // Apply the background class from the theme
         )}
       >
         {/* Drag Handle */}
@@ -208,13 +211,14 @@ export function TierRow({
                     <div className="flex flex-wrap gap-1">
                         {TIER_COLORS.map(c => (
                             <button
-                                key={c.bg}
+                                key={c.id}
+                                title={c.label}
                                 className={twMerge(
                                     "w-6 h-6 rounded-full border border-transparent hover:scale-110 transition-transform",
                                     c.bg,
-                                    tier.color === c.bg && "border-white ring-1 ring-white"
+                                    tier.color === c.id && "border-white ring-1 ring-white"
                                 )}
-                                onClick={() => onUpdateTier(tier.id, { color: c.bg })}
+                                onClick={() => onUpdateTier(tier.id, { color: c.id })}
                             />
                         ))}
                     </div>

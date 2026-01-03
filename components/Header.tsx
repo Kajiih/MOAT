@@ -2,14 +2,14 @@
 
 import { Upload, Download, Trash2, Dices } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-import { getTextColor } from '@/lib/colors';
+import { getColorTheme } from '@/lib/colors';
 
 interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
   onClear: () => void;
   onRandomizeColors: () => void;
-  colors: string[]; // Expecting at least 4 colors
+  colors: string[]; // Array of Semantic Color IDs (e.g. ['red', 'blue', ...])
 }
 
 export function Header({ onImport, onExport, onClear, onRandomizeColors, colors }: HeaderProps) {
@@ -19,14 +19,9 @@ export function Header({ onImport, onExport, onClear, onRandomizeColors, colors 
     <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
       <h1 className="text-4xl font-black tracking-tighter uppercase italic select-none flex">
         {letters.map((letter, i) => {
-            const bgClass = colors[i];
-            
-            // Use mapped color if available, otherwise fallback to simple replacement, or hide if no color
-            let className = 'opacity-0 pointer-events-none';
-            
-            if (bgClass) {
-                className = getTextColor(bgClass);
-            }
+            const colorId = colors[i];
+            const theme = getColorTheme(colorId);
+            const className = theme.text; // Use the text color defined in the theme
 
             return (
                 <span key={i} className={twMerge(className, "transition-all duration-500")}>
