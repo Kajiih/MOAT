@@ -58,10 +58,29 @@ export type ArtistSelection = {
 };
 
 /**
- * Represents the state of the tier list board.
- * Keys are tier labels (S, A, B...) and values are arrays of MediaItems.
+ * Defines the metadata for a single tier row.
  */
-export type TierMap = Record<string, MediaItem[]>;
+export interface TierDefinition {
+  id: string;
+  label: string;
+  color: string; // Tailwind bg class, e.g., 'bg-red-500'
+}
+
+/**
+ * Represents the state of the tier list board.
+ * - tierDefs: Array defining the order and appearance of tiers.
+ * - items: Record mapping tier IDs to their content.
+ */
+export interface TierListState {
+  tierDefs: TierDefinition[];
+  items: Record<string, MediaItem[]>;
+}
+
+/**
+ * Legacy Type: Kept for migration purposes.
+ * Represents the old state where keys were labels.
+ */
+export type LegacyTierMap = Record<string, MediaItem[]>;
 
 // --- Zod Schemas for MusicBrainz API ---
 
