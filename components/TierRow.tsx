@@ -19,6 +19,8 @@ interface TierRowProps {
   canDelete: boolean;
   isAnyDragging?: boolean;
   onInfo: (item: MediaItem) => void;
+  isBoardEmpty?: boolean;
+  isLastTier?: boolean;
 }
 
 export const TierRow = memo(function TierRow({
@@ -29,7 +31,9 @@ export const TierRow = memo(function TierRow({
   onDeleteTier,
   canDelete,
   isAnyDragging,
-  onInfo
+  onInfo,
+  isBoardEmpty,
+  isLastTier
 }: TierRowProps) {
   // Resolve the full color theme from the ID
   const tierTheme = getColorTheme(tier.color);
@@ -264,9 +268,9 @@ export const TierRow = memo(function TierRow({
           })}
         </SortableContext>
 
-        {items.length === 0 && (
-            <div className="w-full h-full flex items-center justify-center text-neutral-800 text-sm font-medium italic pointer-events-none select-none opacity-50">
-                {tier.label === 'Unranked' ? 'Drop items here...' : ''}
+        {items.length === 0 && isBoardEmpty && isLastTier && (
+            <div className="w-full h-full flex items-center justify-center text-neutral-600 text-lg font-bold italic pointer-events-none select-none">
+                Drop items here...
             </div>
         )}
       </div>

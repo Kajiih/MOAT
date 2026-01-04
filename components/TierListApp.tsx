@@ -42,6 +42,8 @@ export default function TierListApp() {
     handleCloseDetails
   } = useTierList();
 
+  const isBoardEmpty = Object.values(state.items).every(items => items.length === 0);
+
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans relative">
       <div className="max-w-[1600px] mx-auto">
@@ -67,7 +69,7 @@ export default function TierListApp() {
                             items={state.tierDefs.map(t => t.id)} 
                             strategy={verticalListSortingStrategy}
                         >
-                            {state.tierDefs.map((tier) => (
+                            {state.tierDefs.map((tier, index) => (
                                 <TierRow 
                                     key={tier.id} 
                                     tier={tier}
@@ -78,6 +80,8 @@ export default function TierListApp() {
                                     canDelete={true}
                                     isAnyDragging={!!activeItem || !!activeTier}
                                     onInfo={handleShowDetails}
+                                    isBoardEmpty={isBoardEmpty}
+                                    isLastTier={index === state.tierDefs.length - 1}
                                 />
                             ))}
                         </SortableContext>
