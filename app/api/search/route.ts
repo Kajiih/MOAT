@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MusicBrainzSearchResponseSchema, MediaItem, MediaType } from '@/lib/types';
+import { MusicBrainzSearchResponseSchema, MediaItem, MediaType, SECONDARY_TYPES } from '@/lib/types';
 import { getArtistThumbnail, MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
 
 const SEARCH_CACHE_TTL = 3600; // 1 hour
@@ -128,9 +128,14 @@ export async function GET(request: Request) {
           queryParts.push(`primarytype:(${typeQuery})`);
       }
       
-      if (albumSecondaryTypes.length > 0) {
-          const typeQuery = albumSecondaryTypes.map(t => `"${t}"`).join(' OR ');
-          queryParts.push(`secondarytype:(${typeQuery})`);
+      // Secondary Types: "Opt-in" logic
+      // By default, we want to EXCLUDE all "noisy" secondary types (Live, Compilation, etc.)
+      // If the user selects one (e.g., 'Live'), we stop excluding it.
+      const forbiddenSecondaryTypes = SECONDARY_TYPES.filter(t => !albumSecondaryTypes.includes(t));
+      if (forbiddenSecondaryTypes.length > 0) {
+          const forbiddenQuery = forbiddenSecondaryTypes.map(t => `"${t}"`).join(' OR ');
+          // Note: NOT operator in Lucene
+          queryParts.push(`NOT secondarytype:(${forbiddenQuery})`);
       }
       break;
   }
@@ -170,6 +175,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid data from upstream' }, { status: 502 });
     }
 
+    const formatArtistCredit = (credits: z.infer<typeof MusicBrainzArtistCreditSchema>[] | undefined) => {
+        if (!credits || credits.length === 0) return 'Unknown';
+        return credits.map(c => (c.name + (c.joinphrase || ''))).join('');
+    };
+
     let results: MediaItem[] = [];
 
     if (type === 'album' && parsed.data['release-groups']) {
@@ -177,7 +187,7 @@ export async function GET(request: Request) {
             id: item.id,
             type: 'album',
             title: item.title,
-            artist: item['artist-credit']?.[0]?.name || 'Unknown',
+            artist: formatArtistCredit(item['artist-credit']),
             year: item['first-release-date']?.split('-')[0] || '',
             imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front`,
             primaryType: item['primary-type'],
@@ -202,7 +212,7 @@ export async function GET(request: Request) {
                 id: item.id,
                 type: 'song',
                 title: item.title,
-                artist: item['artist-credit']?.[0]?.name || 'Unknown',
+                artist: formatArtistCredit(item['artist-credit']),
                 album: item.releases?.[0]?.title, 
                 year: item['first-release-date']?.split('-')[0] || '',
                 imageUrl: releaseId ? `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front` : undefined

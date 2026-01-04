@@ -9,6 +9,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 interface UseMediaSearchConfig {
   fuzzy?: boolean;
   wildcard?: boolean;
+  enabled?: boolean;
 }
 
 // Map each MediaType to its specific item type
@@ -76,6 +77,8 @@ export function useMediaSearch<T extends MediaType>(
   // Determine effective values
   const isFuzzy = config?.fuzzy ?? internalFuzzy;
   const isWildcard = config?.wildcard ?? internalWildcard;
+  const isEnabled = config?.enabled ?? true;
+  
   const albumPrimaryTypes = internalAlbumPrimaryTypes;
   const albumSecondaryTypes = internalAlbumSecondaryTypes;
 
@@ -137,6 +140,8 @@ export function useMediaSearch<T extends MediaType>(
   }, [filterKey]);
 
   const searchUrl = useMemo(() => {
+    if (!isEnabled) return null;
+
     const hasFilters = debouncedQuery || artistId || debouncedMinYear || debouncedMaxYear || albumPrimaryTypes.length > 0 || albumSecondaryTypes.length > 0;
     if (!hasFilters) return null;
 
@@ -152,7 +157,7 @@ export function useMediaSearch<T extends MediaType>(
       fuzzy: isFuzzy,
       wildcard: isWildcard
     });
-  }, [type, page, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, isFuzzy, isWildcard]);
+  }, [isEnabled, type, page, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, isFuzzy, isWildcard]);
 
   const { data, isLoading, isValidating } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
     searchUrl,
@@ -162,7 +167,7 @@ export function useMediaSearch<T extends MediaType>(
   
   // Pagination Prefetching
   useEffect(() => {
-      if (data && page < data.totalPages) {
+      if (data && page < data.totalPages && isEnabled) {
           const nextUrl = getSearchUrl({
             type,
             page: page + 1,
@@ -177,7 +182,7 @@ export function useMediaSearch<T extends MediaType>(
           });
           preload(nextUrl, fetcher);
       }
-  }, [data, page, type, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, isFuzzy, isWildcard]);
+  }, [data, page, type, debouncedQuery, artistId, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, isFuzzy, isWildcard, isEnabled]);
 
   return {
     // State
@@ -220,14 +225,16 @@ export function usePersistentState<T>(key: string, initialValue: T) {
     }
   });
 
-  // 2. Persist Updates: Sync to localStorage whenever state changes
+  // 2. Persist Updates: Debounce the write to localStorage
+  const [debouncedState] = useDebounce(state, 1000);
+
   useEffect(() => {
     try {
-      window.localStorage.setItem(key, JSON.stringify(state));
+      window.localStorage.setItem(key, JSON.stringify(debouncedState));
     } catch (error) {
       console.error(`Error writing localStorage key "${key}":`, error);
     }
-  }, [key, state]);
+  }, [key, debouncedState]);
 
   return [state, setState] as const;
 }

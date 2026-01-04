@@ -85,6 +85,7 @@ export interface TierListState {
 // Common
 export const MusicBrainzArtistCreditSchema = z.object({
   name: z.string(),
+  joinphrase: z.string().optional(),
 });
 
 // 1. Release Group (Album)
