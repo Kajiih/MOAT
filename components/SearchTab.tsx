@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Filter, Info, ArrowUpDown } from 'lucide-react';
-import { MediaType, ArtistSelection, PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
+import { Filter, Info } from 'lucide-react';
+import { MediaType, ArtistSelection, PRIMARY_TYPES, SECONDARY_TYPES, SortOption } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
 import { SkeletonCard } from '@/components/SkeletonCard';
+import { SortDropdown } from '@/components/SortDropdown';
+import { Pagination } from '@/components/Pagination';
+import { FilterButton } from '@/components/FilterButton';
 
 interface SearchTabProps {
   type: MediaType;
@@ -52,9 +55,7 @@ export function SearchTab({
       enabled: !isHidden
   });
 
-  type SortOption = 'relevance' | 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc';
   const [sortOption, setSortOption] = useState<SortOption>('relevance');
-  const [showSort, setShowSort] = useState(false);
 
   const sortedResults = [...searchResults].sort((a, b) => {
     switch (sortOption) {
@@ -107,20 +108,8 @@ export function SearchTab({
                     }}
                 />
                 
-                <div className="relative">
-                    <button 
-                        onClick={() => setShowSort(!showSort)}
-                        className={`p-2 rounded border transition-colors ${showSort ? 'bg-neutral-800 border-neutral-600 text-white' : 'bg-black border-neutral-700 text-neutral-400 hover:text-white'}`}
-                        title="Sort Results"
-                    >
-                        <ArrowUpDown size={18} />
-                    </button>
-                    {showSort && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl z-50 overflow-hidden flex flex-col p-1">
-                                                        {([                                { id: 'relevance', label: 'Relevance' },                                { id: 'date_desc', label: 'Date (Newest)' },                                { id: 'date_asc', label: 'Date (Oldest)' },                                { id: 'title_asc', label: 'Name (A-Z)' },                                { id: 'title_desc', label: 'Name (Z-A)' },                            ] as const).map((opt) => (                                <button                                    key={opt.id}                                    onClick={() => {                                        setSortOption(opt.id);                                        setShowSort(false);                                    }}                                    className={`text-left px-3 py-2 text-xs rounded hover:bg-neutral-800 transition-colors ${sortOption === opt.id ? 'text-white font-bold bg-neutral-800' : 'text-neutral-400'}`}                                >                                    {opt.label}                                </button>                            ))}
-                        </div>
-                    )}
-                </div>
+                <SortDropdown sortOption={sortOption} onSortChange={setSortOption} />
+
                 {type === 'album' && (
                     <button
                         onClick={() => setShowFilters(!showFilters)}
@@ -154,22 +143,15 @@ export function SearchTab({
                                     )}
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {PRIMARY_TYPES.map(t => {
-                                        const isSelected = albumPrimaryTypes.includes(t);
-                                        return (
-                                            <button
-                                                key={t}
-                                                onClick={() => togglePrimaryType(t)}
-                                                className={`px-2 py-1 rounded text-[10px] border transition-all ${
-                                                    isSelected
-                                                        ? 'bg-red-600 border-red-500 text-white font-medium'
-                                                        : 'bg-black border-neutral-700 text-neutral-400 hover:border-neutral-500'
-                                                }`}
-                                            >
-                                                {t}
-                                            </button>
-                                        );
-                                    })}
+                                    {PRIMARY_TYPES.map(t => (
+                                        <FilterButton 
+                                            key={t}
+                                            label={t}
+                                            isSelected={albumPrimaryTypes.includes(t)}
+                                            onClick={() => togglePrimaryType(t)}
+                                            variant="primary"
+                                        />
+                                    ))}
                                 </div>
                             </div>
 
@@ -198,22 +180,15 @@ export function SearchTab({
                                     </button>
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {SECONDARY_TYPES.map(t => {
-                                        const isSelected = albumSecondaryTypes.includes(t);
-                                        return (
-                                            <button
-                                                key={t}
-                                                onClick={() => toggleSecondaryType(t)}
-                                                className={`px-2 py-1 rounded text-[10px] border transition-all ${
-                                                    isSelected
-                                                        ? 'bg-blue-600 border-blue-500 text-white font-medium'
-                                                        : 'bg-neutral-900 border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-neutral-300'
-                                                }`}
-                                            >
-                                                {t}
-                                            </button>
-                                        );
-                                    })}
+                                    {SECONDARY_TYPES.map(t => (
+                                        <FilterButton 
+                                            key={t}
+                                            label={t}
+                                            isSelected={albumSecondaryTypes.includes(t)}
+                                            onClick={() => toggleSecondaryType(t)}
+                                            variant="secondary"
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -290,23 +265,11 @@ export function SearchTab({
             )}
 
             {!isSearching && searchResults.length > 0 && totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4 mt-6">
-                    <button
-                        disabled={page <= 1}
-                        onClick={() => setPage(p => p - 1)}
-                        className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
-                    >
-                        <ChevronLeft size={16} />
-                    </button>
-                    <span className="text-xs text-neutral-400">Page {page} of {totalPages}</span>
-                    <button
-                        disabled={page >= totalPages}
-                        onClick={() => setPage(p => p + 1)}
-                        className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
-                    >
-                        <ChevronRight size={16} />
-                    </button>
-                </div>
+                <Pagination 
+                    page={page} 
+                    totalPages={totalPages} 
+                    onPageChange={setPage} 
+                />
             )}
         </div>
     </div>

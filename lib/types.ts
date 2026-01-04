@@ -10,6 +10,7 @@ import { z } from 'zod';
  */
 export type MediaType = 'album' | 'artist' | 'song';
 
+export type SortOption = 'relevance' | 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc';
 
 export interface BaseMediaItem {
   /** Unique identifier (MusicBrainz ID) */
