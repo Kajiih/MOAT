@@ -16,6 +16,7 @@ import { SearchPanel } from '@/components/SearchPanel';
 import { DetailsModal } from '@/components/DetailsModal';
 import { Plus, Dices } from 'lucide-react';
 import { useTierList } from '@/lib/useTierList';
+import { useToast } from './ToastProvider';
 
 /**
  * The main application component for the Tier List app.
@@ -50,6 +51,8 @@ export default function TierListApp() {
     handleShowDetails,
     handleCloseDetails
   } = useTierList();
+
+  const { toastCount } = useToast();
 
   const isBoardEmpty = Object.values(state.items).every(items => items.length === 0);
 
@@ -141,7 +144,9 @@ export default function TierListApp() {
       {/* Floating Randomize Colors Button */}
       <button 
         onClick={handleRandomizeColors} 
-        className="fixed bottom-18 right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50"
+        className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 ${
+          toastCount > 0 ? 'bottom-18' : 'bottom-8'
+        }`}
         title="Randomize Colors"
       >
           <Dices size={24} className="group-hover:rotate-12 transition-transform" />

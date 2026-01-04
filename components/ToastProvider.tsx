@@ -49,6 +49,7 @@ function toastReducer(state: ToastState, action: ToastAction): ToastState {
 
 interface ToastContextValue {
   showToast: (message: string, type?: ToastType) => void;
+  toastCount: number;
 }
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
@@ -87,7 +88,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast, toastCount: toasts.length }}>
       {children}
       <div className="fixed bottom-4 right-8 z-[100] flex flex-col-reverse items-end gap-2 pointer-events-none">
         
