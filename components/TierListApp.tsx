@@ -17,6 +17,15 @@ import { DetailsModal } from '@/components/DetailsModal';
 import { Plus, Dices } from 'lucide-react';
 import { useTierList } from '@/lib/useTierList';
 
+/**
+ * The main application component for the Tier List app.
+ * 
+ * Responsibilities:
+ * - Orchestrates the drag-and-drop context (`DndContext`).
+ * - Manages the main layout (header, tier list, search panel).
+ * - Integrates with the `useTierList` hook for state management.
+ * - Handles global UI elements like the "Randomize Colors" button and Details Modal.
+ */
 export default function TierListApp() {
   const {
     state,
