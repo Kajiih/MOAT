@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useState } from 'react';
 import { useDraggable, DraggableAttributes } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -45,6 +46,8 @@ function BaseMediaCard({
   onInfo
 }: BaseMediaCardProps) {
   
+  const [imageError, setImageError] = useState(false);
+
   // Icon based on type
   const TypeIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
 
@@ -86,7 +89,7 @@ function BaseMediaCard({
         }
       `}
     >
-      {item.imageUrl ? (
+      {item.imageUrl && !imageError ? (
         <Image 
           src={item.imageUrl} 
           alt={item.title} 
@@ -94,9 +97,8 @@ function BaseMediaCard({
           sizes="96px"
           priority={priority}
           className="object-cover pointer-events-none" 
-          onError={(e) => { 
-            // If image fails, hide it and show placeholder
-            e.currentTarget.style.display = 'none';
+          onError={() => {
+            setImageError(true);
           }}
         />
       ) : (

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import Image from 'next/image';
 import { MediaItem } from '@/lib/types';
@@ -15,10 +16,19 @@ interface DetailsModalProps {
 }
 
 export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
+  const [imageError, setImageError] = useState(false);
+
   const { details, isLoading, error } = useMediaDetails(
     isOpen && item ? item.id : null,
     isOpen && item ? item.type : null
   );
+
+  // Reset image error state when the item changes
+  useEffect(() => {
+    if (item) {
+      setImageError(false);
+    }
+  }, [item]);
 
   if (!isOpen || !item) return null;
 
@@ -30,13 +40,15 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
       >
         {/* Header with Cover Art */}
         <div className="relative h-48 sm:h-64 shrink-0 bg-neutral-950">
-            {item.imageUrl ? (
+            {item.imageUrl && !imageError ? (
                 <>
                     <Image 
                         src={item.imageUrl} 
                         alt={item.title} 
                         fill 
+                        priority
                         className="object-cover opacity-60 blur-sm" 
+                        onError={() => setImageError(true)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-6 flex gap-4 items-end w-full">
@@ -45,7 +57,9 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
                                 src={item.imageUrl} 
                                 alt={item.title} 
                                 fill 
+                                priority
                                 className="object-cover" 
+                                onError={() => setImageError(true)}
                             />
                         </div>
                         <div className="flex-1 min-w-0 pb-1">
@@ -63,8 +77,14 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
                     </div>
                 </>
             ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-neutral-800">
-                    <span className="text-neutral-600 font-bold text-lg uppercase">{item.type}</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-800 p-6 text-center">
+                    <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">{item.type}</div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight" title={item.title}>
+                        {item.title}
+                    </h2>
+                    <p className="text-lg text-neutral-300 font-medium">
+                        {item.type === 'album' || item.type === 'song' ? item.artist : (item.disambiguation || '')}
+                    </p>
                 </div>
             )}
             
