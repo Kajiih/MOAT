@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server';
-import { MusicBrainzSearchResponseSchema, MediaItem, MediaType, SECONDARY_TYPES } from '@/lib/types';
+import { z } from 'zod';
+import { 
+    MusicBrainzSearchResponseSchema, 
+    MusicBrainzArtistCreditSchema,
+    MediaItem, 
+    MediaType, 
+    SECONDARY_TYPES 
+} from '@/lib/types';
 import { getArtistThumbnail, MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
 
 const SEARCH_CACHE_TTL = 3600; // 1 hour

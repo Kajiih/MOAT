@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, X, Info } from 'lucide-react';
 import { MediaType, ArtistSelection, PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
@@ -140,11 +140,28 @@ export function SearchTab({
                             </div>
 
                             <div>
-                                <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between">
-                                    <span>Secondary Types</span>
-                                    {albumSecondaryTypes.length > 0 && (
-                                        <button onClick={() => setAlbumSecondaryTypes([])} className="text-blue-400 hover:text-blue-300">Clear</button>
-                                    )}
+                                <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between items-center">
+                                    <div className="flex items-center gap-1.5">
+                                        <span>Secondary Types</span>
+                                        <div className="group relative">
+                                            <Info size={12} className="text-neutral-500 cursor-help hover:text-neutral-300 transition-colors" />
+                                            <div className="absolute left-0 bottom-full mb-2 w-56 p-2 bg-neutral-900 border border-neutral-700 rounded shadow-xl text-[10px] text-neutral-300 normal-case font-normal opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                                By default, standard albums are shown. Select types to exclusively filter for them (e.g. &apos;Live&apos; shows only Live albums).
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            if (albumSecondaryTypes.length === SECONDARY_TYPES.length) {
+                                                setAlbumSecondaryTypes([]);
+                                            } else {
+                                                setAlbumSecondaryTypes([...SECONDARY_TYPES]);
+                                            }
+                                        }}
+                                        className="text-blue-400 hover:text-blue-300 transition-colors"
+                                    >
+                                        {albumSecondaryTypes.length === SECONDARY_TYPES.length ? 'Deselect All' : 'Select All'}
+                                    </button>
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
                                     {SECONDARY_TYPES.map(t => {
