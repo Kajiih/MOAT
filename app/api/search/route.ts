@@ -128,13 +128,16 @@ export async function GET(request: Request) {
           queryParts.push(`primarytype:(${typeQuery})`);
       }
       
-      // Secondary Types: "Opt-in" logic
-      // By default, we want to EXCLUDE all "noisy" secondary types (Live, Compilation, etc.)
-      // If the user selects one (e.g., 'Live'), we stop excluding it.
-      const forbiddenSecondaryTypes = SECONDARY_TYPES.filter(t => !albumSecondaryTypes.includes(t));
-      if (forbiddenSecondaryTypes.length > 0) {
-          const forbiddenQuery = forbiddenSecondaryTypes.map(t => `"${t}"`).join(' OR ');
-          // Note: NOT operator in Lucene
+      // Secondary Types Logic
+      if (albumSecondaryTypes.length > 0) {
+          // Exclusive Mode: If types are selected, show ONLY items matching those types.
+          // This allows drilling down (e.g., "Show me only Live albums").
+          const typeQuery = albumSecondaryTypes.map(t => `"${t}"`).join(' OR ');
+          queryParts.push(`secondarytype:(${typeQuery})`);
+      } else {
+          // Default (Clean) Mode: If no types are selected, exclude ALL known secondary types.
+          // This ensures we only see "Standard" items (no secondary type) by default.
+          const forbiddenQuery = SECONDARY_TYPES.map(t => `"${t}"`).join(' OR ');
           queryParts.push(`NOT secondarytype:(${forbiddenQuery})`);
       }
       break;

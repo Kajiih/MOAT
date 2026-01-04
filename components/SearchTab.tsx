@@ -141,7 +141,7 @@ export function SearchTab({
 
                             <div>
                                 <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between">
-                                    <span>Include Extra</span>
+                                    <span>Secondary Types</span>
                                     {albumSecondaryTypes.length > 0 && (
                                         <button onClick={() => setAlbumSecondaryTypes([])} className="text-blue-400 hover:text-blue-300">Clear</button>
                                     )}
