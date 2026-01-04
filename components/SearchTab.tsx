@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Filter, Info } from 'lucide-react';
-import { MediaType, ArtistSelection, PRIMARY_TYPES, SECONDARY_TYPES, SortOption } from '@/lib/types';
+import { MediaType, ArtistSelection, PRIMARY_TYPES, SECONDARY_TYPES, SortOption, MediaItem } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
@@ -19,6 +19,7 @@ interface SearchTabProps {
   showAdded: boolean;
   globalFuzzy: boolean;
   globalWildcard: boolean;
+  onInfo: (item: MediaItem) => void;
 }
 
 /**
@@ -32,7 +33,8 @@ export function SearchTab({
     isHidden,
     showAdded,
     globalFuzzy,
-    globalWildcard
+    globalWildcard,
+    onInfo
 }: SearchTabProps) {
   const [selectedArtist, setSelectedArtist] = useState<ArtistSelection | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -254,6 +256,7 @@ export function SearchTab({
                                 isAdded={isAdded}
                                 onLocate={onLocate}
                                 priority={index < 10}
+                                onInfo={onInfo}
                             />
                         );
                     })}
@@ -265,11 +268,13 @@ export function SearchTab({
             )}
 
             {!isSearching && searchResults.length > 0 && totalPages > 1 && (
-                <Pagination 
-                    page={page} 
-                    totalPages={totalPages} 
-                    onPageChange={setPage} 
-                />
+                <div className="flex justify-center items-center gap-4 mt-6">
+                    <Pagination 
+                        page={page} 
+                        totalPages={totalPages} 
+                        onPageChange={setPage} 
+                    />
+                </div>
             )}
         </div>
     </div>

@@ -18,16 +18,18 @@ interface TierRowProps {
   onDeleteTier: (id: string) => void;
   canDelete: boolean;
   isAnyDragging?: boolean;
+  onInfo: (item: MediaItem) => void;
 }
 
-export const TierRow = memo(function TierRow({ 
-  tier, 
-  items, 
-  onRemoveItem, 
-  onUpdateTier, 
-  onDeleteTier, 
+export const TierRow = memo(function TierRow({
+  tier,
+  items,
+  onRemoveItem,
+  onUpdateTier,
+  onDeleteTier,
   canDelete,
-  isAnyDragging
+  isAnyDragging,
+  onInfo
 }: TierRowProps) {
   // Resolve the full color theme from the ID
   const tierTheme = getColorTheme(tier.color);
@@ -49,12 +51,12 @@ export const TierRow = memo(function TierRow({
   });
 
   // Droppable logic for items being dropped into the tier
-  const { setNodeRef: setDroppableRef } = useDroppable({ 
+  const { setNodeRef: setDroppableRef } = useDroppable({
     id: tier.id,
-    data: { 
+    data: {
         isTierContainer: true,
-        type: 'tier' 
-    } 
+        type: 'tier'
+    }
   });
 
   // Combine refs
@@ -71,7 +73,7 @@ export const TierRow = memo(function TierRow({
   const { over, active } = useDndContext();
   const [isEditing, setIsEditing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  
+
   const [labelInput, setLabelInput] = useState(tier.label);
   const [prevLabel, setPrevLabel] = useState(tier.label);
 
@@ -130,28 +132,28 @@ export const TierRow = memo(function TierRow({
   };
 
   return (
-    <div 
+    <div
         ref={setCombinedRef}
         style={style}
         className={twMerge(
             "flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out group relative",
-            isOverRow 
-                ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20' 
+            isOverRow
+                ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20'
                 : 'border-neutral-800',
             showSettings ? 'z-30' : 'z-0',
             isDraggingTier && "opacity-50 border-blue-500 ring-2 ring-blue-500/50 scale-95"
         )}
     >
       {/* Label / Header Column */}
-      <div 
+      <div
         className={twMerge(
             "w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg",
             tierTheme.bg // Apply the background class from the theme
         )}
       >
         {/* Drag Handle */}
-        <div 
-            {...attributes} 
+        <div
+            {...attributes}
             {...listeners}
             className={twMerge(
                 "absolute top-1 left-1 p-1 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black",
@@ -172,7 +174,7 @@ export const TierRow = memo(function TierRow({
                 style={{ minHeight: '60px' }}
             />
         ) : (
-            <div 
+            <div
                 onDoubleClick={() => setIsEditing(true)}
                 className="w-full h-full flex items-center justify-center text-center font-black text-black select-none cursor-pointer hover:bg-black/5 rounded transition-colors break-words overflow-hidden"
                 title="Double click to rename"
@@ -183,7 +185,7 @@ export const TierRow = memo(function TierRow({
         )}
 
         {/* Settings Button */}
-        <button 
+        <button
             onClick={() => setShowSettings(!showSettings)}
             className={twMerge(
                 "absolute bottom-1 right-1 p-1 transition-opacity bg-black/20 hover:bg-black/40 rounded text-black",
@@ -195,7 +197,7 @@ export const TierRow = memo(function TierRow({
 
         {/* Settings Popover */}
         {showSettings && (
-            <div 
+            <div
                 ref={settingsRef}
                 className="absolute top-0 left-0 w-[280px] z-50 bg-neutral-900 border border-neutral-700 shadow-2xl rounded-lg p-3 flex flex-col gap-3"
                 style={{ transform: 'translate(10px, 10px)' }}
@@ -204,7 +206,7 @@ export const TierRow = memo(function TierRow({
                     <span className="text-xs font-bold text-neutral-400 uppercase">Tier Settings</span>
                     <button onClick={() => setShowSettings(false)} className="text-neutral-500 hover:text-white">✕</button>
                 </div>
-                
+
                 {/* Colors */}
                 <div>
                     <div className="text-xs text-neutral-500 mb-1">Color</div>
@@ -227,7 +229,7 @@ export const TierRow = memo(function TierRow({
                 {/* Actions */}
                 <div className="flex flex-col gap-1">
                     {canDelete && (
-                        <button 
+                        <button
                             onClick={() => { if(confirm('Delete tier?')) onDeleteTier(tier.id); }}
                             className="flex items-center justify-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-200 rounded p-1 text-xs mt-1"
                         >
@@ -243,24 +245,25 @@ export const TierRow = memo(function TierRow({
       </div>
 
       {/* Items Column */}
-      <div 
+      <div
         className="flex-1 flex flex-wrap items-center gap-2 p-3 relative min-h-[100px]"
       >
         {isOverRow && <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />}
         <SortableContext id={tier.id} items={items.map(a => a.id)} strategy={rectSortingStrategy}>
           {items.map((item) => {
             return (
-              <SortableMediaCard 
-                key={item.id} 
-                item={item} 
-                id={item.id} 
-                tierId={tier.id} 
-                onRemove={(itemId) => onRemoveItem(itemId)} 
+              <SortableMediaCard
+                key={item.id}
+                item={item}
+                id={item.id}
+                tierId={tier.id}
+                onRemove={(itemId) => onRemoveItem(itemId)}
+                onInfo={onInfo}
               />
             );
           })}
         </SortableContext>
-        
+
         {items.length === 0 && (
             <div className="w-full h-full flex items-center justify-center text-neutral-800 text-sm font-medium italic pointer-events-none select-none opacity-50">
                 {tier.label === 'Unranked' ? 'Drop items here...' : ''}

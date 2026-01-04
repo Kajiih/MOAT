@@ -37,6 +37,9 @@ export function useTierList() {
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   
+  // State for Details Modal
+  const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
+  
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -102,6 +105,15 @@ export function useTierList() {
   const handleClear = useCallback(() => {
     if(confirm("Clear everything?")) setState(INITIAL_STATE);
   }, [setState]);
+
+  // --- Details Modal Handlers ---
+  const handleShowDetails = useCallback((item: MediaItem) => {
+    setDetailsItem(item);
+  }, []);
+
+  const handleCloseDetails = useCallback(() => {
+    setDetailsItem(null);
+  }, []);
 
   // --- Tier Management ---
 
@@ -394,6 +406,7 @@ export function useTierList() {
     activeTier,
     headerColors,
     addedItemIds,
+    detailsItem,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
@@ -406,5 +419,7 @@ export function useTierList() {
     handleExport,
     removeItemFromTier,
     handleLocate,
+    handleShowDetails,
+    handleCloseDetails
   };
 }

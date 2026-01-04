@@ -4,7 +4,8 @@ import {
     MusicBrainzArtistCreditSchema,
     MediaItem, 
     MediaType, 
-    SECONDARY_TYPES 
+    SECONDARY_TYPES,
+    MediaDetails
 } from '@/lib/types';
 import { getArtistThumbnail, MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
 
@@ -35,6 +36,26 @@ interface SearchResult {
     page: number;
     totalPages: number;
     totalCount: number;
+}
+
+// Minimal interfaces for raw MusicBrainz details response
+interface MBTrack {
+    id: string;
+    position: string;
+    title: string;
+    length?: number;
+}
+
+interface MBTag {
+    name: string;
+    count: number;
+}
+
+interface MBRelation {
+    type: string;
+    url?: {
+        resource: string;
+    };
 }
 
 /**
@@ -245,4 +266,113 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   const totalPages = Math.ceil(totalCount / limit);
 
   return { results, page, totalPages, totalCount };
+}
+
+export async function getMediaDetails(id: string, type: MediaType): Promise<MediaDetails | { id: string; type: MediaType }> {
+    try {
+        if (type === 'album') {
+            // 1. Find the "best" release for this release group (Official, earliest)
+            // We use a search query for this to filter by status
+            // Use 'rgid' field for Release Group ID in Release Index
+            const query = `rgid:${id} AND status:official`;
+            const searchRes = await fetch(
+                `${MB_BASE_URL}/release/?query=${encodeURIComponent(query)}&limit=1&fmt=json`,
+                { headers: { 'User-Agent': USER_AGENT }, next: { revalidate: 86400 } }
+            );
+            
+            let release = null;
+            if (searchRes.ok) {
+                const searchData = await searchRes.json();
+                if (searchData.releases && searchData.releases.length > 0) {
+                    release = searchData.releases[0];
+                }
+            }
+
+            if (!release) {
+                 const lookupRes = await fetch(
+                    `${MB_BASE_URL}/release-group/${id}?inc=releases&fmt=json`,
+                    { headers: { 'User-Agent': USER_AGENT }, next: { revalidate: 86400 } }
+                );
+                if (lookupRes.ok) {
+                    const lookupData = await lookupRes.json();
+                    if (lookupData.releases && lookupData.releases.length > 0) {
+                        release = lookupData.releases[0];
+                    }
+                }
+            }
+
+            if (!release) return { id, type };
+
+            const detailsRes = await fetch(
+                `${MB_BASE_URL}/release/${release.id}?inc=recordings+media+labels&fmt=json`,
+                { headers: { 'User-Agent': USER_AGENT }, next: { revalidate: 86400 } }
+            );
+            
+            if (!detailsRes.ok) return { id, type };
+            const data = await detailsRes.json();
+
+            const tracks = data.media?.[0]?.tracks?.map((t: MBTrack) => ({
+                id: t.id,
+                position: t.position,
+                title: t.title,
+                length: t.length ? new Date(t.length).toISOString().substr(14, 5) : '--:--'
+            })) || [];
+
+            return {
+                id,
+                type: 'album',
+                tracks,
+                label: data['label-info']?.[0]?.label?.name,
+                date: data.date
+            };
+        } 
+        
+        if (type === 'artist') {
+            const res = await fetch(
+                `${MB_BASE_URL}/artist/${id}?inc=url-rels+tags&fmt=json`,
+                { headers: { 'User-Agent': USER_AGENT }, next: { revalidate: 86400 } }
+            );
+            if (!res.ok) return { id, type };
+            const data = await res.json();
+            
+            return {
+                id,
+                type: 'artist',
+                tags: data.tags?.sort((a: MBTag, b: MBTag) => b.count - a.count).slice(0, 10).map((t: MBTag) => t.name) || [],
+                area: data.area?.name,
+                lifeSpan: {
+                    begin: data['life-span']?.begin,
+                    end: data['life-span']?.end,
+                    ended: data['life-span']?.ended
+                },
+                urls: data.relations?.filter((r: MBRelation) => r.type === 'wikidata' || r.type === 'wikipedia' || r.type === 'youtube' || r.type === 'social network' || r.type === 'streaming').map((r: MBRelation) => ({
+                    type: r.type,
+                    url: r.url?.resource || ''
+                }))
+            };
+        }
+
+        if (type === 'song') {
+             const res = await fetch(
+                `${MB_BASE_URL}/recording/${id}?inc=releases+artist-credits+tags&fmt=json`,
+                { headers: { 'User-Agent': USER_AGENT }, next: { revalidate: 86400 } }
+            );
+            if (!res.ok) return { id, type };
+            const data = await res.json();
+
+            return {
+                id,
+                type: 'song',
+                tags: data.tags?.map((t: MBTag) => t.name) || [],
+                length: data.length ? new Date(data.length).toISOString().substr(14, 5) : undefined,
+                album: data.releases?.[0]?.title // Just first release as sample
+            };
+        }
+
+        return { id, type };
+
+    } catch (e) {
+        console.error("Error fetching details", e);
+        return { id, type };
+    }
 }

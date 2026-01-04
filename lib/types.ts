@@ -83,6 +83,34 @@ export interface TierListState {
   items: Record<string, MediaItem[]>;
 }
 
+export interface TrackItem {
+  id: string;
+  position: string;
+  title: string;
+  length: string; // formatted duration
+}
+
+export interface MediaDetails {
+  id: string;
+  type: MediaType;
+  // Common
+  tags?: string[];
+  urls?: { type: string; url: string }[];
+  date?: string;
+  length?: string;
+  
+  // Album specific
+  tracks?: TrackItem[];
+  label?: string;
+  
+  // Artist specific
+  area?: string;
+  lifeSpan?: { begin?: string; end?: string; ended?: boolean };
+
+  // Song specific
+  album?: string;
+}
+
 // --- Zod Schemas for MusicBrainz API ---
 
 // Common

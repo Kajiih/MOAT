@@ -3,7 +3,7 @@ import { useDraggable, DraggableAttributes } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MediaItem } from '@/lib/types';
-import { X, Eye, Music, User, Disc } from 'lucide-react'; 
+import { X, Eye, Music, User, Disc, Info } from 'lucide-react'; 
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 /**
@@ -22,6 +22,7 @@ interface BaseMediaCardProps {
   onLocate?: () => void;
   domId?: string;
   priority?: boolean;
+  onInfo?: (item: MediaItem) => void;
 }
 
 /**
@@ -40,7 +41,8 @@ function BaseMediaCard({
   isAdded,
   onLocate,
   domId,
-  priority = false
+  priority = false,
+  onInfo
 }: BaseMediaCardProps) {
   
   // Icon based on type
@@ -134,9 +136,23 @@ function BaseMediaCard({
           <X size={12} />
         </button>
       )}
+
+      {/* Info Button */}
+      {onInfo && (
+        <button 
+          onPointerDown={(e) => e.stopPropagation()} 
+          onClick={(e) => {
+            e.stopPropagation(); 
+            onInfo(item);
+          }}
+          className="absolute top-1 left-1 bg-blue-600/80 hover:bg-blue-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <Info size={12} />
+        </button>
+      )}
       
-      {/* Type Badge (Optional, small icon in corner) */}
-      {!item.imageUrl && (
+      {/* Type Badge (Only if no info button and no image) */}
+      {!item.imageUrl && !onInfo && (
          <div className="absolute top-1 left-1 text-neutral-500 opacity-50">
             <TypeIcon size={10} />
          </div>
@@ -160,6 +176,8 @@ interface MediaCardProps {
   onLocate?: (id: string) => void;
   /** Whether to prioritize loading the image (eager load). Defaults to false. */
   priority?: boolean;
+  /** Callback to show details */
+  onInfo?: (item: MediaItem) => void;
 }
 
 /**

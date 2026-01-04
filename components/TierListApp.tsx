@@ -13,6 +13,7 @@ import { MediaCard } from '@/components/MediaCard';
 import { TierRow } from '@/components/TierRow';
 import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
+import { DetailsModal } from '@/components/DetailsModal';
 import { Plus, Dices } from 'lucide-react';
 import { useTierList } from '@/lib/useTierList';
 
@@ -24,6 +25,7 @@ export default function TierListApp() {
     activeTier,
     headerColors,
     addedItemIds,
+    detailsItem,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
@@ -36,6 +38,8 @@ export default function TierListApp() {
     handleExport,
     removeItemFromTier,
     handleLocate,
+    handleShowDetails,
+    handleCloseDetails
   } = useTierList();
 
   return (
@@ -73,6 +77,7 @@ export default function TierListApp() {
                                     onDeleteTier={handleDeleteTier}
                                     canDelete={true}
                                     isAnyDragging={!!activeItem || !!activeTier}
+                                    onInfo={handleShowDetails}
                                 />
                             ))}
                         </SortableContext>
@@ -89,6 +94,7 @@ export default function TierListApp() {
                 <SearchPanel 
                     addedItemIds={addedItemIds}
                     onLocate={handleLocate}
+                    onInfo={handleShowDetails}
                 />
             </div>
 
@@ -102,6 +108,7 @@ export default function TierListApp() {
                             onUpdateTier={() => {}}
                             onDeleteTier={() => {}}
                             canDelete={false}
+                            onInfo={() => {}}
                         />
                     </div>
                 ) : activeItem ? (
@@ -111,6 +118,12 @@ export default function TierListApp() {
 
         </DndContext>
       </div>
+
+      <DetailsModal 
+        item={detailsItem} 
+        isOpen={!!detailsItem} 
+        onClose={handleCloseDetails} 
+      />
 
       {/* Floating Randomize Colors Button */}
       <button 

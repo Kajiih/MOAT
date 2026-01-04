@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
-import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem } from '@/lib/types';
+import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, MediaDetails } from '@/lib/types';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -44,6 +44,22 @@ interface UseMediaSearchResult<T extends MediaItem> {
   totalPages: number;
   isLoading: boolean;
   isValidating: boolean;
+}
+
+/**
+ * Custom hook to fetch detailed information for a specific media item.
+ */
+export function useMediaDetails(id: string | null, type: MediaType | null) {
+  const { data, isLoading, error } = useSWR<MediaDetails>(
+    id && type ? `/api/details?id=${id}&type=${type}` : null,
+    fetcher
+  );
+
+  return {
+    details: data,
+    isLoading,
+    error
+  };
 }
 
 /**

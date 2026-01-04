@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Eye, EyeOff, Disc, Mic2, Music } from 'lucide-react';
-import { MediaType } from '@/lib/types';
+import { MediaType, MediaItem } from '@/lib/types';
 import { SearchTab } from '@/components/SearchTab';
 import { SearchSettings } from '@/components/SearchSettings';
 
@@ -11,13 +11,15 @@ interface SearchPanelProps {
   addedItemIds: Set<string>;
   /** Callback to scroll to an item that is already on the board. */
   onLocate: (id: string) => void;
+  /** Callback to show details */
+  onInfo: (item: MediaItem) => void;
 }
 
 /**
  * The sidebar component responsible for searching and filtering media items.
  * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
  */
-export function SearchPanel({ addedItemIds, onLocate }: SearchPanelProps) {
+export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps) {
   const [activeType, setActiveType] = useState<MediaType>('album');
   const [showAdded, setShowAdded] = useState(true);
   
@@ -78,6 +80,7 @@ export function SearchPanel({ addedItemIds, onLocate }: SearchPanelProps) {
                 showAdded={showAdded}
                 globalFuzzy={fuzzy}
                 globalWildcard={wildcard}
+                onInfo={onInfo}
             />
             <SearchTab 
                 type="artist" 
@@ -87,6 +90,7 @@ export function SearchPanel({ addedItemIds, onLocate }: SearchPanelProps) {
                 showAdded={showAdded}
                 globalFuzzy={fuzzy}
                 globalWildcard={wildcard}
+                onInfo={onInfo}
             />
             <SearchTab 
                 type="song" 
@@ -96,6 +100,7 @@ export function SearchPanel({ addedItemIds, onLocate }: SearchPanelProps) {
                 showAdded={showAdded}
                 globalFuzzy={fuzzy}
                 globalWildcard={wildcard}
+                onInfo={onInfo}
             />
         </div>
     </div>
