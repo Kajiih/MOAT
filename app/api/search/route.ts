@@ -199,6 +199,7 @@ export async function GET(request: Request) {
             title: item.title,
             artist: formatArtistCredit(item['artist-credit']),
             year: item['first-release-date']?.split('-')[0] || '',
+            date: item['first-release-date'],
             imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front`,
             primaryType: item['primary-type'],
             secondaryTypes: item['secondary-types']
@@ -211,6 +212,7 @@ export async function GET(request: Request) {
                 type: 'artist',
                 title: item.name, 
                 year: item['life-span']?.begin?.split('-')[0] || '',
+                date: item['life-span']?.begin,
                 imageUrl: thumb,
                 disambiguation: item.disambiguation 
             };
@@ -225,6 +227,7 @@ export async function GET(request: Request) {
                 artist: formatArtistCredit(item['artist-credit']),
                 album: item.releases?.[0]?.title, 
                 year: item['first-release-date']?.split('-')[0] || '',
+                date: item['first-release-date'],
                 imageUrl: releaseId ? `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front` : undefined
             };
         });

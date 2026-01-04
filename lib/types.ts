@@ -18,6 +18,8 @@ export interface BaseMediaItem {
   title: string;
   /** The release year or formation year. */
   year?: string;
+  /** The full release date (YYYY-MM-DD) or formation date. */
+  date?: string;
   /** URL to the cover art or artist image. */
   imageUrl?: string;
 }
