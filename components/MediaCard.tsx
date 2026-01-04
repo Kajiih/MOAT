@@ -132,6 +132,7 @@ function BaseMediaCard({
             onRemove(item.id);
           }}
           className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity"
+          title="Remove item"
         >
           <X size={12} />
         </button>
@@ -146,6 +147,7 @@ function BaseMediaCard({
             onInfo(item);
           }}
           className="absolute top-1 left-1 bg-blue-600/80 hover:bg-blue-600 text-white rounded-full p-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity"
+          title="View details"
         >
           <Info size={12} />
         </button>

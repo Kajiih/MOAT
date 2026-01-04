@@ -31,14 +31,14 @@ export function Header({ onImport, onExport, onClear, colors }: HeaderProps) {
       </h1>
       
       <div className="flex gap-2">
-        <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm">
+        <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm" title="Import from JSON">
             <Upload size={16} /> Import
             <input type="file" onChange={onImport} accept=".json" className="hidden" />
         </label>
-        <button onClick={onExport} className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm">
+        <button onClick={onExport} className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm" title="Export to JSON">
             <Download size={16} /> Export
         </button>
-        <button onClick={onClear} className="flex items-center gap-2 px-3 py-2 bg-red-900/20 text-red-500 rounded hover:bg-red-900/40 text-sm border border-red-900/50">
+        <button onClick={onClear} className="flex items-center gap-2 px-3 py-2 bg-red-900/20 text-red-500 rounded hover:bg-red-900/40 text-sm border border-red-900/50" title="Clear Board">
             <Trash2 size={16} /> Clear
         </button>
       </div>

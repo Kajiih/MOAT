@@ -15,6 +15,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
             disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
             className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
+            title="Previous Page"
         >
             <ChevronLeft size={16} />
         </button>
@@ -23,6 +24,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
             disabled={page >= totalPages}
             onClick={() => onPageChange(page + 1)}
             className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
+            title="Next Page"
         >
             <ChevronRight size={16} />
         </button>
