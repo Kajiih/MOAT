@@ -20,7 +20,7 @@ interface TierRowProps {
   isAnyDragging?: boolean;
   onInfo: (item: MediaItem) => void;
   isBoardEmpty?: boolean;
-  isLastTier?: boolean;
+  isMiddleTier?: boolean;
 }
 
 export const TierRow = memo(function TierRow({
@@ -33,7 +33,7 @@ export const TierRow = memo(function TierRow({
   isAnyDragging,
   onInfo,
   isBoardEmpty,
-  isLastTier
+  isMiddleTier
 }: TierRowProps) {
   // Resolve the full color theme from the ID
   const tierTheme = getColorTheme(tier.color);
@@ -268,7 +268,7 @@ export const TierRow = memo(function TierRow({
           })}
         </SortableContext>
 
-        {items.length === 0 && isBoardEmpty && isLastTier && (
+        {items.length === 0 && isBoardEmpty && isMiddleTier && (
             <div className="w-full h-full flex items-center justify-center text-neutral-600 text-lg font-bold italic pointer-events-none select-none">
                 Drop items here...
             </div>

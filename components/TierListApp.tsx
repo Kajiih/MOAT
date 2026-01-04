@@ -81,7 +81,7 @@ export default function TierListApp() {
                                     isAnyDragging={!!activeItem || !!activeTier}
                                     onInfo={handleShowDetails}
                                     isBoardEmpty={isBoardEmpty}
-                                    isLastTier={index === state.tierDefs.length - 1}
+                                    isMiddleTier={index === Math.floor((state.tierDefs.length - 1) / 2)}
                                 />
                             ))}
                         </SortableContext>
