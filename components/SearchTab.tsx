@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Filter, X, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, Info } from 'lucide-react';
 import { MediaType, ArtistSelection, PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
@@ -73,7 +73,7 @@ export function SearchTab({
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col flex-1 overflow-hidden min-h-0">
         <div className="grid grid-cols-1 gap-2 mb-4 shrink-0">
             <div className="flex gap-2">
                 <input
