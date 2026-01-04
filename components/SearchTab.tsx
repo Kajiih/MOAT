@@ -250,7 +250,7 @@ export function SearchTab({
 
                         return (
                             <MediaCard
-                                key={item.id}
+                                key={`${item.id}-${isAdded}`}
                                 item={item}
                                 id={`search-${item.id}`}
                                 isAdded={isAdded}
