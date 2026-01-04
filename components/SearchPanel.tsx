@@ -20,7 +20,7 @@ interface SearchPanelProps {
  * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
  */
 export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps) {
-  const [activeType, setActiveType] = useState<MediaType>('album');
+  const [activeType, setActiveType] = useState<MediaType>('song');
   const [showAdded, setShowAdded] = useState(true);
   
   // Global Search Settings (Synchronized across all tabs and filters)
@@ -55,7 +55,7 @@ export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps
         </div>
 
         <div className="grid grid-cols-3 gap-1 p-1 bg-black rounded-lg mb-4 shrink-0 border border-neutral-800">
-            {(['album', 'artist', 'song'] as const).map((t) => (
+            {(['song', 'album', 'artist'] as const).map((t) => (
                 <button
                     key={t}
                     onClick={() => setActiveType(t)}
