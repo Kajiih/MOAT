@@ -128,7 +128,7 @@ export default function TierListApp() {
       {/* Floating Randomize Colors Button */}
       <button 
         onClick={handleRandomizeColors} 
-        className="fixed bottom-8 right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50"
+        className="fixed bottom-18 right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50"
         title="Randomize Colors"
       >
           <Dices size={24} className="group-hover:rotate-12 transition-transform" />
