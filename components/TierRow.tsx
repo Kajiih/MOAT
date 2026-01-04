@@ -136,7 +136,7 @@ export const TierRow = memo(function TierRow({
         ref={setCombinedRef}
         style={style}
         className={twMerge(
-            "flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out group relative",
+            "flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out relative",
             isOverRow
                 ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20'
                 : 'border-neutral-800',
@@ -147,7 +147,7 @@ export const TierRow = memo(function TierRow({
       {/* Label / Header Column */}
       <div
         className={twMerge(
-            "w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg",
+            "w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg group/row",
             tierTheme.bg // Apply the background class from the theme
         )}
       >
@@ -157,7 +157,7 @@ export const TierRow = memo(function TierRow({
             {...listeners}
             className={twMerge(
                 "absolute top-1 left-1 p-1 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black",
-                isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"
+                isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/row:opacity-100"
             )}
         >
             <GripVertical size={16} />
@@ -189,7 +189,7 @@ export const TierRow = memo(function TierRow({
             onClick={() => setShowSettings(!showSettings)}
             className={twMerge(
                 "absolute bottom-1 right-1 p-1 transition-opacity bg-black/20 hover:bg-black/40 rounded text-black",
-                isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"
+                isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/row:opacity-100"
             )}
         >
             <Settings size={14} />

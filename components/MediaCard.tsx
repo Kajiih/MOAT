@@ -79,7 +79,7 @@ function BaseMediaCard({
       {...attributes} 
       onClick={isAdded && onLocate ? onLocate : undefined}
       className={`
-        relative group w-24 h-24 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-none select-none
+        relative group/card w-24 h-24 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-none select-none
         ${isAdded 
             ? 'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0' 
             : 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400'
@@ -118,7 +118,7 @@ function BaseMediaCard({
 
       {/* Added Indicator / Locate Overlay */}
       {isAdded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/card:opacity-100 transition-opacity pointer-events-none">
             <Eye className="text-white drop-shadow-md" size={24} />
         </div>
       )}
@@ -131,7 +131,7 @@ function BaseMediaCard({
             e.stopPropagation(); 
             onRemove(item.id);
           }}
-          className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity"
         >
           <X size={12} />
         </button>
@@ -145,7 +145,7 @@ function BaseMediaCard({
             e.stopPropagation(); 
             onInfo(item);
           }}
-          className="absolute top-1 left-1 bg-blue-600/80 hover:bg-blue-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-1 left-1 bg-blue-600/80 hover:bg-blue-600 text-white rounded-full p-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity"
         >
           <Info size={12} />
         </button>
