@@ -15,6 +15,7 @@ import {
 import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
 import { TIER_COLORS } from '@/lib/colors';
 import { usePersistentState } from '@/lib/hooks';
+import { useToast } from '@/components/ToastProvider';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
@@ -40,6 +41,8 @@ export function useTierList() {
   // State for Details Modal
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
   
+  const { showToast } = useToast();
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -83,7 +86,8 @@ export function useTierList() {
     a.href = dataStr;
     a.download = `moat-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
-  }, [state]);
+    showToast("Tier list exported successfully!", "success");
+  }, [state, showToast]);
 
   const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,17 +98,21 @@ export function useTierList() {
             const parsed = JSON.parse(ev.target?.result as string);
             if (parsed && 'tierDefs' in parsed) {
                 setState(parsed);
+                showToast("Tier list imported successfully!", "success");
             } else {
-                alert("Invalid JSON file: missing tier definitions");
+                showToast("Invalid JSON file: missing tier definitions", "error");
             }
-        } catch { alert("Invalid JSON file"); }
+        } catch { showToast("Invalid JSON file", "error"); }
     };
     reader.readAsText(file);
-  }, [setState]);
+  }, [setState, showToast]);
 
   const handleClear = useCallback(() => {
-    if(confirm("Clear everything?")) setState(INITIAL_STATE);
-  }, [setState]);
+    if(confirm("Clear everything?")) {
+        setState(INITIAL_STATE);
+        showToast("Board cleared", "info");
+    }
+  }, [setState, showToast]);
 
   // --- Details Modal Handlers ---
   const handleShowDetails = useCallback((item: MediaItem) => {
@@ -155,7 +163,8 @@ export function useTierList() {
 
         return { ...prev, tierDefs: newDefs };
     });
-  }, [setState]);
+    showToast("Colors randomized!", "success");
+  }, [setState, showToast]);
 
   const handleUpdateTier = useCallback((id: string, updates: Partial<TierDefinition>) => {
     setState(prev => ({
@@ -206,9 +215,9 @@ export function useTierList() {
             el.style.boxShadow = '';
         }, 1500);
     } else {
-        alert("Could not locate item on board.");
+        showToast("Could not locate item on board.", "error");
     }
-  }, []);
+  }, [showToast]);
 
   // --- DnD Logic ---
 
