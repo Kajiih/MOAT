@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState, useRef, useEffect, memo } from 'react';
 import { useDroppable, useDndContext } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -20,7 +20,7 @@ interface TierRowProps {
   isAnyDragging?: boolean;
 }
 
-export function TierRow({ 
+export const TierRow = memo(function TierRow({ 
   tier, 
   items, 
   onRemoveItem, 
@@ -269,4 +269,4 @@ export function TierRow({
       </div>
     </div>
   );
-}
+});
