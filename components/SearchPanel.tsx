@@ -59,6 +59,7 @@ export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps
                 <button
                     key={t}
                     onClick={() => setActiveType(t)}
+                    title={`Search ${t}s`}
                     className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all
                         ${activeType === t ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}
                     `}
