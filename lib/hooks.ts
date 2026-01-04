@@ -66,7 +66,7 @@ export function useMediaSearch<T extends MediaType>(
   const [artistId, setArtistId] = useState<string | undefined>(undefined);
   const [minYear, setMinYear] = useState('');
   const [maxYear, setMaxYear] = useState('');
-  const [internalAlbumPrimaryTypes, setInternalAlbumPrimaryTypes] = useState<string[]>([]);
+  const [internalAlbumPrimaryTypes, setInternalAlbumPrimaryTypes] = useState<string[]>(['Album', 'EP']);
   const [internalAlbumSecondaryTypes, setInternalAlbumSecondaryTypes] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   
@@ -109,7 +109,7 @@ export function useMediaSearch<T extends MediaType>(
     setArtistId(undefined);
     setMinYear('');
     setMaxYear('');
-    setInternalAlbumPrimaryTypes([]);
+    setInternalAlbumPrimaryTypes(['Album', 'EP']);
     setInternalAlbumSecondaryTypes([]);
     setPage(1);
   };

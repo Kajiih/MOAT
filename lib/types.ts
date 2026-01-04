@@ -129,8 +129,8 @@ export const MusicBrainzSearchResponseSchema = z.object({
 
 export const PRIMARY_TYPES = [
   'Album',
-  'Single',
   'EP',
+  'Single',
   'Broadcast',
   'Other'
 ] as const;

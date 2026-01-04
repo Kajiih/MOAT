@@ -115,8 +115,8 @@ export function SearchTab({
                             <div>
                                 <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between">
                                     <span>Primary Types</span>
-                                    {albumPrimaryTypes.length > 0 && (
-                                        <button onClick={() => setAlbumPrimaryTypes([])} className="text-red-400 hover:text-red-300">Clear</button>
+                                    {!(albumPrimaryTypes.length === 2 && albumPrimaryTypes.includes('Album') && albumPrimaryTypes.includes('EP')) && (
+                                        <button onClick={() => setAlbumPrimaryTypes(['Album', 'EP'])} className="text-red-400 hover:text-red-300">Reset</button>
                                     )}
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
@@ -224,7 +224,7 @@ export function SearchTab({
             )}
         </div>
 
-        <div className="overflow-y-auto min-h-[200px] flex-1 pr-1 custom-scrollbar">
+        <div className="overflow-y-auto min-h-0 flex-1 pr-1 custom-scrollbar">
             {isSearching ? (
                 <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
                     {Array.from({ length: 15 }).map((_, i) => (
