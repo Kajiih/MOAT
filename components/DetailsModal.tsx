@@ -23,13 +23,6 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
     isOpen && item ? item.type : null
   );
 
-  // Reset image error state when the item changes
-  useEffect(() => {
-    if (item) {
-      setImageError(false);
-    }
-  }, [item]);
-
   if (!isOpen || !item) return null;
 
   return (

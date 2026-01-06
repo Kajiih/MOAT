@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Filter, Info } from 'lucide-react';
-import { MediaType, ArtistSelection, PRIMARY_TYPES, SECONDARY_TYPES, SortOption, MediaItem } from '@/lib/types';
-import { useMediaSearch } from '@/lib/hooks';
+import { MediaType, PRIMARY_TYPES, SECONDARY_TYPES, SortOption, MediaItem } from '@/lib/types';
+import { useMediaSearch, usePersistentState } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
 import { SkeletonCard } from '@/components/SkeletonCard';
@@ -36,8 +35,8 @@ export function SearchTab({
     globalWildcard,
     onInfo
 }: SearchTabProps) {
-  const [selectedArtist, setSelectedArtist] = useState<ArtistSelection | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = usePersistentState<boolean>(`moat-search-ui-${type}-showFilters`, false);
+  const [sortOption, setSortOption] = usePersistentState<SortOption>(`moat-search-ui-${type}-sortOption`, 'relevance');
 
   const {
     query, setQuery,
@@ -46,7 +45,8 @@ export function SearchTab({
     albumPrimaryTypes, setAlbumPrimaryTypes,
     albumSecondaryTypes, setAlbumSecondaryTypes,
     page, setPage,
-    setArtistId,
+    selectedArtist,
+    setSelectedArtist,
     results: searchResults,
     totalPages,
     isLoading: isSearching,
@@ -56,8 +56,6 @@ export function SearchTab({
       wildcard: globalWildcard,
       enabled: !isHidden
   });
-
-  const [sortOption, setSortOption] = useState<SortOption>('relevance');
 
   const sortedResults = [...searchResults].sort((a, b) => {
     switch (sortOption) {
@@ -127,10 +125,7 @@ export function SearchTab({
                  <div className="grid grid-cols-1 gap-2">
                     <ArtistPicker
                         selectedArtist={selectedArtist}
-                        onSelect={(artist) => {
-                          setSelectedArtist(artist);
-                          setArtistId(artist?.id);
-                        }}
+                        onSelect={setSelectedArtist}
                         fuzzy={globalFuzzy}
                         wildcard={globalWildcard}
                     />

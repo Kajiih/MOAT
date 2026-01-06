@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { usePersistentState } from '@/lib/hooks';
 import { Search, Eye, EyeOff, Disc, Mic2, Music } from 'lucide-react';
 import { MediaType, MediaItem } from '@/lib/types';
 import { SearchTab } from '@/components/SearchTab';
@@ -20,12 +20,12 @@ interface SearchPanelProps {
  * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
  */
 export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps) {
-  const [activeType, setActiveType] = useState<MediaType>('song');
-  const [showAdded, setShowAdded] = useState(true);
+  const [activeType, setActiveType] = usePersistentState<MediaType>('moat-search-active-type', 'song');
+  const [showAdded, setShowAdded] = usePersistentState<boolean>('moat-search-show-added', true);
   
   // Global Search Settings (Synchronized across all tabs and filters)
-  const [fuzzy, setFuzzy] = useState(true);
-  const [wildcard, setWildcard] = useState(true);
+  const [fuzzy, setFuzzy] = usePersistentState<boolean>('moat-search-fuzzy', true);
+  const [wildcard, setWildcard] = usePersistentState<boolean>('moat-search-wildcard', true);
 
   return (
     <div className="sticky top-4 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl max-h-[calc(100vh-2rem)] flex flex-col">

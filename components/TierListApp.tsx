@@ -136,6 +136,7 @@ export default function TierListApp() {
       </div>
 
       <DetailsModal 
+        key={detailsItem?.id || 'modal'}
         item={detailsItem} 
         isOpen={!!detailsItem} 
         onClose={handleCloseDetails} 
