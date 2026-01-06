@@ -19,14 +19,21 @@ import { useToast } from '@/components/ToastProvider';
 
 const INITIAL_STATE: TierListState = {
   tierDefs: [
-    { id: 'S', label: 'S', color: 'red' },
-    { id: 'A', label: 'A', color: 'orange' },
-    { id: 'B', label: 'B', color: 'amber' },
-    { id: 'C', label: 'C', color: 'green' },
-    { id: 'D', label: 'D', color: 'blue' },
-    { id: 'Unranked', label: 'Unranked', color: 'neutral' },
+    { id: 'tier-1', label: 'S', color: 'red' },
+    { id: 'tier-2', label: 'A', color: 'orange' },
+    { id: 'tier-3', label: 'B', color: 'amber' },
+    { id: 'tier-4', label: 'C', color: 'green' },
+    { id: 'tier-5', label: 'D', color: 'blue' },
+    { id: 'tier-6', label: 'Unranked', color: 'neutral' },
   ],
-  items: { S: [], A: [], B: [], C: [], D: [], Unranked: [] }
+  items: { 
+    'tier-1': [], 
+    'tier-2': [], 
+    'tier-3': [], 
+    'tier-4': [], 
+    'tier-5': [], 
+    'tier-6': [] 
+  }
 };
 
 const LOCAL_STORAGE_KEY = 'moat-tierlist';
@@ -81,7 +88,18 @@ export function useTierList() {
   // --- Actions ---
 
   const handleExport = useCallback(() => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+    // Export as a nested structure for cleaner JSON and portability
+    const exportData = {
+      version: 1,
+      createdAt: new Date().toISOString(),
+      tiers: state.tierDefs.map(tier => ({
+        label: tier.label,
+        color: tier.color,
+        items: state.items[tier.id] || []
+      }))
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
     const a = document.createElement('a');
     a.href = dataStr;
     a.download = `moat-${new Date().toISOString().slice(0,10)}.json`;
@@ -96,15 +114,45 @@ export function useTierList() {
     reader.onload = (ev) => {
         try {
             const parsed = JSON.parse(ev.target?.result as string);
+            
+            // Handle new nested format
+            if (parsed.tiers && Array.isArray(parsed.tiers)) {
+                const newTierDefs: TierDefinition[] = [];
+                const newItems: Record<string, MediaItem[]> = {};
+
+                parsed.tiers.forEach((tier: { label: string, color: string, items: MediaItem[] }) => {
+                    const id = crypto.randomUUID();
+                    newTierDefs.push({
+                        id,
+                        label: tier.label,
+                        color: tier.color
+                    });
+                    newItems[id] = tier.items || [];
+                });
+
+                setState({
+                    tierDefs: newTierDefs,
+                    items: newItems
+                });
+                showToast("Tier list imported successfully!", "success");
+                return;
+            }
+
+            // Fallback: Handle legacy format (raw state dump)
             if (parsed && 'tierDefs' in parsed) {
                 setState(parsed);
-                showToast("Tier list imported successfully!", "success");
+                showToast("Legacy tier list imported successfully!", "success");
             } else {
                 showToast("Invalid JSON file: missing tier definitions", "error");
             }
-        } catch { showToast("Invalid JSON file", "error"); }
+        } catch (e) { 
+            console.error(e);
+            showToast("Invalid JSON file", "error"); 
+        }
     };
     reader.readAsText(file);
+    // Reset input so same file can be selected again if needed
+    e.target.value = '';
   }, [setState, showToast]);
 
   const handleClear = useCallback(() => {
