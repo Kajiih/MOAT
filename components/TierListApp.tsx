@@ -16,6 +16,7 @@ import { SearchPanel } from '@/components/SearchPanel';
 import { DetailsModal } from '@/components/DetailsModal';
 import { Plus, Dices } from 'lucide-react';
 import { useTierList } from '@/lib/useTierList';
+import { useScreenshot } from '@/lib/hooks';
 import { useToast } from './ToastProvider';
 
 /**
@@ -53,6 +54,7 @@ export default function TierListApp() {
   } = useTierList();
 
   const { toastCount } = useToast();
+  const { ref: screenshotRef, takeScreenshot, isCapturing } = useScreenshot('moat-tierlist.png');
 
   const isBoardEmpty = Object.values(state.items).every(items => items.length === 0);
 
@@ -61,7 +63,9 @@ export default function TierListApp() {
       <div className="max-w-[1600px] mx-auto">
         <Header 
             onImport={handleImport} 
-            onExport={handleExport} 
+            onExport={handleExport}
+            onScreenshot={takeScreenshot}
+            isCapturing={isCapturing}
             onClear={handleClear} 
             colors={headerColors}
         />
@@ -76,7 +80,7 @@ export default function TierListApp() {
             
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
                 <div className="space-y-4">
-                    <div className="space-y-2">
+                    <div ref={screenshotRef} className="space-y-2 p-1">
                         <SortableContext 
                             items={state.tierDefs.map(t => t.id)} 
                             strategy={verticalListSortingStrategy}
