@@ -1,8 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
-import { TIER_COLORS } from '@/lib/colors';
-import { usePersistentState } from '@/lib/hooks';
+import { usePersistentState, useTierStructure } from '@/lib/hooks';
 import { useToast } from '@/components/ToastProvider';
 import { useTierListDnD } from '@/lib/hooks/useTierListDnD';
 
@@ -35,7 +34,7 @@ export function useTierList() {
   
   const { showToast } = useToast();
 
-  // Use the extracted DnD hook
+  // 1. Drag & Drop Logic
   const {
     sensors,
     activeItem,
@@ -45,6 +44,15 @@ export function useTierList() {
     handleDragOver,
     handleDragEnd
   } = useTierListDnD(state, setState);
+
+  // 2. Structure & Board Actions Logic
+  const {
+    handleAddTier,
+    handleUpdateTier,
+    handleDeleteTier,
+    handleRandomizeColors,
+    handleClear
+  } = useTierStructure(setState);
 
   const addedItemIds = useMemo(() => {
     const ids = new Set<string>();
@@ -144,13 +152,6 @@ export function useTierList() {
     e.target.value = '';
   }, [setState, showToast]);
 
-  const handleClear = useCallback(() => {
-    if(confirm("Clear everything?")) {
-        setState(INITIAL_STATE);
-        showToast("Board cleared", "info");
-    }
-  }, [setState, showToast]);
-
   // --- Details Modal Handlers ---
   const handleShowDetails = useCallback((item: MediaItem) => {
     setDetailsItem(item);
@@ -159,78 +160,6 @@ export function useTierList() {
   const handleCloseDetails = useCallback(() => {
     setDetailsItem(null);
   }, []);
-
-  // --- Tier Management ---
-
-  const handleAddTier = useCallback(() => {
-    const newId = crypto.randomUUID();
-    
-    setState(prev => {
-        const usedColors = new Set(prev.tierDefs.map(t => t.color));
-        const availableColors = TIER_COLORS.filter(c => !usedColors.has(c.id));
-        
-        const randomColorObj = availableColors.length > 0 
-            ? availableColors[Math.floor(Math.random() * availableColors.length)]
-            : TIER_COLORS[Math.floor(Math.random() * TIER_COLORS.length)];
-
-        const newTier: TierDefinition = {
-            id: newId,
-            label: 'New Tier',
-            color: randomColorObj.id
-        };
-
-        return {
-            tierDefs: [...prev.tierDefs, newTier],
-            items: { ...prev.items, [newId]: [] }
-        };
-    });
-  }, [setState]);
-
-  const handleRandomizeColors = useCallback(() => {
-    setState(prev => {
-        let pool = [...TIER_COLORS];
-        
-        const newDefs = prev.tierDefs.map(tier => {
-            if (pool.length === 0) pool = [...TIER_COLORS];
-            const index = Math.floor(Math.random() * pool.length);
-            const color = pool[index];
-            pool.splice(index, 1);
-            return { ...tier, color: color.id };
-        });
-
-        return { ...prev, tierDefs: newDefs };
-    });
-    showToast("Colors randomized!", "success");
-  }, [setState, showToast]);
-
-  const handleUpdateTier = useCallback((id: string, updates: Partial<TierDefinition>) => {
-    setState(prev => ({
-        ...prev,
-        tierDefs: prev.tierDefs.map(t => t.id === id ? { ...t, ...updates } : t)
-    }));
-  }, [setState]);
-
-  const handleDeleteTier = useCallback((id: string) => {
-    setState(prev => {
-        const tierIndex = prev.tierDefs.findIndex(t => t.id === id);
-        if (tierIndex === -1) return prev;
-
-        const fallbackId = prev.tierDefs.find(t => t.id !== id)?.id;
-        
-        const orphanedItems = prev.items[id] || [];
-        const newItems = { ...prev.items };
-        delete newItems[id];
-
-        if (fallbackId && orphanedItems.length > 0) {
-            newItems[fallbackId] = [...newItems[fallbackId], ...orphanedItems];
-        }
-
-        return {
-            tierDefs: prev.tierDefs.filter(t => t.id !== id),
-            items: newItems
-        };
-    });
-  }, [setState]);
 
   const removeItemFromTier = useCallback((tierId: string, itemId: string) => {
     setState(prev => ({

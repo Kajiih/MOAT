@@ -1,8 +1,9 @@
 'use client';
 
+import { useMemo, useCallback } from 'react';
 import { Filter, Info } from 'lucide-react';
 import { MediaType, PRIMARY_TYPES, SECONDARY_TYPES, SortOption, MediaItem } from '@/lib/types';
-import { useMediaSearch, usePersistentState } from '@/lib/hooks';
+import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
 import { SkeletonCard } from '@/components/SkeletonCard';
@@ -35,7 +36,7 @@ export function SearchTab({
     globalWildcard,
     onInfo
 }: SearchTabProps) {
-  const [showFilters, setShowFilters] = usePersistentState<boolean>(`moat-search-ui-${type}-showFilters`, false);
+  const { showFilters, toggleFilters } = useSearchFilters(type);
   const [sortOption, setSortOption] = usePersistentState<SortOption>(`moat-search-ui-${type}-sortOption`, 'relevance');
 
   const {
@@ -57,39 +58,39 @@ export function SearchTab({
       enabled: !isHidden
   });
 
-  const sortedResults = [...searchResults].sort((a, b) => {
-    switch (sortOption) {
-      case 'date_desc':
-        return (b.date || b.year || '').localeCompare(a.date || a.year || '');
-      case 'date_asc':
-        return (a.date || a.year || '9999').localeCompare(b.date || b.year || '9999');
-      case 'title_asc':
-        return a.title.localeCompare(b.title);
-      case 'title_desc':
-        return b.title.localeCompare(a.title);
-      default:
-        return 0;
-    }
-  });
+  const sortedResults = useMemo(() => {
+    return [...searchResults].sort((a, b) => {
+        switch (sortOption) {
+          case 'date_desc':
+            return (b.date || b.year || '').localeCompare(a.date || a.year || '');
+          case 'date_asc':
+            return (a.date || a.year || '9999').localeCompare(b.date || b.year || '9999');
+          case 'title_asc':
+            return a.title.localeCompare(b.title);
+          case 'title_desc':
+            return b.title.localeCompare(a.title);
+          default:
+            return 0;
+        }
+      });
+  }, [searchResults, sortOption]);
 
-  const togglePrimaryType = (t: string) => {
-      if (albumPrimaryTypes.includes(t)) {
-          setAlbumPrimaryTypes(albumPrimaryTypes.filter(x => x !== t));
-      } else {
-          setAlbumPrimaryTypes([...albumPrimaryTypes, t]);
-      }
-  };
+  const togglePrimaryType = useCallback((t: string) => {
+      const newTypes = albumPrimaryTypes.includes(t) 
+        ? albumPrimaryTypes.filter(x => x !== t) 
+        : [...albumPrimaryTypes, t];
+      setAlbumPrimaryTypes(newTypes);
+  }, [albumPrimaryTypes, setAlbumPrimaryTypes]);
 
-  const toggleSecondaryType = (t: string) => {
-      if (albumSecondaryTypes.includes(t)) {
-          setAlbumSecondaryTypes(albumSecondaryTypes.filter(x => x !== t));
-      } else {
-          setAlbumSecondaryTypes([...albumSecondaryTypes, t]);
-      }
-  };
+  const toggleSecondaryType = useCallback((t: string) => {
+      const newTypes = albumSecondaryTypes.includes(t) 
+        ? albumSecondaryTypes.filter(x => x !== t) 
+        : [...albumSecondaryTypes, t];
+      setAlbumSecondaryTypes(newTypes);
+  }, [albumSecondaryTypes, setAlbumSecondaryTypes]);
 
   if (isHidden) {
-    return <div className="hidden" />;
+    return null;
   }
 
   return (
@@ -112,7 +113,7 @@ export function SearchTab({
 
                 {type === 'album' && (
                     <button
-                        onClick={() => setShowFilters(!showFilters)}
+                        onClick={toggleFilters}
                         className={`p-2 rounded border transition-colors ${showFilters ? 'bg-red-900/20 border-red-900/50 text-red-400' : 'bg-black border-neutral-700 text-neutral-400 hover:text-white'}`}
                         title="Toggle Filters"
                     >
