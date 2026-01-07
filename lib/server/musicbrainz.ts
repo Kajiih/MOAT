@@ -1,18 +1,16 @@
-import { z } from 'zod';
 import { 
     MusicBrainzSearchResponseSchema, 
-    MusicBrainzArtistCreditSchema,
     MediaItem, 
     MediaType, 
     SECONDARY_TYPES,
     MediaDetails
 } from '@/lib/types';
-import { getArtistThumbnail, MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
+import { MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
 import { constructLuceneQuery, SearchOptions } from '@/lib/utils/search';
+import { mapArtistToMediaItem, mapRecordingToMediaItem, mapReleaseGroupToMediaItem } from '@/lib/utils/mappers';
 
 const SEARCH_CACHE_TTL = 3600; // 1 hour
 const SEARCH_LIMIT = 15;
-const COVER_ART_ARCHIVE_BASE_URL = 'https://coverartarchive.org';
 
 interface SearchParams {
     type: MediaType;
@@ -162,52 +160,14 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     throw new Error('Invalid data from upstream');
   }
 
-  const formatArtistCredit = (credits: z.infer<typeof MusicBrainzArtistCreditSchema>[] | undefined) => {
-      if (!credits || credits.length === 0) return 'Unknown';
-      return credits.map(c => (c.name + (c.joinphrase || ''))).join('');
-  };
-
   let results: MediaItem[] = [];
 
   if (type === 'album' && parsed.data['release-groups']) {
-      results = parsed.data['release-groups'].map((item) => ({
-          id: item.id,
-          type: 'album',
-          title: item.title,
-          artist: formatArtistCredit(item['artist-credit']),
-          year: item['first-release-date']?.split('-')[0] || '',
-          date: item['first-release-date'],
-          imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front`,
-          primaryType: item['primary-type'],
-          secondaryTypes: item['secondary-types']
-      }));
+      results = parsed.data['release-groups'].map(mapReleaseGroupToMediaItem);
   } else if (type === 'artist' && parsed.data.artists) {
-      results = await Promise.all(parsed.data.artists.map(async (item) => {
-          const thumb = await getArtistThumbnail(item.id);
-          return {
-              id: item.id,
-              type: 'artist',
-              title: item.name, 
-              year: item['life-span']?.begin?.split('-')[0] || '',
-              date: item['life-span']?.begin,
-              imageUrl: thumb,
-              disambiguation: item.disambiguation 
-          };
-      }));
+      results = await Promise.all(parsed.data.artists.map(mapArtistToMediaItem));
   } else if (type === 'song' && parsed.data.recordings) {
-      results = parsed.data.recordings.map((item) => {
-          const releaseId = item.releases?.[0]?.id;
-          return {
-              id: item.id,
-              type: 'song',
-              title: item.title,
-              artist: formatArtistCredit(item['artist-credit']),
-              album: item.releases?.[0]?.title, 
-              year: item['first-release-date']?.split('-')[0] || '',
-              date: item['first-release-date'],
-              imageUrl: releaseId ? `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front` : undefined
-          };
-      });
+      results = parsed.data.recordings.map(mapRecordingToMediaItem);
   }
 
   const totalCount = rawData.count || rawData['release-group-count'] || rawData['artist-count'] || rawData['recording-count'] || 0;

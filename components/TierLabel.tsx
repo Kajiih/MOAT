@@ -80,6 +80,7 @@ export function TierLabel({
           />
       ) : (
           <div
+              data-testid="tier-row-label"
               onDoubleClick={handleDoubleClick}
               className="w-full h-full flex items-center justify-center text-center font-black text-black select-none cursor-pointer hover:bg-black/5 rounded transition-colors break-words overflow-hidden"
               title="Double click to rename"
