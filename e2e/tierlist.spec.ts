@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
 
 test.describe('Tier List App', () => {
   test.beforeEach(async ({ page }) => {
@@ -143,6 +145,42 @@ test.describe('Tier List App', () => {
     
     // Verify it's visually inside the tier row (optional, complex check)
     // Checking existence on page with correct ID is usually enough as it implies state update.
+  });
+
+  test('should import tier list from json', async ({ page }) => {
+    // Prepare a dummy JSON file
+    const importData = {
+        version: 1,
+        createdAt: new Date().toISOString(),
+        tiers: [
+            { label: 'Imported Tier S', color: 'red', items: [] },
+            { label: 'Imported Tier A', color: 'blue', items: [] }
+        ]
+    };
+    
+    // Create temporary file
+    const testDir = 'test-results';
+    if (!fs.existsSync(testDir)) fs.mkdirSync(testDir);
+    const filePath = path.join(testDir, 'import_test.json');
+    fs.writeFileSync(filePath, JSON.stringify(importData));
+
+    // Wait for initial load
+    await expect(page.getByTestId('tier-row-label')).toHaveCount(6);
+
+    // Trigger file chooser by clicking the visible label
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByText('Import', { exact: true }).click();
+    const fileChooser = await fileChooserPromise;
+    
+    await fileChooser.setFiles(filePath);
+
+    // Verify UI updated
+    await expect(page.getByTestId('tier-row-label')).toHaveCount(2);
+    await expect(page.getByText('Imported Tier S')).toBeVisible();
+    await expect(page.getByText('Imported Tier A')).toBeVisible();
+
+    // Cleanup
+    fs.unlinkSync(filePath);
   });
 
   test('should open and close search panel tabs', async ({ page }) => {
