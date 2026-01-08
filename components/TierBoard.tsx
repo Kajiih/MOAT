@@ -55,14 +55,32 @@ export function TierBoard({
                     />
                 ))}
             </SortableContext>
+            <button 
+                onClick={handleAddTier}
+                className="w-full py-4 border border-dashed border-neutral-700 rounded-xl text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold group"
+            >
+                 <div className="p-1 bg-neutral-800 rounded group-hover:bg-neutral-700 transition-colors">
+                    <Plus size={16} />
+                 </div>
+                 <span>Add Tier</span>
+            </button>
+
+            {/* Branding Footer (Captured in Screenshot) */}
+            <div className="pt-8 pb-4 text-center pointer-events-none select-none">
+                <div className="flex items-center justify-center gap-3 opacity-90">
+                    <span className="text-sm font-black tracking-[0.3em] flex gap-[2px]">
+                        <span className="text-red-500">M</span>
+                        <span className="text-orange-500">O</span>
+                        <span className="text-emerald-500">A</span>
+                        <span className="text-violet-500">T</span>
+                    </span>
+                    <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
+                        Tier List Maker
+                    </span>
+                </div>
+            </div>
         </div>
-        
-        <button 
-            onClick={handleAddTier}
-            className="w-full py-3 border border-dashed border-neutral-700 rounded-lg text-neutral-500 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold"
-        >
-            <Plus size={20} /> Add Tier
-        </button>
     </div>
   );
 }
+
