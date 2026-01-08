@@ -30,5 +30,25 @@ export function usePersistentState<T>(key: string, initialValue: T) {
     }
   }, [key, debouncedState]);
 
+  // 3. Sync across tabs: Listen for storage events (fired when other tabs update this key)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === key && e.newValue) {
+        try {
+          const newValue = JSON.parse(e.newValue);
+          setState(newValue);
+        } catch (error) {
+          console.error(`Error parsing storage change for key "${key}":`, error);
+        }
+      } else if (e.key === key && !e.newValue) {
+        // Key was cleared in another tab
+        setState(initialValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [key, initialValue]);
+
   return [state, setState] as const;
 }

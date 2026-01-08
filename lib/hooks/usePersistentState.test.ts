@@ -64,15 +64,45 @@ describe('usePersistentState', () => {
     expect(window.localStorage.getItem('test-key')).toBe(JSON.stringify('updated'));
   });
 
-  it('should handle JSON parse errors gracefully', () => {
-    window.localStorage.setItem('test-key', 'invalid-json');
-    
-    // Mock console.error to keep output clean
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
-    const { result } = renderHook(() => usePersistentState('test-key', 'default'));
-    expect(result.current[0]).toBe('default');
-    
-    spy.mockRestore();
+    it('should handle JSON parse errors gracefully', () => {
+
+      window.localStorage.setItem('test-key', 'invalid-json');
+
+      
+
+      // Mock console.error to keep output clean
+
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      
+
+      const { result } = renderHook(() => usePersistentState('test-key', 'default'));
+
+      expect(result.current[0]).toBe('default');
+
+      
+
+      spy.mockRestore();
+
+    });
+
+  
+
+    it('should sync state across tabs via storage event', () => {
+      const { result } = renderHook(() => usePersistentState('test-key', 'initial'));
+  
+      // Simulate storage event from another tab
+      act(() => {
+        const event = new StorageEvent('storage', {
+          key: 'test-key',
+          newValue: JSON.stringify('synced-value'),
+          // storageArea is optional and my mock isn't a true Storage instance, so omitting it avoids JSDOM error
+        });
+        window.dispatchEvent(event);
+      });
+  
+      expect(result.current[0]).toBe('synced-value');
+    });
   });
-});
+
+  

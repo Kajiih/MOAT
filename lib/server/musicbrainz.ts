@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { 
     MusicBrainzSearchResponseSchema, 
     MediaItem, 
@@ -89,7 +90,7 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   const parsed = MusicBrainzSearchResponseSchema.safeParse(rawData);
   
   if (!parsed.success) {
-    console.error("Validation Failed", parsed.error);
+    console.error("MusicBrainz Validation Failed:", z.prettifyError(parsed.error));
     throw new Error('Invalid data from upstream');
   }
 
