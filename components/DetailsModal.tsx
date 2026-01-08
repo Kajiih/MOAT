@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Disc, User, Music } from 'lucide-react';
 import Image from 'next/image';
 import { MediaItem } from '@/lib/types';
 import { useMediaDetails } from '@/lib/hooks';
@@ -25,6 +25,9 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
 
   if (!isOpen || !item) return null;
 
+  const hasImage = item.imageUrl && !imageError;
+  const PlaceholderIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
@@ -32,11 +35,11 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Cover Art */}
-        <div className="relative h-48 sm:h-64 shrink-0 bg-neutral-950">
-            {item.imageUrl && !imageError ? (
+        <div className="relative h-48 sm:h-64 shrink-0 bg-neutral-950 overflow-hidden">
+            {hasImage ? (
                 <>
                     <Image 
-                        src={item.imageUrl} 
+                        src={item.imageUrl!} 
                         alt={item.title} 
                         fill 
                         priority
@@ -44,42 +47,39 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
                         onError={() => setImageError(true)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
-                    <div className="absolute bottom-0 left-0 p-6 flex gap-4 items-end w-full">
-                        <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-xl border-2 border-neutral-700">
-                            <Image 
-                                src={item.imageUrl} 
-                                alt={item.title} 
-                                fill 
-                                priority
-                                className="object-cover" 
-                                onError={() => setImageError(true)}
-                            />
-                        </div>
-                        <div className="flex-1 min-w-0 pb-1">
-                            <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1 flex items-center gap-1">
-                                {item.type} 
-                                {item.type === 'album' && item.primaryType && ` • ${item.primaryType}`}
-                            </div>
-                            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight truncate" title={item.title}>
-                                {item.title}
-                            </h2>
-                            <p className="text-lg text-neutral-300 font-medium truncate">
-                                {item.type === 'album' || item.type === 'song' ? item.artist : (item.disambiguation || '')}
-                            </p>
-                        </div>
-                    </div>
                 </>
             ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-800 p-6 text-center">
-                    <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">{item.type}</div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight" title={item.title}>
+                <div className="absolute inset-0 bg-gradient-to-b from-neutral-800 to-neutral-900 opacity-50" />
+            )}
+
+            <div className="absolute bottom-0 left-0 p-6 w-full flex gap-4 items-end text-left">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-xl border-2 border-neutral-700 bg-neutral-800 flex items-center justify-center">
+                    {hasImage ? (
+                        <Image 
+                            src={item.imageUrl!} 
+                            alt={item.title} 
+                            fill 
+                            priority
+                            className="object-cover" 
+                            onError={() => setImageError(true)}
+                        />
+                    ) : (
+                        <PlaceholderIcon className="text-neutral-600 w-1/2 h-1/2" />
+                    )}
+                </div>
+                
+                <div className="flex-1 min-w-0 pb-1">
+                    <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1 flex items-center gap-1">
+                        {item.type === 'album' ? (item.primaryType || item.type) : item.type}
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight truncate" title={item.title}>
                         {item.title}
                     </h2>
-                    <p className="text-lg text-neutral-300 font-medium">
+                    <p className="text-lg text-neutral-300 font-medium truncate">
                         {item.type === 'album' || item.type === 'song' ? item.artist : (item.disambiguation || '')}
                     </p>
                 </div>
-            )}
+            </div>
             
             <button 
                 onClick={onClose}

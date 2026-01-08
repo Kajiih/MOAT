@@ -38,6 +38,9 @@ interface MBTrack {
     position: string;
     title: string;
     length?: number;
+    recording?: {
+        id: string;
+    };
 }
 
 interface MBTag {
@@ -220,7 +223,7 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
             const data = await detailsRes.json();
 
             const tracks = data.media?.[0]?.tracks?.map((t: MBTrack) => ({
-                id: t.id,
+                id: t.recording?.id || t.id,
                 position: t.position,
                 title: t.title,
                 length: t.length ? new Date(t.length).toISOString().substr(14, 5) : '--:--'
@@ -231,7 +234,8 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
                 type: 'album',
                 tracks,
                 label: data['label-info']?.[0]?.label?.name,
-                date: data.date
+                date: data.date,
+                releaseId: release.id
             };
         } 
         

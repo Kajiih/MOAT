@@ -102,6 +102,7 @@ export interface MediaDetails {
   // Album specific
   tracks?: TrackItem[];
   label?: string;
+  releaseId?: string;
   
   // Artist specific
   area?: string;
