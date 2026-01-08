@@ -54,6 +54,9 @@ function BaseMediaCard({
     return item.imageUrl ? failedImages.has(item.imageUrl) : false;
   });
 
+  // Retry state: If optimization fails (e.g. Private IP error), we try unoptimized once.
+  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
+
   // Icon based on type
   const TypeIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
 
@@ -102,10 +105,17 @@ function BaseMediaCard({
           fill 
           sizes="96px"
           priority={priority}
+          unoptimized={retryUnoptimized}
           className="object-cover pointer-events-none" 
           onError={() => {
-            if (item.imageUrl) failedImages.add(item.imageUrl);
-            setImageError(true);
+            // If we haven't tried unoptimized yet, try that first.
+            if (!retryUnoptimized) {
+              setRetryUnoptimized(true);
+            } else {
+              // If we already tried unoptimized and it failed, then it's a real error.
+              if (item.imageUrl) failedImages.add(item.imageUrl);
+              setImageError(true);
+            }
           }}
         />
       ) : (

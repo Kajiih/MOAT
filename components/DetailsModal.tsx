@@ -17,6 +17,7 @@ interface DetailsModalProps {
 
 export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
   const [imageError, setImageError] = useState(false);
+  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
   const { details, isLoading, error } = useMediaDetails(
     isOpen && item ? item.id : null,
@@ -27,6 +28,14 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
 
   const hasImage = item.imageUrl && !imageError;
   const PlaceholderIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
+
+  const handleImageError = () => {
+    if (!retryUnoptimized) {
+        setRetryUnoptimized(true);
+    } else {
+        setImageError(true);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
@@ -43,8 +52,9 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
                         alt={item.title} 
                         fill 
                         priority
+                        unoptimized={retryUnoptimized}
                         className="object-cover opacity-60 blur-sm" 
-                        onError={() => setImageError(true)}
+                        onError={handleImageError}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
                 </>
@@ -60,8 +70,9 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
                             alt={item.title} 
                             fill 
                             priority
+                            unoptimized={retryUnoptimized}
                             className="object-cover" 
-                            onError={() => setImageError(true)}
+                            onError={handleImageError}
                         />
                     ) : (
                         <PlaceholderIcon className="text-neutral-600 w-1/2 h-1/2" />

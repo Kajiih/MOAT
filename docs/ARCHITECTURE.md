@@ -49,10 +49,26 @@
   - **Persistence**: `usePersistentState` hook handles `localStorage` synchronization with `use-debounce` (1000ms delay) to prevent excessive writes.
 - **Server Data**:
   - **MusicBrainz Integration**: Data is fetched via Next.js API Routes (`app/api/search`, `app/api/details`).
+  - **Advanced Search**: Queries are constructed using normalized **Lucene syntax** (`lib/utils/search.ts`) to support complex filtering (date ranges, specific artist IDs, and filtering by secondary types).
   - **Validation**: Zod schemas (`lib/types.ts`) ensure data from MusicBrainz matches the internal `MediaItem` interface before reaching the frontend.
-  - **Caching**: Search queries are constructed (normalized) in `lib/api.ts`. The project utilizes `swr` (Stale-While-Revalidate) for efficient data fetching and caching on the client.
+  - **Caching**: 
+    - Server-side caching uses Next.js `fetch` options: 1 hour for search results, 24 hours for media details.
+    - Client-side caching is handled by `swr`.
 
-### 3. Key Libraries
+### 3. Image Handling & Resilience
+- **Multi-Source Art**: 
+  - Album/Song art is sourced from the **Cover Art Archive**.
+  - Artist images use a waterfall strategy: **Fanart.tv** (high quality) with a fallback to **Wikidata/Wikimedia Commons** (high coverage).
+- **Optimization Strategy**:
+  - Uses `next/image` for performance.
+  - **Bypass Mechanism**: Implements a retry strategy for domains like `archive.org` that may trigger "Private IP" resolution errors in the Next.js optimization server. On failure, the component switches to `unoptimized={true}` to allow direct browser fetching.
+  - **Error Management**: Failed image URLs are cached in a session-level `Set` to prevent repeated failed requests.
+
+### 4. Quality Assurance
+- **Unit Testing**: Powered by **Vitest** and **React Testing Library**. Focuses on complex hooks (`useTierStructure`) and data mappers.
+- **E2E Testing**: **Playwright** is used for critical path verification (searching, dragging items to tiers, and board persistence).
+
+### 5. Key Libraries
 - **@dnd-kit**: chosen for its modularity and accessibility over older libraries like `react-beautiful-dnd`.
 - **html-to-image**: For client-side image generation.
 - **downloadjs**: For handling file downloads.
