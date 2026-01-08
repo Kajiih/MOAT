@@ -6,3 +6,4 @@ export * from './hooks/useSearchFilters';
 export * from './hooks/useTierStructure';
 export * from './hooks/useDynamicFavicon';
 export * from './hooks/useTierList';
+export * from './hooks/useBrandColors';

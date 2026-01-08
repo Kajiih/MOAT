@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { getColorTheme } from '@/lib/colors';
+import { useBrandColors } from './useBrandColors';
 
 
 /**
  * Generates an SVG data URI for the favicon based on the provided colors.
  */
-function generateFaviconSvg(colors: string[]): string {
-  // Ensure we have at least 3 colors for the bars, or fallback to defaults
-  const c1 = colors[0] ? getColorTheme(colors[0]).hex : '#ef4444'; // Red default
-  const c2 = colors[1] ? getColorTheme(colors[1]).hex : '#f59e0b'; // Orange default
-  const c3 = colors[2] ? getColorTheme(colors[2]).hex : '#10b981'; // Green default
+function generateFaviconSvg(hexColors: string[]): string {
+  // Use the first 3 colors from the brand palette
+  const c1 = hexColors[0];
+  const c2 = hexColors[2];
+  const c3 = hexColors[3];
 
   const svg = `
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -55,6 +55,9 @@ export function applyFaviconToDom(svgDataUri: string) {
  */
 export function useDynamicFavicon(colors: string[]) {
   const initialLoadComplete = useRef(false);
+  
+  // Use shared brand logic to get consistent hex colors (handling defaults/fallbacks)
+  const brandColors = useBrandColors(colors);
 
   // 1. Establish a "safe zone" after the page has definitely settled.
   useEffect(() => {
@@ -66,7 +69,7 @@ export function useDynamicFavicon(colors: string[]) {
 
   // 2. Respond to color changes
   useEffect(() => {
-    const svgDataUri = generateFaviconSvg(colors);
+    const svgDataUri = generateFaviconSvg(brandColors);
     
     // Encapsulate the "what" (update DOM) so the hook only manages the "when" (timing)
     const update = () => applyFaviconToDom(svgDataUri);
@@ -80,5 +83,5 @@ export function useDynamicFavicon(colors: string[]) {
         update();
     }
 
-  }, [colors]);
+  }, [brandColors]);
 }
