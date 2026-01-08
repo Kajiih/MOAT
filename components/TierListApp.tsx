@@ -12,8 +12,7 @@ import { SearchPanel } from '@/components/SearchPanel';
 import { DetailsModal } from '@/components/DetailsModal';
 import { TierBoard } from '@/components/TierBoard';
 import { Dices } from 'lucide-react';
-import { useTierList } from '@/lib/useTierList';
-import { useScreenshot } from '@/lib/hooks';
+import { useTierList, useScreenshot, useDynamicFavicon } from '@/lib/hooks';
 import { useToast } from './ToastProvider';
 
 /**
@@ -52,6 +51,9 @@ export default function TierListApp() {
 
   const { toastCount } = useToast();
   const { ref: screenshotRef, takeScreenshot, isCapturing } = useScreenshot('moat-tierlist.png');
+  
+  // Dynamically update favicon based on current board colors
+  useDynamicFavicon(headerColors);
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans relative">
