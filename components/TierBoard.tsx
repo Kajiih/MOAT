@@ -45,7 +45,7 @@ export function TierBoard({
                 items={state.tierDefs.map(t => t.id)} 
                 strategy={verticalListSortingStrategy}
             >
-                {state.tierDefs.map((tier, index) => (
+                {state.tierDefs.map((tier) => (
                     <TierRow 
                         key={tier.id} 
                         tier={tier}

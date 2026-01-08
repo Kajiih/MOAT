@@ -44,7 +44,7 @@ describe('useScreenshot', () => {
     const { result } = renderHook(() => useScreenshot());
     
     // Mock toPng to get the filter function
-    let filterFn: ((node: any) => boolean) | undefined;
+    let filterFn: ((node: HTMLElement) => boolean) | undefined;
     vi.mocked(toPng).mockImplementation((_node, options) => {
       filterFn = options?.filter;
       return Promise.resolve('data:test');

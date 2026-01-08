@@ -1,6 +1,6 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTierList } from './useTierList';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock dependencies
 vi.mock('@/components/ToastProvider', () => ({
@@ -9,7 +9,7 @@ vi.mock('@/components/ToastProvider', () => ({
 
 // Mock useTierListDnD to avoid dnd-kit complexity in this logic test
 vi.mock('@/lib/hooks/useTierListDnD', () => ({
-  useTierListDnD: (state: any, setState: any) => ({
+  useTierListDnD: () => ({
     sensors: [],
     activeItem: null,
     activeTier: null,

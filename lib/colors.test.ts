@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getColorTheme, blendHexColors, COLOR_PALETTE, DEFAULT_COLOR } from './colors';
+import { getColorTheme, COLOR_PALETTE, DEFAULT_COLOR } from './colors';
 
 describe('colors utilities', () => {
   describe('getColorTheme', () => {

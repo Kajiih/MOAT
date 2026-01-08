@@ -28,7 +28,7 @@ describe('useBrandColors', () => {
   });
 
   it('should handle undefined sourceColors', () => {
-    // @ts-ignore - testing runtime resilience
+    // @ts-expect-error - testing runtime resilience
     const { result } = renderHook(() => useBrandColors(undefined));
     expect(result.current).toHaveLength(4);
     expect(result.current[0]).toBe('#ef4444'); // First default

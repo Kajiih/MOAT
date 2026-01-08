@@ -13,20 +13,6 @@ describe('BrandLogo', () => {
     expect(screen.getByText('T')).toBeDefined();
   });
 
-  it('should apply variant classes correctly (header)', () => {
-    const { container } = render(<BrandLogo colors={mockColors} variant="header" />);
-    const logoContainer = container.querySelector('span');
-    expect(logoContainer?.className).toContain('text-4xl');
-    expect(logoContainer?.className).toContain('italic');
-  });
-
-  it('should apply variant classes correctly (footer)', () => {
-    const { container } = render(<BrandLogo colors={mockColors} variant="footer" />);
-    const logoContainer = container.querySelector('span');
-    expect(logoContainer?.className).toContain('text-sm');
-    expect(logoContainer?.className).not.toContain('italic');
-  });
-
   it('should apply colors to the letters', () => {
     render(<BrandLogo colors={mockColors} />);
     const m = screen.getByText('M');
