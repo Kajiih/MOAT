@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { getColorTheme } from '@/lib/colors';
 
 /**
@@ -26,13 +26,21 @@ function generateFaviconSvg(colors: string[]): string {
  * @param colors Array of color IDs (e.g. ['red', 'blue'])
  */
 export function useDynamicFavicon(colors: string[]) {
+  const initialLoadComplete = useRef(false);
+
+  // 1. Establish a "safe zone" after the page has definitely settled.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      initialLoadComplete.current = true;
+    }, 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  // 2. Respond to color changes
   useEffect(() => {
     const svgDataUri = generateFaviconSvg(colors);
     
-    // We use a small delay to ensure this runs AFTER Next.js has finished 
-    // its hydration and potentially re-injected the static icon.
-    const timeoutId = setTimeout(() => {
-        // 1. Find or create our dynamic link
+    const updateFavicon = () => {
         let link = document.querySelector("link#dynamic-favicon") as HTMLLinkElement;
 
         if (!link) {
@@ -43,17 +51,22 @@ export function useDynamicFavicon(colors: string[]) {
             document.head.appendChild(link);
         }
 
-        // 2. Aggressively remove any other icon links to ensure our dynamic one has priority.
         const allIcons = document.querySelectorAll("link[rel*='icon']");
         allIcons.forEach(icon => {
             if (icon !== link) icon.remove();
         });
 
-        // 3. Update the href
         link.href = svgDataUri;
-    }, 500); // 500ms delay to let the dust settle
+    };
 
-    return () => clearTimeout(timeoutId);
+    if (!initialLoadComplete.current) {
+        // Initial load / Hydration phase: Delegate to a timeout to ensure we override Next.js
+        const timeoutId = setTimeout(updateFavicon, 1);
+        return () => clearTimeout(timeoutId);
+    } else {
+        // Interactive phase: Update immediately
+        updateFavicon();
+    }
 
   }, [colors]);
 }

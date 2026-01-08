@@ -30,6 +30,7 @@
   - **Export Image**: Generates a high-quality PNG of the tier list using `html-to-image`.
   - **Export/Import JSON**: Save and load board configurations.
 - **Dynamic Theming**: The browser favicon updates dynamically to match the colors of the tier headers.
+  - **Persistence Strategy**: Uses a stabilization period to ensure the dynamic favicon persists across Next.js hydration while maintaining immediate updates for user interactions.
 
 ## Technical Architecture
 
