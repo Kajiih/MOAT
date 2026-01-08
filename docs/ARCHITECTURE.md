@@ -29,8 +29,11 @@
 - **Export & Import**:
   - **Export Image**: Generates a high-quality PNG of the tier list using `html-to-image`.
   - **Export/Import JSON**: Save and load board configurations.
-- **Dynamic Theming**: The browser favicon updates dynamically to match the colors of the tier headers.
-  - **Persistence Strategy**: Uses a stabilization period to ensure the dynamic favicon persists across Next.js hydration while maintaining immediate updates for user interactions.
+- **Dynamic Branding**:
+  - **Favicon**: Dynamically updates to match the tier list's top colors.
+    - **Design**: Uses a generated SVG with a 3-bar layout: Top (Tier 1), Middle (Split Tier 2/3), Bottom (Tier 4).
+    - **Persistence**: Implements a "Safe Zone" strategy (0ms delay for interaction, 100ms for load) to handle Next.js hydration and ensure updates persist.
+  - **Logo System**: Centralized "MOAT" logo via `BrandLogo` component using consistent `useBrandColors` hook to derive the 4-color palette (handling defaults and fallbacks).
 
 ## Technical Architecture
 
