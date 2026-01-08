@@ -23,7 +23,7 @@ export function mapReleaseGroupToMediaItem(item: z.infer<typeof MusicBrainzRelea
         artist: formatArtistCredit(item['artist-credit']),
         year: item['first-release-date']?.split('-')[0] || '',
         date: item['first-release-date'],
-        imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front`,
+        imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front-250`,
         primaryType: item['primary-type'],
         secondaryTypes: item['secondary-types']
     };
@@ -52,6 +52,6 @@ export function mapRecordingToMediaItem(item: z.infer<typeof MusicBrainzRecordin
         album: item.releases?.[0]?.title, 
         year: item['first-release-date']?.split('-')[0] || '',
         date: item['first-release-date'],
-        imageUrl: releaseId ? `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front` : undefined
+        imageUrl: releaseId ? `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front-250` : undefined
     };
 }

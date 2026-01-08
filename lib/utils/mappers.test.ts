@@ -43,7 +43,7 @@ describe('Mappers', () => {
         artist: 'Artist',
         year: '2023',
         date: '2023-01-01',
-        imageUrl: 'https://coverartarchive.org/release-group/123/front',
+        imageUrl: 'https://coverartarchive.org/release-group/123/front-250',
         primaryType: 'Album',
         secondaryTypes: undefined
       });
@@ -60,7 +60,7 @@ describe('Mappers', () => {
           };
           const result = mapRecordingToMediaItem(input);
           expect(result.album).toBe('Album');
-          expect(result.imageUrl).toContain('rel1');
+          expect(result.imageUrl).toBe('https://coverartarchive.org/release/rel1/front-250');
       });
   });
   

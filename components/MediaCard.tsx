@@ -7,6 +7,9 @@ import { MediaItem } from '@/lib/types';
 import { X, Eye, Music, User, Disc, Info } from 'lucide-react'; 
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
+// Global cache for failed image URLs to prevent repeated 404 requests during the session
+const failedImages = new Set<string>();
+
 /**
  * Props for the visual representation of a media card.
  */
@@ -46,7 +49,10 @@ function BaseMediaCard({
   onInfo
 }: BaseMediaCardProps) {
   
-  const [imageError, setImageError] = useState(false);
+  // Initialize error state based on global cache
+  const [imageError, setImageError] = useState(() => {
+    return item.imageUrl ? failedImages.has(item.imageUrl) : false;
+  });
 
   // Icon based on type
   const TypeIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
@@ -98,6 +104,7 @@ function BaseMediaCard({
           priority={priority}
           className="object-cover pointer-events-none" 
           onError={() => {
+            if (item.imageUrl) failedImages.add(item.imageUrl);
             setImageError(true);
           }}
         />
