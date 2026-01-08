@@ -30,6 +30,7 @@ describe('TierBoard', () => {
     removeItemFromTier: vi.fn(),
     handleShowDetails: vi.fn(),
     isAnyDragging: false,
+    colors: mockState.tierDefs.map(t => t.color),
   };
 
   it('should render a list of tiers using real components', () => {
@@ -39,10 +40,11 @@ describe('TierBoard', () => {
       </DndContext>
     );
     
-    // We check for the labels which are rendered inside TierLabel inside TierRow
-    // TierLabel renders as a div by default (editable on click), so we use getByText.
-    expect(screen.getByText('S')).toBeDefined();
-    expect(screen.getByText('A')).toBeDefined();
+    // Check for labels using data-testid to avoid conflict with logo text
+    const labels = screen.getAllByTestId('tier-row-label');
+    expect(labels).toHaveLength(2);
+    expect(labels[0].textContent).toBe('S');
+    expect(labels[1].textContent).toBe('A');
   });
 
   it('should call handleAddTier when the button is clicked', () => {

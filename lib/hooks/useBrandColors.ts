@@ -14,7 +14,7 @@ export function useBrandColors(sourceColors: string[]) {
     const defaults = ['red', 'orange', 'amber', 'green'];
     
     // Use provided colors or fallback
-    const validColors = sourceColors.length > 0 ? sourceColors : defaults;
+    const validColors = sourceColors && sourceColors.length > 0 ? sourceColors : defaults;
 
     // Ensure we always have 4 colors by cycling
     return Array(4).fill(0).map((_, i) => {
