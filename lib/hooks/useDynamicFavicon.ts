@@ -29,26 +29,31 @@ export function useDynamicFavicon(colors: string[]) {
   useEffect(() => {
     const svgDataUri = generateFaviconSvg(colors);
     
-    // 1. Find or create our dynamic link
-    let link = document.querySelector("link#dynamic-favicon") as HTMLLinkElement;
+    // We use a small delay to ensure this runs AFTER Next.js has finished 
+    // its hydration and potentially re-injected the static icon.
+    const timeoutId = setTimeout(() => {
+        // 1. Find or create our dynamic link
+        let link = document.querySelector("link#dynamic-favicon") as HTMLLinkElement;
 
-    if (!link) {
-        link = document.createElement('link');
-        link.id = 'dynamic-favicon';
-        link.rel = 'icon';
-        link.type = 'image/svg+xml';
-        document.head.appendChild(link);
-    }
+        if (!link) {
+            link = document.createElement('link');
+            link.id = 'dynamic-favicon';
+            link.rel = 'icon';
+            link.type = 'image/svg+xml';
+            document.head.appendChild(link);
+        }
 
-    // 2. Aggressively remove any other icon links to ensure our dynamic one has priority.
-    // We do this every time because Next.js or HMR might re-inject static icons.
-    const allIcons = document.querySelectorAll("link[rel*='icon']");
-    allIcons.forEach(icon => {
-        if (icon !== link) icon.remove();
-    });
+        // 2. Aggressively remove any other icon links to ensure our dynamic one has priority.
+        const allIcons = document.querySelectorAll("link[rel*='icon']");
+        allIcons.forEach(icon => {
+            if (icon !== link) icon.remove();
+        });
 
-    // 3. Update the href
-    link.href = svgDataUri;
+        // 3. Update the href
+        link.href = svgDataUri;
+    }, 500); // 500ms delay to let the dust settle
+
+    return () => clearTimeout(timeoutId);
 
   }, [colors]);
 }
