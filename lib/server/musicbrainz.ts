@@ -145,6 +145,10 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   // If the query starts with 'NOT ' (e.g. only negative filters), prepend a generic match-all
   const finalQuery = joinedQuery.startsWith('NOT ') ? `*:* AND ${joinedQuery}` : joinedQuery;
 
+  if (!finalQuery.trim()) {
+    return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+  }
+
   const response = await fetch(
     `${MB_BASE_URL}/${endpoint}/?query=${encodeURIComponent(finalQuery)}&fmt=json&limit=${limit}&offset=${offset}`,
     {
@@ -155,7 +159,7 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`MusicBrainz API Error (${response.status}):`, errorText);
+    console.error(`MusicBrainz API Error (${response.status}) for query "${finalQuery}":`, errorText);
     throw new Error(`MusicBrainz API Error: ${response.status}`);
   }
 
