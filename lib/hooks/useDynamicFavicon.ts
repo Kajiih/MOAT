@@ -6,7 +6,7 @@ import { useBrandColors } from './useBrandColors';
 /**
  * Generates an SVG data URI for the favicon based on the provided colors.
  */
-function generateFaviconSvg(hexColors: string[]): string {
+function generateFaviconSvg(hexColors: (string | undefined)[]): string {
   // Map standard tier colors
   const c1 = hexColors[0]; // Top
   const c2 = hexColors[1]; // Middle Left
@@ -16,10 +16,10 @@ function generateFaviconSvg(hexColors: string[]): string {
   const svg = `
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="32" height="32" rx="6" fill="#171717"/>
-  <rect x="6" y="8" width="20" height="4" rx="2" fill="${c1}"/>
-  <rect x="6" y="14" width="9" height="4" rx="2" fill="${c2}"/>
-  <rect x="17" y="14" width="9" height="4" rx="2" fill="${c3}"/>
-  <rect x="6" y="20" width="20" height="4" rx="2" fill="${c4}"/>
+  ${c1 ? `<rect x="6" y="8" width="20" height="4" rx="2" fill="${c1}"/>` : ''}
+  ${c2 ? `<rect x="6" y="14" width="9" height="4" rx="2" fill="${c2}"/>` : ''}
+  ${c3 ? `<rect x="17" y="14" width="9" height="4" rx="2" fill="${c3}"/>` : ''}
+  ${c4 ? `<rect x="6" y="20" width="20" height="4" rx="2" fill="${c4}"/>` : ''}
 </svg>`.trim();
 
   return `data:image/svg+xml;base64,${btoa(svg)}`;

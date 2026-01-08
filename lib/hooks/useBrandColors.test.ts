@@ -10,16 +10,10 @@ describe('useBrandColors', () => {
     expect(result.current).toEqual(['#ef4444', '#f97316', '#fbbf24', '#22c55e']);
   });
 
-  it('should cycle provided colors to fill 4 slots', () => {
-    const { result } = renderHook(() => useBrandColors(['red', 'blue']));
-    expect(result.current).toHaveLength(4);
-    // Should be [red, blue, red, blue]
-    expect(result.current).toEqual(['#ef4444', '#3b82f6', '#ef4444', '#3b82f6']);
-  });
 
   it('should handle single color input', () => {
     const { result } = renderHook(() => useBrandColors(['green']));
-    expect(result.current).toEqual(['#22c55e', '#22c55e', '#22c55e', '#22c55e']);
+    expect(result.current).toEqual(['#22c55e', undefined, undefined, undefined]);
   });
 
   it('should use first 4 if more than 4 are provided', () => {

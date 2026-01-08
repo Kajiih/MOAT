@@ -2,27 +2,36 @@ import React from 'react';
 import { twMerge } from 'tailwind-merge';
 
 interface BrandLogoProps {
-  colors: string[];
+  /** Exactly 4 colors (hex values, can be undefined if missing) */
+  colors: (string | undefined)[];
   className?: string;
   variant?: 'default' | 'header' | 'footer';
 }
 
 export function BrandLogo({ colors, className, variant = 'default' }: BrandLogoProps) {
-  
-  const baseStyles = "flex select-none";
+  const letters = ['M', 'O', 'A', 'T'];
+
+  const baseStyles = "flex select-none font-black";
   
   const variantStyles = {
-    default: "",
-    header: "text-4xl font-black tracking-tighter uppercase italic gap-1",
-    footer: "text-sm font-black tracking-[0.3em] gap-[2px]"
+    default: "text-sm tracking-[0.3em] gap-[2px]",
+    header: "text-4xl italic tracking-tighter sm:text-5xl md:text-6xl gap-1",
+    footer: "text-sm tracking-widest"
   };
 
   return (
     <span className={twMerge(baseStyles, variantStyles[variant], className)}>
-      <span style={{ color: colors[0] }} className="transition-colors duration-500">M</span>
-      <span style={{ color: colors[1] }} className="transition-colors duration-500">O</span>
-      <span style={{ color: colors[2] }} className="transition-colors duration-500">A</span>
-      <span style={{ color: colors[3] }} className="transition-colors duration-500">T</span>
+      {letters.map((letter, i) => (
+        colors[i] ? (
+          <span 
+            key={i} 
+            style={{ color: colors[i] }} 
+            className="transition-colors duration-500"
+          >
+            {letter}
+          </span>
+        ) : null
+      ))}
     </span>
   );
 }

@@ -8,18 +8,21 @@ import { getColorTheme } from '@/lib/colors';
  * @param sourceColors Array of color IDs (e.g. ['red', 'blue'])
  * @returns Array of 4 hex color strings
  */
-export function useBrandColors(sourceColors: string[]) {
-  return useMemo(() => {
-    // Default brand colors if no input
-    const defaults = ['red', 'orange', 'amber', 'green'];
-    
-    // Use provided colors or fallback
-    const validColors = sourceColors && sourceColors.length > 0 ? sourceColors : defaults;
+const DEFAULT_BRAND_IDS = ['red', 'orange', 'amber', 'green'];
 
-    // Ensure we always have 4 colors by cycling
-    return Array(4).fill(0).map((_, i) => {
-       const colorId = validColors[i % validColors.length];
-       return getColorTheme(colorId).hex;
-    });
+export function useBrandColors(sourceColors: string[]): (string | undefined)[] {
+  return useMemo(() => {
+    // If no colors provided, use all 4 defaults
+    if (!sourceColors || sourceColors.length === 0) {
+      return DEFAULT_BRAND_IDS.map(id => getColorTheme(id).hex);
+    }
+
+    // Otherwise, return strictly what's provided (up to 4)
+    return [
+        sourceColors[0] ? getColorTheme(sourceColors[0]).hex : undefined,
+        sourceColors[1] ? getColorTheme(sourceColors[1]).hex : undefined,
+        sourceColors[2] ? getColorTheme(sourceColors[2]).hex : undefined,
+        sourceColors[3] ? getColorTheme(sourceColors[3]).hex : undefined,
+    ];
   }, [sourceColors]);
 }
