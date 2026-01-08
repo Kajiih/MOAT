@@ -8,8 +8,11 @@ import { TierRow } from '@/components/TierRow';
 import { TierListState, MediaItem, TierDefinition } from '@/lib/types';
 import { Plus } from 'lucide-react';
 
+import { getColorTheme } from '@/lib/colors';
+
 interface TierBoardProps {
   state: TierListState;
+  colors: string[];
   screenshotRef: React.RefObject<HTMLDivElement | null>;
   handleAddTier: () => void;
   handleUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
@@ -21,6 +24,7 @@ interface TierBoardProps {
 
 export function TierBoard({
   state,
+  colors,
   screenshotRef,
   handleAddTier,
   handleUpdateTier,
@@ -31,6 +35,16 @@ export function TierBoard({
 }: TierBoardProps) {
 
   const isBoardEmpty = Object.values(state.items).every(items => items.length === 0);
+
+  // Dynamic Logo Colors
+  // Use provided colors (from tier headers) or fallback to default Red/Orange/Amber/Green
+  const sourceColors = colors.length > 0 ? colors : ['red', 'orange', 'amber', 'green'];
+  
+  // Ensure we have 4 colors for M-O-A-T by cycling if needed
+  const logoHexColors = Array(4).fill(0).map((_, i) => {
+    const colorId = sourceColors[i % sourceColors.length];
+    return getColorTheme(colorId).hex;
+  });
 
   return (
     <div className="space-y-4">
@@ -69,10 +83,10 @@ export function TierBoard({
             <div className="pt-8 pb-4 text-center pointer-events-none select-none">
                 <div className="flex items-center justify-center gap-3 opacity-90">
                     <span className="text-sm font-black tracking-[0.3em] flex gap-[2px]">
-                        <span className="text-red-500">M</span>
-                        <span className="text-orange-500">O</span>
-                        <span className="text-emerald-500">A</span>
-                        <span className="text-violet-500">T</span>
+                        <span style={{ color: logoHexColors[0] }}>M</span>
+                        <span style={{ color: logoHexColors[1] }}>O</span>
+                        <span style={{ color: logoHexColors[2] }}>A</span>
+                        <span style={{ color: logoHexColors[3] }}>T</span>
                     </span>
                     <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
                         Tier List Maker

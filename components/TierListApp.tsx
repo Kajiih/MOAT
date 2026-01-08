@@ -78,6 +78,7 @@ export default function TierListApp() {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
                 <TierBoard 
                     state={state}
+                    colors={headerColors}
                     screenshotRef={screenshotRef}
                     handleAddTier={handleAddTier}
                     handleUpdateTier={handleUpdateTier}
