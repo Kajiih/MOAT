@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { getColorTheme } from '@/lib/colors';
 
+
 /**
  * Generates an SVG data URI for the favicon based on the provided colors.
  */
@@ -21,6 +22,9 @@ function generateFaviconSvg(colors: string[]): string {
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
 
+export const SAFE_ZONE_DELAY = 100;
+export const INITIAL_LOAD_DELAY = 1;
+
 /**
  * Dynamically updates the document favicon based on the tier list colors.
  * @param colors Array of color IDs (e.g. ['red', 'blue'])
@@ -32,7 +36,7 @@ export function useDynamicFavicon(colors: string[]) {
   useEffect(() => {
     const t = setTimeout(() => {
       initialLoadComplete.current = true;
-    }, 100);
+    }, SAFE_ZONE_DELAY);
     return () => clearTimeout(t);
   }, []);
 
@@ -61,7 +65,7 @@ export function useDynamicFavicon(colors: string[]) {
 
     if (!initialLoadComplete.current) {
         // Initial load / Hydration phase: Delegate to a timeout to ensure we override Next.js
-        const timeoutId = setTimeout(updateFavicon, 1);
+        const timeoutId = setTimeout(updateFavicon, INITIAL_LOAD_DELAY);
         return () => clearTimeout(timeoutId);
     } else {
         // Interactive phase: Update immediately
