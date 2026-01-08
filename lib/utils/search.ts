@@ -4,14 +4,23 @@ export interface SearchOptions {
 }
 
 /**
+ * Escapes characters that are special to the Lucene query syntax.
+ * Characters escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /
+ */
+export function escapeLucene(term: string): string {
+  return term.replace(/([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\\/]|\&\&|\|\|)/g, "\\$1");
+}
+
+/**
  * Constructs a flexible Lucene query string for MusicBrainz.
  * Converts "michael j" into `field:((michael* OR michael~) AND (j* OR j~))` to support partial matches and fuzzy search (typos).
  */
 export function constructLuceneQuery(field: string, term: string, options: SearchOptions): string {
   if (!term) return '';
   
-  // Remove special characters that might break Lucene syntax, keep alphanumeric and spaces
-  const cleanTerm = term.replace(/[^\w\s]/g, '').trim();
+  // Normalize whitespace but preserve all other characters (including international)
+  // We rely on escaping to handle Lucene syntax safety
+  const cleanTerm = term.trim();
   if (!cleanTerm) return '';
 
   const words = cleanTerm.split(/\s+/);
@@ -19,22 +28,24 @@ export function constructLuceneQuery(field: string, term: string, options: Searc
   if (words.length === 0) return '';
 
   const queryParts = words.map(word => {
+      // Escape the word first to treat it as a literal string
+      const escapedWord = escapeLucene(word);
       const parts = [];
       
       // 1. Wildcard (Prefix) Strategy
       if (options.wildcard) {
-          parts.push(`${word}*`);
+          parts.push(`${escapedWord}*`);
       }
 
       // 2. Fuzzy Strategy
       // Don't apply fuzzy to very short words to avoid noise
       if (options.fuzzy && word.length >= 3) {
-          parts.push(`${word}~`);
+          parts.push(`${escapedWord}~`);
       }
 
-      // If no advanced strategies, fallback to exact match
+      // If no advanced strategies, fallback to exact match (escaped)
       if (parts.length === 0) {
-          return word;
+          return escapedWord;
       }
 
       // If only one strategy, return it directly

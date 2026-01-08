@@ -6,7 +6,7 @@ import {
     MediaDetails
 } from '@/lib/types';
 import { MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
-import { constructLuceneQuery, SearchOptions } from '@/lib/utils/search';
+import { constructLuceneQuery, SearchOptions, escapeLucene } from '@/lib/utils/search';
 import { mapArtistToMediaItem, mapRecordingToMediaItem, mapReleaseGroupToMediaItem } from '@/lib/utils/mappers';
 
 const SEARCH_CACHE_TTL = 3600; // 1 hour
@@ -137,11 +137,13 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
 
   if (queryParts.length === 0 && query) {
       // Fallback if type logic didn't catch it
-      queryParts.push(query);
+      queryParts.push(escapeLucene(query));
   }
 
   // Remove empty parts just in case
-  const finalQuery = queryParts.filter(Boolean).join(' AND ');
+  const joinedQuery = queryParts.filter(Boolean).join(' AND ');
+  // If the query starts with 'NOT ' (e.g. only negative filters), prepend a generic match-all
+  const finalQuery = joinedQuery.startsWith('NOT ') ? `*:* AND ${joinedQuery}` : joinedQuery;
 
   const response = await fetch(
     `${MB_BASE_URL}/${endpoint}/?query=${encodeURIComponent(finalQuery)}&fmt=json&limit=${limit}&offset=${offset}`,
@@ -152,6 +154,8 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`MusicBrainz API Error (${response.status}):`, errorText);
     throw new Error(`MusicBrainz API Error: ${response.status}`);
   }
 

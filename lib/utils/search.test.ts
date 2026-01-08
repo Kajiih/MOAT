@@ -38,8 +38,13 @@ describe('constructLuceneQuery', () => {
     expect(result).toBe('title:(Hello* AND World*)');
   });
 
-  it('should strip special characters', () => {
+  it('should escape special characters', () => {
     const result = constructLuceneQuery('artist', 'Oasis!', { fuzzy: false, wildcard: false });
-    expect(result).toBe('artist:(Oasis)');
+    expect(result).toBe('artist:(Oasis\\!)');
+  });
+
+  it('should preserve international characters', () => {
+    const result = constructLuceneQuery('artist', 'Björk', { fuzzy: false, wildcard: false });
+    expect(result).toBe('artist:(Björk)');
   });
 });
