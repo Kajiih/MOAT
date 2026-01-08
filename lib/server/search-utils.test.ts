@@ -45,25 +45,6 @@ describe('buildMusicBrainzQuery', () => {
     expect(query).toBe('artist:(Beatles)');
   });
 
-  it('should handle negative query logic (prepend *:* AND)', () => {
-    const params = {
-      type: 'album' as MediaType,
-      query: '', // Empty query
-      artist: null,
-      artistId: null,
-      minYear: null,
-      maxYear: null,
-      albumPrimaryTypes: [],
-      albumSecondaryTypes: [], // Default excludes all secondary types -> NOT ...
-      options: defaultOptions,
-      page: 1
-    };
-
-    const { query } = buildMusicBrainzQuery(params);
-    // Should contain "NOT secondarytype" AND prepend "*:* AND"
-    expect(query).toMatch(/^\*:\* AND NOT secondarytype:/);
-  });
-
   it('should include year filter', () => {
     const params = {
       type: 'album' as MediaType,

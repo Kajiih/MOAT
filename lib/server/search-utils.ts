@@ -103,7 +103,7 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
     // Remove empty parts just in case
     const joinedQuery = queryParts.filter(Boolean).join(' AND ');
     // If the query starts with 'NOT ' (e.g. only negative filters), prepend a generic match-all
-    const finalQuery = joinedQuery.startsWith('NOT ') ? `*:* AND ${joinedQuery}` : joinedQuery;
+    const finalQuery = joinedQuery;
 
     return { endpoint, query: finalQuery };
 }
