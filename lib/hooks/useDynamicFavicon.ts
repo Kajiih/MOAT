@@ -25,6 +25,30 @@ function generateFaviconSvg(colors: string[]): string {
 export const SAFE_ZONE_DELAY = 100;
 export const INITIAL_LOAD_DELAY = 1;
 
+
+/**
+ * Helper to update the DOM with the new favicon.
+ * Encapsulates all direct DOM manipulation.
+ */
+export function applyFaviconToDom(svgDataUri: string) {
+    let link = document.querySelector("link#dynamic-favicon") as HTMLLinkElement;
+
+    if (!link) {
+        link = document.createElement('link');
+        link.id = 'dynamic-favicon';
+        link.rel = 'icon';
+        link.type = 'image/svg+xml';
+        document.head.appendChild(link);
+    }
+
+    const allIcons = document.querySelectorAll("link[rel*='icon']");
+    allIcons.forEach(icon => {
+        if (icon !== link) icon.remove();
+    });
+
+    link.href = svgDataUri;
+}
+
 /**
  * Dynamically updates the document favicon based on the tier list colors.
  * @param colors Array of color IDs (e.g. ['red', 'blue'])
@@ -44,32 +68,16 @@ export function useDynamicFavicon(colors: string[]) {
   useEffect(() => {
     const svgDataUri = generateFaviconSvg(colors);
     
-    const updateFavicon = () => {
-        let link = document.querySelector("link#dynamic-favicon") as HTMLLinkElement;
-
-        if (!link) {
-            link = document.createElement('link');
-            link.id = 'dynamic-favicon';
-            link.rel = 'icon';
-            link.type = 'image/svg+xml';
-            document.head.appendChild(link);
-        }
-
-        const allIcons = document.querySelectorAll("link[rel*='icon']");
-        allIcons.forEach(icon => {
-            if (icon !== link) icon.remove();
-        });
-
-        link.href = svgDataUri;
-    };
+    // Encapsulate the "what" (update DOM) so the hook only manages the "when" (timing)
+    const update = () => applyFaviconToDom(svgDataUri);
 
     if (!initialLoadComplete.current) {
         // Initial load / Hydration phase: Delegate to a timeout to ensure we override Next.js
-        const timeoutId = setTimeout(updateFavicon, INITIAL_LOAD_DELAY);
+        const timeoutId = setTimeout(update, INITIAL_LOAD_DELAY);
         return () => clearTimeout(timeoutId);
     } else {
         // Interactive phase: Update immediately
-        updateFavicon();
+        update();
     }
 
   }, [colors]);
