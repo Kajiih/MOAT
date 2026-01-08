@@ -2,12 +2,12 @@ import {
     MusicBrainzSearchResponseSchema, 
     MediaItem, 
     MediaType, 
-    SECONDARY_TYPES,
     MediaDetails
 } from '@/lib/types';
 import { MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
-import { constructLuceneQuery, SearchOptions, escapeLucene } from '@/lib/utils/search';
+import { SearchOptions } from '@/lib/utils/search';
 import { mapArtistToMediaItem, mapRecordingToMediaItem, mapReleaseGroupToMediaItem } from '@/lib/utils/mappers';
+import { buildMusicBrainzQuery } from './search-utils';
 
 const SEARCH_CACHE_TTL = 3600; // 1 hour
 const SEARCH_LIMIT = 15;
@@ -58,92 +58,14 @@ interface MBRelation {
 export async function searchMusicBrainz(params: SearchParams): Promise<SearchResult> {
   const { 
       type, 
-      query, 
-      artist, 
-      artistId, 
-      minYear, 
-      maxYear, 
-      albumPrimaryTypes, 
-      albumSecondaryTypes, 
       page, 
-      options 
   } = params;
 
   const limit = SEARCH_LIMIT;
   const offset = (page - 1) * limit;
 
-  let endpoint = '';
-  const queryParts: string[] = [];
-  let dateField = 'firstreleasedate'; 
-  if (type === 'artist') dateField = 'begin';
-
-  switch (type) {
-    case 'artist':
-      endpoint = 'artist';
-      if (query) {
-          queryParts.push(constructLuceneQuery('artist', query, options));
-      }
-      break;
-      
-    case 'song':
-      endpoint = 'recording';
-      if (query) {
-          queryParts.push(constructLuceneQuery('recording', query, options));
-      }
-      if (artistId) {
-          queryParts.push(`arid:${artistId}`);
-      } else if (artist) {
-          queryParts.push(`artist:"${artist}"`);
-      }
-      break;
-
-    case 'album':
-    default:
-      endpoint = 'release-group';
-      if (query) {
-          queryParts.push(constructLuceneQuery('release-group', query, options));
-      }
-      if (artistId) {
-          queryParts.push(`arid:${artistId}`);
-      } else if (artist) {
-          queryParts.push(`artist:"${artist}"`);
-      }
-      
-      if (albumPrimaryTypes.length > 0) {
-          const typeQuery = albumPrimaryTypes.map(t => `"${t}"`).join(' OR ');
-          queryParts.push(`primarytype:(${typeQuery})`);
-      }
-      
-      // Secondary Types Logic
-      if (albumSecondaryTypes.length > 0) {
-          // Exclusive Mode: If types are selected, show ONLY items matching those types.
-          // This allows drilling down (e.g., "Show me only Live albums").
-          const typeQuery = albumSecondaryTypes.map(t => `"${t}"`).join(' OR ');
-          queryParts.push(`secondarytype:(${typeQuery})`);
-      } else {
-          // Default (Clean) Mode: If no types are selected, exclude ALL known secondary types.
-          // This ensures we only see "Standard" items (no secondary type) by default.
-          const forbiddenQuery = SECONDARY_TYPES.map(t => `"${t}"`).join(' OR ');
-          queryParts.push(`NOT secondarytype:(${forbiddenQuery})`);
-      }
-      break;
-  }
-
-  if (minYear || maxYear) {
-      const start = minYear || '*';
-      const end = maxYear || '*';
-      queryParts.push(`${dateField}:[${start} TO ${end}]`); 
-  }
-
-  if (queryParts.length === 0 && query) {
-      // Fallback if type logic didn't catch it
-      queryParts.push(escapeLucene(query));
-  }
-
-  // Remove empty parts just in case
-  const joinedQuery = queryParts.filter(Boolean).join(' AND ');
-  // If the query starts with 'NOT ' (e.g. only negative filters), prepend a generic match-all
-  const finalQuery = joinedQuery.startsWith('NOT ') ? `*:* AND ${joinedQuery}` : joinedQuery;
+  // Delegate query construction to helper
+  const { endpoint, query: finalQuery } = buildMusicBrainzQuery(params);
 
   if (!finalQuery.trim()) {
     return { results: [], page: 1, totalPages: 0, totalCount: 0 };
