@@ -22,15 +22,16 @@ export function BrandLogo({ colors, className, variant = 'default' }: BrandLogoP
   return (
     <span className={twMerge(baseStyles, variantStyles[variant], className)}>
       {letters.map((letter, i) => (
-        colors[i] ? (
-          <span 
-            key={i} 
-            style={{ color: colors[i] }} 
-            className="transition-colors duration-500"
-          >
-            {letter}
-          </span>
-        ) : null
+        <span 
+          key={i} 
+          style={{ color: colors[i] }} 
+          className={twMerge(
+            "transition-all duration-500",
+            !colors[i] && "opacity-0 pointer-events-none"
+          )}
+        >
+          {letter}
+        </span>
       ))}
     </span>
   );
