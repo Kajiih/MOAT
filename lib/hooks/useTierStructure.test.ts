@@ -57,4 +57,35 @@ describe('useTierStructure', () => {
     expect(newState.tierDefs).toHaveLength(0);
     expect(newState.items['tier-1']).toBeUndefined();
   });
+
+  it('should move items to fallback tier on delete', () => {
+    const setStateMock = vi.fn();
+    const { result } = renderHook(() => useTierStructure(setStateMock));
+
+    const tierToDelete = 'tier-delete';
+    const tierFallback = 'tier-keep';
+    
+    act(() => {
+      result.current.handleDeleteTier(tierToDelete);
+    });
+
+    const updater = setStateMock.mock.calls[0][0];
+    const prevState: TierListState = { 
+        tierDefs: [
+            { id: tierFallback, label: 'Keep', color: 'red' },
+            { id: tierToDelete, label: 'Delete', color: 'blue' }
+        ], 
+        items: { 
+            [tierFallback]: [],
+            [tierToDelete]: [{ id: 'i1', title: 'Song', type: 'song', artist: 'Artist' }] 
+        } 
+    };
+    const newState = updater(prevState);
+
+    expect(newState.tierDefs).toHaveLength(1);
+    expect(newState.tierDefs[0].id).toBe(tierFallback);
+    // Items should be moved
+    expect(newState.items[tierFallback]).toHaveLength(1);
+    expect(newState.items[tierFallback][0].id).toBe('i1');
+  });
 });
