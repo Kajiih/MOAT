@@ -1,8 +1,8 @@
 'use client';
 
 import { Upload, Download, Trash2, Camera, Loader2 } from 'lucide-react';
-import { twMerge } from 'tailwind-merge';
-import { getColorTheme } from '@/lib/colors';
+import { useBrandColors } from '@/lib/hooks/useBrandColors';
+import { BrandLogo } from '@/components/BrandLogo';
 
 interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -14,22 +14,13 @@ interface HeaderProps {
 }
 
 export function Header({ onImport, onExport, onScreenshot, isCapturing, onClear, colors }: HeaderProps) {
-  const letters = ['M', 'O', 'A', 'T'];
+  
+  const brandColors = useBrandColors(colors);
 
   return (
     <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-      <h1 className="text-4xl font-black tracking-tighter uppercase italic select-none flex">
-        {letters.map((letter, i) => {
-            const colorId = colors[i];
-            const theme = getColorTheme(colorId);
-            const className = theme.text;
-
-            return (
-                <span key={i} className={twMerge(className, "transition-all duration-500")}>
-                    {letter}
-                </span>
-            );
-        })}
+      <h1>
+          <BrandLogo colors={brandColors} variant="header" />
       </h1>
       
       <div className="flex gap-2">

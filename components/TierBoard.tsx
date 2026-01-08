@@ -74,7 +74,7 @@ export function TierBoard({
                 <div className="flex items-center justify-center gap-3 opacity-90">
                     <BrandLogo 
                         colors={logoHexColors} 
-                        className="text-sm font-black tracking-[0.3em] flex gap-[2px]" 
+                        variant="footer"
                     />
                     <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
                         Tier List Maker
