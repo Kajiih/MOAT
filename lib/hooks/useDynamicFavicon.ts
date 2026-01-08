@@ -29,15 +29,10 @@ export function useDynamicFavicon(colors: string[]) {
   useEffect(() => {
     const svgDataUri = generateFaviconSvg(colors);
     
-    // 1. Check if we already have our dynamic link
+    // 1. Find or create our dynamic link
     let link = document.querySelector("link#dynamic-favicon") as HTMLLinkElement;
 
     if (!link) {
-        // 2. If not, remove existing static icons to avoid conflicts/precedence issues
-        const existingIcons = document.querySelectorAll("link[rel*='icon']");
-        existingIcons.forEach(icon => icon.remove());
-
-        // 3. Create our new link
         link = document.createElement('link');
         link.id = 'dynamic-favicon';
         link.rel = 'icon';
@@ -45,7 +40,14 @@ export function useDynamicFavicon(colors: string[]) {
         document.head.appendChild(link);
     }
 
-    // 4. Update the href
+    // 2. Aggressively remove any other icon links to ensure our dynamic one has priority.
+    // We do this every time because Next.js or HMR might re-inject static icons.
+    const allIcons = document.querySelectorAll("link[rel*='icon']");
+    allIcons.forEach(icon => {
+        if (icon !== link) icon.remove();
+    });
+
+    // 3. Update the href
     link.href = svgDataUri;
 
   }, [colors]);
