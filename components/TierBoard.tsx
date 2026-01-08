@@ -61,7 +61,7 @@ export function TierBoard({
             </SortableContext>
             <button 
                 onClick={handleAddTier}
-                className="w-full py-4 border border-dashed border-neutral-700 rounded-xl text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold group"
+                className="screenshot-exclude w-full py-4 mb-6 border border-dashed border-neutral-700 rounded-xl text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold group"
             >
                  <div className="p-1 bg-neutral-800 rounded group-hover:bg-neutral-700 transition-colors">
                     <Plus size={16} />
@@ -70,7 +70,7 @@ export function TierBoard({
             </button>
 
             {/* Branding Footer (Captured in Screenshot) */}
-            <div className="pt-8 pb-4 text-center pointer-events-none select-none">
+            <div className="pt-2 pb-0 text-center pointer-events-none select-none">
                 <div className="flex items-center justify-center gap-3 opacity-90">
                     <BrandLogo 
                         colors={logoHexColors} 

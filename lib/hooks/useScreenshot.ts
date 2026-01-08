@@ -22,6 +22,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         cacheBust: true,
         backgroundColor: '#0a0a0a', // neutral-950 hex
         pixelRatio: 2, // Retain high quality
+        filter: (node) => !(node as HTMLElement).classList?.contains('screenshot-exclude')
       });
       
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
