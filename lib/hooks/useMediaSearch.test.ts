@@ -174,9 +174,10 @@ describe('useMediaSearch', () => {
     vi.mocked(useMediaRegistry).mockReturnValue({
       registerItems: mockRegisterItems,
       getItem: vi.fn(),
+      registerItem: vi.fn(), // Added this
     });
 
-    const mockResults = [{ id: '1', title: 'Test Item', type: 'album' }];
+    const mockResults = [{ id: '1', title: 'Test Item', type: 'album' }] as any[];
     
     // @ts-expect-error - simplified mock for test
     vi.mocked(useSWR).mockReturnValue({
@@ -188,5 +189,30 @@ describe('useMediaSearch', () => {
     renderHook(() => useMediaSearch('album'));
     
     expect(mockRegisterItems).toHaveBeenCalledWith(mockResults);
+  });
+
+  it('should enrich search results with data from the global registry', async () => {
+    const { useMediaRegistry } = await import('@/components/MediaRegistryProvider');
+    const mockItem1 = { id: '1', title: 'Search Result', type: 'artist' as const };
+    const mockItem1Enriched = { ...mockItem1, imageUrl: 'http://cached.com/image.jpg' };
+    
+    vi.mocked(useMediaRegistry).mockReturnValue({
+      registerItems: vi.fn(),
+      registerItem: vi.fn(),
+      getItem: vi.fn((id) => (id === '1' ? mockItem1Enriched : undefined)) as any,
+    });
+
+    // @ts-expect-error - simplified mock for test
+    vi.mocked(useSWR).mockReturnValue({
+      data: { results: [mockItem1], page: 1, totalPages: 1 },
+      isLoading: false,
+      isValidating: false,
+    });
+
+    const { result } = renderHook(() => useMediaSearch('artist'));
+    
+    // Result should be enriched with the cached image URL
+    expect(result.current.results[0].imageUrl).toBe('http://cached.com/image.jpg');
+    expect(result.current.results[0].title).toBe('Search Result');
   });
 });
