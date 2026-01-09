@@ -5,7 +5,15 @@ import { getSearchUrl } from '@/lib/api';
 import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, ArtistSelection } from '@/lib/types';
 import { usePersistentState } from './usePersistentState';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const error = new Error('An error occurred while fetching the data.');
+    (error as any).status = res.status;
+    throw error;
+  }
+  return res.json();
+};
 
 interface UseMediaSearchConfig {
   fuzzy?: boolean;
@@ -55,6 +63,7 @@ interface UseMediaSearchResult<T extends MediaItem> {
   totalPages: number;
   isLoading: boolean;
   isValidating: boolean;
+  error: any;
 }
 
 /**
@@ -178,7 +187,7 @@ export function useMediaSearch<T extends MediaType>(
     });
   }, [isEnabled, type, page, debouncedQuery, selectedArtist, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, isFuzzy, isWildcard]);
 
-  const { data, isLoading, isValidating } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
+  const { data, error, isLoading, isValidating } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
     searchUrl,
     fetcher,
     { keepPreviousData: shouldKeepPreviousData }
@@ -221,6 +230,7 @@ export function useMediaSearch<T extends MediaType>(
     // Data
     results: (data?.results || []) as MediaItemMap[T][],
     totalPages: data?.totalPages || 0,
+    error,
     isLoading,
     isValidating
   };

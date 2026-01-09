@@ -36,12 +36,13 @@ export function constructLuceneQuery(field: string, term: string, options: Searc
   const words = cleanTerm.split(/\s+/);
   if (words.length === 0) return '';
 
-  const queryParts = words.map(word => {
+  const queryParts = words.map((word, index) => {
     const escaped = escapeLucene(word);
     const distance = getFuzzyDistance(word.length);
+    const isLast = index === words.length - 1;
     
     const strategies = [
-      options.wildcard && `${escaped}*`,
+      options.wildcard && isLast && `${escaped}*`,
       options.fuzzy && distance > 0 && `${escaped}~${distance}`,
     ].filter(Boolean);
 

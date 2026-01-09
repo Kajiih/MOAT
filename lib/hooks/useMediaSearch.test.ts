@@ -143,4 +143,20 @@ describe('useMediaSearch', () => {
     act(() => { vi.advanceTimersByTime(100); });
     expect(useSWR).toHaveBeenCalledWith(expect.stringContaining('query=Bee'), expect.any(Function), expect.any(Object));
   });
+
+  it('should return error when SWR fails with status 503', () => {
+    const mockError = new Error('MusicBrainz is busy');
+    (mockError as any).status = 503;
+    
+    // @ts-expect-error - simplified mock for test
+    vi.mocked(useSWR).mockReturnValue({
+      data: null,
+      error: mockError,
+      isLoading: false,
+      isValidating: false,
+    });
+
+    const { result } = renderHook(() => useMediaSearch('album'));
+    expect(result.current.error?.status).toBe(503);
+  });
 });

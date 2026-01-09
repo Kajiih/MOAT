@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect } from 'react';
 import { Filter, Info } from 'lucide-react';
 import { MediaType, PRIMARY_TYPES, SECONDARY_TYPES, SortOption, MediaItem } from '@/lib/types';
 import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
+import { useToast } from '@/components/ToastProvider';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
 import { SkeletonCard } from '@/components/SkeletonCard';
@@ -50,6 +51,7 @@ export function SearchTab({
     setSelectedArtist,
     results: searchResults,
     totalPages,
+    error,
     isLoading: isSearching,
     searchNow
   } = useMediaSearch(type, {
@@ -57,6 +59,15 @@ export function SearchTab({
       wildcard: globalWildcard,
       enabled: !isHidden
   });
+
+  const { showToast } = useToast();
+
+  // Handle errors (specifically rate limits)
+  useEffect(() => {
+    if (error?.status === 503) {
+      showToast('MusicBrainz is busy. Please wait a moment and try again.', 'error');
+    }
+  }, [error, showToast]);
 
   const sortedResults = useMemo(() => {
     return [...searchResults].sort((a, b) => {
