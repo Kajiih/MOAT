@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
 import { usePersistentState, useTierStructure } from '@/lib/hooks';
@@ -175,6 +175,17 @@ export function useTierList() {
   }, [setState]);
 
   const { registerItem } = useMediaRegistry();
+  
+  // Track items that need to be registered (to avoid calling registerItem inside setState)
+  const itemsToRegister = useRef<MediaItem[]>([]);
+
+  // Sync items to registry after state updates
+  useEffect(() => {
+    if (itemsToRegister.current.length > 0) {
+      itemsToRegister.current.forEach(item => registerItem(item));
+      itemsToRegister.current = [];
+    }
+  });
 
   const updateMediaItem = useCallback((itemId: string, updates: Partial<MediaItem>) => {
     setState(prev => {
@@ -205,15 +216,15 @@ export function useTierList() {
                     ...list.slice(index + 1)
                 ];
 
-                registerItem(updatedItem);
+                // Queue for registry update (will happen in useEffect)
+                itemsToRegister.current.push(updatedItem);
                 modified = true;
-                break; // Found and updated, no need to check other tiers
+                break;
             }
         }
-
         return modified ? { ...prev, items: newItems } : prev;
     });
-  }, [setState, registerItem]);
+  }, [setState]);
 
   const handleLocate = useCallback((id: string) => {
     const el = document.getElementById(`media-card-${id}`);
