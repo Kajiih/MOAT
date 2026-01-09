@@ -5,7 +5,7 @@ import {
     MediaType, 
     MediaDetails
 } from '@/lib/types';
-import { MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
+import { MB_BASE_URL, USER_AGENT, getArtistThumbnail } from '@/lib/server/images';
 import { SearchOptions } from '@/lib/utils/search';
 import { mapArtistToMediaItem, mapRecordingToMediaItem, mapReleaseGroupToMediaItem } from '@/lib/utils/mappers';
 import { buildMusicBrainzQuery } from './search-utils';
@@ -200,6 +200,7 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
             return {
                 id,
                 type: 'artist',
+                imageUrl: await getArtistThumbnail(id),
                 tags: data.tags?.sort((a: MBTag, b: MBTag) => b.count - a.count).slice(0, 10).map((t: MBTag) => t.name) || [],
                 area: data.area?.name,
                 lifeSpan: {

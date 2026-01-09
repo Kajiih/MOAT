@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { X, Disc, User, Music } from 'lucide-react';
 import Image from 'next/image';
 import { MediaItem } from '@/lib/types';
@@ -8,26 +8,55 @@ import { useMediaDetails } from '@/lib/hooks';
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
 import { SongView } from './details/SongView';
+import { useMediaRegistry } from './MediaRegistryProvider';
 
 interface DetailsModalProps {
   item: MediaItem | null;
   isOpen: boolean;
   onClose: () => void;
+  onUpdateItem?: (itemId: string, updates: Partial<MediaItem>) => void;
 }
 
-export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
+export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
   const [imageError, setImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
-  const { details, isLoading, error } = useMediaDetails(
-    isOpen && item ? item.id : null,
-    isOpen && item ? item.type : null
+  const { getItem } = useMediaRegistry();
+
+  // ENRICHMENT: Always prefer the version from the registry as it might have 
+  // been "healed" by the bundler since this modal opened or the card rendered.
+  const enrichedItem = useMemo(() => {
+    if (!item) return null;
+    const fromRegistry = getItem(item.id);
+    if (!fromRegistry) return item;
+
+    // Only create a new object if there's actually a difference in visual fields
+    if (fromRegistry.imageUrl && !item.imageUrl) {
+        return { ...item, imageUrl: fromRegistry.imageUrl };
+    }
+    return item;
+  }, [item, getItem]);
+
+  const { details, isLoading, isFetching, error } = useMediaDetails(
+    isOpen && enrichedItem ? enrichedItem.id : null,
+    isOpen && enrichedItem ? enrichedItem.type : null,
+    enrichedItem?.details
   );
 
-  if (!isOpen || !item) return null;
+  // Commit fetched details to board state
+  useEffect(() => {
+    if (details && !isFetching && !error && enrichedItem && onUpdateItem) {
+        onUpdateItem(enrichedItem.id, { 
+            details, 
+            imageUrl: details.imageUrl || enrichedItem.imageUrl
+        });
+    }
+  }, [details, isFetching, error, enrichedItem?.id, onUpdateItem]);
 
-  const hasImage = item.imageUrl && !imageError;
-  const PlaceholderIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
+  if (!isOpen || !enrichedItem) return null;
+
+  const hasImage = enrichedItem.imageUrl && !imageError;
+  const PlaceholderIcon = enrichedItem.type === 'artist' ? User : enrichedItem.type === 'song' ? Music : Disc;
 
   const handleImageError = () => {
     if (!retryUnoptimized) {
@@ -48,8 +77,8 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
             {hasImage ? (
                 <>
                     <Image 
-                        src={item.imageUrl!} 
-                        alt={item.title} 
+                        src={enrichedItem.imageUrl!} 
+                        alt={enrichedItem.title} 
                         fill 
                         priority
                         unoptimized={retryUnoptimized}
@@ -63,33 +92,47 @@ export function DetailsModal({ item, isOpen, onClose }: DetailsModalProps) {
             )}
 
             <div className="absolute bottom-0 left-0 p-6 w-full flex gap-4 items-end text-left">
-                <div className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-xl border-2 border-neutral-700 bg-neutral-800 flex items-center justify-center">
-                    {hasImage ? (
-                        <Image 
-                            src={item.imageUrl!} 
-                            alt={item.title} 
-                            fill 
-                            priority
-                            unoptimized={retryUnoptimized}
-                            className="object-cover" 
-                            onError={handleImageError}
-                        />
-                    ) : (
-                        <PlaceholderIcon className="text-neutral-600 w-1/2 h-1/2" />
-                    )}
-                </div>
-                
-                <div className="flex-1 min-w-0 pb-1">
-                    <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1 flex items-center gap-1">
-                        {item.type === 'album' ? (item.primaryType || item.type) : item.type}
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded shadow-lg overflow-hidden bg-neutral-800 shrink-0 border border-white/10">
+                        {hasImage ? (
+                            <Image
+                                src={enrichedItem.imageUrl!}
+                                alt={enrichedItem.title}
+                                fill
+                                unoptimized={retryUnoptimized}
+                                className="object-cover"
+                                onError={() => {
+                                    if (!retryUnoptimized) {
+                                        setRetryUnoptimized(true);
+                                    } else {
+                                        setImageError(true);
+                                    }
+                                }}
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-neutral-600">
+                                <PlaceholderIcon size={32} />
+                            </div>
+                        )}
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight truncate" title={item.title}>
-                        {item.title}
-                    </h2>
-                    <p className="text-lg text-neutral-300 font-medium truncate">
-                        {item.type === 'album' || item.type === 'song' ? item.artist : (item.disambiguation || '')}
-                    </p>
-                </div>
+                    <div className="flex-1 min-w-0 pt-2">
+                        <h2 className="text-2xl sm:text-3xl font-bold truncate text-white drop-shadow-sm">
+                            {enrichedItem.title}
+                        </h2>
+                        <div className="flex items-center gap-2 text-neutral-300 mt-1">
+                            {enrichedItem.type === 'album' && <Disc size={16} className="text-blue-400" />}
+                            {enrichedItem.type === 'artist' && <User size={16} className="text-purple-400" />}
+                            {enrichedItem.type === 'song' && <Music size={16} className="text-green-400" />}
+                            <span className="font-medium">
+                                {'artist' in enrichedItem ? enrichedItem.artist : 'Artist'}
+                            </span>
+                            {enrichedItem.year && (
+                                <>
+                                    <span className="text-neutral-600">•</span>
+                                    <span className="text-neutral-400">{enrichedItem.year}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
             </div>
             
             <button 

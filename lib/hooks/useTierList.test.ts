@@ -20,6 +20,14 @@ vi.mock('@/lib/hooks/useTierListDnD', () => ({
   })
 }));
 
+vi.mock('@/components/MediaRegistryProvider', () => ({
+  useMediaRegistry: () => ({
+    registerItems: vi.fn(),
+    registerItem: vi.fn(),
+    getItem: vi.fn()
+  })
+}));
+
 // Mock localStorage
 const localStorageMock = (function() {
   let store: Record<string, string> = {};

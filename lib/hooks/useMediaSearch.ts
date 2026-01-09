@@ -6,8 +6,15 @@ import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, ArtistSelection 
 import { usePersistentState } from './usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 
-const fetcher = async (url: string) => {
+const fetcher = async (url: string, retryCount = 0): Promise<any> => {
   const res = await fetch(url);
+  
+  if (res.status === 503 && retryCount < 2) {
+    // Wait for 2 seconds before retrying
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    return fetcher(url, retryCount + 1);
+  }
+
   if (!res.ok) {
     const error = new Error('An error occurred while fetching the data.');
     (error as any).status = res.status;
@@ -194,7 +201,7 @@ export function useMediaSearch<T extends MediaType>(
     { keepPreviousData: shouldKeepPreviousData }
   );
 
-  const { registerItems } = useMediaRegistry();
+  const { registerItems, getItem } = useMediaRegistry();
 
   // Automatically register discovered items in the global registry
   useEffect(() => {
@@ -202,6 +209,13 @@ export function useMediaSearch<T extends MediaType>(
           registerItems(data.results);
       }
   }, [data?.results, registerItems]);
+
+  // ENRICHMENT: Always use the registry's version of the item if we have it
+  // This ensures that if we found an image for an artist previously, it shows up 
+  // in search results even if the search API didn't provide it yet.
+  const enrichedResults = useMemo(() => {
+    return (data?.results || []).map(item => getItem(item.id) || item);
+  }, [data?.results, getItem]);
   
   // Pagination Prefetching
   useEffect(() => {
@@ -238,7 +252,7 @@ export function useMediaSearch<T extends MediaType>(
     searchNow,
     
     // Data
-    results: (data?.results || []) as MediaItemMap[T][],
+    results: enrichedResults as MediaItemMap[T][],
     totalPages: data?.totalPages || 0,
     error,
     isLoading,

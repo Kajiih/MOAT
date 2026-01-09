@@ -11,6 +11,7 @@ import { Header } from '@/components/Header';
 import { SearchPanel } from '@/components/SearchPanel';
 import { DetailsModal } from '@/components/DetailsModal';
 import { TierBoard } from '@/components/TierBoard';
+import { BoardDetailBundler } from '@/components/BoardDetailBundler';
 import { Dices } from 'lucide-react';
 import { useTierList, useScreenshot, useDynamicFavicon } from '@/lib/hooks';
 import { useToast } from './ToastProvider';
@@ -27,6 +28,7 @@ import { useToast } from './ToastProvider';
 export default function TierListApp() {
   const {
     state,
+    allBoardItems,
     sensors,
     activeItem,
     activeTier,
@@ -44,9 +46,10 @@ export default function TierListApp() {
     handleImport,
     handleExport,
     removeItemFromTier,
+    updateMediaItem,
     handleLocate,
     handleShowDetails,
-    handleCloseDetails
+    handleCloseDetails,
   } = useTierList();
 
   const { toastCount } = useToast();
@@ -57,6 +60,12 @@ export default function TierListApp() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans relative">
+      {/* Background Bundler: Automatically syncs deep metadata for items on the board */}
+      <BoardDetailBundler 
+        items={allBoardItems} 
+        onUpdateItem={updateMediaItem} 
+      />
+
       <div className="max-w-[1600px] mx-auto">
         <Header 
             onImport={handleImport} 
@@ -120,7 +129,8 @@ export default function TierListApp() {
         key={detailsItem?.id || 'modal'}
         item={detailsItem} 
         isOpen={!!detailsItem} 
-        onClose={handleCloseDetails} 
+        onClose={handleCloseDetails}
+        onUpdateItem={updateMediaItem}
       />
 
       {/* Floating Randomize Colors Button */}

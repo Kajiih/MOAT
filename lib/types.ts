@@ -23,6 +23,8 @@ export interface BaseMediaItem {
   date?: string;
   /** URL to the cover art or artist image. */
   imageUrl?: string;
+  /** Deep metadata (stored in state for persistence) */
+  details?: MediaDetails;
 }
 
 export interface AlbumItem extends BaseMediaItem {
@@ -98,6 +100,7 @@ export interface MediaDetails {
   urls?: { type: string; url: string }[];
   date?: string;
   length?: string;
+  imageUrl?: string;
   
   // Album specific
   tracks?: TrackItem[];

@@ -3,6 +3,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
 import { usePersistentState, useTierStructure } from '@/lib/hooks';
 import { useToast } from '@/components/ToastProvider';
+import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { useTierListDnD } from '@/lib/hooks/useTierListDnD';
 
 const INITIAL_STATE: TierListState = {
@@ -54,16 +55,18 @@ export function useTierList() {
     handleClear
   } = useTierStructure(setState);
 
+  const allBoardItems = useMemo(() => {
+    return Object.values(state.items).flat();
+  }, [state.items]);
+
   const addedItemIds = useMemo(() => {
     const ids = new Set<string>();
-    Object.values(state.items).forEach(tierList => {
-        tierList.forEach(item => {
-            const cleanId = item.id.replace(/^search-/, '');
-            ids.add(cleanId);
-        });
+    allBoardItems.forEach(item => {
+        const cleanId = item.id.replace(/^search-/, '');
+        ids.add(cleanId);
     });
     return ids;
-  }, [state.items]);
+  }, [allBoardItems]);
 
   // --- Dynamic Header Colors ---
   const headerColors = useMemo(() => {
@@ -171,6 +174,47 @@ export function useTierList() {
     }));
   }, [setState]);
 
+  const { registerItem } = useMediaRegistry();
+
+  const updateMediaItem = useCallback((itemId: string, updates: Partial<MediaItem>) => {
+    setState(prev => {
+        const newItems = { ...prev.items };
+        let modified = false;
+
+        const tierIds = Object.keys(newItems);
+        for (const tierId of tierIds) {
+            const list = newItems[tierId];
+            const index = list.findIndex(a => a.id === itemId);
+            if (index !== -1) {
+                const currentItem = list[index];
+                
+                // PERFORMANCE: Skip update if details are effectively identical
+                if (updates.details && currentItem.details) {
+                    const currentDetailsStr = JSON.stringify(currentItem.details);
+                    const newDetailsStr = JSON.stringify(updates.details);
+                    if (currentDetailsStr === newDetailsStr && Object.keys(updates).length === 1) {
+                        return prev;
+                    }
+                }
+
+                const updatedItem = { ...currentItem, ...updates } as MediaItem;
+                
+                newItems[tierId] = [
+                    ...list.slice(0, index),
+                    updatedItem,
+                    ...list.slice(index + 1)
+                ];
+
+                registerItem(updatedItem);
+                modified = true;
+                break; // Found and updated, no need to check other tiers
+            }
+        }
+
+        return modified ? { ...prev, items: newItems } : prev;
+    });
+  }, [setState, registerItem]);
+
   const handleLocate = useCallback((id: string) => {
     const el = document.getElementById(`media-card-${id}`);
     if (el) {
@@ -187,6 +231,7 @@ export function useTierList() {
 
   return {
     state,
+    allBoardItems,
     sensors,
     activeItem,
     activeTier,
@@ -204,6 +249,7 @@ export function useTierList() {
     handleImport,
     handleExport,
     removeItemFromTier,
+    updateMediaItem,
     handleLocate,
     handleShowDetails,
     handleCloseDetails
