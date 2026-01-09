@@ -13,6 +13,24 @@ interface QueryBuilderParams {
     options: SearchOptions;
 }
 
+const DATE_FIELD_MAP: Record<MediaType, string> = {
+  artist: 'begin',
+  album: 'firstreleasedate',
+  song: 'firstreleasedate',
+};
+
+const LUCENE_FIELD_MAP: Record<MediaType, string> = {
+  artist: 'artist',
+  album: 'releasegroup',
+  song: 'recording',
+};
+
+const ENDPOINT_MAP: Record<MediaType, string> = {
+  artist: 'artist',
+  album: 'release-group',
+  song: 'recording',
+};
+
 interface BuiltQuery {
     endpoint: string;
     query: string;
@@ -34,59 +52,39 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
         options 
     } = params;
 
-    let endpoint = '';
+    const endpoint = ENDPOINT_MAP[type];
+    const dateField = DATE_FIELD_MAP[type];
+    const luceneField = LUCENE_FIELD_MAP[type];
+
     const queryParts: string[] = [];
-    let dateField = 'firstreleasedate'; 
-    if (type === 'artist') dateField = 'begin';
-  
-    switch (type) {
-      case 'artist':
-        endpoint = 'artist';
-        if (query) {
-            queryParts.push(constructLuceneQuery('artist', query, options));
-        }
-        break;
-        
-      case 'song':
-        endpoint = 'recording';
-        if (query) {
-            queryParts.push(constructLuceneQuery('recording', query, options));
-        }
+
+    if (query) {
+        queryParts.push(constructLuceneQuery(luceneField, query, options));
+    }
+
+    // Artist grouping for music entities
+    if (type !== 'artist') {
         if (artistId) {
             queryParts.push(`arid:${artistId}`);
         } else if (artist) {
             queryParts.push(`artist:"${artist}"`);
         }
-        break;
-  
-      case 'album':
-      default:
-        endpoint = 'release-group';
-        if (query) {
-            queryParts.push(constructLuceneQuery('release-group', query, options));
-        }
-        if (artistId) {
-            queryParts.push(`arid:${artistId}`);
-        } else if (artist) {
-            queryParts.push(`artist:"${artist}"`);
-        }
-        
+    }
+
+    // Album Specific Filters
+    if (type === 'album') {
         if (albumPrimaryTypes.length > 0) {
             const typeQuery = albumPrimaryTypes.map(t => `"${t}"`).join(' OR ');
             queryParts.push(`primarytype:(${typeQuery})`);
         }
         
-        // Secondary Types Logic
         if (albumSecondaryTypes.length > 0) {
-            // Exclusive Mode: If types are selected, show ONLY items matching those types.
             const typeQuery = albumSecondaryTypes.map(t => `"${t}"`).join(' OR ');
             queryParts.push(`secondarytype:(${typeQuery})`);
         } else {
-            // Default (Clean) Mode: If no types are selected, exclude ALL known secondary types.
             const forbiddenQuery = SECONDARY_TYPES.map(t => `"${t}"`).join(' OR ');
             queryParts.push(`NOT secondarytype:(${forbiddenQuery})`);
         }
-        break;
     }
   
     if (minYear || maxYear) {

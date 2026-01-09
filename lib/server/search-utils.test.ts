@@ -4,104 +4,100 @@ import { MediaType } from '@/lib/types';
 
 const defaultOptions = { fuzzy: false, wildcard: false };
 
+/**
+ * Helper to create standard query params with sensible defaults
+ */
+function createParams(overrides: Partial<any> = {}) {
+  return {
+    type: 'album' as MediaType,
+    query: '',
+    artist: null,
+    artistId: null,
+    minYear: null,
+    maxYear: null,
+    albumPrimaryTypes: [],
+    albumSecondaryTypes: [],
+    options: defaultOptions,
+    page: 1,
+    ...overrides,
+  };
+}
+
 describe('buildMusicBrainzQuery', () => {
-  it('should build basic album query', () => {
-    const params = {
-      type: 'album' as MediaType,
-      query: 'Abbey Road',
-      artist: null,
-      artistId: null,
-      minYear: null,
-      maxYear: null,
-      albumPrimaryTypes: [],
-      albumSecondaryTypes: [],
-      options: defaultOptions,
-      page: 1
-    };
+  describe('Basic Entity Mapping', () => {
+    it('should map album to releasegroup field and release-group endpoint', () => {
+      const { endpoint, query } = buildMusicBrainzQuery(createParams({ type: 'album', query: 'Abbey Road' }));
+      expect(endpoint).toBe('release-group');
+      expect(query).toContain('releasegroup:(Abbey AND Road)');
+    });
 
-    const { endpoint, query } = buildMusicBrainzQuery(params);
-    expect(endpoint).toBe('release-group');
-    expect(query).toContain('release-group:(Abbey AND Road)');
-    // Default mode excludes secondary types
-    expect(query).toContain('NOT secondarytype:');
+    it('should map artist to artist field and endpoint', () => {
+      const { endpoint, query } = buildMusicBrainzQuery(createParams({ type: 'artist', query: 'Beatles' }));
+      expect(endpoint).toBe('artist');
+      expect(query).toContain('artist:(Beatles)');
+    });
+
+    it('should map song to recording field and endpoint', () => {
+      const { endpoint, query } = buildMusicBrainzQuery(createParams({ type: 'song', query: 'Imagine' }));
+      expect(endpoint).toBe('recording');
+      expect(query).toContain('recording:(Imagine)');
+    });
   });
 
-  it('should build basic artist query', () => {
-    const params = {
-      type: 'artist' as MediaType,
-      query: 'Beatles',
-      artist: null,
-      artistId: null,
-      minYear: null,
-      maxYear: null,
-      albumPrimaryTypes: [],
-      albumSecondaryTypes: [],
-      options: defaultOptions,
-      page: 1
-    };
+  describe('Artist Filters', () => {
+    it('should include arid when artistId is provided', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', artistId: '123' }));
+      expect(query).toContain('arid:123');
+    });
 
-    const { endpoint, query } = buildMusicBrainzQuery(params);
-    expect(endpoint).toBe('artist');
-    expect(query).toBe('artist:(Beatles)');
+    it('should include literal artist name when artistId is missing', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', artist: 'Queen' }));
+      expect(query).toContain('artist:"Queen"');
+    });
+
+    it('should NOT include artist filters for artist type search', () => {
+        // Searching for an artist named "Queen" shouldn't add artist:Queen filter to itself
+        const { query } = buildMusicBrainzQuery(createParams({ type: 'artist', query: 'Queen', artist: 'Queen' }));
+        expect(query).toBe('artist:(Queen)');
+    });
   });
 
-  it('should include year filter', () => {
-    const params = {
-      type: 'album' as MediaType,
-      query: 'Test',
-      artist: null,
-      artistId: null,
-      minYear: '2000',
-      maxYear: '2010',
-      albumPrimaryTypes: [],
-      albumSecondaryTypes: [],
-      options: defaultOptions,
-      page: 1
-    };
+  describe('Year Filters', () => {
+    it('should use firstreleasedate for albums and songs', () => {
+      const albumQuery = buildMusicBrainzQuery(createParams({ type: 'album', minYear: '2000' })).query;
+      const songQuery = buildMusicBrainzQuery(createParams({ type: 'song', minYear: '2000' })).query;
+      
+      expect(albumQuery).toContain('firstreleasedate:[2000 TO *]');
+      expect(songQuery).toContain('firstreleasedate:[2000 TO *]');
+    });
 
-    const { query } = buildMusicBrainzQuery(params);
-    expect(query).toContain('firstreleasedate:[2000 TO 2010]');
+    it('should use begin for artists', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'artist', minYear: '1960', maxYear: '1970' }));
+      expect(query).toContain('begin:[1960 TO 1970]');
+    });
   });
 
-  it('should use correct date field for artist', () => {
-    const params = {
-      type: 'artist' as MediaType,
-      query: 'Test',
-      artist: null,
-      artistId: null,
-      minYear: '1990',
-      maxYear: null,
-      albumPrimaryTypes: [],
-      albumSecondaryTypes: [],
-      options: defaultOptions,
-      page: 1
-    };
+  describe('Album Types', () => {
+    it('should include primary types when selected', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', albumPrimaryTypes: ['Album', 'EP'] }));
+      expect(query).toContain('primarytype:("Album" OR "EP")');
+    });
 
-    const { query } = buildMusicBrainzQuery(params);
-    expect(query).toContain('begin:[1990 TO *]');
+    it('should include secondary types when selected', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', albumSecondaryTypes: ['Live'] }));
+      expect(query).toContain('secondarytype:("Live")');
+    });
+
+    it('should exclude all known secondary types by default', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', albumSecondaryTypes: [] }));
+      expect(query).toContain('NOT secondarytype:(');
+    });
   });
 
-  it('should escape fallback query', () => {
-    // If query processing returns empty (simulated here by empty constructLuceneQuery result if it happened)
-    // But we test the fallback path by forcing queryParts to be empty logic if inputs are weird?
-    // Actually difficult to force fallback if constructLuceneQuery works.
-    // But we can test special chars in query input.
-    const params = {
-      type: 'album' as MediaType,
-      query: '!!!',
-      artist: null,
-      artistId: null,
-      minYear: null,
-      maxYear: null,
-      albumPrimaryTypes: [],
-      albumSecondaryTypes: [],
-      options: defaultOptions,
-      page: 1
-    };
-
-    const { query } = buildMusicBrainzQuery(params);
-    // constructLuceneQuery returns escaped !!!
-    // "!!!" -> "\\!\\!\\!"
-    expect(query).toContain('\\\!\\\!\\\!');
+  describe('Edge Cases', () => {
+    it('should handle special characters in query', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ query: '!!!' }));
+      expect(query).toContain('\\\!\\\!\\\!');
+    });
   });
 });

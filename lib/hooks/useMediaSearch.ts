@@ -114,7 +114,12 @@ export function useMediaSearch<T extends MediaType>(
   };
   
   // Wrappers to reset page on filter change
-  const handleSetQuery = (val: string) => setState(prev => ({ ...prev, query: val, page: 1 }));
+  // Wrappers to reset page on filter change
+  const handleSetQuery = (val: string) => {
+    // Trim leading spaces but allow trailing spaces for better UX while typing
+    const trimmedVal = val.startsWith(' ') ? val.trimStart() : val;
+    setState(prev => ({ ...prev, query: trimmedVal, page: 1 }));
+  };
   const handleSetSelectedArtist = (val: ArtistSelection | null) => setState(prev => ({ ...prev, selectedArtist: val, page: 1 }));
   const handleSetMinYear = (val: string) => setState(prev => ({ ...prev, minYear: val, page: 1 }));
   const handleSetMaxYear = (val: string) => setState(prev => ({ ...prev, maxYear: val, page: 1 }));

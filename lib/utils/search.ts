@@ -4,6 +4,19 @@ export interface SearchOptions {
 }
 
 /**
+ * Determines the appropriate Levenshtein distance based on word length.
+ * Follows Lucene's standard "AUTO" behavior:
+ * - 0-2 chars: distance 0 (exact match only)
+ * - 3-5 chars: distance 1 (one typo allowed)
+ * - > 5 chars: distance 2 (two typos allowed)
+ */
+function getFuzzyDistance(length: number): number {
+    if (length <= 2) return 0;
+    if (length <= 5) return 1;
+    return 2;
+}
+
+/**
  * Escapes characters that are special to the Lucene query syntax.
  * Characters escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /
  */
@@ -13,51 +26,29 @@ export function escapeLucene(term: string): string {
 
 /**
  * Constructs a flexible Lucene query string for MusicBrainz.
- * Converts "michael j" into `field:((michael* OR michael~) AND (j* OR j~))` to support partial matches and fuzzy search (typos).
+ * Example: Converts "michael j" into `field:((michael* OR michael~1) AND j*)`
+ * Supports partial matches (wildcard) and typo tolerance (fuzzy).
  */
 export function constructLuceneQuery(field: string, term: string, options: SearchOptions): string {
-  if (!term) return '';
-  
-  // Normalize whitespace but preserve all other characters (including international)
-  // We rely on escaping to handle Lucene syntax safety
   const cleanTerm = term.trim();
   if (!cleanTerm) return '';
 
   const words = cleanTerm.split(/\s+/);
-  
   if (words.length === 0) return '';
 
   const queryParts = words.map(word => {
-      // Escape the word first to treat it as a literal string
-      const escapedWord = escapeLucene(word);
-      const parts = [];
-      
-      // 1. Wildcard (Prefix) Strategy
-      if (options.wildcard) {
-          parts.push(`${escapedWord}*`);
-      }
+    const escaped = escapeLucene(word);
+    const distance = getFuzzyDistance(word.length);
+    
+    const strategies = [
+      options.wildcard && `${escaped}*`,
+      options.fuzzy && distance > 0 && `${escaped}~${distance}`,
+    ].filter(Boolean);
 
-      // 2. Fuzzy Strategy
-      // Don't apply fuzzy to very short words to avoid noise
-      if (options.fuzzy && word.length >= 3) {
-          parts.push(`${escapedWord}~`);
-      }
-
-      // If no advanced strategies, fallback to exact match (escaped)
-      if (parts.length === 0) {
-          return escapedWord;
-      }
-
-      // If only one strategy, return it directly
-      if (parts.length === 1) {
-          return parts[0];
-      }
-
-      // If multiple, OR them together
-      return `(${parts.join(' OR ')})`;
+    if (strategies.length === 0) return escaped;
+    if (strategies.length === 1) return strategies[0];
+    return `(${strategies.join(' OR ')})`;
   });
 
-  const query = queryParts.join(' AND ');
-  
-  return `${field}:(${query})`;
+  return `${field}:(${queryParts.join(' AND ')})`;
 }
