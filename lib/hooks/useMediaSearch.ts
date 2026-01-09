@@ -4,6 +4,7 @@ import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
 import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, ArtistSelection } from '@/lib/types';
 import { usePersistentState } from './usePersistentState';
+import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -192,6 +193,15 @@ export function useMediaSearch<T extends MediaType>(
     fetcher,
     { keepPreviousData: shouldKeepPreviousData }
   );
+
+  const { registerItems } = useMediaRegistry();
+
+  // Automatically register discovered items in the global registry
+  useEffect(() => {
+      if (data?.results) {
+          registerItems(data.results);
+      }
+  }, [data?.results, registerItems]);
   
   // Pagination Prefetching
   useEffect(() => {

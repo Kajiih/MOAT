@@ -9,6 +9,7 @@ import { MB_BASE_URL, USER_AGENT } from '@/lib/server/images';
 import { SearchOptions } from '@/lib/utils/search';
 import { mapArtistToMediaItem, mapRecordingToMediaItem, mapReleaseGroupToMediaItem } from '@/lib/utils/mappers';
 import { buildMusicBrainzQuery } from './search-utils';
+import { serverItemCache } from './item-cache';
 
 const SEARCH_CACHE_TTL = 3600; // 1 hour
 const SEARCH_LIMIT = 15;
@@ -97,11 +98,29 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   let results: MediaItem[] = [];
 
   if (type === 'album' && parsed.data['release-groups']) {
-      results = parsed.data['release-groups'].map(mapReleaseGroupToMediaItem);
+      results = parsed.data['release-groups'].map(item => {
+          const cached = serverItemCache.get(item.id);
+          if (cached) return cached;
+          const mapped = mapReleaseGroupToMediaItem(item);
+          serverItemCache.set(mapped);
+          return mapped;
+      });
   } else if (type === 'artist' && parsed.data.artists) {
-      results = await Promise.all(parsed.data.artists.map(mapArtistToMediaItem));
+      results = await Promise.all(parsed.data.artists.map(async item => {
+          const cached = serverItemCache.get(item.id);
+          if (cached) return cached;
+          const mapped = await mapArtistToMediaItem(item);
+          serverItemCache.set(mapped);
+          return mapped;
+      }));
   } else if (type === 'song' && parsed.data.recordings) {
-      results = parsed.data.recordings.map(mapRecordingToMediaItem);
+      results = parsed.data.recordings.map(item => {
+          const cached = serverItemCache.get(item.id);
+          if (cached) return cached;
+          const mapped = mapRecordingToMediaItem(item);
+          serverItemCache.set(mapped);
+          return mapped;
+      });
   }
 
   const totalCount = rawData.count || rawData['release-group-count'] || rawData['artist-count'] || rawData['recording-count'] || 0;

@@ -18,6 +18,14 @@ vi.mock('./usePersistentState', () => ({
   }),
 }));
 
+// Mock Media Registry
+vi.mock('@/components/MediaRegistryProvider', () => ({
+  useMediaRegistry: vi.fn(() => ({
+    registerItems: vi.fn(),
+    getItem: vi.fn(),
+  })),
+}));
+
 describe('useMediaSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -158,5 +166,27 @@ describe('useMediaSearch', () => {
 
     const { result } = renderHook(() => useMediaSearch('album'));
     expect(result.current.error?.status).toBe(503);
+  });
+
+  it('should register items in the Media Registry when data is received', async () => {
+    const { useMediaRegistry } = await import('@/components/MediaRegistryProvider');
+    const mockRegisterItems = vi.fn();
+    vi.mocked(useMediaRegistry).mockReturnValue({
+      registerItems: mockRegisterItems,
+      getItem: vi.fn(),
+    });
+
+    const mockResults = [{ id: '1', title: 'Test Item', type: 'album' }];
+    
+    // @ts-expect-error - simplified mock for test
+    vi.mocked(useSWR).mockReturnValue({
+      data: { results: mockResults, page: 1, totalPages: 1 },
+      isLoading: false,
+      isValidating: false,
+    });
+
+    renderHook(() => useMediaSearch('album'));
+    
+    expect(mockRegisterItems).toHaveBeenCalledWith(mockResults);
   });
 });
