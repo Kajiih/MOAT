@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mapReleaseGroupToMediaItem, mapRecordingToMediaItem, formatArtistCredit, mapArtistToMediaItem } from './mappers';
+import { SongItem } from '@/lib/types';
 
 // Mock getArtistThumbnail since it makes fetch calls
 vi.mock('@/lib/server/images', () => ({
@@ -51,15 +52,31 @@ describe('Mappers', () => {
   });
 
   describe('mapRecordingToMediaItem', () => {
-      it('should map recording with release', () => {
+      it('should map recording with release and release-group', () => {
+          const input = {
+              id: 'rec1',
+              title: 'Song',
+              'artist-credit': [{ name: 'Singer' }],
+              releases: [{ 
+                  id: 'rel1', 
+                  title: 'Album',
+                  'release-group': { id: 'rg1' }
+              }]
+          };
+          const result = mapRecordingToMediaItem(input as any) as SongItem;
+          expect(result.album).toBe('Album');
+          expect(result.albumId).toBe('rg1');
+          expect(result.imageUrl).toBe('https://coverartarchive.org/release-group/rg1/front-250');
+      });
+
+      it('should fallback to release image if release-group is missing', () => {
           const input = {
               id: 'rec1',
               title: 'Song',
               'artist-credit': [{ name: 'Singer' }],
               releases: [{ id: 'rel1', title: 'Album' }]
           };
-          const result = mapRecordingToMediaItem(input);
-          expect(result.album).toBe('Album');
+          const result = mapRecordingToMediaItem(input as any);
           expect(result.imageUrl).toBe('https://coverartarchive.org/release/rel1/front-250');
       });
   });

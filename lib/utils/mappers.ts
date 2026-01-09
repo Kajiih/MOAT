@@ -43,15 +43,27 @@ export async function mapArtistToMediaItem(item: z.infer<typeof MusicBrainzArtis
 }
 
 export function mapRecordingToMediaItem(item: z.infer<typeof MusicBrainzRecordingSchema>): MediaItem {
-    const releaseId = item.releases?.[0]?.id;
+    const release = item.releases?.[0];
+    const albumId = release?.['release-group']?.id;
+    const releaseId = release?.id;
+
+    // Preference: Use release-group ID for image if available, otherwise fallback to release ID
+    let imageUrl: string | undefined = undefined;
+    if (albumId) {
+        imageUrl = `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${albumId}/front-250`;
+    } else if (releaseId) {
+        imageUrl = `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front-250`;
+    }
+
     return {
         id: item.id,
         type: 'song',
         title: item.title,
         artist: formatArtistCredit(item['artist-credit']),
-        album: item.releases?.[0]?.title, 
+        album: release?.title,
+        albumId: albumId,
         year: item['first-release-date']?.split('-')[0] || '',
         date: item['first-release-date'],
-        imageUrl: releaseId ? `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front-250` : undefined
+        imageUrl
     };
 }

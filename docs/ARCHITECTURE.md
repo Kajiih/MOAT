@@ -13,6 +13,9 @@
 - **Deep Metadata Sync**:
   - **Background Bundling**: A background worker (`BoardDetailBundler`) monitors the board and automatically fetches deep metadata (tracklists, tags, bio) for every item, ensuring the board is always "feature-complete."
   - **Zero-Latency Details**: Pre-fetched metadata is stored directly in the board state. Modals open instantly with full content, even while offline or after a fresh import.
+- **Image Reuse & Consistency**:
+  - **Shared Asset IDs**: Tracks (recordings) automatically inherit visual metadata from their parent albums (release-groups). By linking items via `albumId`, the app ensures identical artwork is used for both albums and their songs.
+  - **Cache Optimization**: Sharing image URLs across different media types significantly reduces redundant network requests and maximizes browser cache hits.
 
 ### 2. Core Tier List Functionality
 - **Fluid Drag and Drop**: Powered by `@dnd-kit` for high-performance reordering of items and tiers.
@@ -43,7 +46,8 @@
 - **SWR Revalidation**: Uses `useSWR` for "stale-while-revalidate" fetching. In the `DetailsModal`, we use `fallbackData` from the board state to show stored info instantly while checking for updates in the background.
 - **Server proxying**: API routes in `app/api/` handle rate limiting (MusicBrainz 503s), retry logic, and hide external API keys.
 - **Image Fallback Engine**: A robust multi-step strategy for images:
-  - **Waterfall**: Fanart.tv -> Wikidata -> Cover Art Archive.
+  - **Waterfall**: Fanart.tv -> Wikidata -> Cover Art Archive (CAA).
+  - **Unified CAA Endpoint**: Prefers the CAA `release-group` endpoint for both albums and tracks to provide the most representative artwork for a collection.
   - **Healing**: Background fetching of missing artist thumbnails.
   - **Bypass**: Automatic `unoptimized` toggle for domains with resolve issues.
 

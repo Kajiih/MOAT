@@ -49,6 +49,8 @@ export interface SongItem extends BaseMediaItem {
   artist: string;
   /** The album name. */
   album?: string;
+  /** The parent album (release-group) ID. */
+  albumId?: string;
 }
 
 /**
@@ -113,6 +115,7 @@ export interface MediaDetails {
 
   // Song specific
   album?: string;
+  albumId?: string;
 }
 
 // --- Zod Schemas for MusicBrainz API ---
@@ -150,7 +153,10 @@ export const MusicBrainzRecordingSchema = z.object({
   'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
   releases: z.array(z.object({ 
     id: z.string(),
-    title: z.string() 
+    title: z.string(),
+    'release-group': z.object({
+      id: z.string()
+    }).optional()
   })).optional(), 
 });
 

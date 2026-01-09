@@ -217,18 +217,20 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
 
         if (type === 'song') {
              const res = await fetch(
-                `${MB_BASE_URL}/recording/${id}?inc=releases+artist-credits+tags&fmt=json`,
+                `${MB_BASE_URL}/recording/${id}?inc=releases+release-groups+artist-credits+tags&fmt=json`,
                 { headers: { 'User-Agent': USER_AGENT }, next: { revalidate: 86400 } }
             );
             if (!res.ok) return { id, type };
             const data = await res.json();
 
+            const release = data.releases?.[0];
             return {
                 id,
                 type: 'song',
                 tags: data.tags?.map((t: MBTag) => t.name) || [],
                 length: data.length ? new Date(data.length).toISOString().substr(14, 5) : undefined,
-                album: data.releases?.[0]?.title // Just first release as sample
+                album: release?.title,
+                albumId: release?.['release-group']?.id
             };
         }
 
