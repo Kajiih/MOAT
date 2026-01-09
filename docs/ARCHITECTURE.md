@@ -9,7 +9,8 @@
 - **Search & Discovery**:
   - Integrated with **MusicBrainz API** to search for Albums, Artists, and Songs.
   - Supports detailed filtering: Year range, Primary types (Album, Single, etc.), Secondary types (Live, Remix, etc.).
-  - **Fuzzy Search** and **Wildcard** support toggle.
+  - **Smarter Matching**: Uses Lucene "AUTO" behavior for dynamic fuzzy distance based on word length.
+  - **Performance Optimization**: Wildcards are only applied to the *last word* being typed to prevent search expansion issues. 
   - **Artist Picker**: Allows filtering releases by a specific artist context.
 - **Drag and Drop**:
   - Smooth, accessible drag-and-drop experience powered by `@dnd-kit`.
@@ -54,9 +55,12 @@
   - **MusicBrainz Integration**: Data is fetched via Next.js API Routes (`app/api/search`, `app/api/details`).
   - **Advanced Search**: Queries are constructed using normalized **Lucene syntax** (`lib/utils/search.ts`) to support complex filtering (date ranges, specific artist IDs, and filtering by secondary types).
   - **Validation**: Zod schemas (`lib/types.ts`) ensure data from MusicBrainz matches the internal `MediaItem` interface before reaching the frontend.
-  - **Caching**: 
-    - Server-side caching uses Next.js `fetch` options: 1 hour for search results, 24 hours for media details.
-    - Client-side caching is handled by `swr`.
+    - **Server-Side Cache**: 
+      - Next.js default revalidation (1h search, 24h details).
+      - **MediaItem Registry**: A singleton server-side cache (`ItemCache`) to prevent redundant mapping/image lookups for popular items across different queries.
+    - **Client-Side Cache**: 
+      - Handled by `swr` for API requests.
+      - **Global Media Registry**: A React Context (`MediaRegistryProvider`) that shares discovered artist/album data across all UI components (Search Tabs, Artist Pickers).
 
 ### 3. Image Handling & Resilience
 - **Multi-Source Art**: 
@@ -66,6 +70,9 @@
   - Uses `next/image` for performance.
   - **Bypass Mechanism**: Implements a retry strategy for domains like `archive.org` that may trigger "Private IP" resolution errors in the Next.js optimization server. On failure, the component switches to `unoptimized={true}` to allow direct browser fetching.
   - **Error Management**: Failed image URLs are cached in a session-level `Set` to prevent repeated failed requests.
+- **API Resilience**:
+  - **Rate Limit Detection**: Gracefully detects MusicBrainz 503 (busy) errors on the server and propagates them to the UI.
+  - **User Feedback**: Triggers user-friendly toast notifications when downstream APIs are unavailable.
 
 ### 4. Quality Assurance
 - **Unit Testing**: Powered by **Vitest** and **React Testing Library**. Focuses on complex hooks (`useTierStructure`) and data mappers.
@@ -81,7 +88,9 @@
 - `app/`: Next.js App Router setup.
   - `api/`: Backend proxy routes (`search`, `details`) to hide API keys (if any) and handle CORS/Validation.
 - `components/`: Atomic UI components (`TierBoard`, `MediaCard`, `SearchPanel`).
+  - `MediaRegistryProvider.tsx`: Global client-side item registry.
 - `lib/`:
   - `hooks/`: Custom hooks for logic separation (`useTierList`, `useScreenshot`).
   - `server/`: Server-side only logic (MusicBrainz client).
+    - `item-cache.ts`: Server-side MediaItem cache.
   - `types.ts`: Centralized type definitions (`TierListState`, `MediaItem`).

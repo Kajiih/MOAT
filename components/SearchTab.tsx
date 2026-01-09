@@ -65,7 +65,7 @@ export function SearchTab({
   // Handle errors (specifically rate limits)
   useEffect(() => {
     if (error?.status === 503) {
-      showToast('MusicBrainz is busy. Please wait a moment and try again.', 'error');
+      showToast('MusicBrainz is busy. The data will be updated soon.', 'error');
     }
   }, [error, showToast]);
 
