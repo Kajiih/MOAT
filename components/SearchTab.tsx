@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useCallback, useEffect } from 'react';
-import { Filter } from 'lucide-react';
-import { MediaType, SortOption, MediaItem } from '@/lib/types';
+import { Filter, Info } from 'lucide-react';
+import { MediaType, PRIMARY_TYPES, SECONDARY_TYPES, SortOption, MediaItem } from '@/lib/types';
 import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
 import { useToast } from '@/components/ToastProvider';
 import { MediaCard } from '@/components/MediaCard';
@@ -11,9 +11,8 @@ import { AlbumPicker } from '@/components/AlbumPicker';
 import { SkeletonCard } from '@/components/SkeletonCard';
 import { SortDropdown } from '@/components/SortDropdown';
 import { Pagination } from '@/components/Pagination';
-import { ArtistFilters } from './filters/ArtistFilters';
-import { AlbumFilters } from './filters/AlbumFilters';
-import { DateRangeFilter } from './filters/DateRangeFilter';
+import { FilterButton } from '@/components/FilterButton';
+import { SearchFilters } from './filters/SearchFilters';
 
 interface SearchTabProps {
   type: MediaType;
@@ -102,20 +101,6 @@ export function SearchTab({
       });
   }, [searchResults, sortOption]);
 
-  const togglePrimaryType = useCallback((t: string) => {
-      const newTypes = albumPrimaryTypes.includes(t) 
-        ? albumPrimaryTypes.filter(x => x !== t) 
-        : [...albumPrimaryTypes, t];
-      setAlbumPrimaryTypes(newTypes);
-  }, [albumPrimaryTypes, setAlbumPrimaryTypes]);
-
-  const toggleSecondaryType = useCallback((t: string) => {
-      const newTypes = albumSecondaryTypes.includes(t) 
-        ? albumSecondaryTypes.filter(x => x !== t) 
-        : [...albumSecondaryTypes, t];
-      setAlbumSecondaryTypes(newTypes);
-  }, [albumSecondaryTypes, setAlbumSecondaryTypes]);
-
   if (isHidden) {
     return null;
   }
@@ -177,76 +162,21 @@ export function SearchTab({
             
             {/* Advanced Filters Panel */}
             {showFilters && (
-                <div className="bg-neutral-900/50 p-2 rounded border border-neutral-800 space-y-3">
-                    
-                    {/* Album Specific Filters */}
-                    {type === 'album' && (
-                        <AlbumFilters 
-                            primaryTypes={albumPrimaryTypes}
-                            secondaryTypes={albumSecondaryTypes}
-                            onTogglePrimary={togglePrimaryType}
-                            onToggleSecondary={toggleSecondaryType}
-                            onResetPrimary={() => setAlbumPrimaryTypes(['Album', 'EP'])}
-                            onResetSecondary={() => {
-                                if (albumSecondaryTypes.length === 8) { // Approximation, easier to just pass logic
-                                    setAlbumSecondaryTypes([]);
-                                } else {
-                                    // We need to import SECONDARY_TYPES to use 'all' logic perfectly inside here or pass full handler
-                                    // For simplicity, let's just make the component handle the "Select All" logic if we pass it correctly?
-                                    // Actually, let's keep the logic simple here:
-                                    setAlbumSecondaryTypes([]); // Just clear for now as reset
-                                }
-                            }}
-                        />
-                    )}
-                    
-                    {/* Artist Specific Filters */}
-                    {type === 'artist' && (
-                        <ArtistFilters 
-                            type={artistType}
-                            gender={artistGender}
-                            country={artistCountry}
-                            onTypeChange={setArtistType}
-                            onGenderChange={setArtistGender}
-                            onCountryChange={setArtistCountry}
-                        />
-                    )}
-
-                    {/* Common Filters (Date, Tag) */}
-                    <DateRangeFilter
-                        minYear={minYear}
-                        maxYear={maxYear}
-                        onMinYearChange={setMinYear}
-                        onMaxYearChange={setMaxYear}
-                        fromLabel={type === 'artist' ? 'Est. From' : 'From Year'}
-                        toLabel={type === 'artist' ? 'Est. To' : 'To Year'}
+                <div className="bg-neutral-900/50 p-2 rounded border border-neutral-800">
+                    <SearchFilters 
+                        type={type}
+                        state={{
+                            minYear, setMinYear,
+                            maxYear, setMaxYear,
+                            tag, setTag,
+                            artistType, setArtistType,
+                            artistGender, setArtistGender,
+                            artistCountry, setArtistCountry,
+                            albumPrimaryTypes, setAlbumPrimaryTypes,
+                            albumSecondaryTypes, setAlbumSecondaryTypes,
+                            videoOnly, setVideoOnly
+                        }}
                     />
-
-                    <div>
-                        <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">Tag / Genre</label>
-                        <input
-                            placeholder="e.g. rock, jazz, 80s..."
-                            className="w-full bg-black border border-neutral-700 rounded px-2 py-1.5 text-xs text-neutral-300 outline-none focus:border-red-600"
-                            value={tag}
-                            onChange={e => setTag(e.target.value)}
-                        />
-                    </div>
-                    
-                    {/* Song Specific Filters */}
-                    {type === 'song' && (
-                        <div className="flex items-center gap-2 pt-1">
-                            <input 
-                                type="checkbox" 
-                                id="videoOnly"
-                                checked={videoOnly}
-                                onChange={(e) => setVideoOnly(e.target.checked)}
-                                className="accent-red-600"
-                            />
-                            <label htmlFor="videoOnly" className="text-xs text-neutral-300 cursor-pointer select-none">
-                                Has Video (Music Video)
-                            </label>
-                        </div>
-                    )}
                 </div>
             )}
         </div>
