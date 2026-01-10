@@ -50,7 +50,6 @@ interface SearchParamsState {
   albumSecondaryTypes: string[];
   // New filters
   artistType: string;
-  artistGender: string;
   artistCountry: string;
   tag: string;
   videoOnly: boolean;
@@ -75,8 +74,6 @@ interface UseMediaSearchResult<T extends MediaItem> {
   // New Setters
   artistType: string;
   setArtistType: (val: string) => void;
-  artistGender: string;
-  setArtistGender: (val: string) => void;
   artistCountry: string;
   setArtistCountry: (val: string) => void;
   tag: string;
@@ -126,7 +123,6 @@ export function useMediaSearch<T extends MediaType>(
     albumPrimaryTypes: ['Album', 'EP'],
     albumSecondaryTypes: [],
     artistType: '',
-    artistGender: '',
     artistCountry: '',
     tag: '',
     videoOnly: false,
@@ -139,7 +135,7 @@ export function useMediaSearch<T extends MediaType>(
   const { 
       query, selectedArtist, selectedAlbum, minYear, maxYear, 
       albumPrimaryTypes, albumSecondaryTypes, 
-      artistType, artistGender, artistCountry, tag, videoOnly,
+      artistType, artistCountry, tag, videoOnly,
       page 
   } = state;
   
@@ -187,7 +183,6 @@ export function useMediaSearch<T extends MediaType>(
   const handleSetAlbumSecondaryTypes = (val: string[]) => setState(prev => ({ ...prev, albumSecondaryTypes: val, page: 1 }));
   
   const handleSetArtistType = (val: string) => setState(prev => ({ ...prev, artistType: val, page: 1 }));
-  const handleSetArtistGender = (val: string) => setState(prev => ({ ...prev, artistGender: val, page: 1 }));
   const handleSetArtistCountry = (val: string) => setState(prev => ({ ...prev, artistCountry: val, page: 1 }));
   const handleSetTag = (val: string) => setState(prev => ({ ...prev, tag: val, page: 1 }));
   const handleSetVideoOnly = (val: boolean) => setState(prev => ({ ...prev, videoOnly: val, page: 1 }));
@@ -212,7 +207,6 @@ export function useMediaSearch<T extends MediaType>(
     albumPrimaryTypes: ignoreFilters ? [] : albumPrimaryTypes,
     albumSecondaryTypes: ignoreFilters ? [] : albumSecondaryTypes,
     artistType: ignoreFilters ? '' : artistType,
-    artistGender: ignoreFilters ? '' : artistGender,
     artistCountry: ignoreFilters ? '' : debouncedArtistCountry,
     tag: ignoreFilters ? '' : debouncedTag,
     videoOnly: ignoreFilters ? false : videoOnly,
@@ -239,14 +233,13 @@ export function useMediaSearch<T extends MediaType>(
     const effectiveAlbumPrimaryTypes = ignoreFilters ? [] : albumPrimaryTypes;
     const effectiveAlbumSecondaryTypes = ignoreFilters ? [] : albumSecondaryTypes;
     const effectiveArtistType = ignoreFilters ? '' : artistType;
-    const effectiveArtistGender = ignoreFilters ? '' : artistGender;
     const effectiveArtistCountry = ignoreFilters ? '' : debouncedArtistCountry;
     const effectiveTag = ignoreFilters ? '' : debouncedTag;
     const effectiveVideoOnly = ignoreFilters ? false : videoOnly;
 
     const hasFilters = debouncedQuery || forcedArtistId || selectedArtist?.id || forcedAlbumId || selectedAlbum?.id || effectiveMinYear || effectiveMaxYear || 
                        effectiveAlbumPrimaryTypes.length > 0 || effectiveAlbumSecondaryTypes.length > 0 ||
-                       effectiveArtistType || effectiveArtistGender || effectiveArtistCountry || effectiveTag || effectiveVideoOnly;
+                       effectiveArtistType || effectiveArtistCountry || effectiveTag || effectiveVideoOnly;
 
     if (!hasFilters) return null;
 
@@ -261,14 +254,13 @@ export function useMediaSearch<T extends MediaType>(
       albumPrimaryTypes: effectiveAlbumPrimaryTypes,
       albumSecondaryTypes: effectiveAlbumSecondaryTypes,
       artistType: effectiveArtistType,
-      artistGender: effectiveArtistGender,
       artistCountry: effectiveArtistCountry,
       tag: effectiveTag,
       videoOnly: effectiveVideoOnly,
       fuzzy: isFuzzy,
       wildcard: isWildcard
     });
-  }, [isEnabled, type, page, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, artistGender, debouncedArtistCountry, debouncedTag, videoOnly, isFuzzy, isWildcard, ignoreFilters]);
+  }, [isEnabled, type, page, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, videoOnly, isFuzzy, isWildcard, ignoreFilters]);
 
   const { data, error, isLoading, isValidating } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
     searchUrl,
@@ -306,7 +298,6 @@ export function useMediaSearch<T extends MediaType>(
             albumPrimaryTypes,
             albumSecondaryTypes,
             artistType,
-            artistGender,
             artistCountry: debouncedArtistCountry,
             tag: debouncedTag,
             videoOnly,
@@ -315,7 +306,7 @@ export function useMediaSearch<T extends MediaType>(
           });
           preload(nextUrl, fetcher);
       }
-  }, [data, page, type, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, artistGender, debouncedArtistCountry, debouncedTag, videoOnly, isFuzzy, isWildcard, isEnabled]);
+  }, [data, page, type, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, videoOnly, isFuzzy, isWildcard, isEnabled]);
 
   return {
     // State
@@ -327,7 +318,6 @@ export function useMediaSearch<T extends MediaType>(
     albumPrimaryTypes, setAlbumPrimaryTypes: handleSetAlbumPrimaryTypes,
     albumSecondaryTypes, setAlbumSecondaryTypes: handleSetAlbumSecondaryTypes,
     artistType, setArtistType: handleSetArtistType,
-    artistGender, setArtistGender: handleSetArtistGender,
     artistCountry, setArtistCountry: handleSetArtistCountry,
     tag, setTag: handleSetTag,
     videoOnly, setVideoOnly: handleSetVideoOnly,

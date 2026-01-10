@@ -11,7 +11,6 @@ export interface SearchParams {
   albumSecondaryTypes?: string[];
   // New filters
   artistType?: string;
-  artistGender?: string;
   artistCountry?: string;
   tag?: string;
   videoOnly?: boolean;
@@ -50,7 +49,6 @@ export function getSearchUrl(params: SearchParams): string {
   
   // 3. New filters
   if (params.artistType) urlParams.append('artistType', params.artistType);
-  if (params.artistGender) urlParams.append('artistGender', params.artistGender);
   if (params.artistCountry) urlParams.append('artistCountry', params.artistCountry);
   if (params.tag) urlParams.append('tag', params.tag);
   if (params.videoOnly) urlParams.append('videoOnly', 'true');

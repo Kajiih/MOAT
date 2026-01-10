@@ -10,7 +10,6 @@ interface SearchFiltersState {
   
   // Artist
   artistType: string; setArtistType: (v: string) => void;
-  artistGender: string; setArtistGender: (v: string) => void;
   artistCountry: string; setArtistCountry: (v: string) => void;
   
   // Album
@@ -53,10 +52,8 @@ export function SearchFilters({ type, state, compact = false }: SearchFiltersPro
         {type === 'artist' && (
             <ArtistFilters 
                 type={state.artistType}
-                gender={state.artistGender}
                 country={state.artistCountry}
                 onTypeChange={state.setArtistType}
-                onGenderChange={state.setArtistGender}
                 onCountryChange={state.setArtistCountry}
                 className={compact ? 'text-[10px]' : ''}
             />

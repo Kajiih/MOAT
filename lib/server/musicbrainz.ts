@@ -26,7 +26,6 @@ interface SearchParams {
     albumSecondaryTypes: string[];
     // New filters
     artistType?: string;
-    artistGender?: string;
     artistCountry?: string;
     tag?: string;
     videoOnly?: boolean;
@@ -88,7 +87,6 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     albumPrimaryTypes: params.albumPrimaryTypes || [],
     albumSecondaryTypes: params.albumSecondaryTypes || [],
     artistType: params.artistType || null,
-    artistGender: params.artistGender || null,
     artistCountry: params.artistCountry || null,
     tag: params.tag || null,
     videoOnly: params.videoOnly || false,

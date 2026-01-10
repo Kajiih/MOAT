@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Disc, X, Filter } from 'lucide-react';
-import { MediaItem, AlbumSelection, AlbumItem } from '@/lib/types';
+import { AlbumSelection, AlbumItem } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
 import { SearchFilters } from './filters/SearchFilters';
@@ -58,7 +58,6 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
     albumSecondaryTypes, setAlbumSecondaryTypes,
     tag, setTag,
     artistType, setArtistType,
-    artistGender, setArtistGender,
     artistCountry, setArtistCountry,
     videoOnly, setVideoOnly,
     results,
@@ -171,7 +170,6 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
                         maxYear, setMaxYear,
                         tag, setTag,
                         artistType, setArtistType,
-                        artistGender, setArtistGender,
                         artistCountry, setArtistCountry,
                         albumPrimaryTypes, setAlbumPrimaryTypes,
                         albumSecondaryTypes, setAlbumSecondaryTypes,

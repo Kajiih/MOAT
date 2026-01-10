@@ -49,7 +49,6 @@ export function SearchTab({
     albumPrimaryTypes, setAlbumPrimaryTypes,
     albumSecondaryTypes, setAlbumSecondaryTypes,
     artistType, setArtistType,
-    artistGender, setArtistGender,
     artistCountry, setArtistCountry,
     tag, setTag,
     videoOnly, setVideoOnly,
@@ -170,7 +169,6 @@ export function SearchTab({
                             maxYear, setMaxYear,
                             tag, setTag,
                             artistType, setArtistType,
-                            artistGender, setArtistGender,
                             artistCountry, setArtistCountry,
                             albumPrimaryTypes, setAlbumPrimaryTypes,
                             albumSecondaryTypes, setAlbumSecondaryTypes,
@@ -212,7 +210,7 @@ export function SearchTab({
             {!isSearching && searchResults.length === 0 && (
                 query || selectedArtist || selectedAlbum || minYear || maxYear || 
                 albumPrimaryTypes.length > 0 || albumSecondaryTypes.length > 0 ||
-                artistType || artistGender || artistCountry || tag || videoOnly
+                artistType || artistCountry || tag || videoOnly
             ) && (
                 <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
             )}

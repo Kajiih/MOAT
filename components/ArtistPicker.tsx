@@ -59,7 +59,6 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
     minYear, setMinYear,
     maxYear, setMaxYear,
     artistType, setArtistType,
-    artistGender, setArtistGender,
     artistCountry, setArtistCountry,
     results, 
     isLoading,
@@ -167,10 +166,8 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
             <div className="pt-2 border-t border-neutral-800 space-y-2">
                 <ArtistFilters 
                     type={artistType}
-                    gender={artistGender}
                     country={artistCountry}
                     onTypeChange={setArtistType}
-                    onGenderChange={setArtistGender}
                     onCountryChange={setArtistCountry}
                 />
                 <DateRangeFilter

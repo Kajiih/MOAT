@@ -213,9 +213,3 @@ export const ARTIST_TYPES = [
   'Other'
 ] as const;
 
-export const ARTIST_GENDERS = [
-  'Male',
-  'Female',
-  'Non-binary',
-  'Not applicable'
-] as const;

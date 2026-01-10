@@ -13,7 +13,6 @@ interface QueryBuilderParams {
     albumSecondaryTypes: string[];
     // New filters
     artistType: string | null;
-    artistGender: string | null;
     artistCountry: string | null;
     tag: string | null;
     videoOnly: boolean;
@@ -58,7 +57,6 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
         albumPrimaryTypes, 
         albumSecondaryTypes,
         artistType,
-        artistGender,
         artistCountry,
         tag,
         videoOnly,
@@ -104,9 +102,6 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
     if (type === 'artist') {
         if (artistType) {
             queryParts.push(`type:"${artistType.toLowerCase()}"`);
-        }
-        if (artistGender) {
-            queryParts.push(`gender:"${artistGender.toLowerCase()}"`);
         }
         if (artistCountry) {
             queryParts.push(`country:"${escapeLucene(artistCountry)}"`);
