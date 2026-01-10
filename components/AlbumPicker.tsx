@@ -5,8 +5,7 @@ import { Disc, X, Filter } from 'lucide-react';
 import { MediaItem, AlbumSelection, AlbumItem } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
-import { AlbumFilters } from './filters/AlbumFilters';
-import { DateRangeFilter } from './filters/DateRangeFilter';
+import { SearchFilters } from './filters/SearchFilters';
 
 interface AlbumPickerProps {
   onSelect: (album: AlbumSelection | null) => void;
@@ -57,6 +56,11 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
     maxYear, setMaxYear,
     albumPrimaryTypes, setAlbumPrimaryTypes,
     albumSecondaryTypes, setAlbumSecondaryTypes,
+    tag, setTag,
+    artistType, setArtistType,
+    artistGender, setArtistGender,
+    artistCountry, setArtistCountry,
+    videoOnly, setVideoOnly,
     results,
     isLoading,
     searchNow
@@ -86,21 +90,6 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
     onSelect(null);
     setSelectedImageError(false);
     setRetryUnoptimized(false);
-  };
-
-  // Helper to toggle types
-  const togglePrimaryType = (t: string) => {
-      const newTypes = albumPrimaryTypes.includes(t) 
-        ? albumPrimaryTypes.filter(x => x !== t) 
-        : [...albumPrimaryTypes, t];
-      setAlbumPrimaryTypes(newTypes);
-  };
-
-  const toggleSecondaryType = (t: string) => {
-      const newTypes = albumSecondaryTypes.includes(t) 
-        ? albumSecondaryTypes.filter(x => x !== t) 
-        : [...albumSecondaryTypes, t];
-      setAlbumSecondaryTypes(newTypes);
   };
 
   if (selectedAlbum) {
@@ -174,20 +163,20 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
         </div>
 
         {showFilters && (
-            <div className="pt-2 border-t border-neutral-800 space-y-2">
-                <DateRangeFilter
-                    minYear={minYear}
-                    maxYear={maxYear}
-                    onMinYearChange={setMinYear}
-                    onMaxYearChange={setMaxYear}
-                    fromLabel="From Year"
-                    toLabel="To Year"
-                />
-                <AlbumFilters 
-                    primaryTypes={albumPrimaryTypes}
-                    secondaryTypes={albumSecondaryTypes}
-                    onTogglePrimary={togglePrimaryType}
-                    onToggleSecondary={toggleSecondaryType}
+            <div className="pt-2 border-t border-neutral-800">
+                <SearchFilters 
+                    type="album"
+                    state={{
+                        minYear, setMinYear,
+                        maxYear, setMaxYear,
+                        tag, setTag,
+                        artistType, setArtistType,
+                        artistGender, setArtistGender,
+                        artistCountry, setArtistCountry,
+                        albumPrimaryTypes, setAlbumPrimaryTypes,
+                        albumSecondaryTypes, setAlbumSecondaryTypes,
+                        videoOnly, setVideoOnly
+                    }}
                     compact={true}
                 />
             </div>

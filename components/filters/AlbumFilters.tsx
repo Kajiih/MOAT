@@ -26,7 +26,7 @@ export function AlbumFilters({
       // Simplified view for Pickers
       return (
         <div className="flex flex-wrap gap-1 text-[10px]">
-            {PRIMARY_TYPES.slice(0, 3).map(t => (
+            {PRIMARY_TYPES.map(t => (
                 <button
                     key={t}
                     onClick={() => onTogglePrimary(t)}
@@ -36,7 +36,7 @@ export function AlbumFilters({
                 </button>
             ))}
             <div className="w-px h-3 bg-neutral-800 mx-1 self-center" />
-            {['Live', 'Compilation'].map(t => (
+            {SECONDARY_TYPES.map(t => (
                 <button
                     key={t}
                     onClick={() => onToggleSecondary(t)}
