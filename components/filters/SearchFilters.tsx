@@ -25,9 +25,10 @@ interface SearchFiltersProps {
   type: MediaType;
   state: SearchFiltersState;
   compact?: boolean;
+  contextPickers?: React.ReactNode;
 }
 
-export function SearchFilters({ type, state, compact = false }: SearchFiltersProps) {
+export function SearchFilters({ type, state, compact = false, contextPickers }: SearchFiltersProps) {
   
   // Helper wrappers for Album filters
   const togglePrimaryType = (t: string) => {
@@ -48,6 +49,11 @@ export function SearchFilters({ type, state, compact = false }: SearchFiltersPro
 
   return (
     <div className={`space-y-2 ${compact ? 'text-[10px]' : ''}`}>
+        {contextPickers && (
+            <div className="space-y-2 mb-2 pb-2 border-b border-neutral-800">
+                {contextPickers}
+            </div>
+        )}
         
         {/* Type-Specific Filters */}
         {type === 'artist' && (

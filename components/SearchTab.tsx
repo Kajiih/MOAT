@@ -131,34 +131,6 @@ export function SearchTab({
                 </button>
             </div>
             
-            {/* Context Filters (Artist Picker) */}
-            {type !== 'artist' && (
-                <div className="grid grid-cols-1 gap-2">
-                    <ArtistPicker
-                        selectedArtist={selectedArtist}
-                        onSelect={(a) => {
-                            setSelectedArtist(a);
-                            // If artist changes, reset selected album
-                            if (type === 'song') setSelectedAlbum(null);
-                        }}
-                        fuzzy={globalFuzzy}
-                        wildcard={globalWildcard}
-                        context={type}
-                    />
-
-                    {type === 'song' && (
-                        <AlbumPicker
-                            selectedAlbum={selectedAlbum}
-                            onSelect={setSelectedAlbum}
-                            fuzzy={globalFuzzy}
-                            wildcard={globalWildcard}
-                            artistId={selectedArtist?.id}
-                            context="song-filter"
-                        />
-                    )}
-                </div>
-            )}
-            
             {/* Advanced Filters Panel */}
             {showFilters && (
                 <div className="bg-neutral-900/50 p-2 rounded border border-neutral-800">
@@ -174,6 +146,32 @@ export function SearchTab({
                             albumSecondaryTypes, setAlbumSecondaryTypes,
                             videoOnly, setVideoOnly
                         }}
+                        contextPickers={type !== 'artist' ? (
+                            <div className="grid grid-cols-1 gap-2">
+                                <ArtistPicker
+                                    selectedArtist={selectedArtist}
+                                    onSelect={(a) => {
+                                        setSelectedArtist(a);
+                                        // If artist changes, reset selected album
+                                        if (type === 'song') setSelectedAlbum(null);
+                                    }}
+                                    fuzzy={globalFuzzy}
+                                    wildcard={globalWildcard}
+                                    context={type}
+                                />
+
+                                {type === 'song' && (
+                                    <AlbumPicker
+                                        selectedAlbum={selectedAlbum}
+                                        onSelect={setSelectedAlbum}
+                                        fuzzy={globalFuzzy}
+                                        wildcard={globalWildcard}
+                                        artistId={selectedArtist?.id}
+                                        context="song-filter"
+                                    />
+                                )}
+                            </div>
+                        ) : undefined}
                     />
                 </div>
             )}
