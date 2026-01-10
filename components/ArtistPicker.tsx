@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { preload } from 'swr';
-import { Search, X, User } from 'lucide-react';
+import { Search, X, User, Filter } from 'lucide-react';
 import { MediaItem, ArtistSelection } from '@/lib/types';
 import { getSearchUrl } from '@/lib/api';
 import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
+import { ArtistFilters } from './filters/ArtistFilters';
+import { DateRangeFilter } from './filters/DateRangeFilter';
 
 interface ArtistPickerProps {
   onSelect: (artist: ArtistSelection | null) => void;
@@ -42,8 +44,11 @@ function PickerImage({ src, alt }: { src: string, alt: string }) {
             onError={() => {
                 if (!retryUnoptimized) {
                     setRetryUnoptimized(true);
+                } else {
+                    setError(true);
                 }
-            }}/>
+            }}
+        />
     );
 }
 
@@ -51,17 +56,22 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
   const { 
     query, 
     setQuery, 
+    minYear, setMinYear,
+    maxYear, setMaxYear,
+    artistType, setArtistType,
+    artistGender, setArtistGender,
+    artistCountry, setArtistCountry,
     results, 
     isLoading,
     searchNow
   } = useMediaSearch('artist', { 
     fuzzy, 
     wildcard,
-    ignoreFilters: true, // Ensure we find artists regardless of current Artist Tab filters
     storageKey: context ? `moat-search-params-artist-${context}` : undefined
   });
   
   const [isOpen, setIsOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   
   // Image Error State for the selected artist view
   const [selectedImageError, setSelectedImageError] = useState(false);
@@ -124,28 +134,55 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
 
   return (
     <div className="relative">
-      <div className="flex items-center bg-black border border-neutral-700 rounded px-3 py-2 focus-within:border-red-600 transition-colors">
-        <Search size={14} className="text-neutral-500 mr-2 shrink-0" />
-        <input 
-            placeholder="Filter by Artist..." 
-            className="bg-transparent outline-none text-sm w-full text-white placeholder-neutral-500"
-            value={query}
-            onChange={(e) => {
-                setQuery(e.target.value);
-                setIsOpen(!!e.target.value);
-            }}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                    searchNow();
-                    setIsOpen(true);
-                }
-            }}
-            onFocus={() => { if(query) setIsOpen(true); }}
-            onBlur={() => {
-                 setTimeout(() => setIsOpen(false), 200); 
-            }}
-        />
-        {isLoading && <div className="w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin ml-2" />}
+      <div className="flex flex-col gap-2 bg-black border border-neutral-700 rounded px-3 py-2 transition-colors focus-within:border-neutral-500">
+        <div className="flex items-center gap-2">
+            <Search size={14} className="text-neutral-500 mr-2 shrink-0" />
+            <input 
+                placeholder="Filter by Artist..." 
+                className="bg-transparent outline-none text-sm w-full text-white placeholder-neutral-500"
+                value={query}
+                onChange={(e) => {
+                    setQuery(e.target.value);
+                    setIsOpen(!!e.target.value);
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        searchNow();
+                        setIsOpen(true);
+                    }
+                }}
+                onFocus={() => { if(query) setIsOpen(true); }}
+            />
+            {isLoading && <div className="w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin ml-2" />}
+            <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`p-1 rounded hover:bg-neutral-800 transition-colors ${showFilters ? 'text-red-400' : 'text-neutral-500'}`}
+                title="Toggle Filters"
+            >
+                <Filter size={14} />
+            </button>
+        </div>
+
+        {showFilters && (
+            <div className="pt-2 border-t border-neutral-800 space-y-2">
+                <ArtistFilters 
+                    type={artistType}
+                    gender={artistGender}
+                    country={artistCountry}
+                    onTypeChange={setArtistType}
+                    onGenderChange={setArtistGender}
+                    onCountryChange={setArtistCountry}
+                />
+                <DateRangeFilter
+                    minYear={minYear}
+                    maxYear={maxYear}
+                    onMinYearChange={setMinYear}
+                    onMaxYearChange={setMaxYear}
+                    fromLabel="Est. From"
+                    toLabel="Est. To"
+                />
+            </div>
+        )}
       </div>
 
       {isOpen && (results.length > 0) && (

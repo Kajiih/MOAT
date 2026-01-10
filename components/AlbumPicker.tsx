@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Disc, X } from 'lucide-react';
+import { Disc, X, Filter } from 'lucide-react';
 import { MediaItem, AlbumSelection, AlbumItem } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
+import { AlbumFilters } from './filters/AlbumFilters';
+import { DateRangeFilter } from './filters/DateRangeFilter';
 
 interface AlbumPickerProps {
   onSelect: (album: AlbumSelection | null) => void;
@@ -51,6 +53,10 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
   const {
     query,
     setQuery,
+    minYear, setMinYear,
+    maxYear, setMaxYear,
+    albumPrimaryTypes, setAlbumPrimaryTypes,
+    albumSecondaryTypes, setAlbumSecondaryTypes,
     results,
     isLoading,
     searchNow
@@ -58,12 +64,12 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
     fuzzy,
     wildcard,
     artistId, // When used as a filter in Song tab, we might want to restrict to current artist
-    ignoreFilters: true, // Ensure we find albums regardless of current Album Tab filters
     storageKey: context ? `moat-search-params-album-${context}` : undefined
   });
   const [isOpen, setIsOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Image Error State
+  // Image Error State for the selected album view
   const [selectedImageError, setSelectedImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
@@ -80,6 +86,21 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
     onSelect(null);
     setSelectedImageError(false);
     setRetryUnoptimized(false);
+  };
+
+  // Helper to toggle types
+  const togglePrimaryType = (t: string) => {
+      const newTypes = albumPrimaryTypes.includes(t) 
+        ? albumPrimaryTypes.filter(x => x !== t) 
+        : [...albumPrimaryTypes, t];
+      setAlbumPrimaryTypes(newTypes);
+  };
+
+  const toggleSecondaryType = (t: string) => {
+      const newTypes = albumSecondaryTypes.includes(t) 
+        ? albumSecondaryTypes.filter(x => x !== t) 
+        : [...albumSecondaryTypes, t];
+      setAlbumSecondaryTypes(newTypes);
   };
 
   if (selectedAlbum) {
@@ -123,28 +144,54 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
 
   return (
     <div className="relative">
-      <div className="flex items-center bg-black border border-neutral-700 rounded px-3 py-2 focus-within:border-red-600 transition-colors">
-        <Disc size={14} className="text-neutral-500 mr-2 shrink-0" />
-        <input 
-            placeholder="Filter by Album..." 
-            className="bg-transparent outline-none text-sm w-full text-white placeholder-neutral-500"
-            value={query}
-            onChange={(e) => {
-                setQuery(e.target.value);
-                setIsOpen(!!e.target.value);
-            }}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                    searchNow();
-                    setIsOpen(true);
-                }
-            }}
-            onFocus={() => { if(query) setIsOpen(true); }}
-            onBlur={() => {
-                 setTimeout(() => setIsOpen(false), 200); 
-            }}
-        />
-        {isLoading && <div className="w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin ml-2" />}
+      <div className="flex flex-col gap-2 bg-black border border-neutral-700 rounded px-3 py-2 transition-colors focus-within:border-neutral-500">
+        <div className="flex items-center gap-2">
+            <Disc size={14} className="text-neutral-500 mr-2 shrink-0" />
+            <input 
+                placeholder="Filter by Album..." 
+                className="bg-transparent outline-none text-sm w-full text-white placeholder-neutral-500"
+                value={query}
+                onChange={(e) => {
+                    setQuery(e.target.value);
+                    setIsOpen(!!e.target.value);
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        searchNow();
+                        setIsOpen(true);
+                    }
+                }}
+                onFocus={() => { if(query) setIsOpen(true); }}
+            />
+            {isLoading && <div className="w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin ml-2" />} 
+            <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`p-1 rounded hover:bg-neutral-800 transition-colors ${showFilters ? 'text-red-400' : 'text-neutral-500'}`}
+                title="Toggle Filters"
+            >
+                <Filter size={14} />
+            </button>
+        </div>
+
+        {showFilters && (
+            <div className="pt-2 border-t border-neutral-800 space-y-2">
+                <DateRangeFilter
+                    minYear={minYear}
+                    maxYear={maxYear}
+                    onMinYearChange={setMinYear}
+                    onMaxYearChange={setMaxYear}
+                    fromLabel="From Year"
+                    toLabel="To Year"
+                />
+                <AlbumFilters 
+                    primaryTypes={albumPrimaryTypes}
+                    secondaryTypes={albumSecondaryTypes}
+                    onTogglePrimary={togglePrimaryType}
+                    onToggleSecondary={toggleSecondaryType}
+                    compact={true}
+                />
+            </div>
+        )}
       </div>
 
       {isOpen && (results.length > 0) && (
