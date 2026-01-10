@@ -1,7 +1,7 @@
 import useSWR, { preload } from 'swr';
 import { MediaType, MediaDetails } from '@/lib/types';
 
-const fetcher = async (url: string, retryCount = 0): Promise<any> => {
+const fetcher = async (url: string, retryCount = 0): Promise<MediaDetails> => {
   const res = await fetch(url);
   
   if (res.status === 503 && retryCount < 2) {
@@ -11,8 +11,8 @@ const fetcher = async (url: string, retryCount = 0): Promise<any> => {
   }
 
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.');
-    (error as any).status = res.status;
+    const error = new Error('An error occurred while fetching the data.') as Error & { status?: number };
+    error.status = res.status;
     throw error;
   }
   return res.json();

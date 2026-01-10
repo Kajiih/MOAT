@@ -51,7 +51,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             imageUrl: details.imageUrl || enrichedItem.imageUrl
         });
     }
-  }, [details, isFetching, error, enrichedItem?.id, onUpdateItem]);
+  }, [details, isFetching, error, enrichedItem, onUpdateItem]);
 
   if (!isOpen || !enrichedItem) return null;
 

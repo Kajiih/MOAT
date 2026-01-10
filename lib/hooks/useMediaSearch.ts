@@ -6,7 +6,13 @@ import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, ArtistSelection,
 import { usePersistentState } from './usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 
-const fetcher = async (url: string, retryCount = 0): Promise<any> => {
+interface SearchResponse {
+  results: MediaItem[];
+  page: number;
+  totalPages: number;
+}
+
+const fetcher = async (url: string, retryCount = 0): Promise<SearchResponse> => {
   const res = await fetch(url);
   
   if (res.status === 503 && retryCount < 2) {
@@ -16,8 +22,8 @@ const fetcher = async (url: string, retryCount = 0): Promise<any> => {
   }
 
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.');
-    (error as any).status = res.status;
+    const error = new Error('An error occurred while fetching the data.') as Error & { status?: number };
+    error.status = res.status;
     throw error;
   }
   return res.json();
@@ -93,7 +99,7 @@ interface UseMediaSearchResult<T extends MediaItem> {
   totalPages: number;
   isLoading: boolean;
   isValidating: boolean;
-  error: any;
+  error: (Error & { status?: number }) | null;
 }
 
 /**
@@ -262,7 +268,7 @@ export function useMediaSearch<T extends MediaType>(
     });
   }, [isEnabled, type, page, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, videoOnly, isFuzzy, isWildcard, ignoreFilters]);
 
-  const { data, error, isLoading, isValidating } = useSWR<{ results: MediaItem[], page: number, totalPages: number }>(
+  const { data, error, isLoading, isValidating } = useSWR<SearchResponse, Error & { status?: number }>(
     searchUrl,
     fetcher,
     { keepPreviousData: shouldKeepPreviousData }
@@ -332,7 +338,7 @@ export function useMediaSearch<T extends MediaType>(
     // Data
     results: enrichedResults as MediaItemMap[T][],
     totalPages: data?.totalPages || 0,
-    error,
+    error: error || null,
     isLoading,
     isValidating
   };

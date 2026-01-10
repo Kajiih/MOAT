@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useCallback, useEffect } from 'react';
-import { Filter, Info } from 'lucide-react';
-import { MediaType, PRIMARY_TYPES, SECONDARY_TYPES, SortOption, MediaItem } from '@/lib/types';
+import { useMemo, useEffect } from 'react';
+import { Filter } from 'lucide-react';
+import { MediaType, SortOption, MediaItem } from '@/lib/types';
 import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
 import { useToast } from '@/components/ToastProvider';
 import { MediaCard } from '@/components/MediaCard';
@@ -11,7 +11,6 @@ import { AlbumPicker } from '@/components/AlbumPicker';
 import { SkeletonCard } from '@/components/SkeletonCard';
 import { SortDropdown } from '@/components/SortDropdown';
 import { Pagination } from '@/components/Pagination';
-import { FilterButton } from '@/components/FilterButton';
 import { SearchFilters } from './filters/SearchFilters';
 
 interface SearchTabProps {
@@ -89,10 +88,10 @@ export function SearchTab({
           case 'title_desc':
             return b.title.localeCompare(a.title);
           case 'duration_desc':
-             // @ts-ignore - duration check
+             // @ts-expect-error - duration check
              return (b.duration || 0) - (a.duration || 0);
           case 'duration_asc':
-             // @ts-ignore - duration check
+             // @ts-expect-error - duration check
              return (a.duration || 0) - (b.duration || 0);
           default:
             return 0;

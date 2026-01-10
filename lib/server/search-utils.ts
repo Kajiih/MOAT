@@ -1,7 +1,7 @@
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
 import { constructLuceneQuery, SearchOptions, escapeLucene } from '@/lib/utils/search';
 
-interface QueryBuilderParams {
+export interface QueryBuilderParams {
     type: MediaType;
     query: string;
     artist: string | null;

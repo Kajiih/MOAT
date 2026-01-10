@@ -1,4 +1,3 @@
-import { ChangeEvent } from 'react';
 import { FilterRow, FilterCol, FILTER_INPUT_STYLES } from './FilterPrimitives';
 
 interface DateRangeFilterProps {

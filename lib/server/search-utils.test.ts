@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildMusicBrainzQuery } from './search-utils';
+import { buildMusicBrainzQuery, QueryBuilderParams } from './search-utils';
 import { MediaType } from '@/lib/types';
 
 const defaultOptions = { fuzzy: false, wildcard: false };
@@ -7,18 +7,22 @@ const defaultOptions = { fuzzy: false, wildcard: false };
 /**
  * Helper to create standard query params with sensible defaults
  */
-function createParams(overrides: Partial<any> = {}) {
+function createParams(overrides: Partial<QueryBuilderParams> = {}): QueryBuilderParams {
   return {
     type: 'album' as MediaType,
     query: '',
     artist: null,
     artistId: null,
+    albumId: null,
     minYear: null,
     maxYear: null,
     albumPrimaryTypes: [],
     albumSecondaryTypes: [],
+    artistType: null,
+    artistCountry: null,
+    tag: null,
+    videoOnly: false,
     options: defaultOptions,
-    page: 1,
     ...overrides,
   };
 }

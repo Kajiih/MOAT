@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { MediaItem } from '@/lib/types';
+import { MediaItem, MediaDetails } from '@/lib/types';
 import { useMediaDetails } from '@/lib/hooks';
 
 interface SyncItemProps {
   item: MediaItem;
-  onSync: (itemId: string, details: any) => void;
+  onSync: (itemId: string, details: MediaDetails) => void;
 }
 
 /**

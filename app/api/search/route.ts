@@ -52,9 +52,10 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    const status = error.message?.includes('503') ? 503 : 500;
+    const message = error instanceof Error ? error.message : '';
+    const status = message.includes('503') ? 503 : 500;
     return NextResponse.json(
       { error: status === 503 ? 'MusicBrainz rate limit reached' : 'Internal Server Error' }, 
       { status }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useCallback, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useCallback, ReactNode } from 'react';
 import { MediaItem } from '@/lib/types';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 

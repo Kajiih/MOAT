@@ -3,6 +3,7 @@ import { useMediaSearch } from './useMediaSearch';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import useSWR from 'swr';
 import { useState } from 'react';
+import { MediaItem } from '@/lib/types';
 
 // Mock SWR - we need this to track calls
 vi.mock('swr', () => ({
@@ -23,6 +24,7 @@ vi.mock('@/components/MediaRegistryProvider', () => ({
   useMediaRegistry: vi.fn(() => ({
     registerItems: vi.fn(),
     getItem: vi.fn(),
+    registerItem: vi.fn(),
   })),
 }));
 
@@ -153,8 +155,8 @@ describe('useMediaSearch', () => {
   });
 
   it('should return error when SWR fails with status 503', () => {
-    const mockError = new Error('MusicBrainz is busy');
-    (mockError as any).status = 503;
+    const mockError = new Error('MusicBrainz is busy') as Error & { status?: number };
+    mockError.status = 503;
     
     // @ts-expect-error - simplified mock for test
     vi.mocked(useSWR).mockReturnValue({
@@ -174,10 +176,10 @@ describe('useMediaSearch', () => {
     vi.mocked(useMediaRegistry).mockReturnValue({
       registerItems: mockRegisterItems,
       getItem: vi.fn(),
-      registerItem: vi.fn(), // Added this
+      registerItem: vi.fn(),
     });
 
-    const mockResults = [{ id: '1', title: 'Test Item', type: 'album' }] as any[];
+    const mockResults: MediaItem[] = [{ id: '1', title: 'Test Item', type: 'album', artist: 'Test Artist' }];
     
     // @ts-expect-error - simplified mock for test
     vi.mocked(useSWR).mockReturnValue({
@@ -193,13 +195,13 @@ describe('useMediaSearch', () => {
 
   it('should enrich search results with data from the global registry', async () => {
     const { useMediaRegistry } = await import('@/components/MediaRegistryProvider');
-    const mockItem1 = { id: '1', title: 'Search Result', type: 'artist' as const };
-    const mockItem1Enriched = { ...mockItem1, imageUrl: 'http://cached.com/image.jpg' };
+    const mockItem1: MediaItem = { id: '1', title: 'Search Result', type: 'artist' };
+    const mockItem1Enriched: MediaItem = { ...mockItem1, imageUrl: 'http://cached.com/image.jpg' };
     
     vi.mocked(useMediaRegistry).mockReturnValue({
       registerItems: vi.fn(),
       registerItem: vi.fn(),
-      getItem: vi.fn((id) => (id === '1' ? mockItem1Enriched : undefined)) as any,
+      getItem: vi.fn((id) => (id === '1' ? mockItem1Enriched : undefined)),
     });
 
     // @ts-expect-error - simplified mock for test
