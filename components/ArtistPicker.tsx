@@ -7,8 +7,7 @@ import { MediaItem, ArtistSelection } from '@/lib/types';
 import { getSearchUrl } from '@/lib/api';
 import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
-import { ArtistFilters } from './filters/ArtistFilters';
-import { DateRangeFilter } from './filters/DateRangeFilter';
+import { SearchFilters } from './filters/SearchFilters';
 
 interface ArtistPickerProps {
   onSelect: (artist: ArtistSelection | null) => void;
@@ -58,8 +57,12 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
     setQuery, 
     minYear, setMinYear,
     maxYear, setMaxYear,
+    albumPrimaryTypes, setAlbumPrimaryTypes,
+    albumSecondaryTypes, setAlbumSecondaryTypes,
     artistType, setArtistType,
     artistCountry, setArtistCountry,
+    tag, setTag,
+    videoOnly, setVideoOnly,
     results, 
     isLoading,
     searchNow
@@ -163,20 +166,20 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
         </div>
 
         {showFilters && (
-            <div className="pt-2 border-t border-neutral-800 space-y-2">
-                <ArtistFilters 
-                    type={artistType}
-                    country={artistCountry}
-                    onTypeChange={setArtistType}
-                    onCountryChange={setArtistCountry}
-                />
-                <DateRangeFilter
-                    minYear={minYear}
-                    maxYear={maxYear}
-                    onMinYearChange={setMinYear}
-                    onMaxYearChange={setMaxYear}
-                    fromLabel="Est. From"
-                    toLabel="Est. To"
+            <div className="pt-2 border-t border-neutral-800">
+                <SearchFilters 
+                    type="artist"
+                    state={{
+                        minYear, setMinYear,
+                        maxYear, setMaxYear,
+                        tag, setTag,
+                        artistType, setArtistType,
+                        artistCountry, setArtistCountry,
+                        albumPrimaryTypes, setAlbumPrimaryTypes,
+                        albumSecondaryTypes, setAlbumSecondaryTypes,
+                        videoOnly, setVideoOnly
+                    }}
+                    compact={true}
                 />
             </div>
         )}
