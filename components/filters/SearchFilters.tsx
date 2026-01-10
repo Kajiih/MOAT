@@ -56,6 +56,7 @@ export function SearchFilters({ type, state, compact = false }: SearchFiltersPro
                 onTypeChange={state.setArtistType}
                 onCountryChange={state.setArtistCountry}
                 className={compact ? 'text-[10px]' : ''}
+                compact={compact}
             />
         )}
 
