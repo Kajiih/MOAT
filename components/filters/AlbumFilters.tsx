@@ -25,26 +25,38 @@ export function AlbumFilters({
   if (compact) {
       // Simplified view for Pickers
       return (
-        <div className="flex flex-wrap gap-1 text-[10px]">
-            {PRIMARY_TYPES.map(t => (
-                <button
-                    key={t}
-                    onClick={() => onTogglePrimary(t)}
-                    className={`px-1.5 py-0.5 rounded border transition-colors ${primaryTypes.includes(t) ? 'bg-blue-900/40 border-blue-800 text-blue-200' : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-neutral-300'}`}
-                >
-                    {t}
-                </button>
-            ))}
-            <div className="w-px h-3 bg-neutral-800 mx-1 self-center" />
-            {SECONDARY_TYPES.map(t => (
-                <button
-                    key={t}
-                    onClick={() => onToggleSecondary(t)}
-                    className={`px-1.5 py-0.5 rounded border transition-colors ${secondaryTypes.includes(t) ? 'bg-purple-900/40 border-purple-800 text-purple-200' : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-neutral-300'}`}
-                >
-                    {t}
-                </button>
-            ))}
+        <div className="flex flex-col gap-2 text-[10px]">
+            {/* Primary Types Section */}
+            <div>
+                <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">Primary Type</div>
+                <div className="flex flex-wrap gap-1">
+                    {PRIMARY_TYPES.map(t => (
+                        <button
+                            key={t}
+                            onClick={() => onTogglePrimary(t)}
+                            className={`px-1.5 py-0.5 rounded border transition-colors ${primaryTypes.includes(t) ? 'bg-blue-900/40 border-blue-800 text-blue-200' : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-neutral-300'}`}
+                        >
+                            {t}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Secondary Types Section */}
+            <div>
+                <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">Secondary Type</div>
+                <div className="flex flex-wrap gap-1">
+                    {SECONDARY_TYPES.map(t => (
+                        <button
+                            key={t}
+                            onClick={() => onToggleSecondary(t)}
+                            className={`px-1.5 py-0.5 rounded border transition-colors ${secondaryTypes.includes(t) ? 'bg-purple-900/40 border-purple-800 text-purple-200' : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-neutral-300'}`}
+                        >
+                            {t}
+                        </button>
+                    ))}
+                </div>
+            </div>
         </div>
       );
   }
