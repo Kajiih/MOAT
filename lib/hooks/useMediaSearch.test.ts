@@ -215,4 +215,44 @@ describe('useMediaSearch', () => {
     expect(result.current.results[0].imageUrl).toBe('http://cached.com/image.jpg');
     expect(result.current.results[0].title).toBe('Search Result');
   });
+
+  it('should trigger search with new filters like artistId and albumId', () => {
+    const { result } = renderHook(() => useMediaSearch('song'));
+    vi.mocked(useSWR).mockClear();
+
+    act(() => {
+      result.current.setSelectedArtist({ id: 'artist-1', name: 'The Beatles' });
+    });
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+
+    act(() => {
+      result.current.setSelectedAlbum({ id: 'album-1', name: 'Abbey Road', artist: 'The Beatles' });
+    });
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+
+    expect(useSWR).toHaveBeenCalledWith(
+        expect.stringContaining('artistId=artist-1'), 
+        expect.any(Function), 
+        expect.any(Object)
+    );
+    expect(useSWR).toHaveBeenCalledWith(
+        expect.stringContaining('albumId=album-1'), 
+        expect.any(Function), 
+        expect.any(Object)
+    );
+  });
+
+  it('should respect artistId and albumId configuration overrides', () => {
+    renderHook(() => useMediaSearch('album', { artistId: 'forced-artist' }));
+
+    expect(useSWR).toHaveBeenCalledWith(
+        expect.stringContaining('artistId=forced-artist'), 
+        expect.any(Function), 
+        expect.any(Object)
+    );
+  });
 });

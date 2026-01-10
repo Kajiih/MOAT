@@ -4,10 +4,18 @@ export interface SearchParams {
   type: MediaType;
   query?: string;
   artistId?: string;
+  albumId?: string;
   minYear?: string;
   maxYear?: string;
   albumPrimaryTypes?: string[];
   albumSecondaryTypes?: string[];
+  // New filters
+  artistType?: string;
+  artistGender?: string;
+  artistCountry?: string;
+  tag?: string;
+  videoOnly?: boolean;
+  // Pagination & config
   page?: number;
   fuzzy?: boolean;
   wildcard?: boolean;
@@ -27,6 +35,7 @@ export function getSearchUrl(params: SearchParams): string {
   // 2. Optional params in fixed order
   if (params.query) urlParams.append('query', params.query);
   if (params.artistId) urlParams.append('artistId', params.artistId);
+  if (params.albumId) urlParams.append('albumId', params.albumId);
   if (params.minYear) urlParams.append('minYear', params.minYear);
   if (params.maxYear) urlParams.append('maxYear', params.maxYear);
   
@@ -39,7 +48,14 @@ export function getSearchUrl(params: SearchParams): string {
       [...params.albumSecondaryTypes].sort().forEach(t => urlParams.append('albumSecondaryTypes', t));
   }
   
-  // 3. Search Config
+  // 3. New filters
+  if (params.artistType) urlParams.append('artistType', params.artistType);
+  if (params.artistGender) urlParams.append('artistGender', params.artistGender);
+  if (params.artistCountry) urlParams.append('artistCountry', params.artistCountry);
+  if (params.tag) urlParams.append('tag', params.tag);
+  if (params.videoOnly) urlParams.append('videoOnly', 'true');
+  
+  // 4. Search Config
   if (params.fuzzy !== undefined) urlParams.append('fuzzy', params.fuzzy.toString());
   if (params.wildcard !== undefined) urlParams.append('wildcard', params.wildcard.toString());
 

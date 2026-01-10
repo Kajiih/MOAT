@@ -1,73 +1,68 @@
 'use client';
 
 import { useState } from 'react';
-import { preload } from 'swr';
-import { Search, X, User } from 'lucide-react';
-import { MediaItem, ArtistSelection } from '@/lib/types';
-import { getSearchUrl } from '@/lib/api';
+import { Disc, X } from 'lucide-react';
+import { MediaItem, AlbumSelection, AlbumItem } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import Image from 'next/image';
 
-interface ArtistPickerProps {
-  onSelect: (artist: ArtistSelection | null) => void;
-  selectedArtist: ArtistSelection | null;
+interface AlbumPickerProps {
+  onSelect: (album: AlbumSelection | null) => void;
+  selectedAlbum: AlbumSelection | null;
   fuzzy?: boolean;
   wildcard?: boolean;
+  artistId?: string;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: ArtistPickerProps) {
+export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId }: AlbumPickerProps) {
   const { 
     query, 
     setQuery, 
     results, 
     isLoading,
     searchNow
-  } = useMediaSearch('artist', { 
+  } = useMediaSearch('album', { 
     fuzzy, 
     wildcard,
-    ignoreFilters: true // Ensure we find artists regardless of current Artist Tab filters
+    artistId, // When used as a filter in Song tab, we might want to restrict to current artist
+    ignoreFilters: true // Ensure we find albums regardless of current Album Tab filters
   });
   
   const [isOpen, setIsOpen] = useState(false);
 
-  // useEffect removed
-
-  const handleSelect = (artist: MediaItem) => {
-    onSelect({ id: artist.id, name: artist.title, imageUrl: artist.imageUrl });
+  const handleSelect = (album: AlbumItem) => {
+    onSelect({ id: album.id, name: album.title, artist: album.artist, imageUrl: album.imageUrl });
     setIsOpen(false);
     setQuery('');
-    
-    // PREFETCH: Use normalized URL for album search too
-    const prefetchUrl = getSearchUrl({ type: 'album', artistId: artist.id, page: 1, fuzzy, wildcard });
-    preload(prefetchUrl, fetcher);
   };
 
   const clearSelection = () => {
     onSelect(null);
   };
 
-  if (selectedArtist) {
+  if (selectedAlbum) {
     return (
       <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded p-1 pr-2 text-sm text-neutral-200">
         <div className="flex items-center gap-2 overflow-hidden">
             <div className="relative w-8 h-8 rounded bg-neutral-700 shrink-0 overflow-hidden">
-                {selectedArtist.imageUrl ? (
+                {selectedAlbum.imageUrl ? (
                     <Image 
-                        src={selectedArtist.imageUrl} 
-                        alt={selectedArtist.name} 
+                        src={selectedAlbum.imageUrl} 
+                        alt={selectedAlbum.name} 
                         fill 
                         sizes="96px"
                         className="object-cover"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-neutral-500">
-                        <User size={14} />
+                        <Disc size={14} />
                     </div>
                 )}
             </div>
-            <span className="truncate font-medium text-white">{selectedArtist.name}</span>
+            <div className="flex flex-col min-w-0">
+                <span className="truncate font-medium text-white text-[11px] leading-tight">{selectedAlbum.name}</span>
+                <span className="truncate text-neutral-500 text-[9px] leading-tight">{selectedAlbum.artist}</span>
+            </div>
         </div>
         <button onClick={clearSelection} className="ml-2 text-neutral-400 hover:text-red-400">
             <X size={16} />
@@ -79,9 +74,9 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
   return (
     <div className="relative">
       <div className="flex items-center bg-black border border-neutral-700 rounded px-3 py-2 focus-within:border-red-600 transition-colors">
-        <Search size={14} className="text-neutral-500 mr-2 shrink-0" />
+        <Disc size={14} className="text-neutral-500 mr-2 shrink-0" />
         <input 
-            placeholder="Filter by Artist..." 
+            placeholder="Filter by Album..." 
             className="bg-transparent outline-none text-sm w-full text-white placeholder-neutral-500"
             value={query}
             onChange={(e) => {
@@ -104,36 +99,36 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
 
       {isOpen && (results.length > 0) && (
         <div className="absolute z-50 left-0 right-0 mt-1 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl max-h-60 overflow-y-auto custom-scrollbar">
-            {results.map((artist) => (
+            {results.map((album) => (
                 <button
-                    key={artist.id}
+                    key={album.id}
                     className="w-full text-left px-3 py-2 hover:bg-neutral-800 text-sm text-neutral-200 border-b border-neutral-800 last:border-0 flex items-center gap-3 group"
                     onMouseDown={(e) => {
                         e.preventDefault(); 
-                        handleSelect(artist);
+                        handleSelect(album as AlbumItem);
                     }}
                 >
                     <div className="relative w-8 h-8 rounded bg-neutral-800 shrink-0 overflow-hidden border border-neutral-700">
-                        {artist.imageUrl ? (
+                        {album.imageUrl ? (
                             <Image 
-                                src={artist.imageUrl} 
-                                alt={artist.title} 
+                                src={album.imageUrl} 
+                                alt={album.title} 
                                 fill 
                                 sizes="96px"
                                 className="object-cover"
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-neutral-500">
-                                <User size={14} />
+                                <Disc size={14} />
                             </div>
                         )}
                     </div>
 
                     <div className="flex flex-col overflow-hidden">
-                        <span className="font-medium text-white group-hover:text-red-500 transition-colors truncate">{artist.title}</span>
+                        <span className="font-medium text-white group-hover:text-red-500 transition-colors truncate">{album.title}</span>
                         <div className="flex items-center gap-1 text-[10px] text-neutral-500 truncate">
-                            {artist.disambiguation && <span className="italic">({artist.disambiguation})</span>}
-                            {artist.year && <span>• Est. {artist.year}</span>}
+                            <span>{(album as AlbumItem).artist}</span>
+                            {album.year && <span>• {album.year}</span>}
                         </div>
                     </div>
                 </button>

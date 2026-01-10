@@ -19,11 +19,21 @@ interface SearchParams {
     query: string;
     artist: string | null;
     artistId: string | null;
+    albumId: string | null;
     minYear: string | null;
     maxYear: string | null;
     albumPrimaryTypes: string[];
     albumSecondaryTypes: string[];
+    // New filters
+    artistType?: string;
+    artistGender?: string;
+    artistCountry?: string;
+    tag?: string;
+    videoOnly?: boolean;
+    // Config
     page: number;
+    fuzzy?: boolean;
+    wildcard?: boolean;
     options: SearchOptions;
 }
 
@@ -58,17 +68,35 @@ interface MBRelation {
 }
 
 export async function searchMusicBrainz(params: SearchParams): Promise<SearchResult> {
-  const { 
-      type, 
-      page, 
+  const {
+      type,
+      page,
   } = params;
 
   const limit = SEARCH_LIMIT;
   const offset = (page - 1) * limit;
 
   // Delegate query construction to helper
-  const { endpoint, query: finalQuery } = buildMusicBrainzQuery(params);
-
+  const { endpoint, query: finalQuery } = buildMusicBrainzQuery({
+    type,
+    query: params.query || '',
+    artist: null, // Artist name is handled via artistId
+    artistId: params.artistId || null,
+    albumId: params.albumId || null,
+    minYear: params.minYear || null,
+    maxYear: params.maxYear || null,
+    albumPrimaryTypes: params.albumPrimaryTypes || [],
+    albumSecondaryTypes: params.albumSecondaryTypes || [],
+    artistType: params.artistType || null,
+    artistGender: params.artistGender || null,
+    artistCountry: params.artistCountry || null,
+    tag: params.tag || null,
+    videoOnly: params.videoOnly || false,
+    options: {
+      fuzzy: params.fuzzy ?? true,
+      wildcard: params.wildcard ?? true
+    }
+  });
   if (!finalQuery.trim()) {
     return { results: [], page: 1, totalPages: 0, totalCount: 0 };
   }

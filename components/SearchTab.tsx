@@ -7,6 +7,7 @@ import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hook
 import { useToast } from '@/components/ToastProvider';
 import { MediaCard } from '@/components/MediaCard';
 import { ArtistPicker } from '@/components/ArtistPicker';
+import { AlbumPicker } from '@/components/AlbumPicker';
 import { SkeletonCard } from '@/components/SkeletonCard';
 import { SortDropdown } from '@/components/SortDropdown';
 import { Pagination } from '@/components/Pagination';
@@ -22,6 +23,9 @@ interface SearchTabProps {
   globalWildcard: boolean;
   onInfo: (item: MediaItem) => void;
 }
+
+const ARTIST_TYPES = ['Person', 'Group', 'Orchestra', 'Choir', 'Character', 'Other'];
+const ARTIST_GENDERS = ['Male', 'Female', 'Other', 'Not applicable'];
 
 /**
  * A self-contained tab content for a specific search type.
@@ -46,9 +50,16 @@ export function SearchTab({
     maxYear, setMaxYear,
     albumPrimaryTypes, setAlbumPrimaryTypes,
     albumSecondaryTypes, setAlbumSecondaryTypes,
+    artistType, setArtistType,
+    artistGender, setArtistGender,
+    artistCountry, setArtistCountry,
+    tag, setTag,
+    videoOnly, setVideoOnly,
     page, setPage,
     selectedArtist,
     setSelectedArtist,
+    selectedAlbum,
+    setSelectedAlbum,
     results: searchResults,
     totalPages,
     error,
@@ -80,6 +91,12 @@ export function SearchTab({
             return a.title.localeCompare(b.title);
           case 'title_desc':
             return b.title.localeCompare(a.title);
+          case 'duration_desc':
+             // @ts-ignore - duration check
+             return (b.duration || 0) - (a.duration || 0);
+          case 'duration_asc':
+             // @ts-ignore - duration check
+             return (a.duration || 0) - (b.duration || 0);
           default:
             return 0;
         }
@@ -120,30 +137,50 @@ export function SearchTab({
                     }}
                 />
                 
-                <SortDropdown sortOption={sortOption} onSortChange={setSortOption} />
+                <SortDropdown sortOption={sortOption} onSortChange={setSortOption} type={type} />
 
-                {type === 'album' && (
-                    <button
-                        onClick={toggleFilters}
-                        className={`p-2 rounded border transition-colors ${showFilters ? 'bg-red-900/20 border-red-900/50 text-red-400' : 'bg-black border-neutral-700 text-neutral-400 hover:text-white'}`}
-                        title="Toggle Filters"
-                    >
-                        <Filter size={18} />
-                    </button>
-                )}
+                <button
+                    onClick={toggleFilters}
+                    className={`p-2 rounded border transition-colors ${showFilters ? 'bg-red-900/20 border-red-900/50 text-red-400' : 'bg-black border-neutral-700 text-neutral-400 hover:text-white'}`}
+                    title="Toggle Filters"
+                >
+                    <Filter size={18} />
+                </button>
             </div>
             
+            {/* Context Filters (Artist Picker) */}
             {type !== 'artist' && (
-                 <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                     <ArtistPicker
                         selectedArtist={selectedArtist}
-                        onSelect={setSelectedArtist}
+                        onSelect={(a) => {
+                            setSelectedArtist(a);
+                            // If artist changes, reset selected album
+                            if (type === 'song') setSelectedAlbum(null);
+                        }}
                         fuzzy={globalFuzzy}
                         wildcard={globalWildcard}
                     />
+
+                    {type === 'song' && (
+                        <AlbumPicker
+                            selectedAlbum={selectedAlbum}
+                            onSelect={setSelectedAlbum}
+                            fuzzy={globalFuzzy}
+                            wildcard={globalWildcard}
+                            artistId={selectedArtist?.id}
+                        />
+                    )}
+                </div>
+            )}
+            
+            {/* Advanced Filters Panel */}
+            {showFilters && (
+                <div className="bg-neutral-900/50 p-2 rounded border border-neutral-800 space-y-3">
                     
-                    {type === 'album' && showFilters && (
-                        <div className="bg-neutral-900/50 p-2 rounded border border-neutral-800 space-y-3">
+                    {/* Album Specific Filters */}
+                    {type === 'album' && (
+                        <>
                             <div>
                                 <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between">
                                     <span>Primary Types</span>
@@ -200,44 +237,101 @@ export function SearchTab({
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </>
+                    )}
+                    
+                    {/* Artist Specific Filters */}
+                    {type === 'artist' && (
+                        <>
+                             <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">Type</label>
+                                    <select 
+                                        value={artistType} 
+                                        onChange={(e) => setArtistType(e.target.value)}
+                                        className="w-full bg-black border border-neutral-700 rounded px-2 py-1.5 text-xs text-neutral-300 outline-none focus:border-red-600"
+                                    >
+                                        <option value="">Any Type</option>
+                                        {ARTIST_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">Gender</label>
+                                    <select 
+                                        value={artistGender} 
+                                        onChange={(e) => setArtistGender(e.target.value)}
+                                        className="w-full bg-black border border-neutral-700 rounded px-2 py-1.5 text-xs text-neutral-300 outline-none focus:border-red-600"
+                                    >
+                                        <option value="">Any Gender</option>
+                                        {ARTIST_GENDERS.map(g => <option key={g} value={g}>{g}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">Country</label>
+                                <input
+                                    placeholder="e.g. Germany, US, JP..."
+                                    className="w-full bg-black border border-neutral-700 rounded px-2 py-1.5 text-xs text-neutral-300 outline-none focus:border-red-600"
+                                    value={artistCountry}
+                                    onChange={e => setArtistCountry(e.target.value)}
+                                />
+                            </div>
+                        </>
                     )}
 
+                    {/* Common Filters (Date, Tag) */}
                     <div className="grid grid-cols-2 gap-2">
+                        <div>
+                             <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">
+                                {type === 'artist' ? 'Est. From' : 'From Year'}
+                             </label>
+                             <input
+                                placeholder="Year..."
+                                type="number"
+                                className="w-full bg-black border border-neutral-700 rounded px-2 py-1.5 text-xs text-neutral-300 outline-none focus:border-red-600"
+                                value={minYear}
+                                onChange={e => setMinYear(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                             <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">
+                                {type === 'artist' ? 'Est. To' : 'To Year'}
+                             </label>
+                             <input
+                                placeholder="Year..."
+                                type="number"
+                                className="w-full bg-black border border-neutral-700 rounded px-2 py-1.5 text-xs text-neutral-300 outline-none focus:border-red-600"
+                                value={maxYear}
+                                onChange={e => setMaxYear(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">Tag / Genre</label>
                         <input
-                            placeholder="From Year..."
-                            type="number"
-                            className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-xs"
-                            value={minYear}
-                            onChange={e => setMinYear(e.target.value)}
-                        />
-                        <input
-                            placeholder="To Year..."
-                            type="number"
-                            className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-xs"
-                            value={maxYear}
-                            onChange={e => setMaxYear(e.target.value)}
+                            placeholder="e.g. rock, jazz, 80s..."
+                            className="w-full bg-black border border-neutral-700 rounded px-2 py-1.5 text-xs text-neutral-300 outline-none focus:border-red-600"
+                            value={tag}
+                            onChange={e => setTag(e.target.value)}
                         />
                     </div>
-                </div>
-            )}
-            
-            {type === 'artist' && (
-                 <div className="grid grid-cols-2 gap-2">
-                    <input
-                        placeholder="Est. From..."
-                        type="number"
-                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-xs"
-                        value={minYear}
-                        onChange={e => setMinYear(e.target.value)}
-                    />
-                    <input
-                        placeholder="Est. To..."
-                        type="number"
-                        className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-xs"
-                        value={maxYear}
-                        onChange={e => setMaxYear(e.target.value)}
-                    />
+                    
+                    {/* Song Specific Filters */}
+                    {type === 'song' && (
+                        <div className="flex items-center gap-2 pt-1">
+                            <input 
+                                type="checkbox" 
+                                id="videoOnly"
+                                checked={videoOnly}
+                                onChange={(e) => setVideoOnly(e.target.checked)}
+                                className="accent-red-600"
+                            />
+                            <label htmlFor="videoOnly" className="text-xs text-neutral-300 cursor-pointer select-none">
+                                Has Video (Music Video)
+                            </label>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
@@ -270,7 +364,11 @@ export function SearchTab({
                 </div>
             )}
             
-            {!isSearching && searchResults.length === 0 && (query || selectedArtist || minYear || maxYear || albumPrimaryTypes.length > 0 || albumSecondaryTypes.length > 0) && (
+            {!isSearching && searchResults.length === 0 && (
+                query || selectedArtist || selectedAlbum || minYear || maxYear || 
+                albumPrimaryTypes.length > 0 || albumSecondaryTypes.length > 0 ||
+                artistType || artistGender || artistCountry || tag || videoOnly
+            ) && (
                 <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
             )}
 

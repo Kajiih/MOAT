@@ -6,10 +6,17 @@ interface QueryBuilderParams {
     query: string;
     artist: string | null;
     artistId: string | null;
+    albumId: string | null;
     minYear: string | null;
     maxYear: string | null;
     albumPrimaryTypes: string[];
     albumSecondaryTypes: string[];
+    // New filters
+    artistType: string | null;
+    artistGender: string | null;
+    artistCountry: string | null;
+    tag: string | null;
+    videoOnly: boolean;
     options: SearchOptions;
 }
 
@@ -45,10 +52,16 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
         query, 
         artist, 
         artistId, 
+        albumId,
         minYear, 
         maxYear, 
         albumPrimaryTypes, 
-        albumSecondaryTypes, 
+        albumSecondaryTypes,
+        artistType,
+        artistGender,
+        artistCountry,
+        tag,
+        videoOnly,
         options 
     } = params;
 
@@ -86,6 +99,34 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
             queryParts.push(`NOT secondarytype:(${forbiddenQuery})`);
         }
     }
+
+    // Artist Specific Filters
+    if (type === 'artist') {
+        if (artistType) {
+            queryParts.push(`type:"${artistType.toLowerCase()}"`);
+        }
+        if (artistGender) {
+            queryParts.push(`gender:"${artistGender.toLowerCase()}"`);
+        }
+        if (artistCountry) {
+            queryParts.push(`country:"${escapeLucene(artistCountry)}"`);
+        }
+    }
+
+    // Recording (Song) Specific Filters
+    if (type === 'song') {
+        if (albumId) {
+            queryParts.push(`rgid:${albumId}`);
+        }
+        if (videoOnly) {
+            queryParts.push(`video:true`);
+        }
+    }
+
+    // Tag filter (applies to all entity types)
+    if (tag) {
+        queryParts.push(`tag:"${escapeLucene(tag)}"`);
+    }
   
     if (minYear || maxYear) {
         const start = minYear || '*';
@@ -100,7 +141,6 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
   
     // Remove empty parts just in case
     const joinedQuery = queryParts.filter(Boolean).join(' AND ');
-    // If the query starts with 'NOT ' (e.g. only negative filters), prepend a generic match-all
     const finalQuery = joinedQuery;
 
     return { endpoint, query: finalQuery };

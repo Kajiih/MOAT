@@ -10,7 +10,7 @@ import { z } from 'zod';
  */
 export type MediaType = 'album' | 'artist' | 'song';
 
-export type SortOption = 'relevance' | 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc';
+export type SortOption = 'relevance' | 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc' | 'duration_desc' | 'duration_asc';
 
 export interface BaseMediaItem {
   /** Unique identifier (MusicBrainz ID) */
@@ -51,6 +51,8 @@ export interface SongItem extends BaseMediaItem {
   album?: string;
   /** The parent album (release-group) ID. */
   albumId?: string;
+  /** Duration in milliseconds */
+  duration?: number;
 }
 
 /**
@@ -65,6 +67,16 @@ export type MediaItem = AlbumItem | ArtistItem | SongItem;
 export type ArtistSelection = {
   id: string;
   name: string;
+  imageUrl?: string;
+};
+
+/**
+ * Represents a simplified album object used for selection state.
+ */
+export type AlbumSelection = {
+  id: string;
+  name: string;
+  artist: string;
   imageUrl?: string;
 };
 
@@ -149,6 +161,7 @@ export const MusicBrainzArtistSchema = z.object({
 export const MusicBrainzRecordingSchema = z.object({
   id: z.string(),
   title: z.string(),
+  length: z.number().optional(), // Duration in milliseconds
   'first-release-date': z.string().optional(),
   'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
   releases: z.array(z.object({ 
@@ -189,4 +202,20 @@ export const SECONDARY_TYPES = [
   'Mixtape/Street',
   'Demo',
   'Field recording'
+] as const;
+
+export const ARTIST_TYPES = [
+  'Person',
+  'Group',
+  'Orchestra',
+  'Choir',
+  'Character',
+  'Other'
+] as const;
+
+export const ARTIST_GENDERS = [
+  'Male',
+  'Female',
+  'Non-binary',
+  'Not applicable'
 ] as const;

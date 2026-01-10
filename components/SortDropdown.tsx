@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { ArrowUpDown } from 'lucide-react';
-import { SortOption } from '@/lib/types';
+import { MediaType, SortOption } from '@/lib/types';
 
 interface SortDropdownProps {
   sortOption: SortOption;
   onSortChange: (option: SortOption) => void;
+  type?: MediaType;
 }
 
-export function SortDropdown({ sortOption, onSortChange }: SortDropdownProps) {
+export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const OPTIONS: { id: SortOption; label: string }[] = [
@@ -17,6 +18,13 @@ export function SortDropdown({ sortOption, onSortChange }: SortDropdownProps) {
     { id: 'title_asc', label: 'Name (A-Z)' },
     { id: 'title_desc', label: 'Name (Z-A)' },
   ];
+
+  if (type === 'song') {
+    OPTIONS.push(
+      { id: 'duration_desc', label: 'Duration (Longest)' },
+      { id: 'duration_asc', label: 'Duration (Shortest)' }
+    );
+  }
 
   return (
     <div className="relative">

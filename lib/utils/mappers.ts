@@ -64,6 +64,7 @@ export function mapRecordingToMediaItem(item: z.infer<typeof MusicBrainzRecordin
         albumId: albumId,
         year: item['first-release-date']?.split('-')[0] || '',
         date: item['first-release-date'],
-        imageUrl
+        imageUrl,
+        duration: item.length
     };
 }
