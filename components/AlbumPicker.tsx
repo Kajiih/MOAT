@@ -12,32 +12,74 @@ interface AlbumPickerProps {
   fuzzy?: boolean;
   wildcard?: boolean;
   artistId?: string;
+  context?: string; // Unique context to avoid search state synchronization
 }
 
-export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId }: AlbumPickerProps) {
-  const { 
-    query, 
-    setQuery, 
-    results, 
+// Internal component to handle individual image error states in the list
+function PickerImage({ src, alt }: { src: string, alt: string }) {
+    const [error, setError] = useState(false);
+    const [retryUnoptimized, setRetryUnoptimized] = useState(false);
+
+    if (error) {
+        return (
+            <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                <Disc size={14} />
+            </div>
+        );
+    }
+
+    return (
+        <Image 
+            src={src} 
+            alt={alt} 
+            fill 
+            sizes="96px"
+            className="object-cover"
+            unoptimized={retryUnoptimized}
+            onError={() => {
+                if (!retryUnoptimized) {
+                    setRetryUnoptimized(true);
+                } else {
+                    setError(true);
+                }
+            }}
+        />
+    );
+}
+
+export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId, context }: AlbumPickerProps) {
+  const {
+    query,
+    setQuery,
+    results,
     isLoading,
     searchNow
-  } = useMediaSearch('album', { 
-    fuzzy, 
+  } = useMediaSearch('album', {
+    fuzzy,
     wildcard,
     artistId, // When used as a filter in Song tab, we might want to restrict to current artist
-    ignoreFilters: true // Ensure we find albums regardless of current Album Tab filters
+    ignoreFilters: true, // Ensure we find albums regardless of current Album Tab filters
+    storageKey: context ? `moat-search-params-album-${context}` : undefined
   });
-  
   const [isOpen, setIsOpen] = useState(false);
+
+  // Image Error State
+  const [selectedImageError, setSelectedImageError] = useState(false);
+  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
   const handleSelect = (album: AlbumItem) => {
     onSelect({ id: album.id, name: album.title, artist: album.artist, imageUrl: album.imageUrl });
     setIsOpen(false);
     setQuery('');
+    // Reset error state
+    setSelectedImageError(false);
+    setRetryUnoptimized(false);
   };
 
   const clearSelection = () => {
     onSelect(null);
+    setSelectedImageError(false);
+    setRetryUnoptimized(false);
   };
 
   if (selectedAlbum) {
@@ -45,13 +87,21 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
       <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded p-1 pr-2 text-sm text-neutral-200">
         <div className="flex items-center gap-2 overflow-hidden">
             <div className="relative w-8 h-8 rounded bg-neutral-700 shrink-0 overflow-hidden">
-                {selectedAlbum.imageUrl ? (
+                {selectedAlbum.imageUrl && !selectedImageError ? (
                     <Image 
                         src={selectedAlbum.imageUrl} 
                         alt={selectedAlbum.name} 
                         fill 
                         sizes="96px"
                         className="object-cover"
+                        unoptimized={retryUnoptimized}
+                        onError={() => {
+                            if (!retryUnoptimized) {
+                                setRetryUnoptimized(true);
+                            } else {
+                                setSelectedImageError(true);
+                            }
+                        }}
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-neutral-500">
@@ -110,13 +160,7 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
                 >
                     <div className="relative w-8 h-8 rounded bg-neutral-800 shrink-0 overflow-hidden border border-neutral-700">
                         {album.imageUrl ? (
-                            <Image 
-                                src={album.imageUrl} 
-                                alt={album.title} 
-                                fill 
-                                sizes="96px"
-                                className="object-cover"
-                            />
+                            <PickerImage src={album.imageUrl} alt={album.title} />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-neutral-500">
                                 <Disc size={14} />

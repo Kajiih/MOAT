@@ -13,11 +13,41 @@ interface ArtistPickerProps {
   selectedArtist: ArtistSelection | null;
   fuzzy?: boolean;
   wildcard?: boolean;
+  context?: string; // Unique context to avoid search state synchronization
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: ArtistPickerProps) {
+// Internal component to handle individual image error states in the list
+function PickerImage({ src, alt }: { src: string, alt: string }) {
+    const [error, setError] = useState(false);
+    const [retryUnoptimized, setRetryUnoptimized] = useState(false);
+
+    if (error) {
+        return (
+            <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                <User size={14} />
+            </div>
+        );
+    }
+
+    return (
+        <Image 
+            src={src} 
+            alt={alt} 
+            fill 
+            sizes="96px"
+            className="object-cover"
+            unoptimized={retryUnoptimized}
+            onError={() => {
+                if (!retryUnoptimized) {
+                    setRetryUnoptimized(true);
+                }
+            }}/>
+    );
+}
+
+export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, context }: ArtistPickerProps) {
   const { 
     query, 
     setQuery, 
@@ -27,17 +57,23 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
   } = useMediaSearch('artist', { 
     fuzzy, 
     wildcard,
-    ignoreFilters: true // Ensure we find artists regardless of current Artist Tab filters
+    ignoreFilters: true, // Ensure we find artists regardless of current Artist Tab filters
+    storageKey: context ? `moat-search-params-artist-${context}` : undefined
   });
   
   const [isOpen, setIsOpen] = useState(false);
-
-  // useEffect removed
+  
+  // Image Error State for the selected artist view
+  const [selectedImageError, setSelectedImageError] = useState(false);
+  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
   const handleSelect = (artist: MediaItem) => {
     onSelect({ id: artist.id, name: artist.title, imageUrl: artist.imageUrl });
     setIsOpen(false);
     setQuery('');
+    // Reset error state for the new selection
+    setSelectedImageError(false);
+    setRetryUnoptimized(false);
     
     // PREFETCH: Use normalized URL for album search too
     const prefetchUrl = getSearchUrl({ type: 'album', artistId: artist.id, page: 1, fuzzy, wildcard });
@@ -46,6 +82,8 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
 
   const clearSelection = () => {
     onSelect(null);
+    setSelectedImageError(false);
+    setRetryUnoptimized(false);
   };
 
   if (selectedArtist) {
@@ -53,13 +91,21 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
       <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded p-1 pr-2 text-sm text-neutral-200">
         <div className="flex items-center gap-2 overflow-hidden">
             <div className="relative w-8 h-8 rounded bg-neutral-700 shrink-0 overflow-hidden">
-                {selectedArtist.imageUrl ? (
+                {selectedArtist.imageUrl && !selectedImageError ? (
                     <Image 
                         src={selectedArtist.imageUrl} 
                         alt={selectedArtist.name} 
                         fill 
                         sizes="96px"
                         className="object-cover"
+                        unoptimized={retryUnoptimized}
+                        onError={() => {
+                            if (!retryUnoptimized) {
+                                setRetryUnoptimized(true);
+                            } else {
+                                setSelectedImageError(true);
+                            }
+                        }}
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-neutral-500">
@@ -115,13 +161,7 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard }: Arti
                 >
                     <div className="relative w-8 h-8 rounded bg-neutral-800 shrink-0 overflow-hidden border border-neutral-700">
                         {artist.imageUrl ? (
-                            <Image 
-                                src={artist.imageUrl} 
-                                alt={artist.title} 
-                                fill 
-                                sizes="96px"
-                                className="object-cover"
-                            />
+                            <PickerImage src={artist.imageUrl} alt={artist.title} />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-neutral-500">
                                 <User size={14} />

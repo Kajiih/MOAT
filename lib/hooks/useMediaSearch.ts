@@ -30,6 +30,7 @@ interface UseMediaSearchConfig {
   artistId?: string; // Force a specific artist for this search instance
   albumId?: string;  // Force a specific album for this search instance
   ignoreFilters?: boolean; // Ignore advanced filters (dates, types, etc.) from persisted state
+  storageKey?: string; // Override default localStorage key
 }
 
 // Map each MediaType to its specific item type
@@ -114,7 +115,7 @@ export function useMediaSearch<T extends MediaType>(
   type: T, 
   config?: UseMediaSearchConfig
 ): UseMediaSearchResult<MediaItemMap[T]> {
-  const storageKey = `moat-search-params-${type}`;
+  const storageKey = config?.storageKey || `moat-search-params-${type}`;
   
   const defaultState: SearchParamsState = {
     query: '',

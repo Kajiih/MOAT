@@ -160,6 +160,7 @@ export function SearchTab({
                         }}
                         fuzzy={globalFuzzy}
                         wildcard={globalWildcard}
+                        context={type}
                     />
 
                     {type === 'song' && (
@@ -169,6 +170,7 @@ export function SearchTab({
                             fuzzy={globalFuzzy}
                             wildcard={globalWildcard}
                             artistId={selectedArtist?.id}
+                            context="song-filter"
                         />
                     )}
                 </div>
