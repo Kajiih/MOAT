@@ -66,7 +66,7 @@ export function AlbumFilters({
     <div className="space-y-3">
         <div>
             <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between">
-                <span>Primary Types</span>
+                <span>Primary Type</span>
                 {onResetPrimary && !(primaryTypes.length === 2 && primaryTypes.includes('Album') && primaryTypes.includes('EP')) && (
                     <button onClick={onResetPrimary} className="text-red-400 hover:text-red-300">Reset</button>
                 )}
@@ -87,7 +87,7 @@ export function AlbumFilters({
         <div>
             <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between items-center">
                 <div className="flex items-center gap-1.5">
-                    <span>Secondary Types</span>
+                    <span>Secondary Type</span>
                     <div className="group relative">
                         <Info size={12} className="text-neutral-500 cursor-help hover:text-neutral-300 transition-colors" />
                         <div className="absolute left-0 bottom-full mb-2 w-56 p-2 bg-neutral-900 border border-neutral-700 rounded shadow-xl text-[10px] text-neutral-300 normal-case font-normal opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">

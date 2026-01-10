@@ -80,19 +80,24 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
         )}
 
         {/* Common Date Filter */}
-        <DateRangeFilter
-            minYear={state.minYear}
-            maxYear={state.maxYear}
-            onMinYearChange={state.setMinYear}
-            onMaxYearChange={state.setMaxYear}
-            fromLabel={type === 'artist' ? 'Est. From' : 'From Year'}
-            toLabel={type === 'artist' ? 'Est. To' : 'To Year'}
-            compact={compact}
-        />
+        <div>
+            <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">
+                {type === 'artist' ? 'Born / Formed' : 'Release Year'}
+            </div>
+            <DateRangeFilter
+                minYear={state.minYear}
+                maxYear={state.maxYear}
+                onMinYearChange={state.setMinYear}
+                onMaxYearChange={state.setMaxYear}
+                fromLabel="From Year"
+                toLabel="To Year"
+                compact={compact}
+            />
+        </div>
 
         {/* Common Tag Filter */}
         <div>
-            {!compact && <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">Tag / Genre</label>}
+            <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">Tag / Genre</div>
             <input
                 placeholder={compact ? "Tag / Genre" : "e.g. rock, jazz, 80s..."}
                 className={FILTER_INPUT_STYLES}
