@@ -2,6 +2,7 @@ import { MediaType } from '@/lib/types';
 import { ArtistFilters } from './ArtistFilters';
 import { AlbumFilters } from './AlbumFilters';
 import { DateRangeFilter } from './DateRangeFilter';
+import { FILTER_INPUT_STYLES } from './FilterPrimitives';
 
 interface SearchFiltersState {
   minYear: string; setMinYear: (v: string) => void;
@@ -80,6 +81,7 @@ export function SearchFilters({ type, state, compact = false }: SearchFiltersPro
             onMaxYearChange={state.setMaxYear}
             fromLabel={type === 'artist' ? 'Est. From' : 'From Year'}
             toLabel={type === 'artist' ? 'Est. To' : 'To Year'}
+            compact={compact}
         />
 
         {/* Common Tag Filter */}
@@ -87,7 +89,7 @@ export function SearchFilters({ type, state, compact = false }: SearchFiltersPro
             {!compact && <label className="text-[10px] text-neutral-500 uppercase font-bold mb-1 block">Tag / Genre</label>}
             <input
                 placeholder={compact ? "Tag / Genre" : "e.g. rock, jazz, 80s..."}
-                className="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-neutral-300 outline-none focus:border-red-600 text-[10px]"
+                className={FILTER_INPUT_STYLES}
                 value={state.tag}
                 onChange={e => state.setTag(e.target.value)}
             />

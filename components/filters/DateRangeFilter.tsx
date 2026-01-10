@@ -1,4 +1,5 @@
 import { ChangeEvent } from 'react';
+import { FilterRow, FilterCol, FILTER_INPUT_STYLES } from './FilterPrimitives';
 
 interface DateRangeFilterProps {
   minYear: string;
@@ -8,6 +9,7 @@ interface DateRangeFilterProps {
   fromLabel?: string;
   toLabel?: string;
   className?: string;
+  compact?: boolean;
 }
 
 export function DateRangeFilter({
@@ -17,28 +19,29 @@ export function DateRangeFilter({
   onMaxYearChange,
   fromLabel = "From Year",
   toLabel = "To Year",
-  className = ""
+  className = "",
+  compact = false
 }: DateRangeFilterProps) {
   return (
-    <div className={`grid grid-cols-2 gap-2 ${className}`}>
-      <div>
+    <FilterRow compact={compact} className={className}>
+      <FilterCol>
          <input
             placeholder={fromLabel}
             type="number"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-neutral-300 outline-none focus:border-red-600 text-[10px]"
+            className={FILTER_INPUT_STYLES}
             value={minYear}
             onChange={(e) => onMinYearChange(e.target.value)}
         />
-      </div>
-      <div>
+      </FilterCol>
+      <FilterCol>
          <input
             placeholder={toLabel}
             type="number"
-            className="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-neutral-300 outline-none focus:border-red-600 text-[10px]"
+            className={FILTER_INPUT_STYLES}
             value={maxYear}
             onChange={(e) => onMaxYearChange(e.target.value)}
         />
-      </div>
-    </div>
+      </FilterCol>
+    </FilterRow>
   );
 }
