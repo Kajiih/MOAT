@@ -102,20 +102,6 @@ export function useTierListDnD(
         }
 
         if (activeContainer === overContainer) {
-            const activeItems = prev.items[activeContainer];
-            const overItems = prev.items[overContainer];
-            const activeIndex = activeItems.findIndex((item) => item.id === activeId);
-            const overIndex = overItems.findIndex((item) => item.id === overId);
-            
-            if (activeIndex !== overIndex) {
-                 return {
-                    ...prev,
-                    items: {
-                        ...prev.items,
-                        [activeContainer]: arrayMove(prev.items[activeContainer], activeIndex, overIndex),
-                    }
-                 };
-            }
             return prev;
         }
 
@@ -176,6 +162,32 @@ export function useTierListDnD(
     }
 
     setState(prev => {
+        const activeId = active.id;
+        const overId = over?.id;
+        
+        // 1. Handle same-container sorting (moved from handleDragOver)
+        if (activeId && overId && activeId !== overId) {
+            const activeContainer = findContainer(activeId as string, prev.items);
+            const overContainer = findContainer(overId as string, prev.items);
+
+            if (activeContainer && overContainer && activeContainer === overContainer) {
+                const activeItems = prev.items[activeContainer];
+                const activeIndex = activeItems.findIndex((i) => i.id === activeId);
+                const overIndex = activeItems.findIndex((i) => i.id === overId);
+
+                if (activeIndex !== overIndex) {
+                    return {
+                        ...prev,
+                        items: {
+                            ...prev.items,
+                            [activeContainer]: arrayMove(activeItems, activeIndex, overIndex)
+                        }
+                    };
+                }
+            }
+        }
+
+        // 2. Fix search IDs (Legacy)
         const nextItems = { ...prev.items };
         let modified = false;
 
