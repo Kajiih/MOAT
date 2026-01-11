@@ -65,7 +65,7 @@ function BaseMediaCard({
         <div 
             ref={setNodeRef} 
             style={style} 
-            className="w-24 h-24 bg-blue-500/10 border-2 border-dashed border-blue-500/50 rounded-md z-0" 
+            className="w-28 h-28 bg-blue-500/10 border-2 border-dashed border-blue-500/50 rounded-md z-0" 
         />
     );
   }
@@ -95,7 +95,7 @@ function BaseMediaCard({
       {...attributes} 
       onClick={isAdded && onLocate ? onLocate : undefined}
       className={`
-        relative group/card w-24 h-24 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-none select-none
+        relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-none select-none
         ${isAdded 
             ? 'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0' 
             : 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400'
@@ -107,7 +107,7 @@ function BaseMediaCard({
           src={item.imageUrl} 
           alt={item.title} 
           fill 
-          sizes="96px"
+          sizes="112px"
           priority={priority}
           unoptimized={retryUnoptimized}
           className="object-cover pointer-events-none" 

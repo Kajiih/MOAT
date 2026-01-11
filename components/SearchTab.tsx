@@ -180,13 +180,13 @@ export function SearchTab({
 
         <div className="overflow-y-auto min-h-0 flex-1 pr-1 custom-scrollbar">
             {isSearching ? (
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
                     {Array.from({ length: 15 }).map((_, i) => (
                         <SkeletonCard key={i} />
                     ))}
                 </div>
             ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
                     {sortedResults.map((item, index) => {
                         const isAdded = addedItemIds.has(item.id);
                         if (!showAdded && isAdded) return null;
