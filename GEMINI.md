@@ -8,7 +8,7 @@
   - Lints should not be ignored with comments unless it is the best solution for idiomaticity, simplicity, performance, clarity, maintainability and scalability
 - You can and should write tests when if they are relevant. We use vitest.
   - Don't write tests if it is not relevant or trivial.
-  - Use `npm test -- --watchAll=false` to run tests.
+  - Use `npm run test -- --run` to run tests.
 - We also use integration tests with playwright.
   - You can implement integration test if they are relevant.
   - Use `npx playwright test` to run tests.

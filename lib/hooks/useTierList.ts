@@ -28,7 +28,7 @@ const INITIAL_STATE: TierListState = {
 const LOCAL_STORAGE_KEY = 'moat-tierlist';
 
 export function useTierList() {
-  const [state, setState] = usePersistentState<TierListState>(LOCAL_STORAGE_KEY, INITIAL_STATE);
+  const [state, setState, isHydrated] = usePersistentState<TierListState>(LOCAL_STORAGE_KEY, INITIAL_STATE);
   
   // State for Details Modal
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
@@ -263,6 +263,7 @@ export function useTierList() {
     updateMediaItem,
     handleLocate,
     handleShowDetails,
-    handleCloseDetails
+    handleCloseDetails,
+    isHydrated
   };
 }

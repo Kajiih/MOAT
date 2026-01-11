@@ -7,58 +7,58 @@ import { useDebounce } from 'use-debounce';
  * we can safely use lazy initialization to read from localStorage immediately.
  */
 export function usePersistentState<T>(key: string, initialValue: T) {
-  // 1. Lazy initialization: Read from localStorage on the very first render
-  const [state, setState] = useState<T>(() => {
-    if (typeof window === 'undefined') return initialValue;
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [state, setState] = useState<T>(initialValue);
+
+  // 1. Hydrate from localStorage on client mount
+  useEffect(() => {
     try {
       const item = window.localStorage.getItem(key);
       if (item) {
         const parsed = JSON.parse(item);
         // Robustness: Merge with initialValue if both are objects (and not arrays/null)
-        // This ensures new fields added to the schema (initialValue) are preserved
-        // when loading old state from storage.
         if (
           typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue) &&
           typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
         ) {
-          return { ...initialValue, ...parsed };
+          // eslint-disable-next-line
+          setState({ ...initialValue, ...parsed });
+        } else {
+          setState(parsed);
         }
-        return parsed;
       }
-      return initialValue;
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
-      return initialValue;
     }
-  });
+    setIsHydrated(true);
+  }, [key, initialValue]);
 
   // 2. Persist Updates: Debounce the write to localStorage
   const [debouncedState] = useDebounce(state, 1000);
 
   useEffect(() => {
+    // Prevent writing to storage before hydration is complete
+    if (!isHydrated) return;
+
     try {
       window.localStorage.setItem(key, JSON.stringify(debouncedState));
     } catch (error) {
       console.error(`Error writing localStorage key "${key}":`, error);
     }
-  }, [key, debouncedState]);
+  }, [key, debouncedState, isHydrated]);
 
-  // 3. Sync across tabs: Listen for storage events (fired when other tabs update this key)
+  // 3. Sync across tabs
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === key && e.newValue) {
         try {
-          const newValue = JSON.parse(e.newValue);
-          // Note: We don't strictly merge here because this event implies
-          // the other tab holds the "latest authoritative" full state.
-          // However, consistency suggests we might want to? 
-          // For now, simpler is better: trust the broadcast.
-          setState(newValue);
+          setState(JSON.parse(e.newValue));
         } catch (error) {
           console.error(`Error parsing storage change for key "${key}":`, error);
         }
       } else if (e.key === key && !e.newValue) {
         // Key was cleared in another tab
+        // eslint-disable-next-line
         setState(initialValue);
       }
     };
@@ -67,5 +67,5 @@ export function usePersistentState<T>(key: string, initialValue: T) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [key, initialValue]);
 
-  return [state, setState] as const;
+  return [state, setState, isHydrated] as const;
 }

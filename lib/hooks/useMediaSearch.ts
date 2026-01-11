@@ -63,6 +63,22 @@ interface SearchParamsState {
   page: number;
 }
 
+const defaultState: SearchParamsState = {
+  query: '',
+  selectedArtist: null,
+  selectedAlbum: null,
+  minYear: '',
+  maxYear: '',
+  albumPrimaryTypes: ['Album', 'EP'],
+  albumSecondaryTypes: [],
+  artistType: '',
+  artistCountry: '',
+  tag: '',
+  minDuration: '',
+  maxDuration: '',
+  page: 1
+};
+
 interface UseMediaSearchResult<T extends MediaItem> {
   query: string;
   setQuery: (val: string) => void;
@@ -123,22 +139,6 @@ export function useMediaSearch<T extends MediaType>(
 ): UseMediaSearchResult<MediaItemMap[T]> {
   const storageKey = config?.storageKey || `moat-search-params-${type}`;
   
-  const defaultState: SearchParamsState = {
-    query: '',
-    selectedArtist: null,
-    selectedAlbum: null,
-    minYear: '',
-    maxYear: '',
-    albumPrimaryTypes: ['Album', 'EP'],
-    albumSecondaryTypes: [],
-    artistType: '',
-    artistCountry: '',
-    tag: '',
-    minDuration: '',
-    maxDuration: '',
-    page: 1
-  };
-
   const [state, setState] = usePersistentState<SearchParamsState>(storageKey, defaultState);
 
   // Map state to individual variables

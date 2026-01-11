@@ -15,6 +15,25 @@ import { BoardDetailBundler } from '@/components/BoardDetailBundler';
 import { Dices } from 'lucide-react';
 import { useTierList, useScreenshot, useDynamicFavicon } from '@/lib/hooks';
 import { useToast } from './ToastProvider';
+import { getColorTheme } from '@/lib/colors';
+
+// Loading Skeleton / Initial state look
+const LoadingState = () => {
+    const letters = ['M', 'O', 'A', 'T'];
+    const colors = ['red', 'orange', 'amber', 'green']; // Preview colors
+    
+    return (
+        <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans flex flex-col items-center justify-center gap-4">
+          <h1 className="text-4xl font-black tracking-tighter uppercase italic animate-pulse select-none flex">
+              {letters.map((letter, i) => {
+                  const theme = getColorTheme(colors[i]);
+                  return <span key={i} className={theme.text}>{letter}</span>;
+              })}
+          </h1>
+          <div className="text-neutral-500 text-sm">Loading application...</div>
+        </div>
+    );
+};
 
 /**
  * The main application component for the Tier List app.
@@ -50,6 +69,7 @@ export default function TierListApp() {
     handleLocate,
     handleShowDetails,
     handleCloseDetails,
+    isHydrated
   } = useTierList();
 
   const { toastCount } = useToast();
@@ -57,6 +77,10 @@ export default function TierListApp() {
   
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);
+
+  if (!isHydrated) {
+    return <LoadingState />;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans relative">

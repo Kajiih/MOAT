@@ -21,9 +21,10 @@ export function useMediaRegistry() {
 }
 
 const MAX_REGISTRY_SIZE = 2000;
+const INITIAL_REGISTRY: Record<string, MediaItem> = {};
 
 export function MediaRegistryProvider({ children }: { children: ReactNode }) {
-  const [registry, setRegistry] = usePersistentState<Record<string, MediaItem>>('moat-media-registry', {});
+  const [registry, setRegistry] = usePersistentState<Record<string, MediaItem>>('moat-media-registry', INITIAL_REGISTRY);
 
   /**
    * Internal helper to prune the registry if it gets too large.
