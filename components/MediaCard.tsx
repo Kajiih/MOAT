@@ -70,16 +70,20 @@ function BaseMediaCard({
     );
   }
 
-  // Construct subtitle
-  let subtitle = '';
+  // Construct lines of info
+  let line2 = '';
+  let line3 = '';
+
   if (item.type === 'artist') {
-      const parts = [];
-      if (item.disambiguation) parts.push(`(${item.disambiguation})`);
-      if (item.year) parts.push(`Est. ${item.year}`);
-      subtitle = parts.length > 0 ? parts.join(' ') : 'Artist';
+      line2 = item.disambiguation || '';
+      line3 = item.year ? `Est. ${item.year}` : 'Artist';
+  } else if (item.type === 'song') {
+      line2 = item.album || '';
+      line3 = `${item.artist || 'Unknown'}${item.year ? ` (${item.year})` : ''}`;
   } else {
-      // Album or Song
-      subtitle = `${item.artist || 'Unknown'} ${item.year ? `(${item.year})` : ''}`;
+      // Album
+      line2 = item.artist || 'Unknown';
+      line3 = item.year ? `(${item.year})` : '';
   }
 
   return (
@@ -126,13 +130,20 @@ function BaseMediaCard({
       )}
       
       {/* Overlay Info */}
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-1 pt-5">
-        <p className="text-[10px] font-bold text-white truncate leading-tight">{item.title}</p>
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pb-1 pt-8">
+        <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight mb-0.5">{item.title}</p>
         
-        {/* Subtitle logic varies by type */}
-        <p className="text-[9px] text-neutral-400 truncate">
-            {subtitle}
-        </p>
+        {line2 && (
+            <p className={`text-[9px] line-clamp-2 leading-tight ${line3 ? 'text-neutral-200 mb-0.5' : 'text-neutral-400'}`}>
+                {line2}
+            </p>
+        )}
+
+        {line3 && (
+            <p className="text-[9px] text-neutral-400 line-clamp-2 leading-tight">
+                {line3}
+            </p>
+        )}
       </div>
 
       {/* Added Indicator / Locate Overlay */}
