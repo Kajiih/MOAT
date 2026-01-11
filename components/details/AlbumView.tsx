@@ -13,13 +13,13 @@ export function AlbumView({ details }: AlbumViewProps) {
         <div className="flex flex-wrap gap-4 text-sm text-neutral-400">
             {details.date && (
                 <div className="flex items-center gap-1.5 bg-neutral-800 px-3 py-1.5 rounded-full">
-                    <Calendar size={14} /> 
+                    <Calendar size={14} className="text-orange-400" /> 
                     <span>{details.date}</span>
                 </div>
             )}
             {details.label && (
                 <div className="flex items-center gap-1.5 bg-neutral-800 px-3 py-1.5 rounded-full">
-                    <Disc size={14} /> 
+                    <Disc size={14} className="text-blue-400" /> 
                     <span>{details.label}</span>
                 </div>
             )}
