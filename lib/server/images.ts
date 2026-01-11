@@ -18,7 +18,10 @@ export async function getFanartImage(mbid: string): Promise<string | undefined> 
     });
     if (!res.ok) return undefined;
     const data = await res.json();
-    return data.artistthumb?.[0]?.url;
+    const url = data.artistthumb?.[0]?.url;
+    
+    // Use the preview endpoint for a smaller image (~200px instead of ~1000px)
+    return url ? url.replace('/fanart/', '/preview/') : undefined;
   } catch (e) {
     console.error(`Fanart.tv fetch failed for mbid ${mbid}:`, e);
     return undefined;
@@ -60,7 +63,7 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
     // 3. Convert Wiki Filename to URL (MD5 Hash method for Wikimedia Commons)
     // Actually, simpler is to use the Special:FilePath redirect
     // BUT we need to encode it properly.
-    return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}`;
+    return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}?width=500`;
 
   } catch (e) {
     console.error(`Wikidata fetch failed for mbid ${mbid}:`, e);
