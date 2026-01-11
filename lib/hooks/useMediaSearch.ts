@@ -58,7 +58,8 @@ interface SearchParamsState {
   artistType: string;
   artistCountry: string;
   tag: string;
-  videoOnly: boolean;
+  minDuration: string;
+  maxDuration: string;
   page: number;
 }
 
@@ -84,8 +85,10 @@ interface UseMediaSearchResult<T extends MediaItem> {
   setArtistCountry: (val: string) => void;
   tag: string;
   setTag: (val: string) => void;
-  videoOnly: boolean;
-  setVideoOnly: (val: boolean) => void;
+  minDuration: string;
+  setMinDuration: (val: string) => void;
+  maxDuration: string;
+  setMaxDuration: (val: string) => void;
 
   page: number;
   setPage: (val: number | ((prev: number) => number)) => void;
@@ -131,7 +134,8 @@ export function useMediaSearch<T extends MediaType>(
     artistType: '',
     artistCountry: '',
     tag: '',
-    videoOnly: false,
+    minDuration: '',
+    maxDuration: '',
     page: 1
   };
 
@@ -141,7 +145,7 @@ export function useMediaSearch<T extends MediaType>(
   const { 
       query, selectedArtist, selectedAlbum, minYear, maxYear, 
       albumPrimaryTypes, albumSecondaryTypes, 
-      artistType, artistCountry, tag, videoOnly,
+      artistType, artistCountry, tag, minDuration, maxDuration,
       page 
   } = state;
   
@@ -165,6 +169,8 @@ export function useMediaSearch<T extends MediaType>(
   const [debouncedMaxYear, controlMaxYear] = useDebounce(maxYear, debounceDelay);
   const [debouncedArtistCountry, controlArtistCountry] = useDebounce(artistCountry, debounceDelay);
   const [debouncedTag, controlTag] = useDebounce(tag, debounceDelay);
+  const [debouncedMinDuration, controlMinDuration] = useDebounce(minDuration, debounceDelay);
+  const [debouncedMaxDuration, controlMaxDuration] = useDebounce(maxDuration, debounceDelay);
   
   // Explicit flush for immediate search (e.g., on Enter key)
   const searchNow = () => {
@@ -173,6 +179,8 @@ export function useMediaSearch<T extends MediaType>(
     controlMaxYear.flush();
     controlArtistCountry.flush();
     controlTag.flush();
+    controlMinDuration.flush();
+    controlMaxDuration.flush();
   };
   
   // Wrappers to reset page on filter change
@@ -191,7 +199,8 @@ export function useMediaSearch<T extends MediaType>(
   const handleSetArtistType = (val: string) => setState(prev => ({ ...prev, artistType: val, page: 1 }));
   const handleSetArtistCountry = (val: string) => setState(prev => ({ ...prev, artistCountry: val, page: 1 }));
   const handleSetTag = (val: string) => setState(prev => ({ ...prev, tag: val, page: 1 }));
-  const handleSetVideoOnly = (val: boolean) => setState(prev => ({ ...prev, videoOnly: val, page: 1 }));
+  const handleSetMinDuration = (val: string) => setState(prev => ({ ...prev, minDuration: val, page: 1 }));
+  const handleSetMaxDuration = (val: string) => setState(prev => ({ ...prev, maxDuration: val, page: 1 }));
 
   const handleSetPage = (val: number | ((prev: number) => number)) => {
     setState(prev => ({ ...prev, page: typeof val === 'function' ? val(prev.page) : val }));
@@ -215,7 +224,8 @@ export function useMediaSearch<T extends MediaType>(
     artistType: ignoreFilters ? '' : artistType,
     artistCountry: ignoreFilters ? '' : debouncedArtistCountry,
     tag: ignoreFilters ? '' : debouncedTag,
-    videoOnly: ignoreFilters ? false : videoOnly,
+    minDuration: ignoreFilters ? '' : debouncedMinDuration,
+    maxDuration: ignoreFilters ? '' : debouncedMaxDuration,
     fuzzy: isFuzzy,
     wildcard: isWildcard
   });
@@ -241,11 +251,12 @@ export function useMediaSearch<T extends MediaType>(
     const effectiveArtistType = ignoreFilters ? '' : artistType;
     const effectiveArtistCountry = ignoreFilters ? '' : debouncedArtistCountry;
     const effectiveTag = ignoreFilters ? '' : debouncedTag;
-    const effectiveVideoOnly = ignoreFilters ? false : videoOnly;
+    const effectiveMinDuration = ignoreFilters ? '' : debouncedMinDuration;
+    const effectiveMaxDuration = ignoreFilters ? '' : debouncedMaxDuration;
 
     const hasFilters = debouncedQuery || forcedArtistId || selectedArtist?.id || forcedAlbumId || selectedAlbum?.id || effectiveMinYear || effectiveMaxYear || 
                        effectiveAlbumPrimaryTypes.length > 0 || effectiveAlbumSecondaryTypes.length > 0 ||
-                       effectiveArtistType || effectiveArtistCountry || effectiveTag || effectiveVideoOnly;
+                       effectiveArtistType || effectiveArtistCountry || effectiveTag || effectiveMinDuration || effectiveMaxDuration;
 
     if (!hasFilters) return null;
 
@@ -262,11 +273,12 @@ export function useMediaSearch<T extends MediaType>(
       artistType: effectiveArtistType,
       artistCountry: effectiveArtistCountry,
       tag: effectiveTag,
-      videoOnly: effectiveVideoOnly,
+      minDuration: effectiveMinDuration ? parseInt(effectiveMinDuration, 10) * 1000 : undefined,
+      maxDuration: effectiveMaxDuration ? parseInt(effectiveMaxDuration, 10) * 1000 : undefined,
       fuzzy: isFuzzy,
       wildcard: isWildcard
     });
-  }, [isEnabled, type, page, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, videoOnly, isFuzzy, isWildcard, ignoreFilters]);
+  }, [isEnabled, type, page, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, debouncedMinDuration, debouncedMaxDuration, isFuzzy, isWildcard, ignoreFilters]);
 
   const { data, error, isLoading, isValidating } = useSWR<SearchResponse, Error & { status?: number }>(
     searchUrl,
@@ -306,13 +318,14 @@ export function useMediaSearch<T extends MediaType>(
             artistType,
             artistCountry: debouncedArtistCountry,
             tag: debouncedTag,
-            videoOnly,
+            minDuration: debouncedMinDuration ? parseInt(debouncedMinDuration, 10) * 1000 : undefined,
+            maxDuration: debouncedMaxDuration ? parseInt(debouncedMaxDuration, 10) * 1000 : undefined,
             fuzzy: isFuzzy,
             wildcard: isWildcard
           });
           preload(nextUrl, fetcher);
       }
-  }, [data, page, type, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, videoOnly, isFuzzy, isWildcard, isEnabled]);
+  }, [data, page, type, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, debouncedMinDuration, debouncedMaxDuration, isFuzzy, isWildcard, isEnabled]);
 
   return {
     // State
@@ -326,7 +339,8 @@ export function useMediaSearch<T extends MediaType>(
     artistType, setArtistType: handleSetArtistType,
     artistCountry, setArtistCountry: handleSetArtistCountry,
     tag, setTag: handleSetTag,
-    videoOnly, setVideoOnly: handleSetVideoOnly,
+    minDuration, setMinDuration: handleSetMinDuration,
+    maxDuration, setMaxDuration: handleSetMaxDuration,
     
     page, setPage: handleSetPage,
     // Setters update internal state (which acts as fallback/default)

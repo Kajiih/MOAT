@@ -38,6 +38,16 @@ describe('getSearchUrl', () => {
     expect(url1).toContain('albumPrimaryTypes=Album&albumPrimaryTypes=Single');
   });
 
+  it('should include duration filters', () => {
+    const url = getSearchUrl({ 
+        type: 'song', 
+        minDuration: 180000, 
+        maxDuration: 300000 
+    });
+    expect(url).toContain('minDuration=180000');
+    expect(url).toContain('maxDuration=300000');
+  });
+
   it('should include search config options', () => {
     const url = getSearchUrl({ 
         type: 'song', 

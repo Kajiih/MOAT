@@ -59,7 +59,8 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
     tag, setTag,
     artistType, setArtistType,
     artistCountry, setArtistCountry,
-    videoOnly, setVideoOnly,
+    minDuration, setMinDuration,
+    maxDuration, setMaxDuration,
     results,
     isLoading,
     searchNow
@@ -173,7 +174,8 @@ export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId
                         artistCountry, setArtistCountry,
                         albumPrimaryTypes, setAlbumPrimaryTypes,
                         albumSecondaryTypes, setAlbumSecondaryTypes,
-                        videoOnly, setVideoOnly
+                        minDuration, setMinDuration,
+                        maxDuration, setMaxDuration
                     }}
                     compact={true}
                 />

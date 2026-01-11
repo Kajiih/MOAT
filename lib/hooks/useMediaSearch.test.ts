@@ -257,4 +257,35 @@ describe('useMediaSearch', () => {
         expect.any(Object)
     );
   });
+
+  it('should trigger search with minDuration and maxDuration filters', () => {
+    const { result } = renderHook(() => useMediaSearch('song'));
+    vi.mocked(useSWR).mockClear();
+
+    act(() => {
+      result.current.setMinDuration('180'); // 3 minutes
+    });
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+
+    expect(useSWR).toHaveBeenCalledWith(
+        expect.stringContaining('minDuration=180000'), 
+        expect.any(Function), 
+        expect.any(Object)
+    );
+
+    act(() => {
+      result.current.setMaxDuration('300'); // 5 minutes
+    });
+    act(() => {
+      vi.advanceTimersByTime(350);
+    });
+
+    expect(useSWR).toHaveBeenCalledWith(
+        expect.stringContaining('maxDuration=300000'), 
+        expect.any(Function), 
+        expect.any(Object)
+    );
+  });
 });

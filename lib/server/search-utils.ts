@@ -15,7 +15,8 @@ export interface QueryBuilderParams {
     artistType: string | null;
     artistCountry: string | null;
     tag: string | null;
-    videoOnly: boolean;
+    minDuration: number | null;
+    maxDuration: number | null;
     options: SearchOptions;
 }
 
@@ -59,7 +60,8 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
         artistType,
         artistCountry,
         tag,
-        videoOnly,
+        minDuration,
+        maxDuration,
         options 
     } = params;
 
@@ -113,8 +115,10 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
         if (albumId) {
             queryParts.push(`rgid:${albumId}`);
         }
-        if (videoOnly) {
-            queryParts.push(`video:true`);
+        if (minDuration !== null || maxDuration !== null) {
+            const start = minDuration !== null ? minDuration : '*';
+            const end = maxDuration !== null ? maxDuration : '*';
+            queryParts.push(`dur:[${start} TO ${end}]`);
         }
     }
 

@@ -7,7 +7,11 @@
 
 ### 1. Advanced Metadata Pipeline
 - **Search & Discovery**:
-  - Integrated with **MusicBrainz API** with smart fuzzy matching and date/type filtering.
+  - Integrated with **MusicBrainz API** with smart fuzzy matching and advanced filtering.
+  - **Entity Specific Filters**:
+    - **Artists**: Filter by type (Person, Group, etc.) and country of origin.
+    - **Albums**: Filter by primary type (Album, EP, Single) and secondary types (Live, Compilation, etc.).
+    - **Songs**: Filter by duration range (minimum/maximum seconds).
   - **Persistent Global Library**: Every item encountered in search is stored in a persistent `MediaRegistry`. Once an image or tracklist is found, it is remembered across sessions.
   - **Self-Healing Images**: If an artist image is missing during search, the app automatically fetches it in the background from **Fanart.tv** or **Wikidata** once the item is added to the board.
 - **Deep Metadata Sync**:

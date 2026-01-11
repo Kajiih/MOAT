@@ -12,7 +12,20 @@ export function usePersistentState<T>(key: string, initialValue: T) {
     if (typeof window === 'undefined') return initialValue;
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (item) {
+        const parsed = JSON.parse(item);
+        // Robustness: Merge with initialValue if both are objects (and not arrays/null)
+        // This ensures new fields added to the schema (initialValue) are preserved
+        // when loading old state from storage.
+        if (
+          typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue) &&
+          typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+        ) {
+          return { ...initialValue, ...parsed };
+        }
+        return parsed;
+      }
+      return initialValue;
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
       return initialValue;
@@ -36,6 +49,10 @@ export function usePersistentState<T>(key: string, initialValue: T) {
       if (e.key === key && e.newValue) {
         try {
           const newValue = JSON.parse(e.newValue);
+          // Note: We don't strictly merge here because this event implies
+          // the other tab holds the "latest authoritative" full state.
+          // However, consistency suggests we might want to? 
+          // For now, simpler is better: trust the broadcast.
           setState(newValue);
         } catch (error) {
           console.error(`Error parsing storage change for key "${key}":`, error);

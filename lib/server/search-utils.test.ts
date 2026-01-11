@@ -21,7 +21,8 @@ function createParams(overrides: Partial<QueryBuilderParams> = {}): QueryBuilder
     artistType: null,
     artistCountry: null,
     tag: null,
-    videoOnly: false,
+    minDuration: null,
+    maxDuration: null,
     options: defaultOptions,
     ...overrides,
   };
@@ -78,6 +79,23 @@ describe('buildMusicBrainzQuery', () => {
     it('should use begin for artists', () => {
       const { query } = buildMusicBrainzQuery(createParams({ type: 'artist', minYear: '1960', maxYear: '1970' }));
       expect(query).toContain('begin:[1960 TO 1970]');
+    });
+  });
+
+  describe('Duration Filters', () => {
+    it('should include dur field for songs when duration range is provided', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'song', minDuration: 180000, maxDuration: 300000 }));
+      expect(query).toContain('dur:[180000 TO 300000]');
+    });
+
+    it('should use wildcards for open-ended duration ranges', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'song', minDuration: 180000 }));
+      expect(query).toContain('dur:[180000 TO *]');
+    });
+
+    it('should NOT include dur filters for albums', () => {
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', minDuration: 180000 }));
+      expect(query).not.toContain('dur:');
     });
   });
 

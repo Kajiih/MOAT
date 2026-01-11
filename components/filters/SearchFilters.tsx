@@ -18,7 +18,8 @@ interface SearchFiltersState {
   albumSecondaryTypes: string[]; setAlbumSecondaryTypes: (v: string[]) => void;
   
   // Song
-  videoOnly: boolean; setVideoOnly: (v: boolean) => void;
+  minDuration: string; setMinDuration: (v: string) => void;
+  maxDuration: string; setMaxDuration: (v: string) => void;
 }
 
 interface SearchFiltersProps {
@@ -108,17 +109,24 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
 
         {/* Song Specific */}
         {type === 'song' && (
-            <div className="flex items-center gap-2 pt-1">
-                <input 
-                    type="checkbox" 
-                    id={`videoOnly-${compact ? 'compact' : 'full'}`}
-                    checked={state.videoOnly}
-                    onChange={(e) => state.setVideoOnly(e.target.checked)}
-                    className="accent-red-600"
-                />
-                <label htmlFor={`videoOnly-${compact ? 'compact' : 'full'}`} className="text-xs text-neutral-300 cursor-pointer select-none">
-                    Has Video (Music Video)
-                </label>
+            <div>
+                <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">Duration (Seconds)</div>
+                <div className={`flex gap-2 ${compact ? '' : 'grid grid-cols-2'}`}>
+                    <input
+                        placeholder="Min Sec"
+                        type="number"
+                        className={FILTER_INPUT_STYLES}
+                        value={state.minDuration}
+                        onChange={(e) => state.setMinDuration(e.target.value)}
+                    />
+                    <input
+                        placeholder="Max Sec"
+                        type="number"
+                        className={FILTER_INPUT_STYLES}
+                        value={state.maxDuration}
+                        onChange={(e) => state.setMaxDuration(e.target.value)}
+                    />
+                </div>
             </div>
         )}
     </div>

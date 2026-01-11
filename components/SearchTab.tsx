@@ -50,7 +50,8 @@ export function SearchTab({
     artistType, setArtistType,
     artistCountry, setArtistCountry,
     tag, setTag,
-    videoOnly, setVideoOnly,
+    minDuration, setMinDuration,
+    maxDuration, setMaxDuration,
     page, setPage,
     selectedArtist,
     setSelectedArtist,
@@ -143,7 +144,8 @@ export function SearchTab({
                             artistCountry, setArtistCountry,
                             albumPrimaryTypes, setAlbumPrimaryTypes,
                             albumSecondaryTypes, setAlbumSecondaryTypes,
-                            videoOnly, setVideoOnly
+                            minDuration, setMinDuration,
+                            maxDuration, setMaxDuration
                         }}
                         contextPickers={type !== 'artist' ? (
                             <div className="grid grid-cols-1 gap-2">
@@ -207,7 +209,7 @@ export function SearchTab({
             {!isSearching && searchResults.length === 0 && (
                 query || selectedArtist || selectedAlbum || minYear || maxYear || 
                 albumPrimaryTypes.length > 0 || albumSecondaryTypes.length > 0 ||
-                artistType || artistCountry || tag || videoOnly
+                artistType || artistCountry || tag || minDuration || maxDuration
             ) && (
                 <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
             )}

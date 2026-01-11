@@ -62,7 +62,8 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
     artistType, setArtistType,
     artistCountry, setArtistCountry,
     tag, setTag,
-    videoOnly, setVideoOnly,
+    minDuration, setMinDuration,
+    maxDuration, setMaxDuration,
     results, 
     isLoading,
     searchNow
@@ -177,7 +178,8 @@ export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, contex
                         artistCountry, setArtistCountry,
                         albumPrimaryTypes, setAlbumPrimaryTypes,
                         albumSecondaryTypes, setAlbumSecondaryTypes,
-                        videoOnly, setVideoOnly
+                        minDuration, setMinDuration,
+                        maxDuration, setMaxDuration
                     }}
                     compact={true}
                 />

@@ -18,7 +18,8 @@ export async function GET(request: Request) {
   const artistType = searchParams.get('artistType');
   const artistCountry = searchParams.get('artistCountry');
   const tag = searchParams.get('tag');
-  const videoOnly = searchParams.get('videoOnly') === 'true';
+  const minDuration = searchParams.get('minDuration');
+  const maxDuration = searchParams.get('maxDuration');
 
   // Read Search Configuration (default to true if not specified)
   const fuzzy = searchParams.get('fuzzy') !== 'false';
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get('page') || '1', 10);
 
   // If no main filters, return empty
-  if (!queryParam && !artistParam && !artistIdParam && !albumIdParam && !minYear && !maxYear && albumPrimaryTypes.length === 0 && albumSecondaryTypes.length === 0 && !artistType && !artistCountry && !tag && !videoOnly) {
+  if (!queryParam && !artistParam && !artistIdParam && !albumIdParam && !minYear && !maxYear && albumPrimaryTypes.length === 0 && albumSecondaryTypes.length === 0 && !artistType && !artistCountry && !tag && !minDuration && !maxDuration) {
     return NextResponse.json({ results: [], page, totalPages: 0 });
   }
 
@@ -45,7 +46,8 @@ export async function GET(request: Request) {
       artistType: artistType || undefined,
       artistCountry: artistCountry || undefined,
       tag: tag || undefined,
-      videoOnly,
+      minDuration: minDuration ? parseInt(minDuration, 10) : undefined,
+      maxDuration: maxDuration ? parseInt(maxDuration, 10) : undefined,
       page,
       options: { fuzzy, wildcard }
     });

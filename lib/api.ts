@@ -13,7 +13,8 @@ export interface SearchParams {
   artistType?: string;
   artistCountry?: string;
   tag?: string;
-  videoOnly?: boolean;
+  minDuration?: number;
+  maxDuration?: number;
   // Pagination & config
   page?: number;
   fuzzy?: boolean;
@@ -51,7 +52,8 @@ export function getSearchUrl(params: SearchParams): string {
   if (params.artistType) urlParams.append('artistType', params.artistType);
   if (params.artistCountry) urlParams.append('artistCountry', params.artistCountry);
   if (params.tag) urlParams.append('tag', params.tag);
-  if (params.videoOnly) urlParams.append('videoOnly', 'true');
+  if (params.minDuration !== undefined) urlParams.append('minDuration', params.minDuration.toString());
+  if (params.maxDuration !== undefined) urlParams.append('maxDuration', params.maxDuration.toString());
   
   // 4. Search Config
   if (params.fuzzy !== undefined) urlParams.append('fuzzy', params.fuzzy.toString());

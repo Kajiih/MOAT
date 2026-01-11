@@ -28,7 +28,8 @@ interface SearchParams {
     artistType?: string;
     artistCountry?: string;
     tag?: string;
-    videoOnly?: boolean;
+    minDuration?: number;
+    maxDuration?: number;
     // Config
     page: number;
     fuzzy?: boolean;
@@ -89,7 +90,8 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     artistType: params.artistType || null,
     artistCountry: params.artistCountry || null,
     tag: params.tag || null,
-    videoOnly: params.videoOnly || false,
+    minDuration: params.minDuration || null,
+    maxDuration: params.maxDuration || null,
     options: {
       fuzzy: params.fuzzy ?? true,
       wildcard: params.wildcard ?? true
