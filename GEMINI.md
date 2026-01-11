@@ -16,4 +16,5 @@
 - Write documentation to important or not trivial units of code, including modules, functions, variables, etc.
 - Always follow best practices, and focus on idiomaticity, simplicity, performance, clarity, maintainability and scalability.
   - Always adhere to the single source of truth principle for repeated feature, formatting, etc.
-  - Don't hesitate to refactor smaller or larger pieces to improve code quality.
+  - Never use a short term solution, always target long term solutions and improvements.
+  - Don't hesitate to refactor smaller or larger pieces to improve idiomaticity, simplicity, performance, clarity, maintainability and scalability.

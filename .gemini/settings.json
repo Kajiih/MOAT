@@ -1,7 +1,7 @@
 {
   "tools": {
     "shell": {
-      "allowCommands": ["npm run lint", "npm run test:ci", "npx playwright test"],
+      "allowCommands": ["npm run lint", "npm run", "npm run test:ci", "npx playwright test"],
       "deniedCommands": ["npm run test:watch"]
     }
   }

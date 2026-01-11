@@ -6,7 +6,6 @@ import { SECONDARY_TYPES } from '@/lib/types';
 describe('AlbumFilters', () => {
   const mockTogglePrimary = vi.fn();
   const mockToggleSecondary = vi.fn();
-  const mockResetPrimary = vi.fn();
   const mockResetSecondary = vi.fn();
   const mockSelectAllSecondary = vi.fn();
 
