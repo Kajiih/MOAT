@@ -22,12 +22,16 @@
   - **Cache Optimization**: Sharing image URLs across different media types significantly reduces redundant network requests and maximizes browser cache hits.
 
 ### 2. Core Tier List Functionality
+- **Tier List Title**:
+  - Users can define a custom title for their tier list, stored in the `TierListState` managed by the `useTierList` hook.
+  - The title is displayed prominently in the `Header` component, allowing direct inline editing.
+  - The browser tab title is dynamically updated to reflect the current tier list title, improving user orientation.
 - **Fluid Drag and Drop**: Powered by `@dnd-kit` for high-performance reordering of items and tiers.
 - **Dynamic Branding**:
   - **Favicon & Logo**: Automatically derive their color palette from the top tiers of the current board, creating a cohesive visual identity.
   - **Color Extraction**: Optimized hooks extract and persist brand colors to ensure a consistent look during hydration.
 - **Data Portability**:
-  - **Full-State Export**: Exported JSON files contain the *complete* metadata payload (details, images, tracklists), making lists fully portable between users without requiring new API lookups.
+  - **Full-State Export**: Exported JSON files contain the *complete* metadata payload (details, images, tracklists, and the tier list title), making lists fully portable between users without requiring new API lookups.
   - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`. The capture logic automatically excludes UI controls and the search panel for a clean, branded output.
 
 ## Technical Architecture

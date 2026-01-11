@@ -10,6 +10,7 @@ import { Plus } from 'lucide-react';
 
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from '@/components/BrandLogo';
+import { ChangeEvent } from 'react';
 
 interface TierBoardProps {
   state: TierListState;
@@ -21,6 +22,8 @@ interface TierBoardProps {
   removeItemFromTier: (tierId: string, itemId: string) => void;
   handleShowDetails: (item: MediaItem) => void;
   isAnyDragging: boolean;
+  tierListTitle: string;
+  onUpdateTierListTitle: (newTitle: string) => void;
 }
 
 export function TierBoard({
@@ -32,15 +35,29 @@ export function TierBoard({
   handleDeleteTier,
   removeItemFromTier,
   handleShowDetails,
-  isAnyDragging
+  isAnyDragging,
+  tierListTitle,
+  onUpdateTierListTitle
 }: TierBoardProps) {
 
   // Dynamic Logo Colors (Reusable Logic)
   const logoHexColors = useBrandColors(colors);
+  
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onUpdateTierListTitle(e.target.value);
+  };
 
   return (
     <div className="space-y-4">
         <div ref={screenshotRef} className="space-y-2 p-1">
+            <input
+              type="text"
+              value={tierListTitle}
+              onChange={handleTitleChange}
+              placeholder="Tier List Title"
+              aria-label="Tier List Title"
+              className="bg-transparent text-neutral-200 text-4xl font-black tracking-tighter italic text-center w-full focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md mb-6"
+            />
             <SortableContext 
                 items={state.tierDefs.map(t => t.id)} 
                 strategy={verticalListSortingStrategy}

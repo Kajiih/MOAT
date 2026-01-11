@@ -16,6 +16,7 @@ import { Dices } from 'lucide-react';
 import { useTierList, useScreenshot, useDynamicFavicon } from '@/lib/hooks';
 import { useToast } from './ToastProvider';
 import { getColorTheme } from '@/lib/colors';
+import { useEffect } from 'react';
 
 // Loading Skeleton / Initial state look
 const LoadingState = () => {
@@ -69,7 +70,9 @@ export default function TierListApp() {
     handleLocate,
     handleShowDetails,
     handleCloseDetails,
-    isHydrated
+    isHydrated,
+    title: tierListTitle, // Alias state.title to tierListTitle
+    handleUpdateTitle
   } = useTierList();
 
   const { toastCount } = useToast();
@@ -78,12 +81,17 @@ export default function TierListApp() {
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);
 
+  // Update document title based on tierListTitle
+  useEffect(() => {
+    document.title = `${tierListTitle} - MOAT`;
+  }, [tierListTitle]);
+
   if (!isHydrated) {
     return <LoadingState />;
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans relative">
+    <div className="min-h-screen text-neutral-200 p-8 font-sans relative">
       {/* Background Bundler: Automatically syncs deep metadata for items on the board */}
       <BoardDetailBundler 
         items={allBoardItems} 
@@ -109,17 +117,21 @@ export default function TierListApp() {
         >
             
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
-                <TierBoard 
-                    state={state}
-                    colors={headerColors}
-                    screenshotRef={screenshotRef}
-                    handleAddTier={handleAddTier}
-                    handleUpdateTier={handleUpdateTier}
-                    handleDeleteTier={handleDeleteTier}
-                    removeItemFromTier={removeItemFromTier}
-                    handleShowDetails={handleShowDetails}
-                    isAnyDragging={!!activeItem || !!activeTier}
-                />
+                <div className="-mt-20">
+                  <TierBoard 
+                      state={state}
+                      colors={headerColors}
+                      screenshotRef={screenshotRef}
+                      handleAddTier={handleAddTier}
+                      handleUpdateTier={handleUpdateTier}
+                      handleDeleteTier={handleDeleteTier}
+                      removeItemFromTier={removeItemFromTier}
+                      handleShowDetails={handleShowDetails}
+                      isAnyDragging={!!activeItem || !!activeTier}
+                      tierListTitle={tierListTitle}
+                      onUpdateTierListTitle={handleUpdateTitle}
+                  />
+                </div>
 
                 <SearchPanel 
                     addedItemIds={addedItemIds}
@@ -160,7 +172,7 @@ export default function TierListApp() {
       {/* Floating Randomize Colors Button */}
       <button 
         onClick={handleRandomizeColors} 
-        className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 ${
+        className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 screenshot-exclude ${
           toastCount > 0 ? 'bottom-18' : 'bottom-8'
         }`}
         title="Randomize Colors"

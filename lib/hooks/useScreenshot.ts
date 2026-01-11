@@ -16,13 +16,17 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
     
     setIsCapturing(true);
     try {
-      // 1. Force explicit dimensions to ensure full capture if within scroll container
-      // (Though html-to-image usually handles this, sometimes explicit helps)
       const dataUrl = await toPng(ref.current, {
-        cacheBust: true,
         backgroundColor: '#0a0a0a', // neutral-950 hex
         pixelRatio: 2, // Retain high quality
-        filter: (node) => !(node as HTMLElement).classList?.contains('screenshot-exclude')
+        filter: (node) => !(node as HTMLElement).classList?.contains('screenshot-exclude'),
+        // More robust cache busting to prevent identical images from rendering incorrectly.
+        // By adding a unique timestamp, we force the browser to re-evaluate each image.
+        fetchRequestInit: {
+          headers: new Headers(),
+          cache: 'no-cache'
+        },
+        cacheBust: true,
       });
       
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);

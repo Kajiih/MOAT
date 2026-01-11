@@ -95,6 +95,7 @@ export interface TierDefinition {
  * - items: Record mapping tier IDs to their content.
  */
 export interface TierListState {
+  title: string;
   tierDefs: TierDefinition[];
   items: Record<string, MediaItem[]>;
 }

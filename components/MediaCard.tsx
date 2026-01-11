@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { useState } from 'react';
 import { useDraggable, DraggableAttributes } from '@dnd-kit/core';

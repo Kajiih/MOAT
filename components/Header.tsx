@@ -3,6 +3,7 @@
 import { Upload, Download, Trash2, Camera, Loader2 } from 'lucide-react';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from '@/components/BrandLogo';
+import { ChangeEvent } from 'react';
 
 interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;

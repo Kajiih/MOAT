@@ -7,6 +7,7 @@ import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { useTierListDnD } from '@/lib/hooks/useTierListDnD';
 
 const INITIAL_STATE: TierListState = {
+  title: 'My Tier List',
   tierDefs: [
     { id: 'tier-1', label: 'S', color: 'red' },
     { id: 'tier-2', label: 'A', color: 'orange' },
@@ -92,6 +93,7 @@ export function useTierList() {
     const exportData = {
       version: 1,
       createdAt: new Date().toISOString(),
+      title: state.title, // Include the tier list title
       tiers: state.tierDefs.map(tier => ({
         label: tier.label,
         color: tier.color,
@@ -131,6 +133,7 @@ export function useTierList() {
                 });
 
                 setState({
+                    title: parsed.title || INITIAL_STATE.title, // Set title from parsed data or fallback to initial state
                     tierDefs: newTierDefs,
                     items: newItems
                 });
@@ -140,7 +143,10 @@ export function useTierList() {
 
             // Fallback: Handle legacy format (raw state dump)
             if (parsed && 'tierDefs' in parsed) {
-                setState(parsed);
+                setState({
+                    ...parsed,
+                    title: parsed.title || INITIAL_STATE.title, // Set title from parsed data or fallback to initial state
+                });
                 showToast("Legacy tier list imported successfully!", "success");
             } else {
                 showToast("Invalid JSON file: missing tier definitions", "error");
@@ -240,6 +246,13 @@ export function useTierList() {
     }
   }, [showToast]);
 
+  const handleUpdateTitle = useCallback((newTitle: string) => {
+    setState(prev => ({
+      ...prev,
+      title: newTitle,
+    }));
+  }, [setState]);
+
   return {
     state,
     allBoardItems,
@@ -264,6 +277,8 @@ export function useTierList() {
     handleLocate,
     handleShowDetails,
     handleCloseDetails,
-    isHydrated
+    isHydrated,
+    handleUpdateTitle,
+    title: state.title,
   };
 }
