@@ -9,6 +9,7 @@ interface AlbumFiltersProps {
   onToggleSecondary: (type: string) => void;
   onResetPrimary?: () => void;
   onResetSecondary?: () => void;
+  onSelectAllSecondary?: () => void;
   compact?: boolean;
 }
 
@@ -19,6 +20,7 @@ export function AlbumFilters({
   onToggleSecondary,
   onResetPrimary,
   onResetSecondary,
+  onSelectAllSecondary,
   compact = false
 }: AlbumFiltersProps) {
   
@@ -97,7 +99,13 @@ export function AlbumFilters({
                 </div>
                 {onResetSecondary && (
                     <button 
-                        onClick={onResetSecondary}
+                        onClick={() => {
+                            if (secondaryTypes.length === SECONDARY_TYPES.length) {
+                                onResetSecondary?.();
+                            } else {
+                                onSelectAllSecondary?.();
+                            }
+                        }}
                         className="text-blue-400 hover:text-blue-300 transition-colors"
                     >
                         {secondaryTypes.length === SECONDARY_TYPES.length ? 'Deselect All' : 'Select All'}

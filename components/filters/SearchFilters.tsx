@@ -1,4 +1,4 @@
-import { MediaType } from '@/lib/types';
+import { MediaType, SECONDARY_TYPES } from '@/lib/types';
 import { ArtistFilters } from './ArtistFilters';
 import { AlbumFilters } from './AlbumFilters';
 import { DateRangeFilter } from './DateRangeFilter';
@@ -76,6 +76,7 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
                 onToggleSecondary={toggleSecondaryType}
                 onResetPrimary={() => state.setAlbumPrimaryTypes(['Album', 'EP'])}
                 onResetSecondary={() => state.setAlbumSecondaryTypes([])}
+                onSelectAllSecondary={() => state.setAlbumSecondaryTypes([...SECONDARY_TYPES])}
                 compact={compact}
             />
         )}
