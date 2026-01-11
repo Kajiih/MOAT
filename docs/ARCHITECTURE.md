@@ -28,7 +28,7 @@
   - **Color Extraction**: Optimized hooks extract and persist brand colors to ensure a consistent look during hydration.
 - **Data Portability**:
   - **Full-State Export**: Exported JSON files contain the *complete* metadata payload (details, images, tracklists), making lists fully portable between users without requiring new API lookups.
-  - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`.
+  - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`. The capture logic automatically excludes UI controls and the search panel for a clean, branded output.
 
 ## Technical Architecture
 
@@ -51,9 +51,14 @@
 - **Server proxying**: API routes in `app/api/` handle rate limiting (MusicBrainz 503s), retry logic, and hide external API keys.
 - **Image Fallback Engine**: A robust multi-step strategy for images:
   - **Waterfall**: Fanart.tv -> Wikidata -> Cover Art Archive (CAA).
+  - **Optimization**: Requests "preview" sizes (~200px) from Fanart.tv and resized thumbnails (500px) from Wikidata to minimize bandwidth usage.
   - **Unified CAA Endpoint**: Prefers the CAA `release-group` endpoint for both albums and tracks to provide the most representative artwork for a collection.
   - **Healing**: Background fetching of missing artist thumbnails.
   - **Bypass**: Automatic `unoptimized` toggle for domains with resolve issues.
+
+## UI Components
+- **Media Card**: Optimized for information density with a 3-line metadata layout (Title, Context, Details) and 112px size, ensuring readability even for long song/album names.
+- **Search Filters**: Context-aware filters that adapt to the media type (e.g., duration for songs, type for albums).
 
 ## Directory Structure
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
@@ -64,6 +69,6 @@
 - `lib/hooks/`:
   - `useTierList.ts`: Core board state and persistence logic.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
-  - `usePersistentState.ts`: Generic debounced `localStorage` synchronization.
+  - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
 - `lib/server/`: High-level API clients and image fetchers.
 
