@@ -1,3 +1,11 @@
+/**
+ * @file TierListApp.tsx
+ * @description The main container component for the application.
+ * Composes the Drag-and-Drop context, Header, Tier Board, and Search Panel.
+ * Acts as the entry point for the interactive tier list experience.
+ * @module TierListApp
+ */
+
 'use client';
 
 import { 
@@ -18,7 +26,10 @@ import { useToast } from './ToastProvider';
 import { getColorTheme } from '@/lib/colors';
 import { useEffect } from 'react';
 
-// Loading Skeleton / Initial state look
+/**
+ * Simple loading screen displayed while persisted state is being hydrated.
+ * Shows a pulsing animation of the "MOAT" logo.
+ */
 const LoadingState = () => {
     const letters = ['M', 'O', 'A', 'T'];
     const colors = ['red', 'orange', 'amber', 'green']; // Preview colors

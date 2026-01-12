@@ -1,11 +1,13 @@
 # Application Architecture: Moat (Music Tier List)
 
 ## Overview
+
 **Moat** is a professional-grade, interactive web application for creating and sharing music tier lists. It prioritizes data resilience, speed, and visual excellence, leveraging the MusicBrainz database to provide a rich metadata experience.
 
 ## Key Features
 
 ### 1. Advanced Metadata Pipeline
+
 - **Search & Discovery**:
   - Integrated with **MusicBrainz API** with smart fuzzy matching and advanced filtering.
   - **Entity Specific Filters**:
@@ -22,6 +24,7 @@
   - **Cache Optimization**: Sharing image URLs across different media types significantly reduces redundant network requests and maximizes browser cache hits.
 
 ### 2. Core Tier List Functionality
+
 - **Tier List Title**:
   - Users can define a custom title for their tier list, stored in the `TierListState` managed by the `useTierList` hook.
   - The title is displayed prominently in the `Header` component, allowing direct inline editing.
@@ -37,12 +40,14 @@
 ## Technical Architecture
 
 ### 1. Technology Stack
+
 - **Framework**: Next.js (App Router)
 - **UI Library**: React (with Concurrent Mode features like Transitions)
 - **Styling**: Vanilla CSS with Tailwind CSS utilities for layout.
 - **Persistence**: `localStorage` with automated debouncing and pruning.
 
 ### 2. State & Data Flow Strategy
+
 - **Layered Persistence**:
   1. **Board State**: The primary source of truth, managed by `useTierList`. Highly optimized with equality checks to prevent redundant disk writes.
   2. **Global Media Registry**: A persistent `localStorage` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
@@ -51,6 +56,7 @@
   - Updates flow bidirectionally: If the background bundler finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
 ### 3. Resilience & Performance
+
 - **SWR Revalidation**: Uses `useSWR` for "stale-while-revalidate" fetching. In the `DetailsModal`, we use `fallbackData` from the board state to show stored info instantly while checking for updates in the background.
 - **Server proxying**: API routes in `app/api/` handle rate limiting (MusicBrainz 503s), retry logic, and hide external API keys.
 - **Image Fallback Engine**: A robust multi-step strategy for images:
@@ -61,18 +67,27 @@
   - **Bypass**: Automatic `unoptimized` toggle for domains with resolve issues.
 
 ## UI Components
+
 - **Media Card**: Optimized for information density with a 3-line metadata layout (Title, Context, Details) and 112px size, ensuring readability even for long song/album names.
 - **Search Filters**: Context-aware filters that adapt to the media type (e.g., duration for songs, type for albums).
 
 ## Directory Structure
+
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
 - `components/`:
+  - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
+  - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
+  - `MediaCard.tsx`: Draggable/Sortable item visualization.
+  - `SearchPanel.tsx`: Sidebar for discovering new media.
   - `BoardDetailBundler.tsx`: The background worker that keeps board items enriched.
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
 - `lib/hooks/`:
   - `useTierList.ts`: Core board state and persistence logic.
+  - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
+  - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
-- `lib/server/`: High-level API clients and image fetchers.
-
+- `lib/server/`:
+  - `musicbrainz.ts`: MusicBrainz API client (search, details).
+  - `images.ts`: Multi-source image resolver (Fanart.tv, Wikidata).

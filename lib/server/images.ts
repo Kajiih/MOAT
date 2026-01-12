@@ -1,3 +1,11 @@
+/**
+ * @file images.ts
+ * @description Server-side utilities for resolving artist and album artwork.
+ * Implements a waterfall strategy: Fanart.tv -> Wikidata -> Fallbacks.
+ * Handles API keys and URL construction for external image services.
+ * @module ImageService
+ */
+
 export const USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
 export const MB_BASE_URL = 'https://musicbrainz.org/ws/2';
 

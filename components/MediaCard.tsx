@@ -1,3 +1,10 @@
+/**
+ * @file MediaCard.tsx
+ * @description Provides the visual representation of media items (Album, Artist, Song) in the UI.
+ * Exports both a draggable version (MediaCard) for the search panel and a sortable version (SortableMediaCard) for the tier rows.
+ * @module MediaCard
+ */
+
 'use client';
 
 import Image from 'next/image';
@@ -16,18 +23,31 @@ const failedImages = new Set<string>();
  * Props for the visual representation of a media card.
  */
 interface BaseMediaCardProps {
+  /** The media data object (Album, Artist, or Song). */
   item: MediaItem;
+  /** The ID of the tier this card belongs to, if any. */
   tierId?: string;
+  /** Callback to remove this item from its tier. */
   onRemove?: (id: string) => void;
+  /** Ref callback for the draggable/sortable node. */
   setNodeRef?: (node: HTMLElement | null) => void;
+  /** Inline styles (transform, transition) provided by dnd-kit. */
   style?: React.CSSProperties;
+  /** Draggable attributes (role, tabindex, etc.) provided by dnd-kit. */
   attributes?: DraggableAttributes;
+  /** Event listeners (onPointerDown, onKeyDown, etc.) provided by dnd-kit. */
   listeners?: SyntheticListenerMap;
+  /** Whether the item is currently being dragged. */
   isDragging?: boolean;
+  /** Whether this item is already present on the board (used in Search results). */
   isAdded?: boolean;
+  /** Callback to locate this item on the board. */
   onLocate?: () => void;
+  /** Unique DOM ID for scrolling/anchoring. */
   domId?: string;
+  /** Whether to prioritize loading the image (eager load). Defaults to false. */
   priority?: boolean;
+  /** Callback to show details modal. */
   onInfo?: (item: MediaItem) => void;
 }
 
@@ -195,6 +215,9 @@ function BaseMediaCard({
   );
 }
 
+/**
+ * Public props for the MediaCard and SortableMediaCard components.
+ */
 interface MediaCardProps {
   /** The media data object (Album, Artist, or Song). */
   item: MediaItem; 

@@ -1,3 +1,10 @@
+/**
+ * @file useTierList.ts
+ * @description The central hook for managing the tier list state. 
+ * Orchestrates drag-and-drop, persistence, board structure modifications (add/remove tiers), and import/export functionality.
+ * @module useTierList
+ */
+
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
@@ -28,6 +35,18 @@ const INITIAL_STATE: TierListState = {
 
 const LOCAL_STORAGE_KEY = 'moat-tierlist';
 
+/**
+ * Primary hook for managing the state and interactions of the Tier List application.
+ * 
+ * Responsibilities:
+ * - Manages the core Tier List state (tiers, items) with local storage persistence.
+ * - Integrates with Drag and Drop logic (useTierListDnD).
+ * - Integrates with Board Structure logic (useTierStructure).
+ * - Handles data import/export (JSON).
+ * - Manages the "Details Modal" state.
+ * - Handles locating items on the board.
+ * - Syncs item updates to the global Media Registry.
+ */
 export function useTierList() {
   const [state, setState, isHydrated] = usePersistentState<TierListState>(LOCAL_STORAGE_KEY, INITIAL_STATE);
   

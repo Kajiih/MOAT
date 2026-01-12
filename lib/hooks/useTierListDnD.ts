@@ -1,3 +1,10 @@
+/**
+ * @file useTierListDnD.ts
+ * @description Encapsulates the Drag and Drop (DnD) logic for the Tier List.
+ * Uses @dnd-kit to handle sensors, collision detection, and state updates for moving items between tiers and reordering tiers themselves.
+ * @module useTierListDnD
+ */
+
 import { 
   DragStartEvent, 
   DragOverEvent, 
@@ -14,6 +21,18 @@ import {
 import { useState, useCallback, Dispatch, SetStateAction } from 'react';
 import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
+/**
+ * Manages the Drag and Drop state and event handlers for the Tier List board.
+ * 
+ * Key features:
+ * - Handles both Sortable (within tiers) and Draggable (from search) items.
+ * - Manages 'active' and 'over' states for visual feedback.
+ * - Updates the Tier List state on drag over and drag end events.
+ * - Supports reordering of Tiers (vertical lists) and Items (horizontal cards).
+ * 
+ * @param state - The current Tier List state.
+ * @param setState - State setter for updating items and tier order.
+ */
 export function useTierListDnD(
   state: TierListState,
   setState: Dispatch<SetStateAction<TierListState>>

@@ -1,3 +1,11 @@
+/**
+ * @file BoardDetailBundler.tsx
+ * @description A "headless" background component that acts as a sync engine.
+ * Monitors items on the board and automatically fetches deep metadata (tracklists, years, tags) 
+ * for any item that is missing it. Ensures the board state is "feature-complete" without blocking the UI.
+ * @module BoardDetailBundler
+ */
+
 'use client';
 
 import { useEffect, useMemo } from 'react';

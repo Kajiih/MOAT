@@ -1,3 +1,10 @@
+/**
+ * @file useMediaSearch.ts
+ * @description Custom hook for handling media searches against the backend API.
+ * Features include debouncing, SWR-based caching, pagination prefetching, and advanced filtering state management.
+ * @module useMediaSearch
+ */
+
 import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
@@ -29,17 +36,30 @@ const fetcher = async (url: string, retryCount = 0): Promise<SearchResponse> => 
   return res.json();
 };
 
+/**
+ * Configuration options for the useMediaSearch hook.
+ */
 interface UseMediaSearchConfig {
+  /** Enable fuzzy matching (approximate string matching). Default: true */
   fuzzy?: boolean;
+  /** Enable wildcard matching (e.g. "The *"). Default: true */
   wildcard?: boolean;
+  /** Whether the search should be active. Default: true */
   enabled?: boolean;
+  /** Force a specific artist ID (scoping the search). */
   artistId?: string; // Force a specific artist for this search instance
+  /** Force a specific album ID (scoping the search). */
   albumId?: string;  // Force a specific album for this search instance
+  /** Ignore advanced filters (dates, types, etc.) from persisted state. Default: false */
   ignoreFilters?: boolean; // Ignore advanced filters (dates, types, etc.) from persisted state
+  /** Override default localStorage key for persistence. */
   storageKey?: string; // Override default localStorage key
 }
 
-// Map each MediaType to its specific item type
+/**
+ * Maps each MediaType ('artist', 'album', 'song') to its specific item type definition.
+ * Used for type inference in the hook results.
+ */
 type MediaItemMap = {
   artist: ArtistItem;
   album: AlbumItem;
@@ -79,9 +99,16 @@ const defaultState: SearchParamsState = {
   page: 1
 };
 
+/**
+ * Return type for the useMediaSearch hook.
+ * Generic T represents the specific MediaItem type (ArtistItem, AlbumItem, or SongItem).
+ */
 interface UseMediaSearchResult<T extends MediaItem> {
+  // --- Query State ---
   query: string;
   setQuery: (val: string) => void;
+  
+  // --- Filter State ---
   selectedArtist: ArtistSelection | null;
   setSelectedArtist: (val: ArtistSelection | null) => void;
   selectedAlbum: AlbumSelection | null;
@@ -94,7 +121,8 @@ interface UseMediaSearchResult<T extends MediaItem> {
   setAlbumPrimaryTypes: (val: string[]) => void;
   albumSecondaryTypes: string[];
   setAlbumSecondaryTypes: (val: string[]) => void;
-  // New Setters
+  
+  // --- New Filters ---
   artistType: string;
   setArtistType: (val: string) => void;
   artistCountry: string;
@@ -106,14 +134,20 @@ interface UseMediaSearchResult<T extends MediaItem> {
   maxDuration: string;
   setMaxDuration: (val: string) => void;
 
+  // --- Pagination & Config ---
   page: number;
   setPage: (val: number | ((prev: number) => number)) => void;
   fuzzy: boolean;
   setFuzzy: (val: boolean) => void;
   wildcard: boolean;
   setWildcard: (val: boolean) => void;
+  
+  /** Resets all search parameters to defaults. */
   reset: () => void;
+  /** Manually triggers a search (flushing debounce). */
   searchNow: () => void; // Manually trigger search (flush debounce)
+  
+  // --- Results ---
   results: T[];
   totalPages: number;
   isLoading: boolean;

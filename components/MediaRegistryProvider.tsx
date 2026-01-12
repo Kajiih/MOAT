@@ -1,3 +1,12 @@
+/**
+ * @file MediaRegistryProvider.tsx
+ * @description A persistent global cache for media items.
+ * Acts as a "Shared Memory" for the application, ensuring that once an item's details or image 
+ * are found in one part of the app (e.g. Search), they are available everywhere (e.g. Board).
+ * Implements a FIFO pruning mechanism to prevent localStorage bloat.
+ * @module MediaRegistryProvider
+ */
+
 'use client';
 
 import React, { createContext, useContext, useCallback, ReactNode } from 'react';

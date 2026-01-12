@@ -1,3 +1,11 @@
+/**
+ * @file DetailsModal.tsx
+ * @description A modal component for displaying detailed information about a media item.
+ * It fetches deep metadata (tracklists, artist bios, etc.) on demand and displays it in a rich layout.
+ * Also handles image error fallbacks and retries.
+ * @module DetailsModal
+ */
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';

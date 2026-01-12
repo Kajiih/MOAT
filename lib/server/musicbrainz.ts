@@ -1,3 +1,10 @@
+/**
+ * @file musicbrainz.ts
+ * @description Server-side utility for interacting with the MusicBrainz API.
+ * Handles search queries, result mapping, detailed metadata fetching, and caching strategies.
+ * @module MusicBrainzService
+ */
+
 import { z } from 'zod';
 import { 
     MusicBrainzSearchResponseSchema, 
@@ -67,6 +74,17 @@ interface MBRelation {
     };
 }
 
+/**
+ * Performs a search against the MusicBrainz API.
+ * 
+ * - Constructs a Lucene query based on the provided params.
+ * - Handles pagination (limit/offset).
+ * - Validates response using Zod schemas.
+ * - Caches results in a server-side LRU cache.
+ * 
+ * @param params - Search parameters including type, query string, and filters.
+ * @returns A promise resolving to the search results with pagination metadata.
+ */
 export async function searchMusicBrainz(params: SearchParams): Promise<SearchResult> {
   const {
       type,
@@ -157,6 +175,17 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   return { results, page, totalPages, totalCount };
 }
 
+/**
+ * Fetches detailed metadata for a specific media item.
+ * 
+ * - For Albums: Resolves the "best" specific release to get tracklists and labels.
+ * - For Artists: Fetches relations (URLs), tags, and attempts to resolve an image.
+ * - For Songs: Fetches tags, duration, and parent album info.
+ * 
+ * @param id - The MusicBrainz ID of the entity.
+ * @param type - The type of entity (artist, album, song).
+ * @returns Detailed metadata object or a minimal object if fetch fails.
+ */
 export async function getMediaDetails(id: string, type: MediaType): Promise<MediaDetails | { id: string; type: MediaType }> {
     try {
         if (type === 'album') {

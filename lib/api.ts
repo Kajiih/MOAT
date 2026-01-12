@@ -1,3 +1,10 @@
+/**
+ * @file api.ts
+ * @description Shared client-side API utilities.
+ * Currently primarily handles the construction of search URLs for SWR.
+ * @module APIUtils
+ */
+
 import { MediaType } from './types';
 
 export interface SearchParams {

@@ -1,3 +1,10 @@
+/**
+ * @file types.ts
+ * @description Central definition of all domain types and Zod schemas used across the application.
+ * Includes definitions for MediaItems (Album, Artist, Song), Tier definitions, and MusicBrainz API response schemas.
+ * @module Types
+ */
+
 import { z } from 'zod';
 
 // --- Domain Types ---

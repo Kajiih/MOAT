@@ -1,3 +1,11 @@
+/**
+ * @file TierBoard.tsx
+ * @description The main visualization area of the application.
+ * Renders the list of tiers (using @dnd-kit SortableContext) and manages the board title input.
+ * Responsible for assembling the 'Screenshot' view of the tier list.
+ * @module TierBoard
+ */
+
 'use client';
 
 import { 

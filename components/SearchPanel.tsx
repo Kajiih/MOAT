@@ -1,3 +1,10 @@
+/**
+ * @file SearchPanel.tsx
+ * @description The sidebar component responsible for searching and filtering media items.
+ * It manages the active tab (Album/Artist/Song), global search settings, and renders persistent SearchTabs.
+ * @module SearchPanel
+ */
+
 'use client';
 
 import { usePersistentState } from '@/lib/hooks';

@@ -1,3 +1,14 @@
+/**
+ * @file usePersistentState.ts
+ * @description A custom hook that synchronizes state with localStorage.
+ * Features:
+ * - Lazy hydration (client-side only) to match Next.js SSR requirements.
+ * - Debounced writes to prevent excessive disk I/O.
+ * - Robust object merging to handle schema migrations.
+ * - Cross-tab synchronization via the 'storage' event.
+ * @module usePersistentState
+ */
+
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 

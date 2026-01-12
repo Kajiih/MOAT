@@ -1,3 +1,10 @@
+/**
+ * @file useMediaDetails.ts
+ * @description Custom hook for fetching and caching deep metadata for media items.
+ * Uses SWR for efficient caching, revalidation, and automatic retries on 503 errors.
+ * @module useMediaDetails
+ */
+
 import useSWR, { preload } from 'swr';
 import { MediaType, MediaDetails } from '@/lib/types';
 

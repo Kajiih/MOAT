@@ -2,7 +2,7 @@
 
 - Information about the app is available in README.md
 - docs/ARCHITECTURE.md contains information about the architecture of the app.
-  - You should look at this file when you need context about the app or a specific feature/implementation.
+  - When you start working, look at this file to learn context about the app and specific features/implementations.
   - Always update this file after implementing a new feature or making a change.
 - You should lint your code, use `npm run lint`, we have a strict code quality requirements.
   - Lints should not be ignored with comments unless it is the best solution for idiomaticity, simplicity, performance, clarity, maintainability and scalability
