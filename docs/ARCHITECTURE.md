@@ -76,7 +76,9 @@
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
 - `components/`:
   - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
+  - `Header.tsx`: Global actions (Import, Export, Screenshot) and branding.
   - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
+  - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
   - `MediaCard.tsx`: Draggable/Sortable item visualization.
   - `SearchPanel.tsx`: Sidebar for discovering new media.
   - `BoardDetailBundler.tsx`: The background worker that keeps board items enriched.
@@ -84,6 +86,7 @@
   - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
 - `lib/hooks/`:
   - `useTierList.ts`: Core board state and persistence logic.
+  - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
@@ -91,3 +94,4 @@
 - `lib/server/`:
   - `musicbrainz.ts`: MusicBrainz API client (search, details).
   - `images.ts`: Multi-source image resolver (Fanart.tv, Wikidata).
+  - `item-cache.ts`: Server-side LRU cache for mapped media items.

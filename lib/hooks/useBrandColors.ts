@@ -1,3 +1,10 @@
+/**
+ * @file useBrandColors.ts
+ * @description Hook that derives the application's "Brand Colors" from the current tier list state.
+ * These colors are used to dynamically theme the Header Logo and Favicon.
+ * @module useBrandColors
+ */
+
 import { useMemo } from 'react';
 import { getColorTheme } from '@/lib/colors';
 

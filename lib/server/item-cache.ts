@@ -1,3 +1,11 @@
+/**
+ * @file item-cache.ts
+ * @description A simple server-side in-memory LRU-like cache for MediaItems.
+ * Used to store mapped items during search to avoid re-fetching/re-mapping them 
+ * when subsequent detailed requests or related searches occur.
+ * @module ServerItemCache
+ */
+
 import { MediaItem } from '@/lib/types';
 
 /**

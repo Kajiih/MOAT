@@ -1,3 +1,11 @@
+/**
+ * @file SearchTab.tsx
+ * @description A self-contained component for a specific media search type (Album, Artist, or Song).
+ * Manages its own local state for queries, filters, and pagination, preserving it even when hidden.
+ * Orchestrates the search UI: input, filters, results grid, and pagination.
+ * @module SearchTab
+ */
+
 'use client';
 
 import { useMemo, useEffect } from 'react';

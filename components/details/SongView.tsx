@@ -1,3 +1,10 @@
+/**
+ * @file SongView.tsx
+ * @description Renders the detailed view for a Song (Recording) entity within the Details Modal.
+ * Displays metadata (Duration), parent Album info, Tags, and external links.
+ * @module SongView
+ */
+
 import { Disc, Clock, ExternalLink } from 'lucide-react';
 import { MediaDetails } from '@/lib/types';
 import { ExternalLinks } from './ExternalLinks';

@@ -1,3 +1,10 @@
+/**
+ * @file search.ts
+ * @description Utilities for constructing advanced Lucene search queries for the MusicBrainz API.
+ * Implements logic for fuzzy matching (Levenshtein distance) and wildcard support based on term length.
+ * @module SearchUtils
+ */
+
 export interface SearchOptions {
     fuzzy: boolean;
     wildcard: boolean;

@@ -1,3 +1,11 @@
+/**
+ * @file TierSettings.tsx
+ * @description A popover menu for configuring a specific tier.
+ * Allows changing the tier's color theme and deleting the tier.
+ * Handles click-outside detection for auto-closing.
+ * @module TierSettings
+ */
+
 'use client';
 
 import { useRef, useEffect } from 'react';

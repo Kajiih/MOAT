@@ -1,3 +1,10 @@
+/**
+ * @file route.ts (api/details)
+ * @description API Endpoint for fetching detailed metadata for a specific media item.
+ * Proxies requests to the internal server-side `getMediaDetails` function.
+ * @module ApiDetails
+ */
+
 import { NextResponse } from 'next/server';
 import { MediaType } from '@/lib/types';
 import { getMediaDetails } from '@/lib/server/musicbrainz';

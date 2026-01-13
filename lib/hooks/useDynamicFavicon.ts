@@ -1,3 +1,11 @@
+/**
+ * @file useDynamicFavicon.ts
+ * @description Hook to programmatically update the browser's favicon based on the tier list colors.
+ * Generates an SVG on the fly and converts it to a Data URI.
+ * Handles React hydration timing issues to ensure the favicon updates correctly on initial load.
+ * @module useDynamicFavicon
+ */
+
 import { useEffect, useRef } from 'react';
 import { useBrandColors } from './useBrandColors';
 

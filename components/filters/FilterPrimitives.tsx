@@ -1,3 +1,10 @@
+/**
+ * @file FilterPrimitives.tsx
+ * @description Layout primitives and shared styles for the filter system.
+ * Ensures consistent spacing and responsive behavior (Grid vs Flex) for all filter components.
+ * @module FilterPrimitives
+ */
+
 import { ReactNode } from 'react';
 
 export const FILTER_INPUT_STYLES = "w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-neutral-300 outline-none focus:border-red-600 text-[10px]";

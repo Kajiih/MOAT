@@ -1,3 +1,10 @@
+/**
+ * @file SearchSettings.tsx
+ * @description A dropdown menu component for configuring global search behavior.
+ * Allows users to toggle "Fuzzy Search" and "Wildcard Matching" preferences.
+ * @module SearchSettings
+ */
+
 'use client';
 
 import { useState } from 'react';

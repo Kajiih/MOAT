@@ -1,3 +1,10 @@
+/**
+ * @file DateRangeFilter.tsx
+ * @description A reusable filter component for selecting a year range (Min/Max).
+ * Used across multiple entity types (Artist birth year, Album release year).
+ * @module DateRangeFilter
+ */
+
 import { FilterRow, FilterCol, FILTER_INPUT_STYLES } from './FilterPrimitives';
 
 interface DateRangeFilterProps {

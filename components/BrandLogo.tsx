@@ -1,3 +1,11 @@
+/**
+ * @file BrandLogo.tsx
+ * @description Renders the application logo ("MOAT") with dynamic coloring.
+ * Colors are derived from the top tiers of the current board state.
+ * Supports multiple variants (header, footer, default) for different contexts.
+ * @module BrandLogo
+ */
+
 import React from 'react';
 import { twMerge } from 'tailwind-merge';
 

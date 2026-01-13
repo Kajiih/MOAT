@@ -1,3 +1,10 @@
+/**
+ * @file SearchFilters.tsx
+ * @description A composite component that renders the appropriate filter inputs based on the selected Media Type.
+ * Aggregates specific sub-filters (ArtistFilters, AlbumFilters) and common filters (DateRange, Tags) into a unified UI.
+ * @module SearchFilters
+ */
+
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
 import { ArtistFilters } from './ArtistFilters';
 import { AlbumFilters } from './AlbumFilters';

@@ -1,3 +1,11 @@
+/**
+ * @file colors.ts
+ * @description Defines the semantic color palette used throughout the application.
+ * Maps abstract color IDs (e.g., 'red') to concrete Tailwind CSS classes and Hex values.
+ * Used for Tier backgrounds, text colors, and dynamic branding generation.
+ * @module ColorSystem
+ */
+
 export interface ColorTheme {
   id: string;
   label: string;

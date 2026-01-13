@@ -1,3 +1,10 @@
+/**
+ * @file AlbumView.tsx
+ * @description Renders the detailed view for an Album entity within the Details Modal.
+ * Displays metadata (Release Date, Label), the full Tracklist, and external links.
+ * @module AlbumView
+ */
+
 import { Calendar, Disc, ExternalLink } from 'lucide-react';
 import { MediaDetails } from '@/lib/types';
 import { ExternalLinks } from './ExternalLinks';

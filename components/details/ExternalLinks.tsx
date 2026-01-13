@@ -1,3 +1,10 @@
+/**
+ * @file ExternalLinks.tsx
+ * @description A reusable component for rendering a list of external resource links.
+ * Automatically generates a MusicBrainz link based on the entity ID and type.
+ * @module ExternalLinks
+ */
+
 import { ExternalLink } from 'lucide-react';
 
 interface ExternalLinksProps {

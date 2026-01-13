@@ -1,3 +1,10 @@
+/**
+ * @file ArtistFilters.tsx
+ * @description Specialized filter component for Artist entities.
+ * Allows filtering by Artist Type (Person, Group) and Country.
+ * @module ArtistFilters
+ */
+
 import { ARTIST_TYPES } from '@/lib/types';
 import { FilterRow, FilterCol, FILTER_INPUT_STYLES } from './FilterPrimitives';
 

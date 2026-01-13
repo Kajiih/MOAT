@@ -1,3 +1,10 @@
+/**
+ * @file useSearchFilters.ts
+ * @description A simple hook to manage the visibility state of the expanded filters section
+ * within the Search Panel. Persists the state per media type (Album/Artist/Song).
+ * @module useSearchFilters
+ */
+
 import { useCallback } from 'react';
 import { MediaType } from '@/lib/types';
 import { usePersistentState } from './usePersistentState';

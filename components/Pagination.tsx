@@ -1,3 +1,11 @@
+/**
+ * @file Pagination.tsx
+ * @description Reusable pagination control component.
+ * Displays Previous/Next buttons and the current page status.
+ * Used primarily in the Search Panel.
+ * @module Pagination
+ */
+
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {

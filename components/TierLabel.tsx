@@ -1,3 +1,13 @@
+/**
+ * @file TierLabel.tsx
+ * @description The interactive header for a Tier Row.
+ * Features:
+ * - Double-click to rename the tier.
+ * - Drag handle for reordering tiers.
+ * - Dynamic text sizing based on label length.
+ * @module TierLabel
+ */
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';

@@ -1,3 +1,11 @@
+/**
+ * @file useTierStructure.ts
+ * @description Hook responsible for the structural manipulation of the tier board.
+ * Contains logic for Adding, Deleting, Updating, and Clearing tiers.
+ * Also handles the "Randomize Colors" feature.
+ * @module useTierStructure
+ */
+
 import { useCallback, Dispatch, SetStateAction } from 'react';
 import { TierListState, TierDefinition } from '@/lib/types';
 import { TIER_COLORS } from '@/lib/colors';

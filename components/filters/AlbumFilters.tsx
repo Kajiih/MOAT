@@ -1,3 +1,11 @@
+/**
+ * @file AlbumFilters.tsx
+ * @description specialized filter component for Album entities.
+ * Allows filtering by Primary Type (Album, EP, Single) and Secondary Type (Live, Compilation).
+ * Supports both a full view (SearchTab) and a compact view (ContextPickers).
+ * @module AlbumFilters
+ */
+
 import { PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
 import { FilterButton } from '@/components/FilterButton';
 import { Info } from 'lucide-react';

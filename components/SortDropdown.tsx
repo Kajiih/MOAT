@@ -1,3 +1,10 @@
+/**
+ * @file SortDropdown.tsx
+ * @description A dropdown component for selecting the sort order of search results.
+ * Adapts available sort options based on the media type (e.g., Duration sorting only for songs).
+ * @module SortDropdown
+ */
+
 import { useState } from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import { MediaType, SortOption } from '@/lib/types';

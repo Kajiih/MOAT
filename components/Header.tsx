@@ -1,3 +1,11 @@
+/**
+ * @file Header.tsx
+ * @description The main application header component.
+ * Contains global actions such as Import, Export, Screenshot, and Clear Board.
+ * Displays the dynamic Brand Logo which adapts to the current board colors.
+ * @module Header
+ */
+
 'use client';
 
 import { Upload, Download, Trash2, Camera, Loader2 } from 'lucide-react';

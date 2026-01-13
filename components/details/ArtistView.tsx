@@ -1,3 +1,10 @@
+/**
+ * @file ArtistView.tsx
+ * @description Renders the detailed view for an Artist entity within the Details Modal.
+ * Displays metadata (Origin/Area), popular Tags, and external links.
+ * @module ArtistView
+ */
+
 import { MapPin } from 'lucide-react';
 import { MediaDetails } from '@/lib/types';
 import { ExternalLinks } from './ExternalLinks';

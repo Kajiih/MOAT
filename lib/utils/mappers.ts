@@ -1,3 +1,10 @@
+/**
+ * @file mappers.ts
+ * @description Utility functions for transforming raw API responses (Zod schemas) into internal domain types (MediaItem).
+ * Handles the logic for extracting release years, formatting artist credits, and resolving the best available image URL (Cover Art Archive).
+ * @module DataMappers
+ */
+
 import { z } from 'zod';
 import { 
     MusicBrainzArtistCreditSchema, 
@@ -10,11 +17,22 @@ import { getArtistThumbnail } from '@/lib/server/images';
 
 const COVER_ART_ARCHIVE_BASE_URL = 'https://coverartarchive.org';
 
+/**
+ * Formats a list of artist credits into a single string.
+ * Handles join phrases (e.g., " feat. ") correctly.
+ * 
+ * @param credits - Array of artist credits from MusicBrainz.
+ * @returns A formatted string or 'Unknown' if empty.
+ */
 export const formatArtistCredit = (credits: z.infer<typeof MusicBrainzArtistCreditSchema>[] | undefined) => {
     if (!credits || credits.length === 0) return 'Unknown';
     return credits.map(c => (c.name + (c.joinphrase || ''))).join('');
 };
 
+/**
+ * Maps a raw MusicBrainz Release Group response to a simplified MediaItem.
+ * Defaults the image to the Cover Art Archive front image.
+ */
 export function mapReleaseGroupToMediaItem(item: z.infer<typeof MusicBrainzReleaseGroupSchema>): MediaItem {
     return {
         id: item.id,
@@ -29,6 +47,10 @@ export function mapReleaseGroupToMediaItem(item: z.infer<typeof MusicBrainzRelea
     };
 }
 
+/**
+ * Maps a raw MusicBrainz Artist response to a MediaItem.
+ * Asynchronously fetches a thumbnail from Fanart.tv or Wikidata via the image service.
+ */
 export async function mapArtistToMediaItem(item: z.infer<typeof MusicBrainzArtistSchema>): Promise<MediaItem> {
     const thumb = await getArtistThumbnail(item.id);
     return {
@@ -42,6 +64,10 @@ export async function mapArtistToMediaItem(item: z.infer<typeof MusicBrainzArtis
     };
 }
 
+/**
+ * Maps a raw MusicBrainz Recording (Song) response to a MediaItem.
+ * Attempts to resolve artwork from the release group or specific release.
+ */
 export function mapRecordingToMediaItem(item: z.infer<typeof MusicBrainzRecordingSchema>): MediaItem {
     const release = item.releases?.[0];
     const albumId = release?.['release-group']?.id;

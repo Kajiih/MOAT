@@ -1,3 +1,11 @@
+/**
+ * @file ToastProvider.tsx
+ * @description Global notification system for the application.
+ * Uses the Context API to provide a `showToast` function to any component.
+ * Features a stacked toast UI that expands on interaction and auto-dismisses.
+ * @module ToastSystem
+ */
+
 'use client';
 
 import { createContext, useContext, useCallback, ReactNode, useReducer } from 'react';

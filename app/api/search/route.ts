@@ -1,3 +1,12 @@
+/**
+ * @file route.ts (api/search)
+ * @description API Endpoint for searching media items against MusicBrainz.
+ * Handles parsing of all query parameters (filters, pagination, sorting options)
+ * and proxies them to the internal `searchMusicBrainz` function.
+ * Implements basic error handling for upstream 503s (Rate Limiting).
+ * @module ApiSearch
+ */
+
 import { NextResponse } from 'next/server';
 import { MediaType } from '@/lib/types';
 import { searchMusicBrainz } from '@/lib/server/musicbrainz';
