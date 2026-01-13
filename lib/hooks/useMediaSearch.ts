@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
-import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, ArtistSelection, AlbumSelection } from '@/lib/types';
+import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, MediaSelection } from '@/lib/types';
 import { usePersistentState } from './usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 
@@ -68,8 +68,8 @@ type MediaItemMap = {
 
 export interface SearchParamsState {
   query: string;
-  selectedArtist: ArtistSelection | null;
-  selectedAlbum: AlbumSelection | null;
+  selectedArtist: MediaSelection | null;
+  selectedAlbum: MediaSelection | null;
   minYear: string;
   maxYear: string;
   albumPrimaryTypes: string[];

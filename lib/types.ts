@@ -71,21 +71,27 @@ export type MediaItem = AlbumItem | ArtistItem | SongItem;
 /**
  * Represents a simplified artist object used for selection state.
  */
-export type ArtistSelection = {
+export interface ArtistSelection {
   id: string;
   name: string;
   imageUrl?: string;
-};
+  disambiguation?: string;
+}
 
 /**
  * Represents a simplified album object used for selection state.
  */
-export type AlbumSelection = {
+export interface AlbumSelection {
   id: string;
   name: string;
   artist: string;
   imageUrl?: string;
-};
+}
+
+/**
+ * Unified selection type for generic components (pickers).
+ */
+export type MediaSelection = ArtistSelection | AlbumSelection;
 
 /**
  * Defines the metadata for a single tier row.
