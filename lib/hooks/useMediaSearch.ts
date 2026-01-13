@@ -12,29 +12,13 @@ import { getSearchUrl } from '@/lib/api';
 import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, MediaSelection, ArtistSelection, AlbumSelection } from '@/lib/types';
 import { usePersistentState } from './usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
+import { swrFetcher } from '@/lib/api/fetcher';
 
 interface SearchResponse {
   results: MediaItem[];
   page: number;
   totalPages: number;
 }
-
-const fetcher = async (url: string, retryCount = 0): Promise<SearchResponse> => {
-  const res = await fetch(url);
-  
-  if (res.status === 503 && retryCount < 2) {
-    // Wait for 2 seconds before retrying
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    return fetcher(url, retryCount + 1);
-  }
-
-  if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.') as Error & { status?: number };
-    error.status = res.status;
-    throw error;
-  }
-  return res.json();
-};
 
 /**
  * Configuration options for the useMediaSearch hook.
@@ -287,7 +271,7 @@ export function useMediaSearch<T extends MediaType>(
 
   const { data, error, isLoading, isValidating } = useSWR<SearchResponse, Error & { status?: number }>(
     searchUrl,
-    fetcher,
+    swrFetcher,
     { keepPreviousData: shouldKeepPreviousData }
   );
 
@@ -328,7 +312,7 @@ export function useMediaSearch<T extends MediaType>(
             fuzzy: isFuzzy,
             wildcard: isWildcard
           });
-          preload(nextUrl, fetcher);
+          preload(nextUrl, swrFetcher);
       }
   }, [data, page, type, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, debouncedMinDuration, debouncedMaxDuration, isFuzzy, isWildcard, isEnabled]);
 

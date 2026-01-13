@@ -15,8 +15,7 @@ import { useMediaSearch } from '@/lib/hooks';
 import { getSearchUrl } from '@/lib/api';
 import Image from 'next/image';
 import { SearchFilters } from './filters/SearchFilters';
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { swrFetcher } from '@/lib/api/fetcher';
 
 interface MediaPickerProps<T extends MediaSelection> {
   type: 'artist' | 'album';
@@ -129,11 +128,11 @@ export function MediaPicker<T extends MediaSelection>({
         // Otherwise (default/album context), prefetch albums.
         const targetType = context === 'song' ? 'song' : 'album';
         const prefetchUrl = getSearchUrl({ type: targetType, artistId: item.id, page: 1, fuzzy, wildcard });
-        preload(prefetchUrl, fetcher);
+        preload(prefetchUrl, swrFetcher);
     } else if (type === 'album') {
         // If we select an album, we almost certainly want to see its songs
         const prefetchUrl = getSearchUrl({ type: 'song', albumId: item.id, page: 1, fuzzy, wildcard });
-        preload(prefetchUrl, fetcher);
+        preload(prefetchUrl, swrFetcher);
     }
   };
 
