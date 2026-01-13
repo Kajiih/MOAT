@@ -1,6 +1,8 @@
+import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTierList } from './useTierList';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TierListProvider } from '@/components/TierListContext';
 
 // Mock dependencies
 vi.mock('@/components/ToastProvider', () => ({
@@ -57,8 +59,12 @@ describe('useTierList', () => {
     vi.clearAllMocks();
   });
 
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <TierListProvider>{children}</TierListProvider>
+  );
+
   it('should initialize with default state', () => {
-    const { result } = renderHook(() => useTierList());
+    const { result } = renderHook(() => useTierList(), { wrapper });
     
     // Check default tiers
     expect(result.current.state.tierDefs).toHaveLength(6);
@@ -67,7 +73,7 @@ describe('useTierList', () => {
   });
 
   it('should add and delete tiers', () => {
-    const { result } = renderHook(() => useTierList());
+    const { result } = renderHook(() => useTierList(), { wrapper });
 
     // Add Tier
     act(() => {
@@ -87,7 +93,7 @@ describe('useTierList', () => {
   });
 
   it('should update tier properties', () => {
-    const { result } = renderHook(() => useTierList());
+    const { result } = renderHook(() => useTierList(), { wrapper });
     const tierId = result.current.state.tierDefs[0].id;
 
     act(() => {
@@ -98,7 +104,7 @@ describe('useTierList', () => {
   });
 
   it('should import from valid JSON', async () => {
-    const { result } = renderHook(() => useTierList());
+    const { result } = renderHook(() => useTierList(), { wrapper });
     
     const validImportData = {
       version: 1,
@@ -125,7 +131,7 @@ describe('useTierList', () => {
   });
 
   it('should handle invalid JSON import gracefully', async () => {
-    const { result } = renderHook(() => useTierList());
+    const { result } = renderHook(() => useTierList(), { wrapper });
     const initialCount = result.current.state.tierDefs.length;
 
     const file = new File(['invalid json'], 'bad.json', { type: 'application/json' });
@@ -148,7 +154,7 @@ describe('useTierList', () => {
   });
 
   it('should clear the board', () => {
-    const { result } = renderHook(() => useTierList());
+    const { result } = renderHook(() => useTierList(), { wrapper });
     
     // Simulate items on board (manually inject or assume initial state is empty)
     // Let's add a tier first to change state

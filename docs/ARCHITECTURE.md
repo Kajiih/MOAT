@@ -49,9 +49,21 @@
 ### 2. State & Data Flow Strategy
 
 - **Layered Persistence**:
-  1. **Board State**: The primary source of truth, managed by `useTierList`. Highly optimized with equality checks to prevent redundant disk writes.
+  1. **Board State (Context-Based)**: 
+     - The application state (`items`, `tierDefs`, `title`) is held in `TierListContext`. 
+     - It uses `usePersistentState` for debounced `localStorage` synchronization.
+     - This architecture decouples state from logic, paving the way for multi-board management.
   2. **Global Media Registry**: A persistent `localStorage` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent `localStorage` bloat while maintaining a vast metadata library.
+
+- **Hook Composition Pattern**:
+  - `useTierList` (Main Hook): Acts as a **Composer**. It aggregates state from `TierListContext` and behavior from specialized sub-hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`) to provide a unified API to the view layer (`TierListApp`).
+  - **Separation of Concerns**:
+    - `useTierListIO`: Handles Import/Export logic.
+    - `useTierListDnD`: Handles Drag and Drop sensors and collisions.
+    - `useTierStructure`: Handles adding/deleting tiers and randomizing colors.
+    - `useTierListUtils`: Handles derived state (header colors) and UI utilities (scrolling).
+
 - **Synergy Pattern**:
   - Updates flow bidirectionally: If the background bundler finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
@@ -107,6 +119,7 @@
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
 - `components/`:
   - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
+  - `TierListContext.tsx`: **[New]** Core state provider for the tier list (persistence, hydration).
   - `Header.tsx`: Global actions (Import, Export, Screenshot) and branding.
   - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
   - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
@@ -117,7 +130,9 @@
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
 - `lib/hooks/`:
-  - `useTierList.ts`: Core board state and persistence logic.
+  - `useTierList.ts`: **[Updated]** Composition hook acting as the facade for the TierList Context and sub-hooks.
+  - `useTierListIO.ts`: **[New]** Encapsulates Import/Export logic.
+  - `useTierListUtils.ts`: **[New]** Encapsulates derived state and UI utilities.
   - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.

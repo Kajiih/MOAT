@@ -69,7 +69,6 @@ export function usePersistentState<T>(key: string, initialValue: T) {
         }
       } else if (e.key === key && !e.newValue) {
         // Key was cleared in another tab
-        // eslint-disable-next-line
         setState(initialValue);
       }
     };
