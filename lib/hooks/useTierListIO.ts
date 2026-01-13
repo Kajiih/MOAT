@@ -54,7 +54,7 @@ export function useTierListIO(
             // Note: We might want to pass the initial title or handle it differently if needed,
             // but here we just use the current state's title or a default as fallback during parsing logic if implemented.
             // The original logic used INITIAL_STATE.title as fallback.
-            const newState = parseImportData(jsonString, 'My Tier List');
+            const newState = parseImportData(jsonString, 'Untitled Tier List');
             
             setState(newState);
             showToast("Tier list imported successfully!", "success");

@@ -12,26 +12,7 @@ import React, { createContext, useContext, useMemo, useRef, useEffect, useState,
 import { MediaItem, TierListState } from '@/lib/types';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
-
-const INITIAL_STATE: TierListState = {
-  title: 'My Tier List',
-  tierDefs: [
-    { id: 'tier-1', label: 'S', color: 'red' },
-    { id: 'tier-2', label: 'A', color: 'orange' },
-    { id: 'tier-3', label: 'B', color: 'amber' },
-    { id: 'tier-4', label: 'C', color: 'green' },
-    { id: 'tier-5', label: 'D', color: 'blue' },
-    { id: 'tier-6', label: 'Unranked', color: 'neutral' },
-  ],
-  items: { 
-    'tier-1': [], 
-    'tier-2': [], 
-    'tier-3': [], 
-    'tier-4': [], 
-    'tier-5': [], 
-    'tier-6': [] 
-  }
-};
+import { INITIAL_STATE } from '@/lib/initial-state';
 
 const LOCAL_STORAGE_KEY = 'moat-tierlist';
 
