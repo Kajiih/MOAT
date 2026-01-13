@@ -18,6 +18,17 @@ import { getArtistThumbnail } from '@/lib/server/images';
 const COVER_ART_ARCHIVE_BASE_URL = 'https://coverartarchive.org';
 
 /**
+ * Helper to construct a Cover Art Archive URL.
+ * 
+ * @param id - The MusicBrainz ID (release-group or release).
+ * @param type - The entity type ('release-group' or 'release').
+ * @returns A formatted URL string.
+ */
+const getCoverArtUrl = (id: string, type: 'release-group' | 'release' = 'release-group') => {
+    return `${COVER_ART_ARCHIVE_BASE_URL}/${type}/${id}/front-250`;
+};
+
+/**
  * Formats a list of artist credits into a single string.
  * Handles join phrases (e.g., " feat. ") correctly.
  * 
@@ -41,7 +52,7 @@ export function mapReleaseGroupToMediaItem(item: z.infer<typeof MusicBrainzRelea
         artist: formatArtistCredit(item['artist-credit']),
         year: item['first-release-date']?.split('-')[0] || '',
         date: item['first-release-date'],
-        imageUrl: `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${item.id}/front-250`,
+        imageUrl: getCoverArtUrl(item.id, 'release-group'),
         primaryType: item['primary-type'],
         secondaryTypes: item['secondary-types']
     };
@@ -76,9 +87,9 @@ export function mapRecordingToMediaItem(item: z.infer<typeof MusicBrainzRecordin
     // Preference: Use release-group ID for image if available, otherwise fallback to release ID
     let imageUrl: string | undefined = undefined;
     if (albumId) {
-        imageUrl = `${COVER_ART_ARCHIVE_BASE_URL}/release-group/${albumId}/front-250`;
+        imageUrl = getCoverArtUrl(albumId, 'release-group');
     } else if (releaseId) {
-        imageUrl = `${COVER_ART_ARCHIVE_BASE_URL}/release/${releaseId}/front-250`;
+        imageUrl = getCoverArtUrl(releaseId, 'release');
     }
 
     return {

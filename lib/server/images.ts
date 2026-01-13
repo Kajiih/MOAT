@@ -16,20 +16,43 @@ const WIKIMEDIA_FILE_PATH_URL = 'https://commons.wikimedia.org/wiki/Special:File
 const IMAGE_CACHE_TTL = 86400; // 24 hours
 
 /**
+ * Constructs a Wikimedia Commons image URL.
+ * 
+ * @param fileName - The file name from Wikidata (e.g. "Image.jpg").
+ * @param width - Desired width for the thumbnail.
+ */
+function getWikimediaUrl(fileName: string, width: number = 500): string {
+    return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}?width=${width}`;
+}
+
+/**
+ * Constructs a Fanart.tv API URL.
+ */
+function getFanartApiUrl(mbid: string): string {
+    return `${FANART_BASE_URL}/${mbid}?api_key=${FANART_API_KEY}`;
+}
+
+/**
+ * Converts a high-res Fanart.tv image URL to a lower-res preview URL.
+ */
+function getFanartPreviewUrl(url: string): string {
+    return url.replace('/fanart/', '/preview/');
+}
+
+/**
  * Fetches an artist thumbnail from Fanart.tv if available.
  */
 export async function getFanartImage(mbid: string): Promise<string | undefined> {
   if (!FANART_API_KEY) return undefined;
   try {
-    const res = await fetch(`${FANART_BASE_URL}/${mbid}?api_key=${FANART_API_KEY}`, {
+    const res = await fetch(getFanartApiUrl(mbid), {
         next: { revalidate: IMAGE_CACHE_TTL } 
     });
     if (!res.ok) return undefined;
     const data = await res.json();
     const url = data.artistthumb?.[0]?.url;
     
-    // Use the preview endpoint for a smaller image (~200px instead of ~1000px)
-    return url ? url.replace('/fanart/', '/preview/') : undefined;
+    return url ? getFanartPreviewUrl(url) : undefined;
   } catch (e) {
     console.error(`Fanart.tv fetch failed for mbid ${mbid}:`, e);
     return undefined;
@@ -68,10 +91,8 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
     const fileName = wdData.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
     if (!fileName) return undefined;
 
-    // 3. Convert Wiki Filename to URL (MD5 Hash method for Wikimedia Commons)
-    // Actually, simpler is to use the Special:FilePath redirect
-    // BUT we need to encode it properly.
-    return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}?width=500`;
+    // 3. Convert Wiki Filename to URL
+    return getWikimediaUrl(fileName);
 
   } catch (e) {
     console.error(`Wikidata fetch failed for mbid ${mbid}:`, e);
