@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
-import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, MediaSelection, ArtistSelection, AlbumSelection } from '@/lib/types';
+import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, ArtistSelection, AlbumSelection } from '@/lib/types';
 import { usePersistentState } from './usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { swrFetcher } from '@/lib/api/fetcher';
@@ -160,24 +160,24 @@ export function useMediaSearch<T extends MediaType>(
   
   const debounceDelay = 300; // milliseconds
 
-  // Debounce text inputs to avoid excessive API calls
-  const [debouncedQuery, controlQuery] = useDebounce(query, debounceDelay);
-  const [debouncedMinYear, controlMinYear] = useDebounce(minYear, debounceDelay);
-  const [debouncedMaxYear, controlMaxYear] = useDebounce(maxYear, debounceDelay);
-  const [debouncedArtistCountry, controlArtistCountry] = useDebounce(artistCountry, debounceDelay);
-  const [debouncedTag, controlTag] = useDebounce(tag, debounceDelay);
-  const [debouncedMinDuration, controlMinDuration] = useDebounce(minDuration, debounceDelay);
-  const [debouncedMaxDuration, controlMaxDuration] = useDebounce(maxDuration, debounceDelay);
+  // Memoize the filter object so the reference only changes when the actual values change.
+  // This prevents the debounce timer from resetting on unrelated re-renders.
+  const filtersToDebounce = useMemo(() => ({
+    query,
+    minYear,
+    maxYear,
+    artistCountry,
+    tag,
+    minDuration,
+    maxDuration
+  }), [query, minYear, maxYear, artistCountry, tag, minDuration, maxDuration]);
+
+  // Debounce the memoized object
+  const [debouncedFilters, controlFilters] = useDebounce(filtersToDebounce, debounceDelay);
   
   // Explicit flush for immediate search (e.g., on Enter key)
   const searchNow = () => {
-    controlQuery.flush();
-    controlMinYear.flush();
-    controlMaxYear.flush();
-    controlArtistCountry.flush();
-    controlTag.flush();
-    controlMinDuration.flush();
-    controlMaxDuration.flush();
+    controlFilters.flush();
   };
   
   // Generic updater
@@ -203,18 +203,18 @@ export function useMediaSearch<T extends MediaType>(
   // We construct a "fingerprint" of the filters (excluding page)
   const filterKey = JSON.stringify({
     type,
-    query: debouncedQuery,
+    query: debouncedFilters.query,
     artistId: forcedArtistId || selectedArtist?.id,
     albumId: forcedAlbumId || selectedAlbum?.id,
-    minYear: ignoreFilters ? '' : debouncedMinYear,
-    maxYear: ignoreFilters ? '' : debouncedMaxYear,
+    minYear: ignoreFilters ? '' : debouncedFilters.minYear,
+    maxYear: ignoreFilters ? '' : debouncedFilters.maxYear,
     albumPrimaryTypes: ignoreFilters ? [] : albumPrimaryTypes,
     albumSecondaryTypes: ignoreFilters ? [] : albumSecondaryTypes,
     artistType: ignoreFilters ? '' : artistType,
-    artistCountry: ignoreFilters ? '' : debouncedArtistCountry,
-    tag: ignoreFilters ? '' : debouncedTag,
-    minDuration: ignoreFilters ? '' : debouncedMinDuration,
-    maxDuration: ignoreFilters ? '' : debouncedMaxDuration,
+    artistCountry: ignoreFilters ? '' : debouncedFilters.artistCountry,
+    tag: ignoreFilters ? '' : debouncedFilters.tag,
+    minDuration: ignoreFilters ? '' : debouncedFilters.minDuration,
+    maxDuration: ignoreFilters ? '' : debouncedFilters.maxDuration,
     fuzzy: isFuzzy,
     wildcard: isWildcard
   });
@@ -233,17 +233,18 @@ export function useMediaSearch<T extends MediaType>(
   const searchUrl = useMemo(() => {
     if (!isEnabled) return null;
 
-    const effectiveMinYear = ignoreFilters ? '' : debouncedMinYear;
-    const effectiveMaxYear = ignoreFilters ? '' : debouncedMaxYear;
+    const d = debouncedFilters;
+    const effectiveMinYear = ignoreFilters ? '' : d.minYear;
+    const effectiveMaxYear = ignoreFilters ? '' : d.maxYear;
     const effectiveAlbumPrimaryTypes = ignoreFilters ? [] : albumPrimaryTypes;
     const effectiveAlbumSecondaryTypes = ignoreFilters ? [] : albumSecondaryTypes;
     const effectiveArtistType = ignoreFilters ? '' : artistType;
-    const effectiveArtistCountry = ignoreFilters ? '' : debouncedArtistCountry;
-    const effectiveTag = ignoreFilters ? '' : debouncedTag;
-    const effectiveMinDuration = ignoreFilters ? '' : debouncedMinDuration;
-    const effectiveMaxDuration = ignoreFilters ? '' : debouncedMaxDuration;
+    const effectiveArtistCountry = ignoreFilters ? '' : d.artistCountry;
+    const effectiveTag = ignoreFilters ? '' : d.tag;
+    const effectiveMinDuration = ignoreFilters ? '' : d.minDuration;
+    const effectiveMaxDuration = ignoreFilters ? '' : d.maxDuration;
 
-    const hasFilters = debouncedQuery || forcedArtistId || selectedArtist?.id || forcedAlbumId || selectedAlbum?.id || effectiveMinYear || effectiveMaxYear || 
+    const hasFilters = d.query || forcedArtistId || selectedArtist?.id || forcedAlbumId || selectedAlbum?.id || effectiveMinYear || effectiveMaxYear || 
                        effectiveAlbumPrimaryTypes.length > 0 || effectiveAlbumSecondaryTypes.length > 0 ||
                        effectiveArtistType || effectiveArtistCountry || effectiveTag || effectiveMinDuration || effectiveMaxDuration;
 
@@ -252,7 +253,7 @@ export function useMediaSearch<T extends MediaType>(
     return getSearchUrl({
       type,
       page,
-      query: debouncedQuery,
+      query: d.query,
       artistId: forcedArtistId || selectedArtist?.id,
       albumId: forcedAlbumId || selectedAlbum?.id,
       minYear: effectiveMinYear,
@@ -267,7 +268,7 @@ export function useMediaSearch<T extends MediaType>(
       fuzzy: isFuzzy,
       wildcard: isWildcard
     });
-  }, [isEnabled, type, page, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, debouncedMinDuration, debouncedMaxDuration, isFuzzy, isWildcard, ignoreFilters]);
+  }, [isEnabled, type, page, debouncedFilters, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, albumPrimaryTypes, albumSecondaryTypes, artistType, isFuzzy, isWildcard, ignoreFilters]);
 
   const { data, error, isLoading, isValidating } = useSWR<SearchResponse, Error & { status?: number }>(
     searchUrl,
@@ -294,27 +295,28 @@ export function useMediaSearch<T extends MediaType>(
   // Pagination Prefetching
   useEffect(() => {
       if (data && page < data.totalPages && isEnabled) {
+          const d = debouncedFilters;
           const nextUrl = getSearchUrl({
             type,
             page: page + 1,
-            query: debouncedQuery,
+            query: d.query,
             artistId: forcedArtistId || selectedArtist?.id,
             albumId: forcedAlbumId || selectedAlbum?.id,
-            minYear: debouncedMinYear,
-            maxYear: debouncedMaxYear,
+            minYear: d.minYear,
+            maxYear: d.maxYear,
             albumPrimaryTypes,
             albumSecondaryTypes,
             artistType,
-            artistCountry: debouncedArtistCountry,
-            tag: debouncedTag,
-            minDuration: debouncedMinDuration ? parseInt(debouncedMinDuration, 10) * 1000 : undefined,
-            maxDuration: debouncedMaxDuration ? parseInt(debouncedMaxDuration, 10) * 1000 : undefined,
+            artistCountry: d.artistCountry,
+            tag: d.tag,
+            minDuration: d.minDuration ? parseInt(d.minDuration, 10) * 1000 : undefined,
+            maxDuration: d.maxDuration ? parseInt(d.maxDuration, 10) * 1000 : undefined,
             fuzzy: isFuzzy,
             wildcard: isWildcard
           });
           preload(nextUrl, swrFetcher);
       }
-  }, [data, page, type, debouncedQuery, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, debouncedMinYear, debouncedMaxYear, albumPrimaryTypes, albumSecondaryTypes, artistType, debouncedArtistCountry, debouncedTag, debouncedMinDuration, debouncedMaxDuration, isFuzzy, isWildcard, isEnabled]);
+  }, [data, page, type, debouncedFilters, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, albumPrimaryTypes, albumSecondaryTypes, artistType, isFuzzy, isWildcard, isEnabled]);
 
   return {
     // State
