@@ -7,11 +7,12 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
-import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
+import { MediaItem, TierListState } from '@/lib/types';
 import { usePersistentState, useTierStructure } from '@/lib/hooks';
 import { useToast } from '@/components/ToastProvider';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { useTierListDnD } from '@/lib/hooks/useTierListDnD';
+import { generateExportData, downloadJson, parseImportData } from '@/lib/utils/io';
 
 const INITIAL_STATE: TierListState = {
   title: 'My Tier List',
@@ -108,24 +109,15 @@ export function useTierList() {
   // --- Actions ---
 
   const handleExport = useCallback(() => {
-    // Export as a nested structure for cleaner JSON and portability
-    const exportData = {
-      version: 1,
-      createdAt: new Date().toISOString(),
-      title: state.title, // Include the tier list title
-      tiers: state.tierDefs.map(tier => ({
-        label: tier.label,
-        color: tier.color,
-        items: state.items[tier.id] || []
-      }))
-    };
-
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-    const a = document.createElement('a');
-    a.href = dataStr;
-    a.download = `moat-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    showToast("Tier list exported successfully!", "success");
+    try {
+      const exportData = generateExportData(state);
+      const filename = `moat-${new Date().toISOString().slice(0,10)}.json`;
+      downloadJson(exportData, filename);
+      showToast("Tier list exported successfully!", "success");
+    } catch (e) {
+      console.error(e);
+      showToast("Failed to export tier list.", "error");
+    }
   }, [state, showToast]);
 
   const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,42 +126,11 @@ export function useTierList() {
     const reader = new FileReader();
     reader.onload = (ev) => {
         try {
-            const parsed = JSON.parse(ev.target?.result as string);
+            const jsonString = ev.target?.result as string;
+            const newState = parseImportData(jsonString, INITIAL_STATE.title);
             
-            // Handle new nested format
-            if (parsed.tiers && Array.isArray(parsed.tiers)) {
-                const newTierDefs: TierDefinition[] = [];
-                const newItems: Record<string, MediaItem[]> = {};
-
-                parsed.tiers.forEach((tier: { label: string, color: string, items: MediaItem[] }) => {
-                    const id = crypto.randomUUID();
-                    newTierDefs.push({
-                        id,
-                        label: tier.label,
-                        color: tier.color
-                    });
-                    newItems[id] = tier.items || [];
-                });
-
-                setState({
-                    title: parsed.title || INITIAL_STATE.title, // Set title from parsed data or fallback to initial state
-                    tierDefs: newTierDefs,
-                    items: newItems
-                });
-                showToast("Tier list imported successfully!", "success");
-                return;
-            }
-
-            // Fallback: Handle legacy format (raw state dump)
-            if (parsed && 'tierDefs' in parsed) {
-                setState({
-                    ...parsed,
-                    title: parsed.title || INITIAL_STATE.title, // Set title from parsed data or fallback to initial state
-                });
-                showToast("Legacy tier list imported successfully!", "success");
-            } else {
-                showToast("Invalid JSON file: missing tier definitions", "error");
-            }
+            setState(newState);
+            showToast("Tier list imported successfully!", "success");
         } catch (e) { 
             console.error(e);
             showToast("Invalid JSON file", "error"); 
