@@ -12,6 +12,7 @@ import { TIER_COLORS } from '@/lib/colors';
 import { useToast } from '@/components/ToastProvider';
 
 const INITIAL_STATE: TierListState = {
+  title: 'Untitled Tier List',
   tierDefs: [
     { id: 'tier-1', label: 'S', color: 'red' },
     { id: 'tier-2', label: 'A', color: 'orange' },
@@ -56,6 +57,7 @@ export function useTierStructure(
         };
 
         return {
+            ...prev,
             tierDefs: [...prev.tierDefs, newTier],
             items: { ...prev.items, [newId]: [] }
         };
@@ -102,6 +104,7 @@ export function useTierStructure(
         }
 
         return {
+            ...prev,
             tierDefs: prev.tierDefs.filter(t => t.id !== id),
             items: newItems
         };

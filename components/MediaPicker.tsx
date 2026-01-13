@@ -10,7 +10,7 @@
 import { useState } from 'react';
 import { preload } from 'swr';
 import { X, Filter, Disc, User, Mic2 } from 'lucide-react';
-import { MediaItem, MediaSelection, AlbumItem, ArtistItem } from '@/lib/types';
+import { MediaItem, MediaSelection, AlbumItem, ArtistItem, ArtistSelection, AlbumSelection } from '@/lib/types';
 import { useMediaSearch } from '@/lib/hooks';
 import { getSearchUrl } from '@/lib/api';
 import Image from 'next/image';
@@ -18,10 +18,10 @@ import { SearchFilters } from './filters/SearchFilters';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-interface MediaPickerProps {
+interface MediaPickerProps<T extends MediaSelection> {
   type: 'artist' | 'album';
-  onSelect: (item: MediaSelection | null) => void;
-  selectedItem: MediaSelection | null;
+  onSelect: (item: T | null) => void;
+  selectedItem: T | null;
   fuzzy?: boolean;
   wildcard?: boolean;
   artistId?: string; // Scope albums to this artist
@@ -65,7 +65,7 @@ function PickerImage({ src, alt, type }: { src: string, alt: string, type: 'arti
     );
 }
 
-export function MediaPicker({ 
+export function MediaPicker<T extends MediaSelection>({ 
     type, 
     onSelect, 
     selectedItem, 
@@ -74,7 +74,7 @@ export function MediaPicker({
     artistId, 
     context,
     placeholder 
-}: MediaPickerProps) {
+}: MediaPickerProps<T>) {
   const {
     filters,
     updateFilters,
@@ -107,17 +107,17 @@ export function MediaPicker({
             name: item.title,
             imageUrl: item.imageUrl,
             disambiguation: (item as ArtistItem).disambiguation
-        };
+        } as ArtistSelection;
     } else {
         selection = {
             id: item.id,
             name: item.title,
             imageUrl: item.imageUrl,
             artist: (item as AlbumItem).artist
-        };
+        } as AlbumSelection;
     }
 
-    onSelect(selection);
+    onSelect(selection as T);
     setIsOpen(false);
     updateFilters({ query: '' });
     setSelectedImageError(false);

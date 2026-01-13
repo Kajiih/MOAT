@@ -18,5 +18,6 @@
   - Always adhere to the single source of truth principle for repeated feature, formatting, etc.
   - Never use a short term solution, always target long term solutions and improvements.
   - Don't hesitate to refactor smaller or larger pieces to improve idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.
+  - At the end of the implementation of a new feature, build and run integration tests.
 
 Start by reading the [app's architecture documentation](docs/ARCHITECTURE.md)
