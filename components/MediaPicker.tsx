@@ -125,8 +125,14 @@ export function MediaPicker({
 
     // Performance: Prefetch related data
     if (type === 'artist') {
-        // If we selected an artist, prefetch their first page of albums
-        const prefetchUrl = getSearchUrl({ type: 'album', artistId: item.id, page: 1, fuzzy, wildcard });
+        // Smart Prefetch: If we are in a 'song' context (filtering songs by artist), prefetch songs.
+        // Otherwise (default/album context), prefetch albums.
+        const targetType = context === 'song' ? 'song' : 'album';
+        const prefetchUrl = getSearchUrl({ type: targetType, artistId: item.id, page: 1, fuzzy, wildcard });
+        preload(prefetchUrl, fetcher);
+    } else if (type === 'album') {
+        // If we select an album, we almost certainly want to see its songs
+        const prefetchUrl = getSearchUrl({ type: 'song', albumId: item.id, page: 1, fuzzy, wildcard });
         preload(prefetchUrl, fetcher);
     }
   };
