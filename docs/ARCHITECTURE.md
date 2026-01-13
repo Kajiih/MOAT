@@ -55,9 +55,27 @@
 - **Synergy Pattern**:
   - Updates flow bidirectionally: If the background bundler finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
-### 3. Resilience & Performance
+### 3. Performance & Optimization
 
-- **SWR Revalidation**: Uses `useSWR` for "stale-while-revalidate" fetching. In the `DetailsModal`, we use `fallbackData` from the board state to show stored info instantly while checking for updates in the background.
+#### Caching Strategies
+- **Server-Side Cache**: API routes use an LRU-style in-memory cache (`item-cache.ts`) to store normalized media items for 24 hours, reducing redundant mapping logic and upstream API pressure.
+- **SWR (Stale-While-Revalidate)**: Used for all data fetching. Components display stale data from the cache immediately while revalidating in the background.
+- **Global Item Registry**: Discovered items are cached in `localStorage` across sessions, ensuring artwork and metadata persist even if the board is cleared.
+
+#### Prefetching Mechanisms
+- **Pagination Prefetch**: When searching, the app automatically pre-fetches the *next* page of results as soon as the current page loads.
+- **Smart Picker Prefetch**: Selecting an item in a `MediaPicker` triggers intelligent preloading:
+  - Selecting an **Artist** prefetches their **Albums** (or **Songs** if in a song-filtering context).
+  - Selecting an **Album** prefetches its **Songs**.
+- **Background Enrichment**: The `BoardDetailBundler` prefetches deep metadata for items added to the board without blocking user interaction.
+
+#### Persistence Logic
+- **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `localStorage` writes are debounced (1000ms).
+- **Lazy Hydration**: Application state is hydrated after the initial client mount to prevent SSR mismatch errors and ensure a fast initial paint.
+- **Cross-Tab Sync**: Uses the `storage` event to keep state consistent across multiple open browser tabs.
+
+### 4. Resilience & Reliability
+
 - **Server proxying**: API routes in `app/api/` handle rate limiting (MusicBrainz 503s), retry logic, and hide external API keys.
 - **Image Fallback Engine**: A robust multi-step strategy for images:
   - **Waterfall**: Fanart.tv -> Wikidata -> Cover Art Archive (CAA).
@@ -66,10 +84,23 @@
   - **Healing**: Background fetching of missing artist thumbnails.
   - **Bypass**: Automatic `unoptimized` toggle for domains with resolve issues.
 
-## UI Components
+### 5. User Feedback & Interaction
 
-- **Media Card**: Optimized for information density with a 3-line metadata layout (Title, Context, Details) and 112px size, ensuring readability even for long song/album names.
-- **Search Filters**: Context-aware filters that adapt to the media type (e.g., duration for songs, type for albums).
+- **Toast Notification System**: A global `ToastProvider` manages stacked notifications to provide immediate feedback for actions (e.g., "Export Successful") and errors (e.g., "MusicBrainz is busy").
+- **Drag & Drop**:
+  - Implemented using `@dnd-kit` with `PointerSensor` and `KeyboardSensor` for full accessibility.
+  - **Collision Detection**: Uses `rectIntersection` for precise drop targeting.
+  - **Strategies**: Uses `verticalListSortingStrategy` for tiers and `rectSortingStrategy` for media items.
+
+### 6. Design System
+
+- **Semantic Color Palette**: defined in `lib/colors.ts`, mapping abstract IDs (e.g., 'red', 'amber') to specific Tailwind CSS classes and Hex values.
+- **Dynamic Branding**: The `useBrandColors` and `useDynamicFavicon` hooks extract the top 4 tier colors to generate a matching favicon and logo on the fly, ensuring the app's identity reflects the user's content.
+
+### 7. Quality Assurance
+
+- **Unit & Integration Testing**: Powered by **Vitest** and `react-testing-library`. Covers hooks (`useMediaSearch`), utilities (`mappers`), and components (`AlbumFilters`).
+- **End-to-End (E2E) Testing**: Powered by **Playwright**. Validates critical user flows like searching for items, dragging them to tiers, and exporting the board.
 
 ## Directory Structure
 
@@ -81,6 +112,7 @@
   - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
   - `MediaCard.tsx`: Draggable/Sortable item visualization.
   - `SearchPanel.tsx`: Sidebar for discovering new media.
+  - `MediaPicker.tsx`: Unified search-and-select component for Artist/Album filters.
   - `BoardDetailBundler.tsx`: The background worker that keeps board items enriched.
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
@@ -95,3 +127,7 @@
   - `musicbrainz.ts`: MusicBrainz API client (search, details).
   - `images.ts`: Multi-source image resolver (Fanart.tv, Wikidata).
   - `item-cache.ts`: Server-side LRU cache for mapped media items.
+- `lib/utils/`:
+  - `io.ts`: Import/Export logic and JSON validation.
+  - `mappers.ts`: Transformation logic from API schemas to internal domain types.
+  - `search.ts`: Lucene query construction utilities.

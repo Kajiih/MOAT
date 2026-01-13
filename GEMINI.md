@@ -1,7 +1,7 @@
 # Project Guidelines: MOAT - Tier List App
 
 - Information about the app is available in README.md
-- docs/ARCHITECTURE.md contains information about the architecture of the app.
+- The [app's architecture documentation](docs/ARCHITECTURE.md) contains information about the architecture of the app.
   - When you start working, look at this file to learn context about the app and specific features/implementations.
   - Always update this file after implementing a new feature or making a change.
 - You should lint your code, use `npm run lint`, we have a strict code quality requirements.
@@ -18,3 +18,5 @@
   - Always adhere to the single source of truth principle for repeated feature, formatting, etc.
   - Never use a short term solution, always target long term solutions and improvements.
   - Don't hesitate to refactor smaller or larger pieces to improve idiomaticity, simplicity, performance, clarity, maintainability and scalability.
+
+Start by reading the [app's architecture documentation](docs/ARCHITECTURE.md)
