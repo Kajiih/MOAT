@@ -6,53 +6,37 @@
  */
 
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
+import { SearchParamsState } from '@/lib/hooks/useMediaSearch';
 import { ArtistFilters } from './ArtistFilters';
 import { AlbumFilters } from './AlbumFilters';
 import { DateRangeFilter } from './DateRangeFilter';
 import { FILTER_INPUT_STYLES } from './FilterPrimitives';
 
-interface SearchFiltersState {
-  minYear: string; setMinYear: (v: string) => void;
-  maxYear: string; setMaxYear: (v: string) => void;
-  tag: string; setTag: (v: string) => void;
-  
-  // Artist
-  artistType: string; setArtistType: (v: string) => void;
-  artistCountry: string; setArtistCountry: (v: string) => void;
-  
-  // Album
-  albumPrimaryTypes: string[]; setAlbumPrimaryTypes: (v: string[]) => void;
-  albumSecondaryTypes: string[]; setAlbumSecondaryTypes: (v: string[]) => void;
-  
-  // Song
-  minDuration: string; setMinDuration: (v: string) => void;
-  maxDuration: string; setMaxDuration: (v: string) => void;
-}
-
 interface SearchFiltersProps {
   type: MediaType;
-  state: SearchFiltersState;
+  filters: SearchParamsState;
+  updateFilters: (patch: Partial<SearchParamsState>) => void;
   compact?: boolean;
   contextPickers?: React.ReactNode;
 }
 
-export function SearchFilters({ type, state, compact = false, contextPickers }: SearchFiltersProps) {
+export function SearchFilters({ type, filters, updateFilters, compact = false, contextPickers }: SearchFiltersProps) {
   
   // Helper wrappers for Album filters
   const togglePrimaryType = (t: string) => {
-      const current = state.albumPrimaryTypes;
+      const current = filters.albumPrimaryTypes;
       const newTypes = current.includes(t) 
         ? current.filter(x => x !== t) 
         : [...current, t];
-      state.setAlbumPrimaryTypes(newTypes);
+      updateFilters({ albumPrimaryTypes: newTypes });
   };
 
   const toggleSecondaryType = (t: string) => {
-      const current = state.albumSecondaryTypes;
+      const current = filters.albumSecondaryTypes;
       const newTypes = current.includes(t) 
         ? current.filter(x => x !== t) 
         : [...current, t];
-      state.setAlbumSecondaryTypes(newTypes);
+      updateFilters({ albumSecondaryTypes: newTypes });
   };
 
   return (
@@ -66,10 +50,10 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
         {/* Type-Specific Filters */}
         {type === 'artist' && (
             <ArtistFilters 
-                type={state.artistType}
-                country={state.artistCountry}
-                onTypeChange={state.setArtistType}
-                onCountryChange={state.setArtistCountry}
+                type={filters.artistType}
+                country={filters.artistCountry}
+                onTypeChange={(val) => updateFilters({ artistType: val })}
+                onCountryChange={(val) => updateFilters({ artistCountry: val })}
                 className={compact ? 'text-[10px]' : ''}
                 compact={compact}
             />
@@ -77,13 +61,13 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
 
         {type === 'album' && (
             <AlbumFilters 
-                primaryTypes={state.albumPrimaryTypes}
-                secondaryTypes={state.albumSecondaryTypes}
+                primaryTypes={filters.albumPrimaryTypes}
+                secondaryTypes={filters.albumSecondaryTypes}
                 onTogglePrimary={togglePrimaryType}
                 onToggleSecondary={toggleSecondaryType}
-                onResetPrimary={() => state.setAlbumPrimaryTypes(['Album', 'EP'])}
-                onResetSecondary={() => state.setAlbumSecondaryTypes([])}
-                onSelectAllSecondary={() => state.setAlbumSecondaryTypes([...SECONDARY_TYPES])}
+                onResetPrimary={() => updateFilters({ albumPrimaryTypes: ['Album', 'EP'] })}
+                onResetSecondary={() => updateFilters({ albumSecondaryTypes: [] })}
+                onSelectAllSecondary={() => updateFilters({ albumSecondaryTypes: [...SECONDARY_TYPES] })}
                 compact={compact}
             />
         )}
@@ -94,10 +78,10 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
                 {type === 'artist' ? 'Born / Formed' : 'Release Year'}
             </div>
             <DateRangeFilter
-                minYear={state.minYear}
-                maxYear={state.maxYear}
-                onMinYearChange={state.setMinYear}
-                onMaxYearChange={state.setMaxYear}
+                minYear={filters.minYear}
+                maxYear={filters.maxYear}
+                onMinYearChange={(val) => updateFilters({ minYear: val })}
+                onMaxYearChange={(val) => updateFilters({ maxYear: val })}
                 fromLabel="From Year"
                 toLabel="To Year"
                 compact={compact}
@@ -110,8 +94,8 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
             <input
                 placeholder={compact ? "Tag / Genre" : "e.g. rock, jazz, 80s..."}
                 className={FILTER_INPUT_STYLES}
-                value={state.tag}
-                onChange={e => state.setTag(e.target.value)}
+                value={filters.tag}
+                onChange={e => updateFilters({ tag: e.target.value })}
             />
         </div>
 
@@ -124,15 +108,15 @@ export function SearchFilters({ type, state, compact = false, contextPickers }: 
                         placeholder="Min Sec"
                         type="number"
                         className={FILTER_INPUT_STYLES}
-                        value={state.minDuration}
-                        onChange={(e) => state.setMinDuration(e.target.value)}
+                        value={filters.minDuration}
+                        onChange={(e) => updateFilters({ minDuration: e.target.value })}
                     />
                     <input
                         placeholder="Max Sec"
                         type="number"
                         className={FILTER_INPUT_STYLES}
-                        value={state.maxDuration}
-                        onChange={(e) => state.setMaxDuration(e.target.value)}
+                        value={filters.maxDuration}
+                        onChange={(e) => updateFilters({ maxDuration: e.target.value })}
                     />
                 </div>
             </div>

@@ -50,21 +50,9 @@ export function SearchTab({
   const [sortOption, setSortOption] = usePersistentState<SortOption>(`moat-search-ui-${type}-sortOption`, 'relevance');
 
   const {
-    query, setQuery,
-    minYear, setMinYear,
-    maxYear, setMaxYear,
-    albumPrimaryTypes, setAlbumPrimaryTypes,
-    albumSecondaryTypes, setAlbumSecondaryTypes,
-    artistType, setArtistType,
-    artistCountry, setArtistCountry,
-    tag, setTag,
-    minDuration, setMinDuration,
-    maxDuration, setMaxDuration,
+    filters,
+    updateFilters,
     page, setPage,
-    selectedArtist,
-    setSelectedArtist,
-    selectedAlbum,
-    setSelectedAlbum,
     results: searchResults,
     totalPages,
     error,
@@ -112,6 +100,11 @@ export function SearchTab({
     return null;
   }
 
+  // Check if any filter is active
+  const hasActiveFilters = filters.query || filters.selectedArtist || filters.selectedAlbum || filters.minYear || filters.maxYear || 
+                           filters.albumPrimaryTypes.length > 0 || filters.albumSecondaryTypes.length > 0 ||
+                           filters.artistType || filters.artistCountry || filters.tag || filters.minDuration || filters.maxDuration;
+
   return (
     <div className="flex flex-col flex-1 overflow-hidden min-h-0">
         <div className="grid grid-cols-1 gap-2 mb-4 shrink-0">
@@ -119,8 +112,8 @@ export function SearchTab({
                 <input
                     placeholder={`Search ${type}s...`}
                     className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm w-full"
-                    value={query}
-                    onChange={e => setQuery(e.target.value)}
+                    value={filters.query}
+                    onChange={e => updateFilters({ query: e.target.value })}
                     onKeyDown={e => {
                       if (e.key === 'Enter') {
                         searchNow();
@@ -144,25 +137,18 @@ export function SearchTab({
                 <div className="bg-neutral-900/50 p-2 rounded border border-neutral-800">
                     <SearchFilters 
                         type={type}
-                        state={{
-                            minYear, setMinYear,
-                            maxYear, setMaxYear,
-                            tag, setTag,
-                            artistType, setArtistType,
-                            artistCountry, setArtistCountry,
-                            albumPrimaryTypes, setAlbumPrimaryTypes,
-                            albumSecondaryTypes, setAlbumSecondaryTypes,
-                            minDuration, setMinDuration,
-                            maxDuration, setMaxDuration
-                        }}
+                        filters={filters}
+                        updateFilters={updateFilters}
                         contextPickers={type !== 'artist' ? (
                             <div className="grid grid-cols-1 gap-2">
                                 <ArtistPicker
-                                    selectedArtist={selectedArtist}
+                                    selectedArtist={filters.selectedArtist}
                                     onSelect={(a) => {
-                                        setSelectedArtist(a);
-                                        // If artist changes, reset selected album
-                                        if (type === 'song') setSelectedAlbum(null);
+                                        updateFilters({
+                                            selectedArtist: a,
+                                            // If artist changes, reset selected album
+                                            selectedAlbum: type === 'song' ? null : filters.selectedAlbum
+                                        });
                                     }}
                                     fuzzy={globalFuzzy}
                                     wildcard={globalWildcard}
@@ -171,11 +157,11 @@ export function SearchTab({
 
                                 {type === 'song' && (
                                     <AlbumPicker
-                                        selectedAlbum={selectedAlbum}
-                                        onSelect={setSelectedAlbum}
+                                        selectedAlbum={filters.selectedAlbum}
+                                        onSelect={(a) => updateFilters({ selectedAlbum: a })}
                                         fuzzy={globalFuzzy}
                                         wildcard={globalWildcard}
-                                        artistId={selectedArtist?.id}
+                                        artistId={filters.selectedArtist?.id}
                                         context="song-filter"
                                     />
                                 )}
@@ -214,11 +200,7 @@ export function SearchTab({
                 </div>
             )}
             
-            {!isSearching && searchResults.length === 0 && (
-                query || selectedArtist || selectedAlbum || minYear || maxYear || 
-                albumPrimaryTypes.length > 0 || albumSecondaryTypes.length > 0 ||
-                artistType || artistCountry || tag || minDuration || maxDuration
-            ) && (
+            {!isSearching && searchResults.length === 0 && hasActiveFilters && (
                 <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
             )}
 

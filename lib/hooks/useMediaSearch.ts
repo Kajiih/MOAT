@@ -5,7 +5,7 @@
  * @module useMediaSearch
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
@@ -66,7 +66,7 @@ type MediaItemMap = {
   song: SongItem;
 };
 
-interface SearchParamsState {
+export interface SearchParamsState {
   query: string;
   selectedArtist: ArtistSelection | null;
   selectedAlbum: AlbumSelection | null;
@@ -104,35 +104,14 @@ const defaultState: SearchParamsState = {
  * Generic T represents the specific MediaItem type (ArtistItem, AlbumItem, or SongItem).
  */
 interface UseMediaSearchResult<T extends MediaItem> {
-  // --- Query State ---
-  query: string;
-  setQuery: (val: string) => void;
-  
   // --- Filter State ---
-  selectedArtist: ArtistSelection | null;
-  setSelectedArtist: (val: ArtistSelection | null) => void;
-  selectedAlbum: AlbumSelection | null;
-  setSelectedAlbum: (val: AlbumSelection | null) => void;
-  minYear: string;
-  setMinYear: (val: string) => void;
-  maxYear: string;
-  setMaxYear: (val: string) => void;
-  albumPrimaryTypes: string[];
-  setAlbumPrimaryTypes: (val: string[]) => void;
-  albumSecondaryTypes: string[];
-  setAlbumSecondaryTypes: (val: string[]) => void;
+  filters: SearchParamsState;
   
-  // --- New Filters ---
-  artistType: string;
-  setArtistType: (val: string) => void;
-  artistCountry: string;
-  setArtistCountry: (val: string) => void;
-  tag: string;
-  setTag: (val: string) => void;
-  minDuration: string;
-  setMinDuration: (val: string) => void;
-  maxDuration: string;
-  setMaxDuration: (val: string) => void;
+  /** 
+   * Updates one or more filter parameters.
+   * Automatically resets the page to 1 when filters change.
+   */
+  updateFilters: (patch: Partial<SearchParamsState>) => void;
 
   // --- Pagination & Config ---
   page: number;
@@ -175,7 +154,7 @@ export function useMediaSearch<T extends MediaType>(
   
   const [state, setState] = usePersistentState<SearchParamsState>(storageKey, defaultState);
 
-  // Map state to individual variables
+  // Map state to individual variables for internal use
   const { 
       query, selectedArtist, selectedAlbum, minYear, maxYear, 
       albumPrimaryTypes, albumSecondaryTypes, 
@@ -217,24 +196,16 @@ export function useMediaSearch<T extends MediaType>(
     controlMaxDuration.flush();
   };
   
-  // Wrappers to reset page on filter change
-  const handleSetQuery = (val: string) => {
-    // Trim leading spaces but allow trailing spaces for better UX while typing
-    const trimmedVal = val.startsWith(' ') ? val.trimStart() : val;
-    setState(prev => ({ ...prev, query: trimmedVal, page: 1 }));
-  };
-  const handleSetSelectedArtist = (val: ArtistSelection | null) => setState(prev => ({ ...prev, selectedArtist: val, page: 1 }));
-  const handleSetSelectedAlbum = (val: AlbumSelection | null) => setState(prev => ({ ...prev, selectedAlbum: val, page: 1 }));
-  const handleSetMinYear = (val: string) => setState(prev => ({ ...prev, minYear: val, page: 1 }));
-  const handleSetMaxYear = (val: string) => setState(prev => ({ ...prev, maxYear: val, page: 1 }));
-  const handleSetAlbumPrimaryTypes = (val: string[]) => setState(prev => ({ ...prev, albumPrimaryTypes: val, page: 1 }));
-  const handleSetAlbumSecondaryTypes = (val: string[]) => setState(prev => ({ ...prev, albumSecondaryTypes: val, page: 1 }));
-  
-  const handleSetArtistType = (val: string) => setState(prev => ({ ...prev, artistType: val, page: 1 }));
-  const handleSetArtistCountry = (val: string) => setState(prev => ({ ...prev, artistCountry: val, page: 1 }));
-  const handleSetTag = (val: string) => setState(prev => ({ ...prev, tag: val, page: 1 }));
-  const handleSetMinDuration = (val: string) => setState(prev => ({ ...prev, minDuration: val, page: 1 }));
-  const handleSetMaxDuration = (val: string) => setState(prev => ({ ...prev, maxDuration: val, page: 1 }));
+  // Generic updater
+  const updateFilters = useCallback((patch: Partial<SearchParamsState>) => {
+    setState(prev => {
+        // Special case: If query starts with space, trim start
+        if (patch.query && patch.query.startsWith(' ')) {
+            patch.query = patch.query.trimStart();
+        }
+        return { ...prev, ...patch, page: 1 };
+    });
+  }, [setState]);
 
   const handleSetPage = (val: number | ((prev: number) => number)) => {
     setState(prev => ({ ...prev, page: typeof val === 'function' ? val(prev.page) : val }));
@@ -363,18 +334,8 @@ export function useMediaSearch<T extends MediaType>(
 
   return {
     // State
-    query, setQuery: handleSetQuery,
-    selectedArtist, setSelectedArtist: handleSetSelectedArtist,
-    selectedAlbum, setSelectedAlbum: handleSetSelectedAlbum,
-    minYear, setMinYear: handleSetMinYear,
-    maxYear, setMaxYear: handleSetMaxYear,
-    albumPrimaryTypes, setAlbumPrimaryTypes: handleSetAlbumPrimaryTypes,
-    albumSecondaryTypes, setAlbumSecondaryTypes: handleSetAlbumSecondaryTypes,
-    artistType, setArtistType: handleSetArtistType,
-    artistCountry, setArtistCountry: handleSetArtistCountry,
-    tag, setTag: handleSetTag,
-    minDuration, setMinDuration: handleSetMinDuration,
-    maxDuration, setMaxDuration: handleSetMaxDuration,
+    filters: state,
+    updateFilters,
     
     page, setPage: handleSetPage,
     // Setters update internal state (which acts as fallback/default)

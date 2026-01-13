@@ -48,7 +48,7 @@ describe('useMediaSearch', () => {
 
   it('should initialize with default active search due to default types', () => {
     const { result } = renderHook(() => useMediaSearch('artist'));
-    expect(result.current.query).toBe('');
+    expect(result.current.filters.query).toBe('');
     // By default it searches for Album/EP types even without query
     expect(useSWR).toHaveBeenCalledWith(
         expect.stringContaining('type=artist'), 
@@ -65,7 +65,7 @@ describe('useMediaSearch', () => {
 
     // Type "Abbey"
     act(() => {
-      result.current.setQuery('Abbey');
+      result.current.updateFilters({ query: 'Abbey' });
     });
 
     // Advance 150ms - should NOT have triggered searchUrl update with query yet
@@ -92,13 +92,13 @@ describe('useMediaSearch', () => {
     const { result } = renderHook(() => useMediaSearch('album'));
     
     // 1. Set initial query and wait for it to settle
-    act(() => { result.current.setQuery('Queen'); });
+    act(() => { result.current.updateFilters({ query: 'Queen' }); });
     act(() => { vi.advanceTimersByTime(350); });
     expect(useSWR).toHaveBeenCalledWith(expect.stringContaining('query=Queen'), expect.any(Function), expect.any(Object));
     vi.mocked(useSWR).mockClear();
 
     // 2. Clear the query (deleting)
-    act(() => { result.current.setQuery(''); });
+    act(() => { result.current.updateFilters({ query: '' }); });
     
     // Advance 150ms - should still have Queen in the active SWR call if we check it
     act(() => { vi.advanceTimersByTime(150); });
@@ -121,7 +121,7 @@ describe('useMediaSearch', () => {
     vi.mocked(useSWR).mockClear();
 
     act(() => {
-      result.current.setQuery('Thriller');
+      result.current.updateFilters({ query: 'Thriller' });
     });
 
     // Immediately call searchNow without waiting
@@ -137,10 +137,10 @@ describe('useMediaSearch', () => {
     const { result } = renderHook(() => useMediaSearch('album'));
     vi.mocked(useSWR).mockClear();
 
-    act(() => { result.current.setQuery('B'); });
+    act(() => { result.current.updateFilters({ query: 'B' }); });
     act(() => { vi.advanceTimersByTime(200); });
     
-    act(() => { result.current.setQuery('Bee'); });
+    act(() => { result.current.updateFilters({ query: 'Bee' }); });
     act(() => { vi.advanceTimersByTime(200); });
     
     // Total 400ms passed, but only 200ms since last keystroke. 
@@ -223,14 +223,14 @@ describe('useMediaSearch', () => {
     vi.mocked(useSWR).mockClear();
 
     act(() => {
-      result.current.setSelectedArtist({ id: 'artist-1', name: 'The Beatles' });
+      result.current.updateFilters({ selectedArtist: { id: 'artist-1', name: 'The Beatles' } });
     });
     act(() => {
       vi.advanceTimersByTime(350);
     });
 
     act(() => {
-      result.current.setSelectedAlbum({ id: 'album-1', name: 'Abbey Road', artist: 'The Beatles' });
+      result.current.updateFilters({ selectedAlbum: { id: 'album-1', name: 'Abbey Road', artist: 'The Beatles' } });
     });
     act(() => {
       vi.advanceTimersByTime(350);
@@ -263,7 +263,7 @@ describe('useMediaSearch', () => {
     vi.mocked(useSWR).mockClear();
 
     act(() => {
-      result.current.setMinDuration('180'); // 3 minutes
+      result.current.updateFilters({ minDuration: '180' }); // 3 minutes
     });
     act(() => {
       vi.advanceTimersByTime(350);
@@ -276,7 +276,7 @@ describe('useMediaSearch', () => {
     );
 
     act(() => {
-      result.current.setMaxDuration('300'); // 5 minutes
+      result.current.updateFilters({ maxDuration: '300' }); // 5 minutes
     });
     act(() => {
       vi.advanceTimersByTime(350);
