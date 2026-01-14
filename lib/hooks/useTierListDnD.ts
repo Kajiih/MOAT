@@ -11,7 +11,8 @@ import {
   DragEndEvent,
   useSensor,
   useSensors,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   KeyboardSensor,
 } from '@dnd-kit/core';
 import { 
@@ -42,9 +43,17 @@ export function useTierListDnD(
   const [overId, setOverId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
+        // Require mouse to move 5px before dragging starts (allows clicks on buttons)
         activationConstraint: {
-            distance: 8,
+            distance: 5,
+        },
+    }),
+    useSensor(TouchSensor, {
+        // Require holding for 250ms before dragging starts (allows scrolling)
+        activationConstraint: {
+            delay: 250,
+            tolerance: 5,
         },
     }),
     useSensor(KeyboardSensor, {
