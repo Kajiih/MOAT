@@ -11,6 +11,7 @@
 import React, { createContext, useContext, useMemo, useRef, useEffect, useState, ReactNode } from 'react';
 import { MediaItem, TierListState } from '@/lib/types';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
+import { useHistory } from '@/lib/hooks/useHistory';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { INITIAL_STATE } from '@/lib/initial-state';
 
@@ -27,6 +28,14 @@ interface TierListContextType {
   setState: React.Dispatch<React.SetStateAction<TierListState>>;
   /** Flag indicating if the state has been hydrated from localStorage. */
   isHydrated: boolean;
+  
+  // History
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  pushHistory: () => void;
+
   
   // Computed
   /** Flattened list of all items currently on the board. */
@@ -55,10 +64,24 @@ const TierListContext = createContext<TierListContextType | null>(null);
  */
 export function TierListProvider({ children }: { children: ReactNode }) {
   const [state, setState, isHydrated] = usePersistentState<TierListState>(LOCAL_STORAGE_KEY, INITIAL_STATE);
+  const { undo: undoHistory, redo: redoHistory, push: pushHistory, canUndo, canRedo } = useHistory<TierListState>();
+
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
   
   const { registerItem } = useMediaRegistry();
   const itemsToRegister = useRef<MediaItem[]>([]);
+
+  const undo = React.useCallback(() => {
+    undoHistory(state, setState);
+  }, [undoHistory, state, setState]);
+
+  const redo = React.useCallback(() => {
+    redoHistory(state, setState);
+  }, [redoHistory, state, setState]);
+
+  const handlePushHistory = React.useCallback(() => {
+    pushHistory(state);
+  }, [pushHistory, state]);
 
   // Computed values
   const allBoardItems = useMemo(() => {
@@ -129,8 +152,26 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     addedItemIds,
     detailsItem,
     setDetailsItem,
-    updateMediaItem
-  }), [state, setState, isHydrated, allBoardItems, addedItemIds, detailsItem, updateMediaItem]);
+    updateMediaItem,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    pushHistory: handlePushHistory
+  }), [
+    state, 
+    setState, 
+    isHydrated, 
+    allBoardItems, 
+    addedItemIds, 
+    detailsItem, 
+    updateMediaItem,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    handlePushHistory
+  ]);
 
   return (
     <TierListContext.Provider value={value}>

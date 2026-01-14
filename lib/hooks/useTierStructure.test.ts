@@ -19,12 +19,14 @@ vi.mock('@/lib/colors', () => ({
 describe('useTierStructure', () => {
   it('should add a new tier', () => {
     const setStateMock = vi.fn();
-    const { result } = renderHook(() => useTierStructure(setStateMock));
+    const pushHistoryMock = vi.fn();
+    const { result } = renderHook(() => useTierStructure(setStateMock, pushHistoryMock));
 
     act(() => {
       result.current.handleAddTier();
     });
 
+    expect(pushHistoryMock).toHaveBeenCalled();
     expect(setStateMock).toHaveBeenCalled();
     
     // Check if the updater function was called
@@ -39,7 +41,8 @@ describe('useTierStructure', () => {
 
   it('should delete a tier', () => {
     const setStateMock = vi.fn();
-    const { result } = renderHook(() => useTierStructure(setStateMock));
+    const pushHistoryMock = vi.fn();
+    const { result } = renderHook(() => useTierStructure(setStateMock, pushHistoryMock));
 
     const tierId = 'tier-1';
     
@@ -47,6 +50,7 @@ describe('useTierStructure', () => {
       result.current.handleDeleteTier(tierId);
     });
 
+    expect(pushHistoryMock).toHaveBeenCalled();
     const updater = setStateMock.mock.calls[0][0];
     const prevState: TierListState = { 
         tierDefs: [{ id: 'tier-1', label: 'S', color: 'red' }], 
@@ -60,7 +64,8 @@ describe('useTierStructure', () => {
 
   it('should move items to fallback tier on delete', () => {
     const setStateMock = vi.fn();
-    const { result } = renderHook(() => useTierStructure(setStateMock));
+    const pushHistoryMock = vi.fn();
+    const { result } = renderHook(() => useTierStructure(setStateMock, pushHistoryMock));
 
     const tierToDelete = 'tier-delete';
     const tierFallback = 'tier-keep';
@@ -69,6 +74,7 @@ describe('useTierStructure', () => {
       result.current.handleDeleteTier(tierToDelete);
     });
 
+    expect(pushHistoryMock).toHaveBeenCalled();
     const updater = setStateMock.mock.calls[0][0];
     const prevState: TierListState = { 
         tierDefs: [

@@ -15,11 +15,13 @@ import { useToast } from '@/components/ToastProvider';
  * 
  * @param state - The current state of the tier list.
  * @param setState - Function to update the tier list state.
+ * @param pushHistory - Function to save current state to history.
  * @returns An object containing handler functions for import and export.
  */
 export function useTierListIO(
   state: TierListState,
-  setState: React.Dispatch<React.SetStateAction<TierListState>>
+  setState: React.Dispatch<React.SetStateAction<TierListState>>,
+  pushHistory?: () => void
 ) {
   const { showToast } = useToast();
 
@@ -56,6 +58,7 @@ export function useTierListIO(
             // The original logic used INITIAL_STATE.title as fallback.
             const newState = parseImportData(jsonString, 'Untitled Tier List');
             
+            if (pushHistory) pushHistory();
             setState(newState);
             showToast("Tier list imported successfully!", "success");
         } catch (e) { 
@@ -66,7 +69,7 @@ export function useTierListIO(
     reader.readAsText(file);
     // Reset input so same file can be selected again if needed
     e.target.value = '';
-  }, [setState, showToast]);
+  }, [setState, showToast, pushHistory]);
 
   return {
     handleExport,

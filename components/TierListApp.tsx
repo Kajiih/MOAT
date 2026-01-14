@@ -83,7 +83,11 @@ export default function TierListApp() {
     handleCloseDetails,
     isHydrated,
     title: tierListTitle, // Alias state.title to tierListTitle
-    handleUpdateTitle
+    handleUpdateTitle,
+    undo,
+    redo,
+    canUndo,
+    canRedo
   } = useTierList();
 
   const { toastCount } = useToast();
@@ -96,6 +100,23 @@ export default function TierListApp() {
   useEffect(() => {
     document.title = `${tierListTitle} - MOAT`;
   }, [tierListTitle]);
+
+  // Keyboard Shortcuts for Undo/Redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+            e.preventDefault();
+            if (e.shiftKey) {
+                if (canRedo) redo();
+            } else {
+                if (canUndo) undo();
+            }
+        }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, canUndo, canRedo]);
 
   if (!isHydrated) {
     return <LoadingState />;
@@ -117,6 +138,10 @@ export default function TierListApp() {
             isCapturing={isCapturing}
             onClear={handleClear} 
             colors={headerColors}
+            onUndo={undo}
+            onRedo={redo}
+            canUndo={canUndo}
+            canRedo={canRedo}
         />
 
         <DndContext 

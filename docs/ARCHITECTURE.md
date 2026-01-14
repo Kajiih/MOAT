@@ -64,6 +64,14 @@
     - `useTierStructure`: Handles adding/deleting tiers and randomizing colors.
     - `useTierListUtils`: Handles derived state (header colors) and UI utilities (scrolling).
 
+- **Undo/Redo System**:
+  - **History Management**: Implemented via `useHistory` hook which maintains `past` and `future` state stacks in memory.
+  - **Integration**: The `TierListContext` integrates `useHistory` alongside `usePersistentState`.
+  - **Snapshot Strategy**:
+    - **Explicit Snapshots**: History is recorded explicitly via `pushHistory()` before significant destructive actions (Drag Start, Add/Delete Tier, Import, Clear).
+    - **Granularity**: Transient updates (like `handleDragOver` or continuous text input) do not pollute the history stack, ensuring a clean "Undo" experience that reverts to the start of the action.
+    - **Keyboard Support**: Full support for standard shortcuts (Cmd/Ctrl+Z for Undo, Cmd/Ctrl+Shift+Z for Redo).
+
 - **Synergy Pattern**:
   - Updates flow bidirectionally: If the background bundler finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 

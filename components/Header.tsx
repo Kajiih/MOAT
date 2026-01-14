@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Upload, Download, Trash2, Camera, Loader2 } from 'lucide-react';
+import { Upload, Download, Trash2, Camera, Loader2, Undo2, Redo2 } from 'lucide-react';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from '@/components/BrandLogo';
 import { ChangeEvent } from 'react';
@@ -20,9 +20,24 @@ interface HeaderProps {
   isCapturing?: boolean;
   onClear: () => void;
   colors: string[]; // Array of Semantic Color IDs (e.g. ['red', 'blue', ...])
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
-export function Header({ onImport, onExport, onScreenshot, isCapturing, onClear, colors }: HeaderProps) {
+export function Header({ 
+    onImport, 
+    onExport, 
+    onScreenshot, 
+    isCapturing, 
+    onClear, 
+    colors,
+    onUndo,
+    onRedo,
+    canUndo = false,
+    canRedo = false
+}: HeaderProps) {
   
   const brandColors = useBrandColors(colors);
 
@@ -33,6 +48,25 @@ export function Header({ onImport, onExport, onScreenshot, isCapturing, onClear,
       </h1>
       
       <div className="flex gap-2">
+        <div className="flex gap-1 mr-2">
+            <button 
+                onClick={onUndo} 
+                disabled={!canUndo}
+                className="p-2 bg-neutral-800 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="Undo (Ctrl+Z)"
+            >
+                <Undo2 size={16} />
+            </button>
+            <button 
+                onClick={onRedo} 
+                disabled={!canRedo}
+                className="p-2 bg-neutral-800 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="Redo (Ctrl+Shift+Z)"
+            >
+                <Redo2 size={16} />
+            </button>
+        </div>
+
         <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm transition-colors" title="Import from JSON">
             <Upload size={16} /> <span className="hidden sm:inline">Import</span>
             <input type="file" onChange={onImport} accept=".json" className="hidden" />

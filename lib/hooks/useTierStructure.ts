@@ -16,11 +16,13 @@ import { INITIAL_STATE } from '@/lib/initial-state';
  * Hook to manage the structure of the tier list board (rows/tiers) and global board actions.
  */
 export function useTierStructure(
-  setState: Dispatch<SetStateAction<TierListState>>
+  setState: Dispatch<SetStateAction<TierListState>>,
+  pushHistory: () => void
 ) {
   const { showToast } = useToast();
 
   const handleAddTier = useCallback(() => {
+    pushHistory();
     const newId = crypto.randomUUID();
     
     setState(prev => {
@@ -43,9 +45,10 @@ export function useTierStructure(
             items: { ...prev.items, [newId]: [] }
         };
     });
-  }, [setState]);
+  }, [setState, pushHistory]);
 
   const handleRandomizeColors = useCallback(() => {
+    pushHistory();
     setState(prev => {
         let pool = [...TIER_COLORS];
         
@@ -60,16 +63,20 @@ export function useTierStructure(
         return { ...prev, tierDefs: newDefs };
     });
     showToast("Colors randomized!", "success");
-  }, [setState, showToast]);
+  }, [setState, showToast, pushHistory]);
 
   const handleUpdateTier = useCallback((id: string, updates: Partial<TierDefinition>) => {
+    // Only push history for significant updates (e.g. not every keystroke if this is debounced elsewhere)
+    // Assuming this is called on blur or after debounce for text inputs
+    pushHistory();
     setState(prev => ({
         ...prev,
         tierDefs: prev.tierDefs.map(t => t.id === id ? { ...t, ...updates } : t)
     }));
-  }, [setState]);
+  }, [setState, pushHistory]);
 
   const handleDeleteTier = useCallback((id: string) => {
+    pushHistory();
     setState(prev => {
         const tierIndex = prev.tierDefs.findIndex(t => t.id === id);
         if (tierIndex === -1) return prev;
@@ -90,14 +97,15 @@ export function useTierStructure(
             items: newItems
         };
     });
-  }, [setState]);
+  }, [setState, pushHistory]);
 
   const handleClear = useCallback(() => {
     if(confirm("Clear everything?")) {
+        pushHistory();
         setState(INITIAL_STATE);
         showToast("Board cleared", "info");
     }
-  }, [setState, showToast]);
+  }, [setState, showToast, pushHistory]);
 
   return {
     handleAddTier,

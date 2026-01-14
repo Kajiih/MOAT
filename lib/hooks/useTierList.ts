@@ -28,7 +28,12 @@ export function useTierList() {
     addedItemIds, 
     detailsItem, 
     setDetailsItem,
-    updateMediaItem
+    updateMediaItem,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    pushHistory
   } = useTierListContext();
 
   // 1. Drag & Drop Logic
@@ -40,7 +45,7 @@ export function useTierList() {
     handleDragStart,
     handleDragOver,
     handleDragEnd
-  } = useTierListDnD(state, setState);
+  } = useTierListDnD(state, setState, pushHistory);
 
   // 2. Structure & Board Actions Logic
   const {
@@ -49,10 +54,10 @@ export function useTierList() {
     handleDeleteTier,
     handleRandomizeColors,
     handleClear
-  } = useTierStructure(setState);
+  } = useTierStructure(setState, pushHistory);
 
   // 3. IO Logic
-  const { handleExport, handleImport } = useTierListIO(state, setState);
+  const { handleExport, handleImport } = useTierListIO(state, setState, pushHistory);
 
   // 4. Utils (Colors, Locate)
   const { headerColors, handleLocate } = useTierListUtils(state, activeTier?.id || null, overId);
@@ -68,6 +73,7 @@ export function useTierList() {
 
   // --- Misc ---
   const removeItemFromTier = useCallback((tierId: string, itemId: string) => {
+    pushHistory();
     setState(prev => ({
         ...prev,
         items: {
@@ -75,14 +81,17 @@ export function useTierList() {
             [tierId]: prev.items[tierId].filter(a => a.id !== itemId && a.id !== `search-${itemId}`)
         }
     }));
-  }, [setState]);
+  }, [setState, pushHistory]);
 
   const handleUpdateTitle = useCallback((newTitle: string) => {
+    // Only push history if title actually changed (maybe handled by blur/debounce in UI)
+    // For now, assuming title updates are significant and infrequent enough (on blur)
+    pushHistory();
     setState(prev => ({
       ...prev,
       title: newTitle,
     }));
-  }, [setState]);
+  }, [setState, pushHistory]);
 
   return {
     state,
@@ -111,5 +120,9 @@ export function useTierList() {
     isHydrated,
     handleUpdateTitle,
     title: state.title,
+    undo,
+    redo,
+    canUndo,
+    canRedo
   };
 }

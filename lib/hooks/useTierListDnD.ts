@@ -33,10 +33,12 @@ import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
  * 
  * @param state - The current Tier List state.
  * @param setState - State setter for updating items and tier order.
+ * @param pushHistory - Function to save current state to history.
  */
 export function useTierListDnD(
   state: TierListState,
-  setState: Dispatch<SetStateAction<TierListState>>
+  setState: Dispatch<SetStateAction<TierListState>>,
+  pushHistory: () => void
 ) {
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
@@ -68,13 +70,14 @@ export function useTierListDnD(
   };
 
   const handleDragStart = useCallback((e: DragStartEvent) => {
+    pushHistory();
     const { active } = e;
     if (active.data.current?.type === 'tier') {
         setActiveTier(active.data.current.tier);
     } else {
         setActiveItem(active.data.current?.mediaItem);
     }
-  }, []);
+  }, [pushHistory]);
 
   const handleDragOver = useCallback((event: DragOverEvent) => {
     const { active, over } = event;
