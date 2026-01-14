@@ -118,6 +118,9 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 
 - **Semantic Color Palette**: defined in `lib/colors.ts`, mapping abstract IDs (e.g., 'red', 'amber') to specific Tailwind CSS classes and Hex values.
 - **Dynamic Branding**: The `useBrandColors` and `useDynamicFavicon` hooks extract the top 4 tier colors to generate a matching favicon and logo on the fly, ensuring the app's identity reflects the user's content.
+- **Unified Media UI**: 
+  - `lib/media-defs.tsx` acts as the single source of truth for UI configurations (icons, colors, label formatting) keyed by media type (`album`, `artist`, `song`).
+  - Components like `MediaCard` and `DetailsModal` consume this configuration to render dynamic content without scattered conditional logic.
 
 ### 8. Quality Assurance
 
@@ -161,3 +164,4 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `io.ts`: Import/Export logic and JSON validation.
   - `mappers.ts`: Transformation logic from API schemas to internal domain types.
   - `search.ts`: Lucene query construction utilities.
+- `lib/media-defs.tsx`: UI configuration map for media types (icons, colors, formatters).

@@ -15,12 +15,12 @@ import { MB_BASE_URL, USER_AGENT } from './config';
  * @param options - Fetch options (next.revalidate, etc.).
  * @param retryCount - Internal retry counter.
  */
-export async function mbFetch(
+export async function mbFetch<T = unknown>(
   endpoint: string, 
   queryParams: string, 
   options: RequestInit = {}, 
   retryCount = 0
-): Promise<any> {
+): Promise<T> {
   const url = `${MB_BASE_URL}/${endpoint}/?${queryParams}&fmt=json`;
   
   const headers = {

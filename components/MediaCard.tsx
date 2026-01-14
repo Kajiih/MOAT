@@ -13,8 +13,9 @@ import { useDraggable, DraggableAttributes } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MediaItem } from '@/lib/types';
-import { X, Eye, Music, User, Disc, Info } from 'lucide-react'; 
+import { X, Eye, Info } from 'lucide-react'; 
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import { getMediaUI } from '@/lib/media-defs';
 
 // Global cache for failed image URLs to prevent repeated 404 requests during the session
 const failedImages = new Set<string>();
@@ -79,8 +80,7 @@ function BaseMediaCard({
   // Retry state: If optimization fails (e.g. Private IP error), we try unoptimized once.
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
-  // Icon based on type
-  const TypeIcon = item.type === 'artist' ? User : item.type === 'song' ? Music : Disc;
+  const { Icon: TypeIcon, getSubtitle, getTertiaryText } = getMediaUI(item.type);
 
   if (isDragging) {
     return (
@@ -93,20 +93,8 @@ function BaseMediaCard({
   }
 
   // Construct lines of info
-  let line2 = '';
-  let line3 = '';
-
-  if (item.type === 'artist') {
-      line2 = item.disambiguation || '';
-      line3 = item.year ? `Est. ${item.year}` : 'Artist';
-  } else if (item.type === 'song') {
-      line2 = item.album || '';
-      line3 = `${item.artist || 'Unknown'}${item.year ? ` (${item.year})` : ''}`;
-  } else {
-      // Album
-      line2 = item.artist || 'Unknown';
-      line3 = item.year ? `(${item.year})` : '';
-  }
+  const line2 = getSubtitle(item);
+  const line3 = getTertiaryText(item);
 
   return (
     <div 

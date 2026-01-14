@@ -9,7 +9,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { X, Disc, User, Music } from 'lucide-react';
+import { X } from 'lucide-react';
 import Image from 'next/image';
 import { MediaItem } from '@/lib/types';
 import { useMediaDetails } from '@/lib/hooks';
@@ -17,6 +17,7 @@ import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
 import { SongView } from './details/SongView';
 import { useMediaRegistry } from './MediaRegistryProvider';
+import { getMediaUI } from '@/lib/media-defs';
 
 interface DetailsModalProps {
   item: MediaItem | null;
@@ -64,7 +65,9 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   if (!isOpen || !enrichedItem) return null;
 
   const hasImage = enrichedItem.imageUrl && !imageError;
-  const PlaceholderIcon = enrichedItem.type === 'artist' ? User : enrichedItem.type === 'song' ? Music : Disc;
+  
+  const uiConfig = getMediaUI(enrichedItem.type);
+  const PlaceholderIcon = uiConfig.Icon;
 
   const handleImageError = () => {
     if (!retryUnoptimized) {
@@ -127,9 +130,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                             {enrichedItem.title}
                         </h2>
                         <div className="flex items-center gap-2 text-neutral-300 mt-1">
-                            {enrichedItem.type === 'album' && <Disc size={16} className="text-blue-400" />}
-                            {enrichedItem.type === 'artist' && <User size={16} className="text-purple-400" />}
-                            {enrichedItem.type === 'song' && <Music size={16} className="text-green-400" />}
+                            <uiConfig.Icon size={16} className={uiConfig.colorClass} />
                             <span className="font-medium">
                                 {'artist' in enrichedItem ? enrichedItem.artist : 'Artist'}
                             </span>
