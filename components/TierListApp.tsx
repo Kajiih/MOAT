@@ -128,7 +128,7 @@ export default function TierListApp() {
         >
             
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
-                <div className="-mt-20">
+                <div className="lg:-mt-20">
                   <TierBoard 
                       state={state}
                       colors={headerColors}

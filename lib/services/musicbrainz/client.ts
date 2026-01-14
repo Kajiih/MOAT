@@ -10,6 +10,7 @@ import { MB_BASE_URL, USER_AGENT } from './config';
 /**
  * Performs a fetch request to the MusicBrainz API with automatic retry for 503s.
  * 
+ * @template T - The expected return type of the JSON response. Defaults to `unknown`.
  * @param endpoint - The API endpoint (e.g., 'artist', 'release-group').
  * @param queryParams - URLSearchParams object or string.
  * @param options - Fetch options (next.revalidate, etc.).
