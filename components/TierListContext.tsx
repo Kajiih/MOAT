@@ -10,7 +10,9 @@
 
 import React, { createContext, useContext, useMemo, useRef, useEffect, useState, ReactNode } from 'react';
 import { MediaItem, TierListState } from '@/lib/types';
-import { usePersistentState } from '@/lib/hooks/usePersistentState';
+import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
+import { tierListReducer } from '@/lib/state/reducer';
+import { TierListAction, ActionType } from '@/lib/state/actions';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { INITIAL_STATE } from '@/lib/initial-state';
@@ -25,7 +27,7 @@ interface TierListContextType {
   /** The core state of the tier list (tiers, items, title). */
   state: TierListState;
   /** Dispatcher to update the core state. */
-  setState: React.Dispatch<React.SetStateAction<TierListState>>;
+  dispatch: React.Dispatch<TierListAction>;
   /** Flag indicating if the state has been hydrated from localStorage. */
   isHydrated: boolean;
   
@@ -63,7 +65,11 @@ const TierListContext = createContext<TierListContextType | null>(null);
  * @param props.children - Child components that will have access to the context.
  */
 export function TierListProvider({ children }: { children: ReactNode }) {
-  const [state, setState, isHydrated] = usePersistentState<TierListState>(LOCAL_STORAGE_KEY, INITIAL_STATE);
+  const [state, dispatch, isHydrated] = usePersistentReducer<TierListState, TierListAction>(
+    tierListReducer,
+    INITIAL_STATE,
+    LOCAL_STORAGE_KEY
+  );
   const { undo: undoHistory, redo: redoHistory, push: pushHistory, canUndo, canRedo } = useHistory<TierListState>();
 
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
@@ -72,12 +78,13 @@ export function TierListProvider({ children }: { children: ReactNode }) {
   const itemsToRegister = useRef<MediaItem[]>([]);
 
   const undo = React.useCallback(() => {
-    undoHistory(state, setState);
-  }, [undoHistory, state, setState]);
+    // We pass a setter that dispatches SET_STATE
+    undoHistory(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
+  }, [undoHistory, state, dispatch]);
 
   const redo = React.useCallback(() => {
-    redoHistory(state, setState);
-  }, [redoHistory, state, setState]);
+    redoHistory(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
+  }, [redoHistory, state, dispatch]);
 
   const handlePushHistory = React.useCallback(() => {
     pushHistory(state);
@@ -106,47 +113,38 @@ export function TierListProvider({ children }: { children: ReactNode }) {
   });
 
   const updateMediaItem = React.useCallback((itemId: string, updates: Partial<MediaItem>) => {
-    setState(prev => {
-        const newItems = { ...prev.items };
-        let modified = false;
-
-        const tierIds = Object.keys(newItems);
-        for (const tierId of tierIds) {
-            const list = newItems[tierId];
-            const index = list.findIndex(a => a.id === itemId);
-            if (index !== -1) {
-                const currentItem = list[index];
-                
-                // PERFORMANCE: Skip update if details are effectively identical
-                if (updates.details && currentItem.details) {
-                    const currentDetailsStr = JSON.stringify(currentItem.details);
-                    const newDetailsStr = JSON.stringify(updates.details);
-                    if (currentDetailsStr === newDetailsStr && Object.keys(updates).length === 1) {
-                        return prev;
-                    }
-                }
-
-                const updatedItem = { ...currentItem, ...updates } as MediaItem;
-                
-                newItems[tierId] = [
-                    ...list.slice(0, index),
-                    updatedItem,
-                    ...list.slice(index + 1)
-                ];
-
-                // Queue for registry update (will happen in useEffect)
-                itemsToRegister.current.push(updatedItem);
-                modified = true;
-                break;
-            }
-        }
-        return modified ? { ...prev, items: newItems } : prev;
-    });
-  }, [setState]);
+      // With Reducer, we dispatch the update directly. 
+      // The optimization logic (diff checking) is moved to the reducer or kept here?
+      // Keeping basic check here avoids dispatching unnecessary actions.
+      
+      // We can't easily check 'state' here without adding it to dependency array, 
+      // which might re-render children too often if we are not careful.
+      // But we have 'state' in scope.
+      
+      // Let's just dispatch. The reducer has the logic to check/merge.
+      dispatch({ 
+        type: ActionType.UPDATE_ITEM, 
+        payload: { itemId, updates } 
+      });
+      
+      // Registry update queueing is tricky now because we don't return the "modified" flag from dispatch.
+      // We'll trust the effect. But we need to know *what* to register.
+      // We can optimistically construct the item? Or we just rely on the effect scanning?
+      // The current effect relies on `itemsToRegister` ref being populated.
+      // We should populate it here optimistically.
+      // Since we don't have the full item here easily, let's defer registry update 
+      // or find the item from current state.
+      
+      // Find item in current state to register it
+      const currentItem = Object.values(state.items).flat().find(i => i.id === itemId);
+      if (currentItem) {
+          itemsToRegister.current.push({ ...currentItem, ...updates } as MediaItem);
+      }
+  }, [dispatch, state.items]);
 
   const value = useMemo(() => ({
     state,
-    setState,
+    dispatch,
     isHydrated,
     allBoardItems,
     addedItemIds,
@@ -160,7 +158,7 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     pushHistory: handlePushHistory
   }), [
     state, 
-    setState, 
+    dispatch, 
     isHydrated, 
     allBoardItems, 
     addedItemIds, 

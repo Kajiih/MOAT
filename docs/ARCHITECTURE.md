@@ -51,10 +51,10 @@
 ### 2. State & Data Flow Strategy
 
 - **Layered Persistence**:
-  1. **Board State (Context-Based)**: 
+  1. **Board State (Context + Reducer)**: 
      - The application state (`items`, `tierDefs`, `title`) is held in `TierListContext`. 
-     - It uses `usePersistentState` for debounced `localStorage` synchronization.
-     - This architecture decouples state from logic, paving the way for multi-board management.
+     - It uses `usePersistentReducer` (a custom hook combining `useReducer` with localStorage) for centralized state logic and persistence.
+     - This architecture decouples state transitions from UI components, using a standard `dispatch(Action)` pattern.
   2. **Global Media Registry**: A persistent `localStorage` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent `localStorage` bloat while maintaining a vast metadata library.
 
@@ -65,6 +65,7 @@
     - `useTierListDnD`: Handles Drag and Drop sensors and collisions.
     - `useTierStructure`: Handles adding/deleting tiers and randomizing colors.
     - `useTierListUtils`: Handles derived state (header colors) and UI utilities (scrolling).
+  - **Refactoring Note**: Sub-hooks now accept `dispatch` and use `ActionType` constants to mutate state, ensuring all logic is contained within the pure `tierListReducer`.
 
 - **Undo/Redo System**:
   - **History Management**: Implemented via `useHistory` hook which maintains `past` and `future` state stacks in memory.
@@ -162,8 +163,12 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
+  - `usePersistentReducer.ts`: **[New]** Combines `useReducer` with localStorage persistence.
+- `lib/state/`: **[New]** Centralized State Logic
+  - `actions.ts`: Action definitions (ADD_TIER, MOVE_ITEM, etc.).
+  - `reducer.ts`: Pure state transition logic.
 - `lib/services/`:
-  - `musicbrainz/`:  Service layer for MusicBrainz integration.
+  - `musicbrainz/`: **[New]** Service layer for MusicBrainz integration.
     - `client.ts`: HTTP client with 503 retry logic.
     - `query-builder.ts`: Lucene query construction logic.
     - `search.ts`: Search orchestration and validation.

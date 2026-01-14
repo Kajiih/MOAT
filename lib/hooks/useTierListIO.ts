@@ -5,22 +5,23 @@
  * @module useTierListIO
  */
 
-import { useCallback } from 'react';
+import { useCallback, Dispatch } from 'react';
 import { TierListState } from '@/lib/types';
 import { generateExportData, downloadJson, parseImportData } from '@/lib/utils/io';
 import { useToast } from '@/components/ToastProvider';
+import { ActionType, TierListAction } from '@/lib/state/actions';
 
 /**
  * Hook to handle Import and Export operations for the Tier List.
  * 
  * @param state - The current state of the tier list.
- * @param setState - Function to update the tier list state.
+ * @param dispatch - Dispatcher for updating state.
  * @param pushHistory - Function to save current state to history.
  * @returns An object containing handler functions for import and export.
  */
 export function useTierListIO(
   state: TierListState,
-  setState: React.Dispatch<React.SetStateAction<TierListState>>,
+  dispatch: Dispatch<TierListAction>,
   pushHistory?: () => void
 ) {
   const { showToast } = useToast();
@@ -59,7 +60,7 @@ export function useTierListIO(
             const newState = parseImportData(jsonString, 'Untitled Tier List');
             
             if (pushHistory) pushHistory();
-            setState(newState);
+            dispatch({ type: ActionType.IMPORT_STATE, payload: { state: newState } });
             showToast("Tier list imported successfully!", "success");
         } catch (e) { 
             console.error(e);
@@ -69,7 +70,7 @@ export function useTierListIO(
     reader.readAsText(file);
     // Reset input so same file can be selected again if needed
     e.target.value = '';
-  }, [setState, showToast, pushHistory]);
+  }, [dispatch, showToast, pushHistory]);
 
   return {
     handleExport,
