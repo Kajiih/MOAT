@@ -105,7 +105,7 @@ function BaseMediaCard({
       {...attributes} 
       onClick={isAdded && onLocate ? onLocate : undefined}
       className={`
-        relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-none select-none
+        relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-pan-y select-none
         ${isAdded 
             ? 'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0' 
             : 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400'

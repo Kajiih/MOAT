@@ -35,7 +35,7 @@ export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps
   const [wildcard, setWildcard] = usePersistentState<boolean>('moat-search-wildcard', true);
 
   return (
-    <div className="sticky top-4 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl max-h-[calc(100vh-2rem)] flex flex-col">
+    <div className="sticky top-4 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col">
         <div className="flex flex-wrap items-center gap-4 mb-4 text-white shrink-0">
             <div className="flex items-center gap-2">
                 <Search size={20} />
