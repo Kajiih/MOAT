@@ -85,8 +85,10 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     return { results: [], page: 1, totalPages: 0, totalCount: 0 };
   }
 
+  type MBSearchResponse = z.infer<typeof MusicBrainzSearchResponseSchema>;
+
   // Use the robust mbFetch client
-  const rawData = await mbFetch(
+  const rawData = await mbFetch<MBSearchResponse>(
       endpoint, 
       `query=${encodeURIComponent(finalQuery)}&limit=${limit}&offset=${offset}`,
       { next: { revalidate: SEARCH_CACHE_TTL } }

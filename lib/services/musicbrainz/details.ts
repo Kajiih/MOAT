@@ -32,6 +32,32 @@ interface MBRelation {
     };
 }
 
+interface MBSearchResponse {
+    releases?: { id: string }[];
+}
+
+interface MBReleaseResponse {
+    'label-info'?: { label?: { name: string } }[];
+    date?: string;
+    media?: { tracks?: MBTrack[] }[];
+}
+
+interface MBArtistResponse {
+    tags?: MBTag[];
+    area?: { name: string };
+    'life-span'?: { begin?: string; end?: string; ended?: boolean };
+    relations?: MBRelation[];
+}
+
+interface MBRecordingResponse {
+    tags?: MBTag[];
+    length?: number;
+    releases?: { 
+        title: string; 
+        'release-group'?: { id: string };
+    }[];
+}
+
 /**
  * Fetches detailed metadata for a specific media item.
  */
@@ -40,11 +66,11 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
         if (type === 'album') {
             // 1. Find the "best" release for this release group (Official, earliest)
             const query = `rgid:${id} AND status:official`;
-            const searchData = await mbFetch(
+            const searchData = await mbFetch<MBSearchResponse>(
                 'release', 
                 `query=${encodeURIComponent(query)}&limit=1`, 
                 { next: { revalidate: DETAILS_CACHE_TTL } }
-            ).catch(() => ({})); // simple error swallowing for this sub-request
+            ).catch(() => ({ releases: [] })); // return safe empty object on error
             
             let release = null;
             if (searchData.releases && searchData.releases.length > 0) {
@@ -52,11 +78,11 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
             }
 
             if (!release) {
-                 const lookupData = await mbFetch(
+                 const lookupData = await mbFetch<MBSearchResponse>(
                     `release-group/${id}`, 
                     'inc=releases',
                     { next: { revalidate: DETAILS_CACHE_TTL } }
-                ).catch(() => ({}));
+                ).catch(() => ({ releases: [] }));
 
                 if (lookupData.releases && lookupData.releases.length > 0) {
                     release = lookupData.releases[0];
@@ -65,7 +91,7 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
 
             if (!release) return { id, type };
 
-            const data = await mbFetch(
+            const data = await mbFetch<MBReleaseResponse>(
                 `release/${release.id}`, 
                 'inc=recordings+media+labels', 
                 { next: { revalidate: DETAILS_CACHE_TTL } }
@@ -89,7 +115,7 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
         } 
         
         if (type === 'artist') {
-            const data = await mbFetch(
+            const data = await mbFetch<MBArtistResponse>(
                 `artist/${id}`, 
                 'inc=url-rels+tags',
                 { next: { revalidate: DETAILS_CACHE_TTL } }
@@ -114,7 +140,7 @@ export async function getMediaDetails(id: string, type: MediaType): Promise<Medi
         }
 
         if (type === 'song') {
-             const data = await mbFetch(
+             const data = await mbFetch<MBRecordingResponse>(
                 `recording/${id}`, 
                 'inc=releases+release-groups+artist-credits+tags',
                 { next: { revalidate: DETAILS_CACHE_TTL } }
