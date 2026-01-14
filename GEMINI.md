@@ -8,6 +8,8 @@
   - Lints should not be ignored with comments unless it is the best solution for idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior
 - You can and should write tests when if they are relevant. We use vitest.
   - Don't write tests if it is not relevant or trivial.
+  - NEVER test implementation details.
+  - Few well chosen tests is better than testing anything and everything.
   - Use `npm run test -- --run` to run tests.
 - We also use integration tests with playwright.
   - You can implement integration test if they are relevant.

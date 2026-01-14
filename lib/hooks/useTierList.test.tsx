@@ -167,7 +167,64 @@ describe('useTierList', () => {
         result.current.handleClear();
     });
 
-    // Should reset to initial state (6 tiers)
-    expect(result.current.state.tierDefs).toHaveLength(6);
-  });
-});
+        // Should reset to initial state (6 tiers)
+
+        expect(result.current.state.tierDefs).toHaveLength(6);
+
+      });
+
+    
+
+      it('should undo and redo state changes', () => {
+
+        const { result } = renderHook(() => useTierList(), { wrapper });
+
+        const initialCount = result.current.state.tierDefs.length;
+
+    
+
+        // 1. Perform an action
+
+        act(() => {
+
+          result.current.handleAddTier();
+
+        });
+
+        expect(result.current.state.tierDefs).toHaveLength(initialCount + 1);
+
+        expect(result.current.canUndo).toBe(true);
+
+    
+
+        // 2. Undo the action
+
+        act(() => {
+
+          result.current.undo();
+
+        });
+
+        expect(result.current.state.tierDefs).toHaveLength(initialCount);
+
+        expect(result.current.canRedo).toBe(true);
+
+    
+
+        // 3. Redo the action
+
+        act(() => {
+
+          result.current.redo();
+
+        });
+
+        expect(result.current.state.tierDefs).toHaveLength(initialCount + 1);
+
+        expect(result.current.canUndo).toBe(true);
+
+      });
+
+    });
+
+    
