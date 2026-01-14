@@ -42,7 +42,7 @@ export function Header({
   const brandColors = useBrandColors(colors);
 
   return (
-    <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-10">
       <h1>
           <BrandLogo colors={brandColors} variant="header" />
       </h1>

@@ -87,7 +87,8 @@ export default function TierListApp() {
     undo,
     redo,
     canUndo,
-    canRedo
+    canRedo,
+    pushHistory
   } = useTierList();
 
   const { toastCount } = useToast();
@@ -166,6 +167,7 @@ export default function TierListApp() {
                       isAnyDragging={!!activeItem || !!activeTier}
                       tierListTitle={tierListTitle}
                       onUpdateTierListTitle={handleUpdateTitle}
+                      pushHistory={pushHistory}
                   />
                 </div>
 

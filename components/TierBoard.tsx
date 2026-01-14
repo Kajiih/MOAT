@@ -18,7 +18,7 @@ import { Plus } from 'lucide-react';
 
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from '@/components/BrandLogo';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useRef, useEffect } from 'react';
 
 interface TierBoardProps {
   state: TierListState;
@@ -32,6 +32,7 @@ interface TierBoardProps {
   isAnyDragging: boolean;
   tierListTitle: string;
   onUpdateTierListTitle: (newTitle: string) => void;
+  pushHistory: () => void;
 }
 
 export function TierBoard({
@@ -45,27 +46,41 @@ export function TierBoard({
   handleShowDetails,
   isAnyDragging,
   tierListTitle,
-  onUpdateTierListTitle
+  onUpdateTierListTitle,
+  pushHistory
 }: TierBoardProps) {
 
   // Dynamic Logo Colors (Reusable Logic)
   const logoHexColors = useBrandColors(colors);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
   
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onUpdateTierListTitle(e.target.value);
   };
+
+  // Auto-resize textarea height based on content
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
+    }
+  }, [tierListTitle]);
 
   return (
     <div className="space-y-4">
         <div ref={screenshotRef} className="space-y-2 p-1">
-            <input
-              type="text"
-              value={tierListTitle}
-              onChange={handleTitleChange}
-              placeholder="Tier List Title"
-              aria-label="Tier List Title"
-              className="bg-transparent text-neutral-200 text-4xl font-black tracking-tighter italic text-center w-full focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md mb-6"
-            />
+            <div className="flex justify-center mb-6">
+              <textarea
+                ref={titleRef}
+                value={tierListTitle}
+                onChange={handleTitleChange}
+                onFocus={() => pushHistory()}
+                placeholder="Tier List Title"
+                aria-label="Tier List Title"
+                rows={1}
+                className="bg-transparent text-neutral-200 text-4xl font-black tracking-tighter italic text-center w-full max-w-[66%] focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md resize-none overflow-hidden py-1 block"
+              />
+            </div>
             <SortableContext 
                 items={state.tierDefs.map(t => t.id)} 
                 strategy={verticalListSortingStrategy}

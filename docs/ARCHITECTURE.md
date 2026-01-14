@@ -36,6 +36,8 @@
 - **Data Portability**:
   - **Full-State Export**: Exported JSON files contain the *complete* metadata payload (details, images, tracklists, and the tier list title), making lists fully portable between users without requiring new API lookups.
   - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`. The capture logic automatically excludes UI controls and the search panel for a clean, branded output.
+- **History Control**:
+  - **Undo/Redo**: Full state history management allows users to revert actions (drag-and-drop, text edits, deletions) with standard keyboard shortcuts or UI buttons.
 
 ## Technical Architecture
 
@@ -140,8 +142,8 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
 - `components/`:
   - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
-  - `TierListContext.tsx`: **[New]** Core state provider for the tier list (persistence, hydration).
-  - `Header.tsx`: Global actions (Import, Export, Screenshot) and branding.
+  - `TierListContext.tsx`: Core state provider for the tier list (persistence, hydration).
+  - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding. Prioritized in the stacking order (z-axis) to maintain interactivity above overlapping board elements.
   - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
   - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
   - `MediaCard.tsx`: Draggable/Sortable item visualization.
@@ -151,16 +153,17 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
 - `lib/hooks/`:
-  - `useTierList.ts`: **[Updated]** Composition hook acting as the facade for the TierList Context and sub-hooks.
-  - `useTierListIO.ts`: **[New]** Encapsulates Import/Export logic.
-  - `useTierListUtils.ts`: **[New]** Encapsulates derived state and UI utilities.
+  - `useTierList.ts`:  Composition hook acting as the facade for the TierList Context and sub-hooks.
+  - `useTierListIO.ts`:  Encapsulates Import/Export logic.
+  - `useTierListUtils.ts`:  Encapsulates derived state and UI utilities.
+  - `useHistory.ts`:  Generic hook for managing state history (past/future stacks).
   - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
 - `lib/services/`:
-  - `musicbrainz/`: **[New]** Service layer for MusicBrainz integration.
+  - `musicbrainz/`:  Service layer for MusicBrainz integration.
     - `client.ts`: HTTP client with 503 retry logic.
     - `query-builder.ts`: Lucene query construction logic.
     - `search.ts`: Search orchestration and validation.

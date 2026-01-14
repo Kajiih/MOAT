@@ -84,14 +84,11 @@ export function useTierList() {
   }, [setState, pushHistory]);
 
   const handleUpdateTitle = useCallback((newTitle: string) => {
-    // Only push history if title actually changed (maybe handled by blur/debounce in UI)
-    // For now, assuming title updates are significant and infrequent enough (on blur)
-    pushHistory();
     setState(prev => ({
       ...prev,
       title: newTitle,
     }));
-  }, [setState, pushHistory]);
+  }, [setState]);
 
   return {
     state,
@@ -123,6 +120,7 @@ export function useTierList() {
     undo,
     redo,
     canUndo,
-    canRedo
+    canRedo,
+    pushHistory
   };
 }
