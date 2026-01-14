@@ -8,7 +8,7 @@
 import { TierListState } from '@/lib/types';
 
 export const INITIAL_STATE: TierListState = {
-  title: 'My Tier List',
+  title: 'Untitled Tier List',
   tierDefs: [
     { id: 'tier-1', label: 'S', color: 'red' },
     { id: 'tier-2', label: 'A', color: 'orange' },
