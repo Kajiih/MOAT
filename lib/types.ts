@@ -191,6 +191,10 @@ export const MusicBrainzSearchResponseSchema = z.object({
   'release-groups': z.array(MusicBrainzReleaseGroupSchema).optional(),
   'artists': z.array(MusicBrainzArtistSchema).optional(),
   'recordings': z.array(MusicBrainzRecordingSchema).optional(),
+  'release-group-count': z.number().optional(),
+  'artist-count': z.number().optional(),
+  'recording-count': z.number().optional(),
+  'count': z.number().optional(),
 });
 
 // --- MusicBrainz Constants ---
