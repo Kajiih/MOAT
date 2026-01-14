@@ -67,7 +67,17 @@
 - **Synergy Pattern**:
   - Updates flow bidirectionally: If the background bundler finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
-### 3. Performance & Optimization
+### 3. Service Layer (Backend)
+
+The backend logic handling MusicBrainz interactions is modularized into a Service Layer (`lib/services/musicbrainz/`).
+
+- **Modules**:
+  - `client.ts`: The HTTP client wrapping `fetch`. Handles `User-Agent` headers and implements automatic retries for **503 Service Unavailable** errors (rate limiting).
+  - `query-builder.ts`: A pure logic module that translates internal filter objects (tags, year ranges, types) into Lucene-syntax query strings required by MusicBrainz.
+  - `search.ts`: Orchestrates the search flow: Query Build -> Fetch -> Validation (Zod) -> Mapping (Domain Types).
+  - `details.ts`: Handles deep metadata fetching, including resolving `release-group` to specific `release` entities for tracklists.
+
+### 4. Performance & Optimization
 
 #### Caching Strategies
 - **Server-Side Cache**: API routes use an LRU-style in-memory cache (`item-cache.ts`) to store normalized media items for 24 hours, reducing redundant mapping logic and upstream API pressure.
@@ -86,7 +96,7 @@
 - **Lazy Hydration**: Application state is hydrated after the initial client mount to prevent SSR mismatch errors and ensure a fast initial paint.
 - **Cross-Tab Sync**: Uses the `storage` event to keep state consistent across multiple open browser tabs.
 
-### 4. Resilience & Reliability
+### 5. Resilience & Reliability
 
 - **Server proxying**: API routes in `app/api/` handle rate limiting (MusicBrainz 503s), retry logic, and hide external API keys.
 - **Image Fallback Engine**: A robust multi-step strategy for images:
@@ -96,7 +106,7 @@
   - **Healing**: Background fetching of missing artist thumbnails.
   - **Bypass**: Automatic `unoptimized` toggle for domains with resolve issues.
 
-### 5. User Feedback & Interaction
+### 6. User Feedback & Interaction
 
 - **Toast Notification System**: A global `ToastProvider` manages stacked notifications to provide immediate feedback for actions (e.g., "Export Successful") and errors (e.g., "MusicBrainz is busy").
 - **Drag & Drop**:
@@ -104,12 +114,12 @@
   - **Collision Detection**: Uses `rectIntersection` for precise drop targeting.
   - **Strategies**: Uses `verticalListSortingStrategy` for tiers and `rectSortingStrategy` for media items.
 
-### 6. Design System
+### 7. Design System
 
 - **Semantic Color Palette**: defined in `lib/colors.ts`, mapping abstract IDs (e.g., 'red', 'amber') to specific Tailwind CSS classes and Hex values.
 - **Dynamic Branding**: The `useBrandColors` and `useDynamicFavicon` hooks extract the top 4 tier colors to generate a matching favicon and logo on the fly, ensuring the app's identity reflects the user's content.
 
-### 7. Quality Assurance
+### 8. Quality Assurance
 
 - **Unit & Integration Testing**: Powered by **Vitest** and `react-testing-library`. Covers hooks (`useMediaSearch`), utilities (`mappers`), and components (`AlbumFilters`).
 - **End-to-End (E2E) Testing**: Powered by **Playwright**. Validates critical user flows like searching for items, dragging them to tiers, and exporting the board.
@@ -138,8 +148,13 @@
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
+- `lib/services/`:
+  - `musicbrainz/`: **[New]** Service layer for MusicBrainz integration.
+    - `client.ts`: HTTP client with 503 retry logic.
+    - `query-builder.ts`: Lucene query construction logic.
+    - `search.ts`: Search orchestration and validation.
+    - `details.ts`: Detail fetching orchestration.
 - `lib/server/`:
-  - `musicbrainz.ts`: MusicBrainz API client (search, details).
   - `images.ts`: Multi-source image resolver (Fanart.tv, Wikidata).
   - `item-cache.ts`: Server-side LRU cache for mapped media items.
 - `lib/utils/`:

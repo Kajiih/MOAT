@@ -7,7 +7,7 @@
 
 import { NextResponse } from 'next/server';
 import { MediaType } from '@/lib/types';
-import { getMediaDetails } from '@/lib/server/musicbrainz';
+import { getMediaDetails } from '@/lib/services/musicbrainz';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

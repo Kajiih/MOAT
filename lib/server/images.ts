@@ -6,8 +6,7 @@
  * @module ImageService
  */
 
-export const USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
-export const MB_BASE_URL = 'https://musicbrainz.org/ws/2';
+import { MB_BASE_URL, USER_AGENT } from '@/lib/services/musicbrainz/config';
 
 const FANART_API_KEY = process.env.FANART_API_KEY;
 const FANART_BASE_URL = 'https://webservice.fanart.tv/v3/music';

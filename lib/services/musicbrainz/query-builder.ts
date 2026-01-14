@@ -1,9 +1,9 @@
 /**
- * @file search-utils.ts
+ * @file query-builder.ts
  * @description Helper logic for constructing complex MusicBrainz API queries.
  * Maps internal search parameters (year, duration, tags) to the specific 
  * Lucene field syntax required by each MusicBrainz entity type (Artist, Release Group, Recording).
- * @module SearchQueryBuilder
+ * @module MusicBrainzQueryBuilder
  */
 
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';

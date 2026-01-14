@@ -9,7 +9,7 @@
 
 import { NextResponse } from 'next/server';
 import { MediaType } from '@/lib/types';
-import { searchMusicBrainz } from '@/lib/server/musicbrainz';
+import { searchMusicBrainz } from '@/lib/services/musicbrainz';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildMusicBrainzQuery, QueryBuilderParams } from './search-utils';
+import { buildMusicBrainzQuery, QueryBuilderParams } from './query-builder';
 import { MediaType } from '@/lib/types';
 
 const defaultOptions = { fuzzy: false, wildcard: false };
