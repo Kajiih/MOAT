@@ -16,6 +16,7 @@ import { MediaItem } from '@/lib/types';
 import { X, Eye, Info } from 'lucide-react'; 
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { getMediaUI } from '@/lib/media-defs';
+import { useInteraction } from '@/components/InteractionContext';
 
 // Global cache for failed image URLs to prevent repeated 404 requests during the session
 const failedImages = new Set<string>();
@@ -72,6 +73,8 @@ function BaseMediaCard({
   onInfo
 }: BaseMediaCardProps) {
   
+  const interaction = useInteraction();
+
   // Initialize error state based on global cache
   const [imageError, setImageError] = useState(() => {
     return item.imageUrl ? failedImages.has(item.imageUrl) : false;
@@ -104,6 +107,8 @@ function BaseMediaCard({
       {...listeners} 
       {...attributes} 
       onClick={isAdded && onLocate ? onLocate : undefined}
+      onMouseEnter={() => interaction?.setHoveredItem({ item, tierId })}
+      onMouseLeave={() => interaction?.setHoveredItem(null)}
       className={`
         relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-pan-y select-none
         ${isAdded 

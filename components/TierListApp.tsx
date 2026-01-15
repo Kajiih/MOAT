@@ -24,7 +24,8 @@ import { Dices } from 'lucide-react';
 import { useTierList, useScreenshot, useDynamicFavicon } from '@/lib/hooks';
 import { useToast } from './ToastProvider';
 import { getColorTheme } from '@/lib/colors';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { InteractionContext, HoveredItemInfo } from '@/components/InteractionContext';
 
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
@@ -94,6 +95,9 @@ export default function TierListApp() {
   const { toastCount } = useToast();
   const { ref: screenshotRef, takeScreenshot, isCapturing } = useScreenshot('moat-tierlist.png');
   
+  // UI Interaction State (Hover)
+  const [hoveredItem, setHoveredItem] = useState<HoveredItemInfo | null>(null);
+
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);
 
@@ -102,9 +106,10 @@ export default function TierListApp() {
     document.title = `${tierListTitle} - MOAT`;
   }, [tierListTitle]);
 
-  // Keyboard Shortcuts for Undo/Redo
+  // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+        // Undo/Redo
         if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
             e.preventDefault();
             if (e.shiftKey) {
@@ -112,12 +117,28 @@ export default function TierListApp() {
             } else {
                 if (canUndo) undo();
             }
+            return;
+        }
+
+        // Hover Shortcuts
+        if (hoveredItem) {
+            // 'x' to remove item (only if in a tier)
+            if (e.key === 'x' && hoveredItem.tierId) {
+                e.preventDefault(); // Prevent accidental typing if input is focused (though unlikely with hover)
+                removeItemFromTier(hoveredItem.tierId, hoveredItem.item.id);
+                setHoveredItem(null); // Clear hover state since item is gone
+            }
+            // 'i' to show details
+            if (e.key === 'i') {
+                e.preventDefault();
+                handleShowDetails(hoveredItem.item);
+            }
         }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, canUndo, canRedo]);
+  }, [undo, redo, canUndo, canRedo, hoveredItem, removeItemFromTier, handleShowDetails]);
 
   if (!isHydrated) {
     return <LoadingState />;
@@ -125,98 +146,100 @@ export default function TierListApp() {
 
   return (
     <div className="min-h-screen text-neutral-200 p-8 font-sans relative">
-      {/* Background Bundler: Automatically syncs deep metadata for items on the board */}
-      <BoardDetailBundler 
-        items={allBoardItems} 
-        onUpdateItem={updateMediaItem} 
-      />
-
-      <div className="max-w-[1600px] mx-auto">
-        <Header 
-            onImport={handleImport} 
-            onExport={handleExport}
-            onScreenshot={takeScreenshot}
-            isCapturing={isCapturing}
-            onClear={handleClear} 
-            colors={headerColors}
-            onUndo={undo}
-            onRedo={redo}
-            canUndo={canUndo}
-            canRedo={canRedo}
+      <InteractionContext.Provider value={{ setHoveredItem }}>
+        {/* Background Bundler: Automatically syncs deep metadata for items on the board */}
+        <BoardDetailBundler 
+            items={allBoardItems} 
+            onUpdateItem={updateMediaItem} 
         />
 
-        <DndContext 
-            sensors={sensors}
-            collisionDetection={rectIntersection}
-            onDragStart={handleDragStart} 
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-        >
-            
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
-                <div className="lg:-mt-20">
-                  <TierBoard 
-                      state={state}
-                      colors={headerColors}
-                      screenshotRef={screenshotRef}
-                      handleAddTier={handleAddTier}
-                      handleUpdateTier={handleUpdateTier}
-                      handleDeleteTier={handleDeleteTier}
-                      removeItemFromTier={removeItemFromTier}
-                      handleShowDetails={handleShowDetails}
-                      isAnyDragging={!!activeItem || !!activeTier}
-                      tierListTitle={tierListTitle}
-                      onUpdateTierListTitle={handleUpdateTitle}
-                      pushHistory={pushHistory}
-                  />
+        <div className="max-w-[1600px] mx-auto">
+            <Header 
+                onImport={handleImport} 
+                onExport={handleExport}
+                onScreenshot={takeScreenshot}
+                isCapturing={isCapturing}
+                onClear={handleClear} 
+                colors={headerColors}
+                onUndo={undo}
+                onRedo={redo}
+                canUndo={canUndo}
+                canRedo={canRedo}
+            />
+
+            <DndContext 
+                sensors={sensors}
+                collisionDetection={rectIntersection}
+                onDragStart={handleDragStart} 
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+            >
+                
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
+                    <div className="lg:-mt-20">
+                    <TierBoard 
+                        state={state}
+                        colors={headerColors}
+                        screenshotRef={screenshotRef}
+                        handleAddTier={handleAddTier}
+                        handleUpdateTier={handleUpdateTier}
+                        handleDeleteTier={handleDeleteTier}
+                        removeItemFromTier={removeItemFromTier}
+                        handleShowDetails={handleShowDetails}
+                        isAnyDragging={!!activeItem || !!activeTier}
+                        tierListTitle={tierListTitle}
+                        onUpdateTierListTitle={handleUpdateTitle}
+                        pushHistory={pushHistory}
+                    />
+                    </div>
+
+                    <SearchPanel 
+                        addedItemIds={addedItemIds}
+                        onLocate={handleLocate}
+                        onInfo={handleShowDetails}
+                    />
                 </div>
 
-                <SearchPanel 
-                    addedItemIds={addedItemIds}
-                    onLocate={handleLocate}
-                    onInfo={handleShowDetails}
-                />
-            </div>
+                <DragOverlay>
+                    {activeTier ? (
+                        <div className="w-full opacity-80 pointer-events-none">
+                            <TierRow 
+                                tier={activeTier} 
+                                items={state.items[activeTier.id] || []}
+                                onRemoveItem={() => {}}
+                                onUpdateTier={() => {}}
+                                onDeleteTier={() => {}}
+                                canDelete={false}
+                                onInfo={() => {}}
+                            />
+                        </div>
+                    ) : activeItem ? (
+                        <MediaCard item={activeItem} />
+                    ) : null}
+                </DragOverlay>
 
-            <DragOverlay>
-                {activeTier ? (
-                    <div className="w-full opacity-80 pointer-events-none">
-                         <TierRow 
-                            tier={activeTier} 
-                            items={state.items[activeTier.id] || []}
-                            onRemoveItem={() => {}}
-                            onUpdateTier={() => {}}
-                            onDeleteTier={() => {}}
-                            canDelete={false}
-                            onInfo={() => {}}
-                        />
-                    </div>
-                ) : activeItem ? (
-                    <MediaCard item={activeItem} />
-                ) : null}
-            </DragOverlay>
+            </DndContext>
+        </div>
 
-        </DndContext>
-      </div>
+        <DetailsModal 
+            key={detailsItem?.id || 'modal'}
+            item={detailsItem} 
+            isOpen={!!detailsItem} 
+            onClose={handleCloseDetails}
+            onUpdateItem={updateMediaItem}
+        />
 
-      <DetailsModal 
-        key={detailsItem?.id || 'modal'}
-        item={detailsItem} 
-        isOpen={!!detailsItem} 
-        onClose={handleCloseDetails}
-        onUpdateItem={updateMediaItem}
-      />
-
-      {/* Floating Randomize Colors Button */}
-      <button 
-        onClick={handleRandomizeColors} 
-        className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 screenshot-exclude ${
-          toastCount > 0 ? 'bottom-18' : 'bottom-8'
-        }`}
-        title="Randomize Colors"
-      >
-          <Dices size={24} className="group-hover:rotate-12 transition-transform" />
-      </button>
+        {/* Floating Randomize Colors Button */}
+        <button 
+            onClick={handleRandomizeColors} 
+            className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 screenshot-exclude ${
+            toastCount > 0 ? 'bottom-18' : 'bottom-8'
+            }`}
+            title="Randomize Colors"
+        >
+            <Dices size={24} className="group-hover:rotate-12 transition-transform" />
+        </button>
+      </InteractionContext.Provider>
     </div>
   );
 }

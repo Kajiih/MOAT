@@ -13,6 +13,7 @@ import { X } from 'lucide-react';
 import Image from 'next/image';
 import { MediaItem } from '@/lib/types';
 import { useMediaDetails } from '@/lib/hooks';
+import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
 import { SongView } from './details/SongView';
@@ -27,6 +28,8 @@ interface DetailsModalProps {
 }
 
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
+  useEscapeKey(onClose, isOpen);
+
   const [imageError, setImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 

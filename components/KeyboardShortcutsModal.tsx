@@ -5,6 +5,7 @@
  */
 
 import { X, Keyboard, Command } from 'lucide-react';
+import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 
 interface KeyboardShortcutsModalProps {
   isOpen: boolean;
@@ -12,6 +13,8 @@ interface KeyboardShortcutsModalProps {
 }
 
 export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsModalProps) {
+  useEscapeKey(onClose, isOpen);
+
   if (!isOpen) return null;
 
   const shortcuts = [
