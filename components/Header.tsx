@@ -44,12 +44,12 @@ export function Header({
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   return (
-    <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-      <h1>
+    <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-50 pointer-events-none">
+      <h1 className="pointer-events-auto">
           <BrandLogo colors={brandColors} variant="header" />
       </h1>
       
-      <div className="flex gap-2">
+      <div className="flex gap-2 pointer-events-auto">
         <div className="flex gap-1 mr-2">
             <button 
                 onClick={onUndo} 
