@@ -13,7 +13,7 @@ vi.mock('downloadjs', () => ({
   default: vi.fn(),
 }));
 
-vi.mock('@/components/ToastProvider', () => ({
+vi.mock('@/components/ui/ToastProvider', () => ({
   useToast: () => ({ showToast: vi.fn() }),
 }));
 

@@ -9,7 +9,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { toPng } from 'html-to-image';
 import download from 'downloadjs';
-import { useToast } from '@/components/ToastProvider';
+import { useToast } from '@/components/ui/ToastProvider';
 
 /**
  * Custom hook to capture a screenshot of a DOM element.

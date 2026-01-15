@@ -8,7 +8,7 @@
 import { useCallback, Dispatch } from 'react';
 import { TierListState } from '@/lib/types';
 import { generateExportData, downloadJson, parseImportData } from '@/lib/utils/io';
-import { useToast } from '@/components/ToastProvider';
+import { useToast } from '@/components/ui/ToastProvider';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 
 /**

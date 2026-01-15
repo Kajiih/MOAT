@@ -13,19 +13,19 @@ import {
   DragOverlay, 
   rectIntersection,
 } from '@dnd-kit/core';
-import { MediaCard } from '@/components/MediaCard';
-import { TierRow } from '@/components/TierRow';
-import { Header } from '@/components/Header';
-import { SearchPanel } from '@/components/SearchPanel';
-import { DetailsModal } from '@/components/DetailsModal';
-import { TierBoard } from '@/components/TierBoard';
-import { BoardDetailBundler } from '@/components/BoardDetailBundler';
+import { MediaCard } from '@/components/media/MediaCard';
+import { TierRow } from '@/components/board/TierRow';
+import { Header } from '@/components/ui/Header';
+import { SearchPanel } from '@/components/search/SearchPanel';
+import { DetailsModal } from '@/components/media/DetailsModal';
+import { TierBoard } from '@/components/board/TierBoard';
 import { Dices } from 'lucide-react';
 import { useTierList, useScreenshot, useDynamicFavicon } from '@/lib/hooks';
-import { useToast } from './ToastProvider';
+import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
+import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
 import { useEffect, useState } from 'react';
-import { InteractionContext, HoveredItemInfo } from '@/components/InteractionContext';
+import { InteractionContext, HoveredItemInfo } from '@/components/ui/InteractionContext';
 
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
@@ -98,6 +98,9 @@ export default function TierListApp() {
   // UI Interaction State (Hover)
   const [hoveredItem, setHoveredItem] = useState<HoveredItemInfo | null>(null);
 
+  // Background Bundler: Automatically syncs deep metadata for items on the board
+  useBackgroundEnrichment(allBoardItems, updateMediaItem);
+
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);
 
@@ -147,12 +150,7 @@ export default function TierListApp() {
   return (
     <div className="min-h-screen text-neutral-200 p-8 font-sans relative">
       <InteractionContext.Provider value={{ setHoveredItem }}>
-        {/* Background Bundler: Automatically syncs deep metadata for items on the board */}
-        <BoardDetailBundler 
-            items={allBoardItems} 
-            onUpdateItem={updateMediaItem} 
-        />
-
+        
         <div className="max-w-[1600px] mx-auto">
             <Header 
                 onImport={handleImport} 

@@ -8,7 +8,7 @@
 import { useMemo, useCallback } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { TierListState } from '@/lib/types';
-import { useToast } from '@/components/ToastProvider';
+import { useToast } from '@/components/ui/ToastProvider';
 
 /**
  * Hook providing utility functions and derived state for the Tier List.

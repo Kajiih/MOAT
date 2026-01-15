@@ -8,7 +8,7 @@
 
 import { useCallback, Dispatch } from 'react';
 import { TierDefinition } from '@/lib/types';
-import { useToast } from '@/components/ToastProvider';
+import { useToast } from '@/components/ui/ToastProvider';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 
 /**

@@ -5,7 +5,7 @@ import { ActionType } from '@/lib/state/actions';
 
 // Mock useToast
 const mockShowToast = vi.fn();
-vi.mock('@/components/ToastProvider', () => ({
+vi.mock('@/components/ui/ToastProvider', () => ({
   useToast: () => ({
     showToast: mockShowToast,
   }),

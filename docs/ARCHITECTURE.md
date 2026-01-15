@@ -17,7 +17,7 @@
   - **Persistent Global Library**: Every item encountered in search is stored in a persistent `MediaRegistry`. Once an image or tracklist is found, it is remembered across sessions.
   - **Self-Healing Images**: If an artist image is missing during search, the app automatically fetches it in the background from **Fanart.tv** or **Wikidata** once the item is added to the board.
 - **Deep Metadata Sync**:
-  - **Background Bundling**: A background worker (`BoardDetailBundler`) monitors the board and automatically fetches deep metadata (tracklists, tags, bio) for every item, ensuring the board is always "feature-complete."
+  - **Background Enrichment**: A background hook (`useBackgroundEnrichment`) monitors the board and automatically fetches deep metadata (tracklists, tags, bio) for every item, ensuring the board is always "feature-complete."
   - **Zero-Latency Details**: Pre-fetched metadata is stored directly in the board state. Modals open instantly with full content, even while offline or after a fresh import.
 - **Image Reuse & Consistency**:
   - **Shared Asset IDs**: Tracks (recordings) automatically inherit visual metadata from their parent albums (release-groups). By linking items via `albumId`, the app ensures identical artwork is used for both albums and their songs.
@@ -81,7 +81,7 @@
   - **Global Shortcuts**: `TierListApp` listens for global key events (`x` to remove, `i` to inspect) and executes actions based on the current context from `InteractionContext`.
 
 - **Synergy Pattern**:
-  - Updates flow bidirectionally: If the background bundler finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
+  - Updates flow bidirectionally: If the background hook finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
 ### 3. Service Layer (Backend)
 
@@ -105,7 +105,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - **Smart Picker Prefetch**: Selecting an item in a `MediaPicker` triggers intelligent preloading:
   - Selecting an **Artist** prefetches their **Albums** (or **Songs** if in a song-filtering context).
   - Selecting an **Album** prefetches its **Songs**.
-- **Background Enrichment**: The `BoardDetailBundler` prefetches deep metadata for items added to the board without blocking user interaction.
+- **Background Enrichment**: The `useBackgroundEnrichment` hook prefetches deep metadata for items added to the board without blocking user interaction.
 
 #### Persistence Logic
 - **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `localStorage` writes are debounced (1000ms).
@@ -153,32 +153,36 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - `components/`:
   - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
   - `TierListContext.tsx`: Core state provider for the tier list (persistence, hydration).
-  - `InteractionContext.tsx`: **[New]** Global context for tracking hovered items.
-  - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding.
-  - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
-  - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
-  - `TierGrid.tsx`: **[New]** Renders the grid of items within a tier (standard or virtualized).
-  - `KeyboardShortcutsModal.tsx`: **[New]** Displays available keyboard shortcuts.
-  - `MediaCard.tsx`: Draggable/Sortable item visualization.
-  - `SearchPanel.tsx`: Sidebar for discovering new media.
-  - `MediaPicker.tsx`: Unified search-and-select component for Artist/Album filters.
-  - `BoardDetailBundler.tsx`: The background worker that keeps board items enriched.
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
-  - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
-  - `VirtualGrid.tsx`: Generic virtualized grid for high-performance list rendering.
+  - `board/`: Components related to the tier board visualization.
+    - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
+    - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
+    - `TierGrid.tsx`: Renders the grid of items within a tier (standard or virtualized).
+    - `VirtualGrid.tsx`: Generic virtualized grid for high-performance list rendering.
+  - `media/`: Components for media item display and selection.
+    - `MediaCard.tsx`: Draggable/Sortable item visualization.
+    - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
+    - `MediaPicker.tsx`: Unified search-and-select component.
+  - `search/`: Components for the search interface.
+    - `SearchPanel.tsx`: Sidebar for discovering new media.
+  - `ui/`: Shared UI components.
+    - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding.
+    - `InteractionContext.tsx`: Global context for tracking hovered items.
+    - `KeyboardShortcutsModal.tsx`: Displays available keyboard shortcuts.
 - `lib/hooks/`:
   - `useTierList.ts`:  Composition hook acting as the facade for the TierList Context and sub-hooks.
   - `useTierListIO.ts`:  Encapsulates Import/Export logic.
   - `useTierListUtils.ts`:  Encapsulates derived state and UI utilities.
   - `useHistory.ts`:  Generic hook for managing state history (past/future stacks).
-  - `useEscapeKey.ts`: **[New]** Generic hook for handling Escape key press.
+  - `useEscapeKey.ts`: Generic hook for handling Escape key press.
+  - `useBackgroundEnrichment.ts`: **[New]** Background hook for syncing item metadata (replaces BoardDetailBundler).
   - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
   - `usePersistentReducer.ts`: Combines `useReducer` with localStorage persistence.
-- `lib/state/`: **[New]** Centralized State Logic
+- `lib/state/`: Centralized State Logic
   - `actions.ts`: Action definitions (ADD_TIER, MOVE_ITEM, etc.).
   - `reducer.ts`: Pure state transition logic.
 - `lib/services/`:

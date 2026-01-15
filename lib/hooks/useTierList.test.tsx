@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TierListProvider } from '@/components/TierListContext';
 
 // Mock dependencies
-vi.mock('@/components/ToastProvider', () => ({
+vi.mock('@/components/ui/ToastProvider', () => ({
   useToast: () => ({ showToast: vi.fn(), toastCount: 0 })
 }));
 
