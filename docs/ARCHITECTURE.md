@@ -38,6 +38,7 @@
   - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`. The capture logic automatically excludes UI controls and the search panel for a clean, branded output.
 - **History Control**:
   - **Undo/Redo**: Full state history management allows users to revert actions (drag-and-drop, text edits, deletions) with standard keyboard shortcuts or UI buttons.
+  - **Keyboard Shortcuts Modal**: A helpful modal accessible from the header lists all available keyboard shortcuts.
 
 ## Technical Architecture
 
@@ -151,13 +152,15 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding.
   - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
   - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
+  - `TierGrid.tsx`: **[New]** Renders the grid of items within a tier (standard or virtualized).
+  - `KeyboardShortcutsModal.tsx`: **[New]** Displays available keyboard shortcuts.
   - `MediaCard.tsx`: Draggable/Sortable item visualization.
   - `SearchPanel.tsx`: Sidebar for discovering new media.
   - `MediaPicker.tsx`: Unified search-and-select component for Artist/Album filters.
   - `BoardDetailBundler.tsx`: The background worker that keeps board items enriched.
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
-  - `VirtualGrid.tsx`: **[New]** Generic virtualized grid for high-performance list rendering.
+  - `VirtualGrid.tsx`: Generic virtualized grid for high-performance list rendering.
 - `lib/hooks/`:
   - `useTierList.ts`:  Composition hook acting as the facade for the TierList Context and sub-hooks.
   - `useTierListIO.ts`:  Encapsulates Import/Export logic.
@@ -168,12 +171,12 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
-  - `usePersistentReducer.ts`: **[New]** Combines `useReducer` with localStorage persistence.
+  - `usePersistentReducer.ts`: Combines `useReducer` with localStorage persistence.
 - `lib/state/`: **[New]** Centralized State Logic
   - `actions.ts`: Action definitions (ADD_TIER, MOVE_ITEM, etc.).
   - `reducer.ts`: Pure state transition logic.
 - `lib/services/`:
-  - `musicbrainz/`: **[New]** Service layer for MusicBrainz integration.
+  - `musicbrainz/`: Service layer for MusicBrainz integration.
     - `client.ts`: HTTP client with 503 retry logic.
     - `query-builder.ts`: Lucene query construction logic.
     - `search.ts`: Search orchestration and validation.
