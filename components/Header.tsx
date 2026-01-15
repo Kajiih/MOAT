@@ -8,10 +8,11 @@
 
 'use client';
 
-import { Upload, Download, Trash2, Camera, Loader2, Undo2, Redo2 } from 'lucide-react';
+import { Upload, Download, Trash2, Camera, Loader2, Undo2, Redo2, Keyboard } from 'lucide-react';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from '@/components/BrandLogo';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
+import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 
 interface HeaderProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -40,6 +41,7 @@ export function Header({
 }: HeaderProps) {
   
   const brandColors = useBrandColors(colors);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   return (
     <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -65,6 +67,14 @@ export function Header({
             >
                 <Redo2 size={16} />
             </button>
+            <div className="w-px bg-neutral-800 mx-1"></div>
+            <button 
+                onClick={() => setShowShortcuts(true)} 
+                className="p-2 bg-neutral-800 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+                title="Keyboard Shortcuts"
+            >
+                <Keyboard size={16} />
+            </button>
         </div>
 
         <label className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm transition-colors" title="Import from JSON">
@@ -87,6 +97,8 @@ export function Header({
         <button onClick={onClear} className="flex items-center gap-2 px-3 py-2 bg-red-900/20 text-red-500 rounded hover:bg-red-900/40 text-sm border border-red-900/50 transition-colors" title="Clear Board">
             <Trash2 size={16} /> <span className="hidden sm:inline">Clear</span>
         </button>
+
+        <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
       </div>
     </header>
   );
