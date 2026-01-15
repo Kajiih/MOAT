@@ -76,6 +76,10 @@
     - **Granularity**: Transient updates (like `handleDragOver` or continuous text input) do not pollute the history stack, ensuring a clean "Undo" experience that reverts to the start of the action.
     - **Keyboard Support**: Full support for standard shortcuts (Cmd/Ctrl+Z for Undo, Cmd/Ctrl+Shift+Z for Redo).
 
+- **Interaction System**:
+  - **Context-Based Hover Tracking**: `InteractionContext` provides a global way to track which item is currently hovered.
+  - **Global Shortcuts**: `TierListApp` listens for global key events (`x` to remove, `i` to inspect) and executes actions based on the current context from `InteractionContext`.
+
 - **Synergy Pattern**:
   - Updates flow bidirectionally: If the background bundler finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
@@ -149,6 +153,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - `components/`:
   - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
   - `TierListContext.tsx`: Core state provider for the tier list (persistence, hydration).
+  - `InteractionContext.tsx`: **[New]** Global context for tracking hovered items.
   - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding.
   - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
   - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
@@ -166,6 +171,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `useTierListIO.ts`:  Encapsulates Import/Export logic.
   - `useTierListUtils.ts`:  Encapsulates derived state and UI utilities.
   - `useHistory.ts`:  Generic hook for managing state history (past/future stacks).
+  - `useEscapeKey.ts`: **[New]** Generic hook for handling Escape key press.
   - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
