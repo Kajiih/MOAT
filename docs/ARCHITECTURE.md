@@ -148,7 +148,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - `components/`:
   - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
   - `TierListContext.tsx`: Core state provider for the tier list (persistence, hydration).
-  - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding. Prioritized in the stacking order (z-axis) to maintain interactivity above overlapping board elements.
+  - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding.
   - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
   - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
   - `MediaCard.tsx`: Draggable/Sortable item visualization.
