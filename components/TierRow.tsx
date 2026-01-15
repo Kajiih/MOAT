@@ -113,8 +113,8 @@ export const TierRow = memo(function TierRow({
     return items.some(a => a.id === over.id);
   }, [over, active, tier.id, items]);
 
-  // Use virtualization for large tiers (e.g. > 50 items)
-  const isLargeTier = items.length > 50;
+  // Use virtualization for very large tiers (e.g. > 100 items)
+  const isLargeTier = items.length > 100;
 
   return (
     <div

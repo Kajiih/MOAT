@@ -20,7 +20,6 @@ import { SkeletonCard } from '@/components/SkeletonCard';
 import { SortDropdown } from '@/components/SortDropdown';
 import { Pagination } from '@/components/Pagination';
 import { SearchFilters } from './filters/SearchFilters';
-import { VirtualGrid } from '@/components/VirtualGrid';
 
 interface SearchTabProps {
   type: MediaType;
@@ -178,7 +177,7 @@ export function SearchTab({
             )}
         </div>
 
-        {/* Content Area: Virtualized Grid or Loading State */}
+        {/* Content Area: Grid or Loading State */}
         <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
              {isSearching ? (
                 <div className="overflow-y-auto custom-scrollbar flex-1 pr-1">
@@ -189,23 +188,23 @@ export function SearchTab({
                     </div>
                 </div>
             ) : finalResults.length > 0 ? (
-                <VirtualGrid
-                    items={finalResults}
-                    className="pr-1"
-                    renderItem={(item) => {
-                        const isAdded = addedItemIds.has(item.id);
-                        return (
-                            <MediaCard
-                                key={`${item.id}-${isAdded}`}
-                                item={item}
-                                id={`search-${item.id}`}
-                                isAdded={isAdded}
-                                onLocate={onLocate}
-                                onInfo={onInfo}
-                            />
-                        );
-                    }}
-                />
+                <div className="overflow-y-auto custom-scrollbar flex-1 pr-1">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
+                        {finalResults.map((item) => {
+                            const isAdded = addedItemIds.has(item.id);
+                            return (
+                                <MediaCard
+                                    key={`${item.id}-${isAdded}`}
+                                    item={item}
+                                    id={`search-${item.id}`}
+                                    isAdded={isAdded}
+                                    onLocate={onLocate}
+                                    onInfo={onInfo}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
             ) : (
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                      {hasActiveFilters && (

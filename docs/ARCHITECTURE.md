@@ -109,8 +109,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 
 #### Virtualization
 - **VirtualGrid Component**: A reusable, responsive virtualized grid powered by `@tanstack/react-virtual`.
-- **Search Optimization**: Search results use `VirtualGrid` to efficiently render thousands of items without DOM bloat, keeping the UI responsive.
-- **Large Tier Handling**: Tiers containing more than some threshold number of items automatically switch to a virtualized view, ensuring performance remains high even for massive categories.
+- **Large Tier Handling**: Tiers containing more than 100 items automatically switch to a virtualized view, ensuring performance remains high even for massive categories. Smaller tiers and search results (limited to 15 items) use standard grid layouts for simplicity and lower overhead.
 
 ### 5. Resilience & Reliability
 
