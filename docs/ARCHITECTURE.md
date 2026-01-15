@@ -107,6 +107,11 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - **Lazy Hydration**: Application state is hydrated after the initial client mount to prevent SSR mismatch errors and ensure a fast initial paint.
 - **Cross-Tab Sync**: Uses the `storage` event to keep state consistent across multiple open browser tabs.
 
+#### Virtualization
+- **VirtualGrid Component**: A reusable, responsive virtualized grid powered by `@tanstack/react-virtual`.
+- **Search Optimization**: Search results use `VirtualGrid` to efficiently render thousands of items without DOM bloat, keeping the UI responsive.
+- **Large Tier Handling**: Tiers containing more than some threshold number of items automatically switch to a virtualized view, ensuring performance remains high even for massive categories.
+
 ### 5. Resilience & Reliability
 
 - **Server proxying**: API routes in `app/api/` handle rate limiting (MusicBrainz 503s), retry logic, and hide external API keys.
@@ -153,6 +158,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `BoardDetailBundler.tsx`: The background worker that keeps board items enriched.
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
+  - `VirtualGrid.tsx`: **[New]** Generic virtualized grid for high-performance list rendering.
 - `lib/hooks/`:
   - `useTierList.ts`:  Composition hook acting as the facade for the TierList Context and sub-hooks.
   - `useTierListIO.ts`:  Encapsulates Import/Export logic.

@@ -18,6 +18,7 @@ import { TierLabel } from '@/components/TierLabel';
 import { TierSettings } from '@/components/TierSettings';
 import { twMerge } from 'tailwind-merge';
 import { getColorTheme } from '@/lib/colors';
+import { VirtualGrid } from '@/components/VirtualGrid';
 
 interface TierRowProps {
   /** The tier definition (id, label, color). */
@@ -112,6 +113,9 @@ export const TierRow = memo(function TierRow({
     return items.some(a => a.id === over.id);
   }, [over, active, tier.id, items]);
 
+  // Use virtualization for large tiers (e.g. > 50 items)
+  const isLargeTier = items.length > 50;
+
   return (
     <div
         ref={setCombinedRef}
@@ -154,29 +158,47 @@ export const TierRow = memo(function TierRow({
 
       {/* Items Column */}
       <div
-        className="flex-1 flex flex-wrap items-center gap-2 p-3 relative min-h-[100px]"
+        className="flex-1 flex flex-col relative min-h-[100px] min-w-0"
       >
-        {isOverRow && <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />}
-        <SortableContext id={tier.id} items={items.map(a => a.id)} strategy={rectSortingStrategy}>
-          {items.map((item) => {
-            return (
-              <SortableMediaCard
-                key={item.id}
-                item={item}
-                id={item.id}
-                tierId={tier.id}
-                onRemove={(itemId) => onRemoveItem(itemId)}
-                onInfo={onInfo}
-              />
-            );
-          })}
-        </SortableContext>
+        {isOverRow && <div className="absolute inset-0 bg-blue-500/5 pointer-events-none z-10" />}
+        
+        <div className={`flex-1 ${!isLargeTier ? 'p-3 flex flex-wrap items-center gap-2' : ''}`}>
+            <SortableContext id={tier.id} items={items.map(a => a.id)} strategy={rectSortingStrategy}>
+            {isLargeTier ? (
+                <VirtualGrid 
+                    items={items}
+                    className="max-h-[500px] p-3"
+                    renderItem={(item) => (
+                        <SortableMediaCard
+                            key={item.id}
+                            item={item}
+                            id={item.id}
+                            tierId={tier.id}
+                            onRemove={(itemId) => onRemoveItem(itemId)}
+                            onInfo={onInfo}
+                        />
+                    )}
+                />
+            ) : (
+                items.map((item) => (
+                    <SortableMediaCard
+                        key={item.id}
+                        item={item}
+                        id={item.id}
+                        tierId={tier.id}
+                        onRemove={(itemId) => onRemoveItem(itemId)}
+                        onInfo={onInfo}
+                    />
+                ))
+            )}
+            </SortableContext>
 
-        {items.length === 0 && isBoardEmpty && isMiddleTier && (
-            <div className="w-full h-full flex items-center justify-center text-neutral-600 text-lg font-bold italic pointer-events-none select-none">
-                Drop items here...
-            </div>
-        )}
+            {items.length === 0 && isBoardEmpty && isMiddleTier && (
+                <div className="absolute inset-0 flex items-center justify-center text-neutral-600 text-lg font-bold italic pointer-events-none select-none">
+                    Drop items here...
+                </div>
+            )}
+        </div>
       </div>
     </div>
   );

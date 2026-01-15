@@ -153,7 +153,7 @@ export default function TierListApp() {
             onDragEnd={handleDragEnd}
         >
             
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
                 <div className="lg:-mt-20">
                   <TierBoard 
                       state={state}

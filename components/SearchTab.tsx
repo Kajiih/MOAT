@@ -20,6 +20,7 @@ import { SkeletonCard } from '@/components/SkeletonCard';
 import { SortDropdown } from '@/components/SortDropdown';
 import { Pagination } from '@/components/Pagination';
 import { SearchFilters } from './filters/SearchFilters';
+import { VirtualGrid } from '@/components/VirtualGrid';
 
 interface SearchTabProps {
   type: MediaType;
@@ -95,6 +96,11 @@ export function SearchTab({
         }
       });
   }, [searchResults, sortOption]);
+
+  const finalResults = useMemo(() => {
+      if (showAdded) return sortedResults;
+      return sortedResults.filter(item => !addedItemIds.has(item.id));
+  }, [sortedResults, showAdded, addedItemIds]);
 
   if (isHidden) {
     return null;
@@ -172,19 +178,22 @@ export function SearchTab({
             )}
         </div>
 
-        <div className="overflow-y-auto min-h-0 flex-1 pr-1 custom-scrollbar">
-            {isSearching ? (
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
-                    {Array.from({ length: 15 }).map((_, i) => (
-                        <SkeletonCard key={i} />
-                    ))}
+        {/* Content Area: Virtualized Grid or Loading State */}
+        <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
+             {isSearching ? (
+                <div className="overflow-y-auto custom-scrollbar flex-1 pr-1">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
+                        {Array.from({ length: 15 }).map((_, i) => (
+                            <SkeletonCard key={i} />
+                        ))}
+                    </div>
                 </div>
-            ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
-                    {sortedResults.map((item, index) => {
+            ) : finalResults.length > 0 ? (
+                <VirtualGrid
+                    items={finalResults}
+                    className="pr-1"
+                    renderItem={(item) => {
                         const isAdded = addedItemIds.has(item.id);
-                        if (!showAdded && isAdded) return null;
-
                         return (
                             <MediaCard
                                 key={`${item.id}-${isAdded}`}
@@ -192,28 +201,30 @@ export function SearchTab({
                                 id={`search-${item.id}`}
                                 isAdded={isAdded}
                                 onLocate={onLocate}
-                                priority={index < 10}
                                 onInfo={onInfo}
                             />
                         );
-                    })}
-                </div>
-            )}
-            
-            {!isSearching && searchResults.length === 0 && hasActiveFilters && (
-                <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
-            )}
-
-            {!isSearching && searchResults.length > 0 && totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4 mt-6">
-                    <Pagination 
-                        page={page} 
-                        totalPages={totalPages} 
-                        onPageChange={setPage} 
-                    />
+                    }}
+                />
+            ) : (
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                     {hasActiveFilters && (
+                        <div className="text-center text-neutral-600 italic mt-8 text-sm">No results found.</div>
+                    )}
                 </div>
             )}
         </div>
+        
+        {/* Pagination Footer - Fixed at bottom */}
+        {!isSearching && searchResults.length > 0 && totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 mt-2 pt-2 border-t border-neutral-800 shrink-0">
+                <Pagination 
+                    page={page} 
+                    totalPages={totalPages} 
+                    onPageChange={setPage} 
+                />
+            </div>
+        )}
     </div>
   );
 }
