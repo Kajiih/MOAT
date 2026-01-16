@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TierBoard } from './TierBoard';
-import { TierListState } from '@/lib/types';
 import { DndContext } from '@dnd-kit/core';
 import { TierListProvider } from '@/components/TierListContext';
 import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';

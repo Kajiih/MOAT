@@ -211,8 +211,6 @@ test.describe('Tier List App', () => {
         }
     });
 
-    const searchInput = page.getByPlaceholder('Search songs...');
-    
     // Switch to Album Tab
     await page.getByTitle('Search albums').click();
     await expect(page.getByPlaceholder('Search albums...')).toBeVisible();

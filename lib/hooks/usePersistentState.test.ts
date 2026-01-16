@@ -22,7 +22,7 @@ describe('usePersistentState', () => {
   });
 
   it('should initialize with default value and then hydrate', async () => {
-    (storage.get as any).mockResolvedValue(undefined); // Storage empty
+    vi.mocked(storage.get).mockResolvedValue(undefined); // Storage empty
 
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
     
@@ -40,7 +40,7 @@ describe('usePersistentState', () => {
   });
 
   it('should hydrate with value from storage', async () => {
-    (storage.get as any).mockResolvedValue('stored-value');
+    vi.mocked(storage.get).mockResolvedValue('stored-value');
 
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
     
@@ -54,13 +54,13 @@ describe('usePersistentState', () => {
   });
 
   it('should persist state changes to storage after debounce', async () => {
-    (storage.get as any).mockResolvedValue(undefined);
+    vi.mocked(storage.get).mockResolvedValue(undefined);
     const { result } = renderHook(() => usePersistentState('test-key', 'initial'));
 
     await waitFor(() => expect(result.current[2]).toBe(true));
 
     // Clear initial sync save
-    (storage.set as any).mockClear();
+    vi.mocked(storage.set).mockClear();
 
     // Enable fake timers AFTER hydration to avoid messing with waitFor/Promises during setup
     vi.useFakeTimers();
@@ -87,7 +87,7 @@ describe('usePersistentState', () => {
 
   it('should handle storage errors gracefully', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    (storage.get as any).mockRejectedValue(new Error('Storage failure'));
+    vi.mocked(storage.get).mockRejectedValue(new Error('Storage failure'));
 
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
 

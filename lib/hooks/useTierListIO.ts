@@ -79,7 +79,7 @@ export function useTierListIO(
     reader.readAsText(file);
     // Reset input so same file can be selected again if needed
     e.target.value = '';
-  }, [dispatch, showToast, pushHistory]);
+  }, [dispatch, showToast, pushHistory, registerItems]);
 
   return {
     handleExport,

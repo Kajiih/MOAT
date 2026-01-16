@@ -82,7 +82,7 @@ export function MediaRegistryProvider({ children }: { children: ReactNode }) {
           const isUrlChanged = item.imageUrl && item.imageUrl !== existing.imageUrl;
           const isDetailsChanged = item.details && JSON.stringify(item.details) !== JSON.stringify(existing.details);
           
-          let isMetadataGeneralChanged = item.title !== existing.title;
+          const isMetadataGeneralChanged = item.title !== existing.title;
           let isArtistChanged = false;
 
           // Only compare 'artist' field for non-artist types
