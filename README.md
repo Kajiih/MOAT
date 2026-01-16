@@ -34,6 +34,21 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🧪 Running Tests
+
+**Unit & Integration Tests**:
+```bash
+npm run test
+```
+
+**End-to-End & Visual Tests**:
+```bash
+npx playwright test
+```
+To update visual snapshots after intentional UI changes:
+```bash
+npx playwright test --update-snapshots
+```
 
 ## 📐 Documentation
 

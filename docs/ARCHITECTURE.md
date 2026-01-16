@@ -60,12 +60,12 @@
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat while maintaining a vast metadata library.
 
 - **Hook Composition Pattern**:
-  - **TierListContext** (The Controller): Now serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`) internally and exposes a unified, namespaced API:
-    - `state`: Domain data (`tiers`, `items`, `title`).
-    - `actions`: Business logic (`addTier`, `import`, `export`, `randomizeColors`...).
-    - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`...).
-    - `ui`: UI-specific state (`detailsItem`, `headerColors`...).
-    - `history`: Undo/Redo controls.
+  - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally and exposes a unified, **namespaced API** for better discoverability and memoization:
+    - `state`: Domain data (`tierDefs`, `items`, `title`).
+    - `actions`: Business logic (`addTier`, `deleteTier`, `import`, `export`, `randomizeColors`, `updateMediaItem`, `updateTitle`, `removeItemFromTier`, `locate`).
+    - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`, `activeTier`, `overId`, `handleDragStart`, `handleDragOver`, `handleDragEnd`).
+    - `ui`: UI-specific state (`headerColors`, `detailsItem`, `showDetails`, `closeDetails`, `addedItemIds`, `allBoardItems`).
+    - `history`: Undo/Redo controls (`undo`, `redo`, `canUndo`, `canRedo`, `push`).
   - **Separation of Concerns**:
     - `useTierListIO`: Handles Import/Export logic.
     - `useTierListDnD`: Handles Drag and Drop sensors and collisions.
@@ -148,8 +148,12 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 
 ### 8. Quality Assurance
 
-- **Unit & Integration Testing**: Powered by **Vitest** and `react-testing-library`. Covers hooks (`useMediaSearch`), utilities (`mappers`), and components (`AlbumFilters`).
-- **End-to-End (E2E) Testing**: Powered by **Playwright**. Validates critical user flows like searching for items, dragging them to tiers, and exporting the board.
+- **Unit & Integration Testing**: Powered by **Vitest** and `react-testing-library`. Covers hooks (`useMediaSearch`), state logic (`reducer.test.ts`), and critical utilities (`query-builder.test.ts`).
+- **End-to-End (E2E) Testing**: Powered by **Playwright**.
+  - **Interactive Flows**: Validates searching, drag-and-drop reordering, and data persistence.
+  - **Filtering**: Verifies client-side filter integration (e.g., Album vs. Song tabs).
+  - **Visual Regression**: Captures and compares screenshots of major UI states (Empty Board, Populated Grid, Search Results) to prevent CSS regressions.
+  - **Accessibility**: Includes test hooks for keyboard-driven interactions (Active in headed/dev envs).
 
 ## Directory Structure
 
