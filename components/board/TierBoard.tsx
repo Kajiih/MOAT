@@ -20,12 +20,10 @@ import { ChangeEvent, useRef, useEffect } from 'react';
 import { useTierListContext } from '@/components/TierListContext';
 
 interface TierBoardProps {
-  screenshotRef: React.RefObject<HTMLDivElement | null>;
   isAnyDragging: boolean;
 }
 
 export function TierBoard({
-  screenshotRef,
   isAnyDragging,
 }: TierBoardProps) {
 
@@ -60,7 +58,7 @@ export function TierBoard({
 
   return (
     <div className="space-y-4">
-        <div ref={screenshotRef} className="space-y-2 p-1">
+        <div className="space-y-2 p-1">
             <div className="flex justify-center mb-6">
               <textarea
                 ref={titleRef}

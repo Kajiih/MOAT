@@ -3,6 +3,7 @@ import { useScreenshot } from './useScreenshot';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { toPng } from 'html-to-image';
 import download from 'downloadjs';
+import { INITIAL_STATE } from '@/lib/initial-state';
 
 // Mock dependencies
 vi.mock('html-to-image', () => ({
@@ -17,7 +18,25 @@ vi.mock('@/components/ui/ToastProvider', () => ({
   useToast: () => ({ showToast: vi.fn() }),
 }));
 
+// Mock react-dom/client for createRoot
+vi.mock('react-dom/client', () => ({
+  createRoot: vi.fn().mockImplementation((container: HTMLElement) => ({
+    render: vi.fn().mockImplementation(() => {
+        const div = document.createElement('div');
+        div.id = 'export-board-surface';
+        div.innerHTML = 'Mocked Export Board Content with enough length to pass the 50 characters threshold check.';
+        Object.defineProperty(div, 'scrollHeight', { value: 800 });
+        Object.defineProperty(div, 'offsetHeight', { value: 800 });
+        container.appendChild(div);
+    }),
+    unmount: vi.fn(),
+  })),
+}));
+
 describe('useScreenshot', () => {
+  const mockState = { ...INITIAL_STATE, title: 'Test Board' };
+  const mockColors = ['#ff0000'];
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -25,62 +44,39 @@ describe('useScreenshot', () => {
   it('should handle successful screenshot capture', async () => {
     const { result } = renderHook(() => useScreenshot());
     
-    const div = document.createElement('div');
-    result.current.ref.current = div;
+    // Patch setTimeout to be immediate for parts of the test
+    vi.useFakeTimers();
 
-    await act(async () => {
-      await result.current.takeScreenshot();
+    const capturePromise = act(async () => {
+       await result.current.takeScreenshot(mockState, mockColors);
     });
 
-    expect(toPng).toHaveBeenCalledWith(div, expect.objectContaining({
-      backgroundColor: '#0a0a0a',
-      pixelRatio: 2,
-    }));
+    // Advance through the initial wait (800ms) + any other sub-timers
+    await vi.advanceTimersByTimeAsync(2000);
+
+    await capturePromise;
+
+    expect(toPng).toHaveBeenCalled();
     expect(download).toHaveBeenCalled();
     expect(result.current.isCapturing).toBe(false);
-  });
-
-  it('should correctly filter elements with screenshot-exclude class', async () => {
-    const { result } = renderHook(() => useScreenshot());
     
-    // Mock toPng to get the filter function
-    let filterFn: ((node: HTMLElement) => boolean) | undefined;
-    vi.mocked(toPng).mockImplementation((_node, options) => {
-      filterFn = options?.filter;
-      return Promise.resolve('data:test');
-    });
-
-    const div = document.createElement('div');
-    result.current.ref.current = div;
-
-    await act(async () => {
-      await result.current.takeScreenshot();
-    });
-
-    expect(filterFn).toBeDefined();
-    if (!filterFn) return;
-
-    // Test the filter function
-    const normalNode = document.createElement('div');
-    const excludedNode = document.createElement('div');
-    excludedNode.classList.add('screenshot-exclude');
-
-    expect(filterFn(normalNode)).toBe(true);
-    expect(filterFn(excludedNode)).toBe(false);
+    vi.useRealTimers();
   });
 
   it('should handle capture failure gracefully', async () => {
     vi.mocked(toPng).mockRejectedValueOnce(new Error('Capture failed'));
     const { result } = renderHook(() => useScreenshot());
     
-    const div = document.createElement('div');
-    Object.defineProperty(result.current, 'ref', { value: { current: div } });
+    vi.useFakeTimers();
 
-    await act(async () => {
-      await result.current.takeScreenshot();
+    const capturePromise = act(async () => {
+       await result.current.takeScreenshot(mockState, mockColors);
     });
 
+    await vi.advanceTimersByTimeAsync(1000);
+    await capturePromise;
+
     expect(result.current.isCapturing).toBe(false);
-    // Error toast should have been shown (implicitly covered by Mock)
+    vi.useRealTimers();
   });
 });

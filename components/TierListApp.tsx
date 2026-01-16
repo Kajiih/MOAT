@@ -91,7 +91,8 @@ export default function TierListApp() {
   } = useTierListContext();
 
   const { toastCount } = useToast();
-  const { ref: screenshotRef, takeScreenshot, isCapturing } = useScreenshot('moat-tierlist.png');
+  const { takeScreenshot: capture, isCapturing } = useScreenshot('moat-tierlist.png');
+  const handleScreenshot = () => capture(state, headerColors);
   
   // UI Interaction State (Hover)
   const [hoveredItem, setHoveredItem] = useState<HoveredItemInfo | null>(null);
@@ -151,7 +152,7 @@ export default function TierListApp() {
         
         <div className="max-w-[1600px] mx-auto">
             <Header 
-                onScreenshot={takeScreenshot}
+                onScreenshot={handleScreenshot}
                 isCapturing={isCapturing}
             />
 
@@ -166,7 +167,6 @@ export default function TierListApp() {
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
                     <div className="lg:-mt-20">
                     <TierBoard 
-                        screenshotRef={screenshotRef}
                         isAnyDragging={!!activeItem || !!activeTier}
                     />
                     </div>

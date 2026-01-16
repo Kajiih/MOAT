@@ -41,7 +41,7 @@ interface TierListContextType {
     randomizeColors: () => void;
     clear: () => void;
     updateTitle: (title: string) => void;
-    updateMediaItem: (itemId: string, updates: Partial<MediaItem>, registerItem: (item: MediaItem) => void) => void;
+    updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => void;
     removeItemFromTier: (tierId: string, itemId: string) => void;
     locate: (id: string) => void;
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
