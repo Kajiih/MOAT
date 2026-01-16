@@ -1,276 +1,35 @@
 /**
  * @file reducer.ts
  * @description The core state management logic for the Tier List.
- * Implements a pure reducer function that transforms the TierListState based on dispatched actions.
- * Handles structural changes, item positioning, and data integrity (e.g., duplicate checks).
+ * Delegates state transitions to specialized slice reducers.
  * @module TierListReducer
  */
 
-import { TierListState, MediaItem, TierDefinition } from '@/lib/types';
-import { ActionType, TierListAction } from './actions';
-import { TIER_COLORS } from '@/lib/colors';
-import { INITIAL_STATE } from '@/lib/initial-state';
-import { arrayMove } from '@dnd-kit/sortable';
-
-// --- Type Helpers for Payload extraction ---
-type MoveItemPayload = Extract<TierListAction, { type: 'MOVE_ITEM' }>['payload'];
-type DeleteTierPayload = Extract<TierListAction, { type: 'DELETE_TIER' }>['payload'];
-
-/**
- * Utility function to find which tier (container) an item belongs to.
- * @param id - The ID of the item to locate.
- * @param currentItems - The current items map from state.
- * @returns The ID of the tier containing the item, or undefined if not found.
- */
-const findContainer = (id: string, currentItems: Record<string, MediaItem[]>): string | undefined => {
-  if (id in currentItems) return id;
-  return Object.keys(currentItems).find((key) => currentItems[key].find((a) => a.id === id));
-};
-
-/**
- * Handles adding a new tier with a random unused color.
- */
-function handleAddTier(state: TierListState): TierListState {
-  const newId = crypto.randomUUID();
-  const usedColors = new Set(state.tierDefs.map(t => t.color));
-  const availableColors = TIER_COLORS.filter(c => !usedColors.has(c.id));
-  
-  const randomColorObj = availableColors.length > 0 
-      ? availableColors[Math.floor(Math.random() * availableColors.length)]
-      : TIER_COLORS[Math.floor(Math.random() * TIER_COLORS.length)];
-
-  const newTier: TierDefinition = {
-      id: newId,
-      label: 'New Tier',
-      color: randomColorObj.id
-  };
-
-  return {
-      ...state,
-      tierDefs: [...state.tierDefs, newTier],
-      items: { ...state.items, [newId]: [] }
-  };
-}
-
-/**
- * Handles deleting a tier and migrating its items to a fallback tier.
- */
-function handleDeleteTier(state: TierListState, payload: DeleteTierPayload): TierListState {
-  const { id } = payload;
-  const tierIndex = state.tierDefs.findIndex(t => t.id === id);
-  if (tierIndex === -1) return state;
-
-  const fallbackId = state.tierDefs.find(t => t.id !== id)?.id;
-  const orphanedItems = state.items[id] || [];
-  const newItems = { ...state.items };
-  delete newItems[id];
-
-  if (fallbackId && orphanedItems.length > 0) {
-      newItems[fallbackId] = [...newItems[fallbackId], ...orphanedItems];
-  }
-
-  return {
-      ...state,
-      tierDefs: state.tierDefs.filter(t => t.id !== id),
-      items: newItems
-  };
-}
-
-/**
- * Handles the complex logic of moving items between tiers or from search.
- */
-function handleMoveItem(state: TierListState, payload: MoveItemPayload): TierListState {
-    const { activeId, overId, activeItem: draggingItemFromSearch } = payload;
-    
-    const activeContainer = findContainer(activeId, state.items);
-    const overContainer = findContainer(overId, state.items);
-
-    if (!overContainer) return state;
-
-    // Case 1: Dragging from Search (New Item)
-    if (!activeContainer) {
-        if(!draggingItemFromSearch) return state;
-        
-        const overItems = state.items[overContainer];
-        const overIndex = overItems.findIndex((item) => item.id === overId);
-        
-        let newIndex;
-        if (overId in state.items) {
-            // Dropped on Empty Tier container
-            newIndex = overItems.length + 1;
-        } else {
-            // Dropped over another item
-            newIndex = overIndex >= 0 ? overIndex : overItems.length + 1;
-        }
-
-        // Duplicate check
-        const exists = Object.values(state.items).flat().some(i => i.id === draggingItemFromSearch.id);
-        if (exists) return state;
-
-        return {
-            ...state,
-            items: {
-                ...state.items,
-                [overContainer]: [
-                    ...state.items[overContainer].slice(0, newIndex),
-                    { ...draggingItemFromSearch, id: activeId },
-                    ...state.items[overContainer].slice(newIndex)
-                ],
-            }
-        };
-    }
-
-    // Case 2: Sorting within same container
-    if (activeContainer === overContainer) {
-            const activeItems = state.items[activeContainer];
-            const activeIndex = activeItems.findIndex((i) => i.id === activeId);
-            const overIndex = activeItems.findIndex((i) => i.id === overId);
-
-            if (activeIndex !== overIndex) {
-                return {
-                    ...state,
-                    items: {
-                        ...state.items,
-                        [activeContainer]: arrayMove(activeItems, activeIndex, overIndex)
-                    }
-                };
-            }
-            return state;
-    }
-
-    // Case 3: Moving between tiers
-    const activeItems = state.items[activeContainer];
-    const overItems = state.items[overContainer];
-    const activeIndex = activeItems.findIndex((item) => item.id === activeId);
-    const overIndex = overItems.findIndex((item) => item.id === overId);
-
-    let newIndex;
-    if (overId in state.items) {
-        newIndex = overItems.length + 1;
-    } else {
-        newIndex = overIndex >= 0 ? overIndex : overItems.length + 1;
-    }
-
-    return {
-        ...state,
-        items: {
-            ...state.items,
-            [activeContainer]: [
-                ...state.items[activeContainer].filter((item) => item.id !== activeId),
-            ],
-            [overContainer]: [
-                ...state.items[overContainer].slice(0, newIndex),
-                activeItems[activeIndex],
-                ...state.items[overContainer].slice(newIndex),
-            ],
-        }
-    };
-}
+import { TierListState } from '@/lib/types';
+import { TierListAction } from './actions';
+import { tierReducer } from './slices/tier-reducer';
+import { itemReducer } from './slices/item-reducer';
+import { globalReducer } from './slices/global-reducer';
 
 /**
  * The primary reducer for the Tier List application.
+ * Delegates actions to specialized slice reducers for better maintainability.
  * 
  * @param state - The current application state.
  * @param action - The action to perform.
  * @returns A new state object reflecting the changes.
  */
 export function tierListReducer(state: TierListState, action: TierListAction): TierListState {
-  switch (action.type) {
-    // --- TIER STRUCTURE ---
-    case ActionType.ADD_TIER:
-      return handleAddTier(state);
+  // Try each slice reducer. Slice reducers return the unchanged state if they don't handle the action.
+  
+  // 1. Structural changes (Tiers)
+  let nextState = tierReducer(state, action);
+  if (nextState !== state) return nextState;
 
-    case ActionType.DELETE_TIER:
-      return handleDeleteTier(state, action.payload);
+  // 2. Item manipulation
+  nextState = itemReducer(state, action);
+  if (nextState !== state) return nextState;
 
-    case ActionType.UPDATE_TIER: {
-      const { id, updates } = action.payload;
-      return {
-          ...state,
-          tierDefs: state.tierDefs.map(t => t.id === id ? { ...t, ...updates } : t)
-      };
-    }
-
-    case ActionType.REORDER_TIERS: {
-      const { oldIndex, newIndex } = action.payload;
-      if (oldIndex === newIndex) return state;
-      return {
-          ...state,
-          tierDefs: arrayMove(state.tierDefs, oldIndex, newIndex),
-      };
-    }
-
-    // --- ITEM MANIPULATION ---
-    case ActionType.MOVE_ITEM:
-      return handleMoveItem(state, action.payload);
-
-    case ActionType.REMOVE_ITEM: {
-      const { tierId, itemId } = action.payload;
-      return {
-          ...state,
-          items: {
-              ...state.items,
-              [tierId]: state.items[tierId].filter(a => a.id !== itemId && a.id !== `search-${itemId}`)
-          }
-      };
-    }
-
-    case ActionType.UPDATE_ITEM: {
-        const { itemId, updates } = action.payload;
-        const newItems = { ...state.items };
-        let modified = false;
-
-        const tierIds = Object.keys(newItems);
-        for (const tierId of tierIds) {
-            const list = newItems[tierId];
-            const index = list.findIndex(a => a.id === itemId);
-            if (index !== -1) {
-                const currentItem = list[index];
-                
-                if (updates.details && currentItem.details) {
-                    const currentDetailsStr = JSON.stringify(currentItem.details);
-                    const newDetailsStr = JSON.stringify(updates.details);
-                    if (currentDetailsStr === newDetailsStr && Object.keys(updates).length === 1) {
-                        break; // No change
-                    }
-                }
-
-                newItems[tierId] = [
-                    ...list.slice(0, index),
-                    { ...currentItem, ...updates } as MediaItem,
-                    ...list.slice(index + 1)
-                ];
-                modified = true;
-                break;
-            }
-        }
-        return modified ? { ...state, items: newItems } : state;
-    }
-
-    // --- GLOBAL ---
-    case ActionType.UPDATE_TITLE:
-      return { ...state, title: action.payload.title };
-
-    case ActionType.RANDOMIZE_COLORS: {
-        let pool = [...TIER_COLORS];
-        const newDefs = state.tierDefs.map(tier => {
-            if (pool.length === 0) pool = [...TIER_COLORS];
-            const index = Math.floor(Math.random() * pool.length);
-            const color = pool[index];
-            pool.splice(index, 1);
-            return { ...tier, color: color.id };
-        });
-        return { ...state, tierDefs: newDefs };
-    }
-
-    case ActionType.CLEAR_BOARD:
-      return INITIAL_STATE;
-
-    case ActionType.IMPORT_STATE:
-    case ActionType.SET_STATE:
-      return action.payload.state;
-
-    default:
-      return state;
-  }
+  // 3. Global actions (Title, Import, Clear)
+  return globalReducer(state, action);
 }

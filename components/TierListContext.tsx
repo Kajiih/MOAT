@@ -8,7 +8,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useMemo, useRef, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useMemo, useState, ReactNode } from 'react';
 import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
 import { tierListReducer } from '@/lib/state/reducer';
@@ -22,13 +22,8 @@ import {
   useTierListIO, 
   useTierListUtils 
 } from '@/lib/hooks';
-import { 
-  SensorDescriptor, 
-  SensorOptions,
-  DragStartEvent,
-  DragOverEvent,
-  DragEndEvent
-} from '@dnd-kit/core';
+import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
+import { SensorDescriptor, SensorOptions, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 
 const LOCAL_STORAGE_KEY = 'moat-tierlist';
 
@@ -39,8 +34,6 @@ const LOCAL_STORAGE_KEY = 'moat-tierlist';
 interface TierListContextType {
   state: TierListState;
   isHydrated: boolean;
-  
-  // Grouped Namespaces
   actions: {
     addTier: () => void;
     updateTier: (id: string, updates: Partial<TierDefinition>) => void;
@@ -48,13 +41,12 @@ interface TierListContextType {
     randomizeColors: () => void;
     clear: () => void;
     updateTitle: (title: string) => void;
-    updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => void;
+    updateMediaItem: (itemId: string, updates: Partial<MediaItem>, registerItem: (item: MediaItem) => void) => void;
     removeItemFromTier: (tierId: string, itemId: string) => void;
     locate: (id: string) => void;
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
     export: () => void;
   };
-
   dnd: {
     sensors: SensorDescriptor<SensorOptions>[];
     activeItem: MediaItem | null;
@@ -64,7 +56,6 @@ interface TierListContextType {
     handleDragOver: (event: DragOverEvent) => void;
     handleDragEnd: (event: DragEndEvent) => void;
   };
-
   ui: {
     headerColors: string[];
     detailsItem: MediaItem | null;
@@ -73,7 +64,6 @@ interface TierListContextType {
     addedItemIds: Set<string>;
     allBoardItems: MediaItem[];
   };
-
   history: {
     undo: () => void;
     redo: () => void;
@@ -98,147 +88,51 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     LOCAL_STORAGE_KEY
   );
   
-  const { undo: undoHistory, redo: redoHistory, push: pushHistory, canUndo, canRedo } = useHistory<TierListState>();
+  const historyRaw = useHistory<TierListState>();
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
   const { registerItem } = useMediaRegistry();
-  const itemsToRegister = useRef<MediaItem[]>([]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
-    undoHistory(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
-  }, [undoHistory, state, dispatch]);
+    historyRaw.undo(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
+  }, [historyRaw, state, dispatch]);
 
   const redo = React.useCallback(() => {
-    redoHistory(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
-  }, [redoHistory, state, dispatch]);
+    historyRaw.redo(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
+  }, [historyRaw, state, dispatch]);
 
-  const handlePushHistory = React.useCallback(() => {
-    pushHistory(state);
-  }, [pushHistory, state]);
+  const push = React.useCallback(() => {
+    historyRaw.push(state);
+  }, [historyRaw, state]);
 
   // --- Sub-Hooks Integration ---
-  
-  // 1. Drag & Drop Logic
-  const {
-    sensors,
-    activeItem,
-    activeTier,
-    overId,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd
-  } = useTierListDnD(state, dispatch, handlePushHistory);
+  const dndRaw = useTierListDnD(state, dispatch, push);
+  const structureRaw = useTierStructure(dispatch, push);
+  const ioRaw = useTierListIO(state, dispatch, push);
+  const utilsRaw = useTierListUtils(state, dndRaw.activeTier?.id || null, dndRaw.overId);
 
-  // 2. Structure Logic
-  const {
-    handleAddTier,
-    handleUpdateTier,
-    handleDeleteTier,
-    handleRandomizeColors,
-    handleClear
-  } = useTierStructure(dispatch, handlePushHistory);
-
-  // 3. IO Logic
-  const { handleExport, handleImport } = useTierListIO(state, dispatch, handlePushHistory);
-
-  // 4. Utils
-  const { headerColors, handleLocate } = useTierListUtils(state, activeTier?.id || null, overId);
-
-  // --- Misc Helpers ---
-  const handleUpdateTitle = React.useCallback((newTitle: string) => {
-    dispatch({ type: ActionType.UPDATE_TITLE, payload: { title: newTitle } });
-  }, [dispatch]);
-
-  const removeItemFromTier = React.useCallback((tierId: string, itemId: string) => {
-    pushHistory(state);
-    dispatch({ type: ActionType.REMOVE_ITEM, payload: { tierId, itemId } });
-  }, [dispatch, pushHistory, state]);
-
-  const handleShowDetails = React.useCallback((item: MediaItem) => setDetailsItem(item), []);
-  const handleCloseDetails = React.useCallback(() => setDetailsItem(null), []);
-
-  const updateMediaItem = React.useCallback((itemId: string, updates: Partial<MediaItem>) => {
-      dispatch({ type: ActionType.UPDATE_ITEM, payload: { itemId, updates } });
-      const currentItem = Object.values(state.items).flat().find(i => i.id === itemId);
-      if (currentItem) {
-          itemsToRegister.current.push({ ...currentItem, ...updates } as MediaItem);
-      }
-  }, [dispatch, state.items]);
-
-  // Computed values
-  const allBoardItems = useMemo(() => Object.values(state.items).flat(), [state.items]);
-  const addedItemIds = useMemo(() => {
-    const ids = new Set<string>();
-    allBoardItems.forEach(item => {
-        // Handle undefined or malformed IDs safely, though they should strict strings
-        if (item && item.id) {
-           ids.add(item.id.replace(/^search-/, ''));
-        }
-    });
-    return ids;
-  }, [allBoardItems]);
-
-  useEffect(() => {
-    if (itemsToRegister.current.length > 0) {
-      itemsToRegister.current.forEach(item => registerItem(item));
-      itemsToRegister.current = [];
-    }
+  const { actions, dnd, ui, history } = useTierListNamespaces({
+    state,
+    dispatch,
+    history: { undo, redo, push, canUndo: historyRaw.canUndo, canRedo: historyRaw.canRedo },
+    dndRaw,
+    structureRaw,
+    ioRaw,
+    utilsRaw,
+    uiState: { detailsItem, setDetailsItem }
   });
-
-  // --- Context Value Grouping & Memoization ---
-
-  const actions = useMemo(() => ({
-    addTier: handleAddTier,
-    updateTier: handleUpdateTier,
-    deleteTier: handleDeleteTier,
-    randomizeColors: handleRandomizeColors,
-    clear: handleClear,
-    updateTitle: handleUpdateTitle,
-    updateMediaItem: updateMediaItem,
-    removeItemFromTier: removeItemFromTier,
-    locate: handleLocate,
-    import: handleImport,
-    export: handleExport,
-  }), [
-    handleAddTier, handleUpdateTier, handleDeleteTier, handleRandomizeColors, handleClear,
-    handleUpdateTitle, updateMediaItem, removeItemFromTier, handleLocate, handleImport, handleExport
-  ]);
-
-  const dnd = useMemo(() => ({
-    sensors,
-    activeItem,
-    activeTier,
-    overId,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-  }), [sensors, activeItem, activeTier, overId, handleDragStart, handleDragOver, handleDragEnd]);
-
-  const ui = useMemo(() => ({
-    headerColors,
-    detailsItem,
-    showDetails: handleShowDetails,
-    closeDetails: handleCloseDetails,
-    addedItemIds,
-    allBoardItems,
-  }), [headerColors, detailsItem, handleShowDetails, handleCloseDetails, addedItemIds, allBoardItems]);
-
-  const history = useMemo(() => ({
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    push: handlePushHistory,
-  }), [undo, redo, canUndo, canRedo, handlePushHistory]);
 
   const value = useMemo(() => ({
     state,
     isHydrated,
-    actions,
+    actions: {
+        ...actions,
+        updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => actions.updateMediaItem(itemId, updates, registerItem)
+    },
     dnd,
     ui,
     history
-  }), [state, isHydrated, actions, dnd, ui, history]);
+  }), [state, isHydrated, actions, dnd, ui, history, registerItem]);
 
   return (
     <TierListContext.Provider value={value}>

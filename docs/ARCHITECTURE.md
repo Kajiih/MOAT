@@ -55,17 +55,19 @@
   1. **Board State (Context + Reducer)**: 
      - The application state (`items`, `tierDefs`, `title`) is held in `TierListContext`. 
      - It uses `usePersistentReducer` (a custom hook combining `useReducer` with asynchronous IndexedDB persistence) for centralized state logic and persistence.
+     - **Slice Reducer Pattern**: The core logic in `reducer.ts` is divided into specialized "slices" (`tier-reducer.ts`, `item-reducer.ts`, `global-reducer.ts`) for better maintainability and testability.
      - This architecture decouples state transitions from UI components, using a standard `dispatch(Action)` pattern.
   2. **Global Media Registry**: A persistent `IndexedDB` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat while maintaining a vast metadata library.
 
 - **Hook Composition Pattern**:
-  - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally and exposes a unified, **namespaced API** for better discoverability and memoization:
-    - `state`: Domain data (`tierDefs`, `items`, `title`).
-    - `actions`: Business logic (`addTier`, `deleteTier`, `import`, `export`, `randomizeColors`, `updateMediaItem`, `updateTitle`, `removeItemFromTier`, `locate`).
-    - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`, `activeTier`, `overId`, `handleDragStart`, `handleDragOver`, `handleDragEnd`).
-    - `ui`: UI-specific state (`headerColors`, `detailsItem`, `showDetails`, `closeDetails`, `addedItemIds`, `allBoardItems`).
-    - `history`: Undo/Redo controls (`undo`, `redo`, `canUndo`, `canRedo`, `push`).
+    - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally.
+    - **useTierListNamespaces**: A specialized hook that aggregates the state, dispatch, and sub-hooks into a unified, **namespaced API** for better discoverability and memoization:
+      - `state`: Domain data (`tierDefs`, `items`, `title`).
+      - `actions`: Business logic (`addTier`, `deleteTier`, `import`, `export`, `randomizeColors`, `updateMediaItem`, `updateTitle`, `removeItemFromTier`, `locate`).
+      - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`, `activeTier`, `overId`, `handleDragStart`, `handleDragOver`, `handleDragEnd`).
+      - `ui`: UI-specific state (`headerColors`, `detailsItem`, `showDetails`, `closeDetails`, `addedItemIds`, `allBoardItems`).
+      - `history`: Undo/Redo controls (`undo`, `redo`, `canUndo`, `canRedo`, `push`).
   - **Separation of Concerns**:
     - `useTierListIO`: Handles Import/Export logic.
     - `useTierListDnD`: Handles Drag and Drop sensors and collisions.
@@ -186,13 +188,18 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `useBackgroundEnrichment.ts`: **[New]** Background hook for syncing item metadata (replaces BoardDetailBundler).
   - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
+  - `useTierListNamespaces.ts`: **[New]** Aggregates state and sub-hook logic into namespaced API objects.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `IndexedDB` synchronization.
   - `usePersistentReducer.ts`: Combines `useReducer` with async persistence.
 - `lib/state/`: Centralized State Logic
   - `actions.ts`: Action definitions (ADD_TIER, MOVE_ITEM, etc.).
-  - `reducer.ts`: Pure state transition logic.
+  - `reducer.ts`: Pure state transition logic (Delegates to slices).
+  - `slices/`: **[New]** Domain-specific logic slices.
+    - `tier-reducer.ts`: Logic for tier structure and colors.
+    - `item-reducer.ts`: Logic for item movements and metadata.
+    - `global-reducer.ts`: Logic for board titles and state overrides.
 - `lib/services/`:
   - `musicbrainz/`: Service layer for MusicBrainz integration.
     - `client.ts`: HTTP client with 503 retry logic.

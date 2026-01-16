@@ -13,3 +13,4 @@ export * from './useTierListDnD';
 export * from './useTierStructure';
 export * from './useTierListIO';
 export * from './useTierListUtils';
+export * from './useTierListNamespaces';
