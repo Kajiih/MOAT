@@ -51,6 +51,10 @@ interface BaseMediaCardProps {
   priority?: boolean;
   /** Callback to show details modal. */
   onInfo?: (item: MediaItem) => void;
+  /** Whether the component is being rendered for a screenshot export. */
+  isExport?: boolean;
+  /** A pre-resolved Data URL for the image. */
+  resolvedUrl?: string;
 }
 
 /**
@@ -70,7 +74,9 @@ function BaseMediaCard({
   onLocate,
   domId,
   priority = false,
-  onInfo
+  onInfo,
+  isExport = false,
+  resolvedUrl
 }: BaseMediaCardProps) {
   
   const interaction = useInteraction();
@@ -99,6 +105,57 @@ function BaseMediaCard({
   const line2 = getSubtitle(item);
   const line3 = getTertiaryText(item);
 
+  // When exporting, use a simplified non-interactive container
+  const containerClassName = `
+    relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm touch-pan-y select-none
+    ${isExport 
+        ? 'flex-shrink-0 z-0' 
+        : (isAdded 
+            ? 'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0' 
+            : 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400')
+    }
+  `;
+
+  const imageElement = (resolvedUrl || (item.imageUrl && !imageError)) ? (
+    isExport && resolvedUrl ? (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img 
+        src={resolvedUrl} 
+        alt={item.title} 
+        className="absolute inset-0 w-full h-full object-cover"
+        decoding="sync"
+      />
+    ) : (
+      <Image 
+        src={item.imageUrl!} 
+        alt={item.title} 
+        fill 
+        sizes="112px"
+        priority={priority}
+        unoptimized={retryUnoptimized}
+        className="object-cover pointer-events-none" 
+        onError={() => {
+          if (!retryUnoptimized) {
+            setRetryUnoptimized(true);
+          } else {
+            if (item.imageUrl) failedImages.add(item.imageUrl);
+            setImageError(true);
+          }
+        }}
+      />
+    )
+  ) : (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900 border border-neutral-800 text-neutral-600 p-2 overflow-hidden">
+        <TypeIcon size={24} className="mb-1 opacity-50" />
+        {isExport && (
+            <span className="text-[9px] text-center leading-tight uppercase font-black opacity-30 mt-1 line-clamp-2 px-1">
+                {item.title}
+            </span>
+        )}
+        <span className="text-[7px] text-center leading-tight uppercase font-bold opacity-20 mt-1">{item.type}</span>
+    </div>
+  );
+
   return (
     <div 
       ref={setNodeRef} 
@@ -106,46 +163,15 @@ function BaseMediaCard({
       style={style} 
       {...listeners} 
       {...attributes} 
-      onClick={isAdded && onLocate ? onLocate : undefined}
-      onMouseEnter={() => interaction?.setHoveredItem({ item, tierId })}
-      onMouseLeave={() => interaction?.setHoveredItem(null)}
-      className={`
-        relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm transition-all touch-pan-y select-none
-        ${isAdded 
-            ? 'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0' 
-            : 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400'
-        }
-      `}
+      onClick={!isExport && isAdded && onLocate ? onLocate : undefined}
+      onMouseEnter={!isExport ? () => interaction?.setHoveredItem({ item, tierId }) : undefined}
+      onMouseLeave={!isExport ? () => interaction?.setHoveredItem(null) : undefined}
+      className={containerClassName}
     >
-      {item.imageUrl && !imageError ? (
-        <Image 
-          src={item.imageUrl} 
-          alt={item.title} 
-          fill 
-          sizes="112px"
-          priority={priority}
-          unoptimized={retryUnoptimized}
-          className="object-cover pointer-events-none" 
-          onError={() => {
-            // If we haven't tried unoptimized yet, try that first.
-            if (!retryUnoptimized) {
-              setRetryUnoptimized(true);
-            } else {
-              // If we already tried unoptimized and it failed, then it's a real error.
-              if (item.imageUrl) failedImages.add(item.imageUrl);
-              setImageError(true);
-            }
-          }}
-        />
-      ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-800 text-neutral-600 p-2">
-            <TypeIcon size={24} className="mb-1 opacity-50" />
-            <span className="text-[9px] text-center leading-tight uppercase font-bold opacity-40">{item.type}</span>
-        </div>
-      )}
+      {imageElement}
       
       {/* Overlay Info */}
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pb-1 pt-8">
+      <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pb-1 pt-8 ${isExport ? 'z-10' : ''}`}>
         <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight mb-0.5">{item.title}</p>
         
         {line2 && (
@@ -228,6 +254,10 @@ interface MediaCardProps {
   priority?: boolean;
   /** Callback to show details */
   onInfo?: (item: MediaItem) => void;
+  /** Whether the component is being rendered for a screenshot export. */
+  isExport?: boolean;
+  /** A pre-resolved Data URL for the image. */
+  resolvedUrl?: string;
 }
 
 /**
@@ -257,6 +287,8 @@ export function MediaCard(props: MediaCardProps) {
       listeners={listeners} 
       isDragging={isDragging}
       onLocate={() => props.onLocate?.(props.item.id)}
+      isExport={props.isExport}
+      resolvedUrl={props.resolvedUrl}
     />
   );
 }
@@ -295,6 +327,8 @@ export function SortableMediaCard(props: MediaCardProps) {
         listeners={listeners} 
         isDragging={isDragging} 
         onLocate={props.onLocate ? () => props.onLocate!(props.item.id) : undefined}
+        isExport={props.isExport}
+        resolvedUrl={props.resolvedUrl}
       />
     );
 }

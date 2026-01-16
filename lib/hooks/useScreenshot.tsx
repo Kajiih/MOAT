@@ -91,6 +91,8 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
 
     // 2. Create the hidden container
     const container = document.createElement('div');
+    // Copy body classes to ensure font variables and global styles are inherited
+    container.className = document.body.className;
     container.style.position = 'absolute';
     container.style.left = '-10000px'; 
     container.style.top = '10000px'; 

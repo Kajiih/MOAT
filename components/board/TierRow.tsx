@@ -40,6 +40,10 @@ interface TierRowProps {
   isBoardEmpty?: boolean;
   /** Whether this is the middle tier (used for empty state placeholder). */
   isMiddleTier?: boolean;
+  /** Whether the component is being rendered for a screenshot export. */
+  isExport?: boolean;
+  /** A pre-resolved map for the image. */
+  resolvedImages?: Record<string, string>;
 }
 
 /**
@@ -59,7 +63,9 @@ export const TierRow = memo(function TierRow({
   isAnyDragging,
   onInfo,
   isBoardEmpty,
-  isMiddleTier
+  isMiddleTier,
+  isExport = false,
+  resolvedImages = {}
 }: TierRowProps) {
   // Resolve the full color theme from the ID
   const tierTheme = getColorTheme(tier.color);
@@ -138,18 +144,21 @@ export const TierRow = memo(function TierRow({
             dragAttributes={attributes}
             dragListeners={listeners}
             isAnyDragging={isAnyDragging}
+            isExport={isExport}
         />
 
-        <TierSettings 
-            color={tier.color}
-            onUpdateColor={(colorId) => onUpdateTier(tier.id, { color: colorId })}
-            onDelete={() => onDeleteTier(tier.id)}
-            canDelete={canDelete}
-            isOpen={showSettings}
-            onToggle={() => setShowSettings(!showSettings)}
-            onClose={() => setShowSettings(false)}
-            isAnyDragging={isAnyDragging}
-        />
+        {!isExport && (
+          <TierSettings 
+              color={tier.color}
+              onUpdateColor={(colorId) => onUpdateTier(tier.id, { color: colorId })}
+              onDelete={() => onDeleteTier(tier.id)}
+              canDelete={canDelete}
+              isOpen={showSettings}
+              onToggle={() => setShowSettings(!showSettings)}
+              onClose={() => setShowSettings(false)}
+              isAnyDragging={isAnyDragging}
+          />
+        )}
       </div>
 
       {/* Items Column */}
@@ -165,6 +174,8 @@ export const TierRow = memo(function TierRow({
             onInfo={onInfo}
             isBoardEmpty={isBoardEmpty}
             isMiddleTier={isMiddleTier}
+            isExport={isExport}
+            resolvedImages={resolvedImages}
         />
       </div>
     </div>

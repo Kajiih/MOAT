@@ -21,6 +21,8 @@ interface TierLabelProps {
   dragListeners?: DraggableSyntheticListeners;
   dragAttributes?: DraggableAttributes;
   isAnyDragging?: boolean;
+  /** Whether the component is being rendered for a screenshot export. */
+  isExport?: boolean;
 }
 
 export function TierLabel({
@@ -28,7 +30,8 @@ export function TierLabel({
   onUpdate,
   dragListeners,
   dragAttributes,
-  isAnyDragging
+  isAnyDragging,
+  isExport = false
 }: TierLabelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(label);
@@ -67,18 +70,20 @@ export function TierLabel({
   return (
     <>
       {/* Drag Handle */}
-      <div
-          {...dragAttributes}
-          {...dragListeners}
-          className={twMerge(
-              "absolute top-1 left-1 p-1 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black",
-              isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/row:opacity-100"
-          )}
-      >
-          <GripVertical size={16} />
-      </div>
+      {!isExport && (
+        <div
+            {...dragAttributes}
+            {...dragListeners}
+            className={twMerge(
+                "absolute top-1 left-1 p-1 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black",
+                isAnyDragging ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/row:opacity-100"
+            )}
+        >
+            <GripVertical size={16} />
+        </div>
+      )}
 
-      {isEditing ? (
+      {isEditing && !isExport ? (
           <textarea
               ref={inputRef}
               value={inputValue}
@@ -91,9 +96,12 @@ export function TierLabel({
       ) : (
           <div
               data-testid="tier-row-label"
-              onDoubleClick={handleDoubleClick}
-              className="w-full h-full flex items-center justify-center text-center font-black text-black select-none cursor-pointer hover:bg-black/5 rounded transition-colors break-words overflow-hidden"
-              title="Double click to rename"
+              onDoubleClick={!isExport ? handleDoubleClick : undefined}
+              className={twMerge(
+                  "w-full h-full flex items-center justify-center text-center font-black text-black select-none transition-colors break-words overflow-hidden",
+                  !isExport && "cursor-pointer hover:bg-black/5 rounded"
+              )}
+              title={!isExport ? "Double click to rename" : undefined}
               style={{ fontSize: label.length > 5 ? '1rem' : '1.75rem', lineHeight: '1.1' }}
           >
               {label}
