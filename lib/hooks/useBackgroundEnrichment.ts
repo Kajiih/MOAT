@@ -7,30 +7,8 @@
  */
 
 import { useEffect, useMemo } from 'react';
-import { MediaItem, MediaDetails } from '@/lib/types';
+import { MediaItem } from '@/lib/types';
 import { useMediaDetails } from '@/lib/hooks/useMediaDetails';
-
-/**
- * Helper hook to handle the fetch and sync for a single item.
- * Leverages SWR via useMediaDetails for caching and deduplication.
- */
-function useSingleItemSync(
-    item: MediaItem, 
-    onSync: (itemId: string, details: MediaDetails) => void
-) {
-    // Only attempt to fetch if we don't already have details
-    const shouldFetch = !item.details;
-    const { details, isLoading, isFetching, error } = useMediaDetails(
-        shouldFetch ? item.id : null, 
-        item.type
-    );
-
-    useEffect(() => {
-        if (details && !isLoading && !isFetching && !error && shouldFetch) {
-            onSync(item.id, details);
-        }
-    }, [details, isLoading, isFetching, error, item.id, onSync, shouldFetch]);
-}
 
 /**
  * Main hook to coordinate background enrichment of board items.
@@ -49,23 +27,9 @@ export function useBackgroundEnrichment(
             .slice(0, 3);
     }, [items]);
 
-    // We can't conditionally call hooks inside a loop.
-    // Instead, we can use a fixed number of "slots" or create a separate component to host the hook call.
-    // However, since we are moving AWAY from components, we need a pure hook solution.
-    //
-    // The previous component `SyncItem` worked because it was a component mounted X times.
-    // To replicate this in a single hook without violating Rules of Hooks is tricky if X varies.
-    //
-    // ALTERNATIVE: Since `useMediaDetails` uses SWR, we can just call the fetcher directly or 
-    // allow the previous component pattern but keep it as a "logical" component, OR
-    // accept that we might need a small wrapper component just for the *per-item* hook call
-    // if we want to stick to declarative hooks.
-    //
-    // Actually, keeping the "Renderless Component" pattern for *per-item* hooks is valid React 
-    // when using hooks that depend on mounting (like SWR).
-    // But the goal is to remove `BoardDetailBundler` from the main tree.
-    //
-    // Let's implement the "Slot" pattern: We always render 3 "sync slots".
+    // "Slot" pattern implementation:
+    // We always render 3 "sync slots" to maintain hook consistency.
+    // Each slot attempts to sync one of the pending items.
     
     const slot1 = itemsToSync[0];
     const slot2 = itemsToSync[1];
@@ -76,15 +40,15 @@ export function useBackgroundEnrichment(
     useSingleItemSyncWrapper(slot3, onUpdateItem);
 }
 
-// Wrapper to handle potentially undefined items
+/**
+ * Helper hook to handle the fetch and sync for a single item (or empty slot).
+ * Leverages SWR via useMediaDetails for caching and deduplication.
+ */
 function useSingleItemSyncWrapper(
     item: MediaItem | undefined, 
     onUpdateItem: (itemId: string, updates: Partial<MediaItem>) => void
 ) {
-    // We must always call useSingleItemSync, even if item is undefined, 
-    // but pass null ID to useMediaDetails to disable it.
-    // Actually, useSingleItemSync calls useMediaDetails. 
-    // We'll modify useSingleItemSync to handle undefined item gracefully.
+    // When item is undefined (empty slot), we pass null to useMediaDetails to disable fetching.
     
     const shouldFetch = !!item && !item.details;
     const { details, isLoading, isFetching, error } = useMediaDetails(

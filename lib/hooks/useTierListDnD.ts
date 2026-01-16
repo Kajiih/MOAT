@@ -74,6 +74,14 @@ export function useTierListDnD(
     }
   }, [pushHistory]);
 
+  /**
+   * Handles the DragOver event.
+   * Responsibilities:
+   * 1. Updates the `overId` state for UI highlighting.
+   * 2. Detects if an item is being dragged over a different tier.
+   * 3. Dispatches MOVE_ITEM immediately to allow smooth visual updates (optimistic UI).
+   *    Note: We do NOT reorder tiers here, only items.
+   */
   const handleDragOver = useCallback((event: DragOverEvent) => {
     const { active, over } = event;
     

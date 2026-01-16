@@ -1,10 +1,30 @@
+/**
+ * @file useHistory.ts
+ * @description A generic hook for managing undo/redo history stacks.
+ * @module useHistory
+ */
+
 import { useState, useCallback } from 'react';
 
+/**
+ * Interface defining the structure of the history state.
+ * @template T - The type of the state being tracked.
+ */
 interface HistoryState<T> {
   past: T[];
   future: T[];
 }
 
+/**
+ * Custom hook to manage state history for Undo/Redo functionality.
+ * 
+ * Maintains two stacks: `past` and `future`.
+ * - `push`: Saves the current state to `past` and clears `future`.
+ * - `undo`: Moves current state to `future` and restores the last state from `past`.
+ * - `redo`: Moves current state to `past` and restores the next state from `future`.
+ * 
+ * @template T - The type of the state object.
+ */
 export function useHistory<T>() {
   const [history, setHistory] = useState<HistoryState<T>>({
     past: [],

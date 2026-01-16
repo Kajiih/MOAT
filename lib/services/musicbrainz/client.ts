@@ -8,13 +8,20 @@
 import { MB_BASE_URL, USER_AGENT } from './config';
 
 /**
- * Performs a fetch request to the MusicBrainz API with automatic retry for 503s.
+ * Performs a fetch request to the MusicBrainz API with automatic retry for 503 Service Unavailable errors.
+ * 
+ * Implements a simple exponential backoff strategy:
+ * - 1st valid 503: waits 1000ms
+ * - 2nd valid 503: waits 2000ms
+ * - 3rd valid 503: throws Error
  * 
  * @template T - The expected return type of the JSON response. Defaults to `unknown`.
  * @param endpoint - The API endpoint (e.g., 'artist', 'release-group').
  * @param queryParams - URLSearchParams object or string.
  * @param options - Fetch options (next.revalidate, etc.).
- * @param retryCount - Internal retry counter.
+ * @param retryCount - Internal retry counter (do not set manually).
+ * @returns Promise resolving to the JSON response.
+ * @throws Error if the response is not OK (and not a handled 503) or if retries are exhausted.
  */
 export async function mbFetch<T = unknown>(
   endpoint: string, 

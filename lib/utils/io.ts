@@ -9,10 +9,18 @@ import { TierListState, TierDefinition, MediaItem } from '@/lib/types';
 
 const CURRENT_VERSION = 1;
 
+/**
+ * Schema for the exported JSON file.
+ * Designed to be portable and independent of internal IDs (which are regenerated on import).
+ */
 interface ExportData {
+  /** Schema version for future compatibility migrations. */
   version: number;
+  /** ISO timestamp of when the export was created. */
   createdAt: string;
+  /** The user-defined title of the tier list. */
   title: string;
+  /** The ordered list of tiers containing their metadata and items. */
   tiers: {
     label: string;
     color: string;

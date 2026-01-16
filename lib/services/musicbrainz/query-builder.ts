@@ -53,6 +53,13 @@ interface BuiltQuery {
 
 /**
  * Constructs the final MusicBrainz API endpoint and Lucene query string based on search parameters.
+ * 
+ * Combines multiple filter conditions into a single Lucene query string using AND/OR logic.
+ * Handles entity-specific fields (e.g., `arid` for artists, `rgid` for albums) and generic filters
+ * like year ranges and tags.
+ * 
+ * @param params - The complex search parameters object.
+ * @returns An object containing the target `endpoint` and the constructed `query` string.
  */
 export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
     const { 

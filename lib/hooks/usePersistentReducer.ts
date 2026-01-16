@@ -50,13 +50,16 @@ export function usePersistentReducer<S, A>(
   const [isHydrated, setIsHydrated] = useState(false);
 
   // 1. Hydrate from storage (Async)
+  // Effect runs once on mount to load the persisted state from db.
   useEffect(() => {
     let isMounted = true;
     const hydrate = async () => {
       try {
         const item = await storage.get<S>(key);
         if (item && isMounted) {
-          // Robustness: Merge with initialValue if both are objects
+          // Robustness: Merge with initialValue if both are objects.
+          // This ensures that if the schema has changed (new keys added to initial state), 
+          // the hydrated state will include them instead of being undefined.
           let hydratedState = item;
            if (
             typeof initialState === 'object' && initialState !== null && !Array.isArray(initialState) &&

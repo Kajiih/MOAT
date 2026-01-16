@@ -168,69 +168,53 @@ export function useTierList() {
 
 
   return {
-
+    // State & Data
     state,
-
     allBoardItems,
-
+    isHydrated,
+    title: state.title,
+    
+    // Drag & Drop
     sensors,
-
     activeItem,
-
     activeTier,
-
-    headerColors,
-
-    addedItemIds,
-
-    detailsItem,
-
+    overId,
     handleDragStart,
-
     handleDragOver,
-
     handleDragEnd,
 
+    // Board Actions
     handleAddTier,
-
     handleUpdateTier,
-
     handleDeleteTier,
-
     handleRandomizeColors,
-
     handleClear,
+    headerColors,
 
-    handleImport,
-
-    handleExport,
-
-    removeItemFromTier,
-
+    // Item Actions
+    addedItemIds,
     updateMediaItem,
-
+    removeItemFromTier,
+    
+    // Details Modal
+    detailsItem,
+    handleShowDetails,
+    handleCloseDetails,
+    
+    // Search Interaction
     handleLocate,
 
-    handleShowDetails,
+    // IO
+    handleImport,
+    handleExport,
 
-    handleCloseDetails,
-
-    isHydrated,
+    // History
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    pushHistory,
 
     handleUpdateTitle,
-
-    title: state.title,
-
-    undo,
-
-    redo,
-
-    canUndo,
-
-    canRedo,
-
-    pushHistory
-
   };
-
 }

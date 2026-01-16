@@ -49,6 +49,17 @@ export interface SearchResult {
 
 /**
  * Performs a search against the MusicBrainz API.
+ * 
+ * Orchestration Flow:
+ * 1. Delegates query construction to `buildMusicBrainzQuery`.
+ * 2. Fetches data using `mbFetch` (with retry logic).
+ * 3. Validates response against Zod schema (`MusicBrainzSearchResponseSchema`).
+ * 4. Maps raw API results to internal `MediaItem` domain objects.
+ * 5. Caches transformed items in `serverItemCache` to speed up future lookups.
+ * 
+ * @param params - Search filters and pagination options.
+ * @returns A paginated `SearchResult` containing mapped `MediaItem`s.
+ * @throws Error if validation fails or upstream API errors occur.
  */
 export async function searchMusicBrainz(params: SearchParams): Promise<SearchResult> {
   const {
