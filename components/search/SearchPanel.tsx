@@ -9,24 +9,22 @@
 
 import { usePersistentState } from '@/lib/hooks';
 import { Search, Eye, EyeOff, Disc, Mic2, Music } from 'lucide-react';
-import { MediaType, MediaItem } from '@/lib/types';
+import { MediaType } from '@/lib/types';
 import { SearchTab } from './SearchTab';
 import { SearchSettings } from './SearchSettings';
-
-interface SearchPanelProps {
-  /** Set of item IDs that are already present on the tier list board. */
-  addedItemIds: Set<string>;
-  /** Callback to scroll to an item that is already on the board. */
-  onLocate: (id: string) => void;
-  /** Callback to show details */
-  onInfo: (item: MediaItem) => void;
-}
+import { useTierListContext } from '@/components/TierListContext';
 
 /**
  * The sidebar component responsible for searching and filtering media items.
  * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
  */
-export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps) {
+export function SearchPanel() {
+  const { 
+      addedItemIds, 
+      handleLocate, 
+      handleShowDetails: onInfo 
+  } = useTierListContext();
+
   const [activeType, setActiveType] = usePersistentState<MediaType>('moat-search-active-type', 'song');
   const [showAdded, setShowAdded] = usePersistentState<boolean>('moat-search-show-added', true);
   
@@ -83,7 +81,7 @@ export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps
             <SearchTab 
                 type="album" 
                 addedItemIds={addedItemIds} 
-                onLocate={onLocate} 
+                onLocate={handleLocate} 
                 isHidden={activeType !== 'album'}
                 showAdded={showAdded}
                 globalFuzzy={fuzzy}
@@ -93,7 +91,7 @@ export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps
             <SearchTab 
                 type="artist" 
                 addedItemIds={addedItemIds} 
-                onLocate={onLocate} 
+                onLocate={handleLocate} 
                 isHidden={activeType !== 'artist'}
                 showAdded={showAdded}
                 globalFuzzy={fuzzy}
@@ -103,7 +101,7 @@ export function SearchPanel({ addedItemIds, onLocate, onInfo }: SearchPanelProps
             <SearchTab 
                 type="song" 
                 addedItemIds={addedItemIds} 
-                onLocate={onLocate} 
+                onLocate={handleLocate} 
                 isHidden={activeType !== 'song'}
                 showAdded={showAdded}
                 globalFuzzy={fuzzy}

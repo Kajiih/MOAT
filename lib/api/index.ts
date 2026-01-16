@@ -5,7 +5,7 @@
  * @module APIUtils
  */
 
-import { MediaType } from './types';
+import { MediaType } from '../types';
 
 export interface SearchParams {
   type: MediaType;
@@ -68,3 +68,5 @@ export function getSearchUrl(params: SearchParams): string {
 
   return `/api/search?${urlParams.toString()}`;
 }
+
+export * from './fetcher';

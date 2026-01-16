@@ -60,13 +60,13 @@
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat while maintaining a vast metadata library.
 
 - **Hook Composition Pattern**:
-  - `useTierList` (Main Hook): Acts as a **Composer**. It aggregates state from `TierListContext` and behavior from specialized sub-hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`) to provide a unified API to the view layer (`TierListApp`).
+  - **TierListContext** (The Controller): Now serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`) internally and exposes a unified, feature-rich API directly to consumers.
   - **Separation of Concerns**:
     - `useTierListIO`: Handles Import/Export logic.
     - `useTierListDnD`: Handles Drag and Drop sensors and collisions.
     - `useTierStructure`: Handles adding/deleting tiers and randomizing colors.
     - `useTierListUtils`: Handles derived state (header colors) and UI utilities (scrolling).
-  - **Refactoring Note**: Sub-hooks now accept `dispatch` and use `ActionType` constants to mutate state, ensuring all logic is contained within the pure `tierListReducer`.
+  - **Refactoring Note**: Sub-hooks now accept `dispatch` (or wrapped handlers) and use `ActionType` constants to mutate state, ensuring all logic is contained within the pure `tierListReducer`.
 
 - **Undo/Redo System**:
   - **History Management**: Implemented via `useHistory` hook which maintains `past` and `future` state stacks in memory.
@@ -151,8 +151,8 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
 - `components/`:
-  - `TierListApp.tsx`: Main application orchestrator (DnD Context, Layout).
-  - `TierListContext.tsx`: Core state provider for the tier list (persistence, hydration).
+  - `TierListApp.tsx`: Main layout component (Layout only, logic moved to Context).
+  - `TierListContext.tsx`: Core state provider and logic controller (persistence, hydration, DnD, IO).
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `board/`: Components related to the tier board visualization.
     - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
@@ -170,7 +170,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
     - `InteractionContext.tsx`: Global context for tracking hovered items.
     - `KeyboardShortcutsModal.tsx`: Displays available keyboard shortcuts.
 - `lib/hooks/`:
-  - `useTierList.ts`:  Composition hook acting as the facade for the TierList Context and sub-hooks.
+  - `index.ts`: Barrel file exporting all hooks.
   - `useTierListIO.ts`:  Encapsulates Import/Export logic.
   - `useTierListUtils.ts`:  Encapsulates derived state and UI utilities.
   - `useHistory.ts`:  Generic hook for managing state history (past/future stacks).

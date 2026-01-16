@@ -13,49 +13,40 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { TierRow } from './TierRow';
-import { TierListState, MediaItem, TierDefinition } from '@/lib/types';
 import { Plus } from 'lucide-react';
-
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { ChangeEvent, useRef, useEffect } from 'react';
+import { useTierListContext } from '@/components/TierListContext';
 
 interface TierBoardProps {
-  state: TierListState;
-  colors: string[];
   screenshotRef: React.RefObject<HTMLDivElement | null>;
-  handleAddTier: () => void;
-  handleUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
-  handleDeleteTier: (id: string) => void;
-  removeItemFromTier: (tierId: string, itemId: string) => void;
-  handleShowDetails: (item: MediaItem) => void;
   isAnyDragging: boolean;
-  tierListTitle: string;
-  onUpdateTierListTitle: (newTitle: string) => void;
-  pushHistory: () => void;
 }
 
 export function TierBoard({
-  state,
-  colors,
   screenshotRef,
-  handleAddTier,
-  handleUpdateTier,
-  handleDeleteTier,
-  removeItemFromTier,
-  handleShowDetails,
   isAnyDragging,
-  tierListTitle,
-  onUpdateTierListTitle,
-  pushHistory
 }: TierBoardProps) {
 
+  const {
+      state,
+      headerColors,
+      handleAddTier,
+      handleUpdateTier,
+      handleDeleteTier,
+      removeItemFromTier,
+      handleShowDetails,
+      handleUpdateTitle,
+      pushHistory
+  } = useTierListContext();
+
   // Dynamic Logo Colors (Reusable Logic)
-  const logoHexColors = useBrandColors(colors);
+  const logoHexColors = useBrandColors(headerColors);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   
   const handleTitleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    onUpdateTierListTitle(e.target.value);
+    handleUpdateTitle(e.target.value);
   };
 
   // Auto-resize textarea height based on content
@@ -64,7 +55,7 @@ export function TierBoard({
       titleRef.current.style.height = 'auto';
       titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
     }
-  }, [tierListTitle]);
+  }, [state.title]);
 
   return (
     <div className="space-y-4">
@@ -72,7 +63,7 @@ export function TierBoard({
             <div className="flex justify-center mb-6">
               <textarea
                 ref={titleRef}
-                value={tierListTitle}
+                value={state.title}
                 onChange={handleTitleChange}
                 onFocus={() => pushHistory()}
                 placeholder="Tier List Title"

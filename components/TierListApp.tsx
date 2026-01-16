@@ -20,7 +20,8 @@ import { SearchPanel } from '@/components/search/SearchPanel';
 import { DetailsModal } from '@/components/media/DetailsModal';
 import { TierBoard } from '@/components/board/TierBoard';
 import { Dices } from 'lucide-react';
-import { useTierList, useScreenshot, useDynamicFavicon } from '@/lib/hooks';
+import { useScreenshot, useDynamicFavicon } from '@/lib/hooks';
+import { useTierListContext } from '@/components/TierListContext';
 import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
 import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
@@ -54,7 +55,7 @@ const LoadingState = () => {
  * Responsibilities:
  * - Orchestrates the drag-and-drop context (`DndContext`).
  * - Manages the main layout (header, tier list, search panel).
- * - Integrates with the `useTierList` hook for state management.
+ * - Integrates with the `useTierListContext` for state management.
  * - Handles global UI elements like the "Randomize Colors" button and Details Modal.
  */
 export default function TierListApp() {
@@ -65,32 +66,21 @@ export default function TierListApp() {
     activeItem,
     activeTier,
     headerColors,
-    addedItemIds,
     detailsItem,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
-    handleAddTier,
-    handleUpdateTier,
-    handleDeleteTier,
     handleRandomizeColors,
-    handleClear,
-    handleImport,
-    handleExport,
     removeItemFromTier,
     updateMediaItem,
-    handleLocate,
     handleShowDetails,
     handleCloseDetails,
     isHydrated,
-    title: tierListTitle, // Alias state.title to tierListTitle
-    handleUpdateTitle,
     undo,
     redo,
     canUndo,
     canRedo,
-    pushHistory
-  } = useTierList();
+  } = useTierListContext();
 
   const { toastCount } = useToast();
   const { ref: screenshotRef, takeScreenshot, isCapturing } = useScreenshot('moat-tierlist.png');
@@ -106,8 +96,8 @@ export default function TierListApp() {
 
   // Update document title based on tierListTitle
   useEffect(() => {
-    document.title = `${tierListTitle} - MOAT`;
-  }, [tierListTitle]);
+    document.title = `${state.title} - MOAT`;
+  }, [state.title]);
 
   // Global Keyboard Shortcuts
   useEffect(() => {
@@ -153,16 +143,8 @@ export default function TierListApp() {
         
         <div className="max-w-[1600px] mx-auto">
             <Header 
-                onImport={handleImport} 
-                onExport={handleExport}
                 onScreenshot={takeScreenshot}
                 isCapturing={isCapturing}
-                onClear={handleClear} 
-                colors={headerColors}
-                onUndo={undo}
-                onRedo={redo}
-                canUndo={canUndo}
-                canRedo={canRedo}
             />
 
             <DndContext 
@@ -176,26 +158,12 @@ export default function TierListApp() {
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
                     <div className="lg:-mt-20">
                     <TierBoard 
-                        state={state}
-                        colors={headerColors}
                         screenshotRef={screenshotRef}
-                        handleAddTier={handleAddTier}
-                        handleUpdateTier={handleUpdateTier}
-                        handleDeleteTier={handleDeleteTier}
-                        removeItemFromTier={removeItemFromTier}
-                        handleShowDetails={handleShowDetails}
                         isAnyDragging={!!activeItem || !!activeTier}
-                        tierListTitle={tierListTitle}
-                        onUpdateTierListTitle={handleUpdateTitle}
-                        pushHistory={pushHistory}
                     />
                     </div>
 
-                    <SearchPanel 
-                        addedItemIds={addedItemIds}
-                        onLocate={handleLocate}
-                        onInfo={handleShowDetails}
-                    />
+                    <SearchPanel />
                 </div>
 
                 <DragOverlay>

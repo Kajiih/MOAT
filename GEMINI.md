@@ -16,10 +16,11 @@
   - Use `npx playwright test` to run tests.
 
 - Write documentation to important or not trivial units of code, including modules, functions, variables, etc.
-- Always follow best practices, and focus on idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.
+- Always follow best practices of modern web development, and focus on idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.
   - Always adhere to the single source of truth principle for repeated feature, formatting, etc.
   - Never use a short term solution, always target long term solutions and improvements.
   - Don't hesitate to refactor smaller or larger pieces to improve idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.
   - At the end of the implementation of a new feature, build and run integration tests.
+  - We are in development mode, so we can make breaking changes, ambitious refactoring, using cutting edge solutions, etc.
 
 Start by reading the [app's architecture documentation](docs/ARCHITECTURE.md)

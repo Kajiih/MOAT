@@ -9,13 +9,26 @@
 'use client';
 
 import React, { createContext, useContext, useMemo, useRef, useEffect, useState, ReactNode } from 'react';
-import { MediaItem, TierListState } from '@/lib/types';
+import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
 import { tierListReducer } from '@/lib/state/reducer';
 import { TierListAction, ActionType } from '@/lib/state/actions';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { INITIAL_STATE } from '@/lib/initial-state';
+import { 
+  useTierListDnD, 
+  useTierStructure, 
+  useTierListIO, 
+  useTierListUtils 
+} from '@/lib/hooks';
+import { 
+  SensorDescriptor, 
+  SensorOptions,
+  DragStartEvent,
+  DragOverEvent,
+  DragEndEvent
+} from '@dnd-kit/core';
 
 const LOCAL_STORAGE_KEY = 'moat-tierlist';
 
@@ -24,11 +37,8 @@ const LOCAL_STORAGE_KEY = 'moat-tierlist';
  * Provides access to the board state, computed values, and helper methods.
  */
 interface TierListContextType {
-  /** The core state of the tier list (tiers, items, title). */
   state: TierListState;
-  /** Dispatcher to update the core state. */
   dispatch: React.Dispatch<TierListAction>;
-  /** Flag indicating if the state has been hydrated from localStorage. */
   isHydrated: boolean;
   
   // History
@@ -37,23 +47,43 @@ interface TierListContextType {
   canUndo: boolean;
   canRedo: boolean;
   pushHistory: () => void;
-
   
   // Computed
-  /** Flattened list of all items currently on the board. */
   allBoardItems: MediaItem[];
-  /** Set of unique IDs for items on the board (excluding drag-specific prefixes). */
   addedItemIds: Set<string>;
 
-  // UI State
-  /** The item currently displayed in the details modal, or null if closed. */
-  detailsItem: MediaItem | null;
-  /** Sets the item to display in the details modal. */
-  setDetailsItem: React.Dispatch<React.SetStateAction<MediaItem | null>>;
-  
-  // Helpers
-  /** Updates a specific media item on the board and syncs with the registry. */
+  // Drag & Drop (Expanded)
+  sensors: SensorDescriptor<SensorOptions>[];
+  activeItem: MediaItem | null;
+  activeTier: TierDefinition | null;
+  overId: string | null;
+  handleDragStart: (event: DragStartEvent) => void;
+  handleDragOver: (event: DragOverEvent) => void;
+  handleDragEnd: (event: DragEndEvent) => void;
+
+  // Board Actions (Expanded)
+  handleAddTier: () => void;
+  handleUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
+  handleDeleteTier: (id: string) => void;
+  handleRandomizeColors: () => void;
+  handleClear: () => void;
+  headerColors: string[];
+  handleUpdateTitle: (title: string) => void;
+
+  // Item Actions (Expanded)
   updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => void;
+  removeItemFromTier: (tierId: string, itemId: string) => void;
+  handleLocate: (id: string) => void;
+
+  // IO (Expanded)
+  handleImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleExport: () => void;
+
+  // UI State
+  detailsItem: MediaItem | null;
+  setDetailsItem: React.Dispatch<React.SetStateAction<MediaItem | null>>;
+  handleShowDetails: (item: MediaItem) => void;
+  handleCloseDetails: () => void;
 }
 
 const TierListContext = createContext<TierListContextType | null>(null);
@@ -70,15 +100,14 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     INITIAL_STATE,
     LOCAL_STORAGE_KEY
   );
-  const { undo: undoHistory, redo: redoHistory, push: pushHistory, canUndo, canRedo } = useHistory<TierListState>();
-
-  const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
   
+  const { undo: undoHistory, redo: redoHistory, push: pushHistory, canUndo, canRedo } = useHistory<TierListState>();
+  const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
   const { registerItem } = useMediaRegistry();
   const itemsToRegister = useRef<MediaItem[]>([]);
 
+  // --- History Helpers ---
   const undo = React.useCallback(() => {
-    // We pass a setter that dispatches SET_STATE
     undoHistory(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
   }, [undoHistory, state, dispatch]);
 
@@ -90,21 +119,68 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     pushHistory(state);
   }, [pushHistory, state]);
 
-  // Computed values
-  const allBoardItems = useMemo(() => {
-    return Object.values(state.items).flat();
-  }, [state.items]);
+  // --- Sub-Hooks Integration ---
+  
+  // 1. Drag & Drop Logic
+  const {
+    sensors,
+    activeItem,
+    activeTier,
+    overId,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd
+  } = useTierListDnD(state, dispatch, handlePushHistory);
 
+  // 2. Structure Logic
+  const {
+    handleAddTier,
+    handleUpdateTier,
+    handleDeleteTier,
+    handleRandomizeColors,
+    handleClear
+  } = useTierStructure(dispatch, handlePushHistory);
+
+  // 3. IO Logic
+  const { handleExport, handleImport } = useTierListIO(state, dispatch, handlePushHistory);
+
+  // 4. Utils
+  const { headerColors, handleLocate } = useTierListUtils(state, activeTier?.id || null, overId);
+
+  // --- Misc Helpers ---
+  const handleUpdateTitle = React.useCallback((newTitle: string) => {
+    dispatch({ type: ActionType.UPDATE_TITLE, payload: { title: newTitle } });
+  }, [dispatch]);
+
+  const removeItemFromTier = React.useCallback((tierId: string, itemId: string) => {
+    pushHistory();
+    dispatch({ type: ActionType.REMOVE_ITEM, payload: { tierId, itemId } });
+  }, [dispatch, pushHistory]);
+
+  const handleShowDetails = React.useCallback((item: MediaItem) => setDetailsItem(item), []);
+  const handleCloseDetails = React.useCallback(() => setDetailsItem(null), []);
+
+  const updateMediaItem = React.useCallback((itemId: string, updates: Partial<MediaItem>) => {
+      dispatch({ type: ActionType.UPDATE_ITEM, payload: { itemId, updates } });
+      const currentItem = Object.values(state.items).flat().find(i => i.id === itemId);
+      if (currentItem) {
+          itemsToRegister.current.push({ ...currentItem, ...updates } as MediaItem);
+      }
+  }, [dispatch, state.items]);
+
+  // Computed values
+  const allBoardItems = useMemo(() => Object.values(state.items).flat(), [state.items]);
   const addedItemIds = useMemo(() => {
     const ids = new Set<string>();
     allBoardItems.forEach(item => {
-        const cleanId = item.id.replace(/^search-/, '');
-        ids.add(cleanId);
+        // Handle undefined or malformed IDs safely, though they should strict strings
+        if (item && item.id) {
+           ids.add(item.id.replace(/^search-/, ''));
+        }
     });
     return ids;
   }, [allBoardItems]);
 
-  // Sync items to registry after state updates
   useEffect(() => {
     if (itemsToRegister.current.length > 0) {
       itemsToRegister.current.forEach(item => registerItem(item));
@@ -112,63 +188,59 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  const updateMediaItem = React.useCallback((itemId: string, updates: Partial<MediaItem>) => {
-      // With Reducer, we dispatch the update directly. 
-      // The optimization logic (diff checking) is moved to the reducer or kept here?
-      // Keeping basic check here avoids dispatching unnecessary actions.
-      
-      // We can't easily check 'state' here without adding it to dependency array, 
-      // which might re-render children too often if we are not careful.
-      // But we have 'state' in scope.
-      
-      // Let's just dispatch. The reducer has the logic to check/merge.
-      dispatch({ 
-        type: ActionType.UPDATE_ITEM, 
-        payload: { itemId, updates } 
-      });
-      
-      // Registry update queueing is tricky now because we don't return the "modified" flag from dispatch.
-      // We'll trust the effect. But we need to know *what* to register.
-      // We can optimistically construct the item? Or we just rely on the effect scanning?
-      // The current effect relies on `itemsToRegister` ref being populated.
-      // We should populate it here optimistically.
-      // Since we don't have the full item here easily, let's defer registry update 
-      // or find the item from current state.
-      
-      // Find item in current state to register it
-      const currentItem = Object.values(state.items).flat().find(i => i.id === itemId);
-      if (currentItem) {
-          itemsToRegister.current.push({ ...currentItem, ...updates } as MediaItem);
-      }
-  }, [dispatch, state.items]);
-
   const value = useMemo(() => ({
     state,
     dispatch,
     isHydrated,
     allBoardItems,
     addedItemIds,
+    
+    // History
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    pushHistory: handlePushHistory,
+
+    // DnD
+    sensors,
+    activeItem,
+    activeTier,
+    overId,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+
+    // Actions
+    handleAddTier,
+    handleUpdateTier,
+    handleDeleteTier,
+    handleRandomizeColors,
+    handleClear,
+    headerColors,
+    handleUpdateTitle,
+    removeItemFromTier,
+    handleLocate,
+    
+    // IO
+    handleImport,
+    handleExport,
+    
+    // UI
     detailsItem,
     setDetailsItem,
+    handleShowDetails,
+    handleCloseDetails,
     updateMediaItem,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    pushHistory: handlePushHistory
+
   }), [
-    state, 
-    dispatch, 
-    isHydrated, 
-    allBoardItems, 
-    addedItemIds, 
-    detailsItem, 
-    updateMediaItem,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    handlePushHistory
+    state, dispatch, isHydrated, allBoardItems, addedItemIds,
+    undo, redo, canUndo, canRedo, handlePushHistory,
+    sensors, activeItem, activeTier, overId, handleDragStart, handleDragOver, handleDragEnd,
+    handleAddTier, handleUpdateTier, handleDeleteTier, handleRandomizeColors, handleClear, headerColors, 
+    handleUpdateTitle, removeItemFromTier, handleLocate,
+    handleImport, handleExport,
+    detailsItem, setDetailsItem, handleShowDetails, handleCloseDetails, updateMediaItem
   ]);
 
   return (
