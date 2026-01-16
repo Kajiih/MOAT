@@ -31,14 +31,15 @@ export function TierBoard({
 
   const {
       state,
-      headerColors,
-      handleAddTier,
-      handleUpdateTier,
-      handleDeleteTier,
-      removeItemFromTier,
-      handleShowDetails,
-      handleUpdateTitle,
-      pushHistory
+      ui: { headerColors, showDetails: handleShowDetails },
+      actions: { 
+          addTier: handleAddTier, 
+          updateTier: handleUpdateTier, 
+          deleteTier: handleDeleteTier, 
+          removeItemFromTier,
+          updateTitle: handleUpdateTitle
+      },
+      history: { push: pushHistory }
   } = useTierListContext();
 
   // Dynamic Logo Colors (Reusable Logic)

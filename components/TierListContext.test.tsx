@@ -71,7 +71,7 @@ describe('TierListContext', () => {
 
     // Add Tier
     act(() => {
-      result.current.handleAddTier();
+      result.current.actions.addTier();
     });
     
     expect(result.current.state.tierDefs).toHaveLength(7);
@@ -80,7 +80,7 @@ describe('TierListContext', () => {
 
     // Delete Tier
     act(() => {
-      result.current.handleDeleteTier(newTier.id);
+      result.current.actions.deleteTier(newTier.id);
     });
 
     expect(result.current.state.tierDefs).toHaveLength(6);
@@ -91,7 +91,7 @@ describe('TierListContext', () => {
     const tierId = result.current.state.tierDefs[0].id;
 
     act(() => {
-      result.current.handleUpdateTier(tierId, { label: 'Super S' });
+      result.current.actions.updateTier(tierId, { label: 'Super S' });
     });
 
     expect(result.current.state.tierDefs[0].label).toBe('Super S');
@@ -112,7 +112,7 @@ describe('TierListContext', () => {
     const event = { target: { files: [file], value: 'fakepath' } } as unknown as React.ChangeEvent<HTMLInputElement>;
 
     act(() => {
-      result.current.handleImport(event);
+      result.current.actions.import(event);
     });
 
     // Wait for FileReader async
@@ -135,7 +135,7 @@ describe('TierListContext', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     act(() => {
-      result.current.handleImport(event);
+      result.current.actions.import(event);
     });
 
     // Wait for potential async failure handling
@@ -153,71 +153,46 @@ describe('TierListContext', () => {
     // Simulate items on board (manually inject or assume initial state is empty)
     // Let's add a tier first to change state
     act(() => {
-        result.current.handleAddTier();
+        result.current.actions.addTier();
     });
     expect(result.current.state.tierDefs).toHaveLength(7);
 
     act(() => {
-        result.current.handleClear();
+        result.current.actions.clear();
     });
 
-        // Should reset to initial state (6 tiers)
+    // Should reset to initial state (6 tiers)
+    expect(result.current.state.tierDefs).toHaveLength(6);
+  });
 
-        expect(result.current.state.tierDefs).toHaveLength(6);
+  it('should undo and redo state changes', () => {
+    const { result } = renderHook(() => useTierListContext(), { wrapper });
+    const initialCount = result.current.state.tierDefs.length;
 
-      });
+    // 1. Perform an action
+    act(() => {
+      result.current.actions.addTier();
+    });
 
-    
+    expect(result.current.state.tierDefs).toHaveLength(initialCount + 1);
+    expect(result.current.history.canUndo).toBe(true);
 
-      it('should undo and redo state changes', () => {
+    // 2. Undo the action
+    act(() => {
+      result.current.history.undo();
+    });
 
-        const { result } = renderHook(() => useTierListContext(), { wrapper });
+    expect(result.current.state.tierDefs).toHaveLength(initialCount);
+    expect(result.current.history.canRedo).toBe(true);
 
-        const initialCount = result.current.state.tierDefs.length;
+    // 3. Redo the action
+    act(() => {
+      result.current.history.redo();
+    });
 
-    
-
-        // 1. Perform an action
-
-        act(() => {
-
-          result.current.handleAddTier();
-
-        });
-
-        expect(result.current.state.tierDefs).toHaveLength(initialCount + 1);
-
-        expect(result.current.canUndo).toBe(true);
-
-    
-
-        // 2. Undo the action
-
-        act(() => {
-
-          result.current.undo();
-
-        });
-
-        expect(result.current.state.tierDefs).toHaveLength(initialCount);
-
-        expect(result.current.canRedo).toBe(true);
-
-    
-
-        // 3. Redo the action
-
-        act(() => {
-
-          result.current.redo();
-
-        });
-
-        expect(result.current.state.tierDefs).toHaveLength(initialCount + 1);
-
-        expect(result.current.canUndo).toBe(true);
-
-      });
+    expect(result.current.state.tierDefs).toHaveLength(initialCount + 1);
+    expect(result.current.history.canUndo).toBe(true);
+  });
 
     });
 

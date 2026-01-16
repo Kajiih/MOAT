@@ -60,19 +60,23 @@
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat while maintaining a vast metadata library.
 
 - **Hook Composition Pattern**:
-  - **TierListContext** (The Controller): Now serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`) internally and exposes a unified, feature-rich API directly to consumers.
+  - **TierListContext** (The Controller): Now serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`) internally and exposes a unified, namespaced API:
+    - `state`: Domain data (`tiers`, `items`, `title`).
+    - `actions`: Business logic (`addTier`, `import`, `export`, `randomizeColors`...).
+    - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`...).
+    - `ui`: UI-specific state (`detailsItem`, `headerColors`...).
+    - `history`: Undo/Redo controls.
   - **Separation of Concerns**:
     - `useTierListIO`: Handles Import/Export logic.
     - `useTierListDnD`: Handles Drag and Drop sensors and collisions.
     - `useTierStructure`: Handles adding/deleting tiers and randomizing colors.
     - `useTierListUtils`: Handles derived state (header colors) and UI utilities (scrolling).
-  - **Refactoring Note**: Sub-hooks now accept `dispatch` (or wrapped handlers) and use `ActionType` constants to mutate state, ensuring all logic is contained within the pure `tierListReducer`.
 
 - **Undo/Redo System**:
   - **History Management**: Implemented via `useHistory` hook which maintains `past` and `future` state stacks in memory.
   - **Integration**: The `TierListContext` integrates `useHistory` alongside `usePersistentState`.
   - **Snapshot Strategy**:
-    - **Explicit Snapshots**: History is recorded explicitly via `pushHistory()` before significant destructive actions (Drag Start, Add/Delete Tier, Import, Clear).
+    - **Explicit Snapshots**: History is recorded explicitly via `history.push()` before significant destructive actions (Drag Start, Add/Delete Tier, Import, Clear).
     - **Granularity**: Transient updates (like `handleDragOver` or continuous text input) do not pollute the history stack, ensuring a clean "Undo" experience that reverts to the start of the action.
     - **Keyboard Support**: Full support for standard shortcuts (Cmd/Ctrl+Z for Undo, Cmd/Ctrl+Shift+Z for Redo).
 

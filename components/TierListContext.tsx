@@ -38,52 +38,49 @@ const LOCAL_STORAGE_KEY = 'moat-tierlist';
  */
 interface TierListContextType {
   state: TierListState;
-  dispatch: React.Dispatch<TierListAction>;
   isHydrated: boolean;
   
-  // History
-  undo: () => void;
-  redo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  pushHistory: () => void;
-  
-  // Computed
-  allBoardItems: MediaItem[];
-  addedItemIds: Set<string>;
+  // Grouped Namespaces
+  actions: {
+    addTier: () => void;
+    updateTier: (id: string, updates: Partial<TierDefinition>) => void;
+    deleteTier: (id: string) => void;
+    randomizeColors: () => void;
+    clear: () => void;
+    updateTitle: (title: string) => void;
+    updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => void;
+    removeItemFromTier: (tierId: string, itemId: string) => void;
+    locate: (id: string) => void;
+    import: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    export: () => void;
+  };
 
-  // Drag & Drop (Expanded)
-  sensors: SensorDescriptor<SensorOptions>[];
-  activeItem: MediaItem | null;
-  activeTier: TierDefinition | null;
-  overId: string | null;
-  handleDragStart: (event: DragStartEvent) => void;
-  handleDragOver: (event: DragOverEvent) => void;
-  handleDragEnd: (event: DragEndEvent) => void;
+  dnd: {
+    sensors: SensorDescriptor<SensorOptions>[];
+    activeItem: MediaItem | null;
+    activeTier: TierDefinition | null;
+    overId: string | null;
+    handleDragStart: (event: DragStartEvent) => void;
+    handleDragOver: (event: DragOverEvent) => void;
+    handleDragEnd: (event: DragEndEvent) => void;
+  };
 
-  // Board Actions (Expanded)
-  handleAddTier: () => void;
-  handleUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
-  handleDeleteTier: (id: string) => void;
-  handleRandomizeColors: () => void;
-  handleClear: () => void;
-  headerColors: string[];
-  handleUpdateTitle: (title: string) => void;
+  ui: {
+    headerColors: string[];
+    detailsItem: MediaItem | null;
+    showDetails: (item: MediaItem) => void;
+    closeDetails: () => void;
+    addedItemIds: Set<string>;
+    allBoardItems: MediaItem[];
+  };
 
-  // Item Actions (Expanded)
-  updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => void;
-  removeItemFromTier: (tierId: string, itemId: string) => void;
-  handleLocate: (id: string) => void;
-
-  // IO (Expanded)
-  handleImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleExport: () => void;
-
-  // UI State
-  detailsItem: MediaItem | null;
-  setDetailsItem: React.Dispatch<React.SetStateAction<MediaItem | null>>;
-  handleShowDetails: (item: MediaItem) => void;
-  handleCloseDetails: () => void;
+  history: {
+    undo: () => void;
+    redo: () => void;
+    canUndo: boolean;
+    canRedo: boolean;
+    push: () => void;
+  };
 }
 
 const TierListContext = createContext<TierListContextType | null>(null);
@@ -188,21 +185,26 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  const value = useMemo(() => ({
-    state,
-    dispatch,
-    isHydrated,
-    allBoardItems,
-    addedItemIds,
-    
-    // History
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    pushHistory: handlePushHistory,
+  // --- Context Value Grouping & Memoization ---
 
-    // DnD
+  const actions = useMemo(() => ({
+    addTier: handleAddTier,
+    updateTier: handleUpdateTier,
+    deleteTier: handleDeleteTier,
+    randomizeColors: handleRandomizeColors,
+    clear: handleClear,
+    updateTitle: handleUpdateTitle,
+    updateMediaItem: updateMediaItem,
+    removeItemFromTier: removeItemFromTier,
+    locate: handleLocate,
+    import: handleImport,
+    export: handleExport,
+  }), [
+    handleAddTier, handleUpdateTier, handleDeleteTier, handleRandomizeColors, handleClear,
+    handleUpdateTitle, updateMediaItem, removeItemFromTier, handleLocate, handleImport, handleExport
+  ]);
+
+  const dnd = useMemo(() => ({
     sensors,
     activeItem,
     activeTier,
@@ -210,38 +212,33 @@ export function TierListProvider({ children }: { children: ReactNode }) {
     handleDragStart,
     handleDragOver,
     handleDragEnd,
+  }), [sensors, activeItem, activeTier, overId, handleDragStart, handleDragOver, handleDragEnd]);
 
-    // Actions
-    handleAddTier,
-    handleUpdateTier,
-    handleDeleteTier,
-    handleRandomizeColors,
-    handleClear,
+  const ui = useMemo(() => ({
     headerColors,
-    handleUpdateTitle,
-    removeItemFromTier,
-    handleLocate,
-    
-    // IO
-    handleImport,
-    handleExport,
-    
-    // UI
     detailsItem,
-    setDetailsItem,
-    handleShowDetails,
-    handleCloseDetails,
-    updateMediaItem,
+    showDetails: handleShowDetails,
+    closeDetails: handleCloseDetails,
+    addedItemIds,
+    allBoardItems,
+  }), [headerColors, detailsItem, handleShowDetails, handleCloseDetails, addedItemIds, allBoardItems]);
 
-  }), [
-    state, dispatch, isHydrated, allBoardItems, addedItemIds,
-    undo, redo, canUndo, canRedo, handlePushHistory,
-    sensors, activeItem, activeTier, overId, handleDragStart, handleDragOver, handleDragEnd,
-    handleAddTier, handleUpdateTier, handleDeleteTier, handleRandomizeColors, handleClear, headerColors, 
-    handleUpdateTitle, removeItemFromTier, handleLocate,
-    handleImport, handleExport,
-    detailsItem, setDetailsItem, handleShowDetails, handleCloseDetails, updateMediaItem
-  ]);
+  const history = useMemo(() => ({
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    push: handlePushHistory,
+  }), [undo, redo, canUndo, canRedo, handlePushHistory]);
+
+  const value = useMemo(() => ({
+    state,
+    isHydrated,
+    actions,
+    dnd,
+    ui,
+    history
+  }), [state, isHydrated, actions, dnd, ui, history]);
 
   return (
     <TierListContext.Provider value={value}>

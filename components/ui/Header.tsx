@@ -26,14 +26,9 @@ export function Header({
 }: HeaderProps) {
   
   const { 
-      handleImport, 
-      handleExport, 
-      handleClear, 
-      headerColors,
-      undo, 
-      redo, 
-      canUndo, 
-      canRedo 
+      actions: { import: handleImport, export: handleExport, clear: handleClear },
+      ui: { headerColors },
+      history: { undo, redo, canUndo, canRedo }
   } = useTierListContext();
 
   const brandColors = useBrandColors(headerColors);

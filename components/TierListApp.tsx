@@ -61,25 +61,33 @@ const LoadingState = () => {
 export default function TierListApp() {
   const {
     state,
-    allBoardItems,
-    sensors,
-    activeItem,
-    activeTier,
-    headerColors,
-    detailsItem,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-    handleRandomizeColors,
-    removeItemFromTier,
-    updateMediaItem,
-    handleShowDetails,
-    handleCloseDetails,
     isHydrated,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
+    actions: { 
+        randomizeColors, 
+        removeItemFromTier, 
+        updateMediaItem 
+    },
+    dnd: { 
+        sensors, 
+        activeItem, 
+        activeTier, 
+        handleDragStart, 
+        handleDragOver, 
+        handleDragEnd 
+    },
+    ui: { 
+        headerColors, 
+        detailsItem, 
+        allBoardItems,
+        showDetails,
+        closeDetails
+    },
+    history: { 
+        undo, 
+        redo, 
+        canUndo, 
+        canRedo 
+    }
   } = useTierListContext();
 
   const { toastCount } = useToast();
@@ -124,14 +132,14 @@ export default function TierListApp() {
             // 'i' to show details
             if (e.key === 'i') {
                 e.preventDefault();
-                handleShowDetails(hoveredItem.item);
+                showDetails(hoveredItem.item);
             }
         }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, canUndo, canRedo, hoveredItem, removeItemFromTier, handleShowDetails]);
+  }, [undo, redo, canUndo, canRedo, hoveredItem, removeItemFromTier, showDetails]);
 
   if (!isHydrated) {
     return <LoadingState />;
@@ -191,13 +199,13 @@ export default function TierListApp() {
             key={detailsItem?.id || 'modal'}
             item={detailsItem} 
             isOpen={!!detailsItem} 
-            onClose={handleCloseDetails}
+            onClose={closeDetails}
             onUpdateItem={updateMediaItem}
         />
 
         {/* Floating Randomize Colors Button */}
         <button 
-            onClick={handleRandomizeColors} 
+            onClick={randomizeColors} 
             className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 screenshot-exclude ${
             toastCount > 0 ? 'bottom-18' : 'bottom-8'
             }`}

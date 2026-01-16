@@ -30,9 +30,13 @@ const SEARCH_MODES = [
  */
 export function SearchPanel() {
   const { 
-      addedItemIds, 
-      handleLocate, 
-      handleShowDetails: onInfo 
+      ui: { 
+          addedItemIds, 
+          showDetails: onInfo 
+      },
+      actions: {
+          locate: handleLocate
+      }
   } = useTierListContext();
 
   const [activeType, setActiveType] = usePersistentState<MediaType>('moat-search-active-type', 'song');
