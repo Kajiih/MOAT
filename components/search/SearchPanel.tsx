@@ -18,6 +18,16 @@ import { useTierListContext } from '@/components/TierListContext';
  * The sidebar component responsible for searching and filtering media items.
  * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
  */
+const SEARCH_MODES = [
+    { type: 'song', label: 'Song', icon: Music },
+    { type: 'album', label: 'Album', icon: Disc },
+    { type: 'artist', label: 'Artist', icon: Mic2 },
+] as const;
+
+/**
+ * The sidebar component responsible for searching and filtering media items.
+ * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
+ */
 export function SearchPanel() {
   const { 
       addedItemIds, 
@@ -60,54 +70,35 @@ export function SearchPanel() {
         </div>
 
         <div className="grid grid-cols-3 gap-1 p-1 bg-black rounded-lg mb-4 shrink-0 border border-neutral-800">
-            {(['song', 'album', 'artist'] as const).map((t) => (
+            {SEARCH_MODES.map((mode) => (
                 <button
-                    key={t}
-                    onClick={() => setActiveType(t)}
-                    title={`Search ${t}s`}
+                    key={mode.type}
+                    onClick={() => setActiveType(mode.type)}
+                    title={`Search ${mode.label}s`}
                     className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all
-                        ${activeType === t ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}
+                        ${activeType === mode.type ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}
                     `}
                 >
-                    {t === 'album' && <Disc size={12} />}
-                    {t === 'artist' && <Mic2 size={12} />}
-                    {t === 'song' && <Music size={12} />}
-                    <span className="capitalize">{t}</span>
+                    <mode.icon size={12} />
+                    <span>{mode.label}</span>
                 </button>
             ))}
         </div>
 
         <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
-            <SearchTab 
-                type="album" 
-                addedItemIds={addedItemIds} 
-                onLocate={handleLocate} 
-                isHidden={activeType !== 'album'}
-                showAdded={showAdded}
-                globalFuzzy={fuzzy}
-                globalWildcard={wildcard}
-                onInfo={onInfo}
-            />
-            <SearchTab 
-                type="artist" 
-                addedItemIds={addedItemIds} 
-                onLocate={handleLocate} 
-                isHidden={activeType !== 'artist'}
-                showAdded={showAdded}
-                globalFuzzy={fuzzy}
-                globalWildcard={wildcard}
-                onInfo={onInfo}
-            />
-            <SearchTab 
-                type="song" 
-                addedItemIds={addedItemIds} 
-                onLocate={handleLocate} 
-                isHidden={activeType !== 'song'}
-                showAdded={showAdded}
-                globalFuzzy={fuzzy}
-                globalWildcard={wildcard}
-                onInfo={onInfo}
-            />
+            {SEARCH_MODES.map((mode) => (
+                <SearchTab 
+                    key={mode.type}
+                    type={mode.type} 
+                    addedItemIds={addedItemIds} 
+                    onLocate={handleLocate} 
+                    isHidden={activeType !== mode.type}
+                    showAdded={showAdded}
+                    globalFuzzy={fuzzy}
+                    globalWildcard={wildcard}
+                    onInfo={onInfo}
+                />
+            ))}
         </div>
     </div>
   );

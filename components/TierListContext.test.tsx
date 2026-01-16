@@ -1,8 +1,7 @@
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useTierList } from './useTierList';
+import { useTierListContext, TierListProvider } from './TierListContext';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TierListProvider } from '@/components/TierListContext';
 
 // Mock dependencies
 vi.mock('@/components/ui/ToastProvider', () => ({
@@ -49,7 +48,7 @@ Object.defineProperty(global, 'crypto', {
 // Mock window.confirm
 global.confirm = vi.fn(() => true);
 
-describe('useTierList', () => {
+describe('TierListContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -59,7 +58,7 @@ describe('useTierList', () => {
   );
 
   it('should initialize with default state', () => {
-    const { result } = renderHook(() => useTierList(), { wrapper });
+    const { result } = renderHook(() => useTierListContext(), { wrapper });
     
     // Check default tiers
     expect(result.current.state.tierDefs).toHaveLength(6);
@@ -68,7 +67,7 @@ describe('useTierList', () => {
   });
 
   it('should add and delete tiers', () => {
-    const { result } = renderHook(() => useTierList(), { wrapper });
+    const { result } = renderHook(() => useTierListContext(), { wrapper });
 
     // Add Tier
     act(() => {
@@ -88,7 +87,7 @@ describe('useTierList', () => {
   });
 
   it('should update tier properties', () => {
-    const { result } = renderHook(() => useTierList(), { wrapper });
+    const { result } = renderHook(() => useTierListContext(), { wrapper });
     const tierId = result.current.state.tierDefs[0].id;
 
     act(() => {
@@ -99,7 +98,7 @@ describe('useTierList', () => {
   });
 
   it('should import from valid JSON', async () => {
-    const { result } = renderHook(() => useTierList(), { wrapper });
+    const { result } = renderHook(() => useTierListContext(), { wrapper });
     
     const validImportData = {
       version: 1,
@@ -126,7 +125,7 @@ describe('useTierList', () => {
   });
 
   it('should handle invalid JSON import gracefully', async () => {
-    const { result } = renderHook(() => useTierList(), { wrapper });
+    const { result } = renderHook(() => useTierListContext(), { wrapper });
     const initialCount = result.current.state.tierDefs.length;
 
     const file = new File(['invalid json'], 'bad.json', { type: 'application/json' });
@@ -149,7 +148,7 @@ describe('useTierList', () => {
   });
 
   it('should clear the board', () => {
-    const { result } = renderHook(() => useTierList(), { wrapper });
+    const { result } = renderHook(() => useTierListContext(), { wrapper });
     
     // Simulate items on board (manually inject or assume initial state is empty)
     // Let's add a tier first to change state
@@ -172,7 +171,7 @@ describe('useTierList', () => {
 
       it('should undo and redo state changes', () => {
 
-        const { result } = renderHook(() => useTierList(), { wrapper });
+        const { result } = renderHook(() => useTierListContext(), { wrapper });
 
         const initialCount = result.current.state.tierDefs.length;
 

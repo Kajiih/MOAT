@@ -153,9 +153,9 @@ export function TierListProvider({ children }: { children: ReactNode }) {
   }, [dispatch]);
 
   const removeItemFromTier = React.useCallback((tierId: string, itemId: string) => {
-    pushHistory();
+    pushHistory(state);
     dispatch({ type: ActionType.REMOVE_ITEM, payload: { tierId, itemId } });
-  }, [dispatch, pushHistory]);
+  }, [dispatch, pushHistory, state]);
 
   const handleShowDetails = React.useCallback((item: MediaItem) => setDetailsItem(item), []);
   const handleCloseDetails = React.useCallback(() => setDetailsItem(null), []);

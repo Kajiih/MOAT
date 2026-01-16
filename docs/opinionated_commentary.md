@@ -41,6 +41,9 @@ The implementation of `useBackgroundEnrichment` uses a predetermined number of "
 *   `TierListUIStore` (modals, hover states, selections)
 This would prevent the entire board from re-rendering just because I opened a modal.
 
+**Decision**: Stay the course:
+We traded "Theoretical Purity" for "Developer Experience" (No Prop Drilling + Simple Imports). This is a smart trade for a Tier List app. If performance ever actually degrades, splitting the context is a clear optimization path.
+
 ### 2. Strict Actions
 The `reducer.ts` handles complex logic like "Move Item". Some of this business logic (e.g. duplicate checks) lives in the reducer. This is generally good (keeps components dumb), but `handleMoveItem` is becoming quite large.
 **Suggestion**: Consider moving the heavy logic (like `findContainer` and duplicate checking) into a separate `domain-logic.ts` file that the reducer calls. Keep the reducer itself purely for *state transitions*.
@@ -83,3 +86,29 @@ Your `next.config.ts` allows images from `coverartarchive.org` and others.
 The `app/page.tsx` just exports `<TierListApp />`.
 *   **Observation**: This means the entire app is effectively a Single Page Application (SPA) rendered inside Next.js. You aren't really using Next.js routing (e.g. `/board/[id]`).
 *   **Idea**: In the future, you could easily implement server-side sharing by moving the `TierListProvider` state to the URL or a database, and using Dynamic Routes to fetch the board on the server. The architecture is ready for it.
+
+## Part 3: Quality Assurance & Testing
+
+### The Good: "Professional Grade Coverage"
+It is rare to see a personal project with this level of testing discipline.
+- **Unit Tests (`vitest`)**:
+    - `reducer.test.ts`: Excellent. It tests the core business logic (state transitions) in isolation using pure functions. This is the most high-value testing you have.
+    - `TierBoard.test.tsx`: Good component isolation. By mocking the handlers, you ensure the test focuses purely on rendering and interaction signals, not business logic.
+- **E2E Tests (`playwright`)**:
+    - `tierlist.spec.ts`: Critical flows (Drag & Drop, Persistence, Import) are covered.
+    - **Smart API Mocking**: Mocking the MusicBrainz API (`page.route`) makes these tests deterministic and fast. You aren't testing MusicBrainz's uptime; you're testing your app's reaction to data.
+
+### The "Fragile": Drag & Drop Testing
+The E2E test for Drag & Drop uses specific coordinate math:
+```typescript
+await page.mouse.move(handleBox.x + handleBox.width / 2, ...);
+```
+While this works, it is brittle. If you change the grid gap or padding, this test will break.
+**Recommendation**: For complex DnD interactions, consider investigating `playwright-drag-and-drop` helper libraries or accessibility-based drag simulation (e.g. triggering keyboard events `Space` -> `ArrowDown` -> `Space` if your dnd-kit setup supports it, which it does!).
+
+### The Gap: Visual Regression
+You are using `html-to-image` for export.
+**Recommendation**: Since this is a highly visual app, consider enabling Playwright's Visual Comparisons (`expect(page).toHaveScreenshot()`). This would catch if a CSS change accidentally breaks the "perfect square" aspect ratio of album covers or misaligns the tier labels.
+
+### Overall Grade: A-
+The testing strategy is sound. You have a "Testing Pyramid": lots of fast Unit tests (reducer), some Integration tests (Component), and a few critical E2E tests.
