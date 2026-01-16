@@ -47,17 +47,17 @@
 - **Framework**: Next.js (App Router)
 - **UI Library**: React (with Concurrent Mode features like Transitions)
 - **Styling**: Vanilla CSS with Tailwind CSS utilities for layout.
-- **Persistence**: `localStorage` with automated debouncing and pruning.
+- **Persistence**: `IndexedDB` (via `idb-keyval`) for scalable, asynchronous storage.
 
 ### 2. State & Data Flow Strategy
 
 - **Layered Persistence**:
   1. **Board State (Context + Reducer)**: 
      - The application state (`items`, `tierDefs`, `title`) is held in `TierListContext`. 
-     - It uses `usePersistentReducer` (a custom hook combining `useReducer` with localStorage) for centralized state logic and persistence.
+     - It uses `usePersistentReducer` (a custom hook combining `useReducer` with asynchronous IndexedDB persistence) for centralized state logic and persistence.
      - This architecture decouples state transitions from UI components, using a standard `dispatch(Action)` pattern.
-  2. **Global Media Registry**: A persistent `localStorage` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
-  3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent `localStorage` bloat while maintaining a vast metadata library.
+  2. **Global Media Registry**: A persistent `IndexedDB` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
+  3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat while maintaining a vast metadata library.
 
 - **Hook Composition Pattern**:
   - `useTierList` (Main Hook): Acts as a **Composer**. It aggregates state from `TierListContext` and behavior from specialized sub-hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`) to provide a unified API to the view layer (`TierListApp`).
@@ -98,7 +98,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 #### Caching Strategies
 - **Server-Side Cache**: API routes use an LRU-style in-memory cache (`item-cache.ts`) to store normalized media items for 24 hours, reducing redundant mapping logic and upstream API pressure.
 - **SWR (Stale-While-Revalidate)**: Used for all data fetching. Components display stale data from the cache immediately while revalidating in the background.
-- **Global Item Registry**: Discovered items are cached in `localStorage` across sessions, ensuring artwork and metadata persist even if the board is cleared.
+- **Global Item Registry**: Discovered items are cached in `IndexedDB` across sessions, ensuring artwork and metadata persist even if the board is cleared.
 
 #### Prefetching Mechanisms
 - **Pagination Prefetch**: When searching, the app automatically pre-fetches the *next* page of results as soon as the current page loads.
@@ -108,9 +108,9 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - **Background Enrichment**: The `useBackgroundEnrichment` hook prefetches deep metadata for items added to the board without blocking user interaction.
 
 #### Persistence Logic
-- **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `localStorage` writes are debounced (1000ms).
-- **Lazy Hydration**: Application state is hydrated after the initial client mount to prevent SSR mismatch errors and ensure a fast initial paint.
-- **Cross-Tab Sync**: Uses the `storage` event to keep state consistent across multiple open browser tabs.
+- **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (1000ms).
+- **Lazy Hydration**: Application state is hydrated asynchronously after the initial client mount. The app displays a loading state during this phase.
+- **Cross-Tab Sync**: (Note: Cross-tab sync via storage events is currently disabled with IndexedDB, but consistency is maintained via optimistic UI updates).
 
 #### Virtualization
 - **VirtualGrid Component**: A reusable, responsive virtualized grid powered by `@tanstack/react-virtual`.
@@ -180,8 +180,8 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
-  - `usePersistentState.ts`: Generic debounced `localStorage` synchronization with robust object merging.
-  - `usePersistentReducer.ts`: Combines `useReducer` with localStorage persistence.
+  - `usePersistentState.ts`: Generic debounced `IndexedDB` synchronization.
+  - `usePersistentReducer.ts`: Combines `useReducer` with async persistence.
 - `lib/state/`: Centralized State Logic
   - `actions.ts`: Action definitions (ADD_TIER, MOVE_ITEM, etc.).
   - `reducer.ts`: Pure state transition logic.

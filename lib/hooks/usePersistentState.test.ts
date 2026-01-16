@@ -1,45 +1,69 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { usePersistentState } from './usePersistentState';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { storage } from '@/lib/storage';
 
-// Mock localStorage
-const localStorageMock = (function() {
-  let store: Record<string, string> = {};
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value.toString(); },
-    clear: () => { store = {}; },
-    removeItem: (key: string) => { delete store[key]; }
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-});
+// Mock the storage module
+vi.mock('@/lib/storage', () => ({
+  storage: {
+    get: vi.fn(),
+    set: vi.fn(),
+    del: vi.fn(),
+  },
+}));
 
 describe('usePersistentState', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    window.localStorage.clear();
+    vi.resetAllMocks();
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  it('should initialize with default value if localStorage is empty', () => {
+  it('should initialize with default value and then hydrate', async () => {
+    (storage.get as any).mockResolvedValue(undefined); // Storage empty
+
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
+    
+    // Initial render is default
+    expect(result.current[0]).toBe('default');
+    expect(result.current[2]).toBe(false); // isHydrated false
+
+    // Wait for hydration
+    await waitFor(() => {
+        expect(result.current[2]).toBe(true);
+    });
+    
+    expect(storage.get).toHaveBeenCalledWith('test-key');
     expect(result.current[0]).toBe('default');
   });
 
-  it('should initialize with value from localStorage', () => {
-    window.localStorage.setItem('test-key', JSON.stringify('stored-value'));
+  it('should hydrate with value from storage', async () => {
+    (storage.get as any).mockResolvedValue('stored-value');
+
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
+    
+    expect(result.current[0]).toBe('default');
+
+    await waitFor(() => {
+        expect(result.current[2]).toBe(true);
+    });
+
     expect(result.current[0]).toBe('stored-value');
   });
 
-  it('should persist state changes to localStorage after debounce', () => {
+  it('should persist state changes to storage after debounce', async () => {
+    (storage.get as any).mockResolvedValue(undefined);
     const { result } = renderHook(() => usePersistentState('test-key', 'initial'));
+
+    await waitFor(() => expect(result.current[2]).toBe(true));
+
+    // Clear initial sync save
+    (storage.set as any).mockClear();
+
+    // Enable fake timers AFTER hydration to avoid messing with waitFor/Promises during setup
+    vi.useFakeTimers();
 
     // 1. Update state
     act(() => {
@@ -49,60 +73,29 @@ describe('usePersistentState', () => {
     // Verify state updated immediately in React
     expect(result.current[0]).toBe('updated');
     
-    // Verify NOT yet in localStorage (debounce 1000ms)
-    // Note: use-debounce might trigger immediately on first call depending on options, 
-    // but usually waits. Let's check.
-    // If this fails, it might be because the hook calls setItem immediately on mount? 
-    // No, existing hook has debounce on state change.
-    
+    // Verify NOT yet in storage (debounce)
+    expect(storage.set).not.toHaveBeenCalled();
+
     // 2. Advance time
     act(() => {
       vi.advanceTimersByTime(1100);
     });
 
-    // 3. Verify in localStorage
-    expect(window.localStorage.getItem('test-key')).toBe(JSON.stringify('updated'));
+    // 3. Verify in storage
+    expect(storage.set).toHaveBeenCalledWith('test-key', 'updated');
   });
 
-    it('should handle JSON parse errors gracefully', () => {
+  it('should handle storage errors gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    (storage.get as any).mockRejectedValue(new Error('Storage failure'));
 
-      window.localStorage.setItem('test-key', 'invalid-json');
+    const { result } = renderHook(() => usePersistentState('test-key', 'default'));
 
-      
+    await waitFor(() => expect(result.current[2]).toBe(true));
 
-      // Mock console.error to keep output clean
-
-      const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      
-
-      const { result } = renderHook(() => usePersistentState('test-key', 'default'));
-
-      expect(result.current[0]).toBe('default');
-
-      
-
-      spy.mockRestore();
-
-    });
-
-  
-
-    it('should sync state across tabs via storage event', () => {
-      const { result } = renderHook(() => usePersistentState('test-key', 'initial'));
-  
-      // Simulate storage event from another tab
-      act(() => {
-        const event = new StorageEvent('storage', {
-          key: 'test-key',
-          newValue: JSON.stringify('synced-value'),
-          // storageArea is optional and my mock isn't a true Storage instance, so omitting it avoids JSDOM error
-        });
-        window.dispatchEvent(event);
-      });
-  
-      expect(result.current[0]).toBe('synced-value');
-    });
+    expect(result.current[0]).toBe('default');
+    consoleSpy.mockRestore();
   });
+});
 
   

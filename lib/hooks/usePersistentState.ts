@@ -1,81 +1,59 @@
 /**
  * @file usePersistentState.ts
- * @description A custom hook that synchronizes state with localStorage.
+ * @description A custom hook that synchronizes state with async storage (IndexedDB).
  * Features:
- * - Lazy hydration (client-side only) to match Next.js SSR requirements.
- * - Debounced writes to prevent excessive disk I/O.
+ * - Async hydration.
+ * - Debounced writes.
  * - Robust object merging to handle schema migrations.
- * - Cross-tab synchronization via the 'storage' event.
  * @module usePersistentState
  */
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
+import { storage } from '@/lib/storage';
 
 /**
- * A custom hook that synchronizes state with localStorage.
- * Since this is used in a client-only component (SSR disabled),
- * we can safely use lazy initialization to read from localStorage immediately.
+ * A custom hook that synchronizes state with storage.
  */
 export function usePersistentState<T>(key: string, initialValue: T) {
   const [isHydrated, setIsHydrated] = useState(false);
   const [state, setState] = useState<T>(initialValue);
 
-  // 1. Hydrate from localStorage on client mount
+  // 1. Hydrate from storage on mount
   useEffect(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      if (item) {
-        const parsed = JSON.parse(item);
-        // Robustness: Merge with initialValue if both are objects (and not arrays/null)
-        if (
-          typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue) &&
-          typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
-        ) {
-          // eslint-disable-next-line
-          setState({ ...initialValue, ...parsed });
-        } else {
-          setState(parsed);
+    let isMounted = true;
+    const hydrate = async () => {
+      try {
+        const item = await storage.get<T>(key);
+        if (item && isMounted) {
+          // Robustness: Merge with initialValue if both are objects (and not arrays/null)
+          if (
+            typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue) &&
+            typeof item === 'object' && item !== null && !Array.isArray(item)
+          ) {
+            setState({ ...initialValue, ...item });
+          } else {
+            setState(item);
+          }
         }
+      } catch (error) {
+        console.error(`Error reading storage key "${key}":`, error);
+      } finally {
+        if (isMounted) setIsHydrated(true);
       }
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
-    }
-    setIsHydrated(true);
+    };
+    hydrate();
+    return () => { isMounted = false; };
   }, [key, initialValue]);
 
-  // 2. Persist Updates: Debounce the write to localStorage
+  // 2. Persist Updates: Debounce the write to storage
   const [debouncedState] = useDebounce(state, 1000);
 
   useEffect(() => {
     // Prevent writing to storage before hydration is complete
     if (!isHydrated) return;
-
-    try {
-      window.localStorage.setItem(key, JSON.stringify(debouncedState));
-    } catch (error) {
-      console.error(`Error writing localStorage key "${key}":`, error);
-    }
+    storage.set(key, debouncedState);
   }, [key, debouncedState, isHydrated]);
-
-  // 3. Sync across tabs
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === key && e.newValue) {
-        try {
-          setState(JSON.parse(e.newValue));
-        } catch (error) {
-          console.error(`Error parsing storage change for key "${key}":`, error);
-        }
-      } else if (e.key === key && !e.newValue) {
-        // Key was cleared in another tab
-        setState(initialValue);
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [key, initialValue]);
 
   return [state, setState, isHydrated] as const;
 }

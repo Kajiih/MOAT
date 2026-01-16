@@ -30,18 +30,14 @@ vi.mock('@/components/MediaRegistryProvider', () => ({
   })
 }));
 
-// Mock localStorage
-const localStorageMock = (function() {
-  let store: Record<string, string> = {};
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value.toString(); },
-    clear: () => { store = {}; },
-    removeItem: (key: string) => { delete store[key]; }
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+// Mock storage
+vi.mock('@/lib/storage', () => ({
+  storage: {
+    get: vi.fn().mockResolvedValue(undefined),
+    set: vi.fn().mockResolvedValue(undefined),
+    del: vi.fn().mockResolvedValue(undefined),
+  }
+}));
 
 // Mock crypto.randomUUID
 Object.defineProperty(global, 'crypto', {
@@ -55,7 +51,6 @@ global.confirm = vi.fn(() => true);
 
 describe('useTierList', () => {
   beforeEach(() => {
-    localStorageMock.clear();
     vi.clearAllMocks();
   });
 

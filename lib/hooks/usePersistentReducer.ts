@@ -1,15 +1,15 @@
 /**
  * @file usePersistentReducer.ts
- * @description A custom React hook that extends useReducer with automatic localStorage persistence.
+ * @description A custom React hook that extends useReducer with automatic asynchronous persistence (IndexedDB).
  * Features:
- * - Internal hydration logic to avoid SSR mismatches.
- * - Debounced writes to minimize localStorage overhead.
- * - Cross-tab synchronization using the storage event.
+ * - Async hydration from storage.
+ * - Debounced writes to minimize storage overhead.
  * @module usePersistentReducer
  */
 
 import { useState, useEffect, useReducer, Dispatch, Reducer } from 'react';
 import { useDebounce } from 'use-debounce';
+import { storage } from '@/lib/storage';
 
 /** Internal action type used for state hydration. */
 const HYDRATE_ACTION = '@@PERSIST/HYDRATE';
@@ -21,13 +21,13 @@ interface HydrateAction<S> {
 }
 
 /**
- * A custom hook that combines useReducer with localStorage persistence.
+ * A custom hook that combines useReducer with async persistence.
  * 
  * @template S - The shape of the state.
  * @template A - The union type of possible actions.
  * @param reducer - The pure reducer function.
  * @param initialState - The default state to use before hydration.
- * @param key - The localStorage key to use for persistence.
+ * @param key - The storage key to use for persistence.
  * @returns A tuple of [state, dispatch, isHydrated].
  */
 export function usePersistentReducer<S, A>(
@@ -49,28 +49,32 @@ export function usePersistentReducer<S, A>(
   const [state, dispatch] = useReducer(persistentReducer, initialState);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // 1. Hydrate from localStorage
+  // 1. Hydrate from storage (Async)
   useEffect(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      if (item) {
-        const parsed = JSON.parse(item);
-        // Robustness: Merge with initialValue if both are objects
-        let hydratedState = parsed;
-         if (
-          typeof initialState === 'object' && initialState !== null && !Array.isArray(initialState) &&
-          typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
-        ) {
-           hydratedState = { ...initialState, ...parsed };
+    let isMounted = true;
+    const hydrate = async () => {
+      try {
+        const item = await storage.get<S>(key);
+        if (item && isMounted) {
+          // Robustness: Merge with initialValue if both are objects
+          let hydratedState = item;
+           if (
+            typeof initialState === 'object' && initialState !== null && !Array.isArray(initialState) &&
+            typeof item === 'object' && item !== null && !Array.isArray(item)
+          ) {
+             hydratedState = { ...initialState, ...item };
+          }
+          
+          dispatch({ type: HYDRATE_ACTION, payload: hydratedState });
         }
-        
-        dispatch({ type: HYDRATE_ACTION, payload: hydratedState });
+      } catch (error) {
+        console.error(`Error reading storage key "${key}":`, error);
+      } finally {
+        if (isMounted) setIsHydrated(true);
       }
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
-    }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsHydrated(true);
+    };
+    hydrate();
+    return () => { isMounted = false; };
   }, [key, initialState]);
 
   // 2. Persist Updates (Debounced)
@@ -78,27 +82,8 @@ export function usePersistentReducer<S, A>(
 
   useEffect(() => {
     if (!isHydrated) return;
-    try {
-      window.localStorage.setItem(key, JSON.stringify(debouncedState));
-    } catch (error) {
-      console.error(`Error writing localStorage key "${key}":`, error);
-    }
+    storage.set(key, debouncedState);
   }, [key, debouncedState, isHydrated]);
-
-  // 3. Sync across tabs
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === key && e.newValue) {
-        try {
-           dispatch({ type: HYDRATE_ACTION, payload: JSON.parse(e.newValue) });
-        } catch (error) {
-          console.error(`Error parsing storage change for key "${key}":`, error);
-        }
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [key]);
 
   return [state, dispatch as Dispatch<A>, isHydrated];
 }
