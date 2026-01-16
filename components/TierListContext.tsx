@@ -90,7 +90,19 @@ export function TierListProvider({ children }: { children: ReactNode }) {
   
   const historyRaw = useHistory<TierListState>();
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
-  const { registerItem } = useMediaRegistry();
+  const { registerItem, registerItems } = useMediaRegistry();
+
+  // --- Hydration Sync ---
+  // When the board hydrates from IndexedDB, push all items to the Global Media Registry.
+  // This ensures they are available for search result enrichment immediately.
+  React.useEffect(() => {
+    if (isHydrated) {
+        const allItems = Object.values(state.items).flat();
+        if (allItems.length > 0) {
+            registerItems(allItems);
+        }
+    }
+  }, [isHydrated, state.items, registerItems]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {

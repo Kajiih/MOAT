@@ -58,7 +58,9 @@
      - **Slice Reducer Pattern**: The core logic in `reducer.ts` is divided into specialized "slices" (`tier-reducer.ts`, `item-reducer.ts`, `global-reducer.ts`) for better maintainability and testability.
      - This architecture decouples state transitions from UI components, using a standard `dispatch(Action)` pattern.
   2. **Global Media Registry**: A persistent `IndexedDB` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
-  3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat while maintaining a vast metadata library.
+  3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat.
+  4. **Optimized Merging**: The registry uses shallow diffing of critical metadata (title, artist, primary images) before falling back to deep object comparison, minimizing unnecessary state updates and disk writes.
+  5. **Batch Processing**: The `registerItems` API allows processing hundreds of items in a single React render cycle and a single IndexedDB transaction, critical for imports and search result delivery.
 
 - **Hook Composition Pattern**:
     - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally.
@@ -115,6 +117,9 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 
 #### Persistence Logic
 - **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (1000ms).
+- **Proactive Registry Warming**:
+  - **Hydration Sync**: Immediately after the board state hydrates, all board items are pushed to the `MediaRegistry` in a single batch. This "warms" the global cache, ensuring search results for items already on your board are enriched instantly.
+  - **Import Sync**: Board imports bypass individual item registration and use the batched `registerItems` API to populate the registry in bulk.
 - **Lazy Hydration**: Application state is hydrated asynchronously after the initial client mount. The app displays a loading state during this phase.
 - **Cross-Tab Sync**: (Note: Cross-tab sync via storage events is currently disabled with IndexedDB, but consistency is maintained via optimistic UI updates).
 

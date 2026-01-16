@@ -10,6 +10,7 @@ import { TierListState } from '@/lib/types';
 import { generateExportData, downloadJson, parseImportData } from '@/lib/utils/io';
 import { useToast } from '@/components/ui/ToastProvider';
 import { ActionType, TierListAction } from '@/lib/state/actions';
+import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 
 /**
  * Hook to handle Import and Export operations for the Tier List.
@@ -25,6 +26,7 @@ export function useTierListIO(
   pushHistory?: () => void
 ) {
   const { showToast } = useToast();
+  const { registerItems } = useMediaRegistry();
 
   /**
    * Generates a JSON export of the current tier list state and triggers a browser download.
@@ -61,6 +63,13 @@ export function useTierListIO(
             
             if (pushHistory) pushHistory();
             dispatch({ type: ActionType.IMPORT_STATE, payload: { state: newState } });
+            
+            // Register all imported items in the global registry
+            const allItems = Object.values(newState.items).flat();
+            if (allItems.length > 0) {
+                registerItems(allItems);
+            }
+            
             showToast("Tier list imported successfully!", "success");
         } catch (e) { 
             console.error(e);
