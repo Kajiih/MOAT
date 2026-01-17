@@ -7,12 +7,22 @@
 
 import { ExternalLink } from 'lucide-react';
 
+/**
+ * Props for the ExternalLinks component.
+ */
 interface ExternalLinksProps {
+  /** The MusicBrainz ID of the entity. */
   mbId: string;
+  /** The type of media entity. */
   type: 'album' | 'artist' | 'song';
+  /** Optional array of additional external URLs from the metadata. */
   urls?: { type: string; url: string }[];
 }
 
+
+/**
+ * Renders a collection of external links for a media item, always including its MusicBrainz profile.
+ */
 export function ExternalLinks({ mbId, type, urls }: ExternalLinksProps) {
   const mbType = type === 'album' ? 'release-group' : type === 'song' ? 'recording' : 'artist';
   const musicBrainzUrl = `https://musicbrainz.org/${mbType}/${mbId}`;

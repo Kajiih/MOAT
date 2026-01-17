@@ -18,6 +18,9 @@ import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
 import { useBrandColors } from '@/lib/hooks';
 import { useDynamicFavicon } from '@/lib/hooks';
 
+/**
+ * Renders the application dashboard, allowing users to manage their tier list boards.
+ */
 export function Dashboard() {
   const { boards, isLoading, createBoard, deleteBoard } = useBoardRegistry();
   const router = useRouter();

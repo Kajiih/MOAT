@@ -9,22 +9,39 @@
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
 import { constructLuceneQuery, SearchOptions, escapeLucene } from '@/lib/utils/search';
 
+/**
+ * Input parameters for the MusicBrainz query builder.
+ */
 export interface QueryBuilderParams {
+  /** The type of media entity being queried. */
   type: MediaType;
+  /** The primary search query (e.g., entity name). */
   query: string;
+  /** Optional literal artist name for filtering. */
   artist: string | null;
+  /** Optional MusicBrainz ID for the artist to scope results. */
   artistId: string | null;
+  /** Optional MusicBrainz ID for the album to scope results. */
   albumId: string | null;
+  /** Minimum release or birth year. */
   minYear: string | null;
+  /** Maximum release or birth year. */
   maxYear: string | null;
+  /** Array of primary album types (Album, Single). */
   albumPrimaryTypes: string[];
+  /** Array of secondary album types (Live, Compilation). */
   albumSecondaryTypes: string[];
-  // New filters
+  /** The specific type of artist (Person, Group). */
   artistType: string | null;
+  /** 2-letter country code for filtering artists. */
   artistCountry: string | null;
+  /** Specific tag or genre filter. */
   tag: string | null;
+  /** Minimum duration in milliseconds (for songs). */
   minDuration: number | null;
+  /** Maximum duration in milliseconds (for songs). */
   maxDuration: number | null;
+  /** Global search configuration (fuzzy, wildcard). */
   options: SearchOptions;
 }
 

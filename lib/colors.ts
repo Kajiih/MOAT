@@ -6,12 +6,21 @@
  * @module ColorSystem
  */
 
+/**
+ * Represents a single color theme in the application's semantic palette.
+ */
 export interface ColorTheme {
+  /** Unique ID for the color (e.g., 'red'). */
   id: string;
+  /** Human-readable label for the color. */
   label: string;
+  /** Tailwind CSS class for background color. */
   bg: string;
+  /** Tailwind CSS class for text color. */
   text: string;
-  hex: string; // Hex code for dynamic UI elements (like favicon)
+  /** Hexadecimal value for dynamic generation (Favicon, Logo). */
+  hex: string;
+  /** Optional Tailwind CSS class for focus rings. */
   ring?: string;
 }
 

@@ -7,11 +7,19 @@
 import { X, Keyboard, Command } from 'lucide-react';
 import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 
+/**
+ * Props for the KeyboardShortcutsModal component.
+ */
 interface KeyboardShortcutsModalProps {
+  /** Whether the modal is currently open. */
   isOpen: boolean;
+  /** Callback fired when the modal should be closed. */
   onClose: () => void;
 }
 
+/**
+ * Renders an informational modal listing the application's global keyboard shortcuts.
+ */
 export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsModalProps) {
   useEscapeKey(onClose, isOpen);
 

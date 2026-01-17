@@ -6,9 +6,15 @@
 
 import { get, set, del } from 'idb-keyval';
 
+/**
+ * Interface defining the abstract storage backend for the application.
+ */
 export interface StorageBackend {
+  /** Retrieves a value by key. */
   get: <T>(key: string) => Promise<T | undefined>;
+  /** Persists a value by key. */
   set: <T>(key: string, value: T) => Promise<void>;
+  /** Removes a value by key. */
   del: (key: string) => Promise<void>;
 }
 

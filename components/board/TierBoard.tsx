@@ -12,11 +12,20 @@ import { TierList } from './TierList';
 import { Plus } from 'lucide-react';
 import { useTierListContext } from '@/components/TierListContext';
 
+/**
+ * Props for the TierBoard component.
+ */
 interface TierBoardProps {
+  /** Whether any item or tier is currently being dragged. */
   isAnyDragging: boolean;
 }
 
-export function TierBoard({ isAnyDragging }: TierBoardProps) {
+/**
+ * The primary container for the interactive tier list.
+ * Integrates with the TierListContext to manage state and actions.
+ */
+export function TierBoard(props: TierBoardProps) {
+  const { isAnyDragging } = props;
   const {
     state,
     ui: { showDetails: handleShowDetails },

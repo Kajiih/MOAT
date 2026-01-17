@@ -9,15 +9,27 @@
 import { AlbumSelection } from '@/lib/types';
 import { MediaPicker } from './MediaPicker';
 
+/**
+ * Props for the AlbumPicker component.
+ */
 interface AlbumPickerProps {
+  /** Callback fired when an album is selected or cleared. */
   onSelect: (album: AlbumSelection | null) => void;
+  /** The currently selected album. */
   selectedAlbum: AlbumSelection | null;
+  /** Whether to use fuzzy matching for search. */
   fuzzy?: boolean;
+  /** Whether to use wildcards for search. */
   wildcard?: boolean;
+  /** Optional artist ID to filter albums by artist. */
   artistId?: string;
+  /** Optional context string for analytical tracking. */
   context?: string;
 }
 
+/**
+ * Renders a specialized picker for selecting musical albums.
+ */
 export function AlbumPicker({
   onSelect,
   selectedAlbum,

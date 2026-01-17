@@ -24,9 +24,15 @@ import { usePersistentState } from './usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { swrFetcher } from '@/lib/api/fetcher';
 
+/**
+ * Represents the shape of the search response from the API.
+ */
 interface SearchResponse {
+  /** Array of media items found in the current page. */
   results: MediaItem[];
+  /** The current page number. */
   page: number;
+  /** The total number of pages available. */
   totalPages: number;
 }
 

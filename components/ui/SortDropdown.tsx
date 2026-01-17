@@ -9,12 +9,21 @@ import { useState } from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import { MediaType, SortOption } from '@/lib/types';
 
+/**
+ * Props for the SortDropdown component.
+ */
 interface SortDropdownProps {
+  /** The current active sort option. */
   sortOption: SortOption;
+  /** Callback fired when a new sort option is selected. */
   onSortChange: (option: SortOption) => void;
+  /** The type of media being sorted, which affects available options. */
   type?: MediaType;
 }
 
+/**
+ * Renders a dropdown menu for selecting search result sorting preferences.
+ */
 export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 

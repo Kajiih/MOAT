@@ -10,17 +10,31 @@ import { PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
 import { FilterButton } from '@/components/ui/FilterButton';
 import { Info } from 'lucide-react';
 
+/**
+ * Props for the AlbumFilters component.
+ */
 interface AlbumFiltersProps {
+  /** Array of active primary type filters (e.g., 'Album', 'EP'). */
   primaryTypes: string[];
+  /** Array of active secondary type filters (e.g., 'Live', 'Compilation'). */
   secondaryTypes: string[];
+  /** Callback fired when a primary type is toggled. */
   onTogglePrimary: (type: string) => void;
+  /** Callback fired when a secondary type is toggled. */
   onToggleSecondary: (type: string) => void;
+  /** Callback to reset primary type filters to defaults. */
   onResetPrimary?: () => void;
+  /** Callback to clear all secondary type filters. */
   onResetSecondary?: () => void;
+  /** Callback to select all secondary type filters. */
   onSelectAllSecondary?: () => void;
+  /** Whether to render in a compact layout (for pickers). */
   compact?: boolean;
 }
 
+/**
+ * Renders UI controls for filtering album search results by their metadata types.
+ */
 export function AlbumFilters({
   primaryTypes,
   secondaryTypes,

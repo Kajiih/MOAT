@@ -27,11 +27,20 @@ import { useTierListContext } from '@/components/TierListContext';
 import { BoardTitle } from '../board/BoardTitle';
 import Link from 'next/link';
 
+/**
+ * Props for the Header component.
+ */
 interface HeaderProps {
+  /** Callback fired when the user clicks the screenshot button. */
   onScreenshot: () => void;
+  /** Whether a screenshot capture is currently in progress. */
   isCapturing?: boolean;
 }
 
+/**
+ * Renders the primary application header, providing access to global board actions.
+ * Manages branding, undo/redo state, and import/export functionality.
+ */
 export function Header({ onScreenshot, isCapturing }: HeaderProps) {
   const {
     state,

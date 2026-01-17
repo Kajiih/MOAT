@@ -26,6 +26,9 @@ export type SortOption =
   | 'duration_desc'
   | 'duration_asc';
 
+/**
+ * Common properties shared by all media entities.
+ */
 export interface BaseMediaItem {
   /** Unique identifier (MusicBrainz ID) */
   id: string;
@@ -41,6 +44,9 @@ export interface BaseMediaItem {
   details?: MediaDetails;
 }
 
+/**
+ * Represents a musical album.
+ */
 export interface AlbumItem extends BaseMediaItem {
   type: 'album';
   /** The artist name. */
@@ -51,12 +57,18 @@ export interface AlbumItem extends BaseMediaItem {
   secondaryTypes?: string[];
 }
 
+/**
+ * Represents a musical artist or group.
+ */
 export interface ArtistItem extends BaseMediaItem {
   type: 'artist';
   /** Disambiguation comment (mostly for artists with same names). */
   disambiguation?: string;
 }
 
+/**
+ * Represents a single musical track.
+ */
 export interface SongItem extends BaseMediaItem {
   type: 'song';
   /** The artist name. */
@@ -76,22 +88,30 @@ export interface SongItem extends BaseMediaItem {
 export type MediaItem = AlbumItem | ArtistItem | SongItem;
 
 /**
- * Represents a simplified artist object used for selection state.
+ * Represents a simplified artist object used for selection state in pickers.
  */
 export interface ArtistSelection {
+  /** MusicBrainz ID. */
   id: string;
+  /** Artist name. */
   name: string;
+  /** Image URL. */
   imageUrl?: string;
+  /** Optional disambiguation string. */
   disambiguation?: string;
 }
 
 /**
- * Represents a simplified album object used for selection state.
+ * Represents a simplified album object used for selection state in pickers.
  */
 export interface AlbumSelection {
+  /** MusicBrainz ID. */
   id: string;
+  /** Album title. */
   name: string;
+  /** Artist name. */
   artist: string;
+  /** Image URL. */
   imageUrl?: string;
 }
 
@@ -104,19 +124,23 @@ export type MediaSelection = ArtistSelection | AlbumSelection;
  * Defines the metadata for a single tier row.
  */
 export interface TierDefinition {
+  /** Unique ID for the tier. */
   id: string;
+  /** Label text (e.g., 'S', 'A'). */
   label: string;
-  color: string; // Semantic Color ID (e.g., 'red', 'blue'), mapped in lib/colors.ts
+  /** Semantic Color ID (e.g., 'red', 'blue'), mapped in lib/colors.ts. */
+  color: string;
 }
 
 /**
  * Represents the state of the tier list board.
- * - tierDefs: Array defining the order and appearance of tiers.
- * - items: Record mapping tier IDs to their content.
  */
 export interface TierListState {
+  /** The user-defined title of the board. */
   title: string;
+  /** Array defining the order and appearance of tiers. */
   tierDefs: TierDefinition[];
+  /** Map mapping tier IDs to their list of media items. */
   items: Record<string, MediaItem[]>;
 }
 
@@ -124,42 +148,68 @@ export interface TierListState {
  * Metadata for a single board in the registry.
  */
 export interface BoardMetadata {
+  /** Unique board ID. */
   id: string;
+  /** Board title. */
   title: string;
-  createdAt: number; // timestamp
-  lastModified: number; // timestamp
-  thumbnail?: string; // Optional preview image URL
+  /** Creation timestamp. */
+  createdAt: number;
+  /** Last modification timestamp. */
+  lastModified: number;
+  /** Optional preview image URL. */
+  thumbnail?: string;
+  /** Total number of items on the board. */
   itemCount: number;
 }
 
+/**
+ * Represents a single track in an album tracklist.
+ */
 export interface TrackItem {
+  /** Recording ID. */
   id: string;
+  /** Disc/Track position string (e.g., '1-1'). */
   position: string;
+  /** Track title. */
   title: string;
-  length: string; // formatted duration
+  /** Formatted duration string (e.g., '03:45'). */
+  length: string;
 }
 
+/**
+ * Deep metadata for a media item, fetched on demand or enriched in background.
+ */
 export interface MediaDetails {
+  /** MusicBrainz ID. */
   id: string;
+  /** Entity type. */
   type: MediaType;
-  // Common
+  /** Array of descriptive tags. */
   tags?: string[];
+  /** External resource links. */
   urls?: { type: string; url: string }[];
+  /** Formatted release date. */
   date?: string;
+  /** Formatted duration. */
   length?: string;
+  /** High-res image URL. */
   imageUrl?: string;
 
-  // Album specific
+  /** Album specific: full tracklist. */
   tracks?: TrackItem[];
+  /** Album specific: record label. */
   label?: string;
+  /** Album specific: specific release ID. */
   releaseId?: string;
 
-  // Artist specific
+  /** Artist specific: geographic area. */
   area?: string;
+  /** Artist specific: life span dates. */
   lifeSpan?: { begin?: string; end?: string; ended?: boolean };
 
-  // Song specific
+  /** Song specific: parent album title. */
   album?: string;
+  /** Song specific: parent album ID. */
   albumId?: string;
 }
 

@@ -7,24 +7,41 @@
 
 import { MediaType } from '../types';
 
+/**
+ * Parameters for generating a search URL.
+ */
 export interface SearchParams {
+  /** The media type to search for (album, artist, song). */
   type: MediaType;
+  /** The text query. */
   query?: string;
+  /** Optional artist MusicBrainz ID to scope search. */
   artistId?: string;
+  /** Optional album (release-group) MusicBrainz ID to scope search. */
   albumId?: string;
+  /** Minimum release or birth year. */
   minYear?: string;
+  /** Maximum release or birth year. */
   maxYear?: string;
+  /** Array of primary album types (Album, Single, EP). */
   albumPrimaryTypes?: string[];
+  /** Array of secondary album types (Live, Compilation). */
   albumSecondaryTypes?: string[];
-  // New filters
+  /** The type of artist (Person, Group). */
   artistType?: string;
+  /** The 2-letter country code for an artist. */
   artistCountry?: string;
+  /** A specific tag or genre to filter by. */
   tag?: string;
+  /** Minimum duration in seconds (for songs). */
   minDuration?: number;
+  /** Maximum duration in seconds (for songs). */
   maxDuration?: number;
-  // Pagination & config
+  /** Result page number (1-based). */
   page?: number;
+  /** Whether to use fuzzy typo matching. */
   fuzzy?: boolean;
+  /** Whether to use wildcard partial matching. */
   wildcard?: boolean;
 }
 

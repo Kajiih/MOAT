@@ -9,6 +9,11 @@ import { NextResponse } from 'next/server';
 import { MediaType } from '@/lib/types';
 import { getMediaDetails } from '@/lib/services/musicbrainz';
 
+/**
+ * Handles GET requests to fetch detailed metadata for a media item.
+ * @param request - The incoming HTTP request.
+ * @returns A JSON response with media details or an error message.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');

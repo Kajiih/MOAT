@@ -10,13 +10,23 @@
 import { useState } from 'react';
 import { Settings, X } from 'lucide-react';
 
+/**
+ * Props for the SearchSettings component.
+ */
 interface SearchSettingsProps {
+  /** Whether fuzzy matching is currently enabled. */
   fuzzyEnabled: boolean;
+  /** Whether wildcard matching is currently enabled. */
   wildcardEnabled: boolean;
+  /** Callback fired when the fuzzy setting is toggled. */
   onFuzzyChange: (enabled: boolean) => void;
+  /** Callback fired when the wildcard setting is toggled. */
   onWildcardChange: (enabled: boolean) => void;
 }
 
+/**
+ * Renders a settings menu for configuring search behavior (fuzzy, wildcard).
+ */
 export function SearchSettings({
   fuzzyEnabled,
   wildcardEnabled,

@@ -9,10 +9,18 @@ import { MapPin } from 'lucide-react';
 import { MediaDetails } from '@/lib/types';
 import { ExternalLinks } from './ExternalLinks';
 
+/**
+ * Props for the ArtistView component.
+ */
 interface ArtistViewProps {
+  /** The detailed metadata for the artist. */
   details: MediaDetails;
 }
 
+
+/**
+ * Renders the detailed metadata and tags for an artist.
+ */
 export function ArtistView({ details }: ArtistViewProps) {
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">

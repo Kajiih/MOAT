@@ -38,6 +38,7 @@ const eslintConfig = defineConfig([
             'TSInterfaceDeclaration',
           ],
           minLineCount: 5,
+          enableFixer: false,
         },
       ],
       'jsdoc/require-param': 'off',

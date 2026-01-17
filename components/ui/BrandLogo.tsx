@@ -16,6 +16,9 @@ interface BrandLogoProps {
   variant?: 'default' | 'header' | 'footer';
 }
 
+/**
+ * Renders the application brand logo with support for dynamic coloring and multiple size variants.
+ */
 export function BrandLogo({ colors, className, variant = 'default' }: BrandLogoProps) {
   const letters = ['M', 'O', 'A', 'T'];
 

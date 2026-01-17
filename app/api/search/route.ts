@@ -11,6 +11,11 @@ import { NextResponse } from 'next/server';
 import { MediaType } from '@/lib/types';
 import { searchMusicBrainz } from '@/lib/services/musicbrainz';
 
+/**
+ * Handles GET requests to search for media items.
+ * @param request - The incoming HTTP request containing search parameters.
+ * @returns A JSON response with search results or an error message.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = (searchParams.get('type') as MediaType) || 'album';

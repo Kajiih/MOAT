@@ -62,6 +62,11 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
+/**
+ * Custom hook to consume the Toast Context.
+ * @returns The showToast function and current toast count.
+ * @throws {Error} if used outside of a ToastProvider.
+ */
 export function useToast() {
   const context = useContext(ToastContext);
   if (!context) {
@@ -70,6 +75,10 @@ export function useToast() {
   return context;
 }
 
+/**
+ * Provider component for the Global Toast system.
+ * Renders the toast container and manages the lifecycle of notifications.
+ */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(toastReducer, {
     toasts: [],
@@ -157,6 +166,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Renders an individual toast message with appropriate icons and colors.
+ */
 function ToastItem({
   toast,
   onDismiss,

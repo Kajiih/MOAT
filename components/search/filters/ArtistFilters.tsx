@@ -8,15 +8,27 @@
 import { ARTIST_TYPES } from '@/lib/types';
 import { FilterRow, FilterCol, FILTER_INPUT_STYLES } from './FilterPrimitives';
 
+/**
+ * Props for the ArtistFilters component.
+ */
 interface ArtistFiltersProps {
+  /** The currently selected artist type (e.g., 'Person', 'Group'). */
   type: string;
+  /** The current country filter (2-letter code). */
   country: string;
+  /** Callback fired when the artist type selection changes. */
   onTypeChange: (val: string) => void;
+  /** Callback fired when the country filter text changes. */
   onCountryChange: (val: string) => void;
+  /** Optional CSS class for the container. */
   className?: string;
+  /** Whether to render in a compact layout (for pickers). */
   compact?: boolean;
 }
 
+/**
+ * Renders UI controls for filtering artist search results by their type and origin country.
+ */
 export function ArtistFilters({
   type,
   country,

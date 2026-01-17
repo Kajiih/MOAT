@@ -20,13 +20,24 @@ import { SongView } from './details/SongView';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { getMediaUI } from '@/lib/media-defs';
 
+/**
+ * Props for the DetailsModal component.
+ */
 interface DetailsModalProps {
+  /** The media item to display details for, or null if closed. */
   item: MediaItem | null;
+  /** Whether the modal is currently visible. */
   isOpen: boolean;
+  /** Callback fired when the modal should be closed. */
   onClose: () => void;
+  /** Optional callback to persist enriched metadata back to the parent state. */
   onUpdateItem?: (itemId: string, updates: Partial<MediaItem>) => void;
 }
 
+/**
+ * Renders a modal displaying deep metadata and rich information for a selected media item.
+ * Automatically fetches missing details on mount if they aren't provided in the item.
+ */
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
   useEscapeKey(onClose, isOpen);
 

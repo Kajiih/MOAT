@@ -12,14 +12,26 @@ import { AlbumFilters } from './AlbumFilters';
 import { DateRangeFilter } from './DateRangeFilter';
 import { FILTER_INPUT_STYLES } from './FilterPrimitives';
 
+/**
+ * Props for the SearchFilters component.
+ */
 interface SearchFiltersProps {
+  /** The current search mode (artist, album, or song). */
   type: MediaType;
+  /** The current state of all search filters. */
   filters: SearchParamsState;
+  /** Callback to update one or more filter values. */
   updateFilters: (patch: Partial<SearchParamsState>) => void;
+  /** Whether to render in a compact layout (for pickers). */
   compact?: boolean;
+  /** Optional React nodes to render at the top (e.g., entity pickers). */
   contextPickers?: React.ReactNode;
 }
 
+/**
+ * Renders the full suite of search filters tailored to the active media type.
+ * Combines entity-specific logic with shared filters like date range and tags.
+ */
 export function SearchFilters({
   type,
   filters,

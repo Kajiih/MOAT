@@ -9,10 +9,18 @@ import { Disc, Clock, ExternalLink } from 'lucide-react';
 import { MediaDetails } from '@/lib/types';
 import { ExternalLinks } from './ExternalLinks';
 
+/**
+ * Props for the SongView component.
+ */
 interface SongViewProps {
+  /** The detailed metadata for the song. */
   details: MediaDetails;
 }
 
+
+/**
+ * Renders the detailed metadata and parent album information for a song.
+ */
 export function SongView({ details }: SongViewProps) {
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">

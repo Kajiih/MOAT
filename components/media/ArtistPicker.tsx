@@ -9,14 +9,25 @@
 import { ArtistSelection } from '@/lib/types';
 import { MediaPicker } from './MediaPicker';
 
+/**
+ * Props for the ArtistPicker component.
+ */
 interface ArtistPickerProps {
+  /** Callback fired when an artist is selected or cleared. */
   onSelect: (artist: ArtistSelection | null) => void;
+  /** The currently selected artist. */
   selectedArtist: ArtistSelection | null;
+  /** Whether to use fuzzy matching for search. */
   fuzzy?: boolean;
+  /** Whether to use wildcards for search. */
   wildcard?: boolean;
+  /** Optional context string for analytical tracking. */
   context?: string;
 }
 
+/**
+ * Renders a specialized picker for selecting musical artists.
+ */
 export function ArtistPicker({
   onSelect,
   selectedArtist,

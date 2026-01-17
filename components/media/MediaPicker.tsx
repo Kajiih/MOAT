@@ -24,14 +24,26 @@ import Image from 'next/image';
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
 import { swrFetcher } from '@/lib/api/fetcher';
 
+/**
+ * Props for the MediaPicker component.
+ * @template T - The specific MediaSelection type (ArtistSelection or AlbumSelection).
+ */
 interface MediaPickerProps<T extends MediaSelection> {
+  /** The type of media to search and select. */
   type: 'artist' | 'album';
+  /** Callback fired when an item is selected. */
   onSelect: (item: T | null) => void;
+  /** The currently selected item. */
   selectedItem: T | null;
+  /** Whether to use fuzzy matching for the search. */
   fuzzy?: boolean;
+  /** Whether to use wildcards for the search. */
   wildcard?: boolean;
-  artistId?: string; // Scope albums to this artist
-  context?: string; // Unique context to avoid search state synchronization
+  /** Optional artist ID to scope searches (e.g., search albums for a specific artist). */
+  artistId?: string;
+  /** Unique context identifier to isolate search state and persistence. */
+  context?: string;
+  /** Custom placeholder for the search input. */
   placeholder?: string;
 }
 
@@ -71,6 +83,10 @@ function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'arti
   );
 }
 
+/**
+ * A reusable search-and-select component for finding and picking artists or albums.
+ * Features inline filtering, search configuration, and intelligent prefetching.
+ */
 export function MediaPicker<T extends MediaSelection>({
   type,
   onSelect,

@@ -9,10 +9,17 @@ import { Calendar, Disc, ExternalLink } from 'lucide-react';
 import { MediaDetails } from '@/lib/types';
 import { ExternalLinks } from './ExternalLinks';
 
+/**
+ * Props for the AlbumView component.
+ */
 interface AlbumViewProps {
+  /** The detailed metadata for the album. */
   details: MediaDetails;
 }
 
+/**
+ * Renders the detailed metadata and tracklist for an album.
+ */
 export function AlbumView({ details }: AlbumViewProps) {
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">

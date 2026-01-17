@@ -12,18 +12,34 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { TierRow } from './TierRow';
 import { MediaItem, TierDefinition } from '@/lib/types';
 
+/**
+ * Props for the TierList component.
+ */
 interface TierListProps {
+  /** Array of tier definitions to render. */
   tiers: TierDefinition[];
+  /** Map of media items indexed by tier ID. */
   items: Record<string, MediaItem[]>;
+  /** Whether the board is being rendered for image export. */
   isExport?: boolean;
+  /** Pre-resolved base64 images for clean room export. */
   resolvedImages?: Record<string, string>;
+  /** Global dragging state to manage interactions. */
   isAnyDragging?: boolean;
+  /** Callback to remove an item from a specific tier. */
   onRemoveItem: (tierId: string, itemId: string) => void;
+  /** Callback to update a tier's properties (label, color). */
   onUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
+  /** Callback to delete an entire tier. */
   onDeleteTier: (id: string) => void;
+  /** Callback to show detailed information for a media item. */
   onInfo: (item: MediaItem) => void;
 }
 
+/**
+ * Renders a list of TierRows and manages the SortableContext for tier reordering.
+ * This component is shared between the interactive board and the static export board.
+ */
 export function TierList({
   tiers,
   items,

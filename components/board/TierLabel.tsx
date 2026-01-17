@@ -15,24 +15,38 @@ import { GripVertical } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { DraggableSyntheticListeners, DraggableAttributes } from '@dnd-kit/core';
 
+/**
+ * Props for the TierLabel component.
+ */
 interface TierLabelProps {
+  /** The current text of the tier label. */
   label: string;
+  /** Callback fired when the label is renamed. */
   onUpdate: (newLabel: string) => void;
+  /** Synthetic listeners from dnd-kit for tier reordering. */
   dragListeners?: DraggableSyntheticListeners;
+  /** Draggable attributes from dnd-kit for tier reordering. */
   dragAttributes?: DraggableAttributes;
+  /** Global dragging state. */
   isAnyDragging?: boolean;
   /** Whether the component is being rendered for a screenshot export. */
   isExport?: boolean;
 }
 
-export function TierLabel({
-  label,
-  onUpdate,
-  dragListeners,
-  dragAttributes,
-  isAnyDragging,
-  isExport = false,
-}: TierLabelProps) {
+
+/**
+ * Renders the label of a tier row, supporting inline editing and drag handling.
+ * Automatically scales font size based on the length of the label.
+ */
+export function TierLabel(props: TierLabelProps) {
+  const {
+    label,
+    onUpdate,
+    dragListeners,
+    dragAttributes,
+    isAnyDragging,
+    isExport = false,
+  } = props;
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(label);
   const inputRef = useRef<HTMLTextAreaElement>(null);

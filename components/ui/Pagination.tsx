@@ -8,12 +8,21 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+/**
+ * Props for the Pagination component.
+ */
 interface PaginationProps {
+  /** The current active page number (1-based). */
   page: number;
+  /** The total number of available pages. */
   totalPages: number;
+  /** Callback fired when the page is changed. */
   onPageChange: (newPage: number) => void;
 }
 
+/**
+ * Renders a compact navigation bar for switching between paginated result pages.
+ */
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;
 

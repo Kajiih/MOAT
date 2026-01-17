@@ -13,17 +13,31 @@ import { Settings, Trash2 } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { TIER_COLORS } from '@/lib/colors';
 
+/**
+ * Props for the TierSettings component.
+ */
 interface TierSettingsProps {
+  /** The current color ID of the tier. */
   color: string;
+  /** Callback fired when a new color is selected. */
   onUpdateColor: (colorId: string) => void;
+  /** Callback fired to delete the tier. */
   onDelete: () => void;
+  /** Whether the tier can be deleted in the current context. */
   canDelete: boolean;
+  /** Whether the settings popover is currently open. */
   isOpen: boolean;
+  /** Toggles the popover open/closed. */
   onToggle: () => void;
+  /** Forces the popover to close. */
   onClose: () => void;
+  /** Global dragging state. */
   isAnyDragging?: boolean;
 }
 
+/**
+ * Renders a settings popover for a tier row, allowing color selection and deletion.
+ */
 export function TierSettings({
   color,
   onUpdateColor,
