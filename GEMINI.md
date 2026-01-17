@@ -13,7 +13,7 @@
   - Use `npm run test -- --run` to run tests.
 - We also use integration tests with playwright.
   - You can implement integration test if they are relevant.
-  - Use `npx playwright test` to run tests.
+  - Use `PLAYWRIGHT_HTML_OPEN='never' npx playwright test` to run tests.
 
 - Write documentation to important or not trivial units of code, including modules, functions, variables, etc.
 - Always follow best practices of modern web development, and focus on idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.
