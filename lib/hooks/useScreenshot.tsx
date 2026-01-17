@@ -26,7 +26,6 @@ import { failedImages } from '@/lib/image-cache';
  * Helper to convert an image URL to a Data URL
  * This allows us to "hardcode" images into the DOM before capture,
  * preventing various html-to-image duplication and hang bugs.
- *
  * @param url - The original image URL (external or local).
  * @returns A Promise resolving to a Base64 Data URL, or null if resolution fails.
  */
@@ -97,7 +96,6 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
 
 /**
  * Custom hook to manage the screenshot capture process.
- *
  * @param fileName - The default filename for the downloaded PNG.
  * @returns Object containing:
  * - `takeScreenshot`: Function to trigger the capture.
@@ -109,7 +107,6 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
 
   /**
    * Captures the current board state as a high-quality PNG.
-   *
    * @param state - The current TierListState to render.
    * @param headerColors - The palette to use for branding elements.
    */

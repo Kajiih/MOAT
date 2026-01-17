@@ -7,11 +7,10 @@
 
 /**
  * Robust fetcher for SWR.
- *
  * @param url - The URL to fetch.
  * @param retryCount - Internal tracking of retry attempts.
  * @returns Parsed JSON response.
- * @throws Error on non-ok responses.
+ * @throws {Error} On non-ok responses.
  */
 export const swrFetcher = async <T>(url: string, retryCount = 0): Promise<T> => {
   const res = await fetch(url);

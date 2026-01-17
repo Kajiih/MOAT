@@ -6,6 +6,7 @@ const defaultOptions = { fuzzy: false, wildcard: false };
 
 /**
  * Helper to create standard query params with sensible defaults
+ * @param overrides
  */
 function createParams(overrides: Partial<QueryBuilderParams> = {}): QueryBuilderParams {
   return {

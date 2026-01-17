@@ -25,7 +25,6 @@ interface HistoryState<T> {
  * - `push`: Saves the current state to `past` and clears `future`.
  * - `undo`: Moves current state to `future` and restores the last state from `past`.
  * - `redo`: Moves current state to `past` and restores the next state from `future`.
- *
  * @template T - The type of the state object.
  */
 export function useHistory<T>() {

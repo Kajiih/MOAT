@@ -24,7 +24,6 @@ interface HydrateAction<S> {
 
 /**
  * A custom hook that combines useReducer with async persistence.
- *
  * @template S - The shape of the state.
  * @template A - The union type of possible actions.
  * @param reducer - The pure reducer function.

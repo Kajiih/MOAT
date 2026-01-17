@@ -1,3 +1,8 @@
+/**
+ * @file registry-utils.ts
+ * @description Utilities for managing the board registry and syncing metadata.
+ */
+
 import { storage } from '@/lib/storage';
 import { BoardMetadata, TierListState } from '@/lib/types';
 

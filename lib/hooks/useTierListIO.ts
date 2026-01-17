@@ -14,7 +14,6 @@ import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 
 /**
  * Hook to handle Import and Export operations for the Tier List.
- *
  * @param state - The current state of the tier list.
  * @param dispatch - Dispatcher for updating state.
  * @param pushHistory - Function to save current state to history.
@@ -46,7 +45,6 @@ export function useTierListIO(
   /**
    * Handles the file selection event for importing a tier list from a JSON file.
    * Parses the file content and updates the application state.
-   *
    * @param e - The change event from the file input element.
    */
   const handleImport = useCallback(

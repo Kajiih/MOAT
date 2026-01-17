@@ -19,7 +19,6 @@ const COVER_ART_ARCHIVE_BASE_URL = 'https://coverartarchive.org';
 
 /**
  * Helper to construct a Cover Art Archive URL.
- *
  * @param id - The MusicBrainz ID (release-group or release).
  * @param type - The entity type ('release-group' or 'release').
  * @returns A formatted URL string.
@@ -31,7 +30,6 @@ const getCoverArtUrl = (id: string, type: 'release-group' | 'release' = 'release
 /**
  * Formats a list of artist credits into a single string.
  * Handles join phrases (e.g., " feat. ") correctly.
- *
  * @param credits - Array of artist credits from MusicBrainz.
  * @returns A formatted string or 'Unknown' if empty.
  */

@@ -13,7 +13,6 @@ import { ActionType, TierListAction } from '@/lib/state/actions';
 
 /**
  * Hook to manage the structure of the tier list board (rows/tiers) and global board actions.
- *
  * @param dispatch - The dispatcher function from the TierList context.
  * @param pushHistory - Callback to capture a history snapshot before mutation.
  * @returns Object containing event handlers for structural changes.

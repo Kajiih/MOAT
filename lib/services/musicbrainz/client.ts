@@ -14,7 +14,6 @@ import { MB_BASE_URL, USER_AGENT } from './config';
  * - 1st valid 503: waits 1000ms
  * - 2nd valid 503: waits 2000ms
  * - 3rd valid 503: throws Error
- *
  * @template T - The expected return type of the JSON response. Defaults to `unknown`.
  * @param endpoint - The API endpoint (e.g., 'artist', 'release-group').
  * @param queryParams - URLSearchParams object or string.

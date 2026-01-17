@@ -13,7 +13,6 @@ import { useMediaDetails } from '@/lib/hooks';
 
 /**
  * Main hook to coordinate background enrichment of board items.
- *
  * @param items - List of all media items on the board.
  * @param onUpdateItem - Callback to update an item with fetched details.
  */

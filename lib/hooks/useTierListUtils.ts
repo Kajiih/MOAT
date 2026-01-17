@@ -2,7 +2,6 @@
  * @file useTierListUtils.ts
  * @description Provides utility hooks for derived state and UI interactions specific to the Tier Board.
  * Handles dynamic header coloring based on drag state and item locating/highlighting.
- * @module useTierListUtils
  */
 'use client';
 
@@ -14,7 +13,6 @@ import { useToast } from '@/components/ui/ToastProvider';
 /**
  * Hook providing utility functions and derived state for the Tier List.
  * Handles tasks like calculating dynamic header colors and locating items on the board.
- *
  * @param state - The current state of the tier list.
  * @param activeTierId - The ID of the tier currently being dragged (if any).
  * @param overId - The ID of the drop target currently hovered over (if any).
@@ -49,7 +47,6 @@ export function useTierListUtils(
 
   /**
    * Locates a media item on the board, scrolls it into view, and highlights it.
-   *
    * @param id - The ID of the item to locate.
    */
   const handleLocate = useCallback(

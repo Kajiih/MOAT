@@ -14,7 +14,6 @@ export type MoveItemPayload = Extract<TierListAction, { type: 'MOVE_ITEM' }>['pa
 
 /**
  * Utility function to find which tier (container) an item belongs to.
- *
  * @param id - The ID of the item to locate.
  * @param currentItems - The current items map from state.
  * @returns The ID of the tier containing the item, or undefined if not found.
@@ -30,7 +29,6 @@ const findContainer = (
 /**
  * Logic for moving an item within a tier or between tiers.
  * Also handles adding new items from the search panel.
- *
  * @param state - Current tier list state.
  * @param payload - Move details (activeId, overId, dragging item if from search).
  * @returns Updated state with item in its new position.
@@ -122,7 +120,6 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
 
 /**
  * Slice reducer for item-related actions.
- *
  * @param state - Current tier list state.
  * @param action - TierListAction related to media items.
  * @returns New state if handled, otherwise original state.

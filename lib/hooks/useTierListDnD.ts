@@ -31,7 +31,6 @@ import { ActionType, TierListAction } from '@/lib/state/actions';
  * - Manages 'active' and 'over' states for visual feedback.
  * - Updates the Tier List state on drag over and drag end events.
  * - Supports reordering of Tiers (vertical lists) and Items (horizontal cards).
- *
  * @param state - The current Tier List state.
  * @param dispatch - Dispatcher for updating state.
  * @param pushHistory - Function to save current state to history.

@@ -1,3 +1,8 @@
+/**
+ * @file OGBoard.tsx
+ * @description A simplified, Satori-compatible board component for Open Graph image generation.
+ */
+
 import { TierDefinition, MediaItem } from '@/lib/types';
 
 /**
@@ -18,11 +23,8 @@ interface OGBoardProps {
  * A simplified, Satori-compatible board component for Open Graph image generation.
  * This component renders a static, high-contrast version of the tier list suitable for social media previews.
  *
- * @note Satori/Edge Runtime Constraints:
+ * Satori/Edge Runtime Constraints:
  * 1. No CSS classes (mostly), must use inline `style={{ ... }}`.
- * 2. Layout system is Flexbox ONLY. CSS Grid is not supported.
- * 3. Must use explicit `display: 'flex'` on containers.
- * 4. No React state, hooks, or interactivity allowed.
  */
 export function OGBoard({ title, tiers, items, headerColors }: OGBoardProps) {
   // Use the primary brand color or fallback

@@ -12,7 +12,6 @@ import { INITIAL_STATE } from '@/lib/initial-state';
 
 /**
  * Slice reducer for global application actions.
- *
  * @param state - Current tier list state.
  * @param action - TierListAction related to global configuration or state overrides.
  * @returns New state if handled, otherwise original state.

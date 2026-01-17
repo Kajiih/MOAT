@@ -136,7 +136,6 @@ interface UseMediaSearchResult<T extends MediaItem> {
  * - Debouncing of inputs to prevent excessive API calls.
  * - SWR integration for data fetching, caching, and revalidation.
  * - Automatic prefetching of the next page of results.
- *
  * @param type - The type of media to search for ('album', 'artist', 'song').
  * @param config - Optional configuration overrides for search settings.
  */

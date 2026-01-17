@@ -14,7 +14,6 @@ import { globalReducer } from './slices/global-reducer';
 /**
  * The primary reducer for the Tier List application.
  * Delegates actions to specialized slice reducers for better maintainability.
- *
  * @param state - The current application state.
  * @param action - The action to perform.
  * @returns A new state object reflecting the changes.

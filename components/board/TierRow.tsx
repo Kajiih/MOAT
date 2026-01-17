@@ -2,7 +2,7 @@
  * @file TierRow.tsx
  * @description A complex interactive component representing a single tier on the board.
  * It serves as both a draggable item (for reordering tiers) and a droppable container (for media items).
- * Integrates with @dnd-kit's SortableContext to manage the horizontal list of MediaCards.
+ * Integrates with \@dnd-kit's SortableContext to manage the horizontal list of MediaCards.
  * @module TierRow
  */
 

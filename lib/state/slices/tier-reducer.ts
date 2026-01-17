@@ -15,7 +15,6 @@ export type DeleteTierPayload = Extract<TierListAction, { type: 'DELETE_TIER' }>
 
 /**
  * Logic for adding a new tier with a unique ID and a random unused color.
- *
  * @param state - Current tier list state.
  * @returns Updated state with the new tier.
  */
@@ -44,7 +43,6 @@ export function handleAddTier(state: TierListState): TierListState {
 
 /**
  * Logic for deleting a tier and migrating its items to another tier if possible.
- *
  * @param state - Current tier list state.
  * @param payload - Contains the ID of the tier to delete.
  * @returns Updated state with the tier removed and items migrated.
@@ -72,7 +70,6 @@ export function handleDeleteTier(state: TierListState, payload: DeleteTierPayloa
 
 /**
  * Slice reducer for tier-related actions.
- *
  * @param state - Current tier list state.
  * @param action - TierListAction related to tier structure.
  * @returns New state if handled, otherwise original state.

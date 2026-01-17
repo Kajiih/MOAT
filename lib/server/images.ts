@@ -16,7 +16,6 @@ const IMAGE_CACHE_TTL = 86400; // 24 hours
 
 /**
  * Constructs a Wikimedia Commons image URL.
- *
  * @param fileName - The file name from Wikidata (e.g. "Image.jpg").
  * @param width - Desired width for the thumbnail.
  */
@@ -103,6 +102,9 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
   }
 }
 
+/**
+ *
+ */
 export async function getArtistThumbnail(mbid: string): Promise<string | undefined> {
   // Priority 1: Fanart.tv (Best quality)
   const fanart = await getFanartImage(mbid);

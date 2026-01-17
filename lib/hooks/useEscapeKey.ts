@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 
 /**
  * Hook that executes a callback when the Escape key is pressed.
- *
  * @param callback - Function to call on Escape key press.
  * @param isListening - Whether the listener should be active. Defaults to true.
  */
