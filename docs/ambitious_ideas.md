@@ -113,3 +113,6 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 
 ## Smaller fixes or improvement ideas:
 - Somehow reuse components for OG board, or at least centralize the place where components are defined to improve locality of behavior.
+- Check how favicon is handled
+- Check hooks and user vs server side components
+- Check how keyboard shortcut are handled
