@@ -108,3 +108,5 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 - How:
   - Use @vercel/og (Satori).
   - Create an API route /api/og?boardId=... that renders a simplified version of the board on the edge.
+
+#### Better debugging/logging

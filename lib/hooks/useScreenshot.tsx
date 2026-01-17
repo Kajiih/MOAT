@@ -24,6 +24,9 @@ import { failedImages } from '@/lib/image-cache';
  * Helper to convert an image URL to a Data URL
  * This allows us to "hardcode" images into the DOM before capture,
  * preventing various html-to-image duplication and hang bugs.
+ * 
+ * @param url - The original image URL (external or local).
+ * @returns A Promise resolving to a Base64 Data URL, or null if resolution fails.
  */
 async function resolveImageDataUrl(url: string): Promise<string | null> {
     if (!url) return null;
@@ -32,17 +35,24 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
     // Check if this image is already known to be broken in the app
     const isKnownBroken = failedImages.has(url);
 
+    /**
+     * Internal fetcher with error handling
+     */
     const fetchAsDataUrl = async (target: string) => {
-        const resp = await fetch(target, { cache: 'force-cache' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const blob = await resp.blob();
-        if (blob.size === 0) throw new Error("Empty response");
-        return new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = () => reject(new Error("FileRead failed"));
-            reader.readAsDataURL(blob);
-        });
+        try {
+            const resp = await fetch(target);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+            const blob = await resp.blob();
+            if (blob.size === 0) throw new Error("Empty response");
+            return new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = () => reject(new Error("FileRead failed"));
+                reader.readAsDataURL(blob);
+            });
+        } catch (err) {
+            throw err;
+        }
     };
 
     try {
@@ -50,12 +60,14 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
         
         if (isExternal) {
             try {
-                // Attempt 1: Next.js Proxy (CORS-safe)
-                const proxiedUrl = `/_next/image?url=${encodeURIComponent(url)}&w=384&q=80`;
+                // Attempt 1: Custom Proxy (CORS-safe, no optimization validation)
+                // We use our own proxy because /_next/image can be strict about domains/formats 
+                // and return 400s for valid images (e.g. from fanart.tv).
+                const proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
                 return await fetchAsDataUrl(proxiedUrl);
             } catch (proxyError) {
                 if (!isKnownBroken) {
-                    console.warn(`Screenshot Engine: Proxy failed for ${url}, trying direct fetch...`, proxyError);
+                    console.warn(`Screenshot Engine: Proxy failed for ${url}. Switching to direct fetch.`);
                 }
                 // Attempt 2: Direct Fetch (Works if CDN has CORS headers, e.g. coverartarchive)
                 return await fetchAsDataUrl(url);
@@ -77,10 +89,24 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
     }
 }
 
+/**
+ * Custom hook to manage the screenshot capture process.
+ * 
+ * @param fileName - The default filename for the downloaded PNG.
+ * @returns Object containing:
+ * - `takeScreenshot`: Function to trigger the capture.
+ * - `isCapturing`: Loading state during resolution and rendering.
+ */
 export function useScreenshot(fileName: string = 'tierlist.png') {
   const [isCapturing, setIsCapturing] = useState(false);
   const { showToast } = useToast();
 
+  /**
+   * Captures the current board state as a high-quality PNG.
+   * 
+   * @param state - The current TierListState to render.
+   * @param headerColors - The palette to use for branding elements.
+   */
   const takeScreenshot = useCallback(async (state: TierListState, headerColors: string[]) => {
     setIsCapturing(true);
     

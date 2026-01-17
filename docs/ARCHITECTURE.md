@@ -153,18 +153,22 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `lib/media-defs.tsx` acts as the single source of truth for UI configurations (icons, colors, label formatting) keyed by media type (`album`, `artist`, `song`).
   - Components like `MediaCard` and `DetailsModal` consume this configuration to render dynamic content without scattered conditional logic.
 
-### 8. Quality Assurance
+### 9. Screenshot Engine & Export Architecture
 
-- **Unit & Integration Testing**: Powered by **Vitest** and `react-testing-library`. Covers hooks (`useMediaSearch`), state logic (`reducer.test.ts`), and critical utilities (`query-builder.test.ts`).
-- **End-to-End (E2E) Testing**: Powered by **Playwright**.
-  - **Interactive Flows**: Validates searching, drag-and-drop reordering, and data persistence.
-  - **Filtering**: Verifies client-side filter integration (e.g., Album vs. Song tabs).
-  - **Visual Regression**: Captures and compares screenshots of major UI states (Empty Board, Populated Grid, Search Results) to prevent CSS regressions.
-  - **Accessibility**: Includes test hooks for keyboard-driven interactions (Active in headed/dev envs).
+The app employs a dedicated "Clean Room" architecture to generate professional-grade PNG exports.
 
+- **Clean Room Rendering**:
+  - The `useScreenshot` hook renders a non-interactive `ExportBoard` component into a hidden, off-screen DOM container.
+  - This isolates the export process from the active session, stripping away UI artifacts (scrollbars, hover states) and disabling virtualization to ensure all items are rendered regardless of scroll position.
+
+- **Image Resolution Pipeline**:
+  - **Pre-Resolution**: Before rendering, the engine resolves all board images to Base64 Data URLs to prevent network flakiness during capture.
+  - **Custom Proxy**: A dedicated API route (`/api/proxy-image`) is used to fetch images. This bypasses Next.js image optimization (resizing/formatting) to reliably fetch raw source images from providers like Fanart.tv, avoiding CORS blocks and strict domain validation errors.
+  - **Fallback Strategy**: If the proxy fails, the engine attempts a direct client-side fetch, ensuring maximum compatibility with different CDNs.
 ## Directory Structure
 
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
+  - `proxy-image/`: **[New]** Permissive image proxy for reliable screenshot exports.
 - `components/`:
   - `TierListApp.tsx`: Main layout component (Layout only, logic moved to Context).
   - `TierListContext.tsx`: Core state provider and logic controller (persistence, hydration, DnD, IO).
@@ -175,6 +179,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
     - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
     - `TierGrid.tsx`: Renders the grid of items within a tier (standard or virtualized).
     - `BoardTitle.tsx`: **[New]** Shared component for the board title, supporting both editable and export modes.
+    - `ExportBoard.tsx`: **[New]** Non-interactive board variant optimized for screenshot capture.
     - `VirtualGrid.tsx`: Generic virtualized grid for high-performance list rendering.
   - `media/`: Components for media item display and selection.
     - `MediaCard.tsx`: Draggable/Sortable item visualization.
@@ -189,7 +194,10 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - `lib/hooks/`:
   - `index.ts`: Barrel file exporting all hooks.
   - `useTierListIO.ts`:  Encapsulates Import/Export logic.
+  - `useScreenshot.tsx`: **[New]** Orchestrates high-fidelity board capture and image resolution.
   - `useTierListUtils.ts`:  Encapsulates derived state and UI utilities.
+  - `useBrandColors.ts`: Extracts dominant palette from tier colors.
+  - `useDynamicFavicon.ts`: Updates the app favicon based on brand colors.
   - `useHistory.ts`:  Generic hook for managing state history (past/future stacks).
   - `useEscapeKey.ts`: Generic hook for handling Escape key press.
   - `useBackgroundEnrichment.ts`: **[New]** Background hook for syncing item metadata (replaces BoardDetailBundler).
