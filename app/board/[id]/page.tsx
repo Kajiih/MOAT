@@ -2,7 +2,7 @@ import TierListApp from '@/components/TierListApp';
 import { TierListProvider } from '@/components/TierListContext';
 
 interface BoardPageProps {
-    params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function BoardPage({ params }: BoardPageProps) {

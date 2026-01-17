@@ -1,13 +1,15 @@
 {
-  "semi": true,
-
-  "singleQuote": true,
-
-  "trailingComma": "all",
-
-  "printWidth": 100,
-
-  "tabWidth": 2,
-
-  "useTabs": false
+  "overrides": [
+    {
+      "files": ["*.js", "*.jsx", "*.mjs", "*.mts", "*.cjs", "*.ts", "*.tsx"],
+      "options": {
+        "semi": true,
+        "singleQuote": true,
+        "trailingComma": "all",
+        "printWidth": 100,
+        "tabWidth": 2,
+        "useTabs": false
+      }
+    }
+  ]
 }

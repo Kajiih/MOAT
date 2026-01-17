@@ -34,7 +34,7 @@ export interface SearchParams {
  */
 export function getSearchUrl(params: SearchParams): string {
   const urlParams = new URLSearchParams();
-  
+
   // 1. Essential params in fixed order
   urlParams.append('type', params.type);
   urlParams.append('page', (params.page || 1).toString());
@@ -45,23 +45,27 @@ export function getSearchUrl(params: SearchParams): string {
   if (params.albumId) urlParams.append('albumId', params.albumId);
   if (params.minYear) urlParams.append('minYear', params.minYear);
   if (params.maxYear) urlParams.append('maxYear', params.maxYear);
-  
+
   if (params.albumPrimaryTypes && params.albumPrimaryTypes.length > 0) {
-      // Sort to ensure cache consistency regardless of selection order
-      [...params.albumPrimaryTypes].sort().forEach(t => urlParams.append('albumPrimaryTypes', t));
+    // Sort to ensure cache consistency regardless of selection order
+    [...params.albumPrimaryTypes].sort().forEach((t) => urlParams.append('albumPrimaryTypes', t));
   }
-  
+
   if (params.albumSecondaryTypes && params.albumSecondaryTypes.length > 0) {
-      [...params.albumSecondaryTypes].sort().forEach(t => urlParams.append('albumSecondaryTypes', t));
+    [...params.albumSecondaryTypes]
+      .sort()
+      .forEach((t) => urlParams.append('albumSecondaryTypes', t));
   }
-  
+
   // 3. New filters
   if (params.artistType) urlParams.append('artistType', params.artistType);
   if (params.artistCountry) urlParams.append('artistCountry', params.artistCountry);
   if (params.tag) urlParams.append('tag', params.tag);
-  if (params.minDuration !== undefined) urlParams.append('minDuration', params.minDuration.toString());
-  if (params.maxDuration !== undefined) urlParams.append('maxDuration', params.maxDuration.toString());
-  
+  if (params.minDuration !== undefined)
+    urlParams.append('minDuration', params.minDuration.toString());
+  if (params.maxDuration !== undefined)
+    urlParams.append('maxDuration', params.maxDuration.toString());
+
   // 4. Search Config
   if (params.fuzzy !== undefined) urlParams.append('fuzzy', params.fuzzy.toString());
   if (params.wildcard !== undefined) urlParams.append('wildcard', params.wildcard.toString());

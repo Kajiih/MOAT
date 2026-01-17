@@ -65,7 +65,7 @@ export const TierRow = memo(function TierRow({
   isBoardEmpty,
   isMiddleTier,
   isExport = false,
-  resolvedImages = {}
+  resolvedImages = {},
 }: TierRowProps) {
   // Resolve the full color theme from the ID
   const tierTheme = getColorTheme(tier.color);
@@ -81,18 +81,18 @@ export const TierRow = memo(function TierRow({
   } = useSortable({
     id: tier.id,
     data: {
-        type: 'tier',
-        tier
-    }
+      type: 'tier',
+      tier,
+    },
   });
 
   // Droppable logic for items being dropped into the tier
   const { setNodeRef: setDroppableRef } = useDroppable({
     id: tier.id,
     data: {
-        isTierContainer: true,
-        type: 'tier'
-    }
+      isTierContainer: true,
+      type: 'tier',
+    },
   });
 
   // Combine refs
@@ -115,67 +115,65 @@ export const TierRow = memo(function TierRow({
     if (active?.data.current?.type === 'tier') return false;
 
     if (over.id === tier.id) return true;
-    return items.some(a => a.id === over.id);
+    return items.some((a) => a.id === over.id);
   }, [over, active, tier.id, items]);
 
   return (
     <div
-        ref={setCombinedRef}
-        style={style}
-        className={twMerge(
-            "flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out relative",
-            isOverRow
-                ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20'
-                : 'border-neutral-800',
-            showSettings ? 'z-30' : 'z-0',
-            isDraggingTier && "opacity-50 border-blue-500 ring-2 ring-blue-500/50 scale-95"
-        )}
+      ref={setCombinedRef}
+      style={style}
+      className={twMerge(
+        'flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out relative',
+        isOverRow
+          ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20'
+          : 'border-neutral-800',
+        showSettings ? 'z-30' : 'z-0',
+        isDraggingTier && 'opacity-50 border-blue-500 ring-2 ring-blue-500/50 scale-95',
+      )}
     >
       {/* Label / Header Column */}
       <div
         className={twMerge(
-            "w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg group/row",
-            tierTheme.bg // Apply the background class from the theme
+          'w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg group/row',
+          tierTheme.bg, // Apply the background class from the theme
         )}
       >
-        <TierLabel 
-            label={tier.label}
-            onUpdate={(newLabel) => onUpdateTier(tier.id, { label: newLabel })}
-            dragAttributes={attributes}
-            dragListeners={listeners}
-            isAnyDragging={isAnyDragging}
-            isExport={isExport}
+        <TierLabel
+          label={tier.label}
+          onUpdate={(newLabel) => onUpdateTier(tier.id, { label: newLabel })}
+          dragAttributes={attributes}
+          dragListeners={listeners}
+          isAnyDragging={isAnyDragging}
+          isExport={isExport}
         />
 
         {!isExport && (
-          <TierSettings 
-              color={tier.color}
-              onUpdateColor={(colorId) => onUpdateTier(tier.id, { color: colorId })}
-              onDelete={() => onDeleteTier(tier.id)}
-              canDelete={canDelete}
-              isOpen={showSettings}
-              onToggle={() => setShowSettings(!showSettings)}
-              onClose={() => setShowSettings(false)}
-              isAnyDragging={isAnyDragging}
+          <TierSettings
+            color={tier.color}
+            onUpdateColor={(colorId) => onUpdateTier(tier.id, { color: colorId })}
+            onDelete={() => onDeleteTier(tier.id)}
+            canDelete={canDelete}
+            isOpen={showSettings}
+            onToggle={() => setShowSettings(!showSettings)}
+            onClose={() => setShowSettings(false)}
+            isAnyDragging={isAnyDragging}
           />
         )}
       </div>
 
       {/* Items Column */}
-      <div
-        className="flex-1 flex flex-col relative min-h-[100px] min-w-0"
-      >
+      <div className="flex-1 flex flex-col relative min-h-[100px] min-w-0">
         {isOverRow && <div className="absolute inset-0 bg-blue-500/5 pointer-events-none z-10" />}
-        
-        <TierGrid 
-            items={items}
-            tierId={tier.id}
-            onRemoveItem={onRemoveItem}
-            onInfo={onInfo}
-            isBoardEmpty={isBoardEmpty}
-            isMiddleTier={isMiddleTier}
-            isExport={isExport}
-            resolvedImages={resolvedImages}
+
+        <TierGrid
+          items={items}
+          tierId={tier.id}
+          onRemoveItem={onRemoveItem}
+          onInfo={onInfo}
+          isBoardEmpty={isBoardEmpty}
+          isMiddleTier={isMiddleTier}
+          isExport={isExport}
+          resolvedImages={resolvedImages}
         />
       </div>
     </div>

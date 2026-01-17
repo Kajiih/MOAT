@@ -14,14 +14,14 @@ import { globalReducer } from './slices/global-reducer';
 /**
  * The primary reducer for the Tier List application.
  * Delegates actions to specialized slice reducers for better maintainability.
- * 
+ *
  * @param state - The current application state.
  * @param action - The action to perform.
  * @returns A new state object reflecting the changes.
  */
 export function tierListReducer(state: TierListState, action: TierListAction): TierListState {
   // Try each slice reducer. Slice reducers return the unchanged state if they don't handle the action.
-  
+
   // 1. Structural changes (Tiers)
   let nextState = tierReducer(state, action);
   if (nextState !== state) return nextState;

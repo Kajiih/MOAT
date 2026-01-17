@@ -25,7 +25,7 @@ describe('MediaRegistryProvider', () => {
     const { result } = renderHook(() => useMediaRegistry(), { wrapper });
 
     const item: MediaItem = { id: '1', title: 'Test', type: 'artist' };
-    
+
     act(() => {
       result.current.registerItem(item);
     });
@@ -36,21 +36,21 @@ describe('MediaRegistryProvider', () => {
   it('should merge items and NOT lose images or details', () => {
     const { result } = renderHook(() => useMediaRegistry(), { wrapper });
 
-    const initialItem: MediaItem = { 
-        id: '1', 
-        title: 'Test', 
-        type: 'artist', 
-        imageUrl: 'http://image.com/1.jpg',
-        details: { id: '1', type: 'artist', tags: ['rock'] } 
+    const initialItem: MediaItem = {
+      id: '1',
+      title: 'Test',
+      type: 'artist',
+      imageUrl: 'http://image.com/1.jpg',
+      details: { id: '1', type: 'artist', tags: ['rock'] },
     };
-    
+
     act(() => {
       result.current.registerItem(initialItem);
     });
 
     // Update with an item that lacks image/details (e.g. from a fresh search)
     const sparseItem: MediaItem = { id: '1', title: 'Updated Title', type: 'artist' };
-    
+
     act(() => {
       result.current.registerItem(sparseItem);
     });
@@ -68,11 +68,11 @@ describe('MediaRegistryProvider', () => {
     act(() => {
       const items: MediaItem[] = [];
       for (let i = 0; i < 2001; i++) {
-        items.push({ 
-            id: `item-${i}`, 
-            title: `Item ${i}`, 
-            type: 'album',
-            artist: 'Test Artist' 
+        items.push({
+          id: `item-${i}`,
+          title: `Item ${i}`,
+          type: 'album',
+          artist: 'Test Artist',
         } as MediaItem);
       }
       result.current.registerItems(items);
@@ -80,7 +80,7 @@ describe('MediaRegistryProvider', () => {
 
     // Should have pruned 200 items (limit hit, prune 200)
     // 2001 - 200 = 1801
-    
+
     // The implementation prunes the FIRST 200 keys.
     expect(result.current.getItem('item-0')).toBeUndefined();
     expect(result.current.getItem('item-199')).toBeUndefined();
@@ -91,16 +91,16 @@ describe('MediaRegistryProvider', () => {
   it('should skip updates if items are identical', async () => {
     const { result } = renderHook(() => useMediaRegistry(), { wrapper });
     const item: MediaItem = { id: '1', title: 'Test', type: 'artist' };
-    
+
     act(() => {
       result.current.registerItem(item);
     });
 
-    // We can't easily check 'setRegistry' calls here since we mocked usePersistentState 
+    // We can't easily check 'setRegistry' calls here since we mocked usePersistentState
     // to use internal useState, but we can verify the state remains the same reference if possible.
     // Instead, let's just ensure logic is sound.
     act(() => {
-        result.current.registerItem({ ...item });
+      result.current.registerItem({ ...item });
     });
 
     expect(result.current.getItem('1')).toEqual(item);

@@ -16,42 +16,38 @@ interface TierBoardProps {
   isAnyDragging: boolean;
 }
 
-export function TierBoard({
-  isAnyDragging,
-}: TierBoardProps) {
-
+export function TierBoard({ isAnyDragging }: TierBoardProps) {
   const {
-      state,
-      ui: { showDetails: handleShowDetails },
-      actions: { 
-          addTier: handleAddTier, 
-          updateTier: handleUpdateTier, 
-          deleteTier: handleDeleteTier, 
-          removeItemFromTier
-      }
+    state,
+    ui: { showDetails: handleShowDetails },
+    actions: {
+      addTier: handleAddTier,
+      updateTier: handleUpdateTier,
+      deleteTier: handleDeleteTier,
+      removeItemFromTier,
+    },
   } = useTierListContext();
 
   return (
     <div className="space-y-4">
-        <TierList 
-            tiers={state.tierDefs}
-            items={state.items}
-            isAnyDragging={isAnyDragging}
-            onRemoveItem={removeItemFromTier}
-            onUpdateTier={handleUpdateTier}
-            onDeleteTier={handleDeleteTier}
-            onInfo={handleShowDetails}
-        />
-        <button 
-            onClick={handleAddTier}
-            className="w-full py-4 border border-dashed border-neutral-700 rounded-xl text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold group"
-        >
-             <div className="p-1 bg-neutral-800 rounded group-hover:bg-neutral-700 transition-colors">
-                <Plus size={16} />
-             </div>
-             <span>Add Tier</span>
-        </button>
+      <TierList
+        tiers={state.tierDefs}
+        items={state.items}
+        isAnyDragging={isAnyDragging}
+        onRemoveItem={removeItemFromTier}
+        onUpdateTier={handleUpdateTier}
+        onDeleteTier={handleDeleteTier}
+        onInfo={handleShowDetails}
+      />
+      <button
+        onClick={handleAddTier}
+        className="w-full py-4 border border-dashed border-neutral-700 rounded-xl text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold group"
+      >
+        <div className="p-1 bg-neutral-800 rounded group-hover:bg-neutral-700 transition-colors">
+          <Plus size={16} />
+        </div>
+        <span>Add Tier</span>
+      </button>
     </div>
   );
 }
-

@@ -14,67 +14,67 @@ import { NextRequest, NextResponse } from 'next/server';
  * These match the primary metadata and image providers for the application.
  */
 const ALLOWED_HOSTS = [
-    'assets.fanart.tv',
-    'coverartarchive.org',
-    'placehold.co',
-    'commons.wikimedia.org',
-    'upload.wikimedia.org',
-    'i.scdn.co', // Spotify
+  'assets.fanart.tv',
+  'coverartarchive.org',
+  'placehold.co',
+  'commons.wikimedia.org',
+  'upload.wikimedia.org',
+  'i.scdn.co', // Spotify
 ];
 
 /**
  * GET handler for the image proxy.
- * 
+ *
  * @param request - The incoming Next.js request.
  * @returns A NextResponse containing the image data or an error message.
- * 
+ *
  * @example
  * // Fetch an image via proxy
  * fetch('/api/proxy-image?url=https://assets.fanart.tv/...')
  */
 export async function GET(request: NextRequest) {
-    const searchParams = request.nextUrl.searchParams;
-    const url = searchParams.get('url');
+  const searchParams = request.nextUrl.searchParams;
+  const url = searchParams.get('url');
 
-    if (!url) {
-        return new NextResponse('Missing url parameter', { status: 400 });
+  if (!url) {
+    return new NextResponse('Missing url parameter', { status: 400 });
+  }
+
+  let targetUrl: URL;
+  try {
+    targetUrl = new URL(url);
+  } catch {
+    return new NextResponse('Invalid URL', { status: 400 });
+  }
+
+  // Security check: Only proxy from trusted domains
+  if (!ALLOWED_HOSTS.includes(targetUrl.hostname)) {
+    return new NextResponse('Domain not allowed', { status: 403 });
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'TierListApp/1.0',
+      },
+    });
+
+    if (!response.ok) {
+      return new NextResponse(`Upstream error: ${response.status}`, { status: response.status });
     }
 
-    let targetUrl: URL;
-    try {
-        targetUrl = new URL(url);
-    } catch {
-        return new NextResponse('Invalid URL', { status: 400 });
-    }
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    const buffer = await response.arrayBuffer();
 
-    // Security check: Only proxy from trusted domains
-    if (!ALLOWED_HOSTS.includes(targetUrl.hostname)) {
-        return new NextResponse('Domain not allowed', { status: 403 });
-    }
-
-    try {
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'TierListApp/1.0',
-            }
-        });
-
-        if (!response.ok) {
-            return new NextResponse(`Upstream error: ${response.status}`, { status: response.status });
-        }
-
-        const contentType = response.headers.get('content-type') || 'application/octet-stream';
-        const buffer = await response.arrayBuffer();
-
-        // Return the image data with permissive caching and content-type
-        return new NextResponse(buffer, {
-            headers: {
-                'Content-Type': contentType,
-                'Cache-Control': 'public, max-age=86400, immutable',
-            },
-        });
-    } catch (error) {
-        console.error('Proxy error:', error);
-        return new NextResponse('Internal Server Error', { status: 500 });
-    }
+    // Return the image data with permissive caching and content-type
+    return new NextResponse(buffer, {
+      headers: {
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=86400, immutable',
+      },
+    });
+  } catch (error) {
+    console.error('Proxy error:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
 }

@@ -27,8 +27,12 @@ export function usePersistentState<T>(key: string, initialValue: T) {
         if (item && isMounted) {
           // Robustness: Merge with initialValue if both are objects (and not arrays/null)
           if (
-            typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue) &&
-            typeof item === 'object' && item !== null && !Array.isArray(item)
+            typeof initialValue === 'object' &&
+            initialValue !== null &&
+            !Array.isArray(initialValue) &&
+            typeof item === 'object' &&
+            item !== null &&
+            !Array.isArray(item)
           ) {
             setState({ ...initialValue, ...item });
           } else {
@@ -42,7 +46,9 @@ export function usePersistentState<T>(key: string, initialValue: T) {
       }
     };
     hydrate();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [key, initialValue]);
 
   // 2. Persist Updates: Debounce the write to storage

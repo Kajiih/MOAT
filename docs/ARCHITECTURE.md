@@ -34,7 +34,7 @@
   - **Favicon & Logo**: Automatically derive their color palette from the top tiers of the current board, creating a cohesive visual identity.
   - **Color Extraction**: Optimized hooks extract and persist brand colors to ensure a consistent look during hydration.
 - **Data Portability**:
-  - **Full-State Export**: Exported JSON files contain the *complete* metadata payload (details, images, tracklists, and the tier list title), making lists fully portable between users without requiring new API lookups.
+  - **Full-State Export**: Exported JSON files contain the _complete_ metadata payload (details, images, tracklists, and the tier list title), making lists fully portable between users without requiring new API lookups.
   - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`. The capture logic automatically excludes UI controls and the search panel for a clean, branded output.
 - **History Control**:
   - **Undo/Redo**: Full state history management allows users to revert actions (drag-and-drop, text edits, deletions) with standard keyboard shortcuts or UI buttons.
@@ -52,8 +52,8 @@
 ### 2. State & Data Flow Strategy
 
 - **Layered Persistence**:
-  1. **Board State (Context + Reducer)**: 
-     - The application state (`items`, `tierDefs`, `title`) is held in `TierListContext`. 
+  1. **Board State (Context + Reducer)**:
+     - The application state (`items`, `tierDefs`, `title`) is held in `TierListContext`.
      - It uses `usePersistentReducer` (a custom hook combining `useReducer` with asynchronous IndexedDB persistence) for centralized state logic and persistence.
      - **Slice Reducer Pattern**: The core logic in `reducer.ts` is divided into specialized "slices" (`tier-reducer.ts`, `item-reducer.ts`, `global-reducer.ts`) for better maintainability and testability.
      - This architecture decouples state transitions from UI components, using a standard `dispatch(Action)` pattern.
@@ -63,13 +63,13 @@
   5. **Batch Processing**: The `registerItems` API allows processing hundreds of items in a single React render cycle and a single IndexedDB transaction, critical for imports and search result delivery.
 
 - **Hook Composition Pattern**:
-    - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally.
-    - **useTierListNamespaces**: A specialized hook that aggregates the state, dispatch, and sub-hooks into a unified, **namespaced API** for better discoverability and memoization:
-      - `state`: Domain data (`tierDefs`, `items`, `title`).
-      - `actions`: Business logic (`addTier`, `deleteTier`, `import`, `export`, `randomizeColors`, `updateMediaItem`, `updateTitle`, `removeItemFromTier`, `locate`).
-      - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`, `activeTier`, `overId`, `handleDragStart`, `handleDragOver`, `handleDragEnd`).
-      - `ui`: UI-specific state (`headerColors`, `detailsItem`, `showDetails`, `closeDetails`, `addedItemIds`, `allBoardItems`).
-      - `history`: Undo/Redo controls (`undo`, `redo`, `canUndo`, `canRedo`, `push`).
+  - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally.
+  - **useTierListNamespaces**: A specialized hook that aggregates the state, dispatch, and sub-hooks into a unified, **namespaced API** for better discoverability and memoization:
+    - `state`: Domain data (`tierDefs`, `items`, `title`).
+    - `actions`: Business logic (`addTier`, `deleteTier`, `import`, `export`, `randomizeColors`, `updateMediaItem`, `updateTitle`, `removeItemFromTier`, `locate`).
+    - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`, `activeTier`, `overId`, `handleDragStart`, `handleDragOver`, `handleDragEnd`).
+    - `ui`: UI-specific state (`headerColors`, `detailsItem`, `showDetails`, `closeDetails`, `addedItemIds`, `allBoardItems`).
+    - `history`: Undo/Redo controls (`undo`, `redo`, `canUndo`, `canRedo`, `push`).
   - **Separation of Concerns**:
     - `useTierListIO`: Handles Import/Export logic.
     - `useTierListDnD`: Handles Drag and Drop sensors and collisions.
@@ -104,18 +104,21 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 ### 4. Performance & Optimization
 
 #### Caching Strategies
+
 - **Server-Side Cache**: API routes use an LRU-style in-memory cache (`item-cache.ts`) to store normalized media items for 24 hours, reducing redundant mapping logic and upstream API pressure.
 - **SWR (Stale-While-Revalidate)**: Used for all data fetching. Components display stale data from the cache immediately while revalidating in the background.
 - **Global Item Registry**: Discovered items are cached in `IndexedDB` across sessions, ensuring artwork and metadata persist even if the board is cleared.
 
 #### Prefetching Mechanisms
-- **Pagination Prefetch**: When searching, the app automatically pre-fetches the *next* page of results as soon as the current page loads.
+
+- **Pagination Prefetch**: When searching, the app automatically pre-fetches the _next_ page of results as soon as the current page loads.
 - **Smart Picker Prefetch**: Selecting an item in a `MediaPicker` triggers intelligent preloading:
   - Selecting an **Artist** prefetches their **Albums** (or **Songs** if in a song-filtering context).
   - Selecting an **Album** prefetches its **Songs**.
 - **Background Enrichment**: The `useBackgroundEnrichment` hook prefetches deep metadata for items added to the board without blocking user interaction.
 
 #### Persistence Logic
+
 - **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (1000ms).
 - **Proactive Registry Warming**:
   - **Hydration Sync**: Immediately after the board state hydrates, all board items are pushed to the `MediaRegistry` in a single batch. This "warms" the global cache, ensuring search results for items already on your board are enriched instantly.
@@ -124,6 +127,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - **Cross-Tab Sync**: (Note: Cross-tab sync via storage events is currently disabled with IndexedDB, but consistency is maintained via optimistic UI updates).
 
 #### Virtualization
+
 - **VirtualGrid Component**: A reusable, responsive virtualized grid powered by `@tanstack/react-virtual`.
 - **Large Tier Handling**: Tiers containing more than 100 items automatically switch to a virtualized view, ensuring performance remains high even for massive categories. Smaller tiers and search results (limited to 15 items) use standard grid layouts for simplicity and lower overhead.
 
@@ -149,7 +153,7 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 
 - **Semantic Color Palette**: defined in `lib/colors.ts`, mapping abstract IDs (e.g., 'red', 'amber') to specific Tailwind CSS classes and Hex values.
 - **Dynamic Branding**: The `useBrandColors` and `useDynamicFavicon` hooks extract the top 4 tier colors to generate a matching favicon and logo on the fly, ensuring the app's identity reflects the user's content.
-- **Unified Media UI**: 
+- **Unified Media UI**:
   - `lib/media-defs.tsx` acts as the single source of truth for UI configurations (icons, colors, label formatting) keyed by media type (`album`, `artist`, `song`).
   - Components like `MediaCard` and `DetailsModal` consume this configuration to render dynamic content without scattered conditional logic.
 
@@ -165,6 +169,7 @@ The app employs a dedicated "Clean Room" architecture to generate professional-g
   - **Pre-Resolution**: Before rendering, the engine resolves all board images to Base64 Data URLs to prevent network flakiness during capture.
   - **Custom Proxy**: A dedicated API route (`/api/proxy-image`) is used to fetch images. This bypasses Next.js image optimization (resizing/formatting) to reliably fetch raw source images from providers like Fanart.tv, avoiding CORS blocks and strict domain validation errors.
   - **Fallback Strategy**: If the proxy fails, the engine attempts a direct client-side fetch, ensuring maximum compatibility with different CDNs.
+
 ## Directory Structure
 
 - `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
@@ -193,12 +198,12 @@ The app employs a dedicated "Clean Room" architecture to generate professional-g
     - `KeyboardShortcutsModal.tsx`: Displays available keyboard shortcuts.
 - `lib/hooks/`:
   - `index.ts`: Barrel file exporting all hooks.
-  - `useTierListIO.ts`:  Encapsulates Import/Export logic.
+  - `useTierListIO.ts`: Encapsulates Import/Export logic.
   - `useScreenshot.tsx`: **[New]** Orchestrates high-fidelity board capture and image resolution.
-  - `useTierListUtils.ts`:  Encapsulates derived state and UI utilities.
+  - `useTierListUtils.ts`: Encapsulates derived state and UI utilities.
   - `useBrandColors.ts`: Extracts dominant palette from tier colors.
   - `useDynamicFavicon.ts`: Updates the app favicon based on brand colors.
-  - `useHistory.ts`:  Generic hook for managing state history (past/future stacks).
+  - `useHistory.ts`: Generic hook for managing state history (past/future stacks).
   - `useEscapeKey.ts`: Generic hook for handling Escape key press.
   - `useBackgroundEnrichment.ts`: **[New]** Background hook for syncing item metadata (replaces BoardDetailBundler).
   - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).

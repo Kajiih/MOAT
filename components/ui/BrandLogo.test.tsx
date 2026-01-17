@@ -17,7 +17,7 @@ describe('BrandLogo', () => {
     render(<BrandLogo colors={mockColors} />);
     const m = screen.getByText('M');
     const o = screen.getByText('O');
-    
+
     // Testing specific styles applied via style prop
     expect(m.style.color).toBe('rgb(255, 0, 0)'); // #ff0000
     expect(o.style.color).toBe('rgb(0, 255, 0)'); // #00ff00

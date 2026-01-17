@@ -19,14 +19,14 @@ export enum ActionType {
   UPDATE_TIER = 'UPDATE_TIER',
   /** Reorders tiers in the vertical list. */
   REORDER_TIERS = 'REORDER_TIERS',
-  
+
   /** Moves an item within a tier, between tiers, or adds it from search. */
   MOVE_ITEM = 'MOVE_ITEM',
   /** Updates metadata for a specific item (e.g., deep details). */
   UPDATE_ITEM = 'UPDATE_ITEM',
   /** Removes an item from its current tier. */
   REMOVE_ITEM = 'REMOVE_ITEM',
-  
+
   /** Updates the global title of the tier list. */
   UPDATE_TITLE = 'UPDATE_TITLE',
   /** Shuffles colors for all existing tiers. */
@@ -36,29 +36,30 @@ export enum ActionType {
   /** Replaces the entire state with imported data. */
   IMPORT_STATE = 'IMPORT_STATE',
   /** Replaces state during Undo/Redo operations. */
-  SET_STATE = 'SET_STATE'
+  SET_STATE = 'SET_STATE',
 }
 
 /**
  * Discriminated union of all action objects.
  * Each action includes its type and its specific payload requirements.
  */
-export type TierListAction = 
+export type TierListAction =
   | { type: ActionType.ADD_TIER }
   | { type: ActionType.DELETE_TIER; payload: { id: string } }
   | { type: ActionType.UPDATE_TIER; payload: { id: string; updates: Partial<TierDefinition> } }
   | { type: ActionType.REORDER_TIERS; payload: { oldIndex: number; newIndex: number } }
-  
-  | { type: ActionType.MOVE_ITEM; payload: { 
-      activeId: string; 
-      overId: string; 
-      activeTierId?: string; // Optional: Optimize lookup
-      overTierId?: string;   // Optional: Optimize lookup
-      activeItem?: MediaItem; // For dragging from search
-    } }
+  | {
+      type: ActionType.MOVE_ITEM;
+      payload: {
+        activeId: string;
+        overId: string;
+        activeTierId?: string; // Optional: Optimize lookup
+        overTierId?: string; // Optional: Optimize lookup
+        activeItem?: MediaItem; // For dragging from search
+      };
+    }
   | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: Partial<MediaItem> } }
   | { type: ActionType.REMOVE_ITEM; payload: { tierId: string; itemId: string } }
-
   | { type: ActionType.UPDATE_TITLE; payload: { title: string } }
   | { type: ActionType.RANDOMIZE_COLORS }
   | { type: ActionType.CLEAR_BOARD }

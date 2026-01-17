@@ -18,12 +18,12 @@ export const INITIAL_STATE: TierListState = {
     { id: 'tier-5', label: 'D', color: DEFAULT_BRAND_COLORS[4] },
     { id: 'tier-6', label: 'Unranked', color: 'neutral' },
   ],
-  items: { 
-    'tier-1': [], 
-    'tier-2': [], 
-    'tier-3': [], 
-    'tier-4': [], 
-    'tier-5': [], 
-    'tier-6': [] 
-  }
+  items: {
+    'tier-1': [],
+    'tier-2': [],
+    'tier-3': [],
+    'tier-4': [],
+    'tier-5': [],
+    'tier-6': [],
+  },
 };

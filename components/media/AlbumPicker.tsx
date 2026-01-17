@@ -15,20 +15,27 @@ interface AlbumPickerProps {
   fuzzy?: boolean;
   wildcard?: boolean;
   artistId?: string;
-  context?: string; 
+  context?: string;
 }
 
-export function AlbumPicker({ onSelect, selectedAlbum, fuzzy, wildcard, artistId, context }: AlbumPickerProps) {
+export function AlbumPicker({
+  onSelect,
+  selectedAlbum,
+  fuzzy,
+  wildcard,
+  artistId,
+  context,
+}: AlbumPickerProps) {
   return (
-    <MediaPicker 
-        type="album"
-        selectedItem={selectedAlbum}
-        onSelect={onSelect}
-        fuzzy={fuzzy}
-        wildcard={wildcard}
-        artistId={artistId}
-        context={context}
-        placeholder="Filter by Album..."
+    <MediaPicker
+      type="album"
+      selectedItem={selectedAlbum}
+      onSelect={onSelect}
+      fuzzy={fuzzy}
+      wildcard={wildcard}
+      artistId={artistId}
+      context={context}
+      placeholder="Filter by Album..."
     />
   );
 }

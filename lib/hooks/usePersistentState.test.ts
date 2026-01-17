@@ -25,16 +25,16 @@ describe('usePersistentState', () => {
     vi.mocked(storage.get).mockResolvedValue(undefined); // Storage empty
 
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
-    
+
     // Initial render is default
     expect(result.current[0]).toBe('default');
     expect(result.current[2]).toBe(false); // isHydrated false
 
     // Wait for hydration
     await waitFor(() => {
-        expect(result.current[2]).toBe(true);
+      expect(result.current[2]).toBe(true);
     });
-    
+
     expect(storage.get).toHaveBeenCalledWith('test-key');
     expect(result.current[0]).toBe('default');
   });
@@ -43,11 +43,11 @@ describe('usePersistentState', () => {
     vi.mocked(storage.get).mockResolvedValue('stored-value');
 
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
-    
+
     expect(result.current[0]).toBe('default');
 
     await waitFor(() => {
-        expect(result.current[2]).toBe(true);
+      expect(result.current[2]).toBe(true);
     });
 
     expect(result.current[0]).toBe('stored-value');
@@ -72,7 +72,7 @@ describe('usePersistentState', () => {
 
     // Verify state updated immediately in React
     expect(result.current[0]).toBe('updated');
-    
+
     // Verify NOT yet in storage (debounce)
     expect(storage.set).not.toHaveBeenCalled();
 
@@ -97,5 +97,3 @@ describe('usePersistentState', () => {
     consoleSpy.mockRestore();
   });
 });
-
-  

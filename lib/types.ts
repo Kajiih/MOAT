@@ -17,7 +17,14 @@ import { z } from 'zod';
  */
 export type MediaType = 'album' | 'artist' | 'song';
 
-export type SortOption = 'relevance' | 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc' | 'duration_desc' | 'duration_asc';
+export type SortOption =
+  | 'relevance'
+  | 'date_desc'
+  | 'date_asc'
+  | 'title_asc'
+  | 'title_desc'
+  | 'duration_desc'
+  | 'duration_asc';
 
 export interface BaseMediaItem {
   /** Unique identifier (MusicBrainz ID) */
@@ -141,12 +148,12 @@ export interface MediaDetails {
   date?: string;
   length?: string;
   imageUrl?: string;
-  
+
   // Album specific
   tracks?: TrackItem[];
   label?: string;
   releaseId?: string;
-  
+
   // Artist specific
   area?: string;
   lifeSpan?: { begin?: string; end?: string; ended?: boolean };
@@ -180,7 +187,7 @@ export const MusicBrainzArtistSchema = z.object({
   name: z.string(),
   'life-span': z.object({ begin: z.string().optional() }).optional(),
   country: z.string().optional(),
-  disambiguation: z.string().optional(), 
+  disambiguation: z.string().optional(),
 });
 
 // 3. Recording (Song)
@@ -190,34 +197,34 @@ export const MusicBrainzRecordingSchema = z.object({
   length: z.number().optional(), // Duration in milliseconds
   'first-release-date': z.string().optional(),
   'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
-  releases: z.array(z.object({ 
-    id: z.string(),
-    title: z.string(),
-    'release-group': z.object({
-      id: z.string()
-    }).optional()
-  })).optional(), 
+  releases: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        'release-group': z
+          .object({
+            id: z.string(),
+          })
+          .optional(),
+      }),
+    )
+    .optional(),
 });
 
 export const MusicBrainzSearchResponseSchema = z.object({
   'release-groups': z.array(MusicBrainzReleaseGroupSchema).optional(),
-  'artists': z.array(MusicBrainzArtistSchema).optional(),
-  'recordings': z.array(MusicBrainzRecordingSchema).optional(),
+  artists: z.array(MusicBrainzArtistSchema).optional(),
+  recordings: z.array(MusicBrainzRecordingSchema).optional(),
   'release-group-count': z.number().optional(),
   'artist-count': z.number().optional(),
   'recording-count': z.number().optional(),
-  'count': z.number().optional(),
+  count: z.number().optional(),
 });
 
 // --- MusicBrainz Constants ---
 
-export const PRIMARY_TYPES = [
-  'Album',
-  'EP',
-  'Single',
-  'Broadcast',
-  'Other'
-] as const;
+export const PRIMARY_TYPES = ['Album', 'EP', 'Single', 'Broadcast', 'Other'] as const;
 
 export const SECONDARY_TYPES = [
   'Compilation',
@@ -231,7 +238,7 @@ export const SECONDARY_TYPES = [
   'DJ-mix',
   'Mixtape/Street',
   'Demo',
-  'Field recording'
+  'Field recording',
 ] as const;
 
 export const ARTIST_TYPES = [
@@ -240,6 +247,5 @@ export const ARTIST_TYPES = [
   'Orchestra',
   'Choir',
   'Character',
-  'Other'
+  'Other',
 ] as const;
-

@@ -16,26 +16,26 @@ const IMAGE_CACHE_TTL = 86400; // 24 hours
 
 /**
  * Constructs a Wikimedia Commons image URL.
- * 
+ *
  * @param fileName - The file name from Wikidata (e.g. "Image.jpg").
  * @param width - Desired width for the thumbnail.
  */
 function getWikimediaUrl(fileName: string, width: number = 500): string {
-    return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}?width=${width}`;
+  return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}?width=${width}`;
 }
 
 /**
  * Constructs a Fanart.tv API URL.
  */
 function getFanartApiUrl(mbid: string): string {
-    return `${FANART_BASE_URL}/${mbid}?api_key=${FANART_API_KEY}`;
+  return `${FANART_BASE_URL}/${mbid}?api_key=${FANART_API_KEY}`;
 }
 
 /**
  * Converts a high-res Fanart.tv image URL to a lower-res preview URL.
  */
 function getFanartPreviewUrl(url: string): string {
-    return url.replace('/fanart/', '/preview/');
+  return url.replace('/fanart/', '/preview/');
 }
 
 /**
@@ -45,12 +45,12 @@ export async function getFanartImage(mbid: string): Promise<string | undefined> 
   if (!FANART_API_KEY) return undefined;
   try {
     const res = await fetch(getFanartApiUrl(mbid), {
-        next: { revalidate: IMAGE_CACHE_TTL } 
+      next: { revalidate: IMAGE_CACHE_TTL },
     });
     if (!res.ok) return undefined;
     const data = await res.json();
     const url = data.artistthumb?.[0]?.url;
-    
+
     return url ? getFanartPreviewUrl(url) : undefined;
   } catch (e) {
     console.error(`Fanart.tv fetch failed for mbid ${mbid}:`, e);
@@ -65,14 +65,16 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
   try {
     // 1. Get Wikidata ID from MusicBrainz
     const mbRes = await fetch(`${MB_BASE_URL}/artist/${mbid}?inc=url-rels&fmt=json`, {
-        headers: { 'User-Agent': USER_AGENT },
-        next: { revalidate: IMAGE_CACHE_TTL }
+      headers: { 'User-Agent': USER_AGENT },
+      next: { revalidate: IMAGE_CACHE_TTL },
     });
     if (!mbRes.ok) return undefined;
     const mbData = await mbRes.json();
-    
+
     // Find relation type 'wikidata'
-    const wikidataRel = mbData.relations?.find((r: { type: string; url?: { resource: string } }) => r.type === 'wikidata');
+    const wikidataRel = mbData.relations?.find(
+      (r: { type: string; url?: { resource: string } }) => r.type === 'wikidata',
+    );
     if (!wikidataRel?.url?.resource) return undefined;
 
     // Extract QID (e.g. Q12345 from url)
@@ -81,9 +83,12 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
 
     // 2. Get Image from Wikidata
     // P18 is the "image" property
-    const wdRes = await fetch(`${WIKIDATA_API_URL}?action=wbgetclaims&property=P18&entity=${qid}&format=json`, {
-        next: { revalidate: IMAGE_CACHE_TTL }
-    });
+    const wdRes = await fetch(
+      `${WIKIDATA_API_URL}?action=wbgetclaims&property=P18&entity=${qid}&format=json`,
+      {
+        next: { revalidate: IMAGE_CACHE_TTL },
+      },
+    );
     if (!wdRes.ok) return undefined;
     const wdData = await wdRes.json();
 
@@ -92,7 +97,6 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
 
     // 3. Convert Wiki Filename to URL
     return getWikimediaUrl(fileName);
-
   } catch (e) {
     console.error(`Wikidata fetch failed for mbid ${mbid}:`, e);
     return undefined;
@@ -100,10 +104,10 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
 }
 
 export async function getArtistThumbnail(mbid: string): Promise<string | undefined> {
-    // Priority 1: Fanart.tv (Best quality)
-    const fanart = await getFanartImage(mbid);
-    if (fanart) return fanart;
+  // Priority 1: Fanart.tv (Best quality)
+  const fanart = await getFanartImage(mbid);
+  if (fanart) return fanart;
 
-    // Priority 2: Wikidata (Best coverage)
-    return await getWikidataImage(mbid);
+  // Priority 2: Wikidata (Best coverage)
+  return await getWikidataImage(mbid);
 }

@@ -11,8 +11,6 @@
 import { useEffect } from 'react';
 import { useBrandColors } from './useBrandColors';
 
-
-
 /**
  * Generates an SVG data URI for the favicon based on the provided colors.
  */
@@ -40,21 +38,21 @@ function generateFaviconSvg(hexColors: (string | undefined)[]): string {
  * Encapsulates all direct DOM manipulation.
  */
 export function applyFaviconToDom(svgDataUri: string) {
-    let link = document.querySelector("link#dynamic-favicon") as HTMLLinkElement;
+  let link = document.querySelector('link#dynamic-favicon') as HTMLLinkElement;
 
-    if (!link) {
-        link = document.createElement('link');
-        link.id = 'dynamic-favicon';
-        link.rel = 'icon';
-        link.type = 'image/svg+xml';
-    }
+  if (!link) {
+    link = document.createElement('link');
+    link.id = 'dynamic-favicon';
+    link.rel = 'icon';
+    link.type = 'image/svg+xml';
+  }
 
-    // Always re-append to ensure it is the LAST element in <head>
-    // Browsers typically prioritize the last icon declaration.
-    // This avoids needing to delete other icons (which crashes Next.js).
-    document.head.appendChild(link);
+  // Always re-append to ensure it is the LAST element in <head>
+  // Browsers typically prioritize the last icon declaration.
+  // This avoids needing to delete other icons (which crashes Next.js).
+  document.head.appendChild(link);
 
-    link.href = svgDataUri;
+  link.href = svgDataUri;
 }
 
 /**

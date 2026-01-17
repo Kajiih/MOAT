@@ -33,7 +33,7 @@ export const TierGrid = memo(function TierGrid({
   isBoardEmpty,
   isMiddleTier,
   isExport = false,
-  resolvedImages = {}
+  resolvedImages = {},
 }: TierGridProps) {
   // Use virtualization for very large tiers (e.g. > 100 items)
   // Disable virtualization during export to ensure all items are rendered in the DOM for capture
@@ -41,51 +41,53 @@ export const TierGrid = memo(function TierGrid({
 
   const cards = items.map((item) => (
     <SortableMediaCard
-        key={item.id}
-        item={item}
-        id={item.id}
-        tierId={tierId}
-        onRemove={(itemId) => onRemoveItem(itemId)}
-        onInfo={onInfo}
-        isExport={isExport}
-        resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
+      key={item.id}
+      item={item}
+      id={item.id}
+      tierId={tierId}
+      onRemove={(itemId) => onRemoveItem(itemId)}
+      onInfo={onInfo}
+      isExport={isExport}
+      resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
     />
   ));
 
   const content = isLargeTier ? (
-    <VirtualGrid 
-        items={items}
-        className="max-h-[500px] p-3"
-        renderItem={(item) => (
-            <SortableMediaCard
-                key={item.id}
-                item={item}
-                id={item.id}
-                tierId={tierId}
-                onRemove={(itemId) => onRemoveItem(itemId)}
-                onInfo={onInfo}
-                isExport={isExport}
-                resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
-            />
-        )}
+    <VirtualGrid
+      items={items}
+      className="max-h-[500px] p-3"
+      renderItem={(item) => (
+        <SortableMediaCard
+          key={item.id}
+          item={item}
+          id={item.id}
+          tierId={tierId}
+          onRemove={(itemId) => onRemoveItem(itemId)}
+          onInfo={onInfo}
+          isExport={isExport}
+          resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
+        />
+      )}
     />
-  ) : cards;
+  ) : (
+    cards
+  );
 
   return (
     <div className={`flex-1 ${!isLargeTier ? 'p-3 flex flex-wrap items-center gap-2' : ''}`}>
-        {isExport ? (
-            <>{cards}</>
-        ) : (
-            <SortableContext id={tierId} items={items.map(a => a.id)} strategy={rectSortingStrategy}>
-               {content}
-            </SortableContext>
-        )}
+      {isExport ? (
+        <>{cards}</>
+      ) : (
+        <SortableContext id={tierId} items={items.map((a) => a.id)} strategy={rectSortingStrategy}>
+          {content}
+        </SortableContext>
+      )}
 
-        {items.length === 0 && isBoardEmpty && isMiddleTier && (
-            <div className="absolute inset-0 flex items-center justify-center text-neutral-600 text-lg font-bold italic pointer-events-none select-none">
-                Drop items here...
-            </div>
-        )}
+      {items.length === 0 && isBoardEmpty && isMiddleTier && (
+        <div className="absolute inset-0 flex items-center justify-center text-neutral-600 text-lg font-bold italic pointer-events-none select-none">
+          Drop items here...
+        </div>
+      )}
     </div>
   );
 });

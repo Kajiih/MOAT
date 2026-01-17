@@ -14,19 +14,25 @@ interface ArtistPickerProps {
   selectedArtist: ArtistSelection | null;
   fuzzy?: boolean;
   wildcard?: boolean;
-  context?: string; 
+  context?: string;
 }
 
-export function ArtistPicker({ onSelect, selectedArtist, fuzzy, wildcard, context }: ArtistPickerProps) {
+export function ArtistPicker({
+  onSelect,
+  selectedArtist,
+  fuzzy,
+  wildcard,
+  context,
+}: ArtistPickerProps) {
   return (
-    <MediaPicker 
-        type="artist"
-        selectedItem={selectedArtist}
-        onSelect={onSelect}
-        fuzzy={fuzzy}
-        wildcard={wildcard}
-        context={context}
-        placeholder="Filter by Artist..."
+    <MediaPicker
+      type="artist"
+      selectedItem={selectedArtist}
+      onSelect={onSelect}
+      fuzzy={fuzzy}
+      wildcard={wildcard}
+      context={context}
+      placeholder="Filter by Artist..."
     />
   );
 }

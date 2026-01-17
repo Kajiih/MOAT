@@ -1,7 +1,7 @@
 /**
  * @file global-reducer.ts
  * @description specialized slice reducer for global application state.
- * Handles top-level properties like the board title, as well as state-wide operations 
+ * Handles top-level properties like the board title, as well as state-wide operations
  * like clearing the board or importing a full state snapshot.
  * @module GlobalSliceReducer
  */
@@ -12,7 +12,7 @@ import { INITIAL_STATE } from '@/lib/initial-state';
 
 /**
  * Slice reducer for global application actions.
- * 
+ *
  * @param state - Current tier list state.
  * @param action - TierListAction related to global configuration or state overrides.
  * @returns New state if handled, otherwise original state.

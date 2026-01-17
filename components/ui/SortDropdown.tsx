@@ -29,13 +29,13 @@ export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownPro
   if (type === 'song') {
     OPTIONS.push(
       { id: 'duration_desc', label: 'Duration (Longest)' },
-      { id: 'duration_asc', label: 'Duration (Shortest)' }
+      { id: 'duration_asc', label: 'Duration (Shortest)' },
     );
   }
 
   return (
     <div className="relative">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className={`p-2 rounded border transition-colors ${isOpen ? 'bg-neutral-800 border-neutral-600 text-white' : 'bg-black border-neutral-700 text-neutral-400 hover:text-white'}`}
         title="Sort Results"

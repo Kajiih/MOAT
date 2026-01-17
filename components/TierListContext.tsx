@@ -16,14 +16,15 @@ import { TierListAction, ActionType } from '@/lib/state/actions';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { INITIAL_STATE } from '@/lib/initial-state';
-import { 
-  useTierListDnD, 
-  useTierStructure, 
-  useTierListIO, 
-  useTierListUtils 
-} from '@/lib/hooks';
+import { useTierListDnD, useTierStructure, useTierListIO, useTierListUtils } from '@/lib/hooks';
 import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
-import { SensorDescriptor, SensorOptions, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
+import {
+  SensorDescriptor,
+  SensorOptions,
+  DragStartEvent,
+  DragOverEvent,
+  DragEndEvent,
+} from '@dnd-kit/core';
 import { syncBoardMetadata } from '@/lib/registry-utils';
 import { useDebounce } from 'use-debounce';
 
@@ -78,19 +79,19 @@ const TierListContext = createContext<TierListContextType | null>(null);
 /**
  * Provider component for the Tier List Context.
  * Manages the top-level state and persistence for the application.
- * 
+ *
  * @param props.children - Child components that will have access to the context.
  * @param props.boardId - Unique identifier for the current board (for multi-board support).
  */
-export function TierListProvider({ children, boardId }: { children: ReactNode, boardId: string }) {
+export function TierListProvider({ children, boardId }: { children: ReactNode; boardId: string }) {
   const storageKey = `moat-board-${boardId}`;
 
   const [state, dispatch, isHydrated] = usePersistentReducer<TierListState, TierListAction>(
     tierListReducer,
     INITIAL_STATE,
-    storageKey
+    storageKey,
   );
-  
+
   const historyRaw = useHistory<TierListState>();
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
   const { registerItem, registerItems } = useMediaRegistry();
@@ -100,10 +101,10 @@ export function TierListProvider({ children, boardId }: { children: ReactNode, b
   // This ensures they are available for search result enrichment immediately.
   React.useEffect(() => {
     if (isHydrated) {
-        const allItems = Object.values(state.items).flat();
-        if (allItems.length > 0) {
-            registerItems(allItems);
-        }
+      const allItems = Object.values(state.items).flat();
+      if (allItems.length > 0) {
+        registerItems(allItems);
+      }
     }
   }, [isHydrated, state.items, registerItems]);
 
@@ -111,20 +112,24 @@ export function TierListProvider({ children, boardId }: { children: ReactNode, b
   // Keep the Dashboard Registry in sync with the current board state (title, item count).
   // We use a separate debounce to avoid slamming the registry during rapid edits.
   const [debouncedMetadataState] = useDebounce(state, 2000);
-  
+
   React.useEffect(() => {
     if (isHydrated && boardId) {
-        syncBoardMetadata(boardId, debouncedMetadataState);
+      syncBoardMetadata(boardId, debouncedMetadataState);
     }
   }, [debouncedMetadataState, boardId, isHydrated]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
-    historyRaw.undo(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
+    historyRaw.undo(state, (newState) =>
+      dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }),
+    );
   }, [historyRaw, state, dispatch]);
 
   const redo = React.useCallback(() => {
-    historyRaw.redo(state, (newState) => dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }));
+    historyRaw.redo(state, (newState) =>
+      dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }),
+    );
   }, [historyRaw, state, dispatch]);
 
   const push = React.useCallback(() => {
@@ -145,32 +150,32 @@ export function TierListProvider({ children, boardId }: { children: ReactNode, b
     structureRaw,
     ioRaw,
     utilsRaw,
-    uiState: { detailsItem, setDetailsItem }
+    uiState: { detailsItem, setDetailsItem },
   });
 
-  const value = useMemo(() => ({
-    state,
-    isHydrated,
-    actions: {
+  const value = useMemo(
+    () => ({
+      state,
+      isHydrated,
+      actions: {
         ...actions,
-        updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => actions.updateMediaItem(itemId, updates, registerItem)
-    },
-    dnd,
-    ui,
-    history
-  }), [state, isHydrated, actions, dnd, ui, history, registerItem]);
-
-  return (
-    <TierListContext.Provider value={value}>
-      {children}
-    </TierListContext.Provider>
+        updateMediaItem: (itemId: string, updates: Partial<MediaItem>) =>
+          actions.updateMediaItem(itemId, updates, registerItem),
+      },
+      dnd,
+      ui,
+      history,
+    }),
+    [state, isHydrated, actions, dnd, ui, history, registerItem],
   );
+
+  return <TierListContext.Provider value={value}>{children}</TierListContext.Provider>;
 }
 
 /**
  * Custom hook to consume the Tier List Context.
  * Must be used within a TierListProvider.
- * 
+ *
  * @returns The TierListContextType object.
  * @throws Error if used outside of a TierListProvider.
  */

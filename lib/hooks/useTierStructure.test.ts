@@ -13,7 +13,10 @@ vi.mock('@/components/ui/ToastProvider', () => ({
 
 // Mock Color Palette
 vi.mock('@/lib/colors', () => ({
-  TIER_COLORS: [{ id: 'red', label: 'Red' }, { id: 'blue', label: 'Blue' }],
+  TIER_COLORS: [
+    { id: 'red', label: 'Red' },
+    { id: 'blue', label: 'Blue' },
+  ],
 }));
 
 describe('useTierStructure', () => {
@@ -28,7 +31,7 @@ describe('useTierStructure', () => {
 
     expect(pushHistoryMock).toHaveBeenCalled();
     expect(dispatchMock).toHaveBeenCalledWith({
-        type: ActionType.ADD_TIER
+      type: ActionType.ADD_TIER,
     });
   });
 
@@ -38,15 +41,15 @@ describe('useTierStructure', () => {
     const { result } = renderHook(() => useTierStructure(dispatchMock, pushHistoryMock));
 
     const tierId = 'tier-1';
-    
+
     act(() => {
       result.current.handleDeleteTier(tierId);
     });
 
     expect(pushHistoryMock).toHaveBeenCalled();
     expect(dispatchMock).toHaveBeenCalledWith({
-        type: ActionType.DELETE_TIER,
-        payload: { id: tierId }
+      type: ActionType.DELETE_TIER,
+      payload: { id: tierId },
     });
   });
 
@@ -56,12 +59,12 @@ describe('useTierStructure', () => {
     const { result } = renderHook(() => useTierStructure(dispatchMock, pushHistoryMock));
 
     act(() => {
-        result.current.handleRandomizeColors();
+      result.current.handleRandomizeColors();
     });
 
     expect(pushHistoryMock).toHaveBeenCalled();
     expect(dispatchMock).toHaveBeenCalledWith({
-        type: ActionType.RANDOMIZE_COLORS
+      type: ActionType.RANDOMIZE_COLORS,
     });
     expect(mockShowToast).toHaveBeenCalled();
   });

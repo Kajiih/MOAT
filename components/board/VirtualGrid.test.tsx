@@ -22,12 +22,7 @@ describe('VirtualGrid', () => {
 
   it('renders without crashing', () => {
     const items = Array.from({ length: 10 }, (_, i) => `Item ${i}`);
-    render(
-      <VirtualGrid
-        items={items}
-        renderItem={(item) => <div key={item}>{item}</div>}
-      />
-    );
+    render(<VirtualGrid items={items} renderItem={(item) => <div key={item}>{item}</div>} />);
     // Initially renders something
     expect(document.querySelector('.custom-scrollbar')).toBeTruthy();
   });

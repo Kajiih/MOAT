@@ -24,7 +24,7 @@ interface HydrateAction<S> {
 
 /**
  * A custom hook that combines useReducer with async persistence.
- * 
+ *
  * @template S - The shape of the state.
  * @template A - The union type of possible actions.
  * @param reducer - The pure reducer function.
@@ -35,9 +35,8 @@ interface HydrateAction<S> {
 export function usePersistentReducer<S, A>(
   reducer: Reducer<S, A>,
   initialState: S,
-  key: string
+  key: string,
 ): [S, Dispatch<A>, boolean] {
-  
   /**
    * Wrapper reducer that intercepts hydration actions.
    */
@@ -60,16 +59,20 @@ export function usePersistentReducer<S, A>(
         const item = await storage.get<S>(key);
         if (item && isMounted) {
           // Robustness: Merge with initialValue if both are objects.
-          // This ensures that if the schema has changed (new keys added to initial state), 
+          // This ensures that if the schema has changed (new keys added to initial state),
           // the hydrated state will include them instead of being undefined.
           let hydratedState = item;
-           if (
-            typeof initialState === 'object' && initialState !== null && !Array.isArray(initialState) &&
-            typeof item === 'object' && item !== null && !Array.isArray(item)
+          if (
+            typeof initialState === 'object' &&
+            initialState !== null &&
+            !Array.isArray(initialState) &&
+            typeof item === 'object' &&
+            item !== null &&
+            !Array.isArray(item)
           ) {
-             hydratedState = { ...initialState, ...item };
+            hydratedState = { ...initialState, ...item };
           }
-          
+
           dispatch({ type: HYDRATE_ACTION, payload: hydratedState });
         }
       } catch (error) {
@@ -79,7 +82,9 @@ export function usePersistentReducer<S, A>(
       }
     };
     hydrate();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [key, initialState]);
 
   // 2. Persist Updates (Debounced)

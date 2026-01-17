@@ -6,8 +6,8 @@
  */
 
 export interface SearchOptions {
-    fuzzy: boolean;
-    wildcard: boolean;
+  fuzzy: boolean;
+  wildcard: boolean;
 }
 
 /**
@@ -18,9 +18,9 @@ export interface SearchOptions {
  * - > 5 chars: distance 2 (two typos allowed)
  */
 function getFuzzyDistance(length: number): number {
-    if (length <= 2) return 0;
-    if (length <= 5) return 1;
-    return 2;
+  if (length <= 2) return 0;
+  if (length <= 5) return 1;
+  return 2;
 }
 
 /**
@@ -28,7 +28,7 @@ function getFuzzyDistance(length: number): number {
  * Characters escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /
  */
 export function escapeLucene(term: string): string {
-  return term.replace(/([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\\/]|\&\&|\|\|)/g, "\\$1");
+  return term.replace(/([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\\/]|\&\&|\|\|)/g, '\\$1');
 }
 
 /**
@@ -47,7 +47,7 @@ export function constructLuceneQuery(field: string, term: string, options: Searc
     const escaped = escapeLucene(word);
     const distance = getFuzzyDistance(word.length);
     const isLast = index === words.length - 1;
-    
+
     const strategies = [
       options.wildcard && isLast && `${escaped}*`,
       options.fuzzy && distance > 0 && `${escaped}~${distance}`,

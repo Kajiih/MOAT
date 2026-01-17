@@ -36,11 +36,11 @@ export function generateExportData(state: TierListState): ExportData {
     version: CURRENT_VERSION,
     createdAt: new Date().toISOString(),
     title: state.title,
-    tiers: state.tierDefs.map(tier => ({
+    tiers: state.tierDefs.map((tier) => ({
       label: tier.label,
       color: tier.color,
-      items: state.items[tier.id] || []
-    }))
+      items: state.items[tier.id] || [],
+    })),
   };
 }
 
@@ -48,7 +48,8 @@ export function generateExportData(state: TierListState): ExportData {
  * Triggers a browser download for the given data.
  */
 export function downloadJson(data: object, filename: string) {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  const dataStr =
+    'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
   const a = document.createElement('a');
   a.href = dataStr;
   a.download = filename;
@@ -67,12 +68,12 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
     const newTierDefs: TierDefinition[] = [];
     const newItems: Record<string, MediaItem[]> = {};
 
-    parsed.tiers.forEach((tier: { label: string, color: string, items: MediaItem[] }) => {
+    parsed.tiers.forEach((tier: { label: string; color: string; items: MediaItem[] }) => {
       const id = crypto.randomUUID();
       newTierDefs.push({
         id,
         label: tier.label,
-        color: tier.color
+        color: tier.color,
       });
       newItems[id] = tier.items || [];
     });
@@ -80,7 +81,7 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
     return {
       title: parsed.title || fallbackTitle,
       tierDefs: newTierDefs,
-      items: newItems
+      items: newItems,
     };
   }
 
@@ -92,5 +93,5 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
     };
   }
 
-  throw new Error("Invalid tier list format");
+  throw new Error('Invalid tier list format');
 }

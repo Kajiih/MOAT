@@ -7,12 +7,13 @@
 
 import { ReactNode } from 'react';
 
-export const FILTER_INPUT_STYLES = "w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-neutral-300 outline-none focus:border-red-600 text-[10px]";
+export const FILTER_INPUT_STYLES =
+  'w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-neutral-300 outline-none focus:border-red-600 text-[10px]';
 
 interface FilterRowProps {
-    compact?: boolean;
-    children: ReactNode;
-    className?: string;
+  compact?: boolean;
+  children: ReactNode;
+  className?: string;
 }
 
 /**
@@ -20,21 +21,21 @@ interface FilterRowProps {
  * Use with FilterCol to ensure children behave correctly in both modes.
  */
 export function FilterRow({ compact, children, className = '' }: FilterRowProps) {
-    if (compact) {
-        return <div className={`flex gap-2 ${className}`}>{children}</div>;
-    }
-    return <div className={`grid grid-cols-2 gap-2 ${className}`}>{children}</div>;
+  if (compact) {
+    return <div className={`flex gap-2 ${className}`}>{children}</div>;
+  }
+  return <div className={`grid grid-cols-2 gap-2 ${className}`}>{children}</div>;
 }
 
 interface FilterColProps {
-    children: ReactNode;
-    className?: string;
+  children: ReactNode;
+  className?: string;
 }
 
 /**
- * A column wrapper that ensures content expands in Flex mode (compact) 
+ * A column wrapper that ensures content expands in Flex mode (compact)
  * and behaves normally in Grid mode.
  */
 export function FilterCol({ children, className = '' }: FilterColProps) {
-    return <div className={`flex-1 min-w-0 ${className}`}>{children}</div>;
+  return <div className={`flex-1 min-w-0 ${className}`}>{children}</div>;
 }

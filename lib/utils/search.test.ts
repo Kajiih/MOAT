@@ -14,7 +14,10 @@ describe('constructLuceneQuery', () => {
     });
 
     it('should handle multi-word queries with AND', () => {
-      const result = constructLuceneQuery('title', 'Hello World', { fuzzy: false, wildcard: false });
+      const result = constructLuceneQuery('title', 'Hello World', {
+        fuzzy: false,
+        wildcard: false,
+      });
       expect(result).toBe('title:(Hello AND World)');
     });
   });
@@ -39,7 +42,7 @@ describe('constructLuceneQuery', () => {
   describe('Fuzzy Strategy', () => {
     it('should NOT apply fuzzy to very short words (<= 2 chars)', () => {
       const result = constructLuceneQuery('artist', 'Ad', { fuzzy: true, wildcard: false });
-      expect(result).toBe('artist:(Ad)'); 
+      expect(result).toBe('artist:(Ad)');
     });
 
     it('should apply fuzzy distance 1 to medium words (3-5 chars)', () => {
@@ -62,11 +65,14 @@ describe('constructLuceneQuery', () => {
     });
 
     it('should apply correct strategy and distance per word position and length', () => {
-        // "A" (1st word) -> Exact match (no wildcard, dist 0)
-        // "Adele" (2nd word) -> Fuzzy Dist 1 (no wildcard)
-        // "Beatles" (last word) -> Wildcard + Fuzzy Dist 2
-        const result = constructLuceneQuery('artist', 'A Adele Beatles', { fuzzy: true, wildcard: true });
-        expect(result).toBe('artist:(A AND Adele~1 AND (Beatles* OR Beatles~2))');
+      // "A" (1st word) -> Exact match (no wildcard, dist 0)
+      // "Adele" (2nd word) -> Fuzzy Dist 1 (no wildcard)
+      // "Beatles" (last word) -> Wildcard + Fuzzy Dist 2
+      const result = constructLuceneQuery('artist', 'A Adele Beatles', {
+        fuzzy: true,
+        wildcard: true,
+      });
+      expect(result).toBe('artist:(A AND Adele~1 AND (Beatles* OR Beatles~2))');
     });
   });
 

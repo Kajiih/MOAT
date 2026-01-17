@@ -7,9 +7,9 @@ interface VirtualGridProps<T> {
   items: T[];
   renderItem: (item: T, index: number) => ReactNode;
   itemHeight?: number; // Defaults to itemWidth if not provided (square)
-  itemWidth?: number;  // Defaults to 112 (w-28)
-  gap?: number;        // Defaults to 8 (gap-2)
-  padding?: number;    // Container padding if needed
+  itemWidth?: number; // Defaults to 112 (w-28)
+  gap?: number; // Defaults to 8 (gap-2)
+  padding?: number; // Container padding if needed
   className?: string;
 }
 
@@ -24,7 +24,7 @@ export function VirtualGrid<T>({
   itemHeight,
   gap = 8,
   padding = 0,
-  className = ''
+  className = '',
 }: VirtualGridProps<T>) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -39,10 +39,12 @@ export function VirtualGrid<T>({
       for (const entry of entries) {
         if (entry.contentBoxSize) {
           // Firefox implements `contentBoxSize` as a single content rect, rather than an array
-          const contentBoxSize = Array.isArray(entry.contentBoxSize) ? entry.contentBoxSize[0] : entry.contentBoxSize;
+          const contentBoxSize = Array.isArray(entry.contentBoxSize)
+            ? entry.contentBoxSize[0]
+            : entry.contentBoxSize;
           setWidth(contentBoxSize.inlineSize);
         } else {
-            setWidth(entry.contentRect.width);
+          setWidth(entry.contentRect.width);
         }
       }
     });
@@ -52,7 +54,7 @@ export function VirtualGrid<T>({
   }, []);
 
   // Calculate columns
-  const effectiveWidth = width - (padding * 2);
+  const effectiveWidth = width - padding * 2;
   // Ensure at least 1 column to avoid division by zero or negative
   // We use floor to ensure items fit.
   // We need to account for the fact that gaps exist between items.
@@ -60,7 +62,7 @@ export function VirtualGrid<T>({
   // width + gap >= n * (itemWidth + gap)
   // n <= (width + gap) / (itemWidth + gap)
   const columns = Math.max(1, Math.floor((effectiveWidth + gap) / (itemWidth + gap)));
-  
+
   const rowCount = Math.ceil(items.length / columns);
   const finalItemHeight = itemHeight ?? itemWidth;
 
@@ -74,10 +76,10 @@ export function VirtualGrid<T>({
   });
 
   return (
-    <div 
-        ref={parentRef} 
-        className={`w-full h-full overflow-y-auto min-h-0 custom-scrollbar ${className}`}
-        style={{ padding: padding }}
+    <div
+      ref={parentRef}
+      className={`w-full h-full overflow-y-auto min-h-0 custom-scrollbar ${className}`}
+      style={{ padding: padding }}
     >
       <div
         style={{

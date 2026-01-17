@@ -36,21 +36,21 @@ export function TierList({
   onInfo,
 }: TierListProps) {
   const content = tiers.map((tier) => (
-    <TierRow 
-        key={tier.id} 
-        tier={tier}
-        items={items[tier.id] || []} 
-        onRemoveItem={(itemId) => onRemoveItem(tier.id, itemId)} 
-        onUpdateTier={onUpdateTier}
-        onDeleteTier={onDeleteTier}
-        canDelete={!isExport} // Assuming we don't delete in export, but in TierBoard it was passed as true (except logic in TierRow might restrict it)
-        // Wait, TierBoard passes `canDelete={true}`. TierRow checks logic? 
-        // TierRow: `canDelete` prop is passed to `TierSettings`.
-        // In ExportBoard `canDelete={false}`.
-        isAnyDragging={isAnyDragging}
-        onInfo={onInfo}
-        isExport={isExport}
-        resolvedImages={resolvedImages}
+    <TierRow
+      key={tier.id}
+      tier={tier}
+      items={items[tier.id] || []}
+      onRemoveItem={(itemId) => onRemoveItem(tier.id, itemId)}
+      onUpdateTier={onUpdateTier}
+      onDeleteTier={onDeleteTier}
+      canDelete={!isExport} // Assuming we don't delete in export, but in TierBoard it was passed as true (except logic in TierRow might restrict it)
+      // Wait, TierBoard passes `canDelete={true}`. TierRow checks logic?
+      // TierRow: `canDelete` prop is passed to `TierSettings`.
+      // In ExportBoard `canDelete={false}`.
+      isAnyDragging={isAnyDragging}
+      onInfo={onInfo}
+      isExport={isExport}
+      resolvedImages={resolvedImages}
     />
   ));
 
@@ -59,11 +59,8 @@ export function TierList({
   }
 
   return (
-    <SortableContext 
-        items={tiers.map(t => t.id)} 
-        strategy={verticalListSortingStrategy}
-    >
-        {content}
+    <SortableContext items={tiers.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+      {content}
     </SortableContext>
   );
 }

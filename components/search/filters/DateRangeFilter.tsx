@@ -23,29 +23,29 @@ export function DateRangeFilter({
   maxYear,
   onMinYearChange,
   onMaxYearChange,
-  fromLabel = "From Year",
-  toLabel = "To Year",
-  className = "",
-  compact = false
+  fromLabel = 'From Year',
+  toLabel = 'To Year',
+  className = '',
+  compact = false,
 }: DateRangeFilterProps) {
   return (
     <FilterRow compact={compact} className={className}>
       <FilterCol>
-         <input
-            placeholder={fromLabel}
-            type="number"
-            className={FILTER_INPUT_STYLES}
-            value={minYear}
-            onChange={(e) => onMinYearChange(e.target.value)}
+        <input
+          placeholder={fromLabel}
+          type="number"
+          className={FILTER_INPUT_STYLES}
+          value={minYear}
+          onChange={(e) => onMinYearChange(e.target.value)}
         />
       </FilterCol>
       <FilterCol>
-         <input
-            placeholder={toLabel}
-            type="number"
-            className={FILTER_INPUT_STYLES}
-            value={maxYear}
-            onChange={(e) => onMaxYearChange(e.target.value)}
+        <input
+          placeholder={toLabel}
+          type="number"
+          className={FILTER_INPUT_STYLES}
+          value={maxYear}
+          onChange={(e) => onMaxYearChange(e.target.value)}
         />
       </FilterCol>
     </FilterRow>

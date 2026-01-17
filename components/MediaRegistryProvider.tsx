@@ -1,7 +1,7 @@
 /**
  * @file MediaRegistryProvider.tsx
  * @description A persistent global cache for media items.
- * Acts as a "Shared Memory" for the application, ensuring that once an item's details or image 
+ * Acts as a "Shared Memory" for the application, ensuring that once an item's details or image
  * are found in one part of the app (e.g. Search), they are available everywhere (e.g. Board).
  * Implements a FIFO pruning mechanism to prevent localStorage bloat.
  * @module MediaRegistryProvider
@@ -29,7 +29,7 @@ const MediaRegistryContext = createContext<MediaRegistryContextValue | undefined
 
 /**
  * Custom hook to consume the Media Registry.
- * 
+ *
  * @returns The MediaRegistryContextValue.
  * @throws Error if used outside of a MediaRegistryProvider.
  */
@@ -49,7 +49,10 @@ const INITIAL_REGISTRY: Record<string, MediaItem> = {};
  * Handles persistence to IndexedDB and FIFO pruning.
  */
 export function MediaRegistryProvider({ children }: { children: ReactNode }) {
-  const [registry, setRegistry] = usePersistentState<Record<string, MediaItem>>('moat-media-registry', INITIAL_REGISTRY);
+  const [registry, setRegistry] = usePersistentState<Record<string, MediaItem>>(
+    'moat-media-registry',
+    INITIAL_REGISTRY,
+  );
 
   /**
    * Internal helper to prune the registry if it gets too large.
@@ -58,10 +61,10 @@ export function MediaRegistryProvider({ children }: { children: ReactNode }) {
   const pruneRegistry = useCallback((current: Record<string, MediaItem>) => {
     const keys = Object.keys(current);
     if (keys.length <= MAX_REGISTRY_SIZE) return current;
-    
+
     // Remove the first 200 items to create some breathing room
     const next = { ...current };
-    keys.slice(0, 200).forEach(k => delete next[k]);
+    keys.slice(0, 200).forEach((k) => delete next[k]);
     return next;
   }, []);
 
@@ -69,71 +72,84 @@ export function MediaRegistryProvider({ children }: { children: ReactNode }) {
    * Core merging logic for one or more items.
    * Efficiently checks for changes before updating state.
    */
-  const mergeItems = useCallback((prev: Record<string, MediaItem>, items: MediaItem[]) => {
-    let hasChanges = false;
-    let next = { ...prev };
-    
-    for (const item of items) {
-      if (!item.id) continue;
+  const mergeItems = useCallback(
+    (prev: Record<string, MediaItem>, items: MediaItem[]) => {
+      let hasChanges = false;
+      let next = { ...prev };
 
-      const existing = next[item.id];
-      if (existing) {
+      for (const item of items) {
+        if (!item.id) continue;
+
+        const existing = next[item.id];
+        if (existing) {
           // Optimization: Shallow compare critical fields first to avoid deep stringify
           const isUrlChanged = item.imageUrl && item.imageUrl !== existing.imageUrl;
-          const isDetailsChanged = item.details && JSON.stringify(item.details) !== JSON.stringify(existing.details);
-          
+          const isDetailsChanged =
+            item.details && JSON.stringify(item.details) !== JSON.stringify(existing.details);
+
           const isMetadataGeneralChanged = item.title !== existing.title;
           let isArtistChanged = false;
 
           // Only compare 'artist' field for non-artist types
           if (item.type !== 'artist' && existing.type !== 'artist') {
-              isArtistChanged = item.artist !== existing.artist;
+            isArtistChanged = item.artist !== existing.artist;
           }
 
           if (isUrlChanged || isDetailsChanged || isMetadataGeneralChanged || isArtistChanged) {
-              next[item.id] = {
-                  ...existing,
-                  ...item,
-                  // Keep existing assets if new ones are missing
-                  imageUrl: item.imageUrl || existing.imageUrl,
-                  details: item.details || existing.details
-              };
-              hasChanges = true;
+            next[item.id] = {
+              ...existing,
+              ...item,
+              // Keep existing assets if new ones are missing
+              imageUrl: item.imageUrl || existing.imageUrl,
+              details: item.details || existing.details,
+            };
+            hasChanges = true;
           }
-      } else {
+        } else {
           next[item.id] = item;
           hasChanges = true;
+        }
       }
-    }
 
-    if (hasChanges) {
+      if (hasChanges) {
         next = pruneRegistry(next);
         return next;
-    }
-    return prev;
-  }, [pruneRegistry]);
+      }
+      return prev;
+    },
+    [pruneRegistry],
+  );
 
   /**
    * Batched version of registry update.
    * Preferred for search result delivery or board hydration.
    */
-  const registerItems = useCallback((items: MediaItem[]) => {
-    setRegistry(prev => mergeItems(prev, items));
-  }, [setRegistry, mergeItems]);
+  const registerItems = useCallback(
+    (items: MediaItem[]) => {
+      setRegistry((prev) => mergeItems(prev, items));
+    },
+    [setRegistry, mergeItems],
+  );
 
   /**
    * Single item registration.
    */
-  const registerItem = useCallback((item: MediaItem) => {
-    setRegistry(prev => mergeItems(prev, [item]));
-  }, [setRegistry, mergeItems]);
+  const registerItem = useCallback(
+    (item: MediaItem) => {
+      setRegistry((prev) => mergeItems(prev, [item]));
+    },
+    [setRegistry, mergeItems],
+  );
 
   /**
    * Retrieval helper.
    */
-  const getItem = useCallback(<T extends MediaItem>(id: string): T | undefined => {
-    return registry[id] as T | undefined;
-  }, [registry]);
+  const getItem = useCallback(
+    <T extends MediaItem>(id: string): T | undefined => {
+      return registry[id] as T | undefined;
+    },
+    [registry],
+  );
 
   return (
     <MediaRegistryContext.Provider value={{ registerItems, registerItem, getItem }}>

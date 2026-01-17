@@ -17,59 +17,55 @@ import { useBrandColors } from '@/lib/hooks/useBrandColors';
  * Props for the ExportBoard component.
  */
 interface ExportBoardProps {
-    state: TierListState;
-    brandColors: string[];
-    resolvedImages?: Record<string, string>;
+  state: TierListState;
+  brandColors: string[];
+  resolvedImages?: Record<string, string>;
 }
 
 /**
  * The main ExportBoard component.
- * Reuses the exact same components and styles as the main application but in a 
+ * Reuses the exact same components and styles as the main application but in a
  * non-interactive "Export Mode" to ensure 100% visual parity.
  */
 export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportBoardProps) {
-    const logoHexColors = useBrandColors(brandColors);
+  const logoHexColors = useBrandColors(brandColors);
 
-    return (
-        <div 
-            id="export-board-surface"
-            className="bg-neutral-950 text-neutral-200 font-sans antialiased flex flex-col items-center justify-center py-4 px-8 relative" 
-            style={{ 
-                width: '1200px', 
-                minHeight: '800px',
-            }} 
-        >
-            {/* Top-Left Branding */}
-            <div className="absolute top-6 left-8">
-                <BrandLogo colors={logoHexColors} variant="header" />
-            </div>
+  return (
+    <div
+      id="export-board-surface"
+      className="bg-neutral-950 text-neutral-200 font-sans antialiased flex flex-col items-center justify-center py-4 px-8 relative"
+      style={{
+        width: '1200px',
+        minHeight: '800px',
+      }}
+    >
+      {/* Top-Left Branding */}
+      <div className="absolute top-6 left-8">
+        <BrandLogo colors={logoHexColors} variant="header" />
+      </div>
 
-            {/* Main Content Wrapper - Explicit framing */}
-            <div className="w-full flex flex-col items-center">
-                
-                {/* 1. Centered Title */}
-                <div className="w-full flex justify-center mt-2 mb-8">
-                    <BoardTitle 
-                        title={state.title}
-                        isExport={true}
-                    />
-                </div>
-
-                {/* 2. Tier List - Full Width within Gutter */}
-                <TierList 
-                    tiers={state.tierDefs}
-                    items={state.items}
-                    isExport={true}
-                    resolvedImages={resolvedImages}
-                    onRemoveItem={() => {}}
-                    onUpdateTier={() => {}}
-                    onDeleteTier={() => {}}
-                    onInfo={() => {}}
-                />
-
-                {/* 3. Branding Footer - Symmetrical and Centered */}
-                <Footer colors={logoHexColors} className="pt-2 pb-0" />
-            </div>
+      {/* Main Content Wrapper - Explicit framing */}
+      <div className="w-full flex flex-col items-center">
+        {/* 1. Centered Title */}
+        <div className="w-full flex justify-center mt-2 mb-8">
+          <BoardTitle title={state.title} isExport={true} />
         </div>
-    );
+
+        {/* 2. Tier List - Full Width within Gutter */}
+        <TierList
+          tiers={state.tierDefs}
+          items={state.items}
+          isExport={true}
+          resolvedImages={resolvedImages}
+          onRemoveItem={() => {}}
+          onUpdateTier={() => {}}
+          onDeleteTier={() => {}}
+          onInfo={() => {}}
+        />
+
+        {/* 3. Branding Footer - Symmetrical and Centered */}
+        <Footer colors={logoHexColors} className="pt-2 pb-0" />
+      </div>
+    </div>
+  );
 }

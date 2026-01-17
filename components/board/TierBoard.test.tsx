@@ -24,18 +24,16 @@ describe('TierBoard', () => {
       <ToastProvider>
         <MediaRegistryProvider>
           <TierListProvider>
-            <DndContext>
-              {ui}
-            </DndContext>
+            <DndContext>{ui}</DndContext>
           </TierListProvider>
         </MediaRegistryProvider>
-      </ToastProvider>
+      </ToastProvider>,
     );
   };
 
   it('should render a list of tiers using real components', () => {
     renderWithProviders(<TierBoard {...defaultProps} />);
-    
+
     const labels = screen.getAllByTestId('tier-row-label');
     expect(labels).toHaveLength(6);
     expect(labels[0].textContent).toBe('S');

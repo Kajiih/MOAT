@@ -11,7 +11,15 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';
 import { getSearchUrl } from '@/lib/api';
-import { MediaType, MediaItem, ArtistItem, AlbumItem, SongItem, ArtistSelection, AlbumSelection } from '@/lib/types';
+import {
+  MediaType,
+  MediaItem,
+  ArtistItem,
+  AlbumItem,
+  SongItem,
+  ArtistSelection,
+  AlbumSelection,
+} from '@/lib/types';
 import { usePersistentState } from './usePersistentState';
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { swrFetcher } from '@/lib/api/fetcher';
@@ -35,7 +43,7 @@ interface UseMediaSearchConfig {
   /** Force a specific artist ID (scoping the search). */
   artistId?: string; // Force a specific artist for this search instance
   /** Force a specific album ID (scoping the search). */
-  albumId?: string;  // Force a specific album for this search instance
+  albumId?: string; // Force a specific album for this search instance
   /** Ignore advanced filters (dates, types, etc.) from persisted state. Default: false */
   ignoreFilters?: boolean; // Ignore advanced filters (dates, types, etc.) from persisted state
   /** Override default localStorage key for persistence. */
@@ -82,7 +90,7 @@ const defaultState: SearchParamsState = {
   tag: '',
   minDuration: '',
   maxDuration: '',
-  page: 1
+  page: 1,
 };
 
 /**
@@ -92,8 +100,8 @@ const defaultState: SearchParamsState = {
 interface UseMediaSearchResult<T extends MediaItem> {
   // --- Filter State ---
   filters: SearchParamsState;
-  
-  /** 
+
+  /**
    * Updates one or more filter parameters.
    * Automatically resets the page to 1 when filters change.
    */
@@ -106,12 +114,12 @@ interface UseMediaSearchResult<T extends MediaItem> {
   setFuzzy: (val: boolean) => void;
   wildcard: boolean;
   setWildcard: (val: boolean) => void;
-  
+
   /** Resets all search parameters to defaults. */
   reset: () => void;
   /** Manually triggers a search (flushing debounce). */
   searchNow: () => void; // Manually trigger search (flush debounce)
-  
+
   // --- Results ---
   results: T[];
   totalPages: number;
@@ -122,32 +130,41 @@ interface UseMediaSearchResult<T extends MediaItem> {
 
 /**
  * Custom hook to manage the state and data fetching for media searches.
- * 
+ *
  * Handles:
  * - Local state for query params (text, year range, artist filter).
  * - Debouncing of inputs to prevent excessive API calls.
  * - SWR integration for data fetching, caching, and revalidation.
  * - Automatic prefetching of the next page of results.
- * 
+ *
  * @param type - The type of media to search for ('album', 'artist', 'song').
  * @param config - Optional configuration overrides for search settings.
  */
 export function useMediaSearch<T extends MediaType>(
-  type: T, 
-  config?: UseMediaSearchConfig
+  type: T,
+  config?: UseMediaSearchConfig,
 ): UseMediaSearchResult<MediaItemMap[T]> {
   const storageKey = config?.storageKey || `moat-search-params-${type}`;
-  
+
   const [state, setState] = usePersistentState<SearchParamsState>(storageKey, defaultState);
 
   // Map state to individual variables for internal use
-  const { 
-      query, selectedArtist, selectedAlbum, minYear, maxYear, 
-      albumPrimaryTypes, albumSecondaryTypes, 
-      artistType, artistCountry, tag, minDuration, maxDuration,
-      page 
+  const {
+    query,
+    selectedArtist,
+    selectedAlbum,
+    minYear,
+    maxYear,
+    albumPrimaryTypes,
+    albumSecondaryTypes,
+    artistType,
+    artistCountry,
+    tag,
+    minDuration,
+    maxDuration,
+    page,
   } = state;
-  
+
   // Internal State (used if no config provided)
   const [internalFuzzy, setInternalFuzzy] = useState(true);
   const [internalWildcard, setInternalWildcard] = useState(true);
@@ -159,42 +176,48 @@ export function useMediaSearch<T extends MediaType>(
   const forcedArtistId = config?.artistId;
   const forcedAlbumId = config?.albumId;
   const ignoreFilters = config?.ignoreFilters ?? false;
-  
+
   const debounceDelay = 300; // milliseconds
 
   // Memoize the filter object so the reference only changes when the actual values change.
   // This prevents the debounce timer from resetting on unrelated re-renders.
-  const filtersToDebounce = useMemo(() => ({
-    query,
-    minYear,
-    maxYear,
-    artistCountry,
-    tag,
-    minDuration,
-    maxDuration
-  }), [query, minYear, maxYear, artistCountry, tag, minDuration, maxDuration]);
+  const filtersToDebounce = useMemo(
+    () => ({
+      query,
+      minYear,
+      maxYear,
+      artistCountry,
+      tag,
+      minDuration,
+      maxDuration,
+    }),
+    [query, minYear, maxYear, artistCountry, tag, minDuration, maxDuration],
+  );
 
   // Debounce the memoized object
   const [debouncedFilters, controlFilters] = useDebounce(filtersToDebounce, debounceDelay);
-  
+
   // Explicit flush for immediate search (e.g., on Enter key)
   const searchNow = () => {
     controlFilters.flush();
   };
-  
+
   // Generic updater
-  const updateFilters = useCallback((patch: Partial<SearchParamsState>) => {
-    setState(prev => {
+  const updateFilters = useCallback(
+    (patch: Partial<SearchParamsState>) => {
+      setState((prev) => {
         // Special case: If query starts with space, trim start
         if (patch.query && patch.query.startsWith(' ')) {
-            patch.query = patch.query.trimStart();
+          patch.query = patch.query.trimStart();
         }
         return { ...prev, ...patch, page: 1 };
-    });
-  }, [setState]);
+      });
+    },
+    [setState],
+  );
 
   const handleSetPage = (val: number | ((prev: number) => number)) => {
-    setState(prev => ({ ...prev, page: typeof val === 'function' ? val(prev.page) : val }));
+    setState((prev) => ({ ...prev, page: typeof val === 'function' ? val(prev.page) : val }));
   };
 
   const reset = () => {
@@ -218,7 +241,7 @@ export function useMediaSearch<T extends MediaType>(
     minDuration: ignoreFilters ? '' : debouncedFilters.minDuration,
     maxDuration: ignoreFilters ? '' : debouncedFilters.maxDuration,
     fuzzy: isFuzzy,
-    wildcard: isWildcard
+    wildcard: isWildcard,
   });
 
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
@@ -246,9 +269,21 @@ export function useMediaSearch<T extends MediaType>(
     const effectiveMinDuration = ignoreFilters ? '' : d.minDuration;
     const effectiveMaxDuration = ignoreFilters ? '' : d.maxDuration;
 
-    const hasFilters = d.query || forcedArtistId || selectedArtist?.id || forcedAlbumId || selectedAlbum?.id || effectiveMinYear || effectiveMaxYear || 
-                       effectiveAlbumPrimaryTypes.length > 0 || effectiveAlbumSecondaryTypes.length > 0 ||
-                       effectiveArtistType || effectiveArtistCountry || effectiveTag || effectiveMinDuration || effectiveMaxDuration;
+    const hasFilters =
+      d.query ||
+      forcedArtistId ||
+      selectedArtist?.id ||
+      forcedAlbumId ||
+      selectedAlbum?.id ||
+      effectiveMinYear ||
+      effectiveMaxYear ||
+      effectiveAlbumPrimaryTypes.length > 0 ||
+      effectiveAlbumSecondaryTypes.length > 0 ||
+      effectiveArtistType ||
+      effectiveArtistCountry ||
+      effectiveTag ||
+      effectiveMinDuration ||
+      effectiveMaxDuration;
 
     if (!hasFilters) return null;
 
@@ -268,75 +303,107 @@ export function useMediaSearch<T extends MediaType>(
       minDuration: effectiveMinDuration ? parseInt(effectiveMinDuration, 10) * 1000 : undefined,
       maxDuration: effectiveMaxDuration ? parseInt(effectiveMaxDuration, 10) * 1000 : undefined,
       fuzzy: isFuzzy,
-      wildcard: isWildcard
+      wildcard: isWildcard,
     });
-  }, [isEnabled, type, page, debouncedFilters, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, albumPrimaryTypes, albumSecondaryTypes, artistType, isFuzzy, isWildcard, ignoreFilters]);
+  }, [
+    isEnabled,
+    type,
+    page,
+    debouncedFilters,
+    forcedArtistId,
+    selectedArtist,
+    forcedAlbumId,
+    selectedAlbum,
+    albumPrimaryTypes,
+    albumSecondaryTypes,
+    artistType,
+    isFuzzy,
+    isWildcard,
+    ignoreFilters,
+  ]);
 
-  const { data, error, isLoading, isValidating } = useSWR<SearchResponse, Error & { status?: number }>(
-    searchUrl,
-    swrFetcher,
-    { keepPreviousData: shouldKeepPreviousData }
-  );
+  const { data, error, isLoading, isValidating } = useSWR<
+    SearchResponse,
+    Error & { status?: number }
+  >(searchUrl, swrFetcher, { keepPreviousData: shouldKeepPreviousData });
 
   const { registerItems, getItem } = useMediaRegistry();
 
   // Automatically register discovered items in the global registry
   useEffect(() => {
-      if (data?.results) {
-          registerItems(data.results);
-      }
+    if (data?.results) {
+      registerItems(data.results);
+    }
   }, [data?.results, registerItems]);
 
   // ENRICHMENT: Always use the registry's version of the item if we have it
-  // This ensures that if we found an image for an artist previously, it shows up 
+  // This ensures that if we found an image for an artist previously, it shows up
   // in search results even if the search API didn't provide it yet.
   const enrichedResults = useMemo(() => {
-    return (data?.results || []).map(item => getItem(item.id) || item);
+    return (data?.results || []).map((item) => getItem(item.id) || item);
   }, [data?.results, getItem]);
-  
+
   // Pagination Prefetching
   useEffect(() => {
-      if (data && page < data.totalPages && isEnabled) {
-          const d = debouncedFilters;
-          const nextUrl = getSearchUrl({
-            type,
-            page: page + 1,
-            query: d.query,
-            artistId: forcedArtistId || selectedArtist?.id,
-            albumId: forcedAlbumId || selectedAlbum?.id,
-            minYear: d.minYear,
-            maxYear: d.maxYear,
-            albumPrimaryTypes,
-            albumSecondaryTypes,
-            artistType,
-            artistCountry: d.artistCountry,
-            tag: d.tag,
-            minDuration: d.minDuration ? parseInt(d.minDuration, 10) * 1000 : undefined,
-            maxDuration: d.maxDuration ? parseInt(d.maxDuration, 10) * 1000 : undefined,
-            fuzzy: isFuzzy,
-            wildcard: isWildcard
-          });
-          preload(nextUrl, swrFetcher);
-      }
-  }, [data, page, type, debouncedFilters, forcedArtistId, selectedArtist, forcedAlbumId, selectedAlbum, albumPrimaryTypes, albumSecondaryTypes, artistType, isFuzzy, isWildcard, isEnabled]);
+    if (data && page < data.totalPages && isEnabled) {
+      const d = debouncedFilters;
+      const nextUrl = getSearchUrl({
+        type,
+        page: page + 1,
+        query: d.query,
+        artistId: forcedArtistId || selectedArtist?.id,
+        albumId: forcedAlbumId || selectedAlbum?.id,
+        minYear: d.minYear,
+        maxYear: d.maxYear,
+        albumPrimaryTypes,
+        albumSecondaryTypes,
+        artistType,
+        artistCountry: d.artistCountry,
+        tag: d.tag,
+        minDuration: d.minDuration ? parseInt(d.minDuration, 10) * 1000 : undefined,
+        maxDuration: d.maxDuration ? parseInt(d.maxDuration, 10) * 1000 : undefined,
+        fuzzy: isFuzzy,
+        wildcard: isWildcard,
+      });
+      preload(nextUrl, swrFetcher);
+    }
+  }, [
+    data,
+    page,
+    type,
+    debouncedFilters,
+    forcedArtistId,
+    selectedArtist,
+    forcedAlbumId,
+    selectedAlbum,
+    albumPrimaryTypes,
+    albumSecondaryTypes,
+    artistType,
+    isFuzzy,
+    isWildcard,
+    isEnabled,
+  ]);
 
   return {
     // State
     filters: state,
     updateFilters,
-    
-    page, setPage: handleSetPage,
+
+    page,
+    setPage: handleSetPage,
     // Setters update internal state (which acts as fallback/default)
-    fuzzy: isFuzzy, setFuzzy: setInternalFuzzy,
-    wildcard: isWildcard, setWildcard: setInternalWildcard,
+    fuzzy: isFuzzy,
+    setFuzzy: setInternalFuzzy,
+    wildcard: isWildcard,
+    setWildcard: setInternalWildcard,
     reset,
     searchNow,
-    
+
     // Data
     results: enrichedResults as MediaItemMap[T][],
     totalPages: data?.totalPages || 0,
     error: error || null,
     isLoading,
-    isValidating
+    isValidating,
   };
 }

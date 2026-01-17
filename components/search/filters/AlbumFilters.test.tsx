@@ -22,7 +22,7 @@ describe('AlbumFilters', () => {
         onToggleSecondary={mockToggleSecondary}
         onResetSecondary={mockResetSecondary}
         onSelectAllSecondary={mockSelectAllSecondary}
-      />
+      />,
     );
 
     expect(screen.getByText('Select All')).toBeDefined();
@@ -37,7 +37,7 @@ describe('AlbumFilters', () => {
         onToggleSecondary={mockToggleSecondary}
         onResetSecondary={mockResetSecondary}
         onSelectAllSecondary={mockSelectAllSecondary}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText('Select All'));
@@ -54,7 +54,7 @@ describe('AlbumFilters', () => {
         onToggleSecondary={mockToggleSecondary}
         onResetSecondary={mockResetSecondary}
         onSelectAllSecondary={mockSelectAllSecondary}
-      />
+      />,
     );
 
     expect(screen.getByText('Deselect All')).toBeDefined();
@@ -69,7 +69,7 @@ describe('AlbumFilters', () => {
         onToggleSecondary={mockToggleSecondary}
         onResetSecondary={mockResetSecondary}
         onSelectAllSecondary={mockSelectAllSecondary}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText('Deselect All'));

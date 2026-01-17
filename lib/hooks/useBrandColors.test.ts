@@ -14,7 +14,9 @@ describe('useBrandColors', () => {
   });
 
   it('should use first 4 if more than 4 are provided', () => {
-    const { result } = renderHook(() => useBrandColors(['red', 'orange', 'amber', 'green', 'blue']));
+    const { result } = renderHook(() =>
+      useBrandColors(['red', 'orange', 'amber', 'green', 'blue']),
+    );
     expect(result.current).toEqual(['#ef4444', '#f97316', '#fbbf24', '#22c55e']);
   });
 });

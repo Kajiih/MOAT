@@ -1,4 +1,3 @@
-
 import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
@@ -7,13 +6,13 @@ test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
     // Reset storage to ensure clean state
     await page.addInitScript(() => {
-        const dbs = window.indexedDB.databases();
-        dbs.then(databases => {
-            databases.forEach(db => {
-                if(db.name) window.indexedDB.deleteDatabase(db.name);
-            });
+      const dbs = window.indexedDB.databases();
+      dbs.then((databases) => {
+        databases.forEach((db) => {
+          if (db.name) window.indexedDB.deleteDatabase(db.name);
         });
-        localStorage.clear();
+      });
+      localStorage.clear();
     });
     await page.goto('/');
     // Wait for hydration
@@ -24,32 +23,32 @@ test.describe('Visual Regression', () => {
   test('default board snapshot', async ({ page }) => {
     // Take snapshot of the entire page
     await expect(page).toHaveScreenshot('default-board.png', {
-        fullPage: true,
-        mask: [page.locator('.lucide-camera')] // Mask dynamic elements if any (camera icon itself is stable though)
+      fullPage: true,
+      mask: [page.locator('.lucide-camera')], // Mask dynamic elements if any (camera icon itself is stable though)
     });
   });
 
   test('search panel snapshot', async ({ page }) => {
     // Open search panel by ensuring it's visible (it is persistent on desktop)
     await expect(page.getByPlaceholder('Search songs...')).toBeVisible();
-    
+
     // Snapshot of the search panel only
     const searchPanel = page.locator('.sticky'); // The search panel container
     await expect(searchPanel).toHaveScreenshot('search-panel-empty.png');
   });
 
   test('populated board snapshot', async ({ page }) => {
-     // Prepare a dummy JSON file to populate board
-     const importData = {
-        version: 1,
-        title: "Visual Test Board",
-        tiers: [
-            { id: "1", label: 'Visual S', color: 'red', items: [] },
-            { id: "2", label: 'Visual A', color: 'blue', items: [] }
-        ],
-        items: {}
+    // Prepare a dummy JSON file to populate board
+    const importData = {
+      version: 1,
+      title: 'Visual Test Board',
+      tiers: [
+        { id: '1', label: 'Visual S', color: 'red', items: [] },
+        { id: '2', label: 'Visual A', color: 'blue', items: [] },
+      ],
+      items: {},
     };
-    
+
     // Create temporary file
     const testDir = 'test-results';
     if (!fs.existsSync(testDir)) fs.mkdirSync(testDir);
