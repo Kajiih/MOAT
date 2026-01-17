@@ -146,45 +146,47 @@ export default function TierListApp() {
   }
 
   return (
-    <div className="min-h-screen text-neutral-200 p-8 font-sans relative">
+    <div className="min-h-screen text-neutral-200 font-sans flex flex-col relative">
       <InteractionContext.Provider value={{ setHoveredItem }}>
-        <div className="max-w-[1600px] mx-auto">
-          <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
+        <main className="flex-1 p-8 pb-0">
+          <div className="max-w-[1600px] mx-auto">
+            <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
 
-          <DndContext
-            sensors={sensors}
-            collisionDetection={rectIntersection}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
-              <div>
-                <TierBoard isAnyDragging={!!activeItem || !!activeTier} />
+            <DndContext
+              sensors={sensors}
+              collisionDetection={rectIntersection}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragEnd={handleDragEnd}
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
+                <div>
+                  <TierBoard isAnyDragging={!!activeItem || !!activeTier} />
+                </div>
+
+                <SearchPanel />
               </div>
 
-              <SearchPanel />
-            </div>
-
-            <DragOverlay>
-              {activeTier ? (
-                <div className="w-full opacity-80 pointer-events-none">
-                  <TierRow
-                    tier={activeTier}
-                    items={state.items[activeTier.id] || []}
-                    onRemoveItem={() => {}}
-                    onUpdateTier={() => {}}
-                    onDeleteTier={() => {}}
-                    canDelete={false}
-                    onInfo={() => {}}
-                  />
-                </div>
-              ) : activeItem ? (
-                <MediaCard item={activeItem} />
-              ) : null}
-            </DragOverlay>
-          </DndContext>
-        </div>
+              <DragOverlay>
+                {activeTier ? (
+                  <div className="w-full opacity-80 pointer-events-none">
+                    <TierRow
+                      tier={activeTier}
+                      items={state.items[activeTier.id] || []}
+                      onRemoveItem={() => {}}
+                      onUpdateTier={() => {}}
+                      onDeleteTier={() => {}}
+                      canDelete={false}
+                      onInfo={() => {}}
+                    />
+                  </div>
+                ) : activeItem ? (
+                  <MediaCard item={activeItem} />
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+          </div>
+        </main>
 
         <DetailsModal
           key={detailsItem?.id || 'modal'}
@@ -249,7 +251,7 @@ export default function TierListApp() {
         )}
 
         {/* Page Footer */}
-        <Footer colors={footerBrandColors} className="pt-8 pb-4 opacity-60" />
+        <Footer colors={footerBrandColors} className="pt-4 pb-6 opacity-60" />
       </InteractionContext.Provider>
     </div>
   );
