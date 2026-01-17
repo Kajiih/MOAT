@@ -58,7 +58,7 @@ export interface SearchResult {
  * 5. Caches transformed items in `serverItemCache` to speed up future lookups.
  * @param params - Search filters and pagination options.
  * @returns A paginated `SearchResult` containing mapped `MediaItem`s.
- * @throws Error if validation fails or upstream API errors occur.
+ * @throws {Error} if validation fails or upstream API errors occur.
  */
 export async function searchMusicBrainz(params: SearchParams): Promise<SearchResult> {
   const { type, page } = params;

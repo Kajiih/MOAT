@@ -79,6 +79,7 @@ const TierListContext = createContext<TierListContextType | null>(null);
 /**
  * Provider component for the Tier List Context.
  * Manages the top-level state and persistence for the application.
+ * @param props - Component props.
  * @param props.children - Child components that will have access to the context.
  * @param props.boardId - Unique identifier for the current board (for multi-board support).
  */
@@ -175,7 +176,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
  * Custom hook to consume the Tier List Context.
  * Must be used within a TierListProvider.
  * @returns The TierListContextType object.
- * @throws Error if used outside of a TierListProvider.
+ * @throws {Error} if used outside of a TierListProvider.
  */
 export function useTierListContext() {
   const context = useContext(TierListContext);

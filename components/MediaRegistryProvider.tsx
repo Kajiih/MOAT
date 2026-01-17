@@ -29,9 +29,8 @@ const MediaRegistryContext = createContext<MediaRegistryContextValue | undefined
 
 /**
  * Custom hook to consume the Media Registry.
- *
  * @returns The MediaRegistryContextValue.
- * @throws Error if used outside of a MediaRegistryProvider.
+ * @throws {Error} if used outside of a MediaRegistryProvider.
  */
 export function useMediaRegistry() {
   const context = useContext(MediaRegistryContext);
