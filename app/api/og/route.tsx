@@ -56,16 +56,29 @@ export async function GET(request: NextRequest) {
 
     const mockItems: Record<string, MediaItem[]> = {
       '1': [
-        { id: 'a', title: 'Abbey Road', type: 'album', imageUrl: demoImageUrl },
+        {
+          id: 'a',
+          title: 'Abbey Road',
+          type: 'album',
+          artist: 'The Beatles',
+          imageUrl: demoImageUrl ?? undefined,
+        },
         {
           id: 'b',
           title: 'Dark Side of the Moon',
           type: 'album',
+          artist: 'Pink Floyd',
           imageUrl: 'https://placehold.co/200x200/png',
         },
       ],
       '2': [
-        { id: 'c', title: 'Thriller', type: 'album', imageUrl: 'https://placehold.co/200x200/png' },
+        {
+          id: 'c',
+          title: 'Thriller',
+          type: 'album',
+          artist: 'Michael Jackson',
+          imageUrl: 'https://placehold.co/200x200/png',
+        },
       ],
       '3': [],
     };
