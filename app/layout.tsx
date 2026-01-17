@@ -1,3 +1,8 @@
+/**
+ * @file layout.tsx
+ * @description Root layout for the application.
+ */
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -19,6 +24,11 @@ export const metadata: Metadata = {
   description: '🎵 Rank your music',
 };
 
+/**
+ * Root layout component that wraps the entire application.
+ * @param props - Component props.
+ * @param props.children - Child components that will have access to the context.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

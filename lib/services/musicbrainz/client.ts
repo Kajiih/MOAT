@@ -20,7 +20,7 @@ import { MB_BASE_URL, USER_AGENT } from './config';
  * @param options - Fetch options (next.revalidate, etc.).
  * @param retryCount - Internal retry counter (do not set manually).
  * @returns Promise resolving to the JSON response.
- * @throws Error if the response is not OK (and not a handled 503) or if retries are exhausted.
+ * @throws {Error} if the response is not OK (and not a handled 503) or if retries are exhausted.
  */
 export async function mbFetch<T = unknown>(
   endpoint: string,

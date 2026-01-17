@@ -1,3 +1,8 @@
+/**
+ * @file VirtualGrid.tsx
+ * @description A high-performance virtualized grid component for rendering large lists of items.
+ */
+
 'use client';
 
 import { useRef, useState, useEffect, ReactNode } from 'react';

@@ -18,7 +18,6 @@ export const runtime = 'nodejs';
 
 /**
  * GET handler for the OG image generator.
- *
  * @param request - The incoming request with optional 'title' and 'id' params.
  */
 export async function GET(request: NextRequest) {

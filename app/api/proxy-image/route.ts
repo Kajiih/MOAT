@@ -24,10 +24,8 @@ const ALLOWED_HOSTS = [
 
 /**
  * GET handler for the image proxy.
- *
  * @param request - The incoming Next.js request.
  * @returns A NextResponse containing the image data or an error message.
- *
  * @example
  * // Fetch an image via proxy
  * fetch('/api/proxy-image?url=https://assets.fanart.tv/...')
