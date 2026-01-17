@@ -8,7 +8,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { getColorTheme, DEFAULT_BRAND_COLORS } from '@/lib/colors';
+import { getColorTheme} from '@/lib/colors';
 
 /**
  * Generates the 5-color brand palette based on the provided tier colors.

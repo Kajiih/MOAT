@@ -25,14 +25,21 @@
 
 ### 2. Core Tier List Functionality
 
+- **Multi-Board Architecture**:
+  - **Registry System**: A `MediaRegistry`-independent "Board Registry" manages the list of all created tier lists.
+  - **Dashboard**: The entry point of the application (`app/page.tsx`) renders the `Dashboard` component, allowing users to create, delete, and navigate between multiple independent boards.
+  - **Dynamic Routing**: Each board is identified by a UUID and accessed via `/board/[id]`. The `TierListProvider` is initialized with this ID to isolate state persistence for each board (e.g., `moat-board-{uuid}`).
+  - **Legacy Migration**: On first load, the system automatically detects and migrates legacy single-board state to the new multi-board format.
+
 - **Tier List Title**:
   - Users can define a custom title for their tier list, stored in the `TierListState` managed by the `useTierList` hook.
   - The title is displayed prominently in the `Header` component, allowing direct inline editing.
   - The browser tab title is dynamically updated to reflect the current tier list title, improving user orientation.
 - **Fluid Drag and Drop**: Powered by `@dnd-kit` for high-performance reordering of items and tiers.
 - **Dynamic Branding**:
-  - **Favicon & Logo**: Automatically derive their color palette from the top tiers of the current board, creating a cohesive visual identity.
-  - **Color Extraction**: Optimized hooks extract and persist brand colors to ensure a consistent look during hydration.
+  - **Favicon Generation**: The `useDynamicFavicon` hook generates a custom SVG favicon on-the-fly based on the top 4 tier colors of the active board. This SVG is converted to a Data URI and applied to the document head, ensuring the browser tab visually matches the content.
+  - **Brand Logo**: The `BrandLogo` component adapts to the board's palette, cycling through the top 5 tier colors for the "M-O-A-T" letters.
+  - **Color Extraction**: `useBrandColors` memoizes the palette extraction logic, ensuring consistent branding across the UI (Dashboard, Header, OG Images) without layout thrashing.
 - **Data Portability**:
   - **Full-State Export**: Exported JSON files contain the _complete_ metadata payload (details, images, tracklists, and the tier list title), making lists fully portable between users without requiring new API lookups.
   - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`. The capture logic automatically excludes UI controls and the search panel for a clean, branded output.
@@ -170,22 +177,37 @@ The app employs a dedicated "Clean Room" architecture to generate professional-g
   - **Custom Proxy**: A dedicated API route (`/api/proxy-image`) is used to fetch images. This bypasses Next.js image optimization (resizing/formatting) to reliably fetch raw source images from providers like Fanart.tv, avoiding CORS blocks and strict domain validation errors.
   - **Fallback Strategy**: If the proxy fails, the engine attempts a direct client-side fetch, ensuring maximum compatibility with different CDNs.
 
+### 10. Open Graph (OG) Generation
+
+Moat supports dynamic Open Graph images for social sharing.
+
+- **Satori Engine**: Uses `@vercel/og` (powered by Satori) to generate OG images on the fly via the `/api/og` endpoint.
+- **OGBoard Component**: A simplified, styling-constrained version of the board specialized for Satori's layout engine (Flexbox only, inline styles).
+- **Dynamic Content**: The endpoint currently accepts parameters (like `title`) and can be extended to fetch and render a preview of a specific shared board.
+
 ## Directory Structure
 
-- `app/api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
-  - `proxy-image/`: **[New]** Permissive image proxy for reliable screenshot exports.
+- `app/`:
+  - `page.tsx`: Entry point rendering the Dashboard.
+  - `board/[id]/page.tsx`: Dynamic route for individual tier lists.
+  - `api/`: Backend proxies for MusicBrainz, Image sources, and detail enrichment.
+    - `details/`, `search/`, `proxy-image/`: Data and image proxies.
+    - `og/`: **[New]** Dynamic Open Graph image generator.
 - `components/`:
   - `TierListApp.tsx`: Main layout component (Layout only, logic moved to Context).
   - `TierListContext.tsx`: Core state provider and logic controller (persistence, hydration, DnD, IO).
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `board/`: Components related to the tier board visualization.
     - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
-    - `TierList.tsx`: **[New]** Shared component for rendering the list of tiers, used by both TierBoard and ExportBoard.
+    - `OGBoard.tsx`: **[New]** Satori-compatible board for OG images.
+    - `TierList.tsx`: Shared component for rendering the list of tiers, used by both TierBoard and ExportBoard.
     - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
     - `TierGrid.tsx`: Renders the grid of items within a tier (standard or virtualized).
-    - `BoardTitle.tsx`: **[New]** Shared component for the board title, supporting both editable and export modes.
-    - `ExportBoard.tsx`: **[New]** Non-interactive board variant optimized for screenshot capture.
+    - `BoardTitle.tsx`: Shared component for the board title, supporting both editable and export modes.
+    - `ExportBoard.tsx`: Non-interactive board variant optimized for screenshot capture.
     - `VirtualGrid.tsx`: Generic virtualized grid for high-performance list rendering.
+  - `dashboard/`:
+    - `Dashboard.tsx`: **[New]** Board management interface (create/delete/navigate).
   - `media/`: Components for media item display and selection.
     - `MediaCard.tsx`: Draggable/Sortable item visualization.
     - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
@@ -193,22 +215,24 @@ The app employs a dedicated "Clean Room" architecture to generate professional-g
   - `search/`: Components for the search interface.
     - `SearchPanel.tsx`: Sidebar for discovering new media.
   - `ui/`: Shared UI components.
+    - `BrandLogo.tsx`: **[New]** Dynamic logo component.
     - `Header.tsx`: Global actions (Import, Export, Screenshot, Undo/Redo) and branding.
     - `InteractionContext.tsx`: Global context for tracking hovered items.
     - `KeyboardShortcutsModal.tsx`: Displays available keyboard shortcuts.
 - `lib/hooks/`:
   - `index.ts`: Barrel file exporting all hooks.
+  - `useBoardRegistry.ts`: **[New]** Manages the list of user boards and legacy migration.
+  - `useDynamicFavicon.ts`: **[New]** Generates and applies dynamic favicons.
+  - `useBrandColors.ts`: **[New]** Extracts palette from tier state.
   - `useTierListIO.ts`: Encapsulates Import/Export logic.
-  - `useScreenshot.tsx`: **[New]** Orchestrates high-fidelity board capture and image resolution.
+  - `useScreenshot.tsx`: Orchestrates high-fidelity board capture and image resolution.
   - `useTierListUtils.ts`: Encapsulates derived state and UI utilities.
-  - `useBrandColors.ts`: Extracts dominant palette from tier colors.
-  - `useDynamicFavicon.ts`: Updates the app favicon based on brand colors.
   - `useHistory.ts`: Generic hook for managing state history (past/future stacks).
   - `useEscapeKey.ts`: Generic hook for handling Escape key press.
-  - `useBackgroundEnrichment.ts`: **[New]** Background hook for syncing item metadata (replaces BoardDetailBundler).
+  - `useBackgroundEnrichment.ts`: Background hook for syncing item metadata.
   - `useTierStructure.ts`: Board manipulation logic (Add/Delete Tiers, Randomize Colors).
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
-  - `useTierListNamespaces.ts`: **[New]** Aggregates state and sub-hook logic into namespaced API objects.
+  - `useTierListNamespaces.ts`: Aggregates state and sub-hook logic into namespaced API objects.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
   - `usePersistentState.ts`: Generic debounced `IndexedDB` synchronization.
@@ -216,7 +240,7 @@ The app employs a dedicated "Clean Room" architecture to generate professional-g
 - `lib/state/`: Centralized State Logic
   - `actions.ts`: Action definitions (ADD_TIER, MOVE_ITEM, etc.).
   - `reducer.ts`: Pure state transition logic (Delegates to slices).
-  - `slices/`: **[New]** Domain-specific logic slices.
+  - `slices/`: Domain-specific logic slices.
     - `tier-reducer.ts`: Logic for tier structure and colors.
     - `item-reducer.ts`: Logic for item movements and metadata.
     - `global-reducer.ts`: Logic for board titles and state overrides.

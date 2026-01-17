@@ -1,3 +1,11 @@
+/**
+ * @file Dashboard.tsx
+ * @description The main entry point for the application.
+ * Displays a grid of all created tier lists (boards) with their metadata.
+ * Allows users to create new boards, delete existing ones, and navigate to them.
+ * @module Dashboard
+ */
+
 'use client';
 
 import React from 'react';
