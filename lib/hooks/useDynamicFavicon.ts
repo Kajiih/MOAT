@@ -6,7 +6,7 @@
  * @module useDynamicFavicon
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useBrandColors } from './useBrandColors';
 
 
@@ -33,10 +33,6 @@ function generateFaviconSvg(hexColors: (string | undefined)[]): string {
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
 
-export const SAFE_ZONE_DELAY = 100;
-export const INITIAL_LOAD_DELAY = 1;
-
-
 /**
  * Helper to update the DOM with the new favicon.
  * Encapsulates all direct DOM manipulation.
@@ -49,13 +45,12 @@ export function applyFaviconToDom(svgDataUri: string) {
         link.id = 'dynamic-favicon';
         link.rel = 'icon';
         link.type = 'image/svg+xml';
-        document.head.appendChild(link);
     }
 
-    const allIcons = document.querySelectorAll("link[rel*='icon']");
-    allIcons.forEach(icon => {
-        if (icon !== link) icon.remove();
-    });
+    // Always re-append to ensure it is the LAST element in <head>
+    // Browsers typically prioritize the last icon declaration.
+    // This avoids needing to delete other icons (which crashes Next.js).
+    document.head.appendChild(link);
 
     link.href = svgDataUri;
 }
@@ -65,34 +60,11 @@ export function applyFaviconToDom(svgDataUri: string) {
  * @param colors Array of color IDs (e.g. ['red', 'blue'])
  */
 export function useDynamicFavicon(colors: string[]) {
-  const initialLoadComplete = useRef(false);
-  
-  // Use shared brand logic to get consistent hex colors (handling defaults/fallbacks)
+  // Use shared brand logic to get consistent hex colors
   const brandColors = useBrandColors(colors);
 
-  // 1. Establish a "safe zone" after the page has definitely settled.
-  useEffect(() => {
-    const t = setTimeout(() => {
-      initialLoadComplete.current = true;
-    }, SAFE_ZONE_DELAY);
-    return () => clearTimeout(t);
-  }, []);
-
-  // 2. Respond to color changes
   useEffect(() => {
     const svgDataUri = generateFaviconSvg(brandColors);
-    
-    // Encapsulate the "what" (update DOM) so the hook only manages the "when" (timing)
-    const update = () => applyFaviconToDom(svgDataUri);
-
-    if (!initialLoadComplete.current) {
-        // Initial load / Hydration phase: Delegate to a timeout to ensure we override Next.js
-        const timeoutId = setTimeout(update, INITIAL_LOAD_DELAY);
-        return () => clearTimeout(timeoutId);
-    } else {
-        // Interactive phase: Update immediately
-        update();
-    }
-
+    applyFaviconToDom(svgDataUri);
   }, [brandColors]);
 }

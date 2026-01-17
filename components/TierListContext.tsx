@@ -24,8 +24,8 @@ import {
 } from '@/lib/hooks';
 import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
 import { SensorDescriptor, SensorOptions, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
-
-const LOCAL_STORAGE_KEY = 'moat-tierlist';
+import { syncBoardMetadata } from '@/lib/registry-utils';
+import { useDebounce } from 'use-debounce';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -80,12 +80,15 @@ const TierListContext = createContext<TierListContextType | null>(null);
  * Manages the top-level state and persistence for the application.
  * 
  * @param props.children - Child components that will have access to the context.
+ * @param props.boardId - Unique identifier for the current board (for multi-board support).
  */
-export function TierListProvider({ children }: { children: ReactNode }) {
+export function TierListProvider({ children, boardId }: { children: ReactNode, boardId: string }) {
+  const storageKey = `moat-board-${boardId}`;
+
   const [state, dispatch, isHydrated] = usePersistentReducer<TierListState, TierListAction>(
     tierListReducer,
     INITIAL_STATE,
-    LOCAL_STORAGE_KEY
+    storageKey
   );
   
   const historyRaw = useHistory<TierListState>();
@@ -103,6 +106,17 @@ export function TierListProvider({ children }: { children: ReactNode }) {
         }
     }
   }, [isHydrated, state.items, registerItems]);
+
+  // --- Metadata Sync ---
+  // Keep the Dashboard Registry in sync with the current board state (title, item count).
+  // We use a separate debounce to avoid slamming the registry during rapid edits.
+  const [debouncedMetadataState] = useDebounce(state, 2000);
+  
+  React.useEffect(() => {
+    if (isHydrated && boardId) {
+        syncBoardMetadata(boardId, debouncedMetadataState);
+    }
+  }, [debouncedMetadataState, boardId, isHydrated]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {

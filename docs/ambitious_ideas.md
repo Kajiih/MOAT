@@ -109,3 +109,7 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
   - Use @vercel/og (Satori).
   - Create an API route /api/og?boardId=... that renders a simplified version of the board on the edge.
   - Note: Requires creating a specific "OGBoard" component optimized for Satori (Flexbox only, no complex CSS/Grid).
+
+
+## Smaller fixes or improvement ideas:
+- Somehow reuse components for OG board, or at least centralize the place where components are defined to improve locality of behavior.

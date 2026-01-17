@@ -1,10 +1,5 @@
-import TierListApp from '@/components/TierListApp';
-import { TierListProvider } from '@/components/TierListContext';
+import { Dashboard } from '@/components/dashboard/Dashboard';
 
 export default function Page() {
-  return (
-    <TierListProvider>
-      <TierListApp />
-    </TierListProvider>
-  );
+  return <Dashboard />;
 }

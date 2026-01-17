@@ -113,6 +113,18 @@ export interface TierListState {
   items: Record<string, MediaItem[]>;
 }
 
+/**
+ * Metadata for a single board in the registry.
+ */
+export interface BoardMetadata {
+  id: string;
+  title: string;
+  createdAt: number; // timestamp
+  lastModified: number; // timestamp
+  thumbnail?: string; // Optional preview image URL
+  itemCount: number;
+}
+
 export interface TrackItem {
   id: string;
   position: string;

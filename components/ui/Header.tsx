@@ -8,13 +8,14 @@
 
 'use client';
 
-import { Upload, Download, Trash2, Camera, Loader2, Undo2, Redo2, Keyboard } from 'lucide-react';
+import { Upload, Download, Trash2, Camera, Loader2, Undo2, Redo2, Keyboard, ChevronLeft } from 'lucide-react';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from './BrandLogo';
 import { useState } from 'react';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { useTierListContext } from '@/components/TierListContext';
 import { BoardTitle } from '../board/BoardTitle';
+import Link from 'next/link';
 
 interface HeaderProps {
   onScreenshot: () => void;
@@ -38,8 +39,16 @@ export function Header({
 
   return (
     <header className="flex flex-col md:grid md:grid-cols-[auto_1fr_auto] items-center mb-8 gap-4 relative z-50 pointer-events-none">
-      <div className="pointer-events-auto">
-        <BrandLogo colors={brandColors} variant="header" />
+      <div className="pointer-events-auto flex items-center group">
+        <Link 
+            href="/" 
+            className="flex items-center gap-2 hover:bg-neutral-800 p-1 pr-3 rounded-lg transition-colors"
+            title="Back to Dashboard"
+        >
+            <ChevronLeft size={20} className="text-neutral-500 group-hover:text-neutral-300" />
+            <BrandLogo colors={brandColors} variant="header" />
+            <span className="text-sm font-bold text-neutral-600 group-hover:text-neutral-400 hidden lg:inline">/ Dashboard</span>
+        </Link>
       </div>
       
       <div className="flex justify-center pointer-events-auto w-full">
