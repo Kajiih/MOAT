@@ -33,17 +33,22 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
     return (
         <div 
             id="export-board-surface"
-            className="bg-neutral-950 text-neutral-200 font-sans antialiased flex flex-col items-center justify-center py-4 px-8" 
+            className="bg-neutral-950 text-neutral-200 font-sans antialiased flex flex-col items-center justify-center py-4 px-8 relative" 
             style={{ 
                 width: '1200px', 
                 minHeight: '800px',
             }} 
         >
+            {/* Top-Left Branding */}
+            <div className="absolute top-6 left-8">
+                <BrandLogo colors={logoHexColors} variant="header" />
+            </div>
+
             {/* Main Content Wrapper - Explicit framing */}
             <div className="w-full flex flex-col items-center">
                 
                 {/* 1. Centered Title */}
-                <div className="w-full flex justify-center mt-4 mb-8">
+                <div className="w-full flex justify-center mt-2 mb-8">
                     <h1 className="text-neutral-200 text-4xl font-black tracking-tighter italic text-center w-full max-w-[85%] leading-[1.1]">
                         {state.title || 'Untitled Tier List'}
                     </h1>
