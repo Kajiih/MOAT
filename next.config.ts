@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'commons.wikimedia.org' },
     ],
   },
+  // We use unoptimized for the screenshot engine to bypass resizing/formatting during capture
+  // but it's configured per-image in the code when needed.
 };
 
 export default nextConfig;

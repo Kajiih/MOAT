@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
   // 2. Add JSDoc enforcement for JS/TS files
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'e2e/**', '**/*.config.{js,ts,mjs,mts}'],
     plugins: {
       jsdoc,
     },
@@ -21,8 +22,8 @@ const eslintConfig = defineConfig([
         'error',
         {
           tags: {
-            file: { initial: true },
-            description: { initial: true },
+            file: { mustExist: true },
+            description: { mustExist: true },
           },
         },
       ],
