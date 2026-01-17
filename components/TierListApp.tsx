@@ -29,6 +29,7 @@ import { getColorTheme } from '@/lib/colors';
 import { useEffect, useState } from 'react';
 import { InteractionContext, HoveredItemInfo } from '@/components/ui/InteractionContext';
 import { BrandLogo } from '@/components/ui/BrandLogo';
+import { Footer } from '@/components/ui/Footer';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 
 /**
@@ -278,17 +279,7 @@ export default function TierListApp() {
         )}
 
         {/* Page Footer */}
-        <div className="pt-8 pb-4 text-center pointer-events-none select-none">
-            <div className="flex items-center justify-center gap-3 opacity-60">
-                <BrandLogo 
-                    colors={footerBrandColors} 
-                    variant="footer"
-                />
-                <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
-                    Tier List Maker
-                </span>
-            </div>
-        </div>
+        <Footer colors={footerBrandColors} className="pt-8 pb-4 opacity-60" />
       </InteractionContext.Provider>
     </div>
   );
