@@ -17,9 +17,7 @@ import { X, Eye, Info } from 'lucide-react';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { getMediaUI } from '@/lib/media-defs';
 import { useInteraction } from '@/components/ui/InteractionContext';
-
-// Global cache for failed image URLs to prevent repeated 404 requests during the session
-const failedImages = new Set<string>();
+import { failedImages } from '@/lib/image-cache';
 
 /**
  * Props for the visual representation of a media card.

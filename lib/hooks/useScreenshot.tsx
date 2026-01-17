@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { createRoot } from 'react-dom/client';
 import { ExportBoard } from '@/components/board/ExportBoard';
 import { TierListState } from '@/lib/types';
+import { failedImages } from '@/lib/image-cache';
 
 /**
  * Custom hook to capture a high-quality screenshot of the tier list.
@@ -27,6 +28,9 @@ import { TierListState } from '@/lib/types';
 async function resolveImageDataUrl(url: string): Promise<string | null> {
     if (!url) return null;
     if (url.startsWith('data:')) return url;
+
+    // Check if this image is already known to be broken in the app
+    const isKnownBroken = failedImages.has(url);
 
     const fetchAsDataUrl = async (target: string) => {
         const resp = await fetch(target, { cache: 'force-cache' });
@@ -50,7 +54,9 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
                 const proxiedUrl = `/_next/image?url=${encodeURIComponent(url)}&w=384&q=80`;
                 return await fetchAsDataUrl(proxiedUrl);
             } catch (proxyError) {
-                console.warn(`Screenshot Engine: Proxy failed for ${url}, trying direct fetch...`, proxyError);
+                if (!isKnownBroken) {
+                    console.warn(`Screenshot Engine: Proxy failed for ${url}, trying direct fetch...`, proxyError);
+                }
                 // Attempt 2: Direct Fetch (Works if CDN has CORS headers, e.g. coverartarchive)
                 return await fetchAsDataUrl(url);
             }
@@ -59,7 +65,14 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
             return await fetchAsDataUrl(url);
         }
     } catch (e) {
-        console.error(`Screenshot Engine: Failed to resolve ${url}:`, e);
+        // Differentiate between expected and unexpected failures
+        if (isKnownBroken) {
+            // Expected failure - image was already broken in the app
+            console.warn(`Screenshot Engine: Skipping known broken image: ${url}`);
+        } else {
+            // Unexpected failure - image was working in the app but failed during screenshot
+            console.error(`Screenshot Engine: Unexpected failure resolving ${url}:`, e);
+        }
         return null;
     }
 }
