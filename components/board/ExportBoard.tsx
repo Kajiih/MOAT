@@ -6,11 +6,11 @@
  */
 
 import React from 'react';
-import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
-import { getColorTheme } from '@/lib/colors';
-import { getMediaUI } from '@/lib/media-defs';
+import { TierListState } from '@/lib/types';
 import { BrandLogo } from '@/components/ui/BrandLogo';
-import { TierRow } from './TierRow';
+import { TierList } from './TierList';
+import { BoardTitle } from './BoardTitle';
+import { Footer } from '@/components/ui/Footer';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 
 /**
@@ -49,42 +49,26 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
                 
                 {/* 1. Centered Title */}
                 <div className="w-full flex justify-center mt-2 mb-8">
-                    <h1 className="text-neutral-200 text-4xl font-black tracking-tighter italic text-center w-full max-w-[85%] leading-[1.1]">
-                        {state.title || 'Untitled Tier List'}
-                    </h1>
+                    <BoardTitle 
+                        title={state.title}
+                        isExport={true}
+                    />
                 </div>
 
                 {/* 2. Tier List - Full Width within Gutter */}
-                <div className="w-full space-y-4">
-                    {state.tierDefs.map((tier) => (
-                        <TierRow 
-                            key={tier.id} 
-                            tier={tier}
-                            items={state.items[tier.id] || []} 
-                            onRemoveItem={() => {}} 
-                            onUpdateTier={() => {}}
-                            onDeleteTier={() => {}}
-                            canDelete={false}
-                            isAnyDragging={false}
-                            onInfo={() => {}}
-                            isExport={true}
-                            resolvedImages={resolvedImages}
-                        />
-                    ))}
-                </div>
+                <TierList 
+                    tiers={state.tierDefs}
+                    items={state.items}
+                    isExport={true}
+                    resolvedImages={resolvedImages}
+                    onRemoveItem={() => {}}
+                    onUpdateTier={() => {}}
+                    onDeleteTier={() => {}}
+                    onInfo={() => {}}
+                />
 
                 {/* 3. Branding Footer - Symmetrical and Centered */}
-                <div className="pt-2 pb-0 text-center pointer-events-none select-none">
-                    <div className="flex items-center justify-center gap-3 opacity-90">
-                        <BrandLogo 
-                            colors={logoHexColors} 
-                            variant="footer"
-                        />
-                        <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
-                            Tier List Maker
-                        </span>
-                    </div>
-                </div>
+                <Footer colors={logoHexColors} className="pt-2 pb-0" />
             </div>
         </div>
     );

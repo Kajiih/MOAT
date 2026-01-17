@@ -28,7 +28,6 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
 import { useEffect, useState } from 'react';
 import { InteractionContext, HoveredItemInfo } from '@/components/ui/InteractionContext';
-import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Footer } from '@/components/ui/Footer';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 

@@ -178,8 +178,8 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       if (err instanceof Error) {
           errorMessage = `${err.message}\n${err.stack}`;
       } else if (err instanceof Event) {
-          const target = err.target as any;
-          errorMessage = `Capture failed due to a browser event [${err.type}] on ${target?.tagName || 'unknown'}${target?.src ? ' (' + target.src + ')' : ''}. This usually happens when an image fails to load or violates CORS.`;
+          const target = err.target as HTMLElement | null;
+          errorMessage = `Capture failed due to a browser event [${err.type}] on ${target?.tagName || 'unknown'}${target instanceof HTMLImageElement ? ' (' + target.src + ')' : ''}. This usually happens when an image fails to load or violates CORS.`;
       } else if (typeof err === 'object' && err !== null) {
           errorMessage = JSON.stringify(err);
       } else {

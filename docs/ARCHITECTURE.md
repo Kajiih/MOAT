@@ -171,8 +171,10 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
   - `MediaRegistryProvider.tsx`: The persistent global item cache.
   - `board/`: Components related to the tier board visualization.
     - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
+    - `TierList.tsx`: **[New]** Shared component for rendering the list of tiers, used by both TierBoard and ExportBoard.
     - `TierRow.tsx`: Individual tier container (droppable) and header (sortable).
     - `TierGrid.tsx`: Renders the grid of items within a tier (standard or virtualized).
+    - `BoardTitle.tsx`: **[New]** Shared component for the board title, supporting both editable and export modes.
     - `VirtualGrid.tsx`: Generic virtualized grid for high-performance list rendering.
   - `media/`: Components for media item display and selection.
     - `MediaCard.tsx`: Draggable/Sortable item visualization.
