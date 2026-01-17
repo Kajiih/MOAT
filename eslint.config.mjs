@@ -11,15 +11,20 @@ const eslintConfig = defineConfig([
 
   // 2. Add JSDoc enforcement for JS/TS files
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    ignores: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'e2e/**', '**/*.config.{js,ts,mjs,mts}'],
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    ignores: [
+      "**/*.test.{ts,tsx}",
+      "**/*.spec.{ts,tsx}",
+      "e2e/**",
+      "**/*.config.{js,ts,mjs,mts}",
+    ],
     plugins: {
       jsdoc,
     },
     rules: {
       // Force module-level documentation
-      'jsdoc/require-file-overview': [
-        'error',
+      "jsdoc/require-file-overview": [
+        "error",
         {
           tags: {
             file: { mustExist: true },
@@ -28,14 +33,24 @@ const eslintConfig = defineConfig([
         },
       ],
       // Optional: enforce JSDoc for exports (hooks, functions, etc.)
-      'jsdoc/require-jsdoc': [
-        'warn',
+      "jsdoc/require-jsdoc": [
+        "warn",
         {
           publicOnly: true,
+          contexts: [
+            "TSEnumDeclaration",
+            "TSTypeAliasDeclaration",
+            "TSInterfaceDeclaration",
+          ],
           require: {
             FunctionDeclaration: true,
             ArrowFunctionExpression: true,
+            FunctionExpression: true,
+            MethodDefinition: true,
+            ClassDeclaration: true,
           },
+          minLineCount: 5,
+          enableFixer: false,
         },
       ],
     },
@@ -43,10 +58,10 @@ const eslintConfig = defineConfig([
 
   globalIgnores([
     // Default ignores of eslint-config-next:
-    '.next/**',
-    'out/**',
-    'build/**',
-    'next-env.d.ts',
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
   ]),
 ]);
 
