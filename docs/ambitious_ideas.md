@@ -45,25 +45,6 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
   - Navigate (Undo/Redo).
 - Why Ambitious? This is the hallmark of "professional-grade" productivity tools. It makes the app feel incredibly fast and power-user friendly.
 
-#### Multi-Board Management (Workspace Mode)
-
-- Current State: The app supports a single persistent "My Tier List".
-- Proposal: Implement a "Workspace" system where users can create, rename, and switch between multiple independent tier lists (e.g., "90s Rock", "2024 Rap", "Fav Movies").
-- Implementation:
-  - Create a BoardRegistry in localStorage to track board IDs and metadata.
-  - Update useTierList to accept a boardId and hydrate distinct states.
-  - Add a Sidebar or "Board Switcher" UI in the Header.
-
-#### Multi-Board Management ("My Collections")
-
-- Current State: The app manages a single TierListState in localStorage.
-- Proposal: Refactor the app to support multiple named boards.
-- Why: Users can manage separate tier lists for "Rock Albums", "2024 Hits", etc., without exporting/importing JSONs manually.
-- How:
-  - Introduce a BoardRegistry in localStorage or IndexedDB to track available boards.
-  - Add a "Dashboard" view or Sidebar to switch/create/delete boards.
-  - Update routing to /board/[boardId] (using Next.js dynamic routes).
-
 #### Smart "Discovery" Engine
 
 - Current State: Users search manually.
@@ -129,3 +110,75 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 - Check how favicon is handled
 - Check hooks and user vs server side components
 - Check how keyboard shortcut are handled
+
+- Improve dashboard
+- Make default page an empty tierlist, not dashboard
+- Fix lints, check the following plugins and config: 
+  - Maybe remove: 'jsdoc/require-param': 'off',
+  - Check:
+    - 'typescript-eslint'
+
+```
+Here are the best ESLint extensions to add to your flat config:
+
+1. eslint-plugin-perfectionist
+This is the modern replacement for simple-import-sort. It doesn't just sort imports; it can sort everything: objects, types, interfaces, enums, and JSX props.
+
+Why for you: It keeps your data structures (like your music metadata or tier colors) perfectly sorted alphabetically or by line length automatically.
+
+Config snippet: perfectionist.configs['recommended-natural']
+
+2. eslint-plugin-unicorn
+Known as the "more than 100 useful rules" plugin. It forces modern JavaScript patterns (e.g., preferring node.append() over node.appendChild() or for...of over forEach).
+
+Why for you: Since you’re coming from a CSE/C++ background, this helps you lean into the most efficient and "clean" modern JS idioms. It catches subtle bugs that standard linters miss.
+
+3. eslint-plugin-unused-imports
+While TypeScript catches unused variables, this plugin provides an autofix to actually remove them.
+
+Why for you: It streamlines your workflow. You can delete a piece of code, and the imports will disappear automatically on save, keeping your useMediaDetails or useBrandColors files lean.
+
+4. eslint-plugin-sonarjs
+This brings "SonarQube" level static analysis to your local environment. It detects Code Smells (complex logic, cognitive complexity, code duplication).
+
+Why for you: In CV/ML work, logic can get dense. SonarJS will warn you if a function is becoming too complex to test or maintain reliably.
+
+Updated eslint.config.mjs with the "Power" Setup
+JavaScript
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import prettier from 'eslint-config-prettier/flat';
+import jsdoc from 'eslint-plugin-jsdoc';
+import perfectionist from 'eslint-plugin-perfectionist';
+import unicorn from 'eslint-plugin-unicorn';
+import unusedImports from 'eslint-plugin-unused-imports';
+
+export default defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  prettier,
+  perfectionist.configs['recommended-natural'],
+  unicorn.configs['flat/recommended'],
+
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      jsdoc,
+      'unused-imports': unusedImports,
+    },
+    rules: {
+      // JSDoc Rules
+      'jsdoc/require-file-overview': ['error', { tags: { file: { initial: true }, description: { initial: true } } }],
+      
+      // Auto-remove unused imports
+      'unused-imports/no-unused-imports': 'error',
+      
+      // Tone down some Unicorn rules if they are too noisy
+      'unicorn/prevent-abbreviations': 'off', // Sometimes we like 'props' or 'params'
+    },
+  },
+
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+]);
+```
