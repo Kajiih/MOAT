@@ -11,7 +11,7 @@
 import { Upload, Download, Trash2, Camera, Loader2, Undo2, Redo2, Keyboard } from 'lucide-react';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { BrandLogo } from './BrandLogo';
-import { useState } from 'react';
+import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 import { useTierListContext } from '@/components/TierListContext';
 
@@ -26,19 +26,46 @@ export function Header({
 }: HeaderProps) {
   
   const { 
-      actions: { import: handleImport, export: handleExport, clear: handleClear },
+      state,
+      actions: { import: handleImport, export: handleExport, clear: handleClear, updateTitle },
       ui: { headerColors },
-      history: { undo, redo, canUndo, canRedo }
+      history: { undo, redo, canUndo, canRedo, push: pushHistory }
   } = useTierListContext();
 
   const brandColors = useBrandColors(headerColors);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  
+  const handleTitleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    updateTitle(e.target.value);
+  };
+
+  // Auto-resize textarea height based on content
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
+    }
+  }, [state.title]);
 
   return (
-    <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-50 pointer-events-none">
-      <h1 className="pointer-events-auto">
-          <BrandLogo colors={brandColors} variant="header" />
-      </h1>
+    <header className="flex flex-col md:grid md:grid-cols-[auto_1fr_auto] items-center mb-8 gap-4 relative z-50 pointer-events-none">
+      <div className="pointer-events-auto">
+        <BrandLogo colors={brandColors} variant="header" />
+      </div>
+      
+      <div className="flex justify-center pointer-events-auto w-full">
+        <textarea
+          ref={titleRef}
+          value={state.title}
+          onChange={handleTitleChange}
+          onFocus={() => pushHistory()}
+          placeholder="Tier List Title"
+          aria-label="Tier List Title"
+          rows={1}
+          className="bg-transparent text-neutral-200 text-4xl font-black tracking-tighter italic text-center focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md resize-none overflow-hidden py-1 px-2 w-full md:w-auto md:min-w-[300px] md:max-w-[600px]"
+        />
+      </div>
       
       <div className="flex gap-2 pointer-events-auto">
         <div className="flex gap-1 mr-2">

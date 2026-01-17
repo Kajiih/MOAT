@@ -28,6 +28,8 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
 import { useEffect, useState } from 'react';
 import { InteractionContext, HoveredItemInfo } from '@/components/ui/InteractionContext';
+import { BrandLogo } from '@/components/ui/BrandLogo';
+import { useBrandColors } from '@/lib/hooks/useBrandColors';
 
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
@@ -104,6 +106,9 @@ export default function TierListApp() {
 
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);
+  
+  // Brand colors for footer
+  const footerBrandColors = useBrandColors(headerColors);
 
   // Update document title based on tierListTitle
   useEffect(() => {
@@ -181,7 +186,7 @@ export default function TierListApp() {
             >
                 
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
-                    <div className="lg:-mt-20">
+                    <div>
                     <TierBoard 
                         isAnyDragging={!!activeItem || !!activeTier}
                     />
@@ -271,6 +276,19 @@ export default function TierListApp() {
             </div>
           </div>
         )}
+
+        {/* Page Footer */}
+        <div className="pt-8 pb-4 text-center pointer-events-none select-none">
+            <div className="flex items-center justify-center gap-3 opacity-60">
+                <BrandLogo 
+                    colors={footerBrandColors} 
+                    variant="footer"
+                />
+                <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
+                    Tier List Maker
+                </span>
+            </div>
+        </div>
       </InteractionContext.Provider>
     </div>
   );
