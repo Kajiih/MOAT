@@ -33,17 +33,17 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
     return (
         <div 
             id="export-board-surface"
-            className="bg-neutral-950 text-neutral-200 font-sans antialiased flex flex-col items-center py-8" 
+            className="bg-neutral-950 text-neutral-200 font-sans antialiased flex flex-col items-center justify-center py-4 px-8" 
             style={{ 
                 width: '1200px', 
                 minHeight: '800px',
             }} 
         >
             {/* Main Content Wrapper - Explicit framing */}
-            <div className="w-full px-12 pt-8 flex flex-col items-center">
+            <div className="w-full flex flex-col items-center">
                 
                 {/* 1. Centered Title */}
-                <div className="w-full flex justify-center mb-12">
+                <div className="w-full flex justify-center mt-4 mb-8">
                     <h1 className="text-neutral-200 text-4xl font-black tracking-tighter italic text-center w-full max-w-[85%] leading-[1.1]">
                         {state.title || 'Untitled Tier List'}
                     </h1>
@@ -69,13 +69,13 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
                 </div>
 
                 {/* 3. Branding Footer - Symmetrical and Centered */}
-                <div className="w-full pt-10 border-t border-neutral-900 border-dashed flex flex-col items-center gap-4 opacity-80">
-                    <div className="flex items-center justify-center gap-3">
+                <div className="pt-2 pb-0 text-center pointer-events-none select-none">
+                    <div className="flex items-center justify-center gap-3 opacity-90">
                         <BrandLogo 
                             colors={logoHexColors} 
                             variant="footer"
                         />
-                        <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800">
+                        <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
                             Tier List Maker
                         </span>
                     </div>

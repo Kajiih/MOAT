@@ -19,7 +19,8 @@ import { Header } from '@/components/ui/Header';
 import { SearchPanel } from '@/components/search/SearchPanel';
 import { DetailsModal } from '@/components/media/DetailsModal';
 import { TierBoard } from '@/components/board/TierBoard';
-import { Dices } from 'lucide-react';
+import { ExportBoard } from '@/components/board/ExportBoard';
+import { Dices, X, Camera, Loader2 } from 'lucide-react';
 import { useScreenshot, useDynamicFavicon } from '@/lib/hooks';
 import { useTierListContext } from '@/components/TierListContext';
 import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
@@ -96,6 +97,7 @@ export default function TierListApp() {
   
   // UI Interaction State (Hover)
   const [hoveredItem, setHoveredItem] = useState<HoveredItemInfo | null>(null);
+  const [showExportPreview, setShowExportPreview] = useState(false);
 
   // Background Bundler: Automatically syncs deep metadata for items on the board
   useBackgroundEnrichment(allBoardItems, updateMediaItem);
@@ -136,11 +138,25 @@ export default function TierListApp() {
                 showDetails(hoveredItem.item);
             }
         }
+
+        // Toggle Export Preview (Shift + P)
+        if (e.shiftKey && e.key.toLowerCase() === 'p') {
+            e.preventDefault();
+            setShowExportPreview(prev => !prev);
+            return;
+        }
+
+        // Close on ESC
+        if (e.key === 'Escape') {
+            setShowExportPreview(false);
+            closeDetails();
+            return;
+        }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, canUndo, canRedo, hoveredItem, removeItemFromTier, showDetails]);
+  }, [undo, redo, canUndo, canRedo, hoveredItem, removeItemFromTier, showDetails, closeDetails]);
 
   if (!isHydrated) {
     return <LoadingState />;
@@ -213,6 +229,48 @@ export default function TierListApp() {
         >
             <Dices size={24} className="group-hover:rotate-12 transition-transform" />
         </button>
+
+        {/* Export Preview Overlay */}
+        {showExportPreview && (
+          <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm overflow-auto p-20 flex flex-col items-center">
+            <div className="relative">
+              {/* Preview Header */}
+              <div className="absolute -top-12 left-0 right-0 flex justify-between items-center px-4">
+                <span className="text-neutral-500 font-mono text-xs uppercase tracking-widest">
+                  Export Preview (Shift+P to close)
+                </span>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={handleScreenshot}
+                    disabled={isCapturing}
+                    className="flex items-center gap-2 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded text-sm transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    {isCapturing ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+                    {isCapturing ? 'Saving...' : 'Save PNG'}
+                  </button>
+                  <button 
+                    onClick={() => setShowExportPreview(false)}
+                    className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded text-white transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {/* The Actual Export Surface */}
+              <div className="shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-neutral-800">
+                <ExportBoard 
+                    state={state} 
+                    brandColors={headerColors}
+                />
+              </div>
+
+              <div className="mt-8 text-center text-neutral-600 text-sm">
+                This is a live preview of the export board. Interaction is disabled here.
+              </div>
+            </div>
+          </div>
+        )}
       </InteractionContext.Provider>
     </div>
   );
