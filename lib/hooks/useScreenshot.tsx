@@ -70,7 +70,10 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
         return await fetchAsDataUrl(proxiedUrl);
       } catch (proxyError) {
         if (!isKnownBroken) {
-          console.warn(`Screenshot Engine: Proxy failed for ${url}. Switching to direct fetch.`);
+          console.warn(
+            `Screenshot Engine: Proxy failed for ${url}. Switching to direct fetch.`,
+            proxyError,
+          );
         }
         // Attempt 2: Direct Fetch (Works if CDN has CORS headers, e.g. coverartarchive)
         return await fetchAsDataUrl(url);

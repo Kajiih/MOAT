@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { storage } from '@/lib/storage';
-import { BoardMetadata } from '@/lib/types';
+import { BoardMetadata, TierListState } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
 const REGISTRY_KEY = 'moat-registry';
@@ -32,7 +32,7 @@ export function useBoardRegistry() {
           setBoards(registry.sort((a, b) => b.lastModified - a.lastModified));
         } else {
           // Check for legacy board migration
-          const legacyState = await storage.get<any>(LEGACY_KEY);
+          const legacyState = await storage.get<Partial<TierListState>>(LEGACY_KEY);
           if (legacyState) {
             console.log('Migrating legacy board...');
             const newId = uuidv4();
