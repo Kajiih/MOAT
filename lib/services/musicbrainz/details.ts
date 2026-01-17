@@ -73,7 +73,10 @@ export async function getMediaDetails(
         'release',
         `query=${encodeURIComponent(query)}&limit=1`,
         { next: { revalidate: DETAILS_CACHE_TTL } },
-      ).catch(() => ({ releases: [] })); // return safe empty object on error
+      ).catch((err) => {
+        console.warn(`[Details] Search release failed for ${id}`, err);
+        return { releases: [] };
+      }); // return safe empty object on error
 
       let release = null;
       if (searchData.releases && searchData.releases.length > 0) {
@@ -83,7 +86,10 @@ export async function getMediaDetails(
       if (!release) {
         const lookupData = await mbFetch<MBSearchResponse>(`release-group/${id}`, 'inc=releases', {
           next: { revalidate: DETAILS_CACHE_TTL },
-        }).catch(() => ({ releases: [] }));
+        }).catch((err) => {
+          console.warn(`[Details] Lookup release-group failed for ${id}`, err);
+          return { releases: [] };
+        });
 
         if (lookupData.releases && lookupData.releases.length > 0) {
           release = lookupData.releases[0];

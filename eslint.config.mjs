@@ -2,12 +2,44 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettier from 'eslint-config-prettier/flat';
+import jsdoc from 'eslint-plugin-jsdoc'; // 1. Import the plugin
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   prettier,
-  // Override default ignores of eslint-config-next.
+
+  // 2. Add JSDoc enforcement for JS/TS files
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      jsdoc,
+    },
+    rules: {
+      // Force module-level documentation
+      'jsdoc/require-file-overview': [
+        'error',
+        {
+          tags: {
+            file: { initial: true },
+            description: { initial: true },
+          },
+        },
+      ],
+      // Optional: enforce JSDoc for exports (hooks, functions, etc.)
+      'jsdoc/require-jsdoc': [
+        'warn',
+        {
+          publicOnly: true,
+          require: {
+            FunctionDeclaration: true,
+            ArrowFunctionExpression: true,
+          },
+        },
+      ],
+    },
+  },
+
   globalIgnores([
     // Default ignores of eslint-config-next:
     '.next/**',
