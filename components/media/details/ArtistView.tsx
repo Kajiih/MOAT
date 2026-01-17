@@ -17,7 +17,6 @@ interface ArtistViewProps {
   details: MediaDetails;
 }
 
-
 /**
  * Renders the detailed metadata and tags for an artist.
  */

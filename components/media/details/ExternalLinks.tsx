@@ -19,7 +19,6 @@ interface ExternalLinksProps {
   urls?: { type: string; url: string }[];
 }
 
-
 /**
  * Renders a collection of external links for a media item, always including its MusicBrainz profile.
  */

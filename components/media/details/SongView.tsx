@@ -17,7 +17,6 @@ interface SongViewProps {
   details: MediaDetails;
 }
 
-
 /**
  * Renders the detailed metadata and parent album information for a song.
  */
