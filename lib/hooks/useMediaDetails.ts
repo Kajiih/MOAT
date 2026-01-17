@@ -1,7 +1,7 @@
 /**
  * @file useMediaDetails.ts
- * @description Custom hook for fetching and caching deep metadata for media items.
- * Uses SWR for efficient caching, revalidation, and automatic retries on 503 errors.
+ * @description Hook for fetching detailed metadata for a specific media item.
+ * Uses SWR for caching and automatic revalidation.
  * @module useMediaDetails
  */
 

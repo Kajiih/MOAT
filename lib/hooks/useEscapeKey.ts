@@ -1,8 +1,11 @@
 /**
  * @file useEscapeKey.ts
- * @description Custom hook to handle Escape key press events.
+ * @description Hook that executes a callback when the Escape key is pressed.
+ * Useful for closing modals, clearing selections, or canceling actions.
  * @module useEscapeKey
  */
+
+'use client';
 
 import { useEffect } from 'react';
 

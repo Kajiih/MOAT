@@ -10,7 +10,7 @@ import React from 'react';
 import { twMerge } from 'tailwind-merge';
 
 interface BrandLogoProps {
-  /** Exactly 4 colors (hex values, can be undefined if missing) */
+  /** Exactly 5 colors (hex values, can be undefined if missing) */
   colors: (string | undefined)[];
   className?: string;
   variant?: 'default' | 'header' | 'footer';

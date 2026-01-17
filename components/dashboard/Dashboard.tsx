@@ -6,10 +6,17 @@ import { useRouter } from 'next/navigation';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Plus, Trash2, Layout } from 'lucide-react';
+import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
+import { useBrandColors } from '@/lib/hooks';
+import { useDynamicFavicon } from '@/lib/hooks';
 
 export function Dashboard() {
   const { boards, isLoading, createBoard, deleteBoard } = useBoardRegistry();
   const router = useRouter();
+  const brandColors = useBrandColors([...DEFAULT_BRAND_COLORS]);
+  
+  // Ensure dashboard has the default favicon
+  useDynamicFavicon([...DEFAULT_BRAND_COLORS]);
 
   const handleCreate = async () => {
     const id = await createBoard('Untitled Board');
@@ -39,7 +46,7 @@ export function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
             <div className="flex items-center gap-4">
-                <BrandLogo colors={['#3b82f6']} variant="header" />
+                <BrandLogo colors={brandColors} variant="header" />
                 <span className="text-2xl font-bold text-neutral-400 hidden sm:inline">/ Dashboard</span>
             </div>
             <button 

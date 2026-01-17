@@ -1,20 +1,23 @@
 /**
  * @file useTierListDnD.ts
- * @description Encapsulates the Drag and Drop (DnD) logic for the Tier List.
- * Uses @dnd-kit to handle sensors, collision detection, and state updates for moving items between tiers and reordering tiers themselves.
+ * @description Custom hook encapsulating the Drag and Drop logic for the Tier List.
+ * Manages sensors, collision detection strategies, and event handlers (DragStart, DragOver, DragEnd).
+ * It delegates the actual state mutations to the reducer via the dispatch function.
  * @module useTierListDnD
  */
+ 
+'use client';
 
-import { 
-  DragStartEvent, 
-  DragOverEvent, 
+import {
+  DragStartEvent,
+  DragOverEvent,
   DragEndEvent,
   useSensor,
   useSensors,
   MouseSensor,
   TouchSensor,
   KeyboardSensor,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import { 
   sortableKeyboardCoordinates, 
 } from '@dnd-kit/sortable';

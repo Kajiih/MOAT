@@ -6,6 +6,8 @@
  * @module useScreenshot
  */
 
+'use client';
+
 import { useState, useCallback } from 'react';
 import { toPng } from 'html-to-image';
 import download from 'downloadjs';

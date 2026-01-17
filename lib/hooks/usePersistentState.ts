@@ -1,12 +1,11 @@
 /**
  * @file usePersistentState.ts
- * @description A custom hook that synchronizes state with async storage (IndexedDB).
- * Features:
- * - Async hydration.
- * - Debounced writes.
- * - Robust object merging to handle schema migrations.
+ * @description A custom React hook that mimics useState but persists the value to IndexedDB.
+ * Features debounced writing to avoid performance issues during rapid updates.
  * @module usePersistentState
  */
+
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';

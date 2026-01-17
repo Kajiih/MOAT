@@ -5,6 +5,8 @@
  * @module useMediaSearch
  */
 
+'use client';
+
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
 import useSWR, { preload } from 'swr';

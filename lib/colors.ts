@@ -40,6 +40,12 @@ export const COLOR_PALETTE: Record<string, ColorTheme> = {
 // Ordered list for pickers
 export const TIER_COLORS = Object.values(COLOR_PALETTE);
 
+/**
+ * The default brand color palette, used when the board is empty or on the dashboard.
+ * Derived from the first 5 colors of the default tier list.
+ */
+export const DEFAULT_BRAND_COLORS = ['red', 'orange', 'amber', 'green', 'blue'] as const;
+
 export const DEFAULT_COLOR = COLOR_PALETTE.neutral;
 
 /**

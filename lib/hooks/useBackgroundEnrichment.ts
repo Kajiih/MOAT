@@ -1,14 +1,15 @@
 /**
  * @file useBackgroundEnrichment.ts
- * @description A hook that acts as a background sync engine.
- * Monitors items on the board and automatically fetches deep metadata (tracklists, years, tags)
- * for any item that is missing it. Ensures the board state is "feature-complete" without blocking the UI.
+ * @description Hook that automatically fetches deep metadata for items present on the board.
+ * It works in the background to ensure all items have full details (tracklists, etc.) without blocking the UI.
  * @module useBackgroundEnrichment
  */
 
+'use client';
+
 import { useEffect, useMemo } from 'react';
 import { MediaItem } from '@/lib/types';
-import { useMediaDetails } from '@/lib/hooks/useMediaDetails';
+import { useMediaDetails } from '@/lib/hooks';
 
 /**
  * Main hook to coordinate background enrichment of board items.

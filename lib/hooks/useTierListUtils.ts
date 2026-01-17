@@ -4,6 +4,7 @@
  * Handles dynamic header coloring based on drag state and item locating/highlighting.
  * @module useTierListUtils
  */
+'use client';
 
 import { useMemo, useCallback } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';

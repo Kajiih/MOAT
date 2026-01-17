@@ -1,8 +1,11 @@
 /**
  * @file useHistory.ts
- * @description A generic hook for managing undo/redo history stacks.
+ * @description Generic hook for managing undo/redo history for any state.
+ * Maintains past, present, and future stacks.
  * @module useHistory
  */
+
+'use client';
 
 import { useState, useCallback } from 'react';
 
