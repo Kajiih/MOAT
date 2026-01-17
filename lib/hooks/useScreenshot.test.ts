@@ -47,14 +47,11 @@ describe('useScreenshot', () => {
     // Patch setTimeout to be immediate for parts of the test
     vi.useFakeTimers();
 
-    const capturePromise = act(async () => {
-       await result.current.takeScreenshot(mockState, mockColors);
+    await act(async () => {
+       const p = result.current.takeScreenshot(mockState, mockColors);
+       await vi.advanceTimersByTimeAsync(2000);
+       await p;
     });
-
-    // Advance through the initial wait (800ms) + any other sub-timers
-    await vi.advanceTimersByTimeAsync(2000);
-
-    await capturePromise;
 
     expect(toPng).toHaveBeenCalled();
     expect(download).toHaveBeenCalled();
@@ -69,12 +66,11 @@ describe('useScreenshot', () => {
     
     vi.useFakeTimers();
 
-    const capturePromise = act(async () => {
-       await result.current.takeScreenshot(mockState, mockColors);
+    await act(async () => {
+       const p = result.current.takeScreenshot(mockState, mockColors);
+       await vi.advanceTimersByTimeAsync(2000);
+       await p;
     });
-
-    await vi.advanceTimersByTimeAsync(1000);
-    await capturePromise;
 
     expect(result.current.isCapturing).toBe(false);
     vi.useRealTimers();
