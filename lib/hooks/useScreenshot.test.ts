@@ -1,9 +1,11 @@
-import { renderHook, act } from '@testing-library/react';
-import { useScreenshot } from './useScreenshot';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { toPng } from 'html-to-image';
+import { act,renderHook } from '@testing-library/react';
 import download from 'downloadjs';
+import { toPng } from 'html-to-image';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
 import { INITIAL_STATE } from '@/lib/initial-state';
+
+import { useScreenshot } from './useScreenshot';
 
 // Mock dependencies
 vi.mock('html-to-image', () => ({

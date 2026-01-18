@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { afterAll,beforeAll, describe, expect, it, vi } from 'vitest';
+
 import { VirtualGrid } from './VirtualGrid';
 
 // Mock ResizeObserver

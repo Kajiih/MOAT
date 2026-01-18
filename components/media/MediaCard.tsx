@@ -7,17 +7,18 @@
 
 'use client';
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { useDraggable, DraggableAttributes } from '@dnd-kit/core';
+import { DraggableAttributes,useDraggable } from '@dnd-kit/core';
+import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { MediaItem } from '@/lib/types';
-import { X, Eye, Info } from 'lucide-react';
-import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
-import { getMediaUI } from '@/lib/media-defs';
+import { Eye, Info,X } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
+
 import { useInteraction } from '@/components/ui/InteractionContext';
 import { failedImages } from '@/lib/image-cache';
+import { getMediaUI } from '@/lib/media-defs';
+import { MediaItem } from '@/lib/types';
 
 /**
  * Props for the visual representation of a media card.

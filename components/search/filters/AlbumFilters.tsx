@@ -6,9 +6,10 @@
  * @module AlbumFilters
  */
 
-import { PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
-import { FilterButton } from '@/components/ui/FilterButton';
 import { Info } from 'lucide-react';
+
+import { FilterButton } from '@/components/ui/FilterButton';
+import { PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
 
 /**
  * Props for the AlbumFilters component.

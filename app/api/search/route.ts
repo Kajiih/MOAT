@@ -8,8 +8,9 @@
  */
 
 import { NextResponse } from 'next/server';
-import { MediaType } from '@/lib/types';
+
 import { searchMusicBrainz } from '@/lib/services/musicbrainz';
+import { MediaType } from '@/lib/types';
 
 /**
  * Handles GET requests to search for media items.

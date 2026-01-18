@@ -5,10 +5,12 @@
  * @module TierSliceReducer
  */
 
-import { TierListState, TierDefinition } from '@/lib/types';
-import { ActionType, TierListAction } from '../actions';
-import { TIER_COLORS } from '@/lib/colors';
 import { arrayMove } from '@dnd-kit/sortable';
+
+import { TIER_COLORS } from '@/lib/colors';
+import { TierDefinition,TierListState } from '@/lib/types';
+
+import { ActionType, TierListAction } from '../actions';
 
 /** Type definition for the Delete Tier action payload */
 export type DeleteTierPayload = Extract<TierListAction, { type: 'DELETE_TIER' }>['payload'];

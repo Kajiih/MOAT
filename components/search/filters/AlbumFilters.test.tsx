@@ -1,7 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AlbumFilters } from './AlbumFilters';
+import { fireEvent,render, screen } from '@testing-library/react';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
 import { SECONDARY_TYPES } from '@/lib/types';
+
+import { AlbumFilters } from './AlbumFilters';
 
 describe('AlbumFilters', () => {
   const mockTogglePrimary = vi.fn();

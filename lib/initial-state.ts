@@ -5,8 +5,8 @@
  * @module InitialState
  */
 
-import { TierListState } from '@/lib/types';
 import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
+import { TierListState } from '@/lib/types';
 
 export const INITIAL_STATE: TierListState = {
   title: 'Untitled Tier List',

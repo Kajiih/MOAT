@@ -113,7 +113,7 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 
 - Improve dashboard
 - Make default page an empty tierlist, not dashboard
-- Fix lints, check the following plugins and config: 
+- Fix lints, check the following plugins and config:
   - Maybe remove: 'jsdoc/require-param': 'off',
   - Check:
     - 'typescript-eslint'
@@ -132,11 +132,6 @@ Config snippet: perfectionist.configs['recommended-natural']
 Known as the "more than 100 useful rules" plugin. It forces modern JavaScript patterns (e.g., preferring node.append() over node.appendChild() or for...of over forEach).
 
 Why for you: Since you’re coming from a CSE/C++ background, this helps you lean into the most efficient and "clean" modern JS idioms. It catches subtle bugs that standard linters miss.
-
-3. eslint-plugin-unused-imports
-While TypeScript catches unused variables, this plugin provides an autofix to actually remove them.
-
-Why for you: It streamlines your workflow. You can delete a piece of code, and the imports will disappear automatically on save, keeping your useMediaDetails or useBrandColors files lean.
 
 4. eslint-plugin-sonarjs
 This brings "SonarQube" level static analysis to your local environment. It detects Code Smells (complex logic, cognitive complexity, code duplication).
@@ -170,10 +165,10 @@ export default defineConfig([
     rules: {
       // JSDoc Rules
       'jsdoc/require-file-overview': ['error', { tags: { file: { initial: true }, description: { initial: true } } }],
-      
+
       // Auto-remove unused imports
       'unused-imports/no-unused-imports': 'error',
-      
+
       // Tone down some Unicorn rules if they are too noisy
       'unicorn/prevent-abbreviations': 'off', // Sometimes we like 'props' or 'params'
     },

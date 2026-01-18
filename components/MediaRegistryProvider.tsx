@@ -9,9 +9,10 @@
 
 'use client';
 
-import React, { createContext, useContext, useCallback, ReactNode } from 'react';
-import { MediaItem } from '@/lib/types';
+import React, { createContext, ReactNode,useCallback, useContext } from 'react';
+
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
+import { MediaItem } from '@/lib/types';
 
 /**
  * Interface defining the API for the Media Registry.

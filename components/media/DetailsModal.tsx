@@ -8,17 +8,19 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
 import { X } from 'lucide-react';
 import Image from 'next/image';
-import { MediaItem } from '@/lib/types';
+import { useEffect, useMemo,useState } from 'react';
+
+import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { useMediaDetails } from '@/lib/hooks';
 import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
+import { getMediaUI } from '@/lib/media-defs';
+import { MediaItem } from '@/lib/types';
+
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
 import { SongView } from './details/SongView';
-import { useMediaRegistry } from '@/components/MediaRegistryProvider';
-import { getMediaUI } from '@/lib/media-defs';
 
 /**
  * Props for the DetailsModal component.

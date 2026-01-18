@@ -7,6 +7,7 @@
 'use client';
 
 import { ArtistSelection } from '@/lib/types';
+
 import { MediaPicker } from './MediaPicker';
 
 /**

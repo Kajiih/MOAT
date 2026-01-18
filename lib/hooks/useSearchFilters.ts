@@ -6,7 +6,9 @@
  */
 
 import { useCallback } from 'react';
+
 import { MediaType } from '@/lib/types';
+
 import { usePersistentState } from './usePersistentState';
 
 /**

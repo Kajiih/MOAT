@@ -9,6 +9,7 @@
 'use client';
 
 import { useEffect } from 'react';
+
 import { useBrandColors } from './useBrandColors';
 
 /**

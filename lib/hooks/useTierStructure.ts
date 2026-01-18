@@ -6,10 +6,11 @@
  * @module useTierStructure
  */
 
-import { useCallback, Dispatch } from 'react';
-import { TierDefinition } from '@/lib/types';
+import { Dispatch,useCallback } from 'react';
+
 import { useToast } from '@/components/ui/ToastProvider';
 import { ActionType, TierListAction } from '@/lib/state/actions';
+import { TierDefinition } from '@/lib/types';
 
 /**
  * Hook to manage the structure of the tier list board (rows/tiers) and global board actions.

@@ -4,8 +4,9 @@
  * @module MusicBrainzDetails
  */
 
-import { MediaType, MediaDetails } from '@/lib/types';
 import { getArtistThumbnail } from '@/lib/server/images';
+import { MediaDetails,MediaType } from '@/lib/types';
+
 import { mbFetch } from './client';
 import { DETAILS_CACHE_TTL } from './config';
 

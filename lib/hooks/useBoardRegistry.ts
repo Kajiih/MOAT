@@ -6,10 +6,11 @@
  * @module useBoardRegistry
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback,useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+
 import { storage } from '@/lib/storage';
 import { BoardMetadata, TierListState } from '@/lib/types';
-import { v4 as uuidv4 } from 'uuid';
 
 const REGISTRY_KEY = 'moat-registry';
 const LEGACY_KEY = 'moat-tierlist';

@@ -8,25 +8,26 @@
 
 'use client';
 
-import React, { createContext, useContext, useMemo, useState, ReactNode } from 'react';
-import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
-import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
-import { tierListReducer } from '@/lib/state/reducer';
-import { TierListAction, ActionType } from '@/lib/state/actions';
-import { useHistory } from '@/lib/hooks/useHistory';
-import { useMediaRegistry } from '@/components/MediaRegistryProvider';
-import { INITIAL_STATE } from '@/lib/initial-state';
-import { useTierListDnD, useTierStructure, useTierListIO, useTierListUtils } from '@/lib/hooks';
-import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
 import {
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
   SensorDescriptor,
   SensorOptions,
-  DragStartEvent,
-  DragOverEvent,
-  DragEndEvent,
 } from '@dnd-kit/core';
-import { syncBoardMetadata } from '@/lib/registry-utils';
+import React, { createContext, ReactNode,useContext, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
+
+import { useMediaRegistry } from '@/components/MediaRegistryProvider';
+import { useTierListDnD, useTierListIO, useTierListUtils,useTierStructure } from '@/lib/hooks';
+import { useHistory } from '@/lib/hooks/useHistory';
+import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
+import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
+import { INITIAL_STATE } from '@/lib/initial-state';
+import { syncBoardMetadata } from '@/lib/registry-utils';
+import { ActionType,TierListAction } from '@/lib/state/actions';
+import { tierListReducer } from '@/lib/state/reducer';
+import { MediaItem, TierDefinition,TierListState } from '@/lib/types';
 
 /**
  * Interface defining the shape of the Tier List Context.

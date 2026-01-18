@@ -6,9 +6,10 @@
  * @module GlobalSliceReducer
  */
 
-import { TierListState } from '@/lib/types';
-import { ActionType, TierListAction } from '../actions';
 import { INITIAL_STATE } from '@/lib/initial-state';
+import { TierListState } from '@/lib/types';
+
+import { ActionType, TierListAction } from '../actions';
 
 /**
  * Slice reducer for global application actions.

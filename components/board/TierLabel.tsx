@@ -10,10 +10,10 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { DraggableAttributes,DraggableSyntheticListeners } from '@dnd-kit/core';
 import { GripVertical } from 'lucide-react';
+import { useEffect,useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { DraggableSyntheticListeners, DraggableAttributes } from '@dnd-kit/core';
 
 /**
  * Props for the TierLabel component.

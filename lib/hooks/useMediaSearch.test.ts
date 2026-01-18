@@ -1,9 +1,11 @@
-import { renderHook, act } from '@testing-library/react';
-import { useMediaSearch } from './useMediaSearch';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import useSWR from 'swr';
+import { act,renderHook } from '@testing-library/react';
 import { useState } from 'react';
+import useSWR from 'swr';
+import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { MediaItem } from '@/lib/types';
+
+import { useMediaSearch } from './useMediaSearch';
 
 // Mock SWR - we need this to track calls
 vi.mock('swr', () => ({

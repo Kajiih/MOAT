@@ -8,17 +8,17 @@
 
 'use client';
 
-import React from 'react';
+import { Layout,Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
+import React from 'react';
+
 import { BrandLogo } from '@/components/ui/BrandLogo';
-import { Plus, Trash2, Layout } from 'lucide-react';
+import { Footer } from '@/components/ui/Footer';
 import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
 import { useBrandColors } from '@/lib/hooks';
 import { useDynamicFavicon } from '@/lib/hooks';
-
-import { Footer } from '@/components/ui/Footer';
+import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 
 /**
  * Renders the application dashboard, allowing users to manage their tier list boards.

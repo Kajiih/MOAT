@@ -7,10 +7,12 @@
  * @module TierList
  */
 
-import React from 'react';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { TierRow } from './TierRow';
+import React from 'react';
+
 import { MediaItem, TierDefinition } from '@/lib/types';
+
+import { TierRow } from './TierRow';
 
 /**
  * Props for the TierList component.

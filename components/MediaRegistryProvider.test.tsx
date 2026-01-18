@@ -1,8 +1,10 @@
-import { renderHook, act } from '@testing-library/react';
-import { MediaRegistryProvider, useMediaRegistry } from './MediaRegistryProvider';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act,renderHook } from '@testing-library/react';
 import React from 'react';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
 import { MediaItem } from '@/lib/types';
+
+import { MediaRegistryProvider, useMediaRegistry } from './MediaRegistryProvider';
 
 // Mock usePersistentState to isolate registry logic
 vi.mock('@/lib/hooks/usePersistentState', () => ({

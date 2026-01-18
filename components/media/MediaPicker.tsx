@@ -7,22 +7,23 @@
 
 'use client';
 
+import { Disc, Filter, Mic2,User, X } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { preload } from 'swr';
-import { X, Filter, Disc, User, Mic2 } from 'lucide-react';
+
+import { SearchFilters } from '@/components/search/filters/SearchFilters';
+import { getSearchUrl } from '@/lib/api';
+import { swrFetcher } from '@/lib/api/fetcher';
+import { useMediaSearch } from '@/lib/hooks';
 import {
-  MediaItem,
-  MediaSelection,
   AlbumItem,
+  AlbumSelection,
   ArtistItem,
   ArtistSelection,
-  AlbumSelection,
+  MediaItem,
+  MediaSelection,
 } from '@/lib/types';
-import { useMediaSearch } from '@/lib/hooks';
-import { getSearchUrl } from '@/lib/api';
-import Image from 'next/image';
-import { SearchFilters } from '@/components/search/filters/SearchFilters';
-import { swrFetcher } from '@/lib/api/fetcher';
 
 /**
  * Props for the MediaPicker component.

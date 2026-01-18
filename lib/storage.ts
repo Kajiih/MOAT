@@ -4,7 +4,7 @@
  * Currently uses 'idb-keyval' for asynchronous IndexedDB storage.
  */
 
-import { get, set, del } from 'idb-keyval';
+import { del,get, set } from 'idb-keyval';
 
 /**
  * Interface defining the abstract storage backend for the application.

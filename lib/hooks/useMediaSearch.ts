@@ -7,22 +7,24 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useDebounce } from 'use-debounce';
+import { useCallback,useEffect, useMemo, useState } from 'react';
 import useSWR, { preload } from 'swr';
-import { getSearchUrl } from '@/lib/api';
-import {
-  MediaType,
-  MediaItem,
-  ArtistItem,
-  AlbumItem,
-  SongItem,
-  ArtistSelection,
-  AlbumSelection,
-} from '@/lib/types';
-import { usePersistentState } from './usePersistentState';
+import { useDebounce } from 'use-debounce';
+
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
+import { getSearchUrl } from '@/lib/api';
 import { swrFetcher } from '@/lib/api/fetcher';
+import {
+  AlbumItem,
+  AlbumSelection,
+  ArtistItem,
+  ArtistSelection,
+  MediaItem,
+  MediaType,
+  SongItem,
+} from '@/lib/types';
+
+import { usePersistentState } from './usePersistentState';
 
 /**
  * Represents the shape of the search response from the API.

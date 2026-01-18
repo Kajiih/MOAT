@@ -7,7 +7,7 @@
  */
 
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
-import { constructLuceneQuery, SearchOptions, escapeLucene } from '@/lib/utils/search';
+import { constructLuceneQuery, escapeLucene,SearchOptions } from '@/lib/utils/search';
 
 /**
  * Input parameters for the MusicBrainz query builder.

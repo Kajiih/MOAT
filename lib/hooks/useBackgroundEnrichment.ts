@@ -8,8 +8,9 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { MediaItem } from '@/lib/types';
+
 import { useMediaDetails } from '@/lib/hooks';
+import { MediaItem } from '@/lib/types';
 
 /**
  * Main hook to coordinate background enrichment of board items.

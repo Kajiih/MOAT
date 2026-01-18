@@ -6,10 +6,11 @@
  */
 
 import { TierListState } from '@/lib/types';
+
 import { TierListAction } from './actions';
-import { tierReducer } from './slices/tier-reducer';
-import { itemReducer } from './slices/item-reducer';
 import { globalReducer } from './slices/global-reducer';
+import { itemReducer } from './slices/item-reducer';
+import { tierReducer } from './slices/tier-reducer';
 
 /**
  * The primary reducer for the Tier List application.

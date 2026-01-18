@@ -1,10 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { TierBoard } from './TierBoard';
 import { DndContext } from '@dnd-kit/core';
-import { TierListProvider } from '@/components/TierListContext';
+import { fireEvent,render, screen } from '@testing-library/react';
+import { describe, expect,it } from 'vitest';
+
 import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
+import { TierListProvider } from '@/components/TierListContext';
 import { ToastProvider } from '@/components/ui/ToastProvider';
+
+import { TierBoard } from './TierBoard';
 
 // Mock ResizeObserver for dnd-kit
 global.ResizeObserver = class ResizeObserver {

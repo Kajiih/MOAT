@@ -1,6 +1,7 @@
-import { renderHook, act } from '@testing-library/react';
-import { useDynamicFavicon, applyFaviconToDom } from './useDynamicFavicon';
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { applyFaviconToDom,useDynamicFavicon } from './useDynamicFavicon';
 
 describe('useDynamicFavicon', () => {
   beforeEach(() => {

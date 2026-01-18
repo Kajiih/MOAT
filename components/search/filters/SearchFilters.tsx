@@ -5,10 +5,11 @@
  * @module SearchFilters
  */
 
-import { MediaType, SECONDARY_TYPES } from '@/lib/types';
 import { SearchParamsState } from '@/lib/hooks/useMediaSearch';
-import { ArtistFilters } from './ArtistFilters';
+import { MediaType, SECONDARY_TYPES } from '@/lib/types';
+
 import { AlbumFilters } from './AlbumFilters';
+import { ArtistFilters } from './ArtistFilters';
 import { DateRangeFilter } from './DateRangeFilter';
 import { FILTER_INPUT_STYLES } from './FilterPrimitives';
 

@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
+import { describe, expect,it } from 'vitest';
+
 import { useBrandColors } from './useBrandColors';
-import { describe, it, expect } from 'vitest';
 
 describe('useBrandColors', () => {
   it('should return all undefined for empty input (hiding logo)', () => {

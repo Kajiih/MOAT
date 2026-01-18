@@ -5,8 +5,10 @@
  * @module SongView
  */
 
-import { Disc, Clock, ExternalLink } from 'lucide-react';
+import { Clock, Disc, ExternalLink } from 'lucide-react';
+
 import { MediaDetails } from '@/lib/types';
+
 import { ExternalLinks } from './ExternalLinks';
 
 /**

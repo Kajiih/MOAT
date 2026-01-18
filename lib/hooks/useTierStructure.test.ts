@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useTierStructure } from './useTierStructure';
+import { act,renderHook } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+
 import { ActionType } from '@/lib/state/actions';
+
+import { useTierStructure } from './useTierStructure';
 
 // Mock useToast
 const mockShowToast = vi.fn();

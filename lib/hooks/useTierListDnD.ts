@@ -9,19 +9,20 @@
 'use client';
 
 import {
-  DragStartEvent,
-  DragOverEvent,
   DragEndEvent,
-  useSensor,
-  useSensors,
+  DragOverEvent,
+  DragStartEvent,
+  KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  KeyboardSensor,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { useState, useCallback, Dispatch } from 'react';
-import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { Dispatch,useCallback, useState } from 'react';
+
 import { ActionType, TierListAction } from '@/lib/state/actions';
+import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Manages the Drag and Drop state and event handlers for the Tier List board.

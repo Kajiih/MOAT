@@ -1,7 +1,9 @@
 import { renderHook } from '@testing-library/react';
-import { useBackgroundEnrichment } from './useBackgroundEnrichment';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
 import { MediaItem } from '@/lib/types';
+
+import { useBackgroundEnrichment } from './useBackgroundEnrichment';
 
 // Mock useMediaDetails
 const mockUseMediaDetails = vi.fn();

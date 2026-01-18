@@ -5,17 +5,19 @@
  */
 
 import { z } from 'zod';
-import { MusicBrainzSearchResponseSchema, MediaItem, MediaType } from '@/lib/types';
-import { SearchOptions } from '@/lib/utils/search';
+
+import { serverItemCache } from '@/lib/server/item-cache';
+import { MediaItem, MediaType,MusicBrainzSearchResponseSchema } from '@/lib/types';
 import {
   mapArtistToMediaItem,
   mapRecordingToMediaItem,
   mapReleaseGroupToMediaItem,
 } from '@/lib/utils/mappers';
-import { serverItemCache } from '@/lib/server/item-cache';
+import { SearchOptions } from '@/lib/utils/search';
+
 import { mbFetch } from './client';
+import { SEARCH_CACHE_TTL,SEARCH_LIMIT } from './config';
 import { buildMusicBrainzQuery } from './query-builder';
-import { SEARCH_LIMIT, SEARCH_CACHE_TTL } from './config';
 
 export interface SearchParams {
   type: MediaType;

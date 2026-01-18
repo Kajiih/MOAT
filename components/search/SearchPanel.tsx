@@ -7,12 +7,14 @@
 
 'use client';
 
-import { usePersistentState } from '@/lib/hooks';
-import { Search, Eye, EyeOff, Disc, Mic2, Music } from 'lucide-react';
-import { MediaType } from '@/lib/types';
-import { SearchTab } from './SearchTab';
-import { SearchSettings } from './SearchSettings';
+import { Disc, Eye, EyeOff, Mic2, Music,Search } from 'lucide-react';
+
 import { useTierListContext } from '@/components/TierListContext';
+import { usePersistentState } from '@/lib/hooks';
+import { MediaType } from '@/lib/types';
+
+import { SearchSettings } from './SearchSettings';
+import { SearchTab } from './SearchTab';
 
 /**
  * The sidebar component responsible for searching and filtering media items.

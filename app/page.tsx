@@ -3,9 +3,9 @@
  * @description Main dashboard page of the application.
  */
 
+import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
 import TierListApp from '@/components/TierListApp';
 import { TierListProvider } from '@/components/TierListContext';
-import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
 
 /**
  * Renders the application dashboard.

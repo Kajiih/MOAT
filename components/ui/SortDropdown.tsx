@@ -5,8 +5,9 @@
  * @module SortDropdown
  */
 
-import { useState } from 'react';
 import { ArrowUpDown } from 'lucide-react';
+import { useState } from 'react';
+
 import { MediaType, SortOption } from '@/lib/types';
 
 /**

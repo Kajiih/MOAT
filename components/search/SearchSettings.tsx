@@ -7,8 +7,8 @@
 
 'use client';
 
-import { useState } from 'react';
 import { Settings, X } from 'lucide-react';
+import { useState } from 'react';
 
 /**
  * Props for the SearchSettings component.

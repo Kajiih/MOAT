@@ -6,14 +6,15 @@
  */
 
 import { z } from 'zod';
+
+import { getArtistThumbnail } from '@/lib/server/images';
 import {
+  MediaItem,
   MusicBrainzArtistCreditSchema,
-  MusicBrainzReleaseGroupSchema,
   MusicBrainzArtistSchema,
   MusicBrainzRecordingSchema,
-  MediaItem,
+  MusicBrainzReleaseGroupSchema,
 } from '@/lib/types';
-import { getArtistThumbnail } from '@/lib/server/images';
 
 const COVER_ART_ARCHIVE_BASE_URL = 'https://coverartarchive.org';
 

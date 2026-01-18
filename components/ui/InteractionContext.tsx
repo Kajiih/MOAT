@@ -8,6 +8,7 @@
 'use client';
 
 import { createContext, useContext } from 'react';
+
 import { MediaItem } from '@/lib/types';
 
 /**

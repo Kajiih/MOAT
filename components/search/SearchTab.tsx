@@ -8,17 +8,19 @@
 
 'use client';
 
-import { useMemo, useEffect } from 'react';
 import { Filter } from 'lucide-react';
-import { MediaType, SortOption, MediaItem } from '@/lib/types';
-import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
-import { useToast } from '@/components/ui/ToastProvider';
-import { MediaCard } from '@/components/media/MediaCard';
-import { ArtistPicker } from '@/components/media/ArtistPicker';
+import { useEffect,useMemo } from 'react';
+
 import { AlbumPicker } from '@/components/media/AlbumPicker';
+import { ArtistPicker } from '@/components/media/ArtistPicker';
+import { MediaCard } from '@/components/media/MediaCard';
+import { Pagination } from '@/components/ui/Pagination';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
-import { Pagination } from '@/components/ui/Pagination';
+import { useToast } from '@/components/ui/ToastProvider';
+import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
+import { MediaItem,MediaType, SortOption } from '@/lib/types';
+
 import { SearchFilters } from './filters/SearchFilters';
 
 interface SearchTabProps {

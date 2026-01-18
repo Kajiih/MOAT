@@ -9,22 +9,23 @@
 'use client';
 
 import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core';
-import { MediaCard } from '@/components/media/MediaCard';
-import { TierRow } from '@/components/board/TierRow';
-import { Header } from '@/components/ui/Header';
-import { SearchPanel } from '@/components/search/SearchPanel';
-import { DetailsModal } from '@/components/media/DetailsModal';
-import { TierBoard } from '@/components/board/TierBoard';
+import { Camera, Dices, Loader2,X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import { ExportBoard } from '@/components/board/ExportBoard';
-import { Dices, X, Camera, Loader2 } from 'lucide-react';
-import { useScreenshot, useDynamicFavicon } from '@/lib/hooks';
+import { TierBoard } from '@/components/board/TierBoard';
+import { TierRow } from '@/components/board/TierRow';
+import { DetailsModal } from '@/components/media/DetailsModal';
+import { MediaCard } from '@/components/media/MediaCard';
+import { SearchPanel } from '@/components/search/SearchPanel';
 import { useTierListContext } from '@/components/TierListContext';
-import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
+import { Footer } from '@/components/ui/Footer';
+import { Header } from '@/components/ui/Header';
+import { HoveredItemInfo,InteractionContext } from '@/components/ui/InteractionContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
-import { useEffect, useState } from 'react';
-import { InteractionContext, HoveredItemInfo } from '@/components/ui/InteractionContext';
-import { Footer } from '@/components/ui/Footer';
+import { useDynamicFavicon,useScreenshot } from '@/lib/hooks';
+import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 
 /**

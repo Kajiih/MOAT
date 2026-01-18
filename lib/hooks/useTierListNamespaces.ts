@@ -6,16 +6,17 @@
  * @module useTierListNamespaces
  */
 
-import { useMemo, useCallback } from 'react';
-import { MediaItem, TierListState, TierDefinition } from '@/lib/types';
-import { TierListAction, ActionType } from '@/lib/state/actions';
 import {
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
   SensorDescriptor,
   SensorOptions,
-  DragStartEvent,
-  DragOverEvent,
-  DragEndEvent,
 } from '@dnd-kit/core';
+import { useCallback,useMemo } from 'react';
+
+import { ActionType,TierListAction } from '@/lib/state/actions';
+import { MediaItem, TierDefinition,TierListState } from '@/lib/types';
 
 /**
  * Props for the useTierListNamespaces hook.

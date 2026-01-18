@@ -8,16 +8,18 @@
 
 'use client';
 
-import { useMemo, useState, memo } from 'react';
-import { useDroppable, useDndContext } from '@dnd-kit/core';
+import { useDndContext,useDroppable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { memo,useMemo, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+
+import { getColorTheme } from '@/lib/colors';
 import { MediaItem, TierDefinition } from '@/lib/types';
+
+import { TierGrid } from './TierGrid';
 import { TierLabel } from './TierLabel';
 import { TierSettings } from './TierSettings';
-import { twMerge } from 'tailwind-merge';
-import { getColorTheme } from '@/lib/colors';
-import { TierGrid } from './TierGrid';
 
 interface TierRowProps {
   /** The tier definition (id, label, color). */

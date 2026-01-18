@@ -6,8 +6,9 @@
  */
 
 import { NextResponse } from 'next/server';
-import { MediaType } from '@/lib/types';
+
 import { getMediaDetails } from '@/lib/services/musicbrainz';
+import { MediaType } from '@/lib/types';
 
 /**
  * Handles GET requests to fetch detailed metadata for a media item.

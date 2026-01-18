@@ -1,12 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
+
+import { MusicBrainzRecordingSchema,SongItem } from '@/lib/types';
+
 import {
-  mapReleaseGroupToMediaItem,
-  mapRecordingToMediaItem,
   formatArtistCredit,
   mapArtistToMediaItem,
+  mapRecordingToMediaItem,
+  mapReleaseGroupToMediaItem,
 } from './mappers';
-import { SongItem, MusicBrainzRecordingSchema } from '@/lib/types';
-import { z } from 'zod';
 
 type MusicBrainzRecording = z.infer<typeof MusicBrainzRecordingSchema>;
 

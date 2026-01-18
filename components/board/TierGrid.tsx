@@ -6,10 +6,12 @@
  * @module TierGrid
  */
 
+import { rectSortingStrategy,SortableContext } from '@dnd-kit/sortable';
 import { memo } from 'react';
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
-import { MediaItem } from '@/lib/types';
+
 import { SortableMediaCard } from '@/components/media/MediaCard';
+import { MediaItem } from '@/lib/types';
+
 import { VirtualGrid } from './VirtualGrid';
 
 interface TierGridProps {

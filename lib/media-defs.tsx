@@ -5,8 +5,9 @@
  * @module MediaDefs
  */
 
-import { User, Disc, Music, LucideIcon } from 'lucide-react';
-import { MediaType, MediaItem, AlbumItem, ArtistItem, SongItem } from '@/lib/types';
+import { Disc, LucideIcon,Music, User } from 'lucide-react';
+
+import { AlbumItem, ArtistItem, MediaItem, MediaType, SongItem } from '@/lib/types';
 
 interface MediaUIConfig {
   label: string;

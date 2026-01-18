@@ -7,8 +7,8 @@
 
 'use client';
 
-import { twMerge } from 'tailwind-merge';
 import { useEffect, useRef } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 interface BoardTitleProps {
   /** The current title text */

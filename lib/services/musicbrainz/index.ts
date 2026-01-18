@@ -4,6 +4,6 @@
  * @module MusicBrainzService
  */
 
-export * from './search';
-export * from './details';
 export * from './config';
+export * from './details';
+export * from './search';

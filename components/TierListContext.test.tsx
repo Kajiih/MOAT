@@ -1,7 +1,8 @@
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { useTierListContext, TierListProvider } from './TierListContext';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
+import { TierListProvider,useTierListContext } from './TierListContext';
 
 // Mock dependencies
 vi.mock('@/components/ui/ToastProvider', () => ({

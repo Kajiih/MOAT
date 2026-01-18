@@ -5,7 +5,7 @@
  * @module DateRangeFilter
  */
 
-import { FilterRow, FilterCol, FILTER_INPUT_STYLES } from './FilterPrimitives';
+import { FILTER_INPUT_STYLES,FilterCol, FilterRow } from './FilterPrimitives';
 
 /**
  * Props for the DateRangeFilter component.

@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { tierListReducer } from './reducer';
-import { ActionType } from './actions';
+import { describe, expect,it } from 'vitest';
+
 import { TierListState } from '@/lib/types';
+
+import { ActionType } from './actions';
+import { tierListReducer } from './reducer';
 
 // Mock crypto.randomUUID for predictable IDs in tests
 Object.defineProperty(global, 'crypto', {

@@ -9,23 +9,25 @@
 'use client';
 
 import {
-  Upload,
-  Download,
-  Trash2,
   Camera,
-  Loader2,
-  Undo2,
-  Redo2,
-  Keyboard,
   ChevronLeft,
+  Download,
+  Keyboard,
+  Loader2,
+  Redo2,
+  Trash2,
+  Undo2,
+  Upload,
 } from 'lucide-react';
-import { useBrandColors } from '@/lib/hooks/useBrandColors';
-import { BrandLogo } from './BrandLogo';
-import { useState } from 'react';
-import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
-import { useTierListContext } from '@/components/TierListContext';
-import { BoardTitle } from '../board/BoardTitle';
 import Link from 'next/link';
+import { useState } from 'react';
+
+import { useTierListContext } from '@/components/TierListContext';
+import { useBrandColors } from '@/lib/hooks/useBrandColors';
+
+import { BoardTitle } from '../board/BoardTitle';
+import { BrandLogo } from './BrandLogo';
+import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 
 /**
  * Props for the Header component.

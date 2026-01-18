@@ -6,12 +6,14 @@
  */
 
 import React from 'react';
-import { TierListState } from '@/lib/types';
+
 import { BrandLogo } from '@/components/ui/BrandLogo';
-import { TierList } from './TierList';
-import { BoardTitle } from './BoardTitle';
 import { Footer } from '@/components/ui/Footer';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
+import { TierListState } from '@/lib/types';
+
+import { BoardTitle } from './BoardTitle';
+import { TierList } from './TierList';
 
 /**
  * Props for the ExportBoard component.

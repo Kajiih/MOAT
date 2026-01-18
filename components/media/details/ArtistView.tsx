@@ -6,7 +6,9 @@
  */
 
 import { MapPin } from 'lucide-react';
+
 import { MediaDetails } from '@/lib/types';
+
 import { ExternalLinks } from './ExternalLinks';
 
 /**

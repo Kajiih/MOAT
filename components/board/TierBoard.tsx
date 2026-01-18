@@ -8,9 +8,11 @@
 
 'use client';
 
-import { TierList } from './TierList';
 import { Plus } from 'lucide-react';
+
 import { useTierListContext } from '@/components/TierListContext';
+
+import { TierList } from './TierList';
 
 /**
  * Props for the TierBoard component.

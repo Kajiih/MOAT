@@ -5,9 +5,11 @@
  * @module ItemSliceReducer
  */
 
-import { TierListState, MediaItem } from '@/lib/types';
-import { ActionType, TierListAction } from '../actions';
 import { arrayMove } from '@dnd-kit/sortable';
+
+import { MediaItem,TierListState } from '@/lib/types';
+
+import { ActionType, TierListAction } from '../actions';
 
 /** Type definition for the Move Item action payload */
 export type MoveItemPayload = Extract<TierListAction, { type: 'MOVE_ITEM' }>['payload'];
