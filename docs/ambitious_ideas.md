@@ -117,6 +117,9 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
   - Maybe remove: 'jsdoc/require-param': 'off',
   - Check:
     - 'typescript-eslint'
+- Check config for unicorn lint
+- Check param documentation with props: it's bad
+- Check if we can further improve eslint documentation
 
 ```
 Here are the best ESLint extensions to add to your flat config:

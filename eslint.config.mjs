@@ -49,6 +49,7 @@ const eslintConfig = defineConfig([
       'sonarjs/no-nested-conditional': 'off',
 
       // Unicorn Overrides
+      // Check these if we keep or remove
       'unicorn/filename-case': 'off', // Next.js often uses specific casing (e.g. page.tsx, route.ts) or PascalCase for components
       'unicorn/prevent-abbreviations': 'off', // Can be too aggressive
       'unicorn/no-null': 'off', // Null is common in React/TS
@@ -97,8 +98,9 @@ const eslintConfig = defineConfig([
           enableFixer: false,
         },
       ],
-      'jsdoc/require-param': 'off',
-      'jsdoc/require-returns': 'off',
+      'jsdoc/require-param': 'off', // To remove?
+      // Mainly, we need to update the functions where the only arg is "props" because it doesn't give any useful info
+      'jsdoc/require-returns': 'off', // To remove?
     },
   },
 
