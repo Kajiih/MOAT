@@ -5,6 +5,7 @@ import prettier from 'eslint-config-prettier/flat';
 import jsdoc from 'eslint-plugin-jsdoc';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
+import unicorn from 'eslint-plugin-unicorn';
 import unusedImports from 'eslint-plugin-unused-imports';
 
 const eslintConfig = defineConfig([
@@ -12,6 +13,7 @@ const eslintConfig = defineConfig([
   ...nextTs,
   jsdoc.configs['flat/recommended-typescript'],
   sonarjs.configs.recommended,
+  unicorn.configs['recommended'],
   prettier,
 
   // General improvements
@@ -43,6 +45,26 @@ const eslintConfig = defineConfig([
       'sonarjs/no-clear-text-protocols': 'off',
       'sonarjs/pseudo-random': 'off',
       'sonarjs/no-nested-conditional': 'off',
+
+      // Unicorn Overrides
+      'unicorn/filename-case': 'off', // Next.js often uses specific casing (e.g. page.tsx, route.ts) or PascalCase for components
+      'unicorn/prevent-abbreviations': 'off', // Can be too aggressive
+      'unicorn/no-null': 'off', // Null is common in React/TS
+      'unicorn/prefer-module': 'off', // CommonJS/ESM interop issues in config files
+      'unicorn/no-array-sort': 'off', // We often want in-place sorting or standard sort
+      'unicorn/prefer-query-selector': 'off', // getElementById is faster and semantic
+      'unicorn/consistent-function-scoping': 'off', // Can lead to weird code structure in React components
+      'unicorn/no-array-for-each': 'off', // forEach is fine and sometimes preferred for side effects
+      'unicorn/prefer-dom-node-append': 'off', // appendChild is standard
+      'unicorn/explicit-length-check': 'off', // explicit length check is verbose
+      'unicorn/prefer-add-event-listener': 'off', // onerror is fine for simple cases
+      'unicorn/prefer-blob-reading-methods': 'off', // FileReader is standard
+      'unicorn/no-negated-condition': 'off', // Negated conditions are fine
+      'unicorn/prefer-global-this': 'off', // window is fine in browser context
+      'unicorn/prefer-ternary': 'off', // Ternaries can be hard to read
+      'unicorn/prefer-node-protocol': 'off', // Not all environments support node: protocol yet or we don't want to enforce it strictly
+      'unicorn/switch-case-braces': 'off', // Braces are not always needed
+      'unicorn/prefer-number-properties': 'off', // parseInt is fine
     },
   },
 

@@ -33,7 +33,7 @@ describe('Mappers', () => {
     });
 
     it('should handle undefined', () => {
-      expect(formatArtistCredit(undefined)).toBe('Unknown');
+      expect(formatArtistCredit()).toBe('Unknown');
     });
   });
 

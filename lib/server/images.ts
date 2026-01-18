@@ -12,7 +12,7 @@ const FANART_API_KEY = process.env.FANART_API_KEY;
 const FANART_BASE_URL = 'https://webservice.fanart.tv/v3/music';
 const WIKIDATA_API_URL = 'https://www.wikidata.org/w/api.php';
 const WIKIMEDIA_FILE_PATH_URL = 'https://commons.wikimedia.org/wiki/Special:FilePath';
-const IMAGE_CACHE_TTL = 86400; // 24 hours
+const IMAGE_CACHE_TTL = 86_400; // 24 hours
 
 /**
  * Constructs a Wikimedia Commons image URL.
@@ -51,8 +51,8 @@ export async function getFanartImage(mbid: string): Promise<string | undefined> 
     const url = data.artistthumb?.[0]?.url;
 
     return url ? getFanartPreviewUrl(url) : undefined;
-  } catch (e) {
-    console.error(`Fanart.tv fetch failed for mbid ${mbid}:`, e);
+  } catch (error) {
+    console.error(`Fanart.tv fetch failed for mbid ${mbid}:`, error);
     return undefined;
   }
 }
@@ -96,8 +96,8 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
 
     // 3. Convert Wiki Filename to URL
     return getWikimediaUrl(fileName);
-  } catch (e) {
-    console.error(`Wikidata fetch failed for mbid ${mbid}:`, e);
+  } catch (error) {
+    console.error(`Wikidata fetch failed for mbid ${mbid}:`, error);
     return undefined;
   }
 }

@@ -132,43 +132,4 @@ Config snippet: perfectionist.configs['recommended-natural']
 Known as the "more than 100 useful rules" plugin. It forces modern JavaScript patterns (e.g., preferring node.append() over node.appendChild() or for...of over forEach).
 
 Why for you: Since you’re coming from a CSE/C++ background, this helps you lean into the most efficient and "clean" modern JS idioms. It catches subtle bugs that standard linters miss.
-
-Updated eslint.config.mjs with the "Power" Setup
-JavaScript
-import { defineConfig, globalIgnores } from 'eslint/config';
-import nextVitals from 'eslint-config-next/core-web-vitals';
-import nextTs from 'eslint-config-next/typescript';
-import prettier from 'eslint-config-prettier/flat';
-import jsdoc from 'eslint-plugin-jsdoc';
-import perfectionist from 'eslint-plugin-perfectionist';
-import unicorn from 'eslint-plugin-unicorn';
-import unusedImports from 'eslint-plugin-unused-imports';
-
-export default defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  prettier,
-  perfectionist.configs['recommended-natural'],
-  unicorn.configs['flat/recommended'],
-
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    plugins: {
-      jsdoc,
-      'unused-imports': unusedImports,
-    },
-    rules: {
-      // JSDoc Rules
-      'jsdoc/require-file-overview': ['error', { tags: { file: { initial: true }, description: { initial: true } } }],
-
-      // Auto-remove unused imports
-      'unused-imports/no-unused-imports': 'error',
-
-      // Tone down some Unicorn rules if they are too noisy
-      'unicorn/prevent-abbreviations': 'off', // Sometimes we like 'props' or 'params'
-    },
-  },
-
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
-]);
 ```

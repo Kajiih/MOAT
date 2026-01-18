@@ -68,8 +68,8 @@ async function getAlbumDetails(
     'release',
     `query=${encodeURIComponent(query)}&limit=1`,
     { next: { revalidate: DETAILS_CACHE_TTL } },
-  ).catch((err) => {
-    console.warn(`[Details] Search release failed for ${id}`, err);
+  ).catch((error) => {
+    console.warn(`[Details] Search release failed for ${id}`, error);
     return { releases: [] };
   });
 
@@ -78,8 +78,8 @@ async function getAlbumDetails(
   if (!release) {
     const lookupData = await mbFetch<MBSearchResponse>(`release-group/${id}`, 'inc=releases', {
       next: { revalidate: DETAILS_CACHE_TTL },
-    }).catch((err) => {
-      console.warn(`[Details] Lookup release-group failed for ${id}`, err);
+    }).catch((error) => {
+      console.warn(`[Details] Lookup release-group failed for ${id}`, error);
       return { releases: [] };
     });
 
@@ -99,7 +99,7 @@ async function getAlbumDetails(
       id: t.recording?.id || t.id,
       position: t.position,
       title: t.title,
-      length: t.length ? new Date(t.length).toISOString().substr(14, 5) : '--:--',
+      length: t.length ? new Date(t.length).toISOString().slice(14, 19) : '--:--',
     })) || [];
 
   return {
@@ -160,7 +160,7 @@ async function getSongDetails(id: string): Promise<MediaDetails> {
     id,
     type: 'song',
     tags: data.tags?.map((t: MBTag) => t.name) || [],
-    length: data.length ? new Date(data.length).toISOString().substr(14, 5) : undefined,
+    length: data.length ? new Date(data.length).toISOString().slice(14, 19) : undefined,
     album: release?.title,
     albumId: release?.['release-group']?.id,
   };
@@ -184,8 +184,8 @@ export async function getMediaDetails(
       default:
         return { id, type };
     }
-  } catch (e) {
-    console.error('Error fetching details', e);
+  } catch (error) {
+    console.error('Error fetching details', error);
     return { id, type };
   }
 }

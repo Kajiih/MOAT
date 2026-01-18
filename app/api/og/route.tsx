@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
         const buffer = await res.arrayBuffer();
         const b64 = Buffer.from(buffer).toString('base64');
         return `data:${res.headers.get('content-type') || 'image/jpeg'};base64,${b64}`;
-      } catch (e) {
-        console.error('OG: Failed to fetch OG image', e);
+      } catch (error) {
+        console.error('OG: Failed to fetch OG image', error);
         return null;
       }
     };
@@ -91,8 +91,8 @@ export async function GET(request: NextRequest) {
         height: 630,
       },
     );
-  } catch (e: unknown) {
-    console.error('OG Generation Error:', e);
+  } catch (error) {
+    console.error('OG Generation Error:', error);
     return new Response(`Failed to generate the image`, {
       status: 500,
     });

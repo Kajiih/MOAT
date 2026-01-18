@@ -13,14 +13,14 @@ import { NextRequest, NextResponse } from 'next/server';
  * List of external hostnames that this proxy is allowed to fetch from.
  * These match the primary metadata and image providers for the application.
  */
-const ALLOWED_HOSTS = [
+const ALLOWED_HOSTS = new Set([
   'assets.fanart.tv',
   'coverartarchive.org',
   'placehold.co',
   'commons.wikimedia.org',
   'upload.wikimedia.org',
   'i.scdn.co', // Spotify
-];
+]);
 
 /**
  * GET handler for the image proxy.
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Security check: Only proxy from trusted domains
-  if (!ALLOWED_HOSTS.includes(targetUrl.hostname)) {
+  if (!ALLOWED_HOSTS.has(targetUrl.hostname)) {
     return new NextResponse('Domain not allowed', { status: 403 });
   }
 

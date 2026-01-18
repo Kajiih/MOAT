@@ -26,8 +26,7 @@ describe('useHistory', () => {
     const setState = vi.fn();
 
     act(() => {
-      result.current.push(1);
-      result.current.push(2);
+      result.current.push(1, 2);
     });
 
     act(() => {

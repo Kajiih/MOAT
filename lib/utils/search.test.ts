@@ -80,7 +80,7 @@ describe('constructLuceneQuery', () => {
   describe('Safety & Internationalization', () => {
     it('should escape special Lucene characters', () => {
       const result = constructLuceneQuery('artist', 'Oasis!', { fuzzy: false, wildcard: false });
-      expect(result).toBe('artist:(Oasis\\!)');
+      expect(result).toBe(String.raw`artist:(Oasis\!)`);
     });
 
     it('should preserve international characters', () => {

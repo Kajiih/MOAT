@@ -37,8 +37,8 @@ export function useTierListIO(
       const filename = `moat-${new Date().toISOString().slice(0, 10)}.json`;
       downloadJson(exportData, filename);
       showToast('Tier list exported successfully!', 'success');
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       showToast('Failed to export tier list.', 'error');
     }
   }, [state, showToast]);
@@ -71,8 +71,8 @@ export function useTierListIO(
           }
 
           showToast('Tier list imported successfully!', 'success');
-        } catch (e) {
-          console.error(e);
+        } catch (error) {
+          console.error(error);
           showToast('Invalid JSON file', 'error');
         }
       };

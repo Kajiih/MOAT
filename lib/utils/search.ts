@@ -28,7 +28,7 @@ function getFuzzyDistance(length: number): number {
  * Characters escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /
  */
 export function escapeLucene(term: string): string {
-  return term.replace(/([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\\/]|\&\&|\|\|)/g, '\\$1');
+  return term.replaceAll(/([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\\/]|\&\&|\|\|)/g, String.raw`\$1`);
 }
 
 /**

@@ -11,7 +11,7 @@ describe('colors utilities', () => {
     });
 
     it('should return default color for undefined id', () => {
-      expect(getColorTheme(undefined)).toBe(DEFAULT_COLOR);
+      expect(getColorTheme()).toBe(DEFAULT_COLOR);
     });
 
     it('should return default color for invalid id', () => {

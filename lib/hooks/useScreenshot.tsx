@@ -78,14 +78,14 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
       // Local URL, fetch directly
       return await fetchAsDataUrl(url);
     }
-  } catch (e) {
+  } catch (error) {
     // Differentiate between expected and unexpected failures
     if (isKnownBroken) {
       // Expected failure - image was already broken in the app
       console.warn(`Screenshot Engine: Skipping known broken image: ${url}`);
     } else {
       // Unexpected failure - image was working in the app but failed during screenshot
-      console.error(`Screenshot Engine: Unexpected failure resolving ${url}:`, e);
+      console.error(`Screenshot Engine: Unexpected failure resolving ${url}:`, error);
     }
     return null;
   }
@@ -112,13 +112,11 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       setIsCapturing(true);
 
       // 1. Resolve all images to Data URLs BEFORE any DOM operations
-      const uniqueUrls = Array.from(
-        new Set(
+      const uniqueUrls = [...new Set(
           Object.values(state.items)
             .flat()
             .flatMap((item) => (item.imageUrl ? [item.imageUrl] : [])),
-        ),
-      );
+        )];
 
       console.log(`Screenshot Engine: Resolving ${uniqueUrls.length} unique images...`);
       const resolvedMap: Record<string, string> = {};
@@ -196,25 +194,25 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
           },
         });
 
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const timestamp = new Date().toISOString().replaceAll(/[:.]/g, '-').slice(0, 19);
         const name = fileName.replace('.png', `-${timestamp}.png`);
 
         download(dataUrl, name);
         showToast('Screenshot saved!', 'success');
-      } catch (err) {
+      } catch (error) {
         // Improved error reporting
-        console.error('Screenshot raw error:', err);
+        console.error('Screenshot raw error:', error);
         let errorMessage;
 
-        if (err instanceof Error) {
-          errorMessage = `${err.message}\n${err.stack}`;
-        } else if (err instanceof Event) {
-          const target = err.target as HTMLElement | null;
-          errorMessage = `Capture failed due to a browser event [${err.type}] on ${target?.tagName || 'unknown'}${target instanceof HTMLImageElement ? ' (' + target.src + ')' : ''}. This usually happens when an image fails to load or violates CORS.`;
-        } else if (typeof err === 'object' && err !== null) {
-          errorMessage = JSON.stringify(err);
+        if (error instanceof Error) {
+          errorMessage = `${error.message}\n${error.stack}`;
+        } else if (error instanceof Event) {
+          const target = error.target as HTMLElement | null;
+          errorMessage = `Capture failed due to a browser event [${error.type}] on ${target?.tagName || 'unknown'}${target instanceof HTMLImageElement ? ' (' + target.src + ')' : ''}. This usually happens when an image fails to load or violates CORS.`;
+        } else if (typeof error === 'object' && error !== null) {
+          errorMessage = JSON.stringify(error);
         } else {
-          errorMessage = String(err);
+          errorMessage = String(error);
         }
 
         console.error('Screenshot failed diagnostic:', errorMessage);
@@ -226,11 +224,11 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         // Immediate unmount and removal to avoid side effects
         try {
           root.unmount();
-        } catch (e) {
-          console.warn('Unmount error during cleanup', e);
+        } catch (error) {
+          console.warn('Unmount error during cleanup', error);
         }
         if (document.body.contains(container)) {
-          document.body.removeChild(container);
+          container.remove();
         }
       }
     },

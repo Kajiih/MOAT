@@ -44,7 +44,7 @@ function handleMoveFromSearch(
   if (overId in state.items) {
     newIndex = overItems.length + 1;
   } else {
-    newIndex = overIndex >= 0 ? overIndex : overItems.length + 1;
+    newIndex = overIndex !== -1 ? overIndex : overItems.length + 1;
   }
 
   const exists = Object.values(state.items)
@@ -103,14 +103,14 @@ function handleMoveBetweenContainers(
   if (overId in state.items) {
     newIndex = overItems.length + 1;
   } else {
-    newIndex = overIndex >= 0 ? overIndex : overItems.length + 1;
+    newIndex = overIndex !== -1 ? overIndex : overItems.length + 1;
   }
 
   return {
     ...state,
     items: {
       ...state.items,
-      [activeContainer]: [...state.items[activeContainer].filter((item) => item.id !== activeId)],
+      [activeContainer]: state.items[activeContainer].filter((item) => item.id !== activeId),
       [overContainer]: [
         ...state.items[overContainer].slice(0, newIndex),
         activeItems[activeIndex],

@@ -33,16 +33,16 @@ vi.mock('@/components/MediaRegistryProvider', () => ({
 // Mock storage
 vi.mock('@/lib/storage', () => ({
   storage: {
-    get: vi.fn().mockResolvedValue(undefined),
-    set: vi.fn().mockResolvedValue(undefined),
-    del: vi.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(),
+    set: vi.fn().mockResolvedValue(),
+    del: vi.fn().mockResolvedValue(),
   },
 }));
 
 // Mock crypto.randomUUID
 Object.defineProperty(global, 'crypto', {
   value: {
-    randomUUID: () => 'mock-uuid-' + Math.random().toString(36).substr(2, 9),
+    randomUUID: () => 'mock-uuid-' + Math.random().toString(36).slice(2, 11),
   },
 });
 
@@ -76,7 +76,7 @@ describe('TierListContext', () => {
     });
 
     expect(result.current.state.tierDefs).toHaveLength(7);
-    const newTier = result.current.state.tierDefs[result.current.state.tierDefs.length - 1];
+    const newTier = result.current.state.tierDefs.at(-1);
     expect(newTier.label).toBe('New Tier');
 
     // Delete Tier

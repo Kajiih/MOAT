@@ -49,7 +49,7 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
     }
 
     await storage.set(REGISTRY_KEY, registry);
-  } catch (e) {
-    console.error('Failed to sync board metadata', e);
+  } catch (error) {
+    console.error('Failed to sync board metadata', error);
   }
 }

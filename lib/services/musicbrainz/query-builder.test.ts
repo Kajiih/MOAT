@@ -103,18 +103,18 @@ describe('buildMusicBrainzQuery', () => {
   describe('Duration Filters', () => {
     it('should include dur field for songs when duration range is provided', () => {
       const { query } = buildMusicBrainzQuery(
-        createParams({ type: 'song', minDuration: 180000, maxDuration: 300000 }),
+        createParams({ type: 'song', minDuration: 180_000, maxDuration: 300_000 }),
       );
       expect(query).toContain('dur:[180000 TO 300000]');
     });
 
     it('should use wildcards for open-ended duration ranges', () => {
-      const { query } = buildMusicBrainzQuery(createParams({ type: 'song', minDuration: 180000 }));
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'song', minDuration: 180_000 }));
       expect(query).toContain('dur:[180000 TO *]');
     });
 
     it('should NOT include dur filters for albums', () => {
-      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', minDuration: 180000 }));
+      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', minDuration: 180_000 }));
       expect(query).not.toContain('dur:');
     });
   });

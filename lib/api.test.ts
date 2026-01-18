@@ -42,8 +42,8 @@ describe('getSearchUrl', () => {
   it('should include duration filters', () => {
     const url = getSearchUrl({
       type: 'song',
-      minDuration: 180000,
-      maxDuration: 300000,
+      minDuration: 180_000,
+      maxDuration: 300_000,
     });
     expect(url).toContain('minDuration=180000');
     expect(url).toContain('maxDuration=300000');
