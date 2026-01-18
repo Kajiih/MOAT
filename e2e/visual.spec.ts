@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 
 import { expect, test } from '@playwright/test';
 
@@ -38,7 +37,7 @@ test.describe('Visual Regression', () => {
     await expect(searchPanel).toHaveScreenshot('search-panel-empty.png');
   });
 
-  test('populated board snapshot', async ({ page }) => {
+  test('populated board snapshot', async ({ page }, testInfo) => {
     // Prepare a dummy JSON file to populate board
     const importData = {
       version: 1,
@@ -50,10 +49,8 @@ test.describe('Visual Regression', () => {
       items: {},
     };
 
-    // Create temporary file
-    const testDir = 'test-results';
-    if (!fs.existsSync(testDir)) fs.mkdirSync(testDir);
-    const filePath = path.join(testDir, 'visual_import.json');
+    // Create temporary file using Playwright's testInfo.outputPath()
+    const filePath = testInfo.outputPath('visual_import.json');
     fs.writeFileSync(filePath, JSON.stringify(importData));
 
     // Import

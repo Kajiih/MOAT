@@ -1,7 +1,16 @@
 import fs from 'node:fs';
-import path from 'node:path';
 
 import { expect, test } from '@playwright/test';
+
+/**
+ * Asserts that a bounding box is not null, narrowing the type for TypeScript.
+ * @param box - The bounding box to check.
+ */
+function assertBoundingBox(
+  box: { x: number; y: number; width: number; height: number } | null,
+): asserts box is { x: number; y: number; width: number; height: number } {
+  expect(box).toBeTruthy();
+}
 
 test.describe('Tier List App', () => {
   test.beforeEach(async ({ page }) => {
@@ -32,8 +41,9 @@ test.describe('Tier List App', () => {
     await page.getByText('Add Tier').click();
     await expect(page.getByTestId('tier-row-label')).toHaveCount(7);
 
-    // Wait for debounce (1000ms) to save to localStorage
-    await page.waitForTimeout(1100);
+    // Wait for debounce to save to localStorage.
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(2000);
 
     // Reload
     await page.reload();
@@ -47,11 +57,8 @@ test.describe('Tier List App', () => {
     const labels = page.getByTestId('tier-row-label');
     await expect(labels).toHaveCount(6);
 
-    const firstLabel = await labels.nth(0).textContent();
-    const secondLabel = await labels.nth(1).textContent();
-
-    expect(firstLabel).toBe('S');
-    expect(secondLabel).toBe('A');
+    await expect(labels.nth(0)).toHaveText('S');
+    await expect(labels.nth(1)).toHaveText('A');
 
     // Locate the drag handle of the first tier.
     // The handle is the parent div of the GripVertical icon.
@@ -62,7 +69,8 @@ test.describe('Tier List App', () => {
     const handleBox = await firstHandle.boundingBox();
     const targetBox = await secondRow.boundingBox();
 
-    if (!handleBox || !targetBox) throw new Error('Could not find elements');
+    assertBoundingBox(handleBox);
+    assertBoundingBox(targetBox);
 
     // Perform Drag and Drop with steps
     await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
@@ -74,8 +82,6 @@ test.describe('Tier List App', () => {
     });
 
     // Wait a bit for the sorting animation/logic to trigger
-    await page.waitForTimeout(100);
-
     await page.mouse.up();
 
     // Verify order changed
@@ -132,7 +138,8 @@ test.describe('Tier List App', () => {
     const cardBox = await card.boundingBox();
     const tierBox = await firstTierLabel.locator('..').locator('..').boundingBox(); // Go up to row container
 
-    if (!cardBox || !tierBox) throw new Error('Could not find drag elements');
+    assertBoundingBox(cardBox);
+    assertBoundingBox(tierBox);
 
     await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
     await page.mouse.down();
@@ -142,7 +149,6 @@ test.describe('Tier List App', () => {
       steps: 20,
     });
 
-    await page.waitForTimeout(200); // Wait for drop animation/placeholder
     await page.mouse.up();
 
     // 5. Verify the item is now in the tier
@@ -156,7 +162,7 @@ test.describe('Tier List App', () => {
     // Checking existence on page with correct ID is usually enough as it implies state update.
   });
 
-  test('should import tier list from json', async ({ page }) => {
+  test('should import tier list from json', async ({ page }, testInfo) => {
     // Prepare a dummy JSON file
     const importData = {
       version: 1,
@@ -168,9 +174,7 @@ test.describe('Tier List App', () => {
     };
 
     // Create temporary file
-    const testDir = 'test-results';
-    if (!fs.existsSync(testDir)) fs.mkdirSync(testDir);
-    const filePath = path.join(testDir, 'import_test.json');
+    const filePath = testInfo.outputPath('import_test.json');
     fs.writeFileSync(filePath, JSON.stringify(importData));
 
     // Wait for initial load
@@ -200,6 +204,7 @@ test.describe('Tier List App', () => {
     await page.getByTitle('Search albums').click();
     await expect(page.getByPlaceholder('Search albums...')).toBeVisible();
   });
+
   test('should filter search results by type', async ({ page }) => {
     // Mock API to return different results based on type
     await page.route('**/api/search*', async (route) => {
@@ -245,7 +250,7 @@ test.describe('Tier List App', () => {
 
   // Skipped because keyboard drag-and-drop interactions are currently flaky in headless 
   // browser environments and require more robust synchronization for dnd-kit.
-  test.skip('should move item via keyboard', async ({ page }) => {
+  test.skip('should move item via keyboard', async ({ page }, testInfo) => {
     // 1. Setup board via Import (more robust than DB hacking)
     const importData = {
       version: 1,
@@ -260,9 +265,7 @@ test.describe('Tier List App', () => {
     };
 
     // Create temp file
-    const testDir = 'test-results';
-    if (!fs.existsSync(testDir)) fs.mkdirSync(testDir);
-    const filePath = path.join(testDir, 'keyboard_import.json');
+    const filePath = testInfo.outputPath('keyboard_import.json');
     fs.writeFileSync(filePath, JSON.stringify(importData));
 
     // Import

@@ -128,8 +128,4 @@ Why for you: It keeps your data structures (like your music metadata or tier col
 
 Config snippet: perfectionist.configs['recommended-natural']
 
-2. eslint-plugin-unicorn
-Known as the "more than 100 useful rules" plugin. It forces modern JavaScript patterns (e.g., preferring node.append() over node.appendChild() or for...of over forEach).
-
-Why for you: Since you’re coming from a CSE/C++ background, this helps you lean into the most efficient and "clean" modern JS idioms. It catches subtle bugs that standard linters miss.
 ```

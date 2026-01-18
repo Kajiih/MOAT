@@ -124,6 +124,10 @@ const eslintConfig = defineConfig([
   {
     files: ['e2e/**'],
     ...playwright.configs['flat/recommended'],
+    rules: {
+      ...playwright.configs['flat/recommended'].rules,
+      'playwright/no-skipped-test': 'off',
+    },
   },
 
   globalIgnores([
