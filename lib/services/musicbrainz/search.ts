@@ -19,6 +19,9 @@ import { mbFetch } from './client';
 import { SEARCH_CACHE_TTL,SEARCH_LIMIT } from './config';
 import { buildMusicBrainzQuery } from './query-builder';
 
+/**
+ * Parameters for the MusicBrainz search.
+ */
 export interface SearchParams {
   type: MediaType;
   query: string;
@@ -42,6 +45,9 @@ export interface SearchParams {
   options: SearchOptions;
 }
 
+/**
+ * Results of a MusicBrainz search.
+ */
 export interface SearchResult {
   results: MediaItem[];
   page: number;

@@ -17,6 +17,9 @@ import { z } from 'zod';
  */
 export type MediaType = 'album' | 'artist' | 'song';
 
+/**
+ * Available sorting options for search results.
+ */
 export type SortOption =
   | 'relevance'
   | 'date_desc'

@@ -68,6 +68,9 @@ type MediaItemMap = {
   song: SongItem;
 };
 
+/**
+ * Represents the full state of search filters and pagination.
+ */
 export interface SearchParamsState {
   query: string;
   selectedArtist: ArtistSelection | null;
