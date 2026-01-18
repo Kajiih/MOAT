@@ -60,11 +60,7 @@ const eslintConfig = defineConfig([
       'unicorn/prefer-add-event-listener': 'off', // onerror is fine for simple cases
       'unicorn/prefer-blob-reading-methods': 'off', // FileReader is standard
       'unicorn/no-negated-condition': 'off', // Negated conditions are fine
-      'unicorn/prefer-global-this': 'off', // window is fine in browser context
       'unicorn/prefer-ternary': 'off', // Ternaries can be hard to read
-      'unicorn/prefer-node-protocol': 'off', // Not all environments support node: protocol yet or we don't want to enforce it strictly
-      'unicorn/switch-case-braces': 'off', // Braces are not always needed
-      'unicorn/prefer-number-properties': 'off', // parseInt is fine
     },
   },
 

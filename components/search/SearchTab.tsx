@@ -82,22 +82,29 @@ export function SearchTab({
   const sortedResults = useMemo(() => {
     return [...searchResults].sort((a, b) => {
       switch (sortOption) {
-        case 'date_desc':
+        case 'date_desc': {
           return (b.date || b.year || '').localeCompare(a.date || a.year || '');
-        case 'date_asc':
+        }
+        case 'date_asc': {
           return (a.date || a.year || '9999').localeCompare(b.date || b.year || '9999');
-        case 'title_asc':
+        }
+        case 'title_asc': {
           return a.title.localeCompare(b.title);
-        case 'title_desc':
+        }
+        case 'title_desc': {
           return b.title.localeCompare(a.title);
-        case 'duration_desc':
+        }
+        case 'duration_desc': {
           // @ts-expect-error - duration check
           return (b.duration || 0) - (a.duration || 0);
-        case 'duration_asc':
+        }
+        case 'duration_asc': {
           // @ts-expect-error - duration check
           return (a.duration || 0) - (b.duration || 0);
-        default:
+        }
+        default: {
           return 0;
+        }
       }
     });
   }, [searchResults, sortOption]);

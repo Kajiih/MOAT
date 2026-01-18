@@ -124,8 +124,8 @@ function useAppShortcuts(props: UseAppShortcutsProps) {
       handleGlobalShortcuts(e, props);
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    globalThis.addEventListener('keydown', handleKeyDown);
+    return () => globalThis.removeEventListener('keydown', handleKeyDown);
   }, [props]);
 }
 

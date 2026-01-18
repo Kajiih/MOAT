@@ -187,8 +187,9 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
  */
 export function itemReducer(state: TierListState, action: TierListAction): TierListState {
   switch (action.type) {
-    case ActionType.MOVE_ITEM:
+    case ActionType.MOVE_ITEM: {
       return handleMoveItem(state, action.payload);
+    }
 
     case ActionType.REMOVE_ITEM: {
       const { tierId, itemId } = action.payload;
@@ -207,7 +208,8 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
       return handleUpdateItem(state, action.payload);
     }
 
-    default:
+    default: {
       return state;
+    }
   }
 }

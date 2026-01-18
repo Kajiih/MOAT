@@ -40,14 +40,14 @@ vi.mock('@/lib/storage', () => ({
 }));
 
 // Mock crypto.randomUUID
-Object.defineProperty(global, 'crypto', {
+Object.defineProperty(globalThis, 'crypto', {
   value: {
     randomUUID: () => 'mock-uuid-' + Math.random().toString(36).slice(2, 11),
   },
 });
 
 // Mock window.confirm
-global.confirm = vi.fn(() => true);
+globalThis.confirm = vi.fn(() => true);
 
 describe('TierListContext', () => {
   beforeEach(() => {

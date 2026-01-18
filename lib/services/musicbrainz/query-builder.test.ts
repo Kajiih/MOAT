@@ -114,7 +114,9 @@ describe('buildMusicBrainzQuery', () => {
     });
 
     it('should NOT include dur filters for albums', () => {
-      const { query } = buildMusicBrainzQuery(createParams({ type: 'album', minDuration: 180_000 }));
+      const { query } = buildMusicBrainzQuery(
+        createParams({ type: 'album', minDuration: 180_000 }),
+      );
       expect(query).not.toContain('dur:');
     });
   });

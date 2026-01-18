@@ -1,15 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { expect, test } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
 
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
     // Reset storage to ensure clean state
     await page.addInitScript(() => {
-      const dbs = window.indexedDB.databases();
+      const dbs = globalThis.indexedDB.databases();
       dbs.then((databases) => {
         databases.forEach((db) => {
-          if (db.name) window.indexedDB.deleteDatabase(db.name);
+          if (db.name) globalThis.indexedDB.deleteDatabase(db.name);
         });
       });
       localStorage.clear();

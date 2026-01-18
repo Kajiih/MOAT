@@ -78,11 +78,13 @@ export function handleDeleteTier(state: TierListState, payload: DeleteTierPayloa
  */
 export function tierReducer(state: TierListState, action: TierListAction): TierListState {
   switch (action.type) {
-    case ActionType.ADD_TIER:
+    case ActionType.ADD_TIER: {
       return handleAddTier(state);
+    }
 
-    case ActionType.DELETE_TIER:
+    case ActionType.DELETE_TIER: {
       return handleDeleteTier(state, action.payload);
+    }
 
     case ActionType.UPDATE_TIER: {
       const { id, updates } = action.payload;
@@ -113,7 +115,8 @@ export function tierReducer(state: TierListState, action: TierListAction): TierL
       return { ...state, tierDefs: newDefs };
     }
 
-    default:
+    default: {
       return state;
+    }
   }
 }

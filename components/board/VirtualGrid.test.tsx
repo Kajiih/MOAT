@@ -11,7 +11,7 @@ class ResizeObserverMock {
 }
 
 describe('VirtualGrid', () => {
-  const originalResizeObserver = global.ResizeObserver;
+  const originalResizeObserver = globalThis.ResizeObserver;
 
   beforeAll(() => {
     vi.stubGlobal('ResizeObserver', ResizeObserverMock);

@@ -9,7 +9,7 @@ import { ToastProvider } from '@/components/ui/ToastProvider';
 import { TierBoard } from './TierBoard';
 
 // Mock ResizeObserver for dnd-kit
-global.ResizeObserver = class ResizeObserver {
+globalThis.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}

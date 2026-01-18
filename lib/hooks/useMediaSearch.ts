@@ -310,8 +310,12 @@ export function useMediaSearch<T extends MediaType>(
       artistType: effectiveArtistType,
       artistCountry: effectiveArtistCountry,
       tag: effectiveTag,
-      minDuration: effectiveMinDuration ? parseInt(effectiveMinDuration, 10) * 1000 : undefined,
-      maxDuration: effectiveMaxDuration ? parseInt(effectiveMaxDuration, 10) * 1000 : undefined,
+      minDuration: effectiveMinDuration
+        ? Number.parseInt(effectiveMinDuration, 10) * 1000
+        : undefined,
+      maxDuration: effectiveMaxDuration
+        ? Number.parseInt(effectiveMaxDuration, 10) * 1000
+        : undefined,
       fuzzy: isFuzzy,
       wildcard: isWildcard,
     });
@@ -370,8 +374,8 @@ export function useMediaSearch<T extends MediaType>(
         artistType,
         artistCountry: d.artistCountry,
         tag: d.tag,
-        minDuration: d.minDuration ? parseInt(d.minDuration, 10) * 1000 : undefined,
-        maxDuration: d.maxDuration ? parseInt(d.maxDuration, 10) * 1000 : undefined,
+        minDuration: d.minDuration ? Number.parseInt(d.minDuration, 10) * 1000 : undefined,
+        maxDuration: d.maxDuration ? Number.parseInt(d.maxDuration, 10) * 1000 : undefined,
         fuzzy: isFuzzy,
         wildcard: isWildcard,
       });

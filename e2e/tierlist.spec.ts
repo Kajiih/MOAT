@@ -1,6 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { expect, test } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
 
 test.describe('Tier List App', () => {
   test.beforeEach(async ({ page }) => {

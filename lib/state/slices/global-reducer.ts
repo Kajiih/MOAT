@@ -19,17 +19,21 @@ import { ActionType, TierListAction } from '../actions';
  */
 export function globalReducer(state: TierListState, action: TierListAction): TierListState {
   switch (action.type) {
-    case ActionType.UPDATE_TITLE:
+    case ActionType.UPDATE_TITLE: {
       return { ...state, title: action.payload.title };
+    }
 
-    case ActionType.CLEAR_BOARD:
+    case ActionType.CLEAR_BOARD: {
       return INITIAL_STATE;
+    }
 
     case ActionType.IMPORT_STATE:
-    case ActionType.SET_STATE:
+    case ActionType.SET_STATE: {
       return action.payload.state;
+    }
 
-    default:
+    default: {
       return state;
+    }
   }
 }

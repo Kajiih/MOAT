@@ -112,11 +112,13 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       setIsCapturing(true);
 
       // 1. Resolve all images to Data URLs BEFORE any DOM operations
-      const uniqueUrls = [...new Set(
+      const uniqueUrls = [
+        ...new Set(
           Object.values(state.items)
             .flat()
             .flatMap((item) => (item.imageUrl ? [item.imageUrl] : [])),
-        )];
+        ),
+      ];
 
       console.log(`Screenshot Engine: Resolving ${uniqueUrls.length} unique images...`);
       const resolvedMap: Record<string, string> = {};

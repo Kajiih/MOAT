@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   const fuzzy = searchParams.get('fuzzy') !== 'false';
   const wildcard = searchParams.get('wildcard') !== 'false';
 
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const page = Number.parseInt(searchParams.get('page') || '1', 10);
 
   // If no main filters, return empty
   if (
@@ -75,8 +75,8 @@ export async function GET(request: Request) {
       artistType: artistType || undefined,
       artistCountry: artistCountry || undefined,
       tag: tag || undefined,
-      minDuration: minDuration ? parseInt(minDuration, 10) : undefined,
-      maxDuration: maxDuration ? parseInt(maxDuration, 10) : undefined,
+      minDuration: minDuration ? Number.parseInt(minDuration, 10) : undefined,
+      maxDuration: maxDuration ? Number.parseInt(maxDuration, 10) : undefined,
       page,
       options: { fuzzy, wildcard },
     });

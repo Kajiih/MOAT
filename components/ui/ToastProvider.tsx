@@ -31,11 +31,12 @@ type ToastAction =
 
 function toastReducer(state: ToastState, action: ToastAction): ToastState {
   switch (action.type) {
-    case 'ADD':
+    case 'ADD': {
       return {
         ...state,
         toasts: [...state.toasts, action.toast],
       };
+    }
     case 'REMOVE': {
       const nextToasts = state.toasts.filter((t) => t.id !== action.id);
       return {
@@ -45,13 +46,15 @@ function toastReducer(state: ToastState, action: ToastAction): ToastState {
         isExpanded: nextToasts.length === 0 ? false : state.isExpanded,
       };
     }
-    case 'SET_EXPANDED':
+    case 'SET_EXPANDED': {
       return {
         ...state,
         isExpanded: action.isExpanded,
       };
-    default:
+    }
+    default: {
       return state;
+    }
   }
 }
 

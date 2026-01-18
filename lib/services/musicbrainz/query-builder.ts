@@ -166,15 +166,18 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
   queryParts.push(...buildCommonFilters(params, dateField));
 
   switch (type) {
-    case 'artist':
+    case 'artist': {
       queryParts.push(...buildArtistSpecificFilters(params));
       break;
-    case 'album':
+    }
+    case 'album': {
       queryParts.push(...buildAlbumSpecificFilters(params));
       break;
-    case 'song':
+    }
+    case 'song': {
       queryParts.push(...buildSongSpecificFilters(params));
       break;
+    }
   }
 
   if (queryParts.length === 0 && query) {

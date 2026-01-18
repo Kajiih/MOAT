@@ -175,14 +175,18 @@ export async function getMediaDetails(
 ): Promise<MediaDetails | { id: string; type: MediaType }> {
   try {
     switch (type) {
-      case 'album':
+      case 'album': {
         return await getAlbumDetails(id);
-      case 'artist':
+      }
+      case 'artist': {
         return await getArtistDetails(id);
-      case 'song':
+      }
+      case 'song': {
         return await getSongDetails(id);
-      default:
+      }
+      default: {
         return { id, type };
+      }
     }
   } catch (error) {
     console.error('Error fetching details', error);

@@ -6,7 +6,7 @@ import { ActionType } from './actions';
 import { tierListReducer } from './reducer';
 
 // Mock crypto.randomUUID for predictable IDs in tests
-Object.defineProperty(global, 'crypto', {
+Object.defineProperty(globalThis, 'crypto', {
   value: {
     randomUUID: () => 'mock-uuid',
   },
