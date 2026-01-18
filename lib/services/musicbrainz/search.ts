@@ -7,7 +7,7 @@
 import { z } from 'zod';
 
 import { serverItemCache } from '@/lib/server/item-cache';
-import { MediaItem, MediaType,MusicBrainzSearchResponseSchema } from '@/lib/types';
+import { MediaItem, MediaType, MusicBrainzSearchResponseSchema } from '@/lib/types';
 import {
   mapArtistToMediaItem,
   mapRecordingToMediaItem,
@@ -16,7 +16,7 @@ import {
 import { SearchOptions } from '@/lib/utils/search';
 
 import { mbFetch } from './client';
-import { SEARCH_CACHE_TTL,SEARCH_LIMIT } from './config';
+import { SEARCH_CACHE_TTL, SEARCH_LIMIT } from './config';
 import { buildMusicBrainzQuery } from './query-builder';
 
 /**

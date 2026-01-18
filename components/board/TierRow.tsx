@@ -8,10 +8,10 @@
 
 'use client';
 
-import { useDndContext,useDroppable } from '@dnd-kit/core';
+import { useDndContext, useDroppable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { memo,useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { getColorTheme } from '@/lib/colors';

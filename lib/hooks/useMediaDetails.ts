@@ -8,7 +8,7 @@
 import useSWR, { preload } from 'swr';
 
 import { swrFetcher } from '@/lib/api/fetcher';
-import { MediaDetails,MediaType } from '@/lib/types';
+import { MediaDetails, MediaType } from '@/lib/types';
 
 export function preloadMediaDetails(id: string, type: MediaType) {
   preload(`/api/details?id=${id}&type=${type}`, swrFetcher);

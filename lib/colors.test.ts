@@ -1,6 +1,6 @@
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { COLOR_PALETTE, DEFAULT_COLOR,getColorTheme } from './colors';
+import { COLOR_PALETTE, DEFAULT_COLOR, getColorTheme } from './colors';
 
 describe('colors utilities', () => {
   describe('getColorTheme', () => {

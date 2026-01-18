@@ -1,7 +1,7 @@
-import { act,renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import download from 'downloadjs';
 import { toPng } from 'html-to-image';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { INITIAL_STATE } from '@/lib/initial-state';
 

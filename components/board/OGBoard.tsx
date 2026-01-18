@@ -3,7 +3,7 @@
  * @description A simplified, Satori-compatible board component for Open Graph image generation.
  */
 
-import { MediaItem,TierDefinition } from '@/lib/types';
+import { MediaItem, TierDefinition } from '@/lib/types';
 
 /**
  * Props for the OGBoard component.

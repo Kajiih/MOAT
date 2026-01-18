@@ -9,7 +9,7 @@
 'use client';
 
 import { Settings, Trash2 } from 'lucide-react';
-import { useEffect,useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { TIER_COLORS } from '@/lib/colors';

@@ -7,7 +7,7 @@
 
 import { ARTIST_TYPES } from '@/lib/types';
 
-import { FILTER_INPUT_STYLES,FilterCol, FilterRow } from './FilterPrimitives';
+import { FILTER_INPUT_STYLES, FilterCol, FilterRow } from './FilterPrimitives';
 
 /**
  * Props for the ArtistFilters component.

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { Disc, Eye, EyeOff, Mic2, Music,Search } from 'lucide-react';
+import { Disc, Eye, EyeOff, Mic2, Music, Search } from 'lucide-react';
 
 import { useTierListContext } from '@/components/TierListContext';
 import { usePersistentState } from '@/lib/hooks';

@@ -5,7 +5,7 @@
  * @module MediaDefs
  */
 
-import { Disc, LucideIcon,Music, User } from 'lucide-react';
+import { Disc, LucideIcon, Music, User } from 'lucide-react';
 
 import { AlbumItem, ArtistItem, MediaItem, MediaType, SongItem } from '@/lib/types';
 

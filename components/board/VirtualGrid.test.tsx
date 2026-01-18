@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { afterAll,beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { VirtualGrid } from './VirtualGrid';
 

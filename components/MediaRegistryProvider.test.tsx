@@ -1,6 +1,6 @@
-import { act,renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import React from 'react';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MediaItem } from '@/lib/types';
 

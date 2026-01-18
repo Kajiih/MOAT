@@ -6,7 +6,7 @@
  * @module TierGrid
  */
 
-import { rectSortingStrategy,SortableContext } from '@dnd-kit/sortable';
+import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { memo } from 'react';
 
 import { SortableMediaCard } from '@/components/media/MediaCard';

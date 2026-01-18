@@ -7,11 +7,11 @@
 
 'use client';
 
-import { DraggableAttributes,useDraggable } from '@dnd-kit/core';
+import { DraggableAttributes, useDraggable } from '@dnd-kit/core';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Eye, Info, LucideIcon,X } from 'lucide-react';
+import { Eye, Info, LucideIcon, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -344,7 +344,7 @@ export function SortableMediaCard(props: MediaCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: draggableId,
     data: { mediaItem: props.item, sourceTier: props.tierId },
-    });
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),

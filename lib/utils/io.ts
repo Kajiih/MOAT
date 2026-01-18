@@ -5,7 +5,7 @@
  * @module IO
  */
 
-import { MediaItem,TierDefinition, TierListState } from '@/lib/types';
+import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
 const CURRENT_VERSION = 1;
 

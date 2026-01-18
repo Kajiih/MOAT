@@ -4,7 +4,7 @@
  * @module KeyboardShortcutsModal
  */
 
-import { Command,Keyboard, X } from 'lucide-react';
+import { Command, Keyboard, X } from 'lucide-react';
 
 import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 

@@ -1,7 +1,7 @@
-import { act,renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MediaItem } from '@/lib/types';
 

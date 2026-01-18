@@ -8,7 +8,7 @@
 import { arrayMove } from '@dnd-kit/sortable';
 
 import { TIER_COLORS } from '@/lib/colors';
-import { TierDefinition,TierListState } from '@/lib/types';
+import { TierDefinition, TierListState } from '@/lib/types';
 
 import { ActionType, TierListAction } from '../actions';
 

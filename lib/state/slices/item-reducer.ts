@@ -7,7 +7,8 @@
 
 import { arrayMove } from '@dnd-kit/sortable';
 
-import { MediaItem,TierListState } from '@/lib/types';
+import { MediaItem, TierListState } from '@/lib/types';
+import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
 
 import { ActionType, TierListAction } from '../actions';
 
@@ -34,7 +35,7 @@ function handleMoveFromSearch(
   activeId: string,
   overId: string,
   overContainer: string,
-  draggingItemFromSearch: MediaItem
+  draggingItemFromSearch: MediaItem,
 ): TierListState {
   const overItems = state.items[overContainer];
   const overIndex = overItems.findIndex((item) => item.id === overId);
@@ -68,7 +69,7 @@ function handleSortInContainer(
   state: TierListState,
   activeId: string,
   overId: string,
-  container: string
+  container: string,
 ): TierListState {
   const activeItems = state.items[container];
   const activeIndex = activeItems.findIndex((i) => i.id === activeId);
@@ -91,7 +92,7 @@ function handleMoveBetweenContainers(
   activeId: string,
   overId: string,
   activeContainer: string,
-  overContainer: string
+  overContainer: string,
 ): TierListState {
   const activeItems = state.items[activeContainer];
   const overItems = state.items[overContainer];
@@ -161,13 +162,9 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
     if (index !== -1) {
       const currentItem = list[index];
 
-      // Optimization: Avoid update if only details changed but are identical
-      if (updates.details && currentItem.details) {
-        const currentDetailsStr = JSON.stringify(currentItem.details);
-        const newDetailsStr = JSON.stringify(updates.details);
-        if (currentDetailsStr === newDetailsStr && Object.keys(updates).length === 1) {
-          break;
-        }
+      // Optimization: Check if updates actually change anything
+      if (!hasMediaItemUpdates(currentItem, updates)) {
+        break;
       }
 
       newItems[tierId] = [

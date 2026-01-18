@@ -6,7 +6,7 @@
  * @module useTierStructure
  */
 
-import { Dispatch,useCallback } from 'react';
+import { Dispatch, useCallback } from 'react';
 
 import { useToast } from '@/components/ui/ToastProvider';
 import { ActionType, TierListAction } from '@/lib/state/actions';

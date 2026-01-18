@@ -15,19 +15,19 @@ import {
   SensorDescriptor,
   SensorOptions,
 } from '@dnd-kit/core';
-import React, { createContext, ReactNode,useContext, useMemo, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
-import { useTierListDnD, useTierListIO, useTierListUtils,useTierStructure } from '@/lib/hooks';
+import { useTierListDnD, useTierListIO, useTierListUtils, useTierStructure } from '@/lib/hooks';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
 import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
 import { INITIAL_STATE } from '@/lib/initial-state';
 import { syncBoardMetadata } from '@/lib/registry-utils';
-import { ActionType,TierListAction } from '@/lib/state/actions';
+import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
-import { MediaItem, TierDefinition,TierListState } from '@/lib/types';
+import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Interface defining the shape of the Tier List Context.

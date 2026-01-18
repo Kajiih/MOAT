@@ -10,9 +10,9 @@
 
 'use client';
 
-import { DraggableAttributes,DraggableSyntheticListeners } from '@dnd-kit/core';
+import { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { GripVertical } from 'lucide-react';
-import { useEffect,useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 /**

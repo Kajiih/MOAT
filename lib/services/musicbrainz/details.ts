@@ -5,7 +5,7 @@
  */
 
 import { getArtistThumbnail } from '@/lib/server/images';
-import { MediaDetails,MediaType } from '@/lib/types';
+import { MediaDetails, MediaType } from '@/lib/types';
 
 import { mbFetch } from './client';
 import { DETAILS_CACHE_TTL } from './config';
@@ -59,7 +59,9 @@ interface MBRecordingResponse {
   }[];
 }
 
-async function getAlbumDetails(id: string): Promise<MediaDetails | { id: string; type: MediaType }> {
+async function getAlbumDetails(
+  id: string,
+): Promise<MediaDetails | { id: string; type: MediaType }> {
   // 1. Find the "best" release for this release group (Official, earliest)
   const query = `rgid:${id} AND status:official`;
   const searchData = await mbFetch<MBSearchResponse>(

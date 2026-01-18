@@ -7,7 +7,7 @@
 
 'use client';
 
-import { Disc, Filter, Mic2,User, X } from 'lucide-react';
+import { Disc, Filter, Mic2, User, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { preload } from 'swr';

@@ -6,7 +6,7 @@
 'use client';
 
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ReactNode,useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 interface VirtualGridProps<T> {
   items: T[];

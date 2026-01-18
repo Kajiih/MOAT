@@ -13,10 +13,10 @@ import {
   SensorDescriptor,
   SensorOptions,
 } from '@dnd-kit/core';
-import { useCallback,useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { ActionType,TierListAction } from '@/lib/state/actions';
-import { MediaItem, TierDefinition,TierListState } from '@/lib/types';
+import { ActionType, TierListAction } from '@/lib/state/actions';
+import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Props for the useTierListNamespaces hook.

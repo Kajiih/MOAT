@@ -115,14 +115,7 @@ function buildSongSpecificFilters(params: QueryBuilderParams): string[] {
 
 function buildCommonFilters(params: QueryBuilderParams, dateField: string): string[] {
   const parts: string[] = [];
-  const {
-    type,
-    artist,
-    artistId,
-    tag,
-    minYear,
-    maxYear,
-  } = params;
+  const { type, artist, artistId, tag, minYear, maxYear } = params;
 
   // Artist grouping for music entities
   if (type !== 'artist') {
@@ -158,11 +151,7 @@ function buildCommonFilters(params: QueryBuilderParams, dateField: string): stri
  * @returns An object containing the target `endpoint` and the constructed `query` string.
  */
 export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
-  const {
-    type,
-    query,
-    options,
-  } = params;
+  const { type, query, options } = params;
 
   const endpoint = ENDPOINT_MAP[type];
   const dateField = DATE_FIELD_MAP[type];

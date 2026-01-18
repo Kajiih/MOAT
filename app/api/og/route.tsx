@@ -9,7 +9,7 @@ import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 import { OGBoard } from '@/components/board/OGBoard';
-import { MediaItem,TierDefinition } from '@/lib/types';
+import { MediaItem, TierDefinition } from '@/lib/types';
 
 /**
  * We use the 'nodejs' runtime instead of 'edge' because it is more stable

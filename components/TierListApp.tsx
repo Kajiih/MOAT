@@ -9,7 +9,7 @@
 'use client';
 
 import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core';
-import { Camera, Dices, Loader2,X } from 'lucide-react';
+import { Camera, Dices, Loader2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { ExportBoard } from '@/components/board/ExportBoard';
@@ -21,10 +21,10 @@ import { SearchPanel } from '@/components/search/SearchPanel';
 import { useTierListContext } from '@/components/TierListContext';
 import { Footer } from '@/components/ui/Footer';
 import { Header } from '@/components/ui/Header';
-import { HoveredItemInfo,InteractionContext } from '@/components/ui/InteractionContext';
+import { HoveredItemInfo, InteractionContext } from '@/components/ui/InteractionContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
-import { useDynamicFavicon,useScreenshot } from '@/lib/hooks';
+import { useDynamicFavicon, useScreenshot } from '@/lib/hooks';
 import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { MediaItem } from '@/lib/types';

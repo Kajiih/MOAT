@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useCallback,useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR, { preload } from 'swr';
 import { useDebounce } from 'use-debounce';
 

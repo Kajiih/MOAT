@@ -19,7 +19,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { Dispatch,useCallback, useState } from 'react';
+import { Dispatch, useCallback, useState } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { MediaItem, TierDefinition, TierListState } from '@/lib/types';

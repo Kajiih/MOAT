@@ -1,6 +1,6 @@
 import { DndContext } from '@dnd-kit/core';
-import { fireEvent,render, screen } from '@testing-library/react';
-import { describe, expect,it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
 import { TierListProvider } from '@/components/TierListContext';
@@ -46,7 +46,7 @@ describe('TierBoard', () => {
     renderWithProviders(<TierBoard {...defaultProps} />);
     const button = screen.getByText(/Add Tier/i);
     fireEvent.click(button);
-    
+
     // Expect a new tier to be added (default is 6, so now 7)
     const labels = screen.getAllByTestId('tier-row-label');
     expect(labels).toHaveLength(7);

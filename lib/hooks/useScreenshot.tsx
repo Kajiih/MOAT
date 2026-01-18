@@ -10,7 +10,7 @@
 
 import download from 'downloadjs';
 import { toPng } from 'html-to-image';
-import { useCallback,useState } from 'react';
+import { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { ExportBoard } from '@/components/board/ExportBoard';

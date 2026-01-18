@@ -5,7 +5,7 @@
  * @module useTierListIO
  */
 
-import { Dispatch,useCallback } from 'react';
+import { Dispatch, useCallback } from 'react';
 
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { useToast } from '@/components/ui/ToastProvider';

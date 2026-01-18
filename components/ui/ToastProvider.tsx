@@ -8,7 +8,7 @@
 
 'use client';
 
-import { AlertCircle, CheckCircle, ChevronDown,Info, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, ChevronDown, Info, X } from 'lucide-react';
 import { createContext, ReactNode, useCallback, useContext, useReducer } from 'react';
 
 type ToastType = 'success' | 'error' | 'info';

@@ -6,7 +6,7 @@
 'use client';
 
 import { arrayMove } from '@dnd-kit/sortable';
-import { useCallback,useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useToast } from '@/components/ui/ToastProvider';
 import { TierListState } from '@/lib/types';

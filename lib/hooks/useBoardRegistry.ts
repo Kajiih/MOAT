@@ -6,7 +6,7 @@
  * @module useBoardRegistry
  */
 
-import { useCallback,useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { storage } from '@/lib/storage';

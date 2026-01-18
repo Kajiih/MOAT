@@ -9,7 +9,7 @@
 'use client';
 
 import { Filter } from 'lucide-react';
-import { useEffect,useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { AlbumPicker } from '@/components/media/AlbumPicker';
 import { ArtistPicker } from '@/components/media/ArtistPicker';
@@ -19,7 +19,7 @@ import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
 import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
-import { MediaItem,MediaType, SortOption } from '@/lib/types';
+import { MediaItem, MediaType, SortOption } from '@/lib/types';
 
 import { SearchFilters } from './filters/SearchFilters';
 

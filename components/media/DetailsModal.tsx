@@ -10,13 +10,14 @@
 
 import { X } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useMemo,useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useMediaRegistry } from '@/components/MediaRegistryProvider';
 import { useMediaDetails } from '@/lib/hooks';
 import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 import { getMediaUI } from '@/lib/media-defs';
 import { MediaItem } from '@/lib/types';
+import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
 
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
@@ -71,10 +72,14 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   // Commit fetched details to board state
   useEffect(() => {
     if (details && !isFetching && !error && enrichedItem && onUpdateItem) {
-      onUpdateItem(enrichedItem.id, {
+      const updates = {
         details,
         imageUrl: details.imageUrl || enrichedItem.imageUrl,
-      });
+      };
+
+      if (hasMediaItemUpdates(enrichedItem, updates)) {
+        onUpdateItem(enrichedItem.id, updates);
+      }
     }
   }, [details, isFetching, error, enrichedItem, onUpdateItem]);
 
