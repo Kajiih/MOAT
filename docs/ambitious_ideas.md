@@ -133,11 +133,6 @@ Known as the "more than 100 useful rules" plugin. It forces modern JavaScript pa
 
 Why for you: Since you’re coming from a CSE/C++ background, this helps you lean into the most efficient and "clean" modern JS idioms. It catches subtle bugs that standard linters miss.
 
-4. eslint-plugin-sonarjs
-This brings "SonarQube" level static analysis to your local environment. It detects Code Smells (complex logic, cognitive complexity, code duplication).
-
-Why for you: In CV/ML work, logic can get dense. SonarJS will warn you if a function is becoming too complex to test or maintain reliably.
-
 Updated eslint.config.mjs with the "Power" Setup
 JavaScript
 import { defineConfig, globalIgnores } from 'eslint/config';

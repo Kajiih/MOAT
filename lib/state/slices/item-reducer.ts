@@ -13,6 +13,7 @@ import { ActionType, TierListAction } from '../actions';
 
 /** Type definition for the Move Item action payload */
 export type MoveItemPayload = Extract<TierListAction, { type: 'MOVE_ITEM' }>['payload'];
+export type UpdateItemPayload = Extract<TierListAction, { type: 'UPDATE_ITEM' }>['payload'];
 
 /**
  * Utility function to find which tier (container) an item belongs to.
@@ -28,72 +29,70 @@ const findContainer = (
   return Object.keys(currentItems).find((key) => currentItems[key].find((a) => a.id === id));
 };
 
-/**
- * Logic for moving an item within a tier or between tiers.
- * Also handles adding new items from the search panel.
- * @param state - Current tier list state.
- * @param payload - Move details (activeId, overId, dragging item if from search).
- * @returns Updated state with item in its new position.
- */
-export function handleMoveItem(state: TierListState, payload: MoveItemPayload): TierListState {
-  const { activeId, overId, activeItem: draggingItemFromSearch } = payload;
+function handleMoveFromSearch(
+  state: TierListState,
+  activeId: string,
+  overId: string,
+  overContainer: string,
+  draggingItemFromSearch: MediaItem
+): TierListState {
+  const overItems = state.items[overContainer];
+  const overIndex = overItems.findIndex((item) => item.id === overId);
 
-  const activeContainer = findContainer(activeId, state.items);
-  const overContainer = findContainer(overId, state.items);
+  let newIndex;
+  if (overId in state.items) {
+    newIndex = overItems.length + 1;
+  } else {
+    newIndex = overIndex >= 0 ? overIndex : overItems.length + 1;
+  }
 
-  if (!overContainer) return state;
+  const exists = Object.values(state.items)
+    .flat()
+    .some((i) => i.id === draggingItemFromSearch.id);
+  if (exists) return state;
 
-  // Case 1: Dragging from Search (New Item)
-  if (!activeContainer) {
-    if (!draggingItemFromSearch) return state;
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [overContainer]: [
+        ...state.items[overContainer].slice(0, newIndex),
+        { ...draggingItemFromSearch, id: activeId },
+        ...state.items[overContainer].slice(newIndex),
+      ],
+    },
+  };
+}
 
-    const overItems = state.items[overContainer];
-    const overIndex = overItems.findIndex((item) => item.id === overId);
+function handleSortInContainer(
+  state: TierListState,
+  activeId: string,
+  overId: string,
+  container: string
+): TierListState {
+  const activeItems = state.items[container];
+  const activeIndex = activeItems.findIndex((i) => i.id === activeId);
+  const overIndex = activeItems.findIndex((i) => i.id === overId);
 
-    let newIndex;
-    if (overId in state.items) {
-      newIndex = overItems.length + 1;
-    } else {
-      newIndex = overIndex >= 0 ? overIndex : overItems.length + 1;
-    }
-
-    const exists = Object.values(state.items)
-      .flat()
-      .some((i) => i.id === draggingItemFromSearch.id);
-    if (exists) return state;
-
+  if (activeIndex !== overIndex) {
     return {
       ...state,
       items: {
         ...state.items,
-        [overContainer]: [
-          ...state.items[overContainer].slice(0, newIndex),
-          { ...draggingItemFromSearch, id: activeId },
-          ...state.items[overContainer].slice(newIndex),
-        ],
+        [container]: arrayMove(activeItems, activeIndex, overIndex),
       },
     };
   }
+  return state;
+}
 
-  // Case 2: Sorting within same container
-  if (activeContainer === overContainer) {
-    const activeItems = state.items[activeContainer];
-    const activeIndex = activeItems.findIndex((i) => i.id === activeId);
-    const overIndex = activeItems.findIndex((i) => i.id === overId);
-
-    if (activeIndex !== overIndex) {
-      return {
-        ...state,
-        items: {
-          ...state.items,
-          [activeContainer]: arrayMove(activeItems, activeIndex, overIndex),
-        },
-      };
-    }
-    return state;
-  }
-
-  // Case 3: Moving between tiers
+function handleMoveBetweenContainers(
+  state: TierListState,
+  activeId: string,
+  overId: string,
+  activeContainer: string,
+  overContainer: string
+): TierListState {
   const activeItems = state.items[activeContainer];
   const overItems = state.items[overContainer];
   const activeIndex = activeItems.findIndex((item) => item.id === activeId);
@@ -121,6 +120,69 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
 }
 
 /**
+ * Logic for moving an item within a tier or between tiers.
+ * Also handles adding new items from the search panel.
+ * @param state - Current tier list state.
+ * @param payload - Move details (activeId, overId, dragging item if from search).
+ * @returns Updated state with item in its new position.
+ */
+export function handleMoveItem(state: TierListState, payload: MoveItemPayload): TierListState {
+  const { activeId, overId, activeItem: draggingItemFromSearch } = payload;
+
+  const activeContainer = findContainer(activeId, state.items);
+  const overContainer = findContainer(overId, state.items);
+
+  if (!overContainer) return state;
+
+  // Case 1: Dragging from Search (New Item)
+  if (!activeContainer) {
+    if (!draggingItemFromSearch) return state;
+    return handleMoveFromSearch(state, activeId, overId, overContainer, draggingItemFromSearch);
+  }
+
+  // Case 2: Sorting within same container
+  if (activeContainer === overContainer) {
+    return handleSortInContainer(state, activeId, overId, activeContainer);
+  }
+
+  // Case 3: Moving between tiers
+  return handleMoveBetweenContainers(state, activeId, overId, activeContainer, overContainer);
+}
+
+function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): TierListState {
+  const { itemId, updates } = payload;
+  const newItems = { ...state.items };
+  let modified = false;
+
+  const tierIds = Object.keys(newItems);
+  for (const tierId of tierIds) {
+    const list = newItems[tierId];
+    const index = list.findIndex((a) => a.id === itemId);
+    if (index !== -1) {
+      const currentItem = list[index];
+
+      // Optimization: Avoid update if only details changed but are identical
+      if (updates.details && currentItem.details) {
+        const currentDetailsStr = JSON.stringify(currentItem.details);
+        const newDetailsStr = JSON.stringify(updates.details);
+        if (currentDetailsStr === newDetailsStr && Object.keys(updates).length === 1) {
+          break;
+        }
+      }
+
+      newItems[tierId] = [
+        ...list.slice(0, index),
+        { ...currentItem, ...updates } as MediaItem,
+        ...list.slice(index + 1),
+      ];
+      modified = true;
+      break;
+    }
+  }
+  return modified ? { ...state, items: newItems } : state;
+}
+
+/**
  * Slice reducer for item-related actions.
  * @param state - Current tier list state.
  * @param action - TierListAction related to media items.
@@ -145,35 +207,7 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
     }
 
     case ActionType.UPDATE_ITEM: {
-      const { itemId, updates } = action.payload;
-      const newItems = { ...state.items };
-      let modified = false;
-
-      const tierIds = Object.keys(newItems);
-      for (const tierId of tierIds) {
-        const list = newItems[tierId];
-        const index = list.findIndex((a) => a.id === itemId);
-        if (index !== -1) {
-          const currentItem = list[index];
-
-          if (updates.details && currentItem.details) {
-            const currentDetailsStr = JSON.stringify(currentItem.details);
-            const newDetailsStr = JSON.stringify(updates.details);
-            if (currentDetailsStr === newDetailsStr && Object.keys(updates).length === 1) {
-              break;
-            }
-          }
-
-          newItems[tierId] = [
-            ...list.slice(0, index),
-            { ...currentItem, ...updates } as MediaItem,
-            ...list.slice(index + 1),
-          ];
-          modified = true;
-          break;
-        }
-      }
-      return modified ? { ...state, items: newItems } : state;
+      return handleUpdateItem(state, action.payload);
     }
 
     default:

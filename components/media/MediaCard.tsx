@@ -11,7 +11,7 @@ import { DraggableAttributes,useDraggable } from '@dnd-kit/core';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Eye, Info,X } from 'lucide-react';
+import { Eye, Info, LucideIcon,X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -56,6 +56,104 @@ interface BaseMediaCardProps {
   resolvedUrl?: string;
 }
 
+function MediaCardImage({
+  item,
+  isExport,
+  resolvedUrl,
+  priority,
+  TypeIcon,
+}: {
+  item: MediaItem;
+  isExport: boolean;
+  resolvedUrl?: string;
+  priority: boolean;
+  TypeIcon: LucideIcon;
+}) {
+  const [imageError, setImageError] = useState(() => {
+    return item.imageUrl ? failedImages.has(item.imageUrl) : false;
+  });
+  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
+
+  if (resolvedUrl || (item.imageUrl && !imageError)) {
+    if (isExport && resolvedUrl) {
+      return (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={resolvedUrl}
+          alt={item.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          decoding="sync"
+        />
+      );
+    }
+    return (
+      <Image
+        src={item.imageUrl!}
+        alt={item.title}
+        fill
+        sizes="112px"
+        priority={priority}
+        unoptimized={retryUnoptimized}
+        className="object-cover pointer-events-none"
+        onError={() => {
+          if (!retryUnoptimized) {
+            setRetryUnoptimized(true);
+          } else {
+            if (item.imageUrl) failedImages.add(item.imageUrl);
+            setImageError(true);
+          }
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900 border border-neutral-800 text-neutral-600 p-2 overflow-hidden">
+      <TypeIcon size={24} className="mb-1 opacity-50" />
+      {isExport && (
+        <span className="text-[9px] text-center leading-tight uppercase font-black opacity-30 mt-1 line-clamp-2 px-1">
+          {item.title}
+        </span>
+      )}
+      <span className="text-[7px] text-center leading-tight uppercase font-bold opacity-20 mt-1">
+        {item.type}
+      </span>
+    </div>
+  );
+}
+
+function MediaCardOverlay({
+  item,
+  isExport,
+  line2,
+  line3,
+}: {
+  item: MediaItem;
+  isExport: boolean;
+  line2: string;
+  line3: string;
+}) {
+  return (
+    <div
+      className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pb-1 pt-8 ${isExport ? 'z-10' : ''}`}
+    >
+      <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight mb-0.5">
+        {item.title}
+      </p>
+
+      {line2 && (
+        <p
+          className={`text-[9px] line-clamp-2 leading-tight ${line3 ? 'text-neutral-200 mb-0.5' : 'text-neutral-400'}`}
+        >
+          {line2}
+        </p>
+      )}
+
+      {line3 && <p className="text-[9px] text-neutral-400 line-clamp-2 leading-tight">{line3}</p>}
+    </div>
+  );
+}
+
 /**
  * The pure presentation component for a media item.
  * Handles rendering of the cover art, labels, and interaction buttons (remove, locate).
@@ -78,15 +176,6 @@ function BaseMediaCard({
   resolvedUrl,
 }: BaseMediaCardProps) {
   const interaction = useInteraction();
-
-  // Initialize error state based on global cache
-  const [imageError, setImageError] = useState(() => {
-    return item.imageUrl ? failedImages.has(item.imageUrl) : false;
-  });
-
-  // Retry state: If optimization fails (e.g. Private IP error), we try unoptimized once.
-  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
-
   const { Icon: TypeIcon, getSubtitle, getTertiaryText } = getMediaUI(item.type);
 
   if (isDragging) {
@@ -115,49 +204,6 @@ function BaseMediaCard({
     }
   `;
 
-  const imageElement =
-    resolvedUrl || (item.imageUrl && !imageError) ? (
-      isExport && resolvedUrl ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={resolvedUrl}
-          alt={item.title}
-          className="absolute inset-0 w-full h-full object-cover"
-          decoding="sync"
-        />
-      ) : (
-        <Image
-          src={item.imageUrl!}
-          alt={item.title}
-          fill
-          sizes="112px"
-          priority={priority}
-          unoptimized={retryUnoptimized}
-          className="object-cover pointer-events-none"
-          onError={() => {
-            if (!retryUnoptimized) {
-              setRetryUnoptimized(true);
-            } else {
-              if (item.imageUrl) failedImages.add(item.imageUrl);
-              setImageError(true);
-            }
-          }}
-        />
-      )
-    ) : (
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900 border border-neutral-800 text-neutral-600 p-2 overflow-hidden">
-        <TypeIcon size={24} className="mb-1 opacity-50" />
-        {isExport && (
-          <span className="text-[9px] text-center leading-tight uppercase font-black opacity-30 mt-1 line-clamp-2 px-1">
-            {item.title}
-          </span>
-        )}
-        <span className="text-[7px] text-center leading-tight uppercase font-bold opacity-20 mt-1">
-          {item.type}
-        </span>
-      </div>
-    );
-
   return (
     <div
       ref={setNodeRef}
@@ -170,26 +216,15 @@ function BaseMediaCard({
       onMouseLeave={!isExport ? () => interaction?.setHoveredItem(null) : undefined}
       className={containerClassName}
     >
-      {imageElement}
+      <MediaCardImage
+        item={item}
+        isExport={isExport}
+        resolvedUrl={resolvedUrl}
+        priority={priority}
+        TypeIcon={TypeIcon}
+      />
 
-      {/* Overlay Info */}
-      <div
-        className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pb-1 pt-8 ${isExport ? 'z-10' : ''}`}
-      >
-        <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight mb-0.5">
-          {item.title}
-        </p>
-
-        {line2 && (
-          <p
-            className={`text-[9px] line-clamp-2 leading-tight ${line3 ? 'text-neutral-200 mb-0.5' : 'text-neutral-400'}`}
-          >
-            {line2}
-          </p>
-        )}
-
-        {line3 && <p className="text-[9px] text-neutral-400 line-clamp-2 leading-tight">{line3}</p>}
-      </div>
+      <MediaCardOverlay item={item} isExport={isExport} line2={line2} line3={line3} />
 
       {/* Added Indicator / Locate Overlay */}
       {isAdded && (
@@ -309,7 +344,7 @@ export function SortableMediaCard(props: MediaCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: draggableId,
     data: { mediaItem: props.item, sourceTier: props.tierId },
-  });
+    });
 
   const style = {
     transform: CSS.Transform.toString(transform),

@@ -27,6 +27,7 @@ import { getColorTheme } from '@/lib/colors';
 import { useDynamicFavicon,useScreenshot } from '@/lib/hooks';
 import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
+import { MediaItem } from '@/lib/types';
 
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
@@ -52,6 +53,81 @@ const LoadingState = () => {
     </div>
   );
 };
+
+interface UseAppShortcutsProps {
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  hoveredItem: HoveredItemInfo | null;
+  setHoveredItem: (item: HoveredItemInfo | null) => void;
+  removeItemFromTier: (tierId: string, itemId: string) => void;
+  showDetails: (item: MediaItem) => void;
+  closeDetails: () => void;
+  setShowExportPreview: (show: boolean | ((prev: boolean) => boolean)) => void;
+}
+
+function handleUndoRedo(e: KeyboardEvent, props: UseAppShortcutsProps) {
+  const { undo, redo, canUndo, canRedo } = props;
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+    e.preventDefault();
+    if (e.shiftKey) {
+      if (canRedo) redo();
+    } else {
+      if (canUndo) undo();
+    }
+    return true;
+  }
+  return false;
+}
+
+function handleHoverShortcuts(e: KeyboardEvent, props: UseAppShortcutsProps) {
+  const { hoveredItem, removeItemFromTier, setHoveredItem, showDetails } = props;
+  if (hoveredItem) {
+    // 'x' to remove item (only if in a tier)
+    if (e.key === 'x' && hoveredItem.tierId) {
+      e.preventDefault();
+      removeItemFromTier(hoveredItem.tierId, hoveredItem.item.id);
+      setHoveredItem(null);
+    }
+    // 'i' to show details
+    if (e.key === 'i') {
+      e.preventDefault();
+      showDetails(hoveredItem.item);
+    }
+  }
+}
+
+function handleGlobalShortcuts(e: KeyboardEvent, props: UseAppShortcutsProps) {
+  const { setShowExportPreview, closeDetails } = props;
+  // Toggle Export Preview (Shift + P)
+  if (e.shiftKey && e.key.toLowerCase() === 'p') {
+    e.preventDefault();
+    setShowExportPreview((prev) => !prev);
+  }
+
+  // Close on ESC
+  if (e.key === 'Escape') {
+    setShowExportPreview(false);
+    closeDetails();
+  }
+}
+
+/**
+ * Custom hook to handle global keyboard shortcuts.
+ */
+function useAppShortcuts(props: UseAppShortcutsProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (handleUndoRedo(e, props)) return;
+      handleHoverShortcuts(e, props);
+      handleGlobalShortcuts(e, props);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [props]);
+}
 
 /**
  * The main application component for the Tier List app.
@@ -97,50 +173,18 @@ export default function TierListApp() {
   }, [state.title]);
 
   // Global Keyboard Shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Undo/Redo
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
-        e.preventDefault();
-        if (e.shiftKey) {
-          if (canRedo) redo();
-        } else {
-          if (canUndo) undo();
-        }
-        return;
-      }
-
-      // Hover Shortcuts
-      if (hoveredItem) {
-        // 'x' to remove item (only if in a tier)
-        if (e.key === 'x' && hoveredItem.tierId) {
-          e.preventDefault(); // Prevent accidental typing if input is focused (though unlikely with hover)
-          removeItemFromTier(hoveredItem.tierId, hoveredItem.item.id);
-          setHoveredItem(null); // Clear hover state since item is gone
-        }
-        // 'i' to show details
-        if (e.key === 'i') {
-          e.preventDefault();
-          showDetails(hoveredItem.item);
-        }
-      }
-
-      // Toggle Export Preview (Shift + P)
-      if (e.shiftKey && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
-        setShowExportPreview((prev) => !prev);
-      }
-
-      // Close on ESC
-      if (e.key === 'Escape') {
-        setShowExportPreview(false);
-        closeDetails();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, canUndo, canRedo, hoveredItem, removeItemFromTier, showDetails, closeDetails]);
+  useAppShortcuts({
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    hoveredItem,
+    setHoveredItem,
+    removeItemFromTier,
+    showDetails,
+    closeDetails,
+    setShowExportPreview,
+  });
 
   if (!isHydrated) {
     return <LoadingState />;
