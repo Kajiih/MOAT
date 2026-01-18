@@ -17,7 +17,7 @@ test.describe('Visual Regression', () => {
     });
     await page.goto('/');
     // Wait for hydration
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.getByLabel('Tier List Title')).toBeVisible();
     await expect(page.getByTestId('tier-row-label')).toHaveCount(6);
   });
 

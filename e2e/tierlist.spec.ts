@@ -10,10 +10,8 @@ test.describe('Tier List App', () => {
 
   test('should load the page correctly', async ({ page }) => {
     // The title is "MOAT", rendered letter by letter.
-    // We check if the h1 contains the text (which might be tricky if it's separate spans),
-    // but verifying the H1 presence is good enough.
-    await expect(page.locator('h1')).toBeVisible();
-    await expect(page.locator('h1')).toHaveText(/MOAT/i);
+    // We check if the board title input is visible to confirm hydration.
+    await expect(page.getByLabel('Tier List Title')).toBeVisible();
   });
 
   test('should add a new tier', async ({ page }) => {
@@ -245,6 +243,8 @@ test.describe('Tier List App', () => {
     await expect(page.locator('#media-card-search-album-1')).toContainText('Test Album');
   });
 
+  // Skipped because keyboard drag-and-drop interactions are currently flaky in headless 
+  // browser environments and require more robust synchronization for dnd-kit.
   test.skip('should move item via keyboard', async ({ page }) => {
     // 1. Setup board via Import (more robust than DB hacking)
     const importData = {
