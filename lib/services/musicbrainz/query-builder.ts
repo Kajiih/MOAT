@@ -7,7 +7,7 @@
  */
 
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
-import { constructLuceneQuery, escapeLucene,SearchOptions } from '@/lib/utils/search';
+import { constructLuceneQuery, escapeLucene, SearchOptions } from '@/lib/utils/search';
 
 /**
  * Input parameters for the MusicBrainz query builder.
@@ -68,6 +68,86 @@ interface BuiltQuery {
   query: string;
 }
 
+function buildArtistSpecificFilters(params: QueryBuilderParams): string[] {
+  const parts: string[] = [];
+  const { artistType, artistCountry } = params;
+  if (artistType) {
+    parts.push(`type:"${artistType.toLowerCase()}"`);
+  }
+  if (artistCountry) {
+    parts.push(`country:"${escapeLucene(artistCountry)}"`);
+  }
+  return parts;
+}
+
+function buildAlbumSpecificFilters(params: QueryBuilderParams): string[] {
+  const parts: string[] = [];
+  const { albumPrimaryTypes, albumSecondaryTypes } = params;
+
+  if (albumPrimaryTypes.length > 0) {
+    const typeQuery = albumPrimaryTypes.map((t) => `"${t}"`).join(' OR ');
+    parts.push(`primarytype:(${typeQuery})`);
+  }
+
+  if (albumSecondaryTypes.length > 0) {
+    const typeQuery = albumSecondaryTypes.map((t) => `"${t}"`).join(' OR ');
+    parts.push(`secondarytype:(${typeQuery})`);
+  } else {
+    const forbiddenQuery = SECONDARY_TYPES.map((t) => `"${t}"`).join(' OR ');
+    parts.push(`NOT secondarytype:(${forbiddenQuery})`);
+  }
+  return parts;
+}
+
+function buildSongSpecificFilters(params: QueryBuilderParams): string[] {
+  const parts: string[] = [];
+  const { albumId, minDuration, maxDuration } = params;
+  if (albumId) {
+    parts.push(`rgid:${albumId}`);
+  }
+  if (minDuration !== null || maxDuration !== null) {
+    const start = minDuration !== null ? minDuration : '*';
+    const end = maxDuration !== null ? maxDuration : '*';
+    parts.push(`dur:[${start} TO ${end}]`);
+  }
+  return parts;
+}
+
+function buildCommonFilters(params: QueryBuilderParams, dateField: string): string[] {
+  const parts: string[] = [];
+  const {
+    type,
+    artist,
+    artistId,
+    tag,
+    minYear,
+    maxYear,
+  } = params;
+
+  // Artist grouping for music entities
+  if (type !== 'artist') {
+    if (artistId) {
+      parts.push(`arid:${artistId}`);
+    } else if (artist) {
+      parts.push(`artist:"${artist}"`);
+    }
+  }
+
+  // Tag filter
+  if (tag) {
+    parts.push(`tag:"${escapeLucene(tag)}"`);
+  }
+
+  // Year/Date filter
+  if (minYear || maxYear) {
+    const start = minYear || '*';
+    const end = maxYear || '*';
+    parts.push(`${dateField}:[${start} TO ${end}]`);
+  }
+
+  return parts;
+}
+
 /**
  * Constructs the final MusicBrainz API endpoint and Lucene query string based on search parameters.
  *
@@ -81,18 +161,6 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
   const {
     type,
     query,
-    artist,
-    artistId,
-    albumId,
-    minYear,
-    maxYear,
-    albumPrimaryTypes,
-    albumSecondaryTypes,
-    artistType,
-    artistCountry,
-    tag,
-    minDuration,
-    maxDuration,
     options,
   } = params;
 
@@ -106,62 +174,18 @@ export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
     queryParts.push(constructLuceneQuery(luceneField, query, options));
   }
 
-  // Artist grouping for music entities
-  if (type !== 'artist') {
-    if (artistId) {
-      queryParts.push(`arid:${artistId}`);
-    } else if (artist) {
-      queryParts.push(`artist:"${artist}"`);
-    }
-  }
+  queryParts.push(...buildCommonFilters(params, dateField));
 
-  // Album Specific Filters
-  if (type === 'album') {
-    if (albumPrimaryTypes.length > 0) {
-      const typeQuery = albumPrimaryTypes.map((t) => `"${t}"`).join(' OR ');
-      queryParts.push(`primarytype:(${typeQuery})`);
-    }
-
-    if (albumSecondaryTypes.length > 0) {
-      const typeQuery = albumSecondaryTypes.map((t) => `"${t}"`).join(' OR ');
-      queryParts.push(`secondarytype:(${typeQuery})`);
-    } else {
-      const forbiddenQuery = SECONDARY_TYPES.map((t) => `"${t}"`).join(' OR ');
-      queryParts.push(`NOT secondarytype:(${forbiddenQuery})`);
-    }
-  }
-
-  // Artist Specific Filters
-  if (type === 'artist') {
-    if (artistType) {
-      queryParts.push(`type:"${artistType.toLowerCase()}"`);
-    }
-    if (artistCountry) {
-      queryParts.push(`country:"${escapeLucene(artistCountry)}"`);
-    }
-  }
-
-  // Recording (Song) Specific Filters
-  if (type === 'song') {
-    if (albumId) {
-      queryParts.push(`rgid:${albumId}`);
-    }
-    if (minDuration !== null || maxDuration !== null) {
-      const start = minDuration !== null ? minDuration : '*';
-      const end = maxDuration !== null ? maxDuration : '*';
-      queryParts.push(`dur:[${start} TO ${end}]`);
-    }
-  }
-
-  // Tag filter (applies to all entity types)
-  if (tag) {
-    queryParts.push(`tag:"${escapeLucene(tag)}"`);
-  }
-
-  if (minYear || maxYear) {
-    const start = minYear || '*';
-    const end = maxYear || '*';
-    queryParts.push(`${dateField}:[${start} TO ${end}]`);
+  switch (type) {
+    case 'artist':
+      queryParts.push(...buildArtistSpecificFilters(params));
+      break;
+    case 'album':
+      queryParts.push(...buildAlbumSpecificFilters(params));
+      break;
+    case 'song':
+      queryParts.push(...buildSongSpecificFilters(params));
+      break;
   }
 
   if (queryParts.length === 0 && query) {

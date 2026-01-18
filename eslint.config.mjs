@@ -43,7 +43,6 @@ const eslintConfig = defineConfig([
       'sonarjs/cognitive-complexity': ['warn', 25],
       'sonarjs/no-clear-text-protocols': 'off',
       'sonarjs/pseudo-random': 'off',
-      'sonarjs/no-nested-template-literals': 'off',
       'sonarjs/no-nested-conditional': 'off',
     },
   },
