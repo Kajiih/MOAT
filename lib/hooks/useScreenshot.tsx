@@ -41,20 +41,16 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
    * Internal fetcher with error handling
    */
   const fetchAsDataUrl = async (target: string) => {
-    try {
-      const resp = await fetch(target);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
-      const blob = await resp.blob();
-      if (blob.size === 0) throw new Error('Empty response');
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = () => reject(new Error('FileRead failed'));
-        reader.readAsDataURL(blob);
-      });
-    } catch (err) {
-      throw err;
-    }
+    const resp = await fetch(target);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+    const blob = await resp.blob();
+    if (blob.size === 0) throw new Error('Empty response');
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('FileRead failed'));
+      reader.readAsDataURL(blob);
+    });
   };
 
   try {
@@ -208,7 +204,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       } catch (err) {
         // Improved error reporting
         console.error('Screenshot raw error:', err);
-        let errorMessage = 'Unknown error';
+        let errorMessage;
 
         if (err instanceof Error) {
           errorMessage = `${err.message}\n${err.stack}`;

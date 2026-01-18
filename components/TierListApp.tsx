@@ -89,6 +89,8 @@ export default function TierListApp() {
   // Brand colors for footer
   const footerBrandColors = useBrandColors(headerColors);
 
+  const fabPosition = toastCount > 0 ? 'bottom-18' : 'bottom-8';
+
   // Update document title based on tierListTitle
   useEffect(() => {
     document.title = `${state.title} - MOAT`;
@@ -127,14 +129,12 @@ export default function TierListApp() {
       if (e.shiftKey && e.key.toLowerCase() === 'p') {
         e.preventDefault();
         setShowExportPreview((prev) => !prev);
-        return;
       }
 
       // Close on ESC
       if (e.key === 'Escape') {
         setShowExportPreview(false);
         closeDetails();
-        return;
       }
     };
 
@@ -200,9 +200,7 @@ export default function TierListApp() {
         {/* Floating Randomize Colors Button */}
         <button
           onClick={randomizeColors}
-          className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 screenshot-exclude ${
-            toastCount > 0 ? 'bottom-18' : 'bottom-8'
-          }`}
+          className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 screenshot-exclude ${fabPosition}`}
           title="Randomize Colors"
         >
           <Dices size={24} className="group-hover:rotate-12 transition-transform" />

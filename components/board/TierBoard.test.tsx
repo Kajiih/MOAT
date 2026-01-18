@@ -46,7 +46,9 @@ describe('TierBoard', () => {
     renderWithProviders(<TierBoard {...defaultProps} />);
     const button = screen.getByText(/Add Tier/i);
     fireEvent.click(button);
-    // Note: We can't easily check if handleAddTier was called on the mock dispatch
-    // but the test confirms the button is clickable and Doesn't crash.
+    
+    // Expect a new tier to be added (default is 6, so now 7)
+    const labels = screen.getAllByTestId('tier-row-label');
+    expect(labels).toHaveLength(7);
   });
 });

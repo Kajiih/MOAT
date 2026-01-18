@@ -39,7 +39,8 @@ export const MEDIA_CONFIG: Record<MediaType, MediaUIConfig> = {
     getSubtitle: (item) => (item as SongItem).album || '',
     getTertiaryText: (item) => {
       const i = item as SongItem;
-      return `${i.artist || 'Unknown'}${i.year ? ` (${i.year})` : ''}`;
+      const yearSuffix = i.year ? ` (${i.year})` : '';
+      return `${i.artist || 'Unknown'}${yearSuffix}`;
     },
   },
 };

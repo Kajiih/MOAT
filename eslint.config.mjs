@@ -4,12 +4,14 @@ import nextTs from 'eslint-config-next/typescript';
 import prettier from 'eslint-config-prettier/flat';
 import jsdoc from 'eslint-plugin-jsdoc';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import sonarjs from 'eslint-plugin-sonarjs';
 import unusedImports from 'eslint-plugin-unused-imports';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   jsdoc.configs['flat/recommended-typescript'],
+  sonarjs.configs.recommended,
   prettier,
 
   // General improvements
@@ -36,6 +38,13 @@ const eslintConfig = defineConfig([
           argsIgnorePattern: '^_',
         },
       ],
+
+      // SonarJS Overrides
+      'sonarjs/cognitive-complexity': ['warn', 25],
+      'sonarjs/no-clear-text-protocols': 'off',
+      'sonarjs/pseudo-random': 'off',
+      'sonarjs/no-nested-template-literals': 'off',
+      'sonarjs/no-nested-conditional': 'off',
     },
   },
 
@@ -72,6 +81,14 @@ const eslintConfig = defineConfig([
       ],
       'jsdoc/require-param': 'off',
       'jsdoc/require-returns': 'off',
+    },
+  },
+
+  // Test-specific overrides
+  {
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'e2e/**'],
+    rules: {
+      'sonarjs/no-nested-functions': 'off',
     },
   },
 
