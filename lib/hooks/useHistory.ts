@@ -47,7 +47,9 @@ export function useHistory<T>() {
       const previous = prev.past.at(-1);
       const newPast = prev.past.slice(0, -1);
 
-      setState(previous);
+      if (previous) {
+        setState(previous);
+      }
 
       return {
         past: newPast,
