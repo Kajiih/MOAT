@@ -45,6 +45,27 @@ const MAX_REGISTRY_SIZE = 2000;
 const INITIAL_REGISTRY: Record<string, MediaItem> = {};
 
 /**
+ * Helper to determine if an item should be updated in the registry.
+ * Compares critical fields and avoids unnecessary updates.
+ */
+function shouldUpdateItem(existing: MediaItem, newItem: MediaItem): boolean {
+  // Optimization: Shallow compare critical fields first to avoid deep stringify
+  const isUrlChanged = newItem.imageUrl && newItem.imageUrl !== existing.imageUrl;
+  const isDetailsChanged =
+    newItem.details && JSON.stringify(newItem.details) !== JSON.stringify(existing.details);
+
+  const isMetadataGeneralChanged = newItem.title !== existing.title;
+  let isArtistChanged = false;
+
+  // Only compare 'artist' field for non-artist types
+  if (newItem.type !== 'artist' && existing.type !== 'artist') {
+    isArtistChanged = newItem.artist !== existing.artist;
+  }
+
+  return isUrlChanged || isDetailsChanged || isMetadataGeneralChanged || isArtistChanged;
+}
+
+/**
  * Provider component for the Global Media Registry.
  * Handles persistence to IndexedDB and FIFO pruning.
  */
@@ -75,27 +96,14 @@ export function MediaRegistryProvider({ children }: { children: ReactNode }) {
   const mergeItems = useCallback(
     (prev: Record<string, MediaItem>, items: MediaItem[]) => {
       let hasChanges = false;
-      let next = { ...prev };
+      const next = { ...prev };
 
       for (const item of items) {
         if (!item.id) continue;
 
         const existing = next[item.id];
         if (existing) {
-          // Optimization: Shallow compare critical fields first to avoid deep stringify
-          const isUrlChanged = item.imageUrl && item.imageUrl !== existing.imageUrl;
-          const isDetailsChanged =
-            item.details && JSON.stringify(item.details) !== JSON.stringify(existing.details);
-
-          const isMetadataGeneralChanged = item.title !== existing.title;
-          let isArtistChanged = false;
-
-          // Only compare 'artist' field for non-artist types
-          if (item.type !== 'artist' && existing.type !== 'artist') {
-            isArtistChanged = item.artist !== existing.artist;
-          }
-
-          if (isUrlChanged || isDetailsChanged || isMetadataGeneralChanged || isArtistChanged) {
+          if (shouldUpdateItem(existing, item)) {
             next[item.id] = {
               ...existing,
               ...item,
@@ -112,8 +120,7 @@ export function MediaRegistryProvider({ children }: { children: ReactNode }) {
       }
 
       if (hasChanges) {
-        next = pruneRegistry(next);
-        return next;
+        return pruneRegistry(next);
       }
       return prev;
     },

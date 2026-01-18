@@ -56,15 +56,26 @@ export function getSearchUrl(params: SearchParams): string {
   urlParams.append('type', params.type);
   urlParams.append('page', (params.page || 1).toString());
 
-  // 2. Optional params in fixed order
-  if (params.query) urlParams.append('query', params.query);
-  if (params.artistId) urlParams.append('artistId', params.artistId);
-  if (params.albumId) urlParams.append('albumId', params.albumId);
-  if (params.minYear) urlParams.append('minYear', params.minYear);
-  if (params.maxYear) urlParams.append('maxYear', params.maxYear);
+  // 2. Simple Optional params
+  const simpleParams: (keyof SearchParams)[] = [
+    'query',
+    'artistId',
+    'albumId',
+    'minYear',
+    'maxYear',
+    'artistType',
+    'artistCountry',
+    'tag',
+  ];
 
+  for (const key of simpleParams) {
+    if (params[key]) {
+      urlParams.append(key, params[key] as string);
+    }
+  }
+
+  // 3. Array params (Sorted for cache consistency)
   if (params.albumPrimaryTypes && params.albumPrimaryTypes.length > 0) {
-    // Sort to ensure cache consistency regardless of selection order
     [...params.albumPrimaryTypes].sort().forEach((t) => urlParams.append('albumPrimaryTypes', t));
   }
 
@@ -74,16 +85,11 @@ export function getSearchUrl(params: SearchParams): string {
       .forEach((t) => urlParams.append('albumSecondaryTypes', t));
   }
 
-  // 3. New filters
-  if (params.artistType) urlParams.append('artistType', params.artistType);
-  if (params.artistCountry) urlParams.append('artistCountry', params.artistCountry);
-  if (params.tag) urlParams.append('tag', params.tag);
+  // 4. Numeric/Boolean params
   if (params.minDuration !== undefined)
     urlParams.append('minDuration', params.minDuration.toString());
   if (params.maxDuration !== undefined)
     urlParams.append('maxDuration', params.maxDuration.toString());
-
-  // 4. Search Config
   if (params.fuzzy !== undefined) urlParams.append('fuzzy', params.fuzzy.toString());
   if (params.wildcard !== undefined) urlParams.append('wildcard', params.wildcard.toString());
 
