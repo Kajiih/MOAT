@@ -37,5 +37,5 @@ interface FilterColProps {
  * and behaves normally in Grid mode.
  */
 export function FilterCol({ children, className = '' }: FilterColProps) {
-  return <div className={`flex-1 min-w-0 ${className}`}>{children}</div>;
+  return <div className={`min-w-0 flex-1 ${className}`}>{children}</div>;
 }

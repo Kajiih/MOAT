@@ -37,32 +37,32 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200"
       onClick={onClose}
     >
       <div
-        className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95 duration-200"
+        className="animate-in zoom-in-95 w-full max-w-sm overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-2xl duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
-          <div className="flex items-center gap-2 text-neutral-200 font-bold">
+        <div className="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/50 p-4">
+          <div className="flex items-center gap-2 font-bold text-neutral-200">
             <Keyboard size={20} className="text-neutral-400" />
             <span>Shortcuts</span>
           </div>
-          <button onClick={onClose} className="text-neutral-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-neutral-500 transition-colors hover:text-white">
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-4 space-y-3">
+        <div className="space-y-3 p-4">
           {shortcuts.map((s, i) => (
-            <div key={i} className="flex justify-between items-center text-sm">
+            <div key={i} className="flex items-center justify-between text-sm">
               <span className="text-neutral-400">{s.label}</span>
               <div className="flex gap-1">
                 {s.keys.map((k, j) => (
                   <kbd
                     key={j}
-                    className="px-2 py-1 bg-neutral-800 rounded-md font-mono text-xs text-neutral-300 shadow-sm border border-neutral-700 min-w-[24px] text-center flex items-center justify-center"
+                    className="flex min-w-[24px] items-center justify-center rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-center font-mono text-xs text-neutral-300 shadow-sm"
                   >
                     {k === 'Ctrl/Cmd' ? <Command size={10} className="mr-1" /> : null}
                     {k === 'Ctrl/Cmd' ? 'Cmd' : k}
@@ -72,7 +72,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             </div>
           ))}
         </div>
-        <div className="p-4 bg-neutral-900/50 border-t border-neutral-800 text-xs text-neutral-500 text-center">
+        <div className="border-t border-neutral-800 bg-neutral-900/50 p-4 text-center text-xs text-neutral-500">
           Press <kbd className="font-mono text-neutral-400">Esc</kbd> to close
         </div>
       </div>

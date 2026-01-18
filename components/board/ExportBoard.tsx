@@ -35,7 +35,7 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
   return (
     <div
       id="export-board-surface"
-      className="bg-neutral-950 text-neutral-200 font-sans antialiased flex flex-col items-center justify-center py-4 px-8 relative"
+      className="relative flex flex-col items-center justify-center bg-neutral-950 px-8 py-4 font-sans text-neutral-200 antialiased"
       style={{
         width: '1200px',
         minHeight: '800px',
@@ -47,9 +47,9 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
       </div>
 
       {/* Main Content Wrapper - Explicit framing */}
-      <div className="w-full flex flex-col items-center">
+      <div className="flex w-full flex-col items-center">
         {/* 1. Centered Title */}
-        <div className="w-full flex justify-center mt-2 mb-8">
+        <div className="mt-2 mb-8 flex w-full justify-center">
           <BoardTitle title={state.title} isExport={true} />
         </div>
 

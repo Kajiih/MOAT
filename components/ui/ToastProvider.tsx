@@ -110,12 +110,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast, toastCount: toasts.length }}>
       {children}
-      <div className="fixed bottom-4 right-8 z-[100] flex flex-col-reverse items-end gap-2 pointer-events-none">
+      <div className="pointer-events-none fixed right-8 bottom-4 z-[100] flex flex-col-reverse items-end gap-2">
         {/* Collapse Action */}
         {isExpanded && toasts.length > 1 && (
           <button
             onClick={() => dispatch({ type: 'SET_EXPANDED', isExpanded: false })}
-            className="pointer-events-auto flex items-center gap-1 text-xs text-neutral-500 hover:text-white bg-neutral-900/80 px-2 py-1 rounded-full backdrop-blur-sm transition-colors mb-2"
+            className="pointer-events-auto mb-2 flex items-center gap-1 rounded-full bg-neutral-900/80 px-2 py-1 text-xs text-neutral-500 backdrop-blur-sm transition-colors hover:text-white"
           >
             Collapse <ChevronDown size={12} />
           </button>
@@ -129,12 +129,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           : /* Stacked View */
             toasts.length > 0 && (
               <div
-                className="relative group cursor-pointer pointer-events-auto"
+                className="group pointer-events-auto relative cursor-pointer"
                 onClick={() => dispatch({ type: 'SET_EXPANDED', isExpanded: true })}
               >
                 {/* Badge */}
                 {toasts.length > 1 && (
-                  <div className="absolute -top-2 -left-2 z-50 bg-blue-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-md ring-2 ring-neutral-950">
+                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-md ring-2 ring-neutral-950">
                     {toasts.length}
                   </div>
                 )}
@@ -156,7 +156,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                         right: 0,
                         width: '100%', // Ensure absolute ones take full width of relative parent
                       }}
-                      className={`transition-all duration-300 origin-bottom ${!isTop ? 'pointer-events-none' : ''}`}
+                      className={`origin-bottom transition-all duration-300 ${!isTop ? 'pointer-events-none' : ''}`}
                     >
                       <ToastItem toast={toast} onDismiss={removeToast} stacked={true} />
                     </div>
@@ -183,19 +183,13 @@ function ToastItem({
 }) {
   return (
     <div
-      className={`
-              pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl border w-max max-w-[320px]
-              ${toast.type === 'success' ? 'bg-neutral-900 border-green-900/50 text-green-400' : ''}
-              ${toast.type === 'error' ? 'bg-neutral-900 border-red-900/50 text-red-400' : ''}
-              ${toast.type === 'info' ? 'bg-neutral-900 border-blue-900/50 text-blue-400' : ''}
-              ${stacked ? 'hover:bg-neutral-800' : 'animate-in slide-in-from-right-full duration-300'}
-            `}
+      className={`pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-xl ${toast.type === 'success' ? 'border-green-900/50 bg-neutral-900 text-green-400' : ''} ${toast.type === 'error' ? 'border-red-900/50 bg-neutral-900 text-red-400' : ''} ${toast.type === 'info' ? 'border-blue-900/50 bg-neutral-900 text-blue-400' : ''} ${stacked ? 'hover:bg-neutral-800' : 'animate-in slide-in-from-right-full duration-300'} `}
     >
       {toast.type === 'success' && <CheckCircle size={18} />}
       {toast.type === 'error' && <AlertCircle size={18} />}
       {toast.type === 'info' && <Info size={18} />}
 
-      <span className="text-sm font-medium text-neutral-200 truncate max-w-[200px]">
+      <span className="max-w-[200px] truncate text-sm font-medium text-neutral-200">
         {toast.message}
       </span>
 
@@ -204,7 +198,7 @@ function ToastItem({
       {!stacked && (
         <button
           onClick={(e) => onDismiss(toast.id, e)}
-          className="ml-2 hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
+          className="ml-2 rounded p-1 transition-colors hover:bg-white/10 hover:text-white"
         >
           <X size={14} />
         </button>

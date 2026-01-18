@@ -38,7 +38,7 @@ export function BrandLogo({ colors, className, variant = 'default' }: BrandLogoP
           style={{ color: colors[i] }}
           className={twMerge(
             'transition-all duration-500',
-            !colors[i] && 'opacity-0 pointer-events-none',
+            !colors[i] && 'pointer-events-none opacity-0',
           )}
         >
           {letter}

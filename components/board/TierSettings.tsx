@@ -68,8 +68,8 @@ export function TierSettings({
       <button
         onClick={onToggle}
         className={twMerge(
-          'absolute bottom-1 right-1 p-1 transition-opacity bg-black/20 hover:bg-black/40 rounded text-black',
-          isAnyDragging ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover/row:opacity-100',
+          'absolute right-1 bottom-1 rounded bg-black/20 p-1 text-black transition-opacity hover:bg-black/40',
+          isAnyDragging ? 'pointer-events-none opacity-0' : 'opacity-0 group-hover/row:opacity-100',
         )}
         title="Tier Settings"
       >
@@ -79,7 +79,7 @@ export function TierSettings({
       {isOpen && (
         <div
           ref={settingsRef}
-          className="absolute top-0 left-0 w-[280px] z-50 bg-neutral-900 border border-neutral-700 shadow-2xl rounded-lg p-3 flex flex-col gap-3"
+          className="absolute top-0 left-0 z-50 flex w-[280px] flex-col gap-3 rounded-lg border border-neutral-700 bg-neutral-900 p-3 shadow-2xl"
           style={{ transform: 'translate(10px, 10px)' }}
         >
           <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
@@ -91,14 +91,14 @@ export function TierSettings({
 
           {/* Colors */}
           <div>
-            <div className="text-xs text-neutral-500 mb-1">Color</div>
+            <div className="mb-1 text-xs text-neutral-500">Color</div>
             <div className="flex flex-wrap gap-1">
               {TIER_COLORS.map((c) => (
                 <button
                   key={c.id}
                   title={c.label}
                   className={twMerge(
-                    'w-6 h-6 rounded-full border border-transparent hover:scale-110 transition-transform',
+                    'h-6 w-6 rounded-full border border-transparent transition-transform hover:scale-110',
                     c.bg,
                     color === c.id && 'border-white ring-1 ring-white',
                   )}
@@ -115,12 +115,12 @@ export function TierSettings({
                 onClick={() => {
                   if (confirm('Delete tier?')) onDelete();
                 }}
-                className="flex items-center justify-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-200 rounded p-1 text-xs mt-1"
+                className="mt-1 flex items-center justify-center gap-2 rounded bg-red-900/30 p-1 text-xs text-red-200 hover:bg-red-900/50"
               >
                 <Trash2 size={14} /> Delete Tier
               </button>
             )}
-            <div className="text-[10px] text-neutral-600 text-center mt-2">
+            <div className="mt-2 text-center text-[10px] text-neutral-600">
               Tip: Drag the grip handle on the left to reorder
             </div>
           </div>

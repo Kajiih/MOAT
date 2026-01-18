@@ -47,13 +47,13 @@ export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownPro
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-2 rounded border transition-colors ${isOpen ? 'bg-neutral-800 border-neutral-600 text-white' : 'bg-black border-neutral-700 text-neutral-400 hover:text-white'}`}
+        className={`rounded border p-2 transition-colors ${isOpen ? 'border-neutral-600 bg-neutral-800 text-white' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
         title="Sort Results"
       >
         <ArrowUpDown size={18} />
       </button>
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl z-50 overflow-hidden flex flex-col p-1">
+        <div className="absolute top-full right-0 z-50 mt-2 flex w-48 flex-col overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 p-1 shadow-xl">
           {OPTIONS.map((opt) => (
             <button
               key={opt.id}
@@ -61,7 +61,7 @@ export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownPro
                 onSortChange(opt.id);
                 setIsOpen(false);
               }}
-              className={`text-left px-3 py-2 text-xs rounded hover:bg-neutral-800 transition-colors ${sortOption === opt.id ? 'text-white font-bold bg-neutral-800' : 'text-neutral-400'}`}
+              className={`rounded px-3 py-2 text-left text-xs transition-colors hover:bg-neutral-800 ${sortOption === opt.id ? 'bg-neutral-800 font-bold text-white' : 'text-neutral-400'}`}
             >
               {opt.label}
             </button>

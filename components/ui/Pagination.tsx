@@ -27,11 +27,11 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex justify-center items-center gap-4 mt-6">
+    <div className="mt-6 flex items-center justify-center gap-4">
       <button
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
+        className="rounded bg-neutral-800 p-1 hover:bg-neutral-700 disabled:opacity-30"
         title="Previous Page"
       >
         <ChevronLeft size={16} />
@@ -42,7 +42,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <button
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="p-1 rounded bg-neutral-800 disabled:opacity-30 hover:bg-neutral-700"
+        className="rounded bg-neutral-800 p-1 hover:bg-neutral-700 disabled:opacity-30"
         title="Next Page"
       >
         <ChevronRight size={16} />

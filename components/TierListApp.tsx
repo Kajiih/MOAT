@@ -38,8 +38,8 @@ const LoadingState = () => {
   const colors = ['red', 'orange', 'amber', 'green']; // Preview colors
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 p-8 font-sans flex flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-black tracking-tighter uppercase italic animate-pulse select-none flex">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-950 p-8 font-sans text-neutral-200">
+      <h1 className="flex animate-pulse text-4xl font-black tracking-tighter uppercase italic select-none">
         {letters.map((letter, i) => {
           const theme = getColorTheme(colors[i]);
           return (
@@ -49,7 +49,7 @@ const LoadingState = () => {
           );
         })}
       </h1>
-      <div className="text-neutral-500 text-sm">Loading application...</div>
+      <div className="text-sm text-neutral-500">Loading application...</div>
     </div>
   );
 };
@@ -191,10 +191,10 @@ export default function TierListApp() {
   }
 
   return (
-    <div className="min-h-screen text-neutral-200 font-sans flex flex-col relative">
+    <div className="relative flex min-h-screen flex-col font-sans text-neutral-200">
       <InteractionContext.Provider value={{ setHoveredItem }}>
         <main className="flex-1 p-8 pb-0">
-          <div className="max-w-[1600px] mx-auto">
+          <div className="mx-auto max-w-[1600px]">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
 
             <DndContext
@@ -204,7 +204,7 @@ export default function TierListApp() {
               onDragOver={handleDragOver}
               onDragEnd={handleDragEnd}
             >
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
+              <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_450px]">
                 <div>
                   <TierBoard isAnyDragging={!!activeItem || !!activeTier} />
                 </div>
@@ -214,7 +214,7 @@ export default function TierListApp() {
 
               <DragOverlay>
                 {activeTier ? (
-                  <div className="w-full opacity-80 pointer-events-none">
+                  <div className="pointer-events-none w-full opacity-80">
                     <TierRow
                       tier={activeTier}
                       items={state.items[activeTier.id] || []}
@@ -244,26 +244,26 @@ export default function TierListApp() {
         {/* Floating Randomize Colors Button */}
         <button
           onClick={randomizeColors}
-          className={`fixed right-8 p-4 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50 screenshot-exclude ${fabPosition}`}
+          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-neutral-800 p-4 text-white shadow-2xl transition-all hover:scale-110 hover:bg-neutral-700 active:scale-95 ${fabPosition}`}
           title="Randomize Colors"
         >
-          <Dices size={24} className="group-hover:rotate-12 transition-transform" />
+          <Dices size={24} className="transition-transform group-hover:rotate-12" />
         </button>
 
         {/* Export Preview Overlay */}
         {showExportPreview && (
-          <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm overflow-auto p-20 flex flex-col items-center">
+          <div className="fixed inset-0 z-[100] flex flex-col items-center overflow-auto bg-black/90 p-20 backdrop-blur-sm">
             <div className="relative">
               {/* Preview Header */}
-              <div className="absolute -top-12 left-0 right-0 flex justify-between items-center px-4">
-                <span className="text-neutral-500 font-mono text-xs uppercase tracking-widest">
+              <div className="absolute -top-12 right-0 left-0 flex items-center justify-between px-4">
+                <span className="font-mono text-xs tracking-widest text-neutral-500 uppercase">
                   Export Preview (Shift+P to close)
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleScreenshot}
                     disabled={isCapturing}
-                    className="flex items-center gap-2 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded text-sm transition-all active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm text-white transition-all hover:bg-neutral-700 active:scale-95 disabled:opacity-50"
                   >
                     {isCapturing ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -274,7 +274,7 @@ export default function TierListApp() {
                   </button>
                   <button
                     onClick={() => setShowExportPreview(false)}
-                    className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded text-white transition-colors"
+                    className="rounded bg-neutral-800 p-2 text-white transition-colors hover:bg-neutral-700"
                   >
                     <X size={20} />
                   </button>
@@ -282,11 +282,11 @@ export default function TierListApp() {
               </div>
 
               {/* The Actual Export Surface */}
-              <div className="shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-neutral-800">
+              <div className="border border-neutral-800 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
                 <ExportBoard state={state} brandColors={headerColors} />
               </div>
 
-              <div className="mt-8 text-center text-neutral-600 text-sm">
+              <div className="mt-8 text-center text-sm text-neutral-600">
                 This is a live preview of the export board. Interaction is disabled here.
               </div>
             </div>

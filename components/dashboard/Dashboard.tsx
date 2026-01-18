@@ -46,27 +46,27 @@ export function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-neutral-500">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-950 text-neutral-500">
         Loading registry...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col">
+    <div className="flex min-h-screen flex-col bg-neutral-950 font-sans text-neutral-200">
       <main className="flex-1 p-8 pb-0">
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto max-w-4xl">
           {/* Header */}
-          <div className="flex items-center justify-between mb-12">
+          <div className="mb-12 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <BrandLogo colors={brandColors} variant="header" />
-              <span className="text-2xl font-bold text-neutral-400 hidden sm:inline">
+              <span className="hidden text-2xl font-bold text-neutral-400 sm:inline">
                 / Dashboard
               </span>
             </div>
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md font-medium transition-colors"
+              className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-500"
             >
               <Plus size={18} />
               <span>New Board</span>
@@ -74,16 +74,16 @@ export function Dashboard() {
           </div>
 
           {/* Board Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Create Card (Alternative) */}
             <button
               onClick={handleCreate}
-              className="flex flex-col items-center justify-center h-48 bg-neutral-900/50 border-2 border-dashed border-neutral-800 rounded-xl hover:border-blue-500/50 hover:bg-neutral-900 transition-all group"
+              className="group flex h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 transition-all hover:border-blue-500/50 hover:bg-neutral-900"
             >
-              <div className="bg-neutral-800 p-3 rounded-full mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors text-neutral-400">
+              <div className="mb-3 rounded-full bg-neutral-800 p-3 text-neutral-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
                 <Plus size={24} />
               </div>
-              <span className="text-neutral-400 font-medium">Create New Board</span>
+              <span className="font-medium text-neutral-400">Create New Board</span>
             </button>
 
             {/* Existing Boards */}
@@ -91,26 +91,26 @@ export function Dashboard() {
               <Link
                 key={board.id}
                 href={`/board/${board.id}`}
-                className="flex flex-col bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-blue-500/50 hover:shadow-lg hover:-translate-y-1 transition-all group relative"
+                className="group relative flex flex-col overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-2 hover:ring-blue-500/50"
               >
                 {/* Thumbnail / Icon Placeholder */}
-                <div className="h-28 bg-neutral-800 flex items-center justify-center relative overflow-hidden">
+                <div className="relative flex h-28 items-center justify-center overflow-hidden bg-neutral-800">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-neutral-900/80" />
-                  <Layout className="text-neutral-700 w-16 h-16" strokeWidth={1} />
+                  <Layout className="h-16 w-16 text-neutral-700" strokeWidth={1} />
 
                   {/* Item Count Badge */}
-                  <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-xs px-2 py-0.5 rounded-full text-neutral-400">
+                  <div className="absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-neutral-400 backdrop-blur-sm">
                     {board.itemCount} items
                   </div>
                 </div>
 
                 {/* Metadata */}
-                <div className="p-4 flex-1 flex flex-col justify-between">
+                <div className="flex flex-1 flex-col justify-between p-4">
                   <div>
-                    <h3 className="font-bold text-lg text-neutral-200 line-clamp-1 group-hover:text-blue-400 transition-colors">
+                    <h3 className="line-clamp-1 text-lg font-bold text-neutral-200 transition-colors group-hover:text-blue-400">
                       {board.title}
                     </h3>
-                    <p className="text-xs text-neutral-500 mt-1">
+                    <p className="mt-1 text-xs text-neutral-500">
                       Modified {new Date(board.lastModified).toLocaleDateString()}
                     </p>
                   </div>
@@ -119,7 +119,7 @@ export function Dashboard() {
                 {/* Delete Action (Hidden by default) */}
                 <button
                   onClick={(e) => handleDelete(e, board.id)}
-                  className="absolute top-2 right-2 p-2 bg-neutral-950/80 hover:bg-red-900/80 text-neutral-400 hover:text-red-200 rounded-md opacity-0 group-hover:opacity-100 transition-all"
+                  className="absolute top-2 right-2 rounded-md bg-neutral-950/80 p-2 text-neutral-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-900/80 hover:text-red-200"
                   title="Delete Board"
                 >
                   <Trash2 size={16} />
@@ -129,7 +129,7 @@ export function Dashboard() {
           </div>
 
           {boards.length === 0 && (
-            <div className="text-center mt-12 text-neutral-600">
+            <div className="mt-12 text-center text-neutral-600">
               <p>No boards found. Create one to get started!</p>
             </div>
           )}

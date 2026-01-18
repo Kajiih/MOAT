@@ -134,12 +134,12 @@ export function SearchTab({
     filters.maxDuration;
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden min-h-0">
-      <div className="grid grid-cols-1 gap-2 mb-4 shrink-0">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="mb-4 grid shrink-0 grid-cols-1 gap-2">
         <div className="flex gap-2">
           <input
             placeholder={`Search ${type}s...`}
-            className="bg-black border border-neutral-700 rounded px-3 py-2 focus:border-red-600 outline-none text-sm w-full"
+            className="w-full rounded border border-neutral-700 bg-black px-3 py-2 text-sm outline-none focus:border-red-600"
             value={filters.query}
             onChange={(e) => updateFilters({ query: e.target.value })}
             onKeyDown={(e) => {
@@ -153,7 +153,7 @@ export function SearchTab({
 
           <button
             onClick={toggleFilters}
-            className={`p-2 rounded border transition-colors ${showFilters ? 'bg-red-900/20 border-red-900/50 text-red-400' : 'bg-black border-neutral-700 text-neutral-400 hover:text-white'}`}
+            className={`rounded border p-2 transition-colors ${showFilters ? 'border-red-900/50 bg-red-900/20 text-red-400' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
             title="Toggle Filters"
           >
             <Filter size={18} />
@@ -162,7 +162,7 @@ export function SearchTab({
 
         {/* Advanced Filters Panel */}
         {showFilters && (
-          <div className="bg-neutral-900/50 p-2 rounded border border-neutral-800">
+          <div className="rounded border border-neutral-800 bg-neutral-900/50 p-2">
             <SearchFilters
               type={type}
               filters={filters}
@@ -203,18 +203,18 @@ export function SearchTab({
       </div>
 
       {/* Content Area: Grid or Loading State */}
-      <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
         {isSearching ? (
-          <div className="overflow-y-auto custom-scrollbar flex-1 pr-1">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
+          <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">
               {Array.from({ length: 15 }).map((_, i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
           </div>
         ) : finalResults.length > 0 ? (
-          <div className="overflow-y-auto custom-scrollbar flex-1 pr-1">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
+          <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">
               {finalResults.map((item) => {
                 const isAdded = addedItemIds.has(item.id);
                 return (
@@ -231,9 +231,9 @@ export function SearchTab({
             </div>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="custom-scrollbar flex-1 overflow-y-auto">
             {hasActiveFilters && (
-              <div className="text-center text-neutral-600 italic mt-8 text-sm">
+              <div className="mt-8 text-center text-sm text-neutral-600 italic">
                 No results found.
               </div>
             )}
@@ -243,7 +243,7 @@ export function SearchTab({
 
       {/* Pagination Footer - Fixed at bottom */}
       {!isSearching && searchResults.length > 0 && totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-2 pt-2 border-t border-neutral-800 shrink-0">
+        <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pt-2">
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}

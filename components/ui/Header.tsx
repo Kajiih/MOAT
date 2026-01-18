@@ -55,31 +55,31 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   return (
-    <header className="flex flex-col md:grid md:grid-cols-[auto_1fr_auto] items-center mb-8 gap-4 relative z-50 pointer-events-none">
-      <div className="pointer-events-auto flex items-center group">
+    <header className="pointer-events-none relative z-50 mb-8 flex flex-col items-center gap-4 md:grid md:grid-cols-[auto_1fr_auto]">
+      <div className="group pointer-events-auto flex items-center">
         <Link
           href="/"
-          className="flex items-center gap-2 hover:bg-neutral-800 p-1 pr-3 rounded-lg transition-colors"
+          className="flex items-center gap-2 rounded-lg p-1 pr-3 transition-colors hover:bg-neutral-800"
           title="Back to Dashboard"
         >
           <ChevronLeft size={20} className="text-neutral-500 group-hover:text-neutral-300" />
           <BrandLogo colors={brandColors} variant="header" />
-          <span className="text-sm font-bold text-neutral-600 group-hover:text-neutral-400 hidden lg:inline">
+          <span className="hidden text-sm font-bold text-neutral-600 group-hover:text-neutral-400 lg:inline">
             / Dashboard
           </span>
         </Link>
       </div>
 
-      <div className="flex justify-center pointer-events-auto w-full">
+      <div className="pointer-events-auto flex w-full justify-center">
         <BoardTitle title={state.title} onChange={updateTitle} onFocus={() => pushHistory()} />
       </div>
 
-      <div className="flex gap-2 pointer-events-auto">
-        <div className="flex gap-1 mr-2">
+      <div className="pointer-events-auto flex gap-2">
+        <div className="mr-2 flex gap-1">
           <button
             onClick={undo}
             disabled={!canUndo}
-            className="p-2 bg-neutral-800 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="rounded bg-neutral-800 p-2 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             title="Undo (Ctrl+Z)"
           >
             <Undo2 size={16} />
@@ -87,15 +87,15 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={redo}
             disabled={!canRedo}
-            className="p-2 bg-neutral-800 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="rounded bg-neutral-800 p-2 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             title="Redo (Ctrl+Shift+Z)"
           >
             <Redo2 size={16} />
           </button>
-          <div className="w-px bg-neutral-800 mx-1"></div>
+          <div className="mx-1 w-px bg-neutral-800"></div>
           <button
             onClick={() => setShowShortcuts(true)}
-            className="p-2 bg-neutral-800 rounded hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
+            className="rounded bg-neutral-800 p-2 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-white"
             title="Keyboard Shortcuts"
           >
             <Keyboard size={16} />
@@ -103,7 +103,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
         </div>
 
         <label
-          className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded cursor-pointer hover:bg-neutral-700 text-sm transition-colors"
+          className="flex cursor-pointer items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm transition-colors hover:bg-neutral-700"
           title="Import from JSON"
         >
           <Upload size={16} /> <span className="hidden sm:inline">Import</span>
@@ -111,7 +111,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
         </label>
         <button
           onClick={handleExport}
-          className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm transition-colors"
+          className="flex items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm transition-colors hover:bg-neutral-700"
           title="Export to JSON"
         >
           <Download size={16} /> <span className="hidden sm:inline">Export</span>
@@ -119,16 +119,16 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
         <button
           onClick={onScreenshot}
           disabled={isCapturing}
-          className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded hover:bg-neutral-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
           title="Save as Image"
         >
           {isCapturing ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
           <span className="hidden sm:inline">Save</span>
         </button>
-        <div className="w-px bg-neutral-800 mx-1"></div>
+        <div className="mx-1 w-px bg-neutral-800"></div>
         <button
           onClick={handleClear}
-          className="flex items-center gap-2 px-3 py-2 bg-red-900/20 text-red-500 rounded hover:bg-red-900/40 text-sm border border-red-900/50 transition-colors"
+          className="flex items-center gap-2 rounded border border-red-900/50 bg-red-900/20 px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-900/40"
           title="Clear Board"
         >
           <Trash2 size={16} /> <span className="hidden sm:inline">Clear</span>

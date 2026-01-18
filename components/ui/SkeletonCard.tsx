@@ -11,7 +11,7 @@
  */
 export function SkeletonCard() {
   return (
-    <div className="w-24 h-24 bg-neutral-800/50 rounded-md overflow-hidden animate-pulse">
+    <div className="h-24 w-24 animate-pulse overflow-hidden rounded-md bg-neutral-800/50">
       <div className="h-full w-full bg-neutral-800"></div>
     </div>
   );

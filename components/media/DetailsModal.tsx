@@ -99,13 +99,13 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-200">
       <div
-        className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+        className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-neutral-700 bg-neutral-900 shadow-2xl duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Cover Art */}
-        <div className="relative h-48 sm:h-64 shrink-0 bg-neutral-950 overflow-hidden">
+        <div className="relative h-48 shrink-0 overflow-hidden bg-neutral-950 sm:h-64">
           {hasImage ? (
             <>
               <Image
@@ -123,8 +123,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             <div className="absolute inset-0 bg-gradient-to-b from-neutral-800 to-neutral-900 opacity-50" />
           )}
 
-          <div className="absolute bottom-0 left-0 p-6 w-full flex gap-4 items-end text-left">
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded shadow-lg overflow-hidden bg-neutral-800 shrink-0 border border-white/10">
+          <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24">
               {hasImage ? (
                 <Image
                   src={enrichedItem.imageUrl!}
@@ -141,16 +141,16 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                   }}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-neutral-600">
+                <div className="flex h-full w-full items-center justify-center text-neutral-600">
                   <PlaceholderIcon size={32} />
                 </div>
               )}
             </div>
-            <div className="flex-1 min-w-0 pt-2">
-              <h2 className="text-2xl sm:text-3xl font-bold truncate text-white drop-shadow-sm">
+            <div className="min-w-0 flex-1 pt-2">
+              <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
                 {enrichedItem.title}
               </h2>
-              <div className="flex items-center gap-2 text-neutral-300 mt-1">
+              <div className="mt-1 flex items-center gap-2 text-neutral-300">
                 <uiConfig.Icon size={16} className={uiConfig.colorClass} />
                 <span className="font-medium">
                   {'artist' in enrichedItem ? enrichedItem.artist : 'Artist'}
@@ -167,29 +167,29 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-colors z-10"
+            className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/80"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+        <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto p-6">
           {/* Loading State */}
           {isLoading && (
-            <div className="space-y-4 animate-pulse">
-              <div className="h-4 bg-neutral-800 rounded w-1/3"></div>
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 w-1/3 rounded bg-neutral-800"></div>
               <div className="space-y-2">
-                <div className="h-10 bg-neutral-800 rounded w-full"></div>
-                <div className="h-10 bg-neutral-800 rounded w-full"></div>
-                <div className="h-10 bg-neutral-800 rounded w-full"></div>
+                <div className="h-10 w-full rounded bg-neutral-800"></div>
+                <div className="h-10 w-full rounded bg-neutral-800"></div>
+                <div className="h-10 w-full rounded bg-neutral-800"></div>
               </div>
             </div>
           )}
 
           {/* Error State */}
           {error && (
-            <div className="text-red-400 bg-red-900/10 p-4 rounded border border-red-900/20 text-center">
+            <div className="rounded border border-red-900/20 bg-red-900/10 p-4 text-center text-red-400">
               Failed to load additional details.
             </div>
           )}

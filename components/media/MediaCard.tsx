@@ -81,7 +81,7 @@ function MediaCardImage({
         <img
           src={resolvedUrl}
           alt={item.title}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           decoding="sync"
         />
       );
@@ -94,7 +94,7 @@ function MediaCardImage({
         sizes="112px"
         priority={priority}
         unoptimized={retryUnoptimized}
-        className="object-cover pointer-events-none"
+        className="pointer-events-none object-cover"
         onError={() => {
           if (!retryUnoptimized) {
             setRetryUnoptimized(true);
@@ -108,14 +108,14 @@ function MediaCardImage({
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900 border border-neutral-800 text-neutral-600 p-2 overflow-hidden">
+    <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden border border-neutral-800 bg-neutral-900 p-2 text-neutral-600">
       <TypeIcon size={24} className="mb-1 opacity-50" />
       {isExport && (
-        <span className="text-[9px] text-center leading-tight uppercase font-black opacity-30 mt-1 line-clamp-2 px-1">
+        <span className="mt-1 line-clamp-2 px-1 text-center text-[9px] leading-tight font-black uppercase opacity-30">
           {item.title}
         </span>
       )}
-      <span className="text-[7px] text-center leading-tight uppercase font-bold opacity-20 mt-1">
+      <span className="mt-1 text-center text-[7px] leading-tight font-bold uppercase opacity-20">
         {item.type}
       </span>
     </div>
@@ -135,21 +135,21 @@ function MediaCardOverlay({
 }) {
   return (
     <div
-      className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pb-1 pt-8 ${isExport ? 'z-10' : ''}`}
+      className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pt-8 pb-1 ${isExport ? 'z-10' : ''}`}
     >
-      <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight mb-0.5">
+      <p className="mb-0.5 line-clamp-2 text-[10px] leading-tight font-bold text-white">
         {item.title}
       </p>
 
       {line2 && (
         <p
-          className={`text-[9px] line-clamp-2 leading-tight ${line3 ? 'text-neutral-200 mb-0.5' : 'text-neutral-400'}`}
+          className={`line-clamp-2 text-[9px] leading-tight ${line3 ? 'mb-0.5 text-neutral-200' : 'text-neutral-400'}`}
         >
           {line2}
         </p>
       )}
 
-      {line3 && <p className="text-[9px] text-neutral-400 line-clamp-2 leading-tight">{line3}</p>}
+      {line3 && <p className="line-clamp-2 text-[9px] leading-tight text-neutral-400">{line3}</p>}
     </div>
   );
 }
@@ -183,7 +183,7 @@ function BaseMediaCard({
       <div
         ref={setNodeRef}
         style={style}
-        className="w-28 h-28 bg-blue-500/10 border-2 border-dashed border-blue-500/50 rounded-md z-0"
+        className="z-0 h-28 w-28 rounded-md border-2 border-dashed border-blue-500/50 bg-blue-500/10"
       />
     );
   }
@@ -228,7 +228,7 @@ function BaseMediaCard({
 
       {/* Added Indicator / Locate Overlay */}
       {isAdded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/card:opacity-100 transition-opacity pointer-events-none">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/card:opacity-100">
           <Eye className="text-white drop-shadow-md" size={24} />
         </div>
       )}
@@ -241,7 +241,7 @@ function BaseMediaCard({
             e.stopPropagation();
             onRemove(item.id);
           }}
-          className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity"
+          className="absolute top-1 right-1 rounded-full bg-red-600/80 p-0.5 text-white opacity-0 transition-opacity group-hover/card:opacity-100 hover:bg-red-600"
           title="Remove item"
         >
           <X size={12} />
@@ -256,7 +256,7 @@ function BaseMediaCard({
             e.stopPropagation();
             onInfo(item);
           }}
-          className="absolute top-1 left-1 bg-blue-600/80 hover:bg-blue-600 text-white rounded-full p-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity"
+          className="absolute top-1 left-1 rounded-full bg-blue-600/80 p-0.5 text-white opacity-0 transition-opacity group-hover/card:opacity-100 hover:bg-blue-600"
           title="View details"
         >
           <Info size={12} />

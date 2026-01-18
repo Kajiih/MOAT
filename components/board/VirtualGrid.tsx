@@ -83,7 +83,7 @@ export function VirtualGrid<T>({
   return (
     <div
       ref={parentRef}
-      className={`w-full h-full overflow-y-auto min-h-0 custom-scrollbar ${className}`}
+      className={`custom-scrollbar h-full min-h-0 w-full overflow-y-auto ${className}`}
       style={{ padding: padding }}
     >
       <div

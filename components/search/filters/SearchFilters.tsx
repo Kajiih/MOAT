@@ -56,7 +56,7 @@ export function SearchFilters({
   return (
     <div className={`space-y-2 ${compact ? 'text-[10px]' : ''}`}>
       {contextPickers && (
-        <div className="space-y-2 mb-2 pb-2 border-b border-neutral-800">{contextPickers}</div>
+        <div className="mb-2 space-y-2 border-b border-neutral-800 pb-2">{contextPickers}</div>
       )}
 
       {/* Type-Specific Filters */}
@@ -86,7 +86,7 @@ export function SearchFilters({
 
       {/* Common Date Filter */}
       <div>
-        <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">
+        <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
           {type === 'artist' ? 'Born / Formed' : 'Release Year'}
         </div>
         <DateRangeFilter
@@ -102,7 +102,7 @@ export function SearchFilters({
 
       {/* Common Tag Filter */}
       <div>
-        <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">
+        <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
           Tag / Genre
         </div>
         <input
@@ -116,7 +116,7 @@ export function SearchFilters({
       {/* Song Specific */}
       {type === 'song' && (
         <div>
-          <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">
+          <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
             Duration (Seconds)
           </div>
           <div className={`flex gap-2 ${compact ? '' : 'grid grid-cols-2'}`}>

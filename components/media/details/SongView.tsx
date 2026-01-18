@@ -24,11 +24,11 @@ interface SongViewProps {
  */
 export function SongView({ details }: SongViewProps) {
   return (
-    <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
+    <div className="animate-in slide-in-from-bottom-2 space-y-6 duration-300">
       {/* Metadata */}
       {details.length && (
         <div className="flex flex-wrap gap-4 text-sm text-neutral-400">
-          <div className="flex items-center gap-1.5 bg-neutral-800 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 rounded-full bg-neutral-800 px-3 py-1.5">
             <Clock size={14} className="text-green-400" />
             <span>{details.length}</span>
           </div>
@@ -37,22 +37,22 @@ export function SongView({ details }: SongViewProps) {
 
       {/* Album Info */}
       {details.album && (
-        <div className="flex items-center gap-2 text-sm text-neutral-300 bg-neutral-800/50 p-3 rounded-lg border border-neutral-800">
+        <div className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-800/50 p-3 text-sm text-neutral-300">
           <Disc size={16} className="text-blue-400" />
-          <span className="flex items-center gap-1.5 flex-wrap">
+          <span className="flex flex-wrap items-center gap-1.5">
             From album:
             {details.albumId ? (
               <a
                 href={`https://musicbrainz.org/release-group/${details.albumId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white hover:text-blue-400 transition-colors font-bold flex items-center gap-1 group"
+                className="group flex items-center gap-1 font-bold text-white transition-colors hover:text-blue-400"
                 title="View album on MusicBrainz"
               >
                 {details.album}
                 <ExternalLink
                   size={12}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="opacity-0 transition-opacity group-hover:opacity-100"
                 />
               </a>
             ) : (
@@ -65,12 +65,12 @@ export function SongView({ details }: SongViewProps) {
       {/* Tags */}
       {details.tags && details.tags.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold text-neutral-500 uppercase mb-2">Tags</h3>
+          <h3 className="mb-2 text-sm font-bold text-neutral-500 uppercase">Tags</h3>
           <div className="flex flex-wrap gap-2">
             {details.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-blue-900/20 text-blue-300 border border-blue-900/30 rounded text-xs"
+                className="rounded border border-blue-900/30 bg-blue-900/20 px-2 py-1 text-xs text-blue-300"
               >
                 {tag}
               </span>

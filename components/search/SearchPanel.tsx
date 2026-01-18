@@ -47,8 +47,8 @@ export function SearchPanel() {
   const [wildcard, setWildcard] = usePersistentState<boolean>('moat-search-wildcard', true);
 
   return (
-    <div className="sticky top-4 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-2xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col">
-      <div className="flex flex-wrap items-center gap-4 mb-4 text-white shrink-0">
+    <div className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-6 shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
+      <div className="mb-4 flex shrink-0 flex-wrap items-center gap-4 text-white">
         <div className="flex items-center gap-2">
           <Search size={20} />
           <h2 className="text-xl font-bold">Search</h2>
@@ -64,7 +64,7 @@ export function SearchPanel() {
 
           <button
             onClick={() => setShowAdded(!showAdded)}
-            className={`flex items-center gap-2 text-[10px] font-medium px-2 py-1 rounded border transition-colors ${showAdded ? 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:bg-neutral-700' : 'bg-blue-900/10 border-blue-900/40 text-blue-400'}`}
+            className={`flex items-center gap-2 rounded border px-2 py-1 text-[10px] font-medium transition-colors ${showAdded ? 'border-neutral-600 bg-neutral-800 text-neutral-300 hover:bg-neutral-700' : 'border-blue-900/40 bg-blue-900/10 text-blue-400'}`}
             title={
               showAdded ? 'Hide items already on the board' : 'Show items already on the board'
             }
@@ -75,15 +75,13 @@ export function SearchPanel() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-1 p-1 bg-black rounded-lg mb-4 shrink-0 border border-neutral-800">
+      <div className="mb-4 grid shrink-0 grid-cols-3 gap-1 rounded-lg border border-neutral-800 bg-black p-1">
         {SEARCH_MODES.map((mode) => (
           <button
             key={mode.type}
             onClick={() => setActiveType(mode.type)}
             title={`Search ${mode.label}s`}
-            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all
-                        ${activeType === mode.type ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}
-                    `}
+            className={`flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${activeType === mode.type ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'} `}
           >
             <mode.icon size={12} />
             <span>{mode.label}</span>
@@ -91,7 +89,7 @@ export function SearchPanel() {
         ))}
       </div>
 
-      <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {SEARCH_MODES.map((mode) => (
           <SearchTab
             key={mode.type}

@@ -52,9 +52,9 @@ export function TierBoard(props: TierBoardProps) {
       />
       <button
         onClick={handleAddTier}
-        className="w-full py-4 border border-dashed border-neutral-700 rounded-xl text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-900 transition-all flex items-center justify-center gap-2 font-bold group"
+        className="group flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-700 py-4 font-bold text-neutral-400 transition-all hover:border-neutral-500 hover:bg-neutral-900 hover:text-white"
       >
-        <div className="p-1 bg-neutral-800 rounded group-hover:bg-neutral-700 transition-colors">
+        <div className="rounded bg-neutral-800 p-1 transition-colors group-hover:bg-neutral-700">
           <Plus size={16} />
         </div>
         <span>Add Tier</span>

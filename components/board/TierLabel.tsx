@@ -81,9 +81,9 @@ export function TierLabel(props: TierLabelProps) {
           {...dragAttributes}
           {...dragListeners}
           className={twMerge(
-            'absolute top-1 left-1 p-1 transition-opacity cursor-grab active:cursor-grabbing text-black/40 hover:text-black',
+            'absolute top-1 left-1 cursor-grab p-1 text-black/40 transition-opacity hover:text-black active:cursor-grabbing',
             isAnyDragging
-              ? 'opacity-0 pointer-events-none'
+              ? 'pointer-events-none opacity-0'
               : 'opacity-0 group-hover/row:opacity-100',
           )}
         >
@@ -98,7 +98,7 @@ export function TierLabel(props: TierLabelProps) {
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={handleSave}
           onKeyDown={handleKeyDown}
-          className="w-full h-full bg-white/20 text-black placeholder-black/50 text-center font-bold rounded resize-none focus:outline-none text-sm p-1 overflow-hidden"
+          className="h-full w-full resize-none overflow-hidden rounded bg-white/20 p-1 text-center text-sm font-bold text-black placeholder-black/50 focus:outline-none"
           style={{ minHeight: '60px' }}
         />
       ) : (
@@ -106,8 +106,8 @@ export function TierLabel(props: TierLabelProps) {
           data-testid="tier-row-label"
           onDoubleClick={!isExport ? handleDoubleClick : undefined}
           className={twMerge(
-            'w-full h-full flex items-center justify-center text-center font-black text-black select-none transition-colors break-words overflow-hidden',
-            !isExport && 'cursor-pointer hover:bg-black/5 rounded',
+            'flex h-full w-full items-center justify-center overflow-hidden text-center font-black break-words text-black transition-colors select-none',
+            !isExport && 'cursor-pointer rounded hover:bg-black/5',
           )}
           title={!isExport ? 'Double click to rename' : undefined}
           style={{ fontSize: label.length > 5 ? '1rem' : '1.75rem', lineHeight: '1.1' }}

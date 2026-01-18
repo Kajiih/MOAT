@@ -39,15 +39,15 @@ export function SearchSettings({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-2 rounded-full transition-colors ${isOpen ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:text-white hover:bg-neutral-800'}`}
+        className={`rounded-full p-2 transition-colors ${isOpen ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:bg-neutral-800 hover:text-white'}`}
         title="Search Settings"
       >
         <Settings size={16} />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl p-4 z-50">
-          <div className="flex justify-between items-center mb-3">
+        <div className="absolute top-full right-0 z-50 mt-2 w-72 rounded-lg border border-neutral-700 bg-neutral-900 p-4 shadow-xl">
+          <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-bold text-white">Search Settings</h3>
             <button onClick={() => setIsOpen(false)} className="text-neutral-500 hover:text-white">
               <X size={14} />
@@ -57,9 +57,9 @@ export function SearchSettings({
           <div className="space-y-4">
             {/* Search Options */}
             <div>
-              <h4 className="text-xs font-bold text-neutral-400 mb-2 uppercase">Search Logic</h4>
+              <h4 className="mb-2 text-xs font-bold text-neutral-400 uppercase">Search Logic</h4>
               <div className="space-y-3">
-                <label className="flex items-center justify-between text-xs text-neutral-300 cursor-pointer group">
+                <label className="group flex cursor-pointer items-center justify-between text-xs text-neutral-300">
                   <span>Fuzzy Search (Typos)</span>
                   <input
                     type="checkbox"
@@ -72,9 +72,9 @@ export function SearchSettings({
                   Finds matches even if you make spelling mistakes.
                 </p>
 
-                <div className="h-px bg-neutral-800 my-1" />
+                <div className="my-1 h-px bg-neutral-800" />
 
-                <label className="flex items-center justify-between text-xs text-neutral-300 cursor-pointer group">
+                <label className="group flex cursor-pointer items-center justify-between text-xs text-neutral-300">
                   <span>Partial Match (Wildcard)</span>
                   <input
                     type="checkbox"

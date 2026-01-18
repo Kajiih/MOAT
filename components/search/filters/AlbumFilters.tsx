@@ -52,7 +52,7 @@ export function AlbumFilters({
       <div className="flex flex-col gap-2 text-[10px]">
         {/* Primary Types Section */}
         <div>
-          <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">
+          <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
             Primary Type
           </div>
           <div className="flex flex-wrap gap-1">
@@ -60,7 +60,7 @@ export function AlbumFilters({
               <button
                 key={t}
                 onClick={() => onTogglePrimary(t)}
-                className={`px-1.5 py-0.5 rounded border transition-colors ${primaryTypes.includes(t) ? 'bg-blue-900/40 border-blue-800 text-blue-200' : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-neutral-300'}`}
+                className={`rounded border px-1.5 py-0.5 transition-colors ${primaryTypes.includes(t) ? 'border-blue-800 bg-blue-900/40 text-blue-200' : 'border-neutral-800 bg-neutral-900 text-neutral-500 hover:text-neutral-300'}`}
               >
                 {t}
               </button>
@@ -70,7 +70,7 @@ export function AlbumFilters({
 
         {/* Secondary Types Section */}
         <div>
-          <div className="text-neutral-600 font-bold uppercase tracking-wider text-[9px] mb-1">
+          <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
             Secondary Type
           </div>
           <div className="flex flex-wrap gap-1">
@@ -78,7 +78,7 @@ export function AlbumFilters({
               <button
                 key={t}
                 onClick={() => onToggleSecondary(t)}
-                className={`px-1.5 py-0.5 rounded border transition-colors ${secondaryTypes.includes(t) ? 'bg-purple-900/40 border-purple-800 text-purple-200' : 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-neutral-300'}`}
+                className={`rounded border px-1.5 py-0.5 transition-colors ${secondaryTypes.includes(t) ? 'border-purple-800 bg-purple-900/40 text-purple-200' : 'border-neutral-800 bg-neutral-900 text-neutral-500 hover:text-neutral-300'}`}
               >
                 {t}
               </button>
@@ -93,7 +93,7 @@ export function AlbumFilters({
   return (
     <div className="space-y-3">
       <div>
-        <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between">
+        <div className="mb-1.5 flex justify-between text-[10px] font-bold text-neutral-500 uppercase">
           <span>Primary Type</span>
           {onResetPrimary &&
             !(
@@ -120,15 +120,15 @@ export function AlbumFilters({
       </div>
 
       <div>
-        <div className="text-[10px] text-neutral-500 uppercase font-bold mb-1.5 flex justify-between items-center">
+        <div className="mb-1.5 flex items-center justify-between text-[10px] font-bold text-neutral-500 uppercase">
           <div className="flex items-center gap-1.5">
             <span>Secondary Type</span>
             <div className="group relative">
               <Info
                 size={12}
-                className="text-neutral-500 cursor-help hover:text-neutral-300 transition-colors"
+                className="cursor-help text-neutral-500 transition-colors hover:text-neutral-300"
               />
-              <div className="absolute left-0 bottom-full mb-2 w-56 p-2 bg-neutral-900 border border-neutral-700 rounded shadow-xl text-[10px] text-neutral-300 normal-case font-normal opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+              <div className="pointer-events-none absolute bottom-full left-0 z-50 mb-2 w-56 rounded border border-neutral-700 bg-neutral-900 p-2 text-[10px] font-normal text-neutral-300 normal-case opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
                 By default, standard albums are shown. Select types to exclusively filter for them
                 (e.g. &apos;Live&apos; shows only Live albums).
               </div>
@@ -143,7 +143,7 @@ export function AlbumFilters({
                   onSelectAllSecondary?.();
                 }
               }}
-              className="text-blue-400 hover:text-blue-300 transition-colors"
+              className="text-blue-400 transition-colors hover:text-blue-300"
             >
               {secondaryTypes.length === SECONDARY_TYPES.length ? 'Deselect All' : 'Select All'}
             </button>

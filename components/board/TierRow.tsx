@@ -125,18 +125,18 @@ export const TierRow = memo(function TierRow({
       ref={setCombinedRef}
       style={style}
       className={twMerge(
-        'flex bg-neutral-900 border min-h-[7rem] mb-2 rounded-lg transition-all duration-200 ease-out relative',
+        'relative mb-2 flex min-h-[7rem] rounded-lg border bg-neutral-900 transition-all duration-200 ease-out',
         isOverRow
-          ? 'border-blue-500/50 bg-neutral-800 scale-[1.01] shadow-lg ring-1 ring-blue-500/30 z-20'
+          ? 'z-20 scale-[1.01] border-blue-500/50 bg-neutral-800 shadow-lg ring-1 ring-blue-500/30'
           : 'border-neutral-800',
         showSettings ? 'z-30' : 'z-0',
-        isDraggingTier && 'opacity-50 border-blue-500 ring-2 ring-blue-500/50 scale-95',
+        isDraggingTier && 'scale-95 border-blue-500 opacity-50 ring-2 ring-blue-500/50',
       )}
     >
       {/* Label / Header Column */}
       <div
         className={twMerge(
-          'w-24 md:w-32 flex flex-col items-center justify-center p-2 relative shrink-0 transition-colors rounded-l-lg group/row',
+          'group/row relative flex w-24 shrink-0 flex-col items-center justify-center rounded-l-lg p-2 transition-colors md:w-32',
           tierTheme.bg, // Apply the background class from the theme
         )}
       >
@@ -164,8 +164,8 @@ export const TierRow = memo(function TierRow({
       </div>
 
       {/* Items Column */}
-      <div className="flex-1 flex flex-col relative min-h-[100px] min-w-0">
-        {isOverRow && <div className="absolute inset-0 bg-blue-500/5 pointer-events-none z-10" />}
+      <div className="relative flex min-h-[100px] min-w-0 flex-1 flex-col">
+        {isOverRow && <div className="pointer-events-none absolute inset-0 z-10 bg-blue-500/5" />}
 
         <TierGrid
           items={items}

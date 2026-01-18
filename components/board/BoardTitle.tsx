@@ -67,7 +67,7 @@ export function BoardTitle({
       rows={1}
       className={twMerge(
         baseStyles,
-        'bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md resize-none overflow-hidden py-1 px-2 w-full md:w-auto md:min-w-[300px] md:max-w-[600px]',
+        'w-full resize-none overflow-hidden rounded-md bg-transparent px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none md:w-auto md:max-w-[600px] md:min-w-[300px]',
         className,
       )}
     />

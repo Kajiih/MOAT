@@ -3,10 +3,12 @@ import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettier from 'eslint-config-prettier/flat';
 import jsdoc from 'eslint-plugin-jsdoc';
+import playwright from 'eslint-plugin-playwright';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
 import unusedImports from 'eslint-plugin-unused-imports';
+import vitest from 'eslint-plugin-vitest';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -106,6 +108,22 @@ const eslintConfig = defineConfig([
     rules: {
       'sonarjs/no-nested-functions': 'off',
     },
+  },
+
+  // Vitest
+  {
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    plugins: { vitest },
+    rules: {
+      ...vitest.configs.recommended.rules,
+      'vitest/max-nested-describe': ['error', { max: 3 }],
+    },
+  },
+
+  // Playwright
+  {
+    files: ['e2e/**'],
+    ...playwright.configs['flat/recommended'],
   },
 
   globalIgnores([

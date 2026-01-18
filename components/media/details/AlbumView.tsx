@@ -24,17 +24,17 @@ interface AlbumViewProps {
  */
 export function AlbumView({ details }: AlbumViewProps) {
   return (
-    <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
+    <div className="animate-in slide-in-from-bottom-2 space-y-6 duration-300">
       {/* Metadata */}
       <div className="flex flex-wrap gap-4 text-sm text-neutral-400">
         {details.date && (
-          <div className="flex items-center gap-1.5 bg-neutral-800 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 rounded-full bg-neutral-800 px-3 py-1.5">
             <Calendar size={14} className="text-orange-400" />
             <span>{details.date}</span>
           </div>
         )}
         {details.label && (
-          <div className="flex items-center gap-1.5 bg-neutral-800 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 rounded-full bg-neutral-800 px-3 py-1.5">
             <Disc size={14} className="text-blue-400" />
             <span>{details.label}</span>
           </div>
@@ -44,43 +44,43 @@ export function AlbumView({ details }: AlbumViewProps) {
       {/* Tracklist */}
       {details.tracks && details.tracks.length > 0 && (
         <div>
-          <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <h3 className="mb-3 flex items-center gap-2 text-lg font-bold text-white">
             <Disc size={18} className="text-blue-500" />
             {details.releaseId ? (
               <a
                 href={`https://musicbrainz.org/release/${details.releaseId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-400 transition-colors flex items-center gap-1.5 group"
+                className="group flex items-center gap-1.5 transition-colors hover:text-blue-400"
                 title="View specific release on MusicBrainz"
               >
                 Tracklist
                 <ExternalLink
                   size={14}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="opacity-0 transition-opacity group-hover:opacity-100"
                 />
               </a>
             ) : (
               'Tracklist'
             )}
           </h3>
-          <div className="bg-neutral-800/30 rounded-lg border border-neutral-800 overflow-hidden divide-y divide-neutral-800">
+          <div className="divide-y divide-neutral-800 overflow-hidden rounded-lg border border-neutral-800 bg-neutral-800/30">
             {details.tracks.map((track) => (
               <div
                 key={track.id}
-                className="flex items-center px-4 py-3 hover:bg-neutral-800/50 transition-colors"
+                className="flex items-center px-4 py-3 transition-colors hover:bg-neutral-800/50"
               >
-                <span className="w-8 text-neutral-500 font-mono text-xs">{track.position}</span>
+                <span className="w-8 font-mono text-xs text-neutral-500">{track.position}</span>
                 <a
                   href={`https://musicbrainz.org/recording/${track.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 text-sm font-medium text-neutral-200 hover:text-blue-400 transition-colors truncate"
+                  className="flex-1 truncate text-sm font-medium text-neutral-200 transition-colors hover:text-blue-400"
                   title="View recording on MusicBrainz"
                 >
                   {track.title}
                 </a>
-                <span className="text-xs text-neutral-500 font-mono ml-4">{track.length}</span>
+                <span className="ml-4 font-mono text-xs text-neutral-500">{track.length}</span>
               </div>
             ))}
           </div>

@@ -22,10 +22,10 @@ interface FooterProps {
  */
 export function Footer({ colors, className = '' }: FooterProps) {
   return (
-    <div className={`text-center pointer-events-none select-none ${className}`}>
+    <div className={`pointer-events-none text-center select-none ${className}`}>
       <div className="flex items-center justify-center gap-3 opacity-90">
         <BrandLogo colors={colors} variant="footer" />
-        <span className="text-[10px] text-neutral-700 uppercase tracking-widest font-semibold border-l border-neutral-800 pl-3">
+        <span className="border-l border-neutral-800 pl-3 text-[10px] font-semibold tracking-widest text-neutral-700 uppercase">
           Tier List Maker
         </span>
       </div>

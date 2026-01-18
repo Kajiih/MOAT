@@ -28,13 +28,13 @@ export function ExternalLinks({ mbId, type, urls }: ExternalLinksProps) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-sm font-bold text-neutral-500 uppercase mb-2">Links</h3>
+      <h3 className="mb-2 text-sm font-bold text-neutral-500 uppercase">Links</h3>
       <div className="flex flex-wrap gap-3">
         <a
           href={musicBrainzUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-700 px-3 py-1.5 rounded transition-colors"
+          className="flex items-center gap-1.5 rounded bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white"
         >
           <ExternalLink size={12} />
           <span>MusicBrainz</span>
@@ -48,7 +48,7 @@ export function ExternalLinks({ mbId, type, urls }: ExternalLinksProps) {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-700 px-3 py-1.5 rounded transition-colors"
+              className="flex items-center gap-1.5 rounded bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white"
             >
               <ExternalLink size={12} />
               <span className="capitalize">{link.type}</span>

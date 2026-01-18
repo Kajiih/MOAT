@@ -59,7 +59,7 @@ function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'arti
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-neutral-500">
+      <div className="flex h-full w-full items-center justify-center text-neutral-500">
         <PlaceholderIcon size={14} />
       </div>
     );
@@ -174,9 +174,9 @@ export function MediaPicker<T extends MediaSelection>({
 
   if (selectedItem) {
     return (
-      <div className="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded p-1 pr-2 text-sm text-neutral-200">
+      <div className="flex items-center justify-between rounded border border-neutral-700 bg-neutral-800 p-1 pr-2 text-sm text-neutral-200">
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="relative w-8 h-8 rounded bg-neutral-700 shrink-0 overflow-hidden">
+          <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-neutral-700">
             {selectedItem.imageUrl && !selectedImageError ? (
               <Image
                 src={selectedItem.imageUrl}
@@ -194,17 +194,17 @@ export function MediaPicker<T extends MediaSelection>({
                 }}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-neutral-500">
+              <div className="flex h-full w-full items-center justify-center text-neutral-500">
                 <SelectedIcon size={14} />
               </div>
             )}
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="truncate font-medium text-white text-[11px] leading-tight">
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate text-[11px] leading-tight font-medium text-white">
               {selectedItem.name}
             </span>
             {'artist' in selectedItem && selectedItem.artist && (
-              <span className="truncate text-neutral-500 text-[9px] leading-tight">
+              <span className="truncate text-[9px] leading-tight text-neutral-500">
                 {selectedItem.artist}
               </span>
             )}
@@ -219,12 +219,12 @@ export function MediaPicker<T extends MediaSelection>({
 
   return (
     <div className="relative">
-      <div className="flex flex-col gap-2 bg-black border border-neutral-700 rounded px-3 py-2 transition-colors focus-within:border-neutral-500">
+      <div className="flex flex-col gap-2 rounded border border-neutral-700 bg-black px-3 py-2 transition-colors focus-within:border-neutral-500">
         <div className="flex items-center gap-2">
-          <TypeIcon size={14} className="text-neutral-500 mr-2 shrink-0" />
+          <TypeIcon size={14} className="mr-2 shrink-0 text-neutral-500" />
           <input
             placeholder={placeholder || `Filter by ${type}...`}
-            className="bg-transparent outline-none text-sm w-full text-white placeholder-neutral-500"
+            className="w-full bg-transparent text-sm text-white placeholder-neutral-500 outline-none"
             value={filters.query}
             onChange={(e) => {
               updateFilters({ query: e.target.value });
@@ -241,11 +241,11 @@ export function MediaPicker<T extends MediaSelection>({
             }}
           />
           {isLoading && (
-            <div className="w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin ml-2" />
+            <div className="ml-2 h-3 w-3 animate-spin rounded-full border-2 border-neutral-500 border-t-transparent" />
           )}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`p-1 rounded hover:bg-neutral-800 transition-colors ${showFilters ? 'text-red-400' : 'text-neutral-500'}`}
+            className={`rounded p-1 transition-colors hover:bg-neutral-800 ${showFilters ? 'text-red-400' : 'text-neutral-500'}`}
             title="Toggle Filters"
           >
             <Filter size={14} />
@@ -253,7 +253,7 @@ export function MediaPicker<T extends MediaSelection>({
         </div>
 
         {showFilters && (
-          <div className="pt-2 border-t border-neutral-800">
+          <div className="border-t border-neutral-800 pt-2">
             <SearchFilters
               type={type}
               filters={filters}
@@ -265,31 +265,31 @@ export function MediaPicker<T extends MediaSelection>({
       </div>
 
       {isOpen && results.length > 0 && (
-        <div className="absolute z-50 left-0 right-0 mt-1 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl max-h-60 overflow-y-auto custom-scrollbar">
+        <div className="custom-scrollbar absolute right-0 left-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl">
           {results.map((item) => (
             <button
               key={item.id}
-              className="w-full text-left px-3 py-2 hover:bg-neutral-800 text-sm text-neutral-200 border-b border-neutral-800 last:border-0 flex items-center gap-3 group"
+              className="group flex w-full items-center gap-3 border-b border-neutral-800 px-3 py-2 text-left text-sm text-neutral-200 last:border-0 hover:bg-neutral-800"
               onMouseDown={(e) => {
                 e.preventDefault();
                 handleSelect(item);
               }}
             >
-              <div className="relative w-8 h-8 rounded bg-neutral-800 shrink-0 overflow-hidden border border-neutral-700">
+              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded border border-neutral-700 bg-neutral-800">
                 {item.imageUrl ? (
                   <PickerImage src={item.imageUrl} alt={item.title} type={type} />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                  <div className="flex h-full w-full items-center justify-center text-neutral-500">
                     <SelectedIcon size={14} />
                   </div>
                 )}
               </div>
 
               <div className="flex flex-col overflow-hidden">
-                <span className="font-medium text-white group-hover:text-red-500 transition-colors truncate">
+                <span className="truncate font-medium text-white transition-colors group-hover:text-red-500">
                   {item.title}
                 </span>
-                <div className="flex items-center gap-1 text-[10px] text-neutral-500 truncate">
+                <div className="flex items-center gap-1 truncate text-[10px] text-neutral-500">
                   {type === 'artist' && (item as ArtistItem).disambiguation && (
                     <span className="italic">({(item as ArtistItem).disambiguation})</span>
                   )}
