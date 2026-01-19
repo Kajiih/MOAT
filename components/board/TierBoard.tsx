@@ -26,8 +26,7 @@ interface TierBoardProps {
  * The primary container for the interactive tier list.
  * Integrates with the TierListContext to manage state and actions.
  */
-export function TierBoard(props: TierBoardProps) {
-  const { isAnyDragging } = props;
+export function TierBoard({ isAnyDragging }: TierBoardProps) {
   const {
     state,
     ui: { showDetails: handleShowDetails },

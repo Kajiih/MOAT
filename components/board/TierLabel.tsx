@@ -37,8 +37,14 @@ interface TierLabelProps {
  * Renders the label of a tier row, supporting inline editing and drag handling.
  * Automatically scales font size based on the length of the label.
  */
-export function TierLabel(props: TierLabelProps) {
-  const { label, onUpdate, dragListeners, dragAttributes, isAnyDragging, isExport = false } = props;
+export function TierLabel({
+  label,
+  onUpdate,
+  dragListeners,
+  dragAttributes,
+  isAnyDragging,
+  isExport = false,
+}: TierLabelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(label);
   const inputRef = useRef<HTMLTextAreaElement>(null);

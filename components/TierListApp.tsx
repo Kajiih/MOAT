@@ -67,11 +67,13 @@ interface UseAppShortcutsProps {
   setShowExportPreview: (show: boolean | ((prev: boolean) => boolean)) => void;
 }
 
-function handleUndoRedo(e: KeyboardEvent, props: UseAppShortcutsProps) {
-  const { undo, redo, canUndo, canRedo } = props;
-  if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
-    e.preventDefault();
-    if (e.shiftKey) {
+function handleUndoRedo(
+  event: KeyboardEvent,
+  { undo, redo, canUndo, canRedo }: UseAppShortcutsProps,
+) {
+  if ((event.metaKey || event.ctrlKey) && event.key === 'z') {
+    event.preventDefault();
+    if (event.shiftKey) {
       if (canRedo) redo();
     } else {
       if (canUndo) undo();
@@ -81,33 +83,37 @@ function handleUndoRedo(e: KeyboardEvent, props: UseAppShortcutsProps) {
   return false;
 }
 
-function handleHoverShortcuts(e: KeyboardEvent, props: UseAppShortcutsProps) {
-  const { hoveredItem, removeItemFromTier, setHoveredItem, showDetails } = props;
+function handleHoverShortcuts(
+  event: KeyboardEvent,
+  { hoveredItem, removeItemFromTier, setHoveredItem, showDetails }: UseAppShortcutsProps,
+) {
   if (hoveredItem) {
     // 'x' to remove item (only if in a tier)
-    if (e.key === 'x' && hoveredItem.tierId) {
-      e.preventDefault();
+    if (event.key === 'x' && hoveredItem.tierId) {
+      event.preventDefault();
       removeItemFromTier(hoveredItem.tierId, hoveredItem.item.id);
       setHoveredItem(null);
     }
     // 'i' to show details
-    if (e.key === 'i') {
-      e.preventDefault();
+    if (event.key === 'i') {
+      event.preventDefault();
       showDetails(hoveredItem.item);
     }
   }
 }
 
-function handleGlobalShortcuts(e: KeyboardEvent, props: UseAppShortcutsProps) {
-  const { setShowExportPreview, closeDetails } = props;
+function handleGlobalShortcuts(
+  event: KeyboardEvent,
+  { setShowExportPreview, closeDetails }: UseAppShortcutsProps,
+) {
   // Toggle Export Preview (Shift + P)
-  if (e.shiftKey && e.key.toLowerCase() === 'p') {
-    e.preventDefault();
+  if (event.shiftKey && event.key.toLowerCase() === 'p') {
+    event.preventDefault();
     setShowExportPreview((prev) => !prev);
   }
 
   // Close on ESC
-  if (e.key === 'Escape') {
+  if (event.key === 'Escape') {
     setShowExportPreview(false);
     closeDetails();
   }
