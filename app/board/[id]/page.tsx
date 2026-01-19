@@ -16,7 +16,6 @@ interface BoardPageProps {
  * @param props.params - The route parameters.
  */
 export default async function BoardPage({ params }: BoardPageProps) {
-  // In Next.js 15+, params is a Promise
   const { id } = await params;
 
   return (

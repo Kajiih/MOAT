@@ -76,7 +76,6 @@ export function useTierListNamespaces({
   utilsRaw,
   uiState,
 }: UseTierListNamespacesProps) {
-
   /**
    * Updates the global board title.
    */

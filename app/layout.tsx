@@ -26,16 +26,16 @@ export const metadata: Metadata = {
   description: '🎵 Rank your music',
 };
 
+/** Props for the RootLayout component. */
+interface RootLayoutProps {
+  /** Child components to be rendered within the layout. */
+  children: React.ReactNode;
+}
+
 /**
  * Root layout component that wraps the entire application.
- * @param props - Component props.
- * @param props.children - Child components that will have access to the context.
  */
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

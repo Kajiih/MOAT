@@ -248,7 +248,7 @@ test.describe('Tier List App', () => {
     await expect(page.locator('#media-card-search-album-1')).toContainText('Test Album');
   });
 
-  // Skipped because keyboard drag-and-drop interactions are currently flaky in headless 
+  // Skipped because keyboard drag-and-drop interactions are currently flaky in headless
   // browser environments and require more robust synchronization for dnd-kit.
   test.skip('should move item via keyboard', async ({ page }, testInfo) => {
     // 1. Setup board via Import (more robust than DB hacking)
