@@ -31,7 +31,7 @@ export function useBoardRegistry() {
       try {
         const registry = await storage.get<BoardMetadata[]>(REGISTRY_KEY);
         if (registry) {
-          setBoards(registry.sort((a, b) => b.lastModified - a.lastModified));
+          setBoards(registry.toSorted((a, b) => b.lastModified - a.lastModified));
         } else {
           // Check for legacy board migration
           const legacyState = await storage.get<Partial<TierListState>>(LEGACY_KEY);
@@ -114,7 +114,7 @@ export function useBoardRegistry() {
     async (id: string, updates: Partial<BoardMetadata>) => {
       const updatedBoards = boards
         .map((b) => (b.id === id ? { ...b, ...updates, lastModified: Date.now() } : b))
-        .sort((a, b) => b.lastModified - a.lastModified);
+        .toSorted((a, b) => b.lastModified - a.lastModified);
 
       setBoards(updatedBoards);
       await storage.set(REGISTRY_KEY, updatedBoards);

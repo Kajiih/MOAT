@@ -55,7 +55,7 @@ const eslintConfig = defineConfig([
       'unicorn/prevent-abbreviations': 'off', // Can be too aggressive
       'unicorn/no-null': 'off', // Null is common in React/TS
       'unicorn/prefer-module': 'off', // CommonJS/ESM interop issues in config files
-      'unicorn/no-array-sort': 'off', // We often want in-place sorting or standard sort
+      // 'unicorn/no-array-sort': 'off', // We often want in-place sorting or standard sort, but we often prefer immutable patterns.
       'unicorn/prefer-query-selector': 'off', // getElementById is faster and semantic
       'unicorn/consistent-function-scoping': 'off', // Can lead to weird code structure in React components
       'unicorn/no-array-for-each': 'off', // forEach is fine and sometimes preferred for side effects

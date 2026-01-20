@@ -90,7 +90,7 @@ export function SearchTab({
   }, [error, showToast]);
 
   const sortedResults = useMemo(() => {
-    return [...searchResults].sort((a, b) => {
+    return searchResults.toSorted((a, b) => {
       switch (sortOption) {
         case 'date_desc': {
           return (b.date || b.year || '').localeCompare(a.date || a.year || '');

@@ -78,12 +78,12 @@ export function getSearchUrl(params: SearchParams): string {
 
   // 3. Array params (Sorted for cache consistency)
   if (params.albumPrimaryTypes && params.albumPrimaryTypes.length > 0) {
-    [...params.albumPrimaryTypes].sort().forEach((t) => urlParams.append('albumPrimaryTypes', t));
+    [...params.albumPrimaryTypes].toSorted().forEach((t) => urlParams.append('albumPrimaryTypes', t));
   }
 
   if (params.albumSecondaryTypes && params.albumSecondaryTypes.length > 0) {
     [...params.albumSecondaryTypes]
-      .sort()
+      .toSorted()
       .forEach((t) => urlParams.append('albumSecondaryTypes', t));
   }
 

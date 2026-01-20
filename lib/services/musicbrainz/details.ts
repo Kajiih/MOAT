@@ -123,7 +123,7 @@ async function getArtistDetails(id: string): Promise<MediaDetails> {
     imageUrl: await getArtistThumbnail(id),
     tags:
       data.tags
-        ?.sort((a: MBTag, b: MBTag) => b.count - a.count)
+        ?.toSorted((a: MBTag, b: MBTag) => b.count - a.count)
         .slice(0, 10)
         .map((t: MBTag) => t.name) || [],
     area: data.area?.name,
