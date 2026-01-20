@@ -31,6 +31,7 @@ interface SearchSettingsProps {
  * @param props.wildcardEnabled - Whether wildcard matching is currently enabled.
  * @param props.onFuzzyChange - Callback fired when the fuzzy setting is toggled.
  * @param props.onWildcardChange - Callback fired when the wildcard setting is toggled.
+ * @returns The rendered SearchSettings component.
  */
 export function SearchSettings({
   fuzzyEnabled,

@@ -79,6 +79,7 @@ interface MediaRegistryProviderProps {
  * Handles persistence to IndexedDB and FIFO pruning.
  * @param props - The props for the component.
  * @param props.children - The child components that will have access to the context.
+ * @returns The provider component for the Media Registry.
  */
 export function MediaRegistryProvider({ children }: MediaRegistryProviderProps) {
   const [registry, setRegistry] = usePersistentState<Record<string, MediaItem>>(

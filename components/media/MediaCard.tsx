@@ -64,6 +64,7 @@ interface BaseMediaCardProps {
  * @param props.resolvedUrl - A pre-resolved Data URL for the image.
  * @param props.priority - Whether to prioritize loading the image.
  * @param props.TypeIcon - The icon component for the media type.
+ * @returns The rendered MediaCardImage component.
  */
 function MediaCardImage({
   item,
@@ -182,6 +183,7 @@ function MediaCardOverlay({
  * @param props.onInfo - Callback to show details modal.
  * @param props.isExport - Whether the component is being rendered for a screenshot export.
  * @param props.resolvedUrl - A pre-resolved Data URL for the image.
+ * @returns The rendered BaseMediaCard component.
  */
 function BaseMediaCard({
   item,
@@ -338,6 +340,7 @@ interface MediaCardProps {
  * @param props.onInfo - Callback to show details
  * @param props.isExport - Whether the component is being rendered for a screenshot export.
  * @param props.resolvedUrl - A pre-resolved Data URL for the image.
+ * @returns The rendered MediaCard component.
  */
 export function MediaCard(props: MediaCardProps) {
   const draggableId = props.id || props.item.id;
@@ -384,6 +387,7 @@ export function MediaCard(props: MediaCardProps) {
  * @param props.onInfo - Callback to show details
  * @param props.isExport - Whether the component is being rendered for a screenshot export.
  * @param props.resolvedUrl - A pre-resolved Data URL for the image.
+ * @returns The rendered SortableMediaCard component.
  */
 export function SortableMediaCard(props: MediaCardProps) {
   const draggableId = props.id || props.item.id;

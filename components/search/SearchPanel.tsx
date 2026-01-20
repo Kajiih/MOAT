@@ -29,6 +29,7 @@ const SEARCH_MODES = [
 /**
  * The sidebar component responsible for searching and filtering media items.
  * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
+ * @returns The rendered SearchPanel component.
  */
 export function SearchPanel() {
   const {

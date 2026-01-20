@@ -22,6 +22,7 @@ interface FooterProps {
  * @param props - The props for the component.
  * @param props.colors - Hex color values for the brand logo.
  * @param props.className - Additional CSS classes for positioning/styling.
+ * @returns The rendered Footer component.
  */
 export function Footer({ colors, className = '' }: FooterProps) {
   return (

@@ -29,6 +29,7 @@ interface VirtualGridProps<T> {
  * @param props.gap - Gap between items. Defaults to 8 (gap-2).
  * @param props.padding - Container padding.
  * @param props.className - Additional CSS classes.
+ * @returns The rendered virtualized grid component.
  */
 export function VirtualGrid<T>({
   items,

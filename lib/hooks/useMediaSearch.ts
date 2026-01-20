@@ -149,6 +149,7 @@ interface UseMediaSearchResult<T extends MediaItem> {
  * - Automatic prefetching of the next page of results.
  * @param type - The type of media to search for ('album', 'artist', 'song').
  * @param config - Optional configuration overrides for search settings.
+ * @returns An object containing filter state, search results, and control functions.
  */
 export function useMediaSearch<T extends MediaType>(
   type: T,

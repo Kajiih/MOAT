@@ -43,6 +43,7 @@ interface TierLabelProps {
  * @param props.dragAttributes - Draggable attributes from dnd-kit for tier reordering.
  * @param props.isAnyDragging - Global dragging state.
  * @param props.isExport - Whether the component is being rendered for a screenshot export.
+ * @returns The rendered TierLabel component.
  */
 export function TierLabel({
   label,

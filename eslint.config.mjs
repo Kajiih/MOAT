@@ -99,7 +99,6 @@ const eslintConfig = defineConfig([
           enableFixer: false,
         },
       ],
-      'jsdoc/require-returns': 'off', // To remove?
     },
   },
 

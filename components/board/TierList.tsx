@@ -51,6 +51,7 @@ interface TierListProps {
  * @param props.onUpdateTier - Callback to update a tier's properties (label, color).
  * @param props.onDeleteTier - Callback to delete an entire tier.
  * @param props.onInfo - Callback to show detailed information for a media item.
+ * @returns The rendered list of tiers.
  */
 export function TierList({
   tiers,

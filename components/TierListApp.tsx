@@ -32,6 +32,7 @@ import { MediaItem } from '@/lib/types';
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
  * Shows a pulsing animation of the "MOAT" logo.
+ * @returns A loading state component.
  */
 const LoadingState = () => {
   const letters = ['M', 'O', 'A', 'T'];
@@ -144,6 +145,7 @@ function useAppShortcuts(props: UseAppShortcutsProps) {
  * - Manages the main layout (header, tier list, search panel).
  * - Integrates with the `useTierListContext` for state management.
  * - Handles global UI elements like the "Randomize Colors" button and Details Modal.
+ * @returns The main application component.
  */
 export default function TierListApp() {
   const {

@@ -15,6 +15,7 @@ import { useBrandColors } from './useBrandColors';
 /**
  * Generates an SVG data URI for the favicon based on the provided colors.
  * @param hexColors - Array of hex color strings.
+ * @returns An SVG data URI for the favicon.
  */
 function generateFaviconSvg(hexColors: (string | undefined)[]): string {
   // Map standard tier colors

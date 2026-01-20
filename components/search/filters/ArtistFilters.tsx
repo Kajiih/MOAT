@@ -36,6 +36,7 @@ interface ArtistFiltersProps {
  * @param props.onCountryChange - Callback fired when the country filter text changes.
  * @param props.className - Optional CSS class for the container.
  * @param props.compact - Whether to render in a compact layout (for pickers).
+ * @returns The rendered ArtistFilters component.
  */
 export function ArtistFilters({
   type,

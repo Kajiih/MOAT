@@ -34,6 +34,7 @@ interface ArtistPickerProps {
  * @param [props.fuzzy] - Whether to use fuzzy matching for search.
  * @param [props.wildcard] - Whether to use wildcards for search.
  * @param [props.context] - Optional context string for analytical tracking.
+ * @returns The rendered ArtistPicker component.
  */
 export function ArtistPicker({
   onSelect,

@@ -22,6 +22,7 @@ import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 
 /**
  * Renders the application dashboard, allowing users to manage their tier list boards.
+ * @returns The rendered dashboard component.
  */
 export function Dashboard() {
   const { boards, isLoading, createBoard, deleteBoard } = useBoardRegistry();

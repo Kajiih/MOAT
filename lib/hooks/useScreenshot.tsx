@@ -40,6 +40,7 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
   /**
    * Internal fetcher with error handling
    * @param target - The URL to fetch.
+   * @returns A Promise resolving to a Base64 Data URL.
    */
   const fetchAsDataUrl = async (target: string) => {
     const resp = await fetch(target);

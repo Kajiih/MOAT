@@ -19,6 +19,7 @@ const LEGACY_KEY = 'moat-tierlist';
  * Hook for managing the application's board registry.
  * Provides methods to list, create, delete, and update tier lists.
  * Automatically handles legacy data migration on initialization.
+ * @returns An object containing the list of boards and methods to manage them.
  */
 export function useBoardRegistry() {
   const [boards, setBoards] = useState<BoardMetadata[]>([]);

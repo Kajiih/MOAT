@@ -83,6 +83,7 @@ const TierListContext = createContext<TierListContextType | null>(null);
  * @param props - Component props.
  * @param props.children - Child components that will have access to the context.
  * @param props.boardId - Unique identifier for the current board (for multi-board support).
+ * @returns The provider component for the Tier List Context.
  */
 export function TierListProvider({ children, boardId }: { children: ReactNode; boardId: string }) {
   const storageKey = `moat-board-${boardId}`;

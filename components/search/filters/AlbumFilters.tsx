@@ -44,6 +44,7 @@ interface AlbumFiltersProps {
  * @param props.onResetSecondary - Callback to clear all secondary type filters.
  * @param props.onSelectAllSecondary - Callback to select all secondary type filters.
  * @param props.compact - Whether to render in a compact layout (for pickers).
+ * @returns The rendered AlbumFilters component.
  */
 export function AlbumFilters({
   primaryTypes,

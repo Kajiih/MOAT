@@ -48,6 +48,7 @@ export const MEDIA_CONFIG: Record<MediaType, MediaUIConfig> = {
 /**
  * Helper to get the configuration for a given item's type.
  * @param type - The type of media.
+ * @returns The UI configuration object for the given media type.
  */
 export function getMediaUI(type: MediaType) {
   return MEDIA_CONFIG[type];

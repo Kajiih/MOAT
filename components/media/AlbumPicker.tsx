@@ -37,6 +37,7 @@ interface AlbumPickerProps {
  * @param [props.wildcard] - Whether to use wildcards for search.
  * @param [props.artistId] - Optional artist ID to filter albums by artist.
  * @param [props.context] - Optional context string for analytical tracking.
+ * @returns The rendered AlbumPicker component.
  */
 export function AlbumPicker({
   onSelect,

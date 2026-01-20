@@ -33,6 +33,7 @@ interface BoardTitleProps {
  * @param props.onChange - Callback for title changes.
  * @param props.onFocus - Callback for when the title gains focus.
  * @param props.className - Additional CSS classes.
+ * @returns The rendered board title component.
  */
 export function BoardTitle({
   title,

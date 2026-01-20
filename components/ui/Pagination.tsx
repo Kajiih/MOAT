@@ -26,6 +26,7 @@ interface PaginationProps {
  * @param props.page - The current active page number (1-based).
  * @param props.totalPages - The total number of available pages.
  * @param props.onPageChange - Callback fired when the page is changed.
+ * @returns The rendered Pagination component, or null if there's only one page.
  */
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;

@@ -9,6 +9,7 @@ import { TierListProvider } from '@/components/TierListContext';
 
 /**
  * Renders the application dashboard.
+ * @returns The main dashboard page component.
  */
 export default function Page() {
   return (

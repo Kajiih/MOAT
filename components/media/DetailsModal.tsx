@@ -45,6 +45,7 @@ interface DetailsModalProps {
  * @param props.isOpen - Whether the modal is currently visible.
  * @param props.onClose - Callback fired when the modal should be closed.
  * @param [props.onUpdateItem] - Optional callback to persist enriched metadata back to the parent state.
+ * @returns The rendered DetailsModal component, or null if it's not open.
  */
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
   useEscapeKey(onClose, isOpen);

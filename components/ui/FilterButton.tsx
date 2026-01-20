@@ -21,6 +21,7 @@ interface FilterButtonProps {
  * @param props.isSelected - Whether the filter is currently active.
  * @param props.onClick - Callback function when the button is clicked.
  * @param props.variant - Visual style variant.
+ * @returns The rendered FilterButton component.
  */
 export function FilterButton({ label, isSelected, onClick, variant }: FilterButtonProps) {
   const activeClass =

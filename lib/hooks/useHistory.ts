@@ -26,6 +26,7 @@ interface HistoryState<T> {
  * - `undo`: Moves current state to `future` and restores the last state from `past`.
  * - `redo`: Moves current state to `past` and restores the next state from `future`.
  * @template T - The type of the state object.
+ * @returns An object containing the history state and methods to manipulate it.
  */
 export function useHistory<T>() {
   const [history, setHistory] = useState<HistoryState<T>>({

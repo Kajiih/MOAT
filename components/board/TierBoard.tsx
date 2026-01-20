@@ -27,6 +27,7 @@ interface TierBoardProps {
  * Integrates with the TierListContext to manage state and actions.
  * @param props - The props for the component.
  * @param props.isAnyDragging - Whether any item or tier is currently being dragged.
+ * @returns The rendered TierBoard component.
  */
 export function TierBoard({ isAnyDragging }: TierBoardProps) {
   const {

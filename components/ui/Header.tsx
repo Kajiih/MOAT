@@ -45,6 +45,7 @@ interface HeaderProps {
  * @param props - The props for the component.
  * @param props.onScreenshot - Callback fired when the user clicks the screenshot button.
  * @param props.isCapturing - Whether a screenshot capture is currently in progress.
+ * @returns The rendered Header component.
  */
 export function Header({ onScreenshot, isCapturing }: HeaderProps) {
   const {

@@ -38,6 +38,7 @@ interface SearchFiltersProps {
  * @param props.updateFilters - Callback to update one or more filter values.
  * @param props.compact - Whether to render in a compact layout (for pickers).
  * @param props.contextPickers - Optional React nodes to render at the top (e.g., entity pickers).
+ * @returns The rendered SearchFilters component.
  */
 export function SearchFilters({
   type,

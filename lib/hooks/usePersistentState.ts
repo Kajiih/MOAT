@@ -16,6 +16,7 @@ import { storage } from '@/lib/storage';
  * A custom hook that synchronizes state with storage.
  * @param key - The key to use for storage.
  * @param initialValue - The initial value of the state.
+ * @returns A stateful value, a function to update it, and a hydration status flag.
  */
 export function usePersistentState<T>(key: string, initialValue: T) {
   const [isHydrated, setIsHydrated] = useState(false);

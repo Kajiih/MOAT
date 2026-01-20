@@ -47,6 +47,7 @@ interface TierSettingsProps {
  * @param props.onToggle - Toggles the popover open/closed.
  * @param props.onClose - Forces the popover to close.
  * @param [props.isAnyDragging] - Global dragging state.
+ * @returns The rendered TierSettings component.
  */
 export function TierSettings({
   color,

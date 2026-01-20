@@ -23,6 +23,7 @@ interface FilterRowProps {
  * @param props.compact - Whether to render in a compact layout.
  * @param props.children - The content to render inside the row.
  * @param props.className - Additional CSS classes.
+ * @returns The rendered FilterRow component.
  */
 export function FilterRow({ compact, children, className = '' }: FilterRowProps) {
   if (compact) {
@@ -42,6 +43,7 @@ interface FilterColProps {
  * @param props - The props for the component.
  * @param props.children - The content to render inside the column.
  * @param props.className - Additional CSS classes.
+ * @returns The rendered FilterCol component.
  */
 export function FilterCol({ children, className = '' }: FilterColProps) {
   return <div className={`min-w-0 flex-1 ${className}`}>{children}</div>;

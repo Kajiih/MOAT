@@ -20,6 +20,7 @@ export const runtime = 'nodejs';
 /**
  * GET handler for the OG image generator.
  * @param request - The incoming request with optional 'title' and 'id' params.
+ * @returns An ImageResponse containing the generated Open Graph image or a standard Response on error.
  */
 export async function GET(request: NextRequest) {
   try {

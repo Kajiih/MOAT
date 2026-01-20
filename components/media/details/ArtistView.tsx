@@ -23,6 +23,7 @@ interface ArtistViewProps {
  * Renders the detailed metadata and tags for an artist.
  * @param props - The props for the component.
  * @param props.details - The detailed metadata for the artist.
+ * @returns The rendered ArtistView component.
  */
 export function ArtistView({ details }: ArtistViewProps) {
   return (

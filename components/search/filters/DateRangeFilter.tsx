@@ -40,6 +40,7 @@ interface DateRangeFilterProps {
  * @param props.toLabel - Custom label for the 'to' field.
  * @param props.className - Optional CSS class for the container.
  * @param props.compact - Whether to render in a compact layout.
+ * @returns The rendered DateRangeFilter component.
  */
 export function DateRangeFilter({
   minYear,

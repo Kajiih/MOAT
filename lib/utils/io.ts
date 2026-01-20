@@ -31,6 +31,7 @@ interface ExportData {
 /**
  * Generates the exportable JSON object from the current state.
  * @param state - The current state of the tier list.
+ * @returns An `ExportData` object suitable for JSON serialization.
  */
 export function generateExportData(state: TierListState): ExportData {
   return {
@@ -64,6 +65,7 @@ export function downloadJson(data: object, filename: string) {
  * Returns a normalized TierListState or throws an error.
  * @param jsonString - The JSON string to parse.
  * @param fallbackTitle - The title to use if the imported data has no title.
+ * @returns A normalized TierListState object.
  */
 export function parseImportData(jsonString: string, fallbackTitle: string): TierListState {
   const parsed = JSON.parse(jsonString);

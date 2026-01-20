@@ -8,6 +8,7 @@
 /**
  * Renders a rectangular loading skeleton with a pulse animation.
  * Used as a placeholder for MediaCards during asynchronous loading.
+ * @returns The rendered SkeletonCard component.
  */
 export function SkeletonCard() {
   return (

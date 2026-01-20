@@ -54,6 +54,7 @@ interface MediaPickerProps<T extends MediaSelection> {
  * @param props.src - The image source URL.
  * @param props.alt - The alt text for the image.
  * @param props.type - The type of media.
+ * @returns The rendered PickerImage component.
  */
 function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'artist' | 'album' }) {
   const [error, setError] = useState(false);
@@ -100,6 +101,7 @@ function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'arti
  * @param props.artistId - Optional artist ID to scope searches (e.g., search albums for a specific artist).
  * @param props.context - Unique context identifier to isolate search state and persistence.
  * @param props.placeholder - Custom placeholder for the search input.
+ * @returns The rendered MediaPicker component.
  */
 export function MediaPicker<T extends MediaSelection>({
   type,

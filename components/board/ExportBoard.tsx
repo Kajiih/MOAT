@@ -32,6 +32,7 @@ interface ExportBoardProps {
  * @param props.state - The current tier list state.
  * @param props.brandColors - Array of hex color strings for branding.
  * @param props.resolvedImages - Pre-resolved base64 images for clean room export.
+ * @returns The rendered ExportBoard component.
  */
 export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportBoardProps) {
   const logoHexColors = useBrandColors(brandColors);

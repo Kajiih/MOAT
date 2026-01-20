@@ -22,6 +22,7 @@ interface BrandLogoProps {
  * @param props.colors - Exactly 5 colors (hex values, can be undefined if missing)
  * @param props.className - Additional CSS classes.
  * @param props.variant - The size variant of the logo.
+ * @returns The rendered BrandLogo component.
  */
 export function BrandLogo({ colors, className, variant = 'default' }: BrandLogoProps) {
   const letters = ['M', 'O', 'A', 'T'];

@@ -28,6 +28,7 @@ interface SortDropdownProps {
  * @param props.sortOption - The current active sort option.
  * @param props.onSortChange - Callback fired when a new sort option is selected.
  * @param props.type - The type of media being sorted, which affects available options.
+ * @returns The rendered SortDropdown component.
  */
 export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
