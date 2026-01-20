@@ -199,6 +199,25 @@ export default function TierListApp() {
     return <LoadingState />;
   }
 
+  let dragOverlayContent = null;
+  if (activeTier) {
+    dragOverlayContent = (
+      <div className="pointer-events-none w-full opacity-80">
+        <TierRow
+          tier={activeTier}
+          items={state.items[activeTier.id] || []}
+          onRemoveItem={() => {}}
+          onUpdateTier={() => {}}
+          onDeleteTier={() => {}}
+          canDelete={false}
+          onInfo={() => {}}
+        />
+      </div>
+    );
+  } else if (activeItem) {
+    dragOverlayContent = <MediaCard item={activeItem} />;
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col font-sans text-neutral-200">
       <InteractionContext.Provider value={{ setHoveredItem }}>
@@ -221,23 +240,7 @@ export default function TierListApp() {
                 <SearchPanel />
               </div>
 
-              <DragOverlay>
-                {activeTier ? (
-                  <div className="pointer-events-none w-full opacity-80">
-                    <TierRow
-                      tier={activeTier}
-                      items={state.items[activeTier.id] || []}
-                      onRemoveItem={() => {}}
-                      onUpdateTier={() => {}}
-                      onDeleteTier={() => {}}
-                      canDelete={false}
-                      onInfo={() => {}}
-                    />
-                  </div>
-                ) : activeItem ? (
-                  <MediaCard item={activeItem} />
-                ) : null}
-              </DragOverlay>
+              <DragOverlay>{dragOverlayContent}</DragOverlay>
             </DndContext>
           </div>
         </main>

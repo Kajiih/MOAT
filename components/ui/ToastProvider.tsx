@@ -190,10 +190,17 @@ function ToastItem({
   onDismiss: (id: string, e: React.MouseEvent) => void;
   stacked: boolean;
 }) {
+  const typeStyles: Record<ToastType, string> = {
+    success: 'border-green-900/50 bg-neutral-900 text-green-400',
+    error: 'border-red-900/50 bg-neutral-900 text-red-400',
+    info: 'border-blue-900/50 bg-neutral-900 text-blue-400',
+  };
+
+  const baseStyles = 'pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-xl';
+  const stackStyles = stacked ? 'hover:bg-neutral-800' : 'animate-in slide-in-from-right-full duration-300';
+
   return (
-    <div
-      className={`pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-xl ${toast.type === 'success' ? 'border-green-900/50 bg-neutral-900 text-green-400' : ''} ${toast.type === 'error' ? 'border-red-900/50 bg-neutral-900 text-red-400' : ''} ${toast.type === 'info' ? 'border-blue-900/50 bg-neutral-900 text-blue-400' : ''} ${stacked ? 'hover:bg-neutral-800' : 'animate-in slide-in-from-right-full duration-300'} `}
-    >
+    <div className={`${baseStyles} ${typeStyles[toast.type]} ${stackStyles}`}>
       {toast.type === 'success' && <CheckCircle size={18} />}
       {toast.type === 'error' && <AlertCircle size={18} />}
       {toast.type === 'info' && <Info size={18} />}

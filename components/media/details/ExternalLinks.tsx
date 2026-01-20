@@ -28,7 +28,12 @@ interface ExternalLinksProps {
  * @returns The rendered ExternalLinks component.
  */
 export function ExternalLinks({ mbId, type, urls }: ExternalLinksProps) {
-  const mbType = type === 'album' ? 'release-group' : type === 'song' ? 'recording' : 'artist';
+  const mbTypeMap: Record<string, string> = {
+    album: 'release-group',
+    song: 'recording',
+    artist: 'artist',
+  };
+  const mbType = mbTypeMap[type] || 'artist';
   const musicBrainzUrl = `https://musicbrainz.org/${mbType}/${mbId}`;
 
   return (

@@ -46,7 +46,7 @@ const eslintConfig = defineConfig([
       // SonarJS Overrides
       'sonarjs/no-clear-text-protocols': 'off',
       'sonarjs/pseudo-random': 'off',
-      'sonarjs/no-nested-conditional': 'off',
+      // 'sonarjs/no-nested-conditional': 'off',  # For now it is useful to keep
       'sonarjs/unused-import': 'off',  // Handled by unused-imports plugin
 
       // Unicorn Overrides
@@ -58,7 +58,7 @@ const eslintConfig = defineConfig([
       // 'unicorn/no-array-sort': 'off', // We often want in-place sorting or standard sort, but we often prefer immutable patterns.
       'unicorn/prefer-query-selector': 'off', // getElementById is faster and semantic
       'unicorn/consistent-function-scoping': 'off', // Can lead to weird code structure in React components
-      'unicorn/no-array-for-each': 'off', // forEach is fine and sometimes preferred for side effects
+      'unicorn/no-array-for-each': 'off', // OK in chain calls
       'unicorn/explicit-length-check': 'off', // explicit length check is verbose
       'unicorn/prefer-add-event-listener': 'off', // onerror is fine for simple cases
       'unicorn/prefer-blob-reading-methods': 'off', // FileReader is standard
