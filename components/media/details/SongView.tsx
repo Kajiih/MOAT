@@ -22,7 +22,7 @@ interface SongViewProps {
 /**
  * Renders the detailed metadata and parent album information for a song.
  * @param props - The props for the component.
- * @param props.details
+ * @param props.details - The detailed metadata for the song.
  */
 export function SongView({ details }: SongViewProps) {
   return (

@@ -20,8 +20,8 @@ interface FooterProps {
  * Footer component displaying the MOAT logo and "Tier List Maker" text.
  * Reusable across the application and export views.
  * @param props - The props for the component.
- * @param props.colors
- * @param props.className
+ * @param props.colors - Hex color values for the brand logo.
+ * @param props.className - Additional CSS classes for positioning/styling.
  */
 export function Footer({ colors, className = '' }: FooterProps) {
   return (

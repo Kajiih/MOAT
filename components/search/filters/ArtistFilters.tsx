@@ -30,12 +30,12 @@ interface ArtistFiltersProps {
 /**
  * Renders UI controls for filtering artist search results by their type and origin country.
  * @param props - The props for the component.
- * @param props.type
- * @param props.country
- * @param props.onTypeChange
- * @param props.onCountryChange
- * @param props.className
- * @param props.compact
+ * @param props.type - The currently selected artist type (e.g., 'Person', 'Group').
+ * @param props.country - The current country filter (2-letter code).
+ * @param props.onTypeChange - Callback fired when the artist type selection changes.
+ * @param props.onCountryChange - Callback fired when the country filter text changes.
+ * @param props.className - Optional CSS class for the container.
+ * @param props.compact - Whether to render in a compact layout (for pickers).
  */
 export function ArtistFilters({
   type,

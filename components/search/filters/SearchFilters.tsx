@@ -33,11 +33,11 @@ interface SearchFiltersProps {
  * Renders the full suite of search filters tailored to the active media type.
  * Combines entity-specific logic with shared filters like date range and tags.
  * @param props - The props for the component.
- * @param props.type
- * @param props.filters
- * @param props.updateFilters
- * @param props.compact
- * @param props.contextPickers
+ * @param props.type - The current search mode (artist, album, or song).
+ * @param props.filters - The current state of all search filters.
+ * @param props.updateFilters - Callback to update one or more filter values.
+ * @param props.compact - Whether to render in a compact layout (for pickers).
+ * @param props.contextPickers - Optional React nodes to render at the top (e.g., entity pickers).
  */
 export function SearchFilters({
   type,

@@ -58,11 +58,12 @@ interface BaseMediaCardProps {
 
 /**
  * Renders the image or a placeholder for a media card.
- * @param item - The media data object.
- * @param isExport - Whether the component is being rendered for export.
- * @param resolvedUrl - A pre-resolved Data URL for the image.
- * @param priority - Whether to prioritize loading the image.
- * @param TypeIcon - The icon component for the media type.
+ * @param props - The props for the component.
+ * @param props.item - The media data object.
+ * @param props.isExport - Whether the component is being rendered for export.
+ * @param props.resolvedUrl - A pre-resolved Data URL for the image.
+ * @param props.priority - Whether to prioritize loading the image.
+ * @param props.TypeIcon - The icon component for the media type.
  */
 function MediaCardImage({
   item,
@@ -327,6 +328,16 @@ interface MediaCardProps {
  * A Draggable media card component.
  * Used primarily in the Search Panel where items can be dragged FROM but not sorted within.
  * @param props - The props for the component.
+ * @param props.item - The media data object (Album, Artist, or Song).
+ * @param props.id - Optional override for the draggable ID. Defaults to item.id.
+ * @param props.tierId - The ID of the tier this card belongs to, if any.
+ * @param props.onRemove - Callback to remove this item from its tier.
+ * @param props.isAdded - Whether this item is already present on the board (used in Search results).
+ * @param props.onLocate - Callback to locate this item on the board.
+ * @param props.priority - Whether to prioritize loading the image (eager load).
+ * @param props.onInfo - Callback to show details
+ * @param props.isExport - Whether the component is being rendered for a screenshot export.
+ * @param props.resolvedUrl - A pre-resolved Data URL for the image.
  */
 export function MediaCard(props: MediaCardProps) {
   const draggableId = props.id || props.item.id;
@@ -363,6 +374,16 @@ export function MediaCard(props: MediaCardProps) {
  * A Sortable media card component.
  * Used within Tier Rows where items can be reordered (sorted) relative to each other.
  * @param props - The props for the component.
+ * @param props.item - The media data object (Album, Artist, or Song).
+ * @param props.id - Optional override for the draggable ID. Defaults to item.id.
+ * @param props.tierId - The ID of the tier this card belongs to, if any.
+ * @param props.onRemove - Callback to remove this item from its tier.
+ * @param props.isAdded - Whether this item is already present on the board (used in Search results).
+ * @param props.onLocate - Callback to locate this item on the board.
+ * @param props.priority - Whether to prioritize loading the image (eager load).
+ * @param props.onInfo - Callback to show details
+ * @param props.isExport - Whether the component is being rendered for a screenshot export.
+ * @param props.resolvedUrl - A pre-resolved Data URL for the image.
  */
 export function SortableMediaCard(props: MediaCardProps) {
   const draggableId = props.id || props.item.id;

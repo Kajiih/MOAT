@@ -39,10 +39,10 @@ interface TierLabelProps {
  * @param props - The props for the component.
  * @param props.label - The current text of the tier label.
  * @param props.onUpdate - Callback fired when the label is renamed.
- * @param [props.dragListeners] - Synthetic listeners from dnd-kit for tier reordering.
- * @param [props.dragAttributes] - Draggable attributes from dnd-kit for tier reordering.
- * @param [props.isAnyDragging] - Global dragging state.
- * @param [props.isExport] - Whether the component is being rendered for a screenshot export.
+ * @param props.dragListeners - Synthetic listeners from dnd-kit for tier reordering.
+ * @param props.dragAttributes - Draggable attributes from dnd-kit for tier reordering.
+ * @param props.isAnyDragging - Global dragging state.
+ * @param props.isExport - Whether the component is being rendered for a screenshot export.
  */
 export function TierLabel({
   label,

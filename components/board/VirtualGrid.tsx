@@ -24,11 +24,11 @@ interface VirtualGridProps<T> {
  * @param props - The props for the component.
  * @param props.items - Array of items to render in the grid.
  * @param props.renderItem - Function to render each item.
- * @param [props.itemWidth] - Width of each item. Defaults to 112 (w-28).
- * @param [props.itemHeight] - Height of each item. Defaults to itemWidth if not provided.
- * @param [props.gap] - Gap between items. Defaults to 8 (gap-2).
- * @param [props.padding] - Container padding.
- * @param [props.className] - Additional CSS classes.
+ * @param props.itemWidth - Width of each item. Defaults to 112 (w-28).
+ * @param props.itemHeight - Height of each item. Defaults to itemWidth if not provided.
+ * @param props.gap - Gap between items. Defaults to 8 (gap-2).
+ * @param props.padding - Container padding.
+ * @param props.className - Additional CSS classes.
  */
 export function VirtualGrid<T>({
   items,

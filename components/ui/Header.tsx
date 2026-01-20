@@ -43,8 +43,8 @@ interface HeaderProps {
  * Renders the primary application header, providing access to global board actions.
  * Manages branding, undo/redo state, and import/export functionality.
  * @param props - The props for the component.
- * @param props.onScreenshot
- * @param props.isCapturing
+ * @param props.onScreenshot - Callback fired when the user clicks the screenshot button.
+ * @param props.isCapturing - Whether a screenshot capture is currently in progress.
  */
 export function Header({ onScreenshot, isCapturing }: HeaderProps) {
   const {

@@ -44,9 +44,9 @@ interface TierListProps {
  * @param props - The props for the component.
  * @param props.tiers - Array of tier definitions to render.
  * @param props.items - Map of media items indexed by tier ID.
- * @param [props.isExport] - Whether the board is being rendered for image export.
- * @param [props.resolvedImages] - Pre-resolved base64 images for clean room export.
- * @param [props.isAnyDragging] - Global dragging state to manage interactions.
+ * @param props.isExport - Whether the board is being rendered for image export.
+ * @param props.resolvedImages - Pre-resolved base64 images for clean room export.
+ * @param props.isAnyDragging - Global dragging state to manage interactions.
  * @param props.onRemoveItem - Callback to remove an item from a specific tier.
  * @param props.onUpdateTier - Callback to update a tier's properties (label, color).
  * @param props.onDeleteTier - Callback to delete an entire tier.

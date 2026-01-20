@@ -29,10 +29,10 @@ interface BoardTitleProps {
  * In the export board, it's a static h1 with identical styling.
  * @param props - The props for the component.
  * @param props.title - The current title text.
- * @param [props.isExport] - Whether the component is being rendered for export.
- * @param [props.onChange] - Callback for title changes.
- * @param [props.onFocus] - Callback for when the title gains focus.
- * @param [props.className] - Additional CSS classes.
+ * @param props.isExport - Whether the component is being rendered for export.
+ * @param props.onChange - Callback for title changes.
+ * @param props.onFocus - Callback for when the title gains focus.
+ * @param props.className - Additional CSS classes.
  */
 export function BoardTitle({
   title,

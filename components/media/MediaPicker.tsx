@@ -92,14 +92,14 @@ function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'arti
  * A reusable search-and-select component for finding and picking artists or albums.
  * Features inline filtering, search configuration, and intelligent prefetching.
  * @param props - The props for the component.
- * @param props.type
- * @param props.onSelect
- * @param props.selectedItem
- * @param props.fuzzy
- * @param props.wildcard
- * @param props.artistId
- * @param props.context
- * @param props.placeholder
+ * @param props.type - The type of media to search and select.
+ * @param props.onSelect - Callback fired when an item is selected.
+ * @param props.selectedItem - The currently selected item.
+ * @param props.fuzzy - Whether to use fuzzy matching for the search.
+ * @param props.wildcard - Whether to use wildcards for the search.
+ * @param props.artistId - Optional artist ID to scope searches (e.g., search albums for a specific artist).
+ * @param props.context - Unique context identifier to isolate search state and persistence.
+ * @param props.placeholder - Custom placeholder for the search input.
  */
 export function MediaPicker<T extends MediaSelection>({
   type,

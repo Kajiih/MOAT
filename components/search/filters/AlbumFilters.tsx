@@ -36,14 +36,14 @@ interface AlbumFiltersProps {
 /**
  * Renders UI controls for filtering album search results by their metadata types.
  * @param props - The props for the component.
- * @param props.primaryTypes
- * @param props.secondaryTypes
- * @param props.onTogglePrimary
- * @param props.onToggleSecondary
- * @param props.onResetPrimary
- * @param props.onResetSecondary
- * @param props.onSelectAllSecondary
- * @param props.compact
+ * @param props.primaryTypes - Array of active primary type filters (e.g., 'Album', 'EP').
+ * @param props.secondaryTypes - Array of active secondary type filters (e.g., 'Live', 'Compilation').
+ * @param props.onTogglePrimary - Callback fired when a primary type is toggled.
+ * @param props.onToggleSecondary - Callback fired when a secondary type is toggled.
+ * @param props.onResetPrimary - Callback to reset primary type filters to defaults.
+ * @param props.onResetSecondary - Callback to clear all secondary type filters.
+ * @param props.onSelectAllSecondary - Callback to select all secondary type filters.
+ * @param props.compact - Whether to render in a compact layout (for pickers).
  */
 export function AlbumFilters({
   primaryTypes,

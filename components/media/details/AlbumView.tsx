@@ -22,7 +22,7 @@ interface AlbumViewProps {
 /**
  * Renders the detailed metadata and tracklist for an album.
  * @param props - The props for the component.
- * @param props.details
+ * @param props.details - The detailed metadata for the album.
  */
 export function AlbumView({ details }: AlbumViewProps) {
   return (

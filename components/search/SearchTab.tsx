@@ -38,14 +38,14 @@ interface SearchTabProps {
  * A self-contained tab content for a specific search type.
  * Preserves its own search state (query, page, filters) even when hidden.
  * @param props - The props for the component.
- * @param props.type
- * @param props.addedItemIds
- * @param props.onLocate
- * @param props.isHidden
- * @param props.showAdded
- * @param props.globalFuzzy
- * @param props.globalWildcard
- * @param props.onInfo
+ * @param props.type - The type of media being searched.
+ * @param props.addedItemIds - A set of IDs for items already on the board.
+ * @param props.onLocate - Callback to locate an item on the board.
+ * @param props.isHidden - Whether the tab is currently hidden.
+ * @param props.showAdded - Whether to show items already on the board.
+ * @param props.globalFuzzy - Global setting for fuzzy search.
+ * @param props.globalWildcard - Global setting for wildcard search.
+ * @param props.onInfo - Callback to show details for an item.
  */
 export function SearchTab({
   type,

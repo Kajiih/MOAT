@@ -65,14 +65,14 @@ interface UseTierListNamespacesProps {
 /**
  * Aggregates state and logic into logical namespaces (actions, dnd, ui, history).
  * @param props - The props for the hook.
- * @param props.state
- * @param props.dispatch
- * @param props.history
- * @param props.dndRaw
- * @param props.structureRaw
- * @param props.ioRaw
- * @param props.utilsRaw
- * @param props.uiState
+ * @param props.state - The current tier list state.
+ * @param props.dispatch - The dispatch function for tier list actions.
+ * @param props.history - The history object for undo/redo functionality.
+ * @param props.dndRaw - Raw drag and drop handlers and state.
+ * @param props.structureRaw - Raw functions for manipulating the tier structure.
+ * @param props.ioRaw - Raw functions for import/export.
+ * @param props.utilsRaw - Raw utility functions and computed values.
+ * @param props.uiState - Raw state and setters for UI elements like modals.
  * @returns An object containing grouped board properties and actions.
  */
 export function useTierListNamespaces({
