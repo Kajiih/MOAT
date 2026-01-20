@@ -30,7 +30,7 @@ vi.mock('react-dom/client', () => ({
         'Mocked Export Board Content with enough length to pass the 50 characters threshold check.';
       Object.defineProperty(div, 'scrollHeight', { value: 800 });
       Object.defineProperty(div, 'offsetHeight', { value: 800 });
-      container.appendChild(div);
+      container.append(div);
     }),
     unmount: vi.fn(),
   })),

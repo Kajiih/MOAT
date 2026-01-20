@@ -54,7 +54,7 @@ export function applyFaviconToDom(svgDataUri: string) {
   // Always re-append to ensure it is the LAST element in <head>
   // Browsers typically prioritize the last icon declaration.
   // This avoids needing to delete other icons (which crashes Next.js).
-  document.head.appendChild(link);
+  document.head.append(link);
 
   link.href = svgDataUri;
 }

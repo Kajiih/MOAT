@@ -59,7 +59,6 @@ const eslintConfig = defineConfig([
       'unicorn/prefer-query-selector': 'off', // getElementById is faster and semantic
       'unicorn/consistent-function-scoping': 'off', // Can lead to weird code structure in React components
       'unicorn/no-array-for-each': 'off', // forEach is fine and sometimes preferred for side effects
-      'unicorn/prefer-dom-node-append': 'off', // appendChild is standard
       'unicorn/explicit-length-check': 'off', // explicit length check is verbose
       'unicorn/prefer-add-event-listener': 'off', // onerror is fine for simple cases
       'unicorn/prefer-blob-reading-methods': 'off', // FileReader is standard

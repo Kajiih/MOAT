@@ -52,7 +52,7 @@ describe('applyFaviconToDom', () => {
     link.id = 'dynamic-favicon';
     link.rel = 'icon';
     link.href = 'old-href';
-    document.head.appendChild(link);
+    document.head.append(link);
 
     applyFaviconToDom('new-href');
 

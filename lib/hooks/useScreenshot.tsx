@@ -151,7 +151,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       container.style.visibility = 'visible';
       container.style.opacity = '1';
       container.style.pointerEvents = 'none';
-      document.body.appendChild(container);
+      document.body.append(container);
 
       const root = createRoot(container);
 
