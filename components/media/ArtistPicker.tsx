@@ -28,6 +28,12 @@ interface ArtistPickerProps {
 
 /**
  * Renders a specialized picker for selecting musical artists.
+ * @param props - The props for the component.
+ * @param props.onSelect - Callback fired when an artist is selected or cleared.
+ * @param props.selectedArtist - The currently selected artist.
+ * @param [props.fuzzy] - Whether to use fuzzy matching for search.
+ * @param [props.wildcard] - Whether to use wildcards for search.
+ * @param [props.context] - Optional context string for analytical tracking.
  */
 export function ArtistPicker({
   onSelect,

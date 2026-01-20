@@ -25,6 +25,11 @@ interface OGBoardProps {
  *
  * Satori/Edge Runtime Constraints:
  * 1. No CSS classes (mostly), must use inline `style={{ ... }}`.
+ * @param props - The props for the component.
+ * @param props.title - The title of the tier list to display.
+ * @param props.tiers - Array of tier definitions (labels, colors).
+ * @param props.items - Map of media items organized by tier ID.
+ * @param props.headerColors - Array of hex color strings for the header gradient/branding.
  */
 export function OGBoard({ title, tiers, items, headerColors }: OGBoardProps) {
   // Use the primary brand color or fallback

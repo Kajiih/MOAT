@@ -121,6 +121,7 @@ function handleGlobalShortcuts(
 
 /**
  * Custom hook to handle global keyboard shortcuts.
+ * @param props - The properties for the hook.
  */
 function useAppShortcuts(props: UseAppShortcutsProps) {
   useEffect(() => {

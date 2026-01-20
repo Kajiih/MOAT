@@ -38,6 +38,15 @@ interface TierSettingsProps {
 
 /**
  * Renders a settings popover for a tier row, allowing color selection and deletion.
+ * @param props - The props for the component.
+ * @param props.color - The current color ID of the tier.
+ * @param props.onUpdateColor - Callback fired when a new color is selected.
+ * @param props.onDelete - Callback fired to delete the tier.
+ * @param props.canDelete - Whether the tier can be deleted in the current context.
+ * @param props.isOpen - Whether the settings popover is currently open.
+ * @param props.onToggle - Toggles the popover open/closed.
+ * @param props.onClose - Forces the popover to close.
+ * @param [props.isAnyDragging] - Global dragging state.
  */
 export function TierSettings({
   color,

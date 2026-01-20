@@ -16,6 +16,8 @@ export interface SearchOptions {
  * - 0-2 chars: distance 0 (exact match only)
  * - 3-5 chars: distance 1 (one typo allowed)
  * - > 5 chars: distance 2 (two typos allowed)
+ * @param length - The length of the word.
+ * @returns The fuzzy distance.
  */
 function getFuzzyDistance(length: number): number {
   if (length <= 2) return 0;
@@ -26,6 +28,8 @@ function getFuzzyDistance(length: number): number {
 /**
  * Escapes characters that are special to the Lucene query syntax.
  * Characters escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /
+ * @param term - The term to escape.
+ * @returns The escaped term.
  */
 export function escapeLucene(term: string): string {
   return term.replaceAll(/([\+\-\!\(\)\{\}\[\]\^\"\~\*\?\:\\\/]|\&\&|\|\|)/g, String.raw`\$1`);
@@ -35,6 +39,10 @@ export function escapeLucene(term: string): string {
  * Constructs a flexible Lucene query string for MusicBrainz.
  * Example: Converts "michael j" into `field:((michael* OR michael~1) AND j*)`
  * Supports partial matches (wildcard) and typo tolerance (fuzzy).
+ * @param field - The field to search in (e.g., 'artist', 'release').
+ * @param term - The search term.
+ * @param options - Search options including fuzzy and wildcard.
+ * @returns The constructed Lucene query string.
  */
 export function constructLuceneQuery(field: string, term: string, options: SearchOptions): string {
   const cleanTerm = term.trim();

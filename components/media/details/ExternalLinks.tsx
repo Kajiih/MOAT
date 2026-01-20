@@ -21,6 +21,10 @@ interface ExternalLinksProps {
 
 /**
  * Renders a collection of external links for a media item, always including its MusicBrainz profile.
+ * @param props - The props for the component.
+ * @param props.mbId
+ * @param props.type
+ * @param props.urls
  */
 export function ExternalLinks({ mbId, type, urls }: ExternalLinksProps) {
   const mbType = type === 'album' ? 'release-group' : type === 'song' ? 'recording' : 'artist';

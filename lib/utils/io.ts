@@ -30,6 +30,7 @@ interface ExportData {
 
 /**
  * Generates the exportable JSON object from the current state.
+ * @param state - The current state of the tier list.
  */
 export function generateExportData(state: TierListState): ExportData {
   return {
@@ -46,6 +47,8 @@ export function generateExportData(state: TierListState): ExportData {
 
 /**
  * Triggers a browser download for the given data.
+ * @param data - The JSON object to download.
+ * @param filename - The name of the file to download.
  */
 export function downloadJson(data: object, filename: string) {
   const dataStr =
@@ -59,6 +62,8 @@ export function downloadJson(data: object, filename: string) {
 /**
  * Parses and validates imported JSON data.
  * Returns a normalized TierListState or throws an error.
+ * @param jsonString - The JSON string to parse.
+ * @param fallbackTitle - The title to use if the imported data has no title.
  */
 export function parseImportData(jsonString: string, fallbackTitle: string): TierListState {
   const parsed = JSON.parse(jsonString);

@@ -44,6 +44,7 @@ export const formatArtistCredit = (
 /**
  * Maps a raw MusicBrainz Release Group response to a simplified MediaItem.
  * Defaults the image to the Cover Art Archive front image.
+ * @param item - The raw MusicBrainz Release Group response.
  */
 export function mapReleaseGroupToMediaItem(
   item: z.infer<typeof MusicBrainzReleaseGroupSchema>,
@@ -64,6 +65,7 @@ export function mapReleaseGroupToMediaItem(
 /**
  * Maps a raw MusicBrainz Artist response to a MediaItem.
  * Asynchronously fetches a thumbnail from Fanart.tv or Wikidata via the image service.
+ * @param item - The raw MusicBrainz Artist response.
  */
 export async function mapArtistToMediaItem(
   item: z.infer<typeof MusicBrainzArtistSchema>,
@@ -83,6 +85,7 @@ export async function mapArtistToMediaItem(
 /**
  * Maps a raw MusicBrainz Recording (Song) response to a MediaItem.
  * Attempts to resolve artwork from the release group or specific release.
+ * @param item - The raw MusicBrainz Recording (Song) response.
  */
 export function mapRecordingToMediaItem(
   item: z.infer<typeof MusicBrainzRecordingSchema>,

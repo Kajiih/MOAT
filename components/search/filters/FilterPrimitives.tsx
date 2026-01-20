@@ -19,6 +19,10 @@ interface FilterRowProps {
 /**
  * A layout primitive that switches between a Grid (full) and Flex (compact) layout.
  * Use with FilterCol to ensure children behave correctly in both modes.
+ * @param props - The props for the component.
+ * @param props.compact
+ * @param props.children
+ * @param props.className
  */
 export function FilterRow({ compact, children, className = '' }: FilterRowProps) {
   if (compact) {
@@ -35,6 +39,9 @@ interface FilterColProps {
 /**
  * A column wrapper that ensures content expands in Flex mode (compact)
  * and behaves normally in Grid mode.
+ * @param props - The props for the component.
+ * @param props.children
+ * @param props.className
  */
 export function FilterCol({ children, className = '' }: FilterColProps) {
   return <div className={`min-w-0 flex-1 ${className}`}>{children}</div>;

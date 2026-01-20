@@ -35,6 +35,15 @@ interface AlbumFiltersProps {
 
 /**
  * Renders UI controls for filtering album search results by their metadata types.
+ * @param props - The props for the component.
+ * @param props.primaryTypes
+ * @param props.secondaryTypes
+ * @param props.onTogglePrimary
+ * @param props.onToggleSecondary
+ * @param props.onResetPrimary
+ * @param props.onResetSecondary
+ * @param props.onSelectAllSecondary
+ * @param props.compact
  */
 export function AlbumFilters({
   primaryTypes,

@@ -18,6 +18,10 @@ interface BrandLogoProps {
 
 /**
  * Renders the application brand logo with support for dynamic coloring and multiple size variants.
+ * @param props - The props for the component.
+ * @param props.colors
+ * @param props.className
+ * @param props.variant
  */
 export function BrandLogo({ colors, className, variant = 'default' }: BrandLogoProps) {
   const letters = ['M', 'O', 'A', 'T'];

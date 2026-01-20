@@ -81,6 +81,8 @@ export function useToast() {
 /**
  * Provider component for the Global Toast system.
  * Renders the toast container and manages the lifecycle of notifications.
+ * @param props - The props for the component.
+ * @param props.children - The child components.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(toastReducer, {
@@ -171,6 +173,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 /**
  * Renders an individual toast message with appropriate icons and colors.
+ * @param props - The props for the component.
+ * @param props.toast - The toast object to render.
+ * @param props.onDismiss - Callback to dismiss the toast.
+ * @param props.stacked - Whether the toast is in a stacked view.
  */
 function ToastItem({
   toast,

@@ -168,6 +168,8 @@ async function getSongDetails(id: string): Promise<MediaDetails> {
 
 /**
  * Fetches detailed metadata for a specific media item.
+ * @param id - The ID of the media item.
+ * @param type - The type of the media item.
  */
 export async function getMediaDetails(
   id: string,

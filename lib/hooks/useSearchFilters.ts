@@ -13,6 +13,7 @@ import { usePersistentState } from './usePersistentState';
 
 /**
  * Custom hook to manage the UI state of search filters.
+ * @param type - The type of media being searched.
  */
 export function useSearchFilters(type: MediaType) {
   const [showFilters, setShowFilters] = usePersistentState<boolean>(

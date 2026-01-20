@@ -50,6 +50,10 @@ interface MediaPickerProps<T extends MediaSelection> {
 
 /**
  * Internal component to handle individual image error states in the list.
+ * @param props - The props for the component.
+ * @param props.src - The image source URL.
+ * @param props.alt - The alt text for the image.
+ * @param props.type - The type of media.
  */
 function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'artist' | 'album' }) {
   const [error, setError] = useState(false);
@@ -87,6 +91,15 @@ function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'arti
 /**
  * A reusable search-and-select component for finding and picking artists or albums.
  * Features inline filtering, search configuration, and intelligent prefetching.
+ * @param props - The props for the component.
+ * @param props.type
+ * @param props.onSelect
+ * @param props.selectedItem
+ * @param props.fuzzy
+ * @param props.wildcard
+ * @param props.artistId
+ * @param props.context
+ * @param props.placeholder
  */
 export function MediaPicker<T extends MediaSelection>({
   type,

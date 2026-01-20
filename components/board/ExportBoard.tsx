@@ -28,6 +28,10 @@ interface ExportBoardProps {
  * The main ExportBoard component.
  * Reuses the exact same components and styles as the main application but in a
  * non-interactive "Export Mode" to ensure 100% visual parity.
+ * @param props - The props for the component.
+ * @param props.state - The current tier list state.
+ * @param props.brandColors - Array of hex color strings for branding.
+ * @param [props.resolvedImages] - Pre-resolved base64 images for clean room export.
  */
 export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportBoardProps) {
   const logoHexColors = useBrandColors(brandColors);

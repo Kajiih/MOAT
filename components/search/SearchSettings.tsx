@@ -26,6 +26,11 @@ interface SearchSettingsProps {
 
 /**
  * Renders a settings menu for configuring search behavior (fuzzy, wildcard).
+ * @param props - The props for the component.
+ * @param props.fuzzyEnabled
+ * @param props.wildcardEnabled
+ * @param props.onFuzzyChange
+ * @param props.onWildcardChange
  */
 export function SearchSettings({
   fuzzyEnabled,

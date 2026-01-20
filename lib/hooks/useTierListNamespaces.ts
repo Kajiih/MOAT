@@ -64,6 +64,15 @@ interface UseTierListNamespacesProps {
 
 /**
  * Aggregates state and logic into logical namespaces (actions, dnd, ui, history).
+ * @param props - The props for the hook.
+ * @param props.state
+ * @param props.dispatch
+ * @param props.history
+ * @param props.dndRaw
+ * @param props.structureRaw
+ * @param props.ioRaw
+ * @param props.utilsRaw
+ * @param props.uiState
  * @returns An object containing grouped board properties and actions.
  */
 export function useTierListNamespaces({

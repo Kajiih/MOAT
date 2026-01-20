@@ -11,6 +11,8 @@ const REGISTRY_KEY = 'moat-registry';
 /**
  * Updates the metadata for a specific board in the registry.
  * Designed to be called from within the board editor to keep the dashboard in sync.
+ * @param id - The ID of the board to sync.
+ * @param state - The current state of the board.
  */
 export async function syncBoardMetadata(id: string, state: TierListState) {
   try {

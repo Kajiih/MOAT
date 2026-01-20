@@ -34,6 +34,8 @@ interface RootLayoutProps {
 
 /**
  * Root layout component that wraps the entire application.
+ * @param props - The props for the component.
+ * @param props.children - Child components that will have access to the context.
  */
 export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (

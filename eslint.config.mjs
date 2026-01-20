@@ -47,6 +47,7 @@ const eslintConfig = defineConfig([
       'sonarjs/no-clear-text-protocols': 'off',
       'sonarjs/pseudo-random': 'off',
       'sonarjs/no-nested-conditional': 'off',
+      'sonarjs/unused-import': 'off',  // Handled by unused-imports plugin
 
       // Unicorn Overrides
       // Check these if we keep or remove
@@ -98,8 +99,6 @@ const eslintConfig = defineConfig([
           enableFixer: false,
         },
       ],
-      'jsdoc/require-param': 'off', // To remove?
-      // Mainly, we need to update the functions where the only arg is "props" because it doesn't give any useful info
       'jsdoc/require-returns': 'off', // To remove?
     },
   },

@@ -47,6 +47,9 @@ const INITIAL_REGISTRY: Record<string, MediaItem> = {};
 /**
  * Helper to determine if an item should be updated in the registry.
  * Compares critical fields and avoids unnecessary updates.
+ * @param existing - The existing media item in the registry.
+ * @param newItem - The new media item to compare.
+ * @returns True if the item should be updated, false otherwise.
  */
 function shouldUpdateItem(existing: MediaItem, newItem: MediaItem): boolean {
   // Optimization: Shallow compare critical fields first to avoid deep stringify
@@ -65,11 +68,19 @@ function shouldUpdateItem(existing: MediaItem, newItem: MediaItem): boolean {
   return isUrlChanged || isDetailsChanged || isMetadataGeneralChanged || isArtistChanged;
 }
 
+/** Props for the MediaRegistryProvider. */
+interface MediaRegistryProviderProps {
+  /** The child components that will have access to the context. */
+  children: ReactNode;
+}
+
 /**
  * Provider component for the Global Media Registry.
  * Handles persistence to IndexedDB and FIFO pruning.
+ * @param props - The props for the component.
+ * @param props.children - The child components that will have access to the context.
  */
-export function MediaRegistryProvider({ children }: { children: ReactNode }) {
+export function MediaRegistryProvider({ children }: MediaRegistryProviderProps) {
   const [registry, setRegistry] = usePersistentState<Record<string, MediaItem>>(
     'moat-media-registry',
     INITIAL_REGISTRY,

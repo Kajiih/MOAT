@@ -17,7 +17,8 @@ const IMAGE_CACHE_TTL = 86_400; // 24 hours
 /**
  * Constructs a Wikimedia Commons image URL.
  * @param fileName - The file name from Wikidata (e.g. "Image.jpg").
- * @param width - Desired width for the thumbnail.
+ * @param [width] - Desired width for the thumbnail.
+ * @returns The constructed URL.
  */
 function getWikimediaUrl(fileName: string, width: number = 500): string {
   return `${WIKIMEDIA_FILE_PATH_URL}/${encodeURIComponent(fileName)}?width=${width}`;
@@ -25,6 +26,8 @@ function getWikimediaUrl(fileName: string, width: number = 500): string {
 
 /**
  * Constructs a Fanart.tv API URL.
+ * @param mbid - The MusicBrainz ID of the artist.
+ * @returns The Fanart.tv API URL.
  */
 function getFanartApiUrl(mbid: string): string {
   return `${FANART_BASE_URL}/${mbid}?api_key=${FANART_API_KEY}`;
@@ -32,6 +35,8 @@ function getFanartApiUrl(mbid: string): string {
 
 /**
  * Converts a high-res Fanart.tv image URL to a lower-res preview URL.
+ * @param url - The original Fanart.tv image URL.
+ * @returns The preview URL.
  */
 function getFanartPreviewUrl(url: string): string {
   return url.replace('/fanart/', '/preview/');
@@ -39,6 +44,8 @@ function getFanartPreviewUrl(url: string): string {
 
 /**
  * Fetches an artist thumbnail from Fanart.tv if available.
+ * @param mbid - The MusicBrainz ID of the artist.
+ * @returns A promise that resolves to the image URL or undefined.
  */
 export async function getFanartImage(mbid: string): Promise<string | undefined> {
   if (!FANART_API_KEY) return undefined;
@@ -59,6 +66,8 @@ export async function getFanartImage(mbid: string): Promise<string | undefined> 
 
 /**
  * Fetches an artist thumbnail from Wikidata via MusicBrainz relations.
+ * @param mbid - The MusicBrainz ID of the artist.
+ * @returns A promise that resolves to the image URL or undefined.
  */
 export async function getWikidataImage(mbid: string): Promise<string | undefined> {
   try {
@@ -103,7 +112,9 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
 }
 
 /**
- *
+ * Gets the artist thumbnail.
+ * @param mbid - The MusicBrainz ID of the artist.
+ * @returns A promise that resolves to the image URL or undefined.
  */
 export async function getArtistThumbnail(mbid: string): Promise<string | undefined> {
   // Priority 1: Fanart.tv (Best quality)

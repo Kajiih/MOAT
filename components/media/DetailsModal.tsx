@@ -40,6 +40,11 @@ interface DetailsModalProps {
 /**
  * Renders a modal displaying deep metadata and rich information for a selected media item.
  * Automatically fetches missing details on mount if they aren't provided in the item.
+ * @param props - The props for the component.
+ * @param props.item - The media item to display details for, or null if closed.
+ * @param props.isOpen - Whether the modal is currently visible.
+ * @param props.onClose - Callback fired when the modal should be closed.
+ * @param [props.onUpdateItem] - Optional callback to persist enriched metadata back to the parent state.
  */
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
   useEscapeKey(onClose, isOpen);

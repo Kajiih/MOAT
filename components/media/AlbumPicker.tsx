@@ -30,6 +30,13 @@ interface AlbumPickerProps {
 
 /**
  * Renders a specialized picker for selecting musical albums.
+ * @param props - The props for the component.
+ * @param props.onSelect - Callback fired when an album is selected or cleared.
+ * @param props.selectedAlbum - The currently selected album.
+ * @param [props.fuzzy] - Whether to use fuzzy matching for search.
+ * @param [props.wildcard] - Whether to use wildcards for search.
+ * @param [props.artistId] - Optional artist ID to filter albums by artist.
+ * @param [props.context] - Optional context string for analytical tracking.
  */
 export function AlbumPicker({
   onSelect,

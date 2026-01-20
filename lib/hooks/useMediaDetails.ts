@@ -16,6 +16,9 @@ export function preloadMediaDetails(id: string, type: MediaType) {
 
 /**
  * Custom hook to fetch detailed information for a specific media item.
+ * @param id - The ID of the media item to fetch.
+ * @param type - The type of the media item.
+ * @param fallbackData - Optional fallback data.
  */
 export function useMediaDetails(
   id: string | null,

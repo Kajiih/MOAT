@@ -48,6 +48,7 @@ export interface SearchParams {
 /**
  * Generates a normalized URL for search requests.
  * Ensures consistent parameter order and handles defaults for SWR cache hits.
+ * @param params - The search parameters.
  */
 export function getSearchUrl(params: SearchParams): string {
   const urlParams = new URLSearchParams();

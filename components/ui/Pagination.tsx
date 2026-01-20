@@ -22,6 +22,10 @@ interface PaginationProps {
 
 /**
  * Renders a compact navigation bar for switching between paginated result pages.
+ * @param props - The props for the component.
+ * @param props.page
+ * @param props.totalPages
+ * @param props.onPageChange
  */
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;

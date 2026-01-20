@@ -24,6 +24,10 @@ interface SortDropdownProps {
 
 /**
  * Renders a dropdown menu for selecting search result sorting preferences.
+ * @param props - The props for the component.
+ * @param props.sortOption
+ * @param props.onSortChange
+ * @param props.type
  */
 export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);

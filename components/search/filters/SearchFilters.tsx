@@ -32,6 +32,12 @@ interface SearchFiltersProps {
 /**
  * Renders the full suite of search filters tailored to the active media type.
  * Combines entity-specific logic with shared filters like date range and tags.
+ * @param props - The props for the component.
+ * @param props.type
+ * @param props.filters
+ * @param props.updateFilters
+ * @param props.compact
+ * @param props.contextPickers
  */
 export function SearchFilters({
   type,

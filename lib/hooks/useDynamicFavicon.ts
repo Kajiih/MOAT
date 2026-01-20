@@ -14,6 +14,7 @@ import { useBrandColors } from './useBrandColors';
 
 /**
  * Generates an SVG data URI for the favicon based on the provided colors.
+ * @param hexColors - Array of hex color strings.
  */
 function generateFaviconSvg(hexColors: (string | undefined)[]): string {
   // Map standard tier colors
@@ -37,6 +38,7 @@ function generateFaviconSvg(hexColors: (string | undefined)[]): string {
 /**
  * Helper to update the DOM with the new favicon.
  * Encapsulates all direct DOM manipulation.
+ * @param svgDataUri - The SVG data URI to apply.
  */
 export function applyFaviconToDom(svgDataUri: string) {
   let link = document.querySelector('link#dynamic-favicon') as HTMLLinkElement;

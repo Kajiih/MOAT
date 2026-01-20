@@ -31,6 +31,15 @@ interface DateRangeFilterProps {
 
 /**
  * Renders a pair of numeric inputs for filtering results by a year range.
+ * @param props - The props for the component.
+ * @param props.minYear
+ * @param props.maxYear
+ * @param props.onMinYearChange
+ * @param props.onMaxYearChange
+ * @param props.fromLabel
+ * @param props.toLabel
+ * @param props.className
+ * @param props.compact
  */
 export function DateRangeFilter({
   minYear,

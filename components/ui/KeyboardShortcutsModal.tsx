@@ -20,6 +20,9 @@ interface KeyboardShortcutsModalProps {
 
 /**
  * Renders an informational modal listing the application's global keyboard shortcuts.
+ * @param props - The props for the component.
+ * @param props.isOpen
+ * @param props.onClose
  */
 export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsModalProps) {
   useEscapeKey(onClose, isOpen);

@@ -42,6 +42,8 @@ export function useBackgroundEnrichment(
 /**
  * Helper hook to handle the fetch and sync for a single item (or empty slot).
  * Leverages SWR via useMediaDetails for caching and deduplication.
+ * @param item - The media item to sync, or undefined if the slot is empty.
+ * @param onUpdateItem - Callback to update the item with fetched details.
  */
 function useSingleItemSyncWrapper(
   item: MediaItem | undefined,

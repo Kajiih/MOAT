@@ -108,6 +108,7 @@ export const DEFAULT_COLOR = COLOR_PALETTE.neutral;
 /**
  * Retrieves the full color theme object by its ID.
  * Falls back to 'neutral' if the ID is not found.
+ * @param id - The ID of the color theme to retrieve.
  */
 export const getColorTheme = (id: string | undefined): ColorTheme => {
   if (!id) return DEFAULT_COLOR;

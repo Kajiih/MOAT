@@ -39,6 +39,8 @@ export function usePersistentReducer<S, A>(
 ): [S, Dispatch<A>, boolean] {
   /**
    * Wrapper reducer that intercepts hydration actions.
+   * @param state - The current state.
+   * @param action - The dispatched action.
    */
   const persistentReducer = (state: S, action: A | HydrateAction<S>): S => {
     if ((action as HydrateAction<S>).type === HYDRATE_ACTION) {

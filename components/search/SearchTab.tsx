@@ -37,6 +37,15 @@ interface SearchTabProps {
 /**
  * A self-contained tab content for a specific search type.
  * Preserves its own search state (query, page, filters) even when hidden.
+ * @param props - The props for the component.
+ * @param props.type
+ * @param props.addedItemIds
+ * @param props.onLocate
+ * @param props.isHidden
+ * @param props.showAdded
+ * @param props.globalFuzzy
+ * @param props.globalWildcard
+ * @param props.onInfo
  */
 export function SearchTab({
   type,
