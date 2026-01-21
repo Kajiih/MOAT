@@ -19,23 +19,34 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
     const registry = (await storage.get<BoardMetadata[]>(REGISTRY_KEY)) || [];
     const index = registry.findIndex((b) => b.id === id);
 
-    const itemCount = Object.values(state.items).flat().length;
+    const allItems = Object.values(state.items).flat();
+    const itemCount = allItems.length;
     const now = Date.now();
+
+    // Extract up to 4 unique image URLs for the preview
+    const previewImages = [
+      ...new Set(allItems.map((item) => item.imageUrl).filter((url): url is string => !!url)),
+    ].slice(0, 4);
 
     if (index !== -1) {
       // Update existing entry
       const entry = registry[index];
 
       // Only write if something changed (optimization)
-      if (entry.title === state.title && entry.itemCount === itemCount) {
-        // Just update timestamp if it's been a while? Or skip?
-        // Let's always update timestamp on save
+      if (
+        entry.title === state.title &&
+        entry.itemCount === itemCount &&
+        JSON.stringify(entry.previewImages) === JSON.stringify(previewImages)
+      ) {
+        // Skip write if nothing changed to reduce IO
+        return;
       }
 
       registry[index] = {
         ...entry,
         title: state.title,
         itemCount,
+        previewImages,
         lastModified: now,
       };
     } else {
@@ -47,6 +58,7 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
         createdAt: now,
         lastModified: now,
         itemCount,
+        previewImages,
       });
     }
 

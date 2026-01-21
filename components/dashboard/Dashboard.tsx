@@ -9,6 +9,7 @@
 'use client';
 
 import { Layout, Plus, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -19,6 +20,43 @@ import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
 import { useBrandColors } from '@/lib/hooks';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
+
+const BoardThumbnail = ({ images }: { images?: string[] }) => {
+  if (!images || images.length === 0) {
+    return (
+      <div className="relative flex h-full w-full items-center justify-center bg-neutral-800">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-neutral-900/80" />
+        <Layout className="h-16 w-16 text-neutral-700" strokeWidth={1} />
+      </div>
+    );
+  }
+
+  const count = images.length;
+
+  return (
+    <div className="grid h-full w-full grid-cols-2 grid-rows-2">
+      {images.slice(0, 4).map((url, i) => {
+        let gridClass = 'col-span-1 row-span-1';
+        if (count === 1) gridClass = 'col-span-2 row-span-2';
+        else if (count === 2) gridClass = 'col-span-1 row-span-2';
+        else if (count === 3 && i === 0) gridClass = 'col-span-2 row-span-1';
+
+        return (
+          <div key={url} className={`relative overflow-hidden ${gridClass}`}>
+            <Image
+              src={url}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 /**
  * Renders the application dashboard, allowing users to manage their tier list boards.
@@ -95,9 +133,8 @@ export function Dashboard() {
                 className="group relative flex flex-col overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-2 hover:ring-blue-500/50"
               >
                 {/* Thumbnail / Icon Placeholder */}
-                <div className="relative flex h-28 items-center justify-center overflow-hidden bg-neutral-800">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-neutral-900/80" />
-                  <Layout className="h-16 w-16 text-neutral-700" strokeWidth={1} />
+                <div className="relative h-28 w-full overflow-hidden bg-neutral-800">
+                  <BoardThumbnail images={board.previewImages} />
 
                   {/* Item Count Badge */}
                   <div className="absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-neutral-400 backdrop-blur-sm">

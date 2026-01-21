@@ -161,6 +161,8 @@ export interface BoardMetadata {
   lastModified: number;
   /** Optional preview image URL. */
   thumbnail?: string;
+  /** Optional list of preview images for a collage. */
+  previewImages?: string[];
   /** Total number of items on the board. */
   itemCount: number;
 }
