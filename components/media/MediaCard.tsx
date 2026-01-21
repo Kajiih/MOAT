@@ -219,16 +219,18 @@ function BaseMediaCard({
   const line2 = getSubtitle(item);
   const line3 = getTertiaryText(item);
 
+  let interactionClasses = 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400';
+  if (isExport) {
+    interactionClasses = 'flex-shrink-0 z-0';
+  } else if (isAdded) {
+    interactionClasses =
+      'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0';
+  }
+
   // When exporting, use a simplified non-interactive container
   const containerClassName = `
     relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm touch-pan-y select-none
-    ${
-      isExport
-        ? 'flex-shrink-0 z-0'
-        : isAdded
-          ? 'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0'
-          : 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400'
-    }
+    ${interactionClasses}
   `;
 
   return (

@@ -3,9 +3,8 @@
  * @description Main dashboard page of the application.
  */
 
+import { Dashboard } from '@/components/dashboard/Dashboard';
 import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
-import TierListApp from '@/components/TierListApp';
-import { TierListProvider } from '@/components/TierListContext';
 
 /**
  * Renders the application dashboard.
@@ -14,9 +13,7 @@ import { TierListProvider } from '@/components/TierListContext';
 export default function Page() {
   return (
     <MediaRegistryProvider>
-      <TierListProvider boardId="default">
-        <TierListApp />
-      </TierListProvider>
+      <Dashboard />
     </MediaRegistryProvider>
   );
 }

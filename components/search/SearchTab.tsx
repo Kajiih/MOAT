@@ -143,6 +143,85 @@ export function SearchTab({
     filters.minDuration ||
     filters.maxDuration;
 
+  let contextPickers = null;
+  if (type !== 'artist') {
+    contextPickers = (
+      <div className="grid grid-cols-1 gap-2">
+        <ArtistPicker
+          selectedArtist={filters.selectedArtist}
+          onSelect={(a) => {
+            const nextAlbum = type === 'song' ? null : filters.selectedAlbum;
+            updateFilters({
+              selectedArtist: a,
+              // If artist changes, reset selected album
+              selectedAlbum: nextAlbum,
+            });
+          }}
+          fuzzy={globalFuzzy}
+          wildcard={globalWildcard}
+          context={type}
+        />
+
+        {type === 'song' && (
+          <AlbumPicker
+            selectedAlbum={filters.selectedAlbum}
+            onSelect={(a) => updateFilters({ selectedAlbum: a })}
+            fuzzy={globalFuzzy}
+            wildcard={globalWildcard}
+            artistId={filters.selectedArtist?.id}
+            context="song-filter"
+          />
+        )}
+      </div>
+    );
+  }
+
+  const renderContent = () => {
+    if (isSearching) {
+      return (
+        <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">
+            {Array.from({ length: 15 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (finalResults.length > 0) {
+      return (
+        <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">
+            {finalResults.map((item) => {
+              const isAdded = addedItemIds.has(item.id);
+              return (
+                <MediaCard
+                  key={`${item.id}-${isAdded}`}
+                  item={item}
+                  id={`search-${item.id}`}
+                  isAdded={isAdded}
+                  onLocate={onLocate}
+                  onInfo={onInfo}
+                />
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="custom-scrollbar flex-1 overflow-y-auto">
+        {hasActiveFilters && (
+          <div className="mt-8 text-center text-sm text-neutral-600 italic">
+            No results found.
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="mb-4 grid shrink-0 grid-cols-1 gap-2">
@@ -177,79 +256,14 @@ export function SearchTab({
               type={type}
               filters={filters}
               updateFilters={updateFilters}
-              contextPickers={
-                type !== 'artist' ? (
-                  <div className="grid grid-cols-1 gap-2">
-                    <ArtistPicker
-                      selectedArtist={filters.selectedArtist}
-                      onSelect={(a) => {
-                        updateFilters({
-                          selectedArtist: a,
-                          // If artist changes, reset selected album
-                          selectedAlbum: type === 'song' ? null : filters.selectedAlbum,
-                        });
-                      }}
-                      fuzzy={globalFuzzy}
-                      wildcard={globalWildcard}
-                      context={type}
-                    />
-
-                    {type === 'song' && (
-                      <AlbumPicker
-                        selectedAlbum={filters.selectedAlbum}
-                        onSelect={(a) => updateFilters({ selectedAlbum: a })}
-                        fuzzy={globalFuzzy}
-                        wildcard={globalWildcard}
-                        artistId={filters.selectedArtist?.id}
-                        context="song-filter"
-                      />
-                    )}
-                  </div>
-                ) : undefined
-              }
+              contextPickers={contextPickers}
             />
           </div>
         )}
       </div>
 
       {/* Content Area: Grid or Loading State */}
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-        {isSearching ? (
-          <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">
-              {Array.from({ length: 15 }).map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
-            </div>
-          </div>
-        ) : finalResults.length > 0 ? (
-          <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">
-              {finalResults.map((item) => {
-                const isAdded = addedItemIds.has(item.id);
-                return (
-                  <MediaCard
-                    key={`${item.id}-${isAdded}`}
-                    item={item}
-                    id={`search-${item.id}`}
-                    isAdded={isAdded}
-                    onLocate={onLocate}
-                    onInfo={onInfo}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <div className="custom-scrollbar flex-1 overflow-y-auto">
-            {hasActiveFilters && (
-              <div className="mt-8 text-center text-sm text-neutral-600 italic">
-                No results found.
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">{renderContent()}</div>
 
       {/* Pagination Footer - Fixed at bottom */}
       {!isSearching && searchResults.length > 0 && totalPages > 1 && (
