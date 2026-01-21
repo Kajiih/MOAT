@@ -112,14 +112,7 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 - Check how keyboard shortcut are handled
 
 - Improve dashboard
-- Make default page an empty tierlist, not dashboard
-- Fix lints, check the following plugins and config:
-  - Maybe remove: 'jsdoc/require-param': 'off',
-  - Check:
-    - 'typescript-eslint'
-- Check config for unicorn lint
-- Check param documentation with props: it's bad
-- Check if we can further improve eslint documentation
+  - Miniature preview: Make sure that we reuse elements with the tierlist/screenshot preview board when possible
 
 ```
 Here are the best ESLint extensions to add to your flat config:

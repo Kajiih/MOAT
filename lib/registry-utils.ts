@@ -23,10 +23,17 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
     const itemCount = allItems.length;
     const now = Date.now();
 
-    // Extract up to 4 unique image URLs for the preview
-    const previewImages = [
-      ...new Set(allItems.map((item) => item.imageUrl).filter((url): url is string => !!url)),
-    ].slice(0, 4);
+    // Generate miniature preview data
+    // Limit to 10 items per tier to keep registry size manageable
+    const previewData = state.tierDefs.map((tier) => ({
+      id: tier.id,
+      label: tier.label,
+      color: tier.color,
+      imageUrls: (state.items[tier.id] || [])
+        .slice(0, 10)
+        .map((item) => item.imageUrl)
+        .filter((url): url is string => !!url),
+    }));
 
     if (index !== -1) {
       // Update existing entry
@@ -36,7 +43,7 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
       if (
         entry.title === state.title &&
         entry.itemCount === itemCount &&
-        JSON.stringify(entry.previewImages) === JSON.stringify(previewImages)
+        JSON.stringify(entry.previewData) === JSON.stringify(previewData)
       ) {
         // Skip write if nothing changed to reduce IO
         return;
@@ -46,7 +53,7 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
         ...entry,
         title: state.title,
         itemCount,
-        previewImages,
+        previewData,
         lastModified: now,
       };
     } else {
@@ -58,7 +65,7 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
         createdAt: now,
         lastModified: now,
         itemCount,
-        previewImages,
+        previewData,
       });
     }
 

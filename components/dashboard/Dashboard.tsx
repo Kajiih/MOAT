@@ -16,44 +16,81 @@ import React from 'react';
 
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Footer } from '@/components/ui/Footer';
-import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
+import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
 import { useBrandColors } from '@/lib/hooks';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
+import { BoardMetadata, TierPreview } from '@/lib/types';
 
-const BoardThumbnail = ({ images }: { images?: string[] }) => {
-  if (!images || images.length === 0) {
+const MiniatureTierList = ({ tiers }: { tiers: TierPreview[] }) => {
+  return (
+    <div className="flex h-full w-full flex-col bg-neutral-900">
+      {tiers.map((tier) => {
+        const theme = getColorTheme(tier.color);
+        return (
+          <div key={tier.id} className="flex min-h-0 flex-1 border-b border-neutral-950 last:border-0">
+            {/* Tier Label */}
+            <div
+              className={`flex w-8 items-center justify-center ${theme.bg} p-0.5 text-[6px] font-bold text-black uppercase`}
+            >
+              <span className="truncate">{tier.label}</span>
+            </div>
+            {/* Tier Items */}
+            <div className="flex flex-1 items-center bg-neutral-800">
+              {tier.imageUrls.slice(0, 12).map((url) => (
+                <div key={url} className="relative aspect-square h-full border-r border-neutral-900">
+                  <Image src={url} alt="" fill className="object-cover" unoptimized />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const BoardThumbnail = ({ board }: { board: BoardMetadata }) => {
+  // 1. Miniature Tier List
+  if (board.previewData && board.previewData.length > 0) {
+    return <MiniatureTierList tiers={board.previewData} />;
+  }
+
+  // 2. Image Grid Fallback
+  if (board.previewImages && board.previewImages.length > 0) {
+    const images = board.previewImages;
+    const count = images.length;
+
     return (
-      <div className="relative flex h-full w-full items-center justify-center bg-neutral-800">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-neutral-900/80" />
-        <Layout className="h-16 w-16 text-neutral-700" strokeWidth={1} />
+      <div className="grid h-full w-full grid-cols-2 grid-rows-2">
+        {images.slice(0, 4).map((url, i) => {
+          let gridClass = 'col-span-1 row-span-1';
+          if (count === 1) gridClass = 'col-span-2 row-span-2';
+          else if (count === 2) gridClass = 'col-span-1 row-span-2';
+          else if (count === 3 && i === 0) gridClass = 'col-span-2 row-span-1';
+
+          return (
+            <div key={url} className={`relative overflow-hidden ${gridClass}`}>
+              <Image
+                src={url}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+          );
+        })}
       </div>
     );
   }
 
-  const count = images.length;
-
+  // 3. Placeholder
   return (
-    <div className="grid h-full w-full grid-cols-2 grid-rows-2">
-      {images.slice(0, 4).map((url, i) => {
-        let gridClass = 'col-span-1 row-span-1';
-        if (count === 1) gridClass = 'col-span-2 row-span-2';
-        else if (count === 2) gridClass = 'col-span-1 row-span-2';
-        else if (count === 3 && i === 0) gridClass = 'col-span-2 row-span-1';
-
-        return (
-          <div key={url} className={`relative overflow-hidden ${gridClass}`}>
-            <Image
-              src={url}
-              alt=""
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-        );
-      })}
+    <div className="relative flex h-full w-full items-center justify-center bg-neutral-800">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-neutral-900/80" />
+      <Layout className="h-16 w-16 text-neutral-700" strokeWidth={1} />
     </div>
   );
 };
@@ -134,7 +171,7 @@ export function Dashboard() {
               >
                 {/* Thumbnail / Icon Placeholder */}
                 <div className="relative h-28 w-full overflow-hidden bg-neutral-800">
-                  <BoardThumbnail images={board.previewImages} />
+                  <BoardThumbnail board={board} />
 
                   {/* Item Count Badge */}
                   <div className="absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-neutral-400 backdrop-blur-sm">

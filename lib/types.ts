@@ -148,6 +148,16 @@ export interface TierListState {
 }
 
 /**
+ * Simplified tier data for the dashboard preview.
+ */
+export interface TierPreview {
+  id: string;
+  label: string;
+  color: string;
+  imageUrls: string[];
+}
+
+/**
  * Metadata for a single board in the registry.
  */
 export interface BoardMetadata {
@@ -159,10 +169,12 @@ export interface BoardMetadata {
   createdAt: number;
   /** Last modification timestamp. */
   lastModified: number;
-  /** Optional preview image URL. */
+  /** Optional preview image URL (legacy). */
   thumbnail?: string;
-  /** Optional list of preview images for a collage. */
+  /** Optional list of preview images for a collage (legacy). */
   previewImages?: string[];
+  /** Structure for rendering a miniature tier list. */
+  previewData?: TierPreview[];
   /** Total number of items on the board. */
   itemCount: number;
 }
