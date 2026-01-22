@@ -91,7 +91,7 @@ export function usePersistentReducer<S, A>(
   }, [key, initialState]);
 
   // 2. Persist Updates (Debounced)
-  const [debouncedState] = useDebounce(state, 1000);
+  const [debouncedState] = useDebounce(state, 500);
 
   useEffect(() => {
     if (!isHydrated) return;

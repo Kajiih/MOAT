@@ -113,7 +113,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   // --- Metadata Sync ---
   // Keep the Dashboard Registry in sync with the current board state (title, item count).
   // We use a separate debounce to avoid slamming the registry during rapid edits.
-  const [debouncedMetadataState] = useDebounce(state, 2000);
+  const [debouncedMetadataState] = useDebounce(state, 1000);
 
   React.useEffect(() => {
     if (isHydrated && boardId) {

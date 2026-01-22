@@ -169,10 +169,8 @@ export interface BoardMetadata {
   createdAt: number;
   /** Last modification timestamp. */
   lastModified: number;
-  /** Optional preview image URL. */
+  /** Optional preview image URL (legacy). */
   thumbnail?: string;
-  /** Optional list of preview images for a collage. */
-  previewImages?: string[];
   /** Structure for rendering a miniature tier list. */
   previewData?: TierPreview[];
   /** Total number of items on the board. */

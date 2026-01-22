@@ -56,37 +56,7 @@ const BoardThumbnail = ({ board }: { board: BoardMetadata }) => {
     return <MiniatureTierList tiers={board.previewData} />;
   }
 
-  // 2. Image Grid Fallback
-  if (board.previewImages && board.previewImages.length > 0) {
-    const images = board.previewImages;
-    const count = images.length;
-
-    return (
-      <div className="grid h-full w-full grid-cols-2 grid-rows-2">
-        {images.slice(0, 4).map((url, i) => {
-          let gridClass = 'col-span-1 row-span-1';
-          if (count === 1) gridClass = 'col-span-2 row-span-2';
-          else if (count === 2) gridClass = 'col-span-1 row-span-2';
-          else if (count === 3 && i === 0) gridClass = 'col-span-2 row-span-1';
-
-          return (
-            <div key={url} className={`relative overflow-hidden ${gridClass}`}>
-              <Image
-                src={url}
-                alt=""
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 3. Placeholder
+  // 2. Placeholder
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-neutral-800">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-neutral-900/80" />
