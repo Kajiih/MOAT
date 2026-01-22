@@ -29,7 +29,6 @@
   - **Registry System**: A `MediaRegistry`-independent "Board Registry" manages the list of all created tier lists.
   - **Dashboard**: The entry point of the application (`app/page.tsx`) renders the `Dashboard` component, allowing users to create, delete, and navigate between multiple independent boards.
   - **Dynamic Routing**: Each board is identified by a UUID and accessed via `/board/[id]`. The `TierListProvider` is initialized with this ID to isolate state persistence for each board (e.g., `moat-board-{uuid}`).
-  - **Legacy Migration**: On first load, the system automatically detects and migrates legacy single-board state to the new multi-board format.
 
 - **Tier List Title**:
   - Users can define a custom title for their tier list, stored in the `TierListState` managed by the `useTierList` hook.
@@ -221,7 +220,7 @@ Moat supports dynamic Open Graph images for social sharing.
     - `KeyboardShortcutsModal.tsx`: Displays available keyboard shortcuts.
 - `lib/hooks/`:
   - `index.ts`: Barrel file exporting all hooks.
-  - `useBoardRegistry.ts`: **[New]** Manages the list of user boards and legacy migration.
+  - `useBoardRegistry.ts`: **[New]** Manages the list of user boards.
   - `useDynamicFavicon.ts`: **[New]** Generates and applies dynamic favicons.
   - `useBrandColors.ts`: **[New]** Extracts palette from tier state.
   - `useTierListIO.ts`: Encapsulates Import/Export logic.

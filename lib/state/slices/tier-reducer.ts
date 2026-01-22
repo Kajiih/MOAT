@@ -44,10 +44,11 @@ export function handleAddTier(state: TierListState): TierListState {
 }
 
 /**
- * Logic for deleting a tier and migrating its items to another tier if possible.
- * @param state - Current tier list state.
- * @param payload - Contains the ID of the tier to delete.
- * @returns Updated state with the tier removed and items migrated.
+ * Deletes a tier by ID.
+ * Items in the deleted tier are effectively removed from the board (orphaned items are not kept in a holding area in this implementation).
+ * @param state - Current state.
+ * @param payload - The payload containing the ID of the tier to delete.
+ * @returns Updated state with the tier removed and items cleared.
  */
 export function handleDeleteTier(state: TierListState, payload: DeleteTierPayload): TierListState {
   const { id } = payload;

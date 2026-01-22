@@ -57,7 +57,7 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
         lastModified: now,
       };
     } else {
-      // Edge case: Board exists in editor but not in registry (e.g. legacy migration or error)
+      // Edge case: Board exists in editor but not in registry (e.g. error recovery)
       // Re-create the entry
       registry.push({
         id,

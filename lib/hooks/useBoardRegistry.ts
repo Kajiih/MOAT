@@ -10,10 +10,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { storage } from '@/lib/storage';
-import { BoardMetadata, TierListState } from '@/lib/types';
+import { BoardMetadata } from '@/lib/types';
 
 const REGISTRY_KEY = 'moat-registry';
-const LEGACY_KEY = 'moat-tierlist';
 
 /**
  * Hook for managing the application's board registry.
@@ -32,29 +31,6 @@ export function useBoardRegistry() {
         const registry = await storage.get<BoardMetadata[]>(REGISTRY_KEY);
         if (registry) {
           setBoards(registry.toSorted((a, b) => b.lastModified - a.lastModified));
-        } else {
-          // Check for legacy board migration
-          const legacyState = await storage.get<Partial<TierListState>>(LEGACY_KEY);
-          if (legacyState) {
-            console.log('Migrating legacy board...');
-            const newId = uuidv4();
-            const newMeta: BoardMetadata = {
-              id: newId,
-              title: legacyState.title || 'My First Board',
-              createdAt: Date.now(),
-              lastModified: Date.now(),
-              itemCount: Object.values(legacyState.items || {}).flat().length,
-            };
-
-            // Save legacy state to new key
-            await storage.set(`moat-board-${newId}`, legacyState);
-
-            // Initialize registry
-            await storage.set(REGISTRY_KEY, [newMeta]);
-            setBoards([newMeta]);
-
-            // Optional: We could delete legacy key, but safer to keep as backup for now
-          }
         }
       } catch (error) {
         console.error('Failed to load board registry', error);

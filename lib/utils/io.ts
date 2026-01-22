@@ -68,14 +68,14 @@ export function downloadJson(data: object, filename: string) {
  * @returns A normalized TierListState object.
  */
 export function parseImportData(jsonString: string, fallbackTitle: string): TierListState {
-  const parsed = JSON.parse(jsonString);
+  const data = JSON.parse(jsonString);
 
-  // 1. Handle New Nested Format (ExportData)
-  if (parsed.tiers && Array.isArray(parsed.tiers)) {
+  // 1. Handle ExportData Format
+  if (data.tiers && Array.isArray(data.tiers)) {
     const newTierDefs: TierDefinition[] = [];
     const newItems: Record<string, MediaItem[]> = {};
 
-    parsed.tiers.forEach((tier: { label: string; color: string; items: MediaItem[] }) => {
+    data.tiers.forEach((tier: { label: string; color: string; items: MediaItem[] }) => {
       const id = crypto.randomUUID();
       newTierDefs.push({
         id,
@@ -86,19 +86,11 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
     });
 
     return {
-      title: parsed.title || fallbackTitle,
+      title: data.title || fallbackTitle,
       tierDefs: newTierDefs,
       items: newItems,
     };
   }
 
-  // 2. Handle Legacy Format (Raw State Dump)
-  if (parsed && 'tierDefs' in parsed) {
-    return {
-      ...parsed,
-      title: parsed.title || fallbackTitle,
-    };
-  }
-
-  throw new Error('Invalid tier list format');
+  throw new Error('Invalid tier list file format.');
 }
