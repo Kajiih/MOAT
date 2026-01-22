@@ -4,7 +4,7 @@
  * Currently uses 'idb-keyval' for asynchronous IndexedDB storage.
  */
 
-import { del, get, set } from 'idb-keyval';
+import { del, get, keys, set } from 'idb-keyval';
 
 /**
  * Interface defining the abstract storage backend for the application.
@@ -16,6 +16,8 @@ export interface StorageBackend {
   set: <T>(key: string, value: T) => Promise<void>;
   /** Removes a value by key. */
   del: (key: string) => Promise<void>;
+  /** Retrieves all keys. */
+  keys: () => Promise<IDBValidKey[]>;
 }
 
 export const storage: StorageBackend = {
@@ -39,6 +41,14 @@ export const storage: StorageBackend = {
       await del(key);
     } catch (error) {
       console.error(`Storage del error for key "${key}":`, error);
+    }
+  },
+  keys: async () => {
+    try {
+      return await keys();
+    } catch (error) {
+      console.error('Storage keys error:', error);
+      return [];
     }
   },
 };

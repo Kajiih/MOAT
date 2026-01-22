@@ -6,84 +6,61 @@
 import { storage } from '@/lib/storage';
 import { BoardMetadata, TierListState } from '@/lib/types';
 
-const REGISTRY_KEY = 'moat-registry';
-
-// Mutex to prevent race conditions during read-modify-write of the registry
-let syncQueue = Promise.resolve();
-
 /**
  * Updates the metadata for a specific board in the registry.
  * Designed to be called from within the board editor to keep the dashboard in sync.
  * @param id - The ID of the board to sync.
  * @param state - The current state of the board.
- * @returns A promise that resolves when the sync operation is complete (or queued).
  */
-export function syncBoardMetadata(id: string, state: TierListState) {
-  // Chain operations to ensure sequential execution
-  syncQueue = syncQueue
-    .then(async () => {
-      try {
-        const registry = (await storage.get<BoardMetadata[]>(REGISTRY_KEY)) || [];
-        const index = registry.findIndex((b) => b.id === id);
+export async function syncBoardMetadata(id: string, state: TierListState) {
+  try {
+    const metaKey = `moat-meta-${id}`;
+    const allItems = Object.values(state.items).flat();
 
-        const allItems = Object.values(state.items).flat();
-        const itemCount = allItems.length;
-        const now = Date.now();
+    // Generate miniature preview data
+    // Limit to 10 items per tier to keep registry size manageable
+    const previewData = state.tierDefs.map((tier) => ({
+      id: tier.id,
+      label: tier.label,
+      color: tier.color,
+      imageUrls: (state.items[tier.id] || [])
+        .slice(0, 10)
+        .map((item) => item.imageUrl)
+        .filter((url): url is string => !!url),
+    }));
 
-        // Generate miniature preview data
-        // Limit to 10 items per tier to keep registry size manageable
-        const previewData = state.tierDefs.map((tier) => ({
-          id: tier.id,
-          label: tier.label,
-          color: tier.color,
-          imageUrls: (state.items[tier.id] || [])
-            .slice(0, 10)
-            .map((item) => item.imageUrl)
-            .filter((url): url is string => !!url),
-        }));
+    const metadata: BoardMetadata = {
+      id,
+      title: state.title,
+      itemCount: allItems.length,
+      previewData,
+      // We don't track createdAt here easily without reading first,
+      // but lastModified is the critical one for sorting.
+      // If we really need createdAt, we'd need to read the existing meta first.
+      createdAt: Date.now(), // Fallback, will be corrected by read-modify logic below
+      lastModified: Date.now(),
+    };
 
-        if (index !== -1) {
-          // Update existing entry
-          const entry = registry[index];
+    // Optimization: Read existing to preserve createdAt and avoid unnecessary writes?
+    // Actually, simple overwrite is safer and faster.
+    // BUT we lose createdAt if we just overwrite.
+    // Let's do a quick read. It is atomic per board so safe.
+    const existing = await storage.get<BoardMetadata>(metaKey);
+    if (existing) {
+      metadata.createdAt = existing.createdAt;
 
-          // Only write if something changed (optimization)
-          if (
-            entry.title === state.title &&
-            entry.itemCount === itemCount &&
-            JSON.stringify(entry.previewData) === JSON.stringify(previewData)
-          ) {
-            // Skip write if nothing changed to reduce IO
-            return;
-          }
-
-          registry[index] = {
-            ...entry,
-            title: state.title,
-            itemCount,
-            previewData,
-            lastModified: now,
-          };
-        } else {
-          // Edge case: Board exists in editor but not in registry (e.g. error recovery)
-          // Re-create the entry
-          registry.push({
-            id,
-            title: state.title,
-            createdAt: now,
-            lastModified: now,
-            itemCount,
-            previewData,
-          });
-        }
-
-        await storage.set(REGISTRY_KEY, registry);
-      } catch (error) {
-        console.error('Failed to sync board metadata', error);
+      // Deep compare to avoid write if identical
+      if (
+        existing.title === metadata.title &&
+        existing.itemCount === metadata.itemCount &&
+        JSON.stringify(existing.previewData) === JSON.stringify(metadata.previewData)
+      ) {
+        return;
       }
-    })
-    .catch((error) => {
-      console.error('Critical error in sync queue', error);
-    });
+    }
 
-  return syncQueue;
+    await storage.set(metaKey, metadata);
+  } catch (error) {
+    console.error('Failed to sync board metadata', error);
+  }
 }

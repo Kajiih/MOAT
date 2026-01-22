@@ -2,7 +2,7 @@
  * @file useBoardRegistry.ts
  * @description Manages the global registry of tier list boards.
  * Handles creating, deleting, and updating metadata for multiple boards.
- * Includes logic for migrating legacy single-board state to the new multi-board format.
+ * Each board's metadata is stored in an independent `moat-meta-{id}` key.
  * @module useBoardRegistry
  */
 
@@ -12,12 +12,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { storage } from '@/lib/storage';
 import { BoardMetadata } from '@/lib/types';
 
-const REGISTRY_KEY = 'moat-registry';
-
 /**
  * Hook for managing the application's board registry.
  * Provides methods to list, create, delete, and update tier lists.
- * Automatically handles legacy data migration on initialization.
  * @returns An object containing the list of boards and methods to manage them.
  */
 export function useBoardRegistry() {
@@ -28,10 +25,20 @@ export function useBoardRegistry() {
   useEffect(() => {
     const loadRegistry = async () => {
       try {
-        const registry = await storage.get<BoardMetadata[]>(REGISTRY_KEY);
-        if (registry) {
-          setBoards(registry.toSorted((a, b) => b.lastModified - a.lastModified));
-        }
+        // Scan for all metadata keys
+        const allKeys = await storage.keys();
+        const metaKeys = allKeys.filter(
+          (k): k is string => typeof k === 'string' && k.startsWith('moat-meta-'),
+        );
+        const metaItems = await Promise.all(
+          metaKeys.map((k) => storage.get<BoardMetadata>(k)),
+        );
+
+        const validBoards = metaItems
+          .filter((b): b is BoardMetadata => !!b)
+          .toSorted((a, b) => b.lastModified - a.lastModified);
+
+        setBoards(validBoards);
       } catch (error) {
         console.error('Failed to load board registry', error);
       } finally {
@@ -58,12 +65,14 @@ export function useBoardRegistry() {
         itemCount: 0,
       };
 
-      const updatedBoards = [newMeta, ...boards];
-      setBoards(updatedBoards);
-      await storage.set(REGISTRY_KEY, updatedBoards);
+      // Optimistic update
+      setBoards((prev) => [newMeta, ...prev]);
+
+      // Atomic write
+      await storage.set(`moat-meta-${newId}`, newMeta);
       return newId;
     },
-    [boards],
+    [],
   );
 
   /**
@@ -72,12 +81,13 @@ export function useBoardRegistry() {
    */
   const deleteBoard = useCallback(
     async (id: string) => {
-      const updatedBoards = boards.filter((b) => b.id !== id);
-      setBoards(updatedBoards);
-      await storage.set(REGISTRY_KEY, updatedBoards);
+      // Optimistic update
+      setBoards((prev) => prev.filter((b) => b.id !== id));
+
+      await storage.del(`moat-meta-${id}`);
       await storage.del(`moat-board-${id}`);
     },
-    [boards],
+    [],
   );
 
   /**
@@ -88,14 +98,24 @@ export function useBoardRegistry() {
    */
   const updateBoardMeta = useCallback(
     async (id: string, updates: Partial<BoardMetadata>) => {
-      const updatedBoards = boards
-        .map((b) => (b.id === id ? { ...b, ...updates, lastModified: Date.now() } : b))
-        .toSorted((a, b) => b.lastModified - a.lastModified);
+      // Optimistic update
+      setBoards((prev) =>
+        prev
+          .map((b) => (b.id === id ? { ...b, ...updates, lastModified: Date.now() } : b))
+          .toSorted((a, b) => b.lastModified - a.lastModified),
+      );
 
-      setBoards(updatedBoards);
-      await storage.set(REGISTRY_KEY, updatedBoards);
+      // Atomic read-modify-write for safety (though mostly updates are from Dashboard itself)
+      const current = await storage.get<BoardMetadata>(`moat-meta-${id}`);
+      if (current) {
+        await storage.set(`moat-meta-${id}`, {
+          ...current,
+          ...updates,
+          lastModified: Date.now(),
+        });
+      }
     },
-    [boards],
+    [],
   );
 
   return {
