@@ -58,7 +58,7 @@ function handleMoveFromSearch(
       ...state.items,
       [overContainer]: [
         ...state.items[overContainer].slice(0, newIndex),
-        { ...draggingItemFromSearch },
+        { ...draggingItemFromSearch, id: activeId },
         ...state.items[overContainer].slice(newIndex),
       ],
     },
