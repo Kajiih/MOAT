@@ -28,17 +28,13 @@ interface ExternalLinksProps {
  * @returns The rendered ExternalLinks component.
  */
 export function ExternalLinks({ mbId, type, urls }: ExternalLinksProps) {
-  // Ensure we have a clean ID (strip search- prefix if present)
-  // MusicBrainz IDs are usually UUIDs (8-4-4-4-12 chars)
-  const cleanId = mbId.startsWith('search-') ? mbId.replace('search-', '') : mbId;
-  
   const mbTypeMap: Record<string, string> = {
     album: 'release-group',
     song: 'recording',
     artist: 'artist',
   };
   const mbType = mbTypeMap[type] || 'artist';
-  const musicBrainzUrl = `https://musicbrainz.org/${mbType}/${cleanId}`;
+  const musicBrainzUrl = `https://musicbrainz.org/${mbType}/${mbId}`;
 
   return (
     <div className="mt-6">

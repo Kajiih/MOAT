@@ -58,7 +58,7 @@ function handleMoveFromSearch(
       ...state.items,
       [overContainer]: [
         ...state.items[overContainer].slice(0, newIndex),
-        { ...draggingItemFromSearch, id: activeId },
+        { ...draggingItemFromSearch },
         ...state.items[overContainer].slice(newIndex),
       ],
     },
@@ -197,9 +197,7 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
         ...state,
         items: {
           ...state.items,
-          [tierId]: state.items[tierId].filter(
-            (a) => a.id !== itemId && a.id !== `search-${itemId}`,
-          ),
+          [tierId]: state.items[tierId].filter((a) => a.id !== itemId),
         },
       };
     }
