@@ -48,6 +48,7 @@ interface TierListContextType {
     locate: (id: string) => void;
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
     export: () => void;
+    publish: () => Promise<string | null>;
   };
   dnd: {
     sensors: SensorDescriptor<SensorOptions>[];
@@ -161,6 +162,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       isHydrated,
       actions: {
         ...actions,
+        publish: ioRaw.handlePublish,
         updateMediaItem: (itemId: string, updates: Partial<MediaItem>) =>
           actions.updateMediaItem(itemId, updates, registerItem),
       },
@@ -168,7 +170,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       ui,
       history,
     }),
-    [state, isHydrated, actions, dnd, ui, history, registerItem],
+    [state, isHydrated, actions, dnd, ui, history, registerItem, ioRaw.handlePublish],
   );
 
   return <TierListContext.Provider value={value}>{children}</TierListContext.Provider>;

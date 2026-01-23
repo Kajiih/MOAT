@@ -228,6 +228,25 @@ export interface MediaDetails {
   albumId?: string;
 }
 
+// --- Zod Schemas for State Validation ---
+
+export const TierDefinitionSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  color: z.string(),
+});
+
+/**
+ * Since MediaItem is a complex union, we use a more permissive schema
+ * for board state validation to avoid constant maintenance of duplicate definitions.
+ * We strictly validate the structure but allow any properties for the items themselves.
+ */
+export const TierListSchema = z.object({
+  title: z.string(),
+  tierDefs: z.array(TierDefinitionSchema),
+  items: z.record(z.string(), z.array(z.any())),
+});
+
 // --- Zod Schemas for MusicBrainz API ---
 
 // Common

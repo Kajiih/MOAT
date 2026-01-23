@@ -11,6 +11,7 @@
 import {
   Camera,
   ChevronLeft,
+  CloudUpload,
   Download,
   Keyboard,
   Loader2,
@@ -22,6 +23,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { ShareModal } from '@/components/share/ShareModal';
 import { useTierListContext } from '@/components/TierListContext';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 
@@ -50,13 +52,31 @@ interface HeaderProps {
 export function Header({ onScreenshot, isCapturing }: HeaderProps) {
   const {
     state,
-    actions: { import: handleImport, export: handleExport, clear: handleClear, updateTitle },
+    actions: {
+      import: handleImport,
+      export: handleExport,
+      publish: handlePublish,
+      clear: handleClear,
+      updateTitle,
+    },
     ui: { headerColors },
     history: { undo, redo, canUndo, canRedo, push: pushHistory },
   } = useTierListContext();
 
   const brandColors = useBrandColors(headerColors);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+  const onPublish = async () => {
+    setIsPublishing(true);
+    const id = await handlePublish();
+    if (id) {
+      const url = `${globalThis.location.origin}/share/${id}`;
+      setShareUrl(url);
+    }
+    setIsPublishing(false);
+  };
 
   return (
     <header className="pointer-events-none relative z-50 mb-8 flex flex-col items-center gap-4 md:grid md:grid-cols-[auto_1fr_auto]">
@@ -106,6 +126,20 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           </button>
         </div>
 
+        <button
+          onClick={onPublish}
+          disabled={isPublishing}
+          className="flex items-center gap-2 rounded bg-blue-600 px-3 py-2 text-sm font-bold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 shadow-lg shadow-blue-900/20"
+          title="Publish to Cloud"
+        >
+          {isPublishing ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <CloudUpload size={16} />
+          )}
+          <span className="hidden sm:inline">Share</span>
+        </button>
+
         <label
           className="flex cursor-pointer items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm transition-colors hover:bg-neutral-700"
           title="Import from JSON"
@@ -139,6 +173,11 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
         </button>
 
         <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
+        <ShareModal
+          isOpen={!!shareUrl}
+          onClose={() => setShareUrl(null)}
+          shareUrl={shareUrl || ''}
+        />
       </div>
     </header>
   );

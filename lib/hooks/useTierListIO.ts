@@ -83,8 +83,36 @@ export function useTierListIO(
     [dispatch, showToast, pushHistory, registerItems],
   );
 
+  /**
+   * Publishes the current board state to the cloud.
+   * @returns The generated share ID.
+   */
+  const handlePublish = useCallback(async () => {
+    try {
+      const response = await fetch('/api/share/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Publish API Error:', errorData);
+        throw new Error(errorData.error || 'Failed to publish board');
+      }
+
+      const data = await response.json();
+      return data.id as string;
+    } catch (error) {
+      console.error(error);
+      showToast('Failed to publish board to cloud.', 'error');
+      return null;
+    }
+  }, [state, showToast]);
+
   return {
     handleExport,
     handleImport,
+    handlePublish,
   };
 }
