@@ -11,7 +11,8 @@ import { TierListState } from '@/lib/types';
 /**
  * Retrieves a shared board from cloud storage.
  * @param _request - The incoming request object (unused).
- * @param context - The context object containing route parameters.
+ * @param context - The context object.
+ * @param context.params - Promise resolving to the route parameters containing the board ID.
  * @returns A response containing the board data or an error message.
  */
 export async function GET(

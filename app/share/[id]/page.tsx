@@ -28,7 +28,8 @@ async function getSharedBoard(id: string): Promise<TierListState | null> {
 
 /**
  * Generates dynamic metadata for the shared board page.
- * @param props - The props containing route parameters.
+ * @param props - The component props.
+ * @param props.params - Promise resolving to the route parameters.
  * @returns Metadata object for the page.
  */
 export async function generateMetadata({ params }: SharePageProps): Promise<Metadata> {
@@ -51,7 +52,8 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
 /**
  * Server component for the public shared board page.
  * Fetches the board data from cloud storage and renders it.
- * @param props - The props containing route parameters.
+ * @param props - The component props.
+ * @param props.params - Promise resolving to the route parameters.
  * @returns The rendered page or a 404 if not found.
  */
 export default async function SharePage({ params }: SharePageProps) {
