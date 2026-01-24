@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * @file SortDropdown.tsx
  * @description A dropdown component for selecting the sort order of search results.
@@ -8,11 +6,11 @@
  */
 
 import { ArrowUpDown } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
-import { useClickOutside } from '@/lib/hooks/useClickOutside';
-import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 import { MediaType, SortOption } from '@/lib/types';
+
+import { Popover } from './Popover';
 
 /**
  * Props for the SortDropdown component.
@@ -36,10 +34,6 @@ interface SortDropdownProps {
  */
 export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEscapeKey(() => setIsOpen(false), isOpen);
-  useClickOutside(dropdownRef, () => setIsOpen(false), isOpen);
 
   const OPTIONS: { id: SortOption; label: string }[] = [
     { id: 'relevance', label: 'Relevance' },
@@ -57,30 +51,34 @@ export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownPro
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`rounded border p-2 transition-colors ${isOpen ? 'border-neutral-600 bg-neutral-800 text-white' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
-        title="Sort Results"
-      >
-        <ArrowUpDown size={18} />
-      </button>
-      {isOpen && (
-        <div className="absolute top-full right-0 z-50 mt-2 flex w-48 flex-col overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 p-1 shadow-xl">
-          {OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => {
-                onSortChange(opt.id);
-                setIsOpen(false);
-              }}
-              className={`rounded px-3 py-2 text-left text-xs transition-colors hover:bg-neutral-800 ${sortOption === opt.id ? 'bg-neutral-800 font-bold text-white' : 'text-neutral-400'}`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <Popover
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      contentClassName="top-full right-0"
+      trigger={
+        <button
+          className={`rounded border p-2 transition-colors ${isOpen ? 'border-neutral-600 bg-neutral-800 text-white' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
+          title="Sort Results"
+        >
+          <ArrowUpDown size={18} />
+        </button>
+      }
+    >
+      <div className="flex w-48 flex-col overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 p-1 shadow-xl">
+        {OPTIONS.map((opt) => (
+          <button
+            key={opt.id}
+            onClick={() => {
+              onSortChange(opt.id);
+              setIsOpen(false);
+            }}
+            className={`rounded px-3 py-2 text-left text-xs transition-colors hover:bg-neutral-800 ${sortOption === opt.id ? 'bg-neutral-800 font-bold text-white' : 'text-neutral-400'}`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </Popover>
   );
 }
+

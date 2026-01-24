@@ -1,20 +1,15 @@
 /**
  * @file TierSettings.tsx
- * @description A popover menu for configuring a specific tier.
- * Allows changing the tier's color theme and deleting the tier.
- * Handles click-outside detection for auto-closing.
+ * @description A settings popover for a tier row, allowing color selection and deletion.
  * @module TierSettings
  */
 
-'use client';
-
 import { Settings, Trash2 } from 'lucide-react';
-import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { TIER_COLORS } from '@/lib/colors';
-import { useClickOutside } from '@/lib/hooks/useClickOutside';
-import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
+
+import { Popover } from '../ui/Popover';
 
 /**
  * Props for the TierSettings component.
@@ -48,7 +43,7 @@ interface TierSettingsProps {
  * @param props.isOpen - Whether the settings popover is currently open.
  * @param props.onToggle - Toggles the popover open/closed.
  * @param props.onClose - Forces the popover to close.
- * @param [props.isAnyDragging] - Global dragging state.
+ * @param props.isAnyDragging - Global dragging state.
  * @returns The rendered TierSettings component.
  */
 export function TierSettings({
@@ -61,74 +56,76 @@ export function TierSettings({
   onClose,
   isAnyDragging,
 }: TierSettingsProps) {
-  const settingsRef = useRef<HTMLDivElement>(null);
-
-  useEscapeKey(onClose, isOpen);
-  useClickOutside(settingsRef, onClose, isOpen);
-
   return (
-    <>
-      <button
-        onClick={onToggle}
-        className={twMerge(
-          'absolute right-1 bottom-1 rounded bg-black/20 p-1 text-black transition-opacity hover:bg-black/40',
-          isAnyDragging ? 'pointer-events-none opacity-0' : 'opacity-0 group-hover/row:opacity-100',
-        )}
-        title="Tier Settings"
-      >
-        <Settings size={14} />
-      </button>
-
-      {isOpen && (
-        <div
-          ref={settingsRef}
-          className="absolute top-0 left-0 z-50 flex w-[280px] flex-col gap-3 rounded-lg border border-neutral-700 bg-neutral-900 p-3 shadow-2xl"
-          style={{ transform: 'translate(10px, 10px)' }}
+    <Popover
+      isOpen={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+        else onToggle();
+      }}
+      className="absolute right-1 bottom-1"
+      contentClassName="bottom-0 right-0"
+      trigger={
+        <button
+          className={twMerge(
+            'flex rounded bg-black/20 p-1 text-black transition-opacity hover:bg-black/40',
+            isAnyDragging ? 'pointer-events-none opacity-0' : 'opacity-0 group-hover/row:opacity-100',
+            isOpen && 'opacity-100 bg-black/40',
+          )}
+          title="Tier Settings"
         >
-          <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-            <span className="text-xs font-bold text-neutral-400 uppercase">Tier Settings</span>
-            <button onClick={onClose} className="text-neutral-500 hover:text-white">
-              ✕
-            </button>
-          </div>
+          <Settings size={14} />
+        </button>
+      }
+    >
+      <div
+        className="flex w-[280px] flex-col gap-3 rounded-lg border border-neutral-700 bg-neutral-900 p-3 shadow-2xl"
+        style={{ transform: 'translate(10px, 10px)' }}
+      >
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+          <span className="text-xs font-bold text-neutral-400 uppercase">Tier Settings</span>
+          <button onClick={onClose} className="text-neutral-500 hover:text-white">
+            ✕
+          </button>
+        </div>
 
-          {/* Colors */}
-          <div>
-            <div className="mb-1 text-xs text-neutral-500">Color</div>
-            <div className="flex flex-wrap gap-1">
-              {TIER_COLORS.map((c) => (
-                <button
-                  key={c.id}
-                  title={c.label}
-                  className={twMerge(
-                    'h-6 w-6 rounded-full border border-transparent transition-transform hover:scale-110',
-                    c.bg,
-                    color === c.id && 'border-white ring-1 ring-white',
-                  )}
-                  onClick={() => onUpdateColor(c.id)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex flex-col gap-1">
-            {canDelete && (
+        {/* Colors */}
+        <div>
+          <div className="mb-1 text-xs text-neutral-500">Color</div>
+          <div className="flex flex-wrap gap-1">
+            {TIER_COLORS.map((c) => (
               <button
-                onClick={() => {
-                  if (confirm('Delete tier?')) onDelete();
-                }}
-                className="mt-1 flex items-center justify-center gap-2 rounded bg-red-900/30 p-1 text-xs text-red-200 hover:bg-red-900/50"
-              >
-                <Trash2 size={14} /> Delete Tier
-              </button>
-            )}
-            <div className="mt-2 text-center text-[10px] text-neutral-600">
-              Tip: Drag the grip handle on the left to reorder
-            </div>
+                key={c.id}
+                title={c.label}
+                className={twMerge(
+                  'h-6 w-6 rounded-full border border-transparent transition-transform hover:scale-110',
+                  c.bg,
+                  color === c.id && 'border-white ring-1 ring-white',
+                )}
+                onClick={() => onUpdateColor(c.id)}
+              />
+            ))}
           </div>
         </div>
-      )}
-    </>
+
+        {/* Actions */}
+        <div className="flex flex-col gap-1">
+          {canDelete && (
+            <button
+              onClick={() => {
+                if (confirm('Delete tier?')) onDelete();
+              }}
+              className="mt-1 flex items-center justify-center gap-2 rounded bg-red-900/30 p-1 text-xs text-red-200 hover:bg-red-900/50"
+            >
+              <Trash2 size={14} /> Delete Tier
+            </button>
+          )}
+          <div className="mt-2 text-center text-[10px] text-neutral-600">
+            Tip: Drag the grip handle on the left to reorder
+          </div>
+        </div>
+      </div>
+    </Popover>
   );
 }
+
