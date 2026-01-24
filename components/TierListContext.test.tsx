@@ -58,8 +58,10 @@ describe('TierListContext', () => {
     <TierListProvider boardId="test-board">{children}</TierListProvider>
   );
 
-  it('should initialize with default state', () => {
+  it('should initialize with default state', async () => {
     const { result } = renderHook(() => useTierListContext(), { wrapper });
+
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
 
     // Check default tiers
     expect(result.current.state.tierDefs).toHaveLength(6);
@@ -67,8 +69,9 @@ describe('TierListContext', () => {
     expect(result.current.state.tierDefs[5].label).toBe('Unranked');
   });
 
-  it('should add and delete tiers', () => {
+  it('should add and delete tiers', async () => {
     const { result } = renderHook(() => useTierListContext(), { wrapper });
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
 
     // Add Tier
     act(() => {
@@ -91,8 +94,10 @@ describe('TierListContext', () => {
     expect(result.current.state.tierDefs).toHaveLength(6);
   });
 
-  it('should update tier properties', () => {
+  it('should update tier properties', async () => {
     const { result } = renderHook(() => useTierListContext(), { wrapper });
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
+
     const tierId = result.current.state.tierDefs[0].id;
 
     act(() => {
@@ -104,6 +109,7 @@ describe('TierListContext', () => {
 
   it('should import from valid JSON', async () => {
     const { result } = renderHook(() => useTierListContext(), { wrapper });
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
 
     const validImportData = {
       version: 1,
@@ -135,6 +141,8 @@ describe('TierListContext', () => {
 
   it('should handle invalid JSON import gracefully', async () => {
     const { result } = renderHook(() => useTierListContext(), { wrapper });
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
+
     const initialCount = result.current.state.tierDefs.length;
 
     const file = new File(['invalid json'], 'bad.json', { type: 'application/json' });
@@ -158,8 +166,9 @@ describe('TierListContext', () => {
     spy.mockRestore();
   });
 
-  it('should clear the board', () => {
+  it('should clear the board', async () => {
     const { result } = renderHook(() => useTierListContext(), { wrapper });
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
 
     // Simulate items on board (manually inject or assume initial state is empty)
     // Let's add a tier first to change state
@@ -176,8 +185,10 @@ describe('TierListContext', () => {
     expect(result.current.state.tierDefs).toHaveLength(6);
   });
 
-  it('should undo and redo state changes', () => {
+  it('should undo and redo state changes', async () => {
     const { result } = renderHook(() => useTierListContext(), { wrapper });
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
+
     const initialCount = result.current.state.tierDefs.length;
 
     // 1. Perform an action

@@ -64,6 +64,10 @@ describe('useScreenshot', () => {
   });
 
   it('should handle capture failure gracefully', async () => {
+    // Silence console error and log for this test as we expect failures
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
     vi.mocked(toPng).mockRejectedValueOnce(new Error('Capture failed'));
     const { result } = renderHook(() => useScreenshot());
 
@@ -76,6 +80,9 @@ describe('useScreenshot', () => {
     });
 
     expect(result.current.isCapturing).toBe(false);
+
     vi.useRealTimers();
+    consoleErrorSpy.mockRestore();
+    consoleLogSpy.mockRestore();
   });
 });
