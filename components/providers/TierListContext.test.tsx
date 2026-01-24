@@ -4,6 +4,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TierListProvider, useTierListContext } from './TierListContext';
 
+// Mock logger
+vi.mock('@/lib/logger', () => ({
+  logger: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+  },
+}));
+
 // Mock dependencies
 vi.mock('@/components/ui/ToastProvider', () => ({
   useToast: () => ({ showToast: vi.fn(), toastCount: 0 }),
@@ -150,9 +159,6 @@ describe('TierListContext', () => {
       target: { files: [file], value: 'fakepath' },
     } as unknown as React.ChangeEvent<HTMLInputElement>;
 
-    // Suppress console.error for this test
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
     act(() => {
       result.current.actions.import(event);
     });
@@ -163,7 +169,9 @@ describe('TierListContext', () => {
     // State should not change
     expect(result.current.state.tierDefs).toHaveLength(initialCount);
 
-    spy.mockRestore();
+    // Verify logger was called
+    const { logger } = await import('@/lib/logger');
+    expect(logger.error).toHaveBeenCalled();
   });
 
   it('should clear the board', async () => {

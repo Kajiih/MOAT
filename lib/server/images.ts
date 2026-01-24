@@ -6,6 +6,7 @@
  * @module ImageService
  */
 
+import { logger } from '@/lib/logger';
 import { MB_BASE_URL, USER_AGENT } from '@/lib/services/musicbrainz/config';
 
 const FANART_API_KEY = process.env.FANART_API_KEY;
@@ -34,9 +35,9 @@ function getFanartApiUrl(mbid: string): string {
 }
 
 /**
- * Converts a high-res Fanart.tv image URL to a lower-res preview URL.
- * @param url - The original Fanart.tv image URL.
- * @returns The preview URL.
+ * Constructs a Fanart.tv API URL.
+ * @param mbid - The MusicBrainz ID of the artist.
+ * @returns The Fanart.tv API URL.
  */
 function getFanartPreviewUrl(url: string): string {
   return url.replace('/fanart/', '/preview/');
@@ -59,7 +60,7 @@ export async function getFanartImage(mbid: string): Promise<string | undefined> 
 
     return url ? getFanartPreviewUrl(url) : undefined;
   } catch (error) {
-    console.error(`Fanart.tv fetch failed for mbid ${mbid}:`, error);
+    logger.error({ error, mbid }, 'Fanart.tv fetch failed');
     return undefined;
   }
 }
@@ -106,7 +107,7 @@ export async function getWikidataImage(mbid: string): Promise<string | undefined
     // 3. Convert Wiki Filename to URL
     return getWikimediaUrl(fileName);
   } catch (error) {
-    console.error(`Wikidata fetch failed for mbid ${mbid}:`, error);
+    logger.error({ error, mbid }, 'Wikidata fetch failed');
     return undefined;
   }
 }

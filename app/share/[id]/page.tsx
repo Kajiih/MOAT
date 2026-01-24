@@ -9,6 +9,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { SharedBoardView } from '@/components/share/SharedBoardView';
+import { logger } from '@/lib/logger';
 import { TierListState } from '@/lib/types';
 
 interface SharePageProps {
@@ -21,7 +22,7 @@ async function getSharedBoard(id: string): Promise<TierListState | null> {
     const data = await kv.get<TierListState>(key);
     return data;
   } catch (error) {
-    console.error('Failed to fetch shared board:', error);
+    logger.error({ error, id }, 'Failed to fetch shared board');
     return null;
   }
 }

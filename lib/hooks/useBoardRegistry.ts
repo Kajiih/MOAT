@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
 import { BoardMetadata } from '@/lib/types';
 
@@ -40,7 +41,7 @@ export function useBoardRegistry() {
 
         setBoards(validBoards);
       } catch (error) {
-        console.error('Failed to load board registry', error);
+        logger.error({ error }, 'Failed to load board registry');
       } finally {
         setIsLoading(false);
       }

@@ -10,6 +10,7 @@ import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 import { OGBoard } from '@/components/board/OGBoard';
+import { logger } from '@/lib/logger';
 import { TierListState } from '@/lib/types';
 
 /**
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
         const key = `moat-shared-${id}`;
         board = await kv.get<TierListState>(key);
       } catch (kvError) {
-        console.error('OG: Failed to fetch board from KV', kvError);
+        logger.error({ error: kvError }, 'OG: Failed to fetch board from KV');
       }
     }
 
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
       },
     );
   } catch (error) {
-    console.error('OG Generation Error:', error);
+    logger.error({ error }, 'OG Generation Error');
     return new Response(`Failed to generate the image`, {
       status: 500,
     });

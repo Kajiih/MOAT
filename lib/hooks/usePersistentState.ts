@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
+import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
 
 /**
@@ -44,7 +45,7 @@ export function usePersistentState<T>(key: string, initialValue: T) {
           }
         }
       } catch (error) {
-        console.error(`Error reading storage key "${key}":`, error);
+        logger.error({ error, key }, 'Error reading storage key');
       } finally {
         if (isMounted) setIsHydrated(true);
       }
