@@ -9,7 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: [],
-    exclude: ['e2e/**/*', 'node_modules/**/*'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/e2e/**'],
     alias: {
       '@': path.resolve(__dirname, './'),
     },
