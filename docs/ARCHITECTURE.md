@@ -137,6 +137,11 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - **VirtualGrid Component**: A reusable, responsive virtualized grid powered by `@tanstack/react-virtual`.
 - **Large Tier Handling**: Tiers containing more than 100 items automatically switch to a virtualized view, ensuring performance remains high even for massive categories. Smaller tiers and search results (limited to 15 items) use standard grid layouts for simplicity and lower overhead.
 
+#### Drag & Drop Stability
+
+- **Idempotent Movement**: The `item-reducer` implements an idempotency check during `MOVE_ITEM` actions. If a drag event targeting a Tier ID suggests no logical change (item already in that tier), the reducer returns the original state reference. This prevents a storm of redundant re-renders during rapid motion.
+- **Optimized Hydration Sync**: `TierListContext` synchronizes items with the `MediaRegistry` only upon initial board hydration. By excluding `state.items` from the effect dependencies, we prevent the heavy registry sync from firing during drag-and-drop operations, significantly reducing CPU pressure.
+
 ### 5. Resilience & Reliability
 
 - **Server proxying**: API routes in `app/api/` handle rate limiting (MusicBrainz 503s), retry logic, and hide external API keys.

@@ -42,9 +42,9 @@ function handleMoveFromSearch(
 
   let newIndex;
   if (overId in state.items) {
-    newIndex = overItems.length + 1;
+    newIndex = overItems.length;
   } else {
-    newIndex = overIndex !== -1 ? overIndex : overItems.length + 1;
+    newIndex = overIndex !== -1 ? overIndex : overItems.length;
   }
 
   const exists = Object.values(state.items)
@@ -101,9 +101,9 @@ function handleMoveBetweenContainers(
 
   let newIndex;
   if (overId in state.items) {
-    newIndex = overItems.length + 1;
+    newIndex = overItems.length;
   } else {
-    newIndex = overIndex !== -1 ? overIndex : overItems.length + 1;
+    newIndex = overIndex !== -1 ? overIndex : overItems.length;
   }
 
   return {
@@ -143,10 +143,19 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
 
   // Case 2: Sorting within same container
   if (activeContainer === overContainer) {
+    // Optimization: If overId is the container ID itself and item is already in it, skip
+    if (overId === overContainer) return state;
     return handleSortInContainer(state, activeId, overId, activeContainer);
   }
 
   // Case 3: Moving between tiers
+  // Optimization: If it's already in the right spot, we skip
+  // (Mostly for handleDragOver which can be called many times)
+  const isAlreadyAtTarget =
+    activeContainer !== overContainer &&
+    state.items[overContainer].some((i) => i.id === activeId);
+  if (isAlreadyAtTarget) return state;
+
   return handleMoveBetweenContainers(state, activeId, overId, activeContainer, overContainer);
 }
 

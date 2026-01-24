@@ -13,7 +13,7 @@ import {
   SensorDescriptor,
   SensorOptions,
 } from '@dnd-kit/core';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect,useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
@@ -87,6 +87,12 @@ export function useTierListNamespaces({
   utilsRaw,
   uiState,
 }: UseTierListNamespacesProps) {
+  /** Ref to the latest items state to keep callbacks stable */
+  const itemsRef = useRef(state.items);
+  useEffect(() => {
+    itemsRef.current = state.items;
+  }, [state.items]);
+
   /**
    * Updates the global board title.
    */
@@ -114,14 +120,14 @@ export function useTierListNamespaces({
   const updateMediaItem = useCallback(
     (itemId: string, updates: Partial<MediaItem>, registerItem: (item: MediaItem) => void) => {
       dispatch({ type: ActionType.UPDATE_ITEM, payload: { itemId, updates } });
-      const currentItem = Object.values(state.items)
+      const currentItem = Object.values(itemsRef.current)
         .flat()
         .find((i) => i.id === itemId);
       if (currentItem) {
         registerItem({ ...currentItem, ...updates } as MediaItem);
       }
     },
-    [dispatch, state.items],
+    [dispatch],
   );
 
   // Namespace: actions

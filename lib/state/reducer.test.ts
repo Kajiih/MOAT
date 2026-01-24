@@ -111,4 +111,24 @@ describe('tierListReducer', () => {
     const nextState = tierListReducer(createBaseState(), action);
     expect(nextState).toEqual(newState);
   });
+
+  it('should be idempotent when moving item over its own tier container', () => {
+    const state: TierListState = {
+      ...createBaseState(),
+      items: {
+        t1: [{ id: '1', title: 'Item 1', type: 'song', artist: 'A', mbid: 'mbid-1' }],
+      },
+    };
+
+    const action = {
+      type: ActionType.MOVE_ITEM,
+      payload: { activeId: '1', overId: 't1' },
+    } as const;
+
+    const nextState = tierListReducer(state, action);
+
+    // If it's already in t1, dragging over t1 should ideally be a no-op (same object reference)
+    // Currently, it might be returning a new object which is part of the problem.
+    expect(nextState).toBe(state);
+  });
 });

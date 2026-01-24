@@ -59,6 +59,9 @@ function useSingleItemSyncWrapper(
 
   useEffect(() => {
     if (item && details && !isLoading && !isFetching && !error && shouldFetch) {
+      // Final guard: avoid updating if the item somehow already has details
+      if (item.details) return;
+
       onUpdateItem(item.id, {
         details,
         imageUrl: details.imageUrl || item.imageUrl,

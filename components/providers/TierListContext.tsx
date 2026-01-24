@@ -103,15 +103,17 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const { registerItem, registerItems } = useMediaRegistry();
+  const hasSyncedItems = React.useRef(false);
 
   // --- Hydration Sync ---
   // When the board hydrates from IndexedDB, push all items to the Global Media Registry.
   // This ensures they are available for search result enrichment immediately.
   React.useEffect(() => {
-    if (isHydrated) {
+    if (isHydrated && !hasSyncedItems.current) {
       const allItems = Object.values(state.items).flat();
       if (allItems.length > 0) {
         registerItems(allItems);
+        hasSyncedItems.current = true;
       }
     }
   }, [isHydrated, state.items, registerItems]);
