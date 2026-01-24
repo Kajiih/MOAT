@@ -7,8 +7,9 @@
  * @module ProxyImageAPI
  */
 
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { logger } from '@/lib/logger';
 
 /**
  * List of external hostnames that this proxy is allowed to fetch from.

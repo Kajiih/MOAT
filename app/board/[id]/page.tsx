@@ -3,8 +3,8 @@
  * @description Page component for a specific tier list board.
  */
 
-import TierListApp from '@/components/TierListApp';
 import { TierListProvider } from '@/components/providers/TierListContext';
+import TierListApp from '@/components/TierListApp';
 
 interface BoardPageProps {
   params: Promise<{ id: string }>;

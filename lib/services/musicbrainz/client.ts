@@ -6,6 +6,7 @@
  */
 
 import { logger } from '@/lib/logger';
+
 import { MB_BASE_URL, USER_AGENT } from './config';
 
 /**

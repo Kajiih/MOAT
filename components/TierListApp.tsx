@@ -17,8 +17,8 @@ import { TierBoard } from '@/components/board/TierBoard';
 import { TierRow } from '@/components/board/TierRow';
 import { DetailsModal } from '@/components/media/DetailsModal';
 import { MediaCard } from '@/components/media/MediaCard';
-import { SearchPanel } from '@/components/search/SearchPanel';
 import { useTierListContext } from '@/components/providers/TierListContext';
+import { SearchPanel } from '@/components/search/SearchPanel';
 import { Footer } from '@/components/ui/Footer';
 import { Header } from '@/components/ui/Header';
 import { HoveredItemInfo, InteractionContext } from '@/components/ui/InteractionContext';
@@ -65,6 +65,7 @@ interface UseAppShortcutsProps {
   removeItemFromTier: (tierId: string, itemId: string) => void;
   showDetails: (item: MediaItem) => void;
   closeDetails: () => void;
+  setShowShortcuts: (show: boolean | ((prev: boolean) => boolean)) => void;
   setShowExportPreview: (show: boolean | ((prev: boolean) => boolean)) => void;
 }
 
@@ -105,7 +106,7 @@ function handleHoverShortcuts(
 
 function handleGlobalShortcuts(
   event: KeyboardEvent,
-  { setShowExportPreview, closeDetails }: UseAppShortcutsProps,
+  { setShowExportPreview, closeDetails, setShowShortcuts }: UseAppShortcutsProps,
 ) {
   // Toggle Export Preview (Shift + P)
   if (event.shiftKey && event.key.toLowerCase() === 'p') {
@@ -113,10 +114,17 @@ function handleGlobalShortcuts(
     setShowExportPreview((prev) => !prev);
   }
 
+  // Toggle Shortcuts (Shift + ? or ?)
+  if (event.key === '?') {
+    event.preventDefault();
+    setShowShortcuts((prev) => !prev);
+  }
+
   // Close on ESC
   if (event.key === 'Escape') {
     setShowExportPreview(false);
     closeDetails();
+    setShowShortcuts(false);
   }
 }
 
@@ -153,7 +161,7 @@ export default function TierListApp() {
     isHydrated,
     actions: { randomizeColors, removeItemFromTier, updateMediaItem },
     dnd: { sensors, activeItem, activeTier, handleDragStart, handleDragOver, handleDragEnd },
-    ui: { headerColors, detailsItem, allBoardItems, showDetails, closeDetails },
+    ui: { headerColors, detailsItem, allBoardItems, showDetails, closeDetails, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo },
   } = useTierListContext();
 
@@ -192,6 +200,7 @@ export default function TierListApp() {
     removeItemFromTier,
     showDetails,
     closeDetails,
+    setShowShortcuts,
     setShowExportPreview,
   });
 

@@ -4,9 +4,9 @@
  * @module MusicBrainzSearch
  */
 
-import { logger } from '@/lib/logger';
 import { z } from 'zod';
 
+import { logger } from '@/lib/logger';
 import { serverItemCache } from '@/lib/server/item-cache';
 import { MediaItem, MediaType, MusicBrainzSearchResponseSchema } from '@/lib/types';
 import {

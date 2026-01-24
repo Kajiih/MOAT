@@ -10,6 +10,7 @@
 import { Disc, Eye, EyeOff, Mic2, Music, Search } from 'lucide-react';
 
 import { useTierListContext } from '@/components/providers/TierListContext';
+import { useUserPreferences } from '@/components/providers/UserPreferencesProvider';
 import { usePersistentState } from '@/lib/hooks';
 import { MediaType } from '@/lib/types';
 
@@ -37,6 +38,8 @@ export function SearchPanel() {
     actions: { locate: handleLocate },
   } = useTierListContext();
 
+  const { showAdvanced } = useUserPreferences();
+
   const [activeType, setActiveType] = usePersistentState<MediaType>(
     'moat-search-active-type',
     'song',
@@ -56,12 +59,14 @@ export function SearchPanel() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <SearchSettings
-            fuzzyEnabled={fuzzy}
-            wildcardEnabled={wildcard}
-            onFuzzyChange={setFuzzy}
-            onWildcardChange={setWildcard}
-          />
+          {showAdvanced && (
+            <SearchSettings
+              fuzzyEnabled={fuzzy}
+              wildcardEnabled={wildcard}
+              onFuzzyChange={setFuzzy}
+              onWildcardChange={setWildcard}
+            />
+          )}
 
           <button
             onClick={() => setShowAdded(!showAdded)}

@@ -7,9 +7,8 @@
 
 import { useCallback } from 'react';
 
-import { MediaType } from '@/lib/types';
-
 import { usePersistentState } from '@/lib/hooks';
+import { MediaType } from '@/lib/types';
 
 /**
  * Custom hook to manage the UI state of search filters.

@@ -59,6 +59,8 @@ interface UseTierListNamespacesProps {
   uiState: {
     detailsItem: MediaItem | null;
     setDetailsItem: (item: MediaItem | null) => void;
+    showShortcuts: boolean;
+    setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
   };
 }
 
@@ -168,6 +170,8 @@ export function useTierListNamespaces({
       detailsItem: uiState.detailsItem,
       showDetails: (item: MediaItem) => uiState.setDetailsItem(item),
       closeDetails: () => uiState.setDetailsItem(null),
+      showShortcuts: uiState.showShortcuts,
+      setShowShortcuts: uiState.setShowShortcuts,
       addedItemIds,
       allBoardItems,
     }),

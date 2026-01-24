@@ -10,7 +10,6 @@ export * from './useDynamicFavicon';
 export * from './useEscapeKey';
 export * from './useHistory';
 export * from './useMediaDetails';
-
 export * from './usePersistentReducer';
 export * from './usePersistentState';
 export * from './useScreenshot';

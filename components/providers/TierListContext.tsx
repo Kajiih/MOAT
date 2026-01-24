@@ -18,9 +18,8 @@ import {
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
-import { useMediaRegistry } from './MediaRegistryProvider';
-import { useTierListIO, useTierListUtils, useTierStructure } from '@/lib/hooks';
 import { useTierListDnD } from '@/components/board/hooks/useTierListDnD';
+import { useTierListIO, useTierListUtils, useTierStructure } from '@/lib/hooks';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
 import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
@@ -29,6 +28,8 @@ import { syncBoardMetadata } from '@/lib/registry-utils';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
 import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
+
+import { useMediaRegistry } from './MediaRegistryProvider';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -65,6 +66,8 @@ interface TierListContextType {
     detailsItem: MediaItem | null;
     showDetails: (item: MediaItem) => void;
     closeDetails: () => void;
+    showShortcuts: boolean;
+    setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
     addedItemIds: Set<string>;
     allBoardItems: MediaItem[];
   };
@@ -98,6 +101,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
 
   const historyRaw = useHistory<TierListState>();
   const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const { registerItem, registerItems } = useMediaRegistry();
 
   // --- Hydration Sync ---
@@ -154,7 +158,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     structureRaw,
     ioRaw,
     utilsRaw,
-    uiState: { detailsItem, setDetailsItem },
+    uiState: { detailsItem, setDetailsItem, showShortcuts, setShowShortcuts },
   });
 
   const value = useMemo(

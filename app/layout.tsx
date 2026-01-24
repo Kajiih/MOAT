@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
+import { UserPreferencesProvider } from '@/components/providers/UserPreferencesProvider';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 
 const geistSans = Geist({
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ToastProvider>
-          <MediaRegistryProvider>{children}</MediaRegistryProvider>
+          <UserPreferencesProvider>
+            <MediaRegistryProvider>{children}</MediaRegistryProvider>
+          </UserPreferencesProvider>
         </ToastProvider>
       </body>
     </html>

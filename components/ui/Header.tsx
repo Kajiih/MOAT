@@ -12,22 +12,20 @@ import {
   Camera,
   ChevronLeft,
   CloudUpload,
-  Download,
-  Keyboard,
   Loader2,
   Redo2,
-  Trash2,
   Undo2,
-  Upload,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { ShareModal } from '@/components/share/ShareModal';
 import { useTierListContext } from '@/components/providers/TierListContext';
+import { useUserPreferences } from '@/components/providers/UserPreferencesProvider';
+import { ShareModal } from '@/components/share/ShareModal';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 
 import { BoardTitle } from '../board/BoardTitle';
+import { BoardOptionsMenu } from './BoardOptionsMenu';
 import { BrandLogo } from './BrandLogo';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 
@@ -59,12 +57,13 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
       clear: handleClear,
       updateTitle,
     },
-    ui: { headerColors },
+    ui: { headerColors, showShortcuts, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo, push: pushHistory },
   } = useTierListContext();
 
+  const { showAdvanced, setShowAdvanced } = useUserPreferences();
+
   const brandColors = useBrandColors(headerColors);
-  const [showShortcuts, setShowShortcuts] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
 
@@ -98,79 +97,60 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
         <BoardTitle title={state.title} onChange={updateTitle} onFocus={() => pushHistory()} />
       </div>
 
-      <div className="pointer-events-auto flex gap-2">
+      <div className="pointer-events-auto flex items-center gap-2">
         <div className="mr-2 flex gap-1">
           <button
             onClick={undo}
             disabled={!canUndo}
-            className="rounded bg-neutral-800 p-2 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-900 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             title="Undo (Ctrl+Z)"
           >
-            <Undo2 size={16} />
+            <Undo2 size={18} />
           </button>
           <button
             onClick={redo}
             disabled={!canRedo}
-            className="rounded bg-neutral-800 p-2 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-900 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             title="Redo (Ctrl+Shift+Z)"
           >
-            <Redo2 size={16} />
-          </button>
-          <div className="mx-1 w-px bg-neutral-800"></div>
-          <button
-            onClick={() => setShowShortcuts(true)}
-            className="rounded bg-neutral-800 p-2 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-white"
-            title="Keyboard Shortcuts"
-          >
-            <Keyboard size={16} />
+            <Redo2 size={18} />
           </button>
         </div>
 
-        <button
-          onClick={onPublish}
-          disabled={isPublishing}
-          className="flex items-center gap-2 rounded bg-blue-600 px-3 py-2 text-sm font-bold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 shadow-lg shadow-blue-900/20"
-          title="Publish to Cloud"
-        >
-          {isPublishing ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <CloudUpload size={16} />
-          )}
-          <span className="hidden sm:inline">Share</span>
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onPublish}
+            disabled={isPublishing}
+            className="flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-bold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 active:scale-95"
+            title="Publish to Cloud"
+          >
+            {isPublishing ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <CloudUpload size={18} />
+            )}
+            <span className="hidden sm:inline">Share</span>
+          </button>
 
-        <label
-          className="flex cursor-pointer items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm transition-colors hover:bg-neutral-700"
-          title="Import from JSON"
-        >
-          <Upload size={16} /> <span className="hidden sm:inline">Import</span>
-          <input type="file" onChange={handleImport} accept=".json" className="hidden" />
-        </label>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm transition-colors hover:bg-neutral-700"
-          title="Export to JSON"
-        >
-          <Download size={16} /> <span className="hidden sm:inline">Export</span>
-        </button>
-        <button
-          onClick={onScreenshot}
-          disabled={isCapturing}
-          className="flex items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
-          title="Save as Image"
-        >
-          {isCapturing ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
-          <span className="hidden sm:inline">Save</span>
-        </button>
-        <div className="mx-1 w-px bg-neutral-800"></div>
-        <button
-          onClick={handleClear}
-          className="flex items-center gap-2 rounded border border-red-900/50 bg-red-900/20 px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-900/40"
-          title="Clear Board"
-        >
-          <Trash2 size={16} /> <span className="hidden sm:inline">Clear</span>
-        </button>
+          <button
+            onClick={onScreenshot}
+            disabled={isCapturing}
+            className="flex h-10 items-center gap-2 rounded-lg bg-neutral-800 px-4 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+            title="Save as Image"
+          >
+            {isCapturing ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
+            <span className="hidden sm:inline">Save</span>
+          </button>
+
+          <BoardOptionsMenu
+            onImport={handleImport}
+            onExport={handleExport}
+            onClear={handleClear}
+            onShowShortcuts={() => setShowShortcuts(true)}
+            showAdvanced={showAdvanced}
+            onToggleAdvanced={setShowAdvanced}
+          />
+        </div>
 
         <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
         <ShareModal

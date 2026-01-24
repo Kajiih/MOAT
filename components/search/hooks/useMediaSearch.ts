@@ -14,6 +14,7 @@ import { useDebounce } from 'use-debounce';
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { getSearchUrl } from '@/lib/api';
 import { swrFetcher } from '@/lib/api/fetcher';
+import { usePersistentState } from '@/lib/hooks';
 import {
   AlbumItem,
   AlbumSelection,
@@ -23,8 +24,6 @@ import {
   MediaType,
   SongItem,
 } from '@/lib/types';
-
-import { usePersistentState } from '@/lib/hooks';
 
 /**
  * Represents the shape of the search response from the API.

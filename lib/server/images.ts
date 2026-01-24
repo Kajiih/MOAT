@@ -37,6 +37,7 @@ function getFanartApiUrl(mbid: string): string {
 /**
  * Constructs a Fanart.tv API URL.
  * @param mbid - The MusicBrainz ID of the artist.
+ * @param url
  * @returns The Fanart.tv API URL.
  */
 function getFanartPreviewUrl(url: string): string {

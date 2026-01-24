@@ -13,9 +13,9 @@ import { useState } from 'react';
 import { preload } from 'swr';
 
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
+import { useMediaSearch } from '@/components/search/hooks/useMediaSearch';
 import { getSearchUrl } from '@/lib/api';
 import { swrFetcher } from '@/lib/api/fetcher';
-import { useMediaSearch } from '@/components/search/hooks/useMediaSearch';
 import {
   AlbumItem,
   AlbumSelection,
