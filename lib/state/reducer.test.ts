@@ -92,7 +92,7 @@ describe('tierListReducer', () => {
     const nextState = tierListReducer(state, action);
 
     expect(nextState.items['t1'][0].title).toBe('New');
-    expect(nextState.items['t1'][0].artist).toBe('A');
+    expect(nextState.items['t1'][0]).toHaveProperty('artist', 'A');
   });
 
   it('should handle UPDATE_TITLE', () => {

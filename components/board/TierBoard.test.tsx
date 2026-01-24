@@ -25,7 +25,7 @@ describe('TierBoard', () => {
     return render(
       <ToastProvider>
         <MediaRegistryProvider>
-          <TierListProvider>
+          <TierListProvider boardId="test-board">
             <DndContext>{ui}</DndContext>
           </TierListProvider>
         </MediaRegistryProvider>

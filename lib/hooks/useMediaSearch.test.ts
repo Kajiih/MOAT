@@ -243,7 +243,9 @@ describe('useMediaSearch', () => {
     vi.mocked(useMediaRegistry).mockReturnValue({
       registerItems: vi.fn(),
       registerItem: vi.fn(),
-      getItem: vi.fn((id) => (id === '1' ? mockItem1Enriched : undefined)),
+      getItem: vi.fn((id: string) =>
+        id === '1' ? mockItem1Enriched : undefined,
+      ) as unknown as <T extends MediaItem>(id: string) => T | undefined,
     });
 
     // @ts-expect-error - simplified mock for test

@@ -33,9 +33,9 @@ vi.mock('@/components/MediaRegistryProvider', () => ({
 // Mock storage
 vi.mock('@/lib/storage', () => ({
   storage: {
-    get: vi.fn().mockResolvedValue(),
-    set: vi.fn().mockResolvedValue(),
-    del: vi.fn().mockResolvedValue(),
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockImplementation(() => Promise.resolve()),
+    del: vi.fn().mockImplementation(() => Promise.resolve()),
   },
 }));
 
@@ -55,7 +55,7 @@ describe('TierListContext', () => {
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <TierListProvider>{children}</TierListProvider>
+    <TierListProvider boardId="test-board">{children}</TierListProvider>
   );
 
   it('should initialize with default state', () => {
@@ -77,12 +77,16 @@ describe('TierListContext', () => {
 
     expect(result.current.state.tierDefs).toHaveLength(7);
     const newTier = result.current.state.tierDefs.at(-1);
-    expect(newTier.label).toBe('New Tier');
+    expect(newTier).toBeDefined();
 
-    // Delete Tier
-    act(() => {
-      result.current.actions.deleteTier(newTier.id);
-    });
+    if (newTier) {
+      expect(newTier.label).toBe('New Tier');
+
+      // Delete Tier
+      act(() => {
+        result.current.actions.deleteTier(newTier.id);
+      });
+    }
 
     expect(result.current.state.tierDefs).toHaveLength(6);
   });

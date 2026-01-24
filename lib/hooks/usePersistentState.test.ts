@@ -24,7 +24,7 @@ describe('usePersistentState', () => {
   });
 
   it('should initialize with default value and then hydrate', async () => {
-    vi.mocked(storage.get).mockResolvedValue(); // Storage empty
+    vi.mocked(storage.get).mockResolvedValue(null); // Storage empty
 
     const { result } = renderHook(() => usePersistentState('test-key', 'default'));
 
@@ -56,7 +56,7 @@ describe('usePersistentState', () => {
   });
 
   it('should persist state changes to storage after debounce', async () => {
-    vi.mocked(storage.get).mockResolvedValue();
+    vi.mocked(storage.get).mockResolvedValue(null);
     const { result } = renderHook(() => usePersistentState('test-key', 'initial'));
 
     await waitFor(() => expect(result.current[2]).toBe(true));
