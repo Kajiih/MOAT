@@ -242,7 +242,7 @@ describe('useMediaSearch', () => {
 
   it('should enrich search results with data from the global registry', async () => {
     const { useMediaRegistry } = await import('@/components/providers/MediaRegistryProvider');
-    const mockItem1: MediaItem = { id: '1', title: 'Search Result', type: 'artist' };
+    const mockItem1: MediaItem = { id: '1', title: 'Search Result', type: 'artist', mbid: 'mbid-1' };
     const mockItem1Enriched: MediaItem = { ...mockItem1, imageUrl: 'http://cached.com/image.jpg' };
 
     vi.mocked(useMediaRegistry).mockReturnValue({

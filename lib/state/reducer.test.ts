@@ -39,7 +39,7 @@ describe('tierListReducer', () => {
       ],
       items: {
         keep: [],
-        delete: [{ id: 'item-1', title: 'Song', type: 'song', artist: 'Artist' }],
+        delete: [{ id: 'item-1', title: 'Song', type: 'song', artist: 'Artist', mbid: 'mbid-1' }],
       },
     };
 
@@ -58,8 +58,8 @@ describe('tierListReducer', () => {
       ...createBaseState(),
       items: {
         t1: [
-          { id: '1', title: 'Item 1', type: 'song', artist: 'A' },
-          { id: '2', title: 'Item 2', type: 'song', artist: 'B' },
+          { id: '1', title: 'Item 1', type: 'song', artist: 'A', mbid: 'mbid-1' },
+          { id: '2', title: 'Item 2', type: 'song', artist: 'B', mbid: 'mbid-2' },
         ],
       },
     };
@@ -80,7 +80,7 @@ describe('tierListReducer', () => {
     const state: TierListState = {
       ...createBaseState(),
       items: {
-        t1: [{ id: '1', title: 'Old', type: 'song', artist: 'A' }],
+        t1: [{ id: '1', title: 'Old', type: 'song', artist: 'A', mbid: 'mbid-1' }],
       },
     };
 

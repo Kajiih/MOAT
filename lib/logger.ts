@@ -1,3 +1,8 @@
+/**
+ * @file logger.ts
+ * @description Configures the global logger using Pino.
+ */
+
 import pino from 'pino';
 
 const isDev = process.env.NODE_ENV === 'development';

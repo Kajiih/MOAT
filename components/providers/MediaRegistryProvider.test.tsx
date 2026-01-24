@@ -26,7 +26,7 @@ describe('MediaRegistryProvider', () => {
   it('should register and retrieve items', () => {
     const { result } = renderHook(() => useMediaRegistry(), { wrapper });
 
-    const item: MediaItem = { id: '1', title: 'Test', type: 'artist' };
+    const item: MediaItem = { id: '1', title: 'Test', type: 'artist', mbid: 'mbid-1' };
 
     act(() => {
       result.current.registerItem(item);
@@ -42,8 +42,9 @@ describe('MediaRegistryProvider', () => {
       id: '1',
       title: 'Test',
       type: 'artist',
+      mbid: 'mbid-1',
       imageUrl: 'http://image.com/1.jpg',
-      details: { id: '1', type: 'artist', tags: ['rock'] },
+      details: { id: '1', mbid: 'mbid-1', type: 'artist', tags: ['rock'] },
     };
 
     act(() => {
@@ -51,7 +52,7 @@ describe('MediaRegistryProvider', () => {
     });
 
     // Update with an item that lacks image/details (e.g. from a fresh search)
-    const sparseItem: MediaItem = { id: '1', title: 'Updated Title', type: 'artist' };
+    const sparseItem: MediaItem = { id: '1', title: 'Updated Title', type: 'artist', mbid: 'mbid-1' };
 
     act(() => {
       result.current.registerItem(sparseItem);
@@ -75,6 +76,7 @@ describe('MediaRegistryProvider', () => {
           title: `Item ${i}`,
           type: 'album',
           artist: 'Test Artist',
+          mbid: `mbid-${i}`,
         } as MediaItem);
       }
       result.current.registerItems(items);
@@ -92,7 +94,7 @@ describe('MediaRegistryProvider', () => {
 
   it('should skip updates if items are identical', async () => {
     const { result } = renderHook(() => useMediaRegistry(), { wrapper });
-    const item: MediaItem = { id: '1', title: 'Test', type: 'artist' };
+    const item: MediaItem = { id: '1', title: 'Test', type: 'artist', mbid: 'mbid-1' };
 
     act(() => {
       result.current.registerItem(item);

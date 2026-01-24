@@ -2,8 +2,8 @@ import { DndContext } from '@dnd-kit/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
-import { TierListProvider } from '@/components/TierListContext';
+import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
+import { TierListProvider } from '@/components/providers/TierListContext';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 
 import { TierBoard } from './TierBoard';
