@@ -7,7 +7,7 @@
 
 import { Dispatch, useCallback } from 'react';
 
-import { useMediaRegistry } from '@/components/MediaRegistryProvider';
+import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { useToast } from '@/components/ui/ToastProvider';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { TierListState } from '@/lib/types';

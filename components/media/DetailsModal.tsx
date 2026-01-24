@@ -12,7 +12,7 @@ import { X } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useMediaRegistry } from '@/components/MediaRegistryProvider';
+import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { useMediaDetails } from '@/lib/hooks';
 import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 import { getMediaUI } from '@/lib/media-defs';

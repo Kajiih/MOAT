@@ -5,7 +5,7 @@
  * @module SearchFilters
  */
 
-import { SearchParamsState } from '@/lib/hooks/useMediaSearch';
+import { SearchParamsState } from '@/components/search/hooks/useMediaSearch';
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
 
 import { AlbumFilters } from './AlbumFilters';

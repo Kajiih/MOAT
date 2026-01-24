@@ -15,7 +15,7 @@ import { preload } from 'swr';
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
 import { getSearchUrl } from '@/lib/api';
 import { swrFetcher } from '@/lib/api/fetcher';
-import { useMediaSearch } from '@/lib/hooks';
+import { useMediaSearch } from '@/components/search/hooks/useMediaSearch';
 import {
   AlbumItem,
   AlbumSelection,

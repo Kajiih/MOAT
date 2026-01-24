@@ -10,12 +10,10 @@ export * from './useDynamicFavicon';
 export * from './useEscapeKey';
 export * from './useHistory';
 export * from './useMediaDetails';
-export * from './useMediaSearch';
+
 export * from './usePersistentReducer';
 export * from './usePersistentState';
 export * from './useScreenshot';
-export * from './useSearchFilters';
-export * from './useTierListDnD';
 export * from './useTierListIO';
 export * from './useTierListNamespaces';
 export * from './useTierListUtils';

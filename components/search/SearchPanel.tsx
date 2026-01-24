@@ -9,7 +9,7 @@
 
 import { Disc, Eye, EyeOff, Mic2, Music, Search } from 'lucide-react';
 
-import { useTierListContext } from '@/components/TierListContext';
+import { useTierListContext } from '@/components/providers/TierListContext';
 import { usePersistentState } from '@/lib/hooks';
 import { MediaType } from '@/lib/types';
 

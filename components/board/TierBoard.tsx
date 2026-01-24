@@ -10,7 +10,7 @@
 
 import { Plus } from 'lucide-react';
 
-import { useTierListContext } from '@/components/TierListContext';
+import { useTierListContext } from '@/components/providers/TierListContext';
 
 import { TierList } from './TierList';
 

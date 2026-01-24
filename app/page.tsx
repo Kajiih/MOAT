@@ -4,7 +4,7 @@
  */
 
 import { Dashboard } from '@/components/dashboard/Dashboard';
-import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
+import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
 
 /**
  * Renders the application dashboard.

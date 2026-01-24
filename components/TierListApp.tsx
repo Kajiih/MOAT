@@ -18,7 +18,7 @@ import { TierRow } from '@/components/board/TierRow';
 import { DetailsModal } from '@/components/media/DetailsModal';
 import { MediaCard } from '@/components/media/MediaCard';
 import { SearchPanel } from '@/components/search/SearchPanel';
-import { useTierListContext } from '@/components/TierListContext';
+import { useTierListContext } from '@/components/providers/TierListContext';
 import { Footer } from '@/components/ui/Footer';
 import { Header } from '@/components/ui/Header';
 import { HoveredItemInfo, InteractionContext } from '@/components/ui/InteractionContext';

@@ -24,7 +24,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { ShareModal } from '@/components/share/ShareModal';
-import { useTierListContext } from '@/components/TierListContext';
+import { useTierListContext } from '@/components/providers/TierListContext';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 
 import { BoardTitle } from '../board/BoardTitle';

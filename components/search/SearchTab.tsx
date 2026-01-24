@@ -18,7 +18,10 @@ import { Pagination } from '@/components/ui/Pagination';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
-import { useMediaSearch, usePersistentState, useSearchFilters } from '@/lib/hooks';
+import { usePersistentState } from '@/lib/hooks';
+
+import { useMediaSearch } from './hooks/useMediaSearch';
+import { useSearchFilters } from './hooks/useSearchFilters';
 import { MediaItem, MediaType, SortOption } from '@/lib/types';
 
 import { SearchFilters } from './filters/SearchFilters';

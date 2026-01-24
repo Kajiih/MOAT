@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 import { BoardTitle } from '@/components/board/BoardTitle';
 import { TierList } from '@/components/board/TierList';
-import { MediaRegistryProvider } from '@/components/MediaRegistryProvider';
+import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Footer } from '@/components/ui/Footer';
 import { InteractionContext } from '@/components/ui/InteractionContext';

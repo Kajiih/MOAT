@@ -4,7 +4,7 @@
  */
 
 import TierListApp from '@/components/TierListApp';
-import { TierListProvider } from '@/components/TierListContext';
+import { TierListProvider } from '@/components/providers/TierListContext';
 
 interface BoardPageProps {
   params: Promise<{ id: string }>;

@@ -125,3 +125,11 @@ Why for you: It keeps your data structures (like your music metadata or tier col
 Config snippet: perfectionist.configs['recommended-natural']
 
 ```
+
+## Rewrite
+
+- Multi-database support in mind
+- Material UI based
+- Professional logging/error handling
+- Professional project structure
+- Use eslint perfectionist
