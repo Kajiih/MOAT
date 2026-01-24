@@ -9,6 +9,7 @@ import { Dispatch, useCallback } from 'react';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { useToast } from '@/components/ui/ToastProvider';
+import { logger } from '@/lib/logger';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { TierListState } from '@/lib/types';
 import { downloadJson, generateExportData, parseImportData } from '@/lib/utils/io';
@@ -38,7 +39,7 @@ export function useTierListIO(
       downloadJson(exportData, filename);
       showToast('Tier list exported successfully!', 'success');
     } catch (error) {
-      console.error(error);
+      logger.error({ error }, 'Failed to export tier list');
       showToast('Failed to export tier list.', 'error');
     }
   }, [state, showToast]);
@@ -72,7 +73,7 @@ export function useTierListIO(
 
           showToast('Tier list imported successfully!', 'success');
         } catch (error) {
-          console.error(error);
+          logger.error({ error }, 'Failed to import JSON file');
           showToast('Invalid JSON file', 'error');
         }
       };
@@ -97,14 +98,14 @@ export function useTierListIO(
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Publish API Error:', errorData);
+        logger.error({ error: errorData }, 'Publish API Error');
         throw new Error(errorData.error || 'Failed to publish board');
       }
 
       const data = await response.json();
       return data.id as string;
     } catch (error) {
-      console.error(error);
+      logger.error({ error }, 'Failed to publish board to cloud');
       showToast('Failed to publish board to cloud.', 'error');
       return null;
     }

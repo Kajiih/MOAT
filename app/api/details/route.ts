@@ -7,6 +7,7 @@
 
 import { NextResponse } from 'next/server';
 
+import { logger } from '@/lib/logger';
 import { getMediaDetails } from '@/lib/services/musicbrainz';
 import { MediaType } from '@/lib/types';
 
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
     const details = await getMediaDetails(id, type);
     return NextResponse.json(details);
   } catch (error) {
-    console.error('Error in details API:', error);
+    logger.error({ error }, 'Error in details API');
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -7,6 +7,7 @@ import { kv } from '@vercel/kv';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { logger } from '@/lib/logger';
 import { TierListSchema } from '@/lib/types';
 
 /**
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ id: shareId, url: `/share/${shareId}` });
   } catch (error) {
-    console.error('Failed to publish board:', error);
+    logger.error({ error }, 'Failed to publish board');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { logger } from '@/lib/logger';
 import { TierListState } from '@/lib/types';
 
 /**
@@ -31,7 +32,7 @@ export async function GET(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Failed to fetch shared board:', error);
+    logger.error({ error }, 'Failed to fetch shared board');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

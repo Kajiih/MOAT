@@ -20,12 +20,14 @@ export interface StorageBackend {
   keys: () => Promise<IDBValidKey[]>;
 }
 
+import { logger } from './logger';
+
 export const storage: StorageBackend = {
   get: async <T>(key: string) => {
     try {
       return await get<T>(key);
     } catch (error) {
-      console.error(`Storage get error for key "${key}":`, error);
+      logger.error({ error, key }, 'Storage get error');
       return;
     }
   },
@@ -33,21 +35,21 @@ export const storage: StorageBackend = {
     try {
       await set(key, value);
     } catch (error) {
-      console.error(`Storage set error for key "${key}":`, error);
+      logger.error({ error, key }, 'Storage set error');
     }
   },
   del: async (key: string) => {
     try {
       await del(key);
     } catch (error) {
-      console.error(`Storage del error for key "${key}":`, error);
+      logger.error({ error, key }, 'Storage del error');
     }
   },
   keys: async () => {
     try {
       return await keys();
     } catch (error) {
-      console.error('Storage keys error:', error);
+      logger.error({ error }, 'Storage keys error');
       return [];
     }
   },

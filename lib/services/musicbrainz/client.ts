@@ -5,6 +5,7 @@
  * @module MusicBrainzClient
  */
 
+import { logger } from '@/lib/logger';
 import { MB_BASE_URL, USER_AGENT } from './config';
 
 /**
@@ -45,7 +46,7 @@ export async function mbFetch<T = unknown>(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`MusicBrainz API Error (${response.status}) for ${url}:`, errorText);
+    logger.error(`MusicBrainz API Error (${response.status}) for ${url}: ${errorText}`);
     throw new Error(`MusicBrainz API Error: ${response.status}`);
   }
 

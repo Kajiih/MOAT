@@ -9,6 +9,7 @@
 
 import { NextResponse } from 'next/server';
 
+import { logger } from '@/lib/logger';
 import { searchMusicBrainz } from '@/lib/services/musicbrainz';
 import { MediaType } from '@/lib/types';
 
@@ -83,7 +84,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result);
   } catch (error: unknown) {
-    console.error(error);
+    logger.error({ error }, 'Error in search API');
     const message = error instanceof Error ? error.message : '';
     const status = message.includes('503') ? 503 : 500;
     return NextResponse.json(

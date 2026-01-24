@@ -8,6 +8,7 @@
 import { Check, Copy, ExternalLink, Globe, X } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { logger } from '@/lib/logger';
 import { useToast } from '@/components/ui/ToastProvider';
 
 interface ShareModalProps {
@@ -37,7 +38,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
       showToast('Link copied to clipboard!', 'success');
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error(error);
+      logger.error({ error }, 'Failed to copy link');
       showToast('Failed to copy link', 'error');
     }
   };

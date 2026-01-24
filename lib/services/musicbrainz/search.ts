@@ -4,6 +4,7 @@
  * @module MusicBrainzSearch
  */
 
+import { logger } from '@/lib/logger';
 import { z } from 'zod';
 
 import { serverItemCache } from '@/lib/server/item-cache';
@@ -112,7 +113,7 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   const parsed = MusicBrainzSearchResponseSchema.safeParse(rawData);
 
   if (!parsed.success) {
-    console.error('MusicBrainz Validation Failed:', z.prettifyError(parsed.error));
+    logger.error({ error: z.prettifyError(parsed.error) }, 'MusicBrainz Validation Failed');
     throw new Error('Invalid data from upstream');
   }
 

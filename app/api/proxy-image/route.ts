@@ -7,6 +7,7 @@
  * @module ProxyImageAPI
  */
 
+import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Proxy error:', error);
+    logger.error({ error }, 'Proxy error');
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

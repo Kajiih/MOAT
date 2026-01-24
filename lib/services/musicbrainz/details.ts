@@ -4,6 +4,7 @@
  * @module MusicBrainzDetails
  */
 
+import { logger } from '@/lib/logger';
 import { getArtistThumbnail } from '@/lib/server/images';
 import { MediaDetails, MediaType } from '@/lib/types';
 
@@ -69,7 +70,7 @@ async function getAlbumDetails(
     `query=${encodeURIComponent(query)}&limit=1`,
     { next: { revalidate: DETAILS_CACHE_TTL } },
   ).catch((error) => {
-    console.warn(`[Details] Search release failed for ${id}`, error);
+    logger.warn({ error, id }, '[Details] Search release failed');
     return { releases: [] };
   });
 
@@ -79,7 +80,7 @@ async function getAlbumDetails(
     const lookupData = await mbFetch<MBSearchResponse>(`release-group/${id}`, 'inc=releases', {
       next: { revalidate: DETAILS_CACHE_TTL },
     }).catch((error) => {
-      console.warn(`[Details] Lookup release-group failed for ${id}`, error);
+      logger.warn({ error, id }, '[Details] Lookup release-group failed');
       return { releases: [] };
     });
 
@@ -195,7 +196,7 @@ export async function getMediaDetails(
       }
     }
   } catch (error) {
-    console.error('Error fetching details', error);
+    logger.error({ error, id, type }, 'Error fetching details');
     return { id, mbid: id, type };
   }
 }
