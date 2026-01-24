@@ -16,6 +16,7 @@ import { createRoot } from 'react-dom/client';
 import { ExportBoard } from '@/components/board/ExportBoard';
 import { useToast } from '@/components/ui/ToastProvider';
 import { failedImages } from '@/lib/image-cache';
+import { logger } from '@/lib/logger';
 import { TierListState } from '@/lib/types';
 
 /**
@@ -68,9 +69,9 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
         return await fetchAsDataUrl(proxiedUrl);
       } catch (proxyError) {
         if (!isKnownBroken) {
-          console.warn(
-            `Screenshot Engine: Proxy failed for ${url}. Switching to direct fetch.`,
-            proxyError,
+          logger.warn(
+            { error: proxyError, url },
+            'Screenshot Engine: Proxy failed. Switching to direct fetch.',
           );
         }
         // Attempt 2: Direct Fetch (Works if CDN has CORS headers, e.g. coverartarchive)
@@ -84,10 +85,10 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
     // Differentiate between expected and unexpected failures
     if (isKnownBroken) {
       // Expected failure - image was already broken in the app
-      console.warn(`Screenshot Engine: Skipping known broken image: ${url}`);
+      logger.warn({ url }, 'Screenshot Engine: Skipping known broken image');
     } else {
       // Unexpected failure - image was working in the app but failed during screenshot
-      console.error(`Screenshot Engine: Unexpected failure resolving ${url}:`, error);
+      logger.error({ error, url }, 'Screenshot Engine: Unexpected failure resolving image');
     }
     return null;
   }
@@ -122,7 +123,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         ),
       ];
 
-      console.log(`Screenshot Engine: Resolving ${uniqueUrls.length} unique images...`);
+      logger.info(`Screenshot Engine: Resolving ${uniqueUrls.length} unique images...`);
       const resolvedMap: Record<string, string> = {};
 
       await Promise.all(
@@ -135,7 +136,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       );
 
       const resolvedCount = Object.keys(resolvedMap).length;
-      console.log(
+      logger.info(
         `Screenshot Engine: Successfully resolved ${resolvedCount}/${uniqueUrls.length} images.`,
       );
 
@@ -172,7 +173,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
 
         // Force a reflow to ensure height is calculated
         const _height = boardElement.scrollHeight;
-        console.log(`Screenshot Engine: Board measured at ${_height}px.`);
+        logger.info(`Screenshot Engine: Board measured at ${_height}px.`);
 
         // 5. Final Paint Sync
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -205,7 +206,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         showToast('Screenshot saved!', 'success');
       } catch (error) {
         // Improved error reporting
-        console.error('Screenshot raw error:', error);
+        logger.error({ error }, 'Screenshot raw error');
         let errorMessage;
 
         if (error instanceof Error) {
@@ -219,7 +220,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
           errorMessage = String(error);
         }
 
-        console.error('Screenshot failed diagnostic:', errorMessage);
+        logger.error({ errorMessage }, 'Screenshot failed diagnostic');
         showToast('Failed to save screenshot', 'error');
       } finally {
         // 5. Cleanup
@@ -229,7 +230,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         try {
           root.unmount();
         } catch (error) {
-          console.warn('Unmount error during cleanup', error);
+          logger.warn({ error }, 'Unmount error during cleanup');
         }
         if (document.body.contains(container)) {
           container.remove();

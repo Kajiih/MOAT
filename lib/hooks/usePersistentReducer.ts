@@ -12,6 +12,7 @@
 import { Dispatch, Reducer, useEffect, useReducer, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
+import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
 
 /** Internal action type used for state hydration. */
@@ -79,7 +80,7 @@ export function usePersistentReducer<S, A>(
           dispatch({ type: HYDRATE_ACTION, payload: hydratedState });
         }
       } catch (error) {
-        console.error(`Error reading storage key "${key}":`, error);
+        logger.error({ error, key }, 'Error reading storage key');
       } finally {
         if (isMounted) setIsHydrated(true);
       }

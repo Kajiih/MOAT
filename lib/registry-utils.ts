@@ -3,6 +3,7 @@
  * @description Utilities for managing the board registry and syncing metadata.
  */
 
+import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
 import { BoardMetadata, TierListState } from '@/lib/types';
 
@@ -61,6 +62,6 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
 
     await storage.set(metaKey, metadata);
   } catch (error) {
-    console.error('Failed to sync board metadata', error);
+    logger.error({ error, id }, 'Failed to sync board metadata');
   }
 }
