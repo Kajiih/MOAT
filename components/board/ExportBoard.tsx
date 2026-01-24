@@ -46,16 +46,25 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
         minHeight: '800px',
       }}
     >
-      {/* Top-Left Branding */}
-      <div className="absolute top-6 left-8">
-        <BrandLogo colors={logoHexColors} variant="header" />
-      </div>
-
       {/* Main Content Wrapper - Explicit framing */}
       <div className="flex w-full flex-col items-center">
-        {/* 1. Centered Title */}
-        <div className="mt-2 mb-8 flex w-full justify-center">
-          <BoardTitle title={state.title} isExport={true} />
+        {/* Header Section with Side Logo aligned to title */}
+        <div className="relative mb-12 flex w-full flex-col items-center justify-center">
+          {/* Top-Left Branding */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2">
+            <BrandLogo colors={logoHexColors} variant="header" />
+          </div>
+
+          {/* 1. Centered Title */}
+          <div className="flex w-full justify-center">
+            <BoardTitle title={state.title} isExport={true} />
+          </div>
+
+          {/* Separator */}
+          <div
+            className="mt-6 h-1 w-24 rounded-full opacity-80"
+            style={{ backgroundColor: logoHexColors[0] || '#3b82f6' }}
+          />
         </div>
 
         {/* 2. Tier List - Full Width within Gutter */}
