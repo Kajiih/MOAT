@@ -33,10 +33,9 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
   const shortcuts = [
     { label: 'Undo Action', keys: ['Ctrl/Cmd', 'Z'] },
     { label: 'Redo Action', keys: ['Ctrl/Cmd', 'Shift', 'Z'] },
-    { label: 'Select Item', keys: ['Click'] },
-    { label: 'Move Item', keys: ['Drag'] },
     { label: 'Remove Item', keys: ['Hover', 'X'] },
     { label: 'View Details', keys: ['Hover', 'i'] },
+    { label: 'Export Preview', keys: ['Shift', 'P'] },
   ];
 
   return (
