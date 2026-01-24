@@ -49,6 +49,7 @@ describe('Mappers', () => {
       const result = mapReleaseGroupToMediaItem(input);
       expect(result).toEqual({
         id: '123',
+        mbid: '123',
         type: 'album',
         title: 'Album Title',
         artist: 'Artist',

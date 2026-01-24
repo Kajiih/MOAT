@@ -90,7 +90,7 @@ export function AlbumView({ details }: AlbumViewProps) {
         </div>
       )}
 
-      <ExternalLinks mbId={details.id} type="album" urls={details.urls} />
+      <ExternalLinks mbId={details.mbid} type="album" urls={details.urls} />
     </div>
   );
 }

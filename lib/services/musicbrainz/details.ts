@@ -61,7 +61,7 @@ interface MBRecordingResponse {
 
 async function getAlbumDetails(
   id: string,
-): Promise<MediaDetails | { id: string; type: MediaType }> {
+): Promise<MediaDetails | { id: string; mbid: string; type: MediaType }> {
   // 1. Find the "best" release for this release group (Official, earliest)
   const query = `rgid:${id} AND status:official`;
   const searchData = await mbFetch<MBSearchResponse>(
@@ -86,7 +86,7 @@ async function getAlbumDetails(
     release = lookupData.releases?.[0];
   }
 
-  if (!release) return { id, type: 'album' };
+  if (!release) return { id, mbid: id, type: 'album' };
 
   const data = await mbFetch<MBReleaseResponse>(
     `release/${release.id}`,
@@ -104,6 +104,7 @@ async function getAlbumDetails(
 
   return {
     id,
+    mbid: id,
     type: 'album',
     tracks,
     label: data['label-info']?.[0]?.label?.name,
@@ -119,6 +120,7 @@ async function getArtistDetails(id: string): Promise<MediaDetails> {
 
   return {
     id,
+    mbid: id,
     type: 'artist',
     imageUrl: await getArtistThumbnail(id),
     tags:
@@ -158,6 +160,7 @@ async function getSongDetails(id: string): Promise<MediaDetails> {
   const release = data.releases?.[0];
   return {
     id,
+    mbid: id,
     type: 'song',
     tags: data.tags?.map((t: MBTag) => t.name) || [],
     length: data.length ? new Date(data.length).toISOString().slice(14, 19) : undefined,
@@ -175,7 +178,7 @@ async function getSongDetails(id: string): Promise<MediaDetails> {
 export async function getMediaDetails(
   id: string,
   type: MediaType,
-): Promise<MediaDetails | { id: string; type: MediaType }> {
+): Promise<MediaDetails | { id: string; mbid: string; type: MediaType }> {
   try {
     switch (type) {
       case 'album': {
@@ -188,11 +191,11 @@ export async function getMediaDetails(
         return await getSongDetails(id);
       }
       default: {
-        return { id, type };
+        return { id, mbid: id, type };
       }
     }
   } catch (error) {
     console.error('Error fetching details', error);
-    return { id, type };
+    return { id, mbid: id, type };
   }
 }

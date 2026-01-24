@@ -82,7 +82,7 @@ export function SongView({ details }: SongViewProps) {
         </div>
       )}
 
-      <ExternalLinks mbId={details.id} type="song" urls={details.urls} />
+      <ExternalLinks mbId={details.mbid} type="song" />
     </div>
   );
 }

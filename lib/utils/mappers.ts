@@ -52,6 +52,7 @@ export function mapReleaseGroupToMediaItem(
 ): MediaItem {
   return {
     id: item.id,
+    mbid: item.id,
     type: 'album',
     title: item.title,
     artist: formatArtistCredit(item['artist-credit']),
@@ -75,6 +76,7 @@ export async function mapArtistToMediaItem(
   const thumb = await getArtistThumbnail(item.id);
   return {
     id: item.id,
+    mbid: item.id,
     type: 'artist',
     title: item.name,
     year: item['life-span']?.begin?.split('-')[0] || '',
@@ -107,6 +109,7 @@ export function mapRecordingToMediaItem(
 
   return {
     id: item.id,
+    mbid: item.id,
     type: 'song',
     title: item.title,
     artist: formatArtistCredit(item['artist-credit']),

@@ -55,7 +55,7 @@ export function ArtistView({ details }: ArtistViewProps) {
         </div>
       )}
 
-      <ExternalLinks mbId={details.id} type="artist" urls={details.urls} />
+      <ExternalLinks mbId={details.mbid} type="artist" urls={details.urls} />
     </div>
   );
 }

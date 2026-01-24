@@ -33,8 +33,10 @@ export type SortOption =
  * Common properties shared by all media entities.
  */
 export interface BaseMediaItem {
-  /** Unique identifier (MusicBrainz ID) */
+  /** Unique identifier (Application/Board ID) */
   id: string;
+  /** MusicBrainz ID (Database ID) */
+  mbid: string;
   /** The primary title (Album name, Artist name, or Song title) */
   title: string;
   /** The release year or formation year. */
@@ -195,8 +197,10 @@ export interface TrackItem {
  * Deep metadata for a media item, fetched on demand or enriched in background.
  */
 export interface MediaDetails {
-  /** MusicBrainz ID. */
+  /** Application/Board ID */
   id: string;
+  /** MusicBrainz ID */
+  mbid: string;
   /** Entity type. */
   type: MediaType;
   /** Array of descriptive tags. */
