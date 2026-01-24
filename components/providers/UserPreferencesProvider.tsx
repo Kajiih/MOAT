@@ -20,6 +20,7 @@ const UserPreferencesContext = createContext<UserPreferencesContextType | undefi
 
 /**
  * Hook to consume user preferences.
+ * @returns The user preferences context.
  */
 export function useUserPreferences() {
   const context = useContext(UserPreferencesContext);

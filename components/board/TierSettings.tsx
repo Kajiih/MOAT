@@ -9,10 +9,12 @@
 'use client';
 
 import { Settings, Trash2 } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { TIER_COLORS } from '@/lib/colors';
+import { useClickOutside } from '@/lib/hooks/useClickOutside';
+import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 
 /**
  * Props for the TierSettings component.
@@ -61,17 +63,8 @@ export function TierSettings({
 }: TierSettingsProps) {
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, onClose]);
+  useEscapeKey(onClose, isOpen);
+  useClickOutside(settingsRef, onClose, isOpen);
 
   return (
     <>

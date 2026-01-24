@@ -14,8 +14,11 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+
+import { useClickOutside } from '@/lib/hooks/useClickOutside';
+import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 
 interface BoardOptionsMenuProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -48,17 +51,8 @@ export function BoardOptionsMenu({
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  useEscapeKey(() => setIsOpen(false), isOpen);
+  useClickOutside(menuRef, () => setIsOpen(false), isOpen);
 
   return (
     <div className="relative" ref={menuRef}>

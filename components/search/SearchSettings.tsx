@@ -8,7 +8,10 @@
 'use client';
 
 import { Settings, X } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+import { useClickOutside } from '@/lib/hooks/useClickOutside';
+import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 
 /**
  * Props for the SearchSettings component.
@@ -40,9 +43,13 @@ export function SearchSettings({
   onWildcardChange,
 }: SearchSettingsProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
+
+  useEscapeKey(() => setIsOpen(false), isOpen);
+  useClickOutside(settingsRef, () => setIsOpen(false), isOpen);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={settingsRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`rounded-full p-2 transition-colors ${isOpen ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:bg-neutral-800 hover:text-white'}`}
