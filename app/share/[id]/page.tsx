@@ -45,6 +45,14 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
       title: board.title,
       description: 'Created with MOAT - Music Tier List',
       type: 'website',
+      images: [
+        {
+          url: `/api/og?id=${id}`,
+          width: 1200,
+          height: 630,
+          alt: `${board.title} Tier List`,
+        },
+      ],
     },
   };
 }
