@@ -263,7 +263,7 @@ function BaseMediaCard({
       )}
 
       {/* Delete Button (Only if in a tier) */}
-      {tierId && onRemove && (
+      {!isExport && tierId && onRemove && (
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
@@ -278,7 +278,7 @@ function BaseMediaCard({
       )}
 
       {/* Info Button */}
-      {onInfo && (
+      {!isExport && onInfo && (
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
