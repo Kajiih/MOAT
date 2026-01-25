@@ -11,6 +11,7 @@ import { NextRequest } from 'next/server';
 
 import { OGBoard } from '@/components/board/OGBoard';
 import { logger } from '@/lib/logger';
+import { scrubBoardImages } from '@/lib/server/image-logic';
 import { TierListState } from '@/lib/types';
 
 /**
@@ -36,6 +37,12 @@ export async function GET(request: NextRequest) {
       try {
         const key = `moat-shared-${id}`;
         board = await kv.get<TierListState>(key);
+        
+        if (board) {
+          // SCRUB BROKEN IMAGES: Satori crashes if an <img> src returns a 404 or non-image content.
+          // We pre-validate the images that will be shown in the OG board.
+          board = await scrubBoardImages(board);
+        }
       } catch (kvError) {
         logger.error({ error: kvError }, 'OG: Failed to fetch board from KV');
       }

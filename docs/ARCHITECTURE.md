@@ -194,6 +194,7 @@ Moat supports dynamic Open Graph images for social sharing.
 - **Satori Engine**: Uses `@vercel/og` (powered by Satori) to generate OG images on the fly via the `/api/og` endpoint.
 - **OGBoard Component**: A simplified, styling-constrained version of the board specialized for Satori's layout engine (Flexbox only, inline styles).
 - **Dynamic Content**: The endpoint currently accepts parameters (like `title`) and can be extended to fetch and render a preview of a specific shared board.
+- **Image Resilience**: The API pre-validates all board images via a server-side `scrubBoardImages` utility before rendering. Any image URL that returns a 404 or non-image content is scrubbed (set to `undefined`), allowing Satori to render the board without crashing.
 
 ## Directory Structure
 
