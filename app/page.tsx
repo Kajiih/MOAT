@@ -1,19 +1,49 @@
 /**
  * @file page.tsx
- * @description Main dashboard page of the application.
+ * @description Root entry point. Automatically redirects to the most recent board or creates a new one.
  */
 
-import { Dashboard } from '@/components/dashboard/Dashboard';
-import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
+'use client';
 
-/**
- * Renders the application dashboard.
- * @returns The main dashboard page component.
- */
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+
+import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
+
 export default function Page() {
+  const router = useRouter();
+  const { boards, isLoading, createBoard } = useBoardRegistry();
+  const hasRedirected = useRef(false);
+
+  useEffect(() => {
+    if (isLoading || hasRedirected.current) return;
+
+    const handleRedirect = async () => {
+      hasRedirected.current = true;
+      if (boards.length > 0) {
+        // Redirect to most recently modified board (boards are already sorted by lastModified in hook)
+        router.replace(`/board/${boards[0].id}`);
+      } else {
+        // Create new board
+        try {
+          const id = await createBoard('Untitled Board');
+          router.replace(`/board/${id}`);
+        } catch (error) {
+          console.error('Failed to create board', error);
+          // Allow retry if something transient failed
+          hasRedirected.current = false;
+        }
+      }
+    };
+
+    handleRedirect();
+  }, [boards, isLoading, createBoard, router]);
+
   return (
-    <MediaRegistryProvider>
-      <Dashboard />
-    </MediaRegistryProvider>
+    <div className="flex min-h-screen items-center justify-center bg-neutral-950 text-neutral-500">
+      <Loader2 className="mr-2 animate-spin" />
+      <span>Loading...</span>
+    </div>
   );
 }
