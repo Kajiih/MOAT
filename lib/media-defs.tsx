@@ -5,7 +5,7 @@
  * @module MediaDefs
  */
 
-import { Disc, LucideIcon, Music, User } from 'lucide-react';
+import { Clapperboard, Disc, LucideIcon, Music, Tv, User } from 'lucide-react';
 
 import { AlbumItem, ArtistItem, MediaItem, MediaType, SongItem } from '@/lib/types';
 
@@ -42,6 +42,41 @@ export const MEDIA_CONFIG: Record<MediaType, MediaUIConfig> = {
       const yearSuffix = i.year ? ` (${i.year})` : '';
       return `${i.artist || 'Unknown'}${yearSuffix}`;
     },
+  },
+  movie: {
+    label: 'Movie',
+    Icon: Clapperboard,
+    colorClass: 'text-amber-400',
+    getSubtitle: (item) => item.year || '',
+    getTertiaryText: (_item) => 'Movie',
+  },
+  tv: {
+    label: 'TV Show',
+    Icon: Tv,
+    colorClass: 'text-pink-400',
+    getSubtitle: (item) => item.year || '',
+    getTertiaryText: (_item) => 'TV Series',
+  },
+  person: {
+    label: 'Person',
+    Icon: User,
+    colorClass: 'text-teal-400',
+    getSubtitle: (_item) => 'Person',
+    getTertiaryText: (_item) => 'Actor/Crew',
+  },
+  game: {
+    label: 'Game',
+    Icon: Disc,
+    colorClass: 'text-purple-400',
+    getSubtitle: (_item) => '',
+    getTertiaryText: (_item) => '',
+  },
+  book: {
+    label: 'Book',
+    Icon: Disc,
+    colorClass: 'text-blue-400',
+    getSubtitle: (_item) => '',
+    getTertiaryText: (_item) => '',
   },
 };
 

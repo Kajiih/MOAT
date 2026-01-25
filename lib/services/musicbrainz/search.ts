@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 import { logger } from '@/lib/logger';
 import { serverItemCache } from '@/lib/server/item-cache';
-import { MediaItem, MediaType, MusicBrainzSearchResponseSchema } from '@/lib/types';
+import { MediaItem, MediaType, MusicBrainzSearchResponseSchema, SearchResult } from '@/lib/types';
 import {
   mapArtistToMediaItem,
   mapRecordingToMediaItem,
@@ -46,15 +46,6 @@ export interface SearchParams {
   options: SearchOptions;
 }
 
-/**
- * Results of a MusicBrainz search.
- */
-export interface SearchResult {
-  results: MediaItem[];
-  page: number;
-  totalPages: number;
-  totalCount: number;
-}
 
 /**
  * Performs a search against the MusicBrainz API.

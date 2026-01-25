@@ -11,8 +11,6 @@
 import { Filter } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 
-import { AlbumPicker } from '@/components/media/AlbumPicker';
-import { ArtistPicker } from '@/components/media/ArtistPicker';
 import { MediaCard } from '@/components/media/MediaCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
@@ -84,15 +82,16 @@ export function SearchTab({
 
   const { showToast } = useToast();
 
-  // Handle errors (specifically rate limits)
+  // Handle errors
   useEffect(() => {
+    // 503 from MusicBrainz (we can make this generic later if needed)
     if (error?.status === 503) {
-      showToast('MusicBrainz is busy. The data will be updated soon.', 'error');
+      showToast('Search service is busy. Please try again in a moment.', 'error');
     }
   }, [error, showToast]);
 
   const sortedResults = useMemo(() => {
-    return searchResults.toSorted((a, b) => {
+    return searchResults.toSorted((a: MediaItem, b: MediaItem) => {
       switch (sortOption) {
         case 'date_desc': {
           return (b.date || b.year || '').localeCompare(a.date || a.year || '');
@@ -123,60 +122,21 @@ export function SearchTab({
 
   const finalResults = useMemo(() => {
     if (showAdded) return sortedResults;
-    return sortedResults.filter((item) => !addedItemIds.has(item.id));
+    return sortedResults.filter((item: MediaItem) => !addedItemIds.has(item.id));
   }, [sortedResults, showAdded, addedItemIds]);
 
   if (isHidden) {
     return null;
   }
 
-  // Check if any filter is active
+  // Check if any filter is active (simplified check)
   const hasActiveFilters =
     filters.query ||
     filters.selectedArtist ||
     filters.selectedAlbum ||
     filters.minYear ||
     filters.maxYear ||
-    filters.albumPrimaryTypes.length > 0 ||
-    filters.albumSecondaryTypes.length > 0 ||
-    filters.artistType ||
-    filters.artistCountry ||
-    filters.tag ||
-    filters.minDuration ||
-    filters.maxDuration;
-
-  let contextPickers = null;
-  if (type !== 'artist') {
-    contextPickers = (
-      <div className="grid grid-cols-1 gap-2">
-        <ArtistPicker
-          selectedArtist={filters.selectedArtist}
-          onSelect={(a) => {
-            const nextAlbum = type === 'song' ? null : filters.selectedAlbum;
-            updateFilters({
-              selectedArtist: a,
-              // If artist changes, reset selected album
-              selectedAlbum: nextAlbum,
-            });
-          }}
-          fuzzy={globalFuzzy}
-          wildcard={globalWildcard}
-          context={type}
-        />
-
-        {type === 'song' && (
-          <AlbumPicker
-            selectedAlbum={filters.selectedAlbum}
-            onSelect={(a) => updateFilters({ selectedAlbum: a })}
-            fuzzy={globalFuzzy}
-            wildcard={globalWildcard}
-            artistId={filters.selectedArtist?.id}
-            context="song-filter"
-          />
-        )}
-      </div>
-    );
-  }
+    filters.tag;
 
   const renderContent = () => {
     if (isSearching) {
@@ -258,7 +218,6 @@ export function SearchTab({
               type={type}
               filters={filters}
               updateFilters={updateFilters}
-              contextPickers={contextPickers}
             />
           </div>
         )}

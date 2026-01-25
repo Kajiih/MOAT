@@ -21,9 +21,76 @@ import { useBrandColors } from '@/lib/hooks';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 import { failedImages } from '@/lib/image-cache';
-import { BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
+import { BoardCategory,BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
 
 // --- Sub-components for Dashboard ---
+
+const CreateBoardCard = ({
+  onCreate,
+}: {
+  onCreate: (title: string, category: BoardCategory) => void;
+}) => {
+  const [isCreating, setIsCreating] = React.useState(false);
+  const [title, setTitle] = React.useState('');
+  const [category, setCategory] = React.useState<BoardCategory>('music');
+
+  if (!isCreating) {
+    return (
+      <button
+        onClick={() => setIsCreating(true)}
+        className="group flex h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 transition-all hover:border-blue-500/50 hover:bg-neutral-900"
+        title="New Tier List"
+      >
+        <div className="rounded-full bg-neutral-800 p-3 text-neutral-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+          <Plus size={32} />
+        </div>
+        <span className="mt-2 text-sm font-medium text-neutral-500 group-hover:text-neutral-300">
+          Create Board
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex h-48 flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-4 transition-all ring-2 ring-blue-500/50">
+      <h3 className="mb-3 text-sm font-bold text-neutral-300">New Tier List</h3>
+      <div className="flex flex-1 flex-col gap-3">
+        <input
+          autoFocus
+          type="text"
+          placeholder="Board Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full rounded bg-neutral-950 px-3 py-1.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value as BoardCategory)}
+          className="w-full rounded bg-neutral-950 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="music">🎵 Music</option>
+          <option value="cinema">🎬 Cinema</option>
+          <option value="game">🎮 Games (Coming Soon)</option>
+          <option value="book">📚 Books (Coming Soon)</option>
+        </select>
+        <div className="mt-auto flex gap-2">
+          <button
+            onClick={() => setIsCreating(false)}
+            className="flex-1 rounded bg-neutral-800 py-1.5 text-xs font-bold text-neutral-400 hover:bg-neutral-700"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => onCreate(title, category)}
+            className="flex-1 rounded bg-blue-600 py-1.5 text-xs font-bold text-white hover:bg-blue-500"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const DashboardItem = ({ item }: { item: PreviewItem }) => {
   const [error, setError] = React.useState(() =>
@@ -113,9 +180,13 @@ export function Dashboard() {
   // Ensure dashboard has the default favicon
   useDynamicFavicon([...DEFAULT_BRAND_COLORS]);
 
-  const handleCreate = async () => {
-    const id = await createBoard('Untitled Board');
-    router.push(`/board/${id}`);
+  const handleCreate = async (title: string, category: BoardCategory) => {
+    try {
+      const id = await createBoard(title || 'Untitled Board', category);
+      router.push(`/board/${id}`);
+    } catch (error) {
+      console.error('Failed to create board', error);
+    }
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
@@ -151,18 +222,8 @@ export function Dashboard() {
 
           {/* Board Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Create Card (Alternative) */}
-            <button
-              onClick={handleCreate}
-              className="group flex h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 transition-all hover:border-blue-500/50 hover:bg-neutral-900"
-              title="New Tier List"
-            >
-              <div className="rounded-full bg-neutral-800 p-3 text-neutral-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                <Plus size={32} />
-              </div>
-            </button>
-
-            {/* Existing Boards */}
+            {/* Create Card */}
+            <CreateBoardCard onCreate={handleCreate} />
             {boards.map((board) => (
               <Link
                 key={board.id}

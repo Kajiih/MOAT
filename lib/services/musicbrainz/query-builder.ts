@@ -9,6 +9,9 @@
 import { MediaType, SECONDARY_TYPES } from '@/lib/types';
 import { constructLuceneQuery, escapeLucene, SearchOptions } from '@/lib/utils/search';
 
+/** Media types supported by the MusicBrainz provider. */
+type MusicMediaType = 'artist' | 'album' | 'song';
+
 /**
  * Input parameters for the MusicBrainz query builder.
  */
@@ -45,19 +48,19 @@ export interface QueryBuilderParams {
   options: SearchOptions;
 }
 
-const DATE_FIELD_MAP: Record<MediaType, string> = {
+const DATE_FIELD_MAP: Record<MusicMediaType, string> = {
   artist: 'begin',
   album: 'firstreleasedate',
   song: 'firstreleasedate',
 };
 
-const LUCENE_FIELD_MAP: Record<MediaType, string> = {
+const LUCENE_FIELD_MAP: Record<MusicMediaType, string> = {
   artist: 'artist',
   album: 'releasegroup',
   song: 'recording',
 };
 
-const ENDPOINT_MAP: Record<MediaType, string> = {
+const ENDPOINT_MAP: Record<MusicMediaType, string> = {
   artist: 'artist',
   album: 'release-group',
   song: 'recording',
@@ -152,6 +155,10 @@ function buildCommonFilters(params: QueryBuilderParams, dateField: string): stri
  */
 export function buildMusicBrainzQuery(params: QueryBuilderParams): BuiltQuery {
   const { type, query, options } = params;
+
+  if (type !== 'artist' && type !== 'album' && type !== 'song') {
+    throw new Error(`MusicBrainz provider does not support type: ${type}`);
+  }
 
   const endpoint = ENDPOINT_MAP[type];
   const dateField = DATE_FIELD_MAP[type];

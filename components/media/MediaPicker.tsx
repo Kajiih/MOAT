@@ -10,12 +10,11 @@
 import { Disc, Filter, Mic2, User, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { preload } from 'swr';
 
+import { useTierListContext } from '@/components/providers/TierListContext';
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
 import { useMediaSearch } from '@/components/search/hooks/useMediaSearch';
-import { getSearchUrl } from '@/lib/api';
-import { swrFetcher } from '@/lib/api/fetcher';
+import { getMediaService } from '@/lib/services/factory';
 import {
   AlbumItem,
   AlbumSelection,
@@ -130,9 +129,13 @@ export function MediaPicker<T extends MediaSelection>({
   const TypeIcon = type === 'artist' ? Mic2 : Disc;
   const SelectedIcon = type === 'artist' ? User : Disc;
 
+  const { state: { category } } = useTierListContext();
+  const service = getMediaService(category || 'music');
+
   const handleSelect = (item: MediaItem) => {
     let selection: MediaSelection;
 
+    // Music Specific logic (keeping legacy support for now)
     if (type === 'artist') {
       selection = {
         id: item.id,
@@ -154,31 +157,6 @@ export function MediaPicker<T extends MediaSelection>({
     updateFilters({ query: '' });
     setSelectedImageError(false);
     setRetryUnoptimized(false);
-
-    // Performance: Prefetch related data
-    if (type === 'artist') {
-      // Smart Prefetch: If we are in a 'song' context (filtering songs by artist), prefetch songs.
-      // Otherwise (default/album context), prefetch albums.
-      const targetType = context === 'song' ? 'song' : 'album';
-      const prefetchUrl = getSearchUrl({
-        type: targetType,
-        artistId: item.id,
-        page: 1,
-        fuzzy,
-        wildcard,
-      });
-      preload(prefetchUrl, swrFetcher);
-    } else if (type === 'album') {
-      // If we select an album, we almost certainly want to see its songs
-      const prefetchUrl = getSearchUrl({
-        type: 'song',
-        albumId: item.id,
-        page: 1,
-        fuzzy,
-        wildcard,
-      });
-      preload(prefetchUrl, swrFetcher);
-    }
   };
 
   const clearSelection = () => {

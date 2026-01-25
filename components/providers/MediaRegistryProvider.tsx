@@ -60,8 +60,11 @@ function shouldUpdateItem(existing: MediaItem, newItem: MediaItem): boolean {
   const isMetadataGeneralChanged = newItem.title !== existing.title;
   let isArtistChanged = false;
 
-  // Only compare 'artist' field for non-artist types
-  if (newItem.type !== 'artist' && existing.type !== 'artist') {
+  // Only compare 'artist' field for types that have it
+  if (
+    (newItem.type === 'album' || newItem.type === 'song') &&
+    (existing.type === 'album' || existing.type === 'song')
+  ) {
     isArtistChanged = newItem.artist !== existing.artist;
   }
 

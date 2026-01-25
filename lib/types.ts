@@ -11,11 +11,35 @@ import { z } from 'zod';
 
 /**
  * Represents the type of media being handled.
- * - 'album': A music album (Release Group in MusicBrainz).
- * - 'artist': A musical artist or group.
- * - 'song': A single track (Recording in MusicBrainz).
+ * - 'album', 'artist', 'song' (Music)
+ * - 'movie', 'tv', 'person' (Cinema)
+ * - 'game' (Video Games)
+ * - 'book' (Literature)
  */
-export type MediaType = 'album' | 'artist' | 'song';
+export type MediaType =
+  | 'album'
+  | 'artist'
+  | 'song'
+  | 'movie'
+  | 'tv'
+  | 'person'
+  | 'game'
+  | 'book';
+
+/**
+ * Broad category for a board, determining which service and UI to use.
+ */
+export type BoardCategory = 'music' | 'cinema' | 'game' | 'book';
+
+/**
+ * Standardized search result wrapper.
+ */
+export interface SearchResult {
+  results: MediaItem[];
+  page: number;
+  totalPages: number;
+  totalCount: number;
+}
 
 /**
  * Available sorting options for search results.
@@ -87,10 +111,54 @@ export interface SongItem extends BaseMediaItem {
 }
 
 /**
+ * Represents a movie.
+ */
+export interface MovieItem extends BaseMediaItem {
+  type: 'movie';
+}
+
+/**
+ * Represents a TV show.
+ */
+export interface TVItem extends BaseMediaItem {
+  type: 'tv';
+}
+
+/**
+ * Represents a person (actor/crew).
+ */
+export interface PersonItem extends BaseMediaItem {
+  type: 'person';
+  knownFor?: string;
+}
+
+/**
+ * Represents a video game.
+ */
+export interface GameItem extends BaseMediaItem {
+  type: 'game';
+}
+
+/**
+ * Represents a book.
+ */
+export interface BookItem extends BaseMediaItem {
+  type: 'book';
+}
+
+/**
  * Represents a single normalized media item in the application.
  * This structure unifies data from different MusicBrainz entities (Release Group, Artist, Recording).
  */
-export type MediaItem = AlbumItem | ArtistItem | SongItem;
+export type MediaItem =
+  | AlbumItem
+  | ArtistItem
+  | SongItem
+  | MovieItem
+  | TVItem
+  | PersonItem
+  | GameItem
+  | BookItem;
 
 /**
  * Represents a simplified artist object used for selection state in pickers.
@@ -147,6 +215,8 @@ export interface TierListState {
   tierDefs: TierDefinition[];
   /** Map mapping tier IDs to their list of media items. */
   items: Record<string, MediaItem[]>;
+  /** Broad category for the board. */
+  category?: BoardCategory;
 }
 
 /**
@@ -186,6 +256,8 @@ export interface BoardMetadata {
   previewData?: TierPreview[];
   /** Total number of items on the board. */
   itemCount: number;
+  /** Broad category (defaults to 'music' for legacy boards). */
+  category?: BoardCategory;
 }
 
 /**
