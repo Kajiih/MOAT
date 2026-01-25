@@ -101,15 +101,21 @@ export function useTierListDnD(
       const activeTierId = active.data.current?.sourceTier;
       const activeItemData = active.data.current?.mediaItem;
 
-      dispatch({
-        type: ActionType.MOVE_ITEM,
-        payload: {
-          activeId,
-          overId,
-          activeTierId,
-          activeItem: activeItemData,
-        },
-      });
+      // Wrap state update in setTimeout to break synchronous render loop.
+      // This prevents "Maximum update depth exceeded" when dnd-kit triggers multiple DragOver events
+      // within the same render cycle (due to layout shifts).
+      // See: https://github.com/clauderic/dnd-kit/issues/496
+      setTimeout(() => {
+        dispatch({
+          type: ActionType.MOVE_ITEM,
+          payload: {
+            activeId,
+            overId,
+            activeTierId,
+            activeItem: activeItemData,
+          },
+        });
+      }, 0);
     },
     [dispatch],
   );
