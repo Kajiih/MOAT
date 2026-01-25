@@ -146,13 +146,7 @@ export function Dashboard() {
                 / Dashboard
               </span>
             </div>
-            <button
-              onClick={handleCreate}
-              className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-500"
-            >
-              <Plus size={18} />
-              <span>New Board</span>
-            </button>
+
           </div>
 
           {/* Board Grid */}
@@ -161,11 +155,11 @@ export function Dashboard() {
             <button
               onClick={handleCreate}
               className="group flex h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 transition-all hover:border-blue-500/50 hover:bg-neutral-900"
+              title="New Tier List"
             >
-              <div className="mb-3 rounded-full bg-neutral-800 p-3 text-neutral-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                <Plus size={24} />
+              <div className="rounded-full bg-neutral-800 p-3 text-neutral-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                <Plus size={32} />
               </div>
-              <span className="font-medium text-neutral-400">Create New Board</span>
             </button>
 
             {/* Existing Boards */}
