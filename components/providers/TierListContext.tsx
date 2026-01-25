@@ -121,13 +121,33 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   // --- Metadata Sync ---
   // Keep the Dashboard Registry in sync with the current board state (title, item count).
   // We use a separate debounce to avoid slamming the registry during rapid edits.
+  // We also flush on unmount to ensure the latest state is saved if the user leaves quickly.
   const [debouncedMetadataState] = useDebounce(state, 1000);
+  const latestStateRef = React.useRef(state);
+  const isHydratedRef = React.useRef(isHydrated);
 
+  // Keep refs up to date
+  React.useEffect(() => {
+    latestStateRef.current = state;
+    isHydratedRef.current = isHydrated;
+  }, [state, isHydrated]);
+
+  // Debounced Sync
   React.useEffect(() => {
     if (isHydrated && boardId) {
       syncBoardMetadata(boardId, debouncedMetadataState);
     }
   }, [debouncedMetadataState, boardId, isHydrated]);
+
+  // Unmount Flush
+  React.useEffect(() => {
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (isHydratedRef.current && boardId) {
+        syncBoardMetadata(boardId, latestStateRef.current);
+      }
+    };
+  }, [boardId]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
