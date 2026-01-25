@@ -91,8 +91,6 @@ export function OGBoard({ title, tiers, items, headerColors }: OGBoardProps) {
       >
         {tiers.map((tier) => {
           const tierItems = items[tier.id] || [];
-          if (tierItems.length === 0) return null;
-
           const tierColor = getTierColor(tier.color);
 
           return (

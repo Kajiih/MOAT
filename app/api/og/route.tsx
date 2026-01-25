@@ -42,13 +42,39 @@ export async function GET(request: NextRequest) {
     }
 
     // Default / Fallback data if board not found
-    const title = board?.title || titleParam || 'My Awesome Tier List';
+    const title = board?.title || titleParam || 'MOAT - Rank Your Music';
     const tiers = board?.tierDefs || [
       { id: '1', label: 'S', color: 'red' },
       { id: '2', label: 'A', color: 'orange' },
       { id: '3', label: 'B', color: 'yellow' },
+      { id: '4', label: 'C', color: 'green' },
+      { id: '5', label: 'D', color: 'blue' },
     ];
-    const items = board?.items || {};
+
+    // provide some mock items for the default view to make it look like a real tier list
+    const items = board?.items || {
+      '1': [
+        { id: 'm1', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=1&backgroundColor=ef4444' } as any,
+      ],
+      '2': [
+        { id: 'm2', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=2&backgroundColor=f97316' } as any,
+        { id: 'm3', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=3&backgroundColor=f97316' } as any,
+      ],
+      '3': [
+        { id: 'm4', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=4&backgroundColor=eab308' } as any,
+        { id: 'm5', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=5&backgroundColor=eab308' } as any,
+        { id: 'm6', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=6&backgroundColor=eab308' } as any,
+        { id: 'm7', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=7&backgroundColor=eab308' } as any,
+      ],
+      '4': [
+        { id: 'm8', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=8&backgroundColor=22c55e' } as any,
+        { id: 'm9', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=9&backgroundColor=22c55e' } as any,
+        { id: 'm10', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=10&backgroundColor=22c55e' } as any,
+      ],
+      '5': [
+        { id: 'm1', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=11&backgroundColor=3b82f6' } as any,
+      ],
+    };
     const headerColors = ['#3b82f6'];
 
     return new ImageResponse(
