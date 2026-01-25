@@ -54,6 +54,12 @@
 - **UI Library**: React (with Concurrent Mode features like Transitions)
 - **Styling**: Vanilla CSS with Tailwind CSS utilities for layout.
 - **Persistence**: `IndexedDB` (via `idb-keyval`) for scalable, asynchronous storage.
+- **Logging**: `pino` for structured logging.
+
+#### Media Services
+
+- **MusicBrainz**: `MusicBrainzService` for music metadata.
+- **TMDB**: `TMDBService` for movie and TV show metadata.
 
 ### 2. State & Data Flow Strategy
 

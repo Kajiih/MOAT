@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
+import { logger } from '@/lib/logger';
 
 export default function Page() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function Page() {
           const id = await createBoard('Untitled Board');
           router.replace(`/board/${id}`);
         } catch (error) {
-          console.error('Failed to create board', error);
+          logger.error({ error }, 'Failed to create board');
           // Allow retry if something transient failed
           hasRedirected.current = false;
         }

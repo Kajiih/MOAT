@@ -5,6 +5,7 @@
  */
 
 import { getMediaUI } from '@/lib/media-defs';
+import { logger } from '@/lib/logger';
 import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '@/lib/services/types';
 import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
@@ -31,7 +32,7 @@ interface TMDBDetails extends TMDBResult {
 export class TMDBService implements MediaService {
   private async fetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
     if (!TMDB_API_KEY) {
-        console.warn('TMDB_API_KEY is missing. Returning null to trigger mock fallback.');
+        logger.warn('TMDB_API_KEY is missing. Returning null to trigger mock fallback.');
         return null;
     }
 

@@ -21,6 +21,7 @@ import { useBrandColors } from '@/lib/hooks';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 import { failedImages } from '@/lib/image-cache';
+import { logger } from '@/lib/logger';
 import { BoardCategory,BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
 
 // --- Sub-components for Dashboard ---
@@ -185,7 +186,7 @@ export function Dashboard() {
       const id = await createBoard(title || 'Untitled Board', category);
       router.push(`/board/${id}`);
     } catch (error) {
-      console.error('Failed to create board', error);
+      logger.error({ error }, 'Failed to create board');
     }
   };
 
