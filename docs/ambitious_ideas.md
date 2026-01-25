@@ -51,15 +51,6 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 - Proposal: Add a "Suggested Items" feature. When a user adds an artist to "S Tier", fetch related artists (via MusicBrainz relations) and suggest them in the Search Panel.
 - Implementation: specific API endpoint leveraging artist-relations from MusicBrainz.
 
-#### "Moat Cloud" (Sharable Links)
-
-- Concept: Move beyond JSON exports. Allow users to "Publish" their board.
-- Architecture:
-  - Integrate a lightweight DB (Supabase/PostgreSQL) or simple Blob storage (Vercel Blob).
-  - Generate short codes (e.g., moat.app/b/x9z2p).
-- Read-Only View: A lightweight page rendering just the TierBoard for sharing on social media (OG Images included).
-- Ambition Level: High (Requires backend infra setup).
-
 #### "Jukebox Mode" (Audio Previews)
 
 - Concept: It's a music tier list, but you can't hear the music.

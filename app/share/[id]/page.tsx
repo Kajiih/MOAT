@@ -40,8 +40,8 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
   if (!board) return { title: 'Board Not Found - MOAT' };
 
   return {
-    title: `${board.title} - Shared Tier List - MOAT`,
-    description: `Check out this music tier list: ${board.title}`,
+    title: board.title,
+    description: `Check out this tier list: ${board.title}`,
     openGraph: {
       title: board.title,
       description: 'Created with MOAT - Music Tier List',
@@ -54,6 +54,12 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
           alt: `${board.title} Tier List`,
         },
       ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: board.title,
+      description: `Check out this tier list: ${board.title}`,
+      images: [`/api/og?id=${id}`],
     },
   };
 }
