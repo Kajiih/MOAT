@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Layout, Plus, Trash2 } from 'lucide-react';
+import { Disc, Layout, Mic2, Music, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -20,7 +20,45 @@ import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
 import { useBrandColors } from '@/lib/hooks';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
-import { BoardMetadata, TierPreview } from '@/lib/types';
+import { failedImages } from '@/lib/image-cache';
+import { BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
+
+// --- Sub-components for Dashboard ---
+
+const DashboardItem = ({ item }: { item: PreviewItem }) => {
+  const [error, setError] = React.useState(() =>
+    item.imageUrl ? failedImages.has(item.imageUrl) : false,
+  );
+
+  const showImage = item.imageUrl && !error;
+
+  return (
+    <div className="relative aspect-square h-full border-r border-neutral-900 bg-neutral-900">
+      {showImage ? (
+        <Image
+          src={item.imageUrl!}
+          alt=""
+          fill
+          className="object-cover"
+          unoptimized
+          onError={() => {
+            if (item.imageUrl) failedImages.add(item.imageUrl);
+            setError(true);
+          }}
+        />
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 text-neutral-600">
+          {item.type === 'album' && <Disc size={10} className="mb-0.5 opacity-50" />}
+          {item.type === 'artist' && <Mic2 size={10} className="mb-0.5 opacity-50" />}
+          {item.type === 'song' && <Music size={10} className="mb-0.5 opacity-50" />}
+          <span className="w-full truncate text-center text-[4px] leading-none font-bold uppercase opacity-20">
+            {item.type}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const MiniatureTierList = ({ tiers }: { tiers: TierPreview[] }) => {
   return (
@@ -37,10 +75,8 @@ const MiniatureTierList = ({ tiers }: { tiers: TierPreview[] }) => {
             </div>
             {/* Tier Items */}
             <div className="flex flex-1 items-center bg-neutral-800">
-              {tier.imageUrls.slice(0, 12).map((url) => (
-                <div key={url} className="relative aspect-square h-full border-r border-neutral-900">
-                  <Image src={url} alt="" fill className="object-cover" unoptimized />
-                </div>
+              {(tier.items || []).slice(0, 12).map((item, i) => (
+                <DashboardItem key={`${item.title}-${i}`} item={item} />
               ))}
             </div>
           </div>

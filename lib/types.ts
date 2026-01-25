@@ -150,13 +150,22 @@ export interface TierListState {
 }
 
 /**
+ * Represents a simplified item for the dashboard preview.
+ */
+export interface PreviewItem {
+  type: MediaType;
+  title: string;
+  imageUrl?: string;
+}
+
+/**
  * Simplified tier data for the dashboard preview.
  */
 export interface TierPreview {
   id: string;
   label: string;
   color: string;
-  imageUrls: string[];
+  items: PreviewItem[];
 }
 
 /**

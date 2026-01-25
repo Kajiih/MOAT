@@ -142,7 +142,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   // Unmount Flush
   React.useEffect(() => {
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+       
       if (isHydratedRef.current && boardId) {
         syncBoardMetadata(boardId, latestStateRef.current);
       }
