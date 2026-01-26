@@ -117,6 +117,7 @@ export function MediaPicker<T extends MediaSelection>({
     wildcard,
     artistId,
     storageKey: context ? `moat-search-params-${type}-${context}` : undefined,
+    prefetchEnabled: false,
   });
 
   const [isOpen, setIsOpen] = useState(false);

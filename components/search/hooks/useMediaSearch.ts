@@ -101,6 +101,7 @@ interface UseMediaSearchConfig {
   albumId?: string; 
   ignoreFilters?: boolean; 
   storageKey?: string; 
+  prefetchEnabled?: boolean;
 }
 
 /**
@@ -148,6 +149,7 @@ export function useMediaSearch<T extends MediaType>(
   const forcedArtistId = config?.artistId;
   const forcedAlbumId = config?.albumId;
   const ignoreFilters = config?.ignoreFilters ?? false;
+  const prefetchEnabled = config?.prefetchEnabled ?? true;
 
   const [debouncedFilters, controlFilters] = useDebounce({
       query: state.query,
@@ -227,7 +229,7 @@ export function useMediaSearch<T extends MediaType>(
 
   // Prefetching
   useEffect(() => {
-    if (data && state.page < data.totalPages && swrKey) {
+    if (prefetchEnabled && data && state.page < data.totalPages && swrKey) {
         const nextKey = { ...swrKey, page: state.page + 1 };
         preload(nextKey, async (k: SwrKey) => {
             return service.search(k.query, k.type, {
@@ -238,7 +240,7 @@ export function useMediaSearch<T extends MediaType>(
             });
         });
     }
-  }, [data, state.page, swrKey, service]);
+  }, [data, state.page, swrKey, service, prefetchEnabled]);
 
   return {
     filters: state,

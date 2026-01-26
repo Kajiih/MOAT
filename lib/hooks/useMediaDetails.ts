@@ -5,14 +5,10 @@
  * @module useMediaDetails
  */
 
-import useSWR, { preload } from 'swr';
+import useSWR from 'swr';
 
 import { swrFetcher } from '@/lib/api/fetcher';
 import { MediaDetails, MediaType } from '@/lib/types';
-
-export function preloadMediaDetails(id: string, type: MediaType) {
-  preload(`/api/details?id=${id}&type=${type}`, swrFetcher);
-}
 
 /**
  * Custom hook to fetch detailed information for a specific media item.

@@ -2,7 +2,23 @@
 
 This plan proposes a set of ambitious improvements to the Moat Tier List application, focusing on architectural elegance, performance, and "power user" features.
 
+## Fixes
+- Fix pagination prefetching: Currently it only prefetches one page and when go the the next page, it doesn't prefetch the next one.
+- Prefetch should be active unless the mouse is in the search/filter section (the card grid doesn't count).
+  - We need to separate properly the top of the search and the rest with the results that should activate the prefetch.
+- Or maybe we just use a delay before prefetching?
+
 ## Proposed Changes
+
+### 1. Refactor missing image handling: no image should be a first class citizen
+- Missing images are currently handled by a client-side set `failedImages`. This is not ideal because it's not persistent and it's not shared across devices.
+- We can use a server-side cache for missing images. This would allow us to share the cache across devices and make it persistent (can be useful for the screenshot engine or shared boards, og images, etc)
+- We can also use a client-side cache for missing images. This would allow us to avoid repeated fetch attempts during the session.
+- Do we really need both?
+- We should probably use a more robust solution for this, like a database or a key-value store.
+- We can also track the state of the image along with the data of the item card so we don't try to fetch the image again if it failed once.
+- Single coherent way to handle missing images across the app (ui, screenshot engine, etc) including default/backup images.
+- Maybe we can refactor the whole image handling logic to be more robust and efficient.
 
 ### 2. Feature: Visual Board Themes
 
@@ -96,6 +112,8 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
   - Note: Requires creating a specific "OGBoard" component optimized for Satori (Flexbox only, no complex CSS/Grid).
 
 ## Smaller fixes or improvement ideas:
+
+- Rework OG board to use a centralized component, better visually (the logo and moat.app is not right) and fix the fact that sometimes images are considered as missing when they should not (maybe too short timeout)
 
 - Somehow reuse components for OG board, or at least centralize the place where components are defined to improve locality of behavior.
 - Check how favicon is handled

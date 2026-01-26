@@ -123,11 +123,8 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 
 #### Prefetching Mechanisms
 
-- **Pagination Prefetch**: When searching, the app automatically pre-fetches the _next_ page of results as soon as the current page loads.
-- **Smart Picker Prefetch**: Selecting an item in a `MediaPicker` triggers intelligent preloading:
-  - Selecting an **Artist** prefetches their **Albums** (or **Songs** if in a song-filtering context).
-  - Selecting an **Album** prefetches its **Songs**.
-- **Background Enrichment**: The `useBackgroundEnrichment` hook prefetches deep metadata for items added to the board without blocking user interaction.
+- **Conditional Pagination Prefetch**: When searching, the app can pre-fetch the _next_ page of results, but this is now controlled by a `prefetchEnabled` flag. Prefetching is **disabled** while the user is interacting with the search/filter zone (e.g., typing in the search box, adjusting filters) to prioritize user-initiated requests. It is **enabled** when the user moves focus to the results grid. `MediaPicker` components explicitly disable prefetching as they don't support pagination.
+- **Background Enrichment**: The `useBackgroundEnrichment` hook fetches deep metadata for items added to the board without blocking user interaction. It processes up to 3 items concurrently.
 
 #### Persistence Logic
 

@@ -9,7 +9,7 @@
 'use client';
 
 import { Filter } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { MediaCard } from '@/components/media/MediaCard';
 import { Pagination } from '@/components/ui/Pagination';
@@ -63,6 +63,7 @@ export function SearchTab({
     `moat-search-ui-${type}-sortOption`,
     'relevance',
   );
+  const [isFilterZoneActive, setIsFilterZoneActive] = useState(false);
 
   const {
     filters,
@@ -78,6 +79,7 @@ export function SearchTab({
     fuzzy: globalFuzzy,
     wildcard: globalWildcard,
     enabled: !isHidden,
+    prefetchEnabled: !isFilterZoneActive,
   });
 
   const { showToast } = useToast();
@@ -185,7 +187,17 @@ export function SearchTab({
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div 
+      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      onMouseEnter={() => setIsFilterZoneActive(true)}
+      onMouseLeave={() => setIsFilterZoneActive(false)}
+      onFocus={() => setIsFilterZoneActive(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setIsFilterZoneActive(false);
+        }
+      }}
+    >
       <div className="mb-4 grid shrink-0 grid-cols-1 gap-2">
         <div className="flex gap-2">
           <input
