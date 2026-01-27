@@ -63,7 +63,9 @@ export function SearchTab({
     `moat-search-ui-${type}-sortOption`,
     'relevance',
   );
-  const [isFilterZoneActive, setIsFilterZoneActive] = useState(false);
+  
+  // Logic: Enable prefetch by default, disable ONLY when interacting with filters/input
+  const [shouldPrefetch, setShouldPrefetch] = useState(true);
 
   const {
     filters,
@@ -79,7 +81,7 @@ export function SearchTab({
     fuzzy: globalFuzzy,
     wildcard: globalWildcard,
     enabled: !isHidden,
-    prefetchEnabled: !isFilterZoneActive,
+    prefetchEnabled: shouldPrefetch,
   });
 
   const { showToast } = useToast();
@@ -187,18 +189,18 @@ export function SearchTab({
   };
 
   return (
-    <div 
-      className="flex min-h-0 flex-1 flex-col overflow-hidden"
-      onMouseEnter={() => setIsFilterZoneActive(true)}
-      onMouseLeave={() => setIsFilterZoneActive(false)}
-      onFocus={() => setIsFilterZoneActive(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          setIsFilterZoneActive(false);
-        }
-      }}
-    >
-      <div className="mb-4 grid shrink-0 grid-cols-1 gap-2">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div 
+        className="mb-4 grid shrink-0 grid-cols-1 gap-2"
+        onMouseEnter={() => setShouldPrefetch(false)}
+        onMouseLeave={() => setShouldPrefetch(true)}
+        onFocus={() => setShouldPrefetch(false)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+             setShouldPrefetch(true);
+          }
+        }}
+      >
         <div className="flex gap-2">
           <input
             placeholder={`Search ${type}s...`}
@@ -235,15 +237,17 @@ export function SearchTab({
         )}
       </div>
 
-      {/* Content Area: Grid or Loading State */}
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">{renderContent()}</div>
+      {/* Results Area (Grid + Pagination) */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">{renderContent()}</div>
 
-      {/* Pagination Footer - Fixed at bottom */}
-      {!isSearching && searchResults.length > 0 && totalPages > 1 && (
-        <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pt-2">
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-        </div>
-      )}
+        {/* Pagination Footer - Fixed at bottom */}
+        {!isSearching && searchResults.length > 0 && totalPages > 1 && (
+          <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pt-2">
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
