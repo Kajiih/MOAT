@@ -36,6 +36,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
     { label: 'Remove Item', keys: ['Hover', 'X'] },
     { label: 'View Details', keys: ['Hover', 'i'] },
     { label: 'Export Preview', keys: ['Shift', 'P'] },
+    { label: 'Debug Panel', keys: ['Shift', 'D'] },
     { label: 'Toggle Shortcuts', keys: ['?'] },
   ];
 

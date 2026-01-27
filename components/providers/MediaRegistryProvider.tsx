@@ -24,6 +24,10 @@ interface MediaRegistryContextValue {
   registerItem: (item: MediaItem) => void;
   /** Retrieve an item from the registry by its ID. */
   getItem: <T extends MediaItem>(id: string) => T | undefined;
+  /** Current number of items in the registry. */
+  registrySize: number;
+  /** Clear the entire registry (Debug only). */
+  clearRegistry: () => void;
 }
 
 const MediaRegistryContext = createContext<MediaRegistryContextValue | undefined>(undefined);
@@ -173,8 +177,23 @@ export function MediaRegistryProvider({ children }: MediaRegistryProviderProps) 
     [registry],
   );
 
+  /**
+   * Debug helper to clear the registry.
+   */
+  const clearRegistry = useCallback(() => {
+    setRegistry({});
+  }, [setRegistry]);
+
   return (
-    <MediaRegistryContext.Provider value={{ registerItems, registerItem, getItem }}>
+    <MediaRegistryContext.Provider
+      value={{
+        registerItems,
+        registerItem,
+        getItem,
+        registrySize: Object.keys(registry).length,
+        clearRegistry,
+      }}
+    >
       {children}
     </MediaRegistryContext.Provider>
   );

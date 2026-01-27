@@ -37,6 +37,10 @@ export function useBackgroundEnrichment(
   useSingleItemSyncWrapper(slot1, onUpdateItem);
   useSingleItemSyncWrapper(slot2, onUpdateItem);
   useSingleItemSyncWrapper(slot3, onUpdateItem);
+
+  return {
+    pendingCount: items.filter((item) => !item.details).length,
+  };
 }
 
 /**

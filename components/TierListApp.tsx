@@ -9,6 +9,7 @@
 'use client';
 
 import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core';
+import { Leva } from 'leva';
 import { Camera, Dices, Loader2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -23,6 +24,7 @@ import { Footer } from '@/components/ui/Footer';
 import { Header } from '@/components/ui/Header';
 import { HoveredItemInfo, InteractionContext } from '@/components/ui/InteractionContext';
 import { useToast } from '@/components/ui/ToastProvider';
+import { DebugPanel } from '@/components/ui/DebugPanel';
 import { getColorTheme } from '@/lib/colors';
 import { useDynamicFavicon, useScreenshot } from '@/lib/hooks';
 import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
@@ -67,6 +69,7 @@ interface UseAppShortcutsProps {
   closeDetails: () => void;
   setShowShortcuts: (show: boolean | ((prev: boolean) => boolean)) => void;
   setShowExportPreview: (show: boolean | ((prev: boolean) => boolean)) => void;
+  setShowDebugPanel: (show: boolean | ((prev: boolean) => boolean)) => void;
 }
 
 function handleUndoRedo(
@@ -106,12 +109,18 @@ function handleHoverShortcuts(
 
 function handleGlobalShortcuts(
   event: KeyboardEvent,
-  { setShowExportPreview, closeDetails, setShowShortcuts }: UseAppShortcutsProps,
+  { setShowExportPreview, closeDetails, setShowShortcuts, setShowDebugPanel }: UseAppShortcutsProps,
 ) {
   // Toggle Export Preview (Shift + P)
   if (event.shiftKey && event.key.toLowerCase() === 'p') {
     event.preventDefault();
     setShowExportPreview((prev) => !prev);
+  }
+
+  // Toggle Debug Panel (Shift + D)
+  if (event.shiftKey && event.key.toLowerCase() === 'd') {
+    event.preventDefault();
+    setShowDebugPanel((prev) => !prev);
   }
 
   // Toggle Shortcuts (Shift + ? or ?)
@@ -172,9 +181,10 @@ export default function TierListApp() {
   // UI Interaction State (Hover)
   const [hoveredItem, setHoveredItem] = useState<HoveredItemInfo | null>(null);
   const [showExportPreview, setShowExportPreview] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   // Background Bundler: Automatically syncs deep metadata for items on the board
-  useBackgroundEnrichment(allBoardItems, updateMediaItem);
+  const { pendingCount } = useBackgroundEnrichment(allBoardItems, updateMediaItem);
 
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);
@@ -202,6 +212,7 @@ export default function TierListApp() {
     closeDetails,
     setShowShortcuts,
     setShowExportPreview,
+    setShowDebugPanel,
   });
 
   if (!isHydrated) {
@@ -317,6 +328,8 @@ export default function TierListApp() {
         {/* Page Footer */}
         <Footer colors={footerBrandColors} className="pt-4 pb-6 opacity-60" />
       </InteractionContext.Provider>
+      <DebugPanel pendingEnrichmentCount={pendingCount} />
+      <Leva hidden={!showDebugPanel} />
     </div>
   );
 }

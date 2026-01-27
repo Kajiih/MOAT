@@ -6,6 +6,7 @@
 
 'use client';
 
+import { folder, useControls } from 'leva';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR, { preload } from 'swr';
 import { useDebounce } from 'use-debounce';
@@ -241,6 +242,30 @@ export function useMediaSearch<T extends MediaType>(
         });
     }
   }, [data, state.page, swrKey, service, prefetchEnabled]);
+  // Debug: Search Prefetch Monitor
+  // Use imperative updates to ensure Leva stays in sync
+  const [, setPrefetchStats] = useControls(
+    'Debug',
+    () => ({
+      [`Search Prefetch (${type})`]: folder(
+        {
+          'Prefetch Enabled': { value: prefetchEnabled, disabled: true },
+          'Current Page': { value: state.page, disabled: true },
+          'Total Pages': { value: data?.totalPages || 0, disabled: true },
+        },
+        { collapsed: true },
+      ),
+    }),
+    [type]
+  );
+
+  useEffect(() => {
+    setPrefetchStats({
+      'Prefetch Enabled': prefetchEnabled,
+      'Current Page': state.page,
+      'Total Pages': data?.totalPages || 0,
+    });
+  }, [setPrefetchStats, prefetchEnabled, state.page, data?.totalPages]);
 
   return {
     filters: state,
