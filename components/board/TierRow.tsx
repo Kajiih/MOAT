@@ -14,12 +14,10 @@ import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { getColorTheme } from '@/lib/colors';
 import { MediaItem, TierDefinition } from '@/lib/types';
 
 import { TierGrid } from './TierGrid';
-import { TierLabel } from './TierLabel';
-import { TierSettings } from './TierSettings';
+import { TierHeader } from './TierHeader';
 
 interface TierRowProps {
   /** The tier definition (id, label, color). */
@@ -53,7 +51,7 @@ interface TierRowProps {
  * Handles:
  * - Droppable zone for items.
  * - Sortable context for items within.
- * - Tier header (label editing, color settings, reordering handle).
+ * - Tier header (TierHeader component).
  */
 export const TierRow = memo(function TierRow({
   tier,
@@ -69,9 +67,6 @@ export const TierRow = memo(function TierRow({
   isExport = false,
   resolvedImages = {},
 }: TierRowProps) {
-  // Resolve the full color theme from the ID
-  const tierTheme = getColorTheme(tier.color);
-
   // Sortable logic for the Tier itself (reordering rows)
   const {
     attributes,
@@ -110,7 +105,7 @@ export const TierRow = memo(function TierRow({
   };
 
   const { over, active } = useDndContext();
-  const [showSettings, setShowSettings] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const isOverRow = useMemo(() => {
     if (!over) return false;
@@ -130,39 +125,22 @@ export const TierRow = memo(function TierRow({
         isOverRow
           ? 'z-20 scale-[1.01] border-blue-500/50 bg-neutral-800 shadow-lg ring-1 ring-blue-500/30'
           : 'border-neutral-800',
-        showSettings ? 'z-30' : 'z-0',
+        isSettingsOpen ? 'z-30' : 'z-0',
         isDraggingTier && 'scale-95 border-blue-500 opacity-50 ring-2 ring-blue-500/50',
       )}
     >
-      {/* Label / Header Column */}
-      <div
-        className={twMerge(
-          'group/row relative flex w-24 shrink-0 flex-col items-center justify-center rounded-l-lg p-2 transition-colors md:w-32',
-          tierTheme.bg, // Apply the background class from the theme
-        )}
-      >
-        <TierLabel
-          label={tier.label}
-          onUpdate={(newLabel) => onUpdateTier(tier.id, { label: newLabel })}
-          dragAttributes={attributes}
-          dragListeners={listeners}
-          isAnyDragging={isAnyDragging}
-          isExport={isExport}
-        />
-
-        {!isExport && (
-          <TierSettings
-            color={tier.color}
-            onUpdateColor={(colorId) => onUpdateTier(tier.id, { color: colorId })}
-            onDelete={() => onDeleteTier(tier.id)}
-            canDelete={canDelete}
-            isOpen={showSettings}
-            onToggle={() => setShowSettings(!showSettings)}
-            onClose={() => setShowSettings(false)}
-            isAnyDragging={isAnyDragging}
-          />
-        )}
-      </div>
+      <TierHeader
+        tier={tier}
+        onUpdateTier={onUpdateTier}
+        onDeleteTier={onDeleteTier}
+        canDelete={canDelete}
+        isAnyDragging={isAnyDragging}
+        isExport={isExport}
+        dragAttributes={attributes}
+        dragListeners={listeners}
+        isSettingsOpen={isSettingsOpen}
+        onSettingsOpen={setIsSettingsOpen}
+      />
 
       {/* Items Column */}
       <div className="relative flex min-h-[100px] min-w-0 flex-1 flex-col">
