@@ -23,10 +23,25 @@ export const swrFetcher = async <T>(url: string, retryCount = 0): Promise<T> => 
   }
 
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.') as Error & {
+    let errorMessage = 'An error occurred while fetching the data.';
+    let errorInfo: any = {};
+
+    try {
+      errorInfo = await res.json();
+      if (errorInfo.error) {
+        errorMessage = errorInfo.error;
+      }
+    } catch {
+      // If parsing fails, use the status text
+      errorMessage = res.statusText || errorMessage;
+    }
+
+    const error = new Error(errorMessage) as Error & {
       status?: number;
+      info?: any;
     };
     error.status = res.status;
+    error.info = errorInfo;
     throw error;
   }
   return res.json();

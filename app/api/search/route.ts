@@ -88,7 +88,7 @@ export async function GET(request: Request) {
     const message = error instanceof Error ? error.message : '';
     const status = message.includes('503') ? 503 : 500;
     return NextResponse.json(
-      { error: status === 503 ? 'MusicBrainz rate limit reached' : 'Internal Server Error' },
+      { error: status === 503 ? 'MusicBrainz rate limit reached' : `Search failed: ${message}` },
       { status },
     );
   }
