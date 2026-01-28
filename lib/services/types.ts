@@ -1,3 +1,8 @@
+/**
+ * @file types.ts
+ * @description Core interfaces and types for the MediaService architecture.
+ */
+
 import { LucideIcon } from 'lucide-react';
 
 import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
@@ -11,7 +16,7 @@ export interface SearchOptions {
   limit?: number;
   page?: number;
   // Specific filters (can be expanded)
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
 }
 
 /**
@@ -29,7 +34,7 @@ export interface FilterDefinition {
   placeholder?: string;
   options?: { label: string; value: string; icon?: LucideIcon }[];
   pickerType?: MediaType; // for 'picker' type
-  default?: any;
+  default?: unknown;
 }
 
 /**

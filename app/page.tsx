@@ -12,6 +12,11 @@ import { useEffect, useRef } from 'react';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 import { logger } from '@/lib/logger';
 
+/**
+ * Root page component that handles redirection to the most recent board
+ * or creation of a new board if none exists.
+ * @returns The rendered Page component.
+ */
 export default function Page() {
   const router = useRouter();
   const { boards, isLoading, createBoard } = useBoardRegistry();

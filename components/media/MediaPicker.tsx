@@ -11,10 +11,8 @@ import { Disc, Filter, Mic2, User, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { useTierListContext } from '@/components/providers/TierListContext';
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
 import { useMediaSearch } from '@/components/search/hooks/useMediaSearch';
-import { getMediaService } from '@/lib/services/factory';
 import {
   AlbumItem,
   AlbumSelection,
@@ -129,9 +127,6 @@ export function MediaPicker<T extends MediaSelection>({
 
   const TypeIcon = type === 'artist' ? Mic2 : Disc;
   const SelectedIcon = type === 'artist' ? User : Disc;
-
-  const { state: { category } } = useTierListContext();
-  const service = getMediaService(category || 'music');
 
   const handleSelect = (item: MediaItem) => {
     let selection: MediaSelection;

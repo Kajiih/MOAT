@@ -13,6 +13,14 @@ vi.mock('swr', () => ({
   preload: vi.fn(),
 }));
 
+// Mock leva to avoid CSS injection issues in JSDOM
+vi.mock('leva', () => ({
+  useControls: vi.fn(() => [{}, vi.fn()]),
+  folder: vi.fn((obj) => obj),
+  monitor: vi.fn(),
+  button: vi.fn(),
+}));
+
 // Mock persistent state to avoid localstorage issues in tests
 // Mock persistent state to avoid localstorage issues in tests
 vi.mock('@/lib/hooks', async (importOriginal) => {
@@ -32,6 +40,8 @@ vi.mock('@/components/providers/MediaRegistryProvider', () => ({
     registerItems: vi.fn(),
     getItem: vi.fn(),
     registerItem: vi.fn(),
+    registrySize: 0,
+    clearRegistry: vi.fn(),
   })),
 }));
 
@@ -65,7 +75,7 @@ describe('useMediaSearch', () => {
     expect(result.current.filters.query).toBe('');
     // By default it searches for Album/EP types even without query
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'artist' }),
+      expect.stringContaining('type=artist'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -91,7 +101,7 @@ describe('useMediaSearch', () => {
     // In our implementation, since query didn't update debouncedQuery, URL hasn't changed.
     const callsAfterType = vi.mocked(useSWR).mock.calls;
     const hasAbbeyEarly = callsAfterType.some((call) =>
-      (call[0] as any)?.query === 'Abbey',
+      (call[0] as string).includes('query=Abbey'),
     );
     expect(hasAbbeyEarly).toBe(false);
 
@@ -102,7 +112,7 @@ describe('useMediaSearch', () => {
 
     // Now it should be called with Abbey
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ query: 'Abbey' }),
+      expect.stringContaining('query=Abbey'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -119,7 +129,7 @@ describe('useMediaSearch', () => {
       vi.advanceTimersByTime(350);
     });
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ query: 'Queen' }),
+      expect.stringContaining('query=Queen'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -137,7 +147,7 @@ describe('useMediaSearch', () => {
     const callsAfterDelete = vi.mocked(useSWR).mock.calls;
     // Actually, SWR isn't called again if the URL doesn't change.
     // Our check should be that it hasn't been called WITH NONE (empty query) yet.
-    const hasEmptyQuery = callsAfterDelete.some((call) => (call[0] as any)?.query === '');
+    const hasEmptyQuery = callsAfterDelete.some((call) => !(call[0] as string).includes('query='));
     expect(hasEmptyQuery).toBe(false);
 
     // Advance to 350ms
@@ -146,7 +156,7 @@ describe('useMediaSearch', () => {
     });
     // Now it should be called without the query param
     const finalCalls = vi.mocked(useSWR).mock.calls;
-    const hasNoQuery = finalCalls.some((call) => (call[0] as any)?.query === '');
+    const hasNoQuery = finalCalls.some((call) => !(call[0] as string).includes('query='));
     expect(hasNoQuery).toBe(true);
   });
 
@@ -165,7 +175,7 @@ describe('useMediaSearch', () => {
 
     // Should be triggered now even if timers haven't advanced
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ query: 'Thriller' }),
+      expect.stringContaining('query=Thriller'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -192,7 +202,7 @@ describe('useMediaSearch', () => {
     // Total 400ms passed, but only 200ms since last keystroke.
     // Should NOT have searched for 'Bee' yet.
     const calls = vi.mocked(useSWR).mock.calls;
-    const hasBee = calls.some((call) => (call[0] as any)?.query === 'Bee');
+    const hasBee = calls.some((call) => (call[0] as string).includes('query=Bee'));
     expect(hasBee).toBe(false);
 
     // Wait for the remaining 100ms
@@ -200,7 +210,7 @@ describe('useMediaSearch', () => {
       vi.advanceTimersByTime(100);
     });
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ query: 'Bee' }),
+      expect.stringContaining('query=Bee'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -229,6 +239,8 @@ describe('useMediaSearch', () => {
       registerItems: mockRegisterItems,
       getItem: vi.fn(),
       registerItem: vi.fn(),
+      registrySize: 0,
+      clearRegistry: vi.fn(),
     });
 
     const mockResults: MediaItem[] = [
@@ -255,6 +267,8 @@ describe('useMediaSearch', () => {
     vi.mocked(useMediaRegistry).mockReturnValue({
       registerItems: vi.fn(),
       registerItem: vi.fn(),
+      registrySize: 0,
+      clearRegistry: vi.fn(),
       getItem: vi.fn((id: string) =>
         id === '1' ? mockItem1Enriched : undefined,
       ) as unknown as <T extends MediaItem>(id: string) => T | undefined,
@@ -295,16 +309,12 @@ describe('useMediaSearch', () => {
     });
 
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ 
-        selectedArtist: expect.objectContaining({ id: 'artist-1' }) 
-      }),
+      expect.stringContaining('artistId=artist-1'),
       expect.any(Function),
       expect.any(Object),
     );
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ 
-        selectedAlbum: expect.objectContaining({ id: 'album-1' }) 
-      }),
+      expect.stringContaining('albumId=album-1'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -314,9 +324,7 @@ describe('useMediaSearch', () => {
     renderHook(() => useMediaSearch('album', { artistId: 'forced-artist' }));
 
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({
-        selectedArtist: expect.objectContaining({ id: 'forced-artist' })
-      }),
+      expect.stringContaining('artistId=forced-artist'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -334,7 +342,7 @@ describe('useMediaSearch', () => {
     });
 
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ minDuration: '180' }),
+      expect.stringContaining('minDuration=180'),
       expect.any(Function),
       expect.any(Object),
     );
@@ -347,7 +355,7 @@ describe('useMediaSearch', () => {
     });
 
     expect(useSWR).toHaveBeenCalledWith(
-      expect.objectContaining({ maxDuration: '300' }),
+      expect.stringContaining('maxDuration=300'),
       expect.any(Function),
       expect.any(Object),
     );

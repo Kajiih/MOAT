@@ -12,7 +12,7 @@ import { NextRequest } from 'next/server';
 import { OGBoard } from '@/components/board/OGBoard';
 import { logger } from '@/lib/logger';
 import { scrubBoardImages } from '@/lib/server/image-logic';
-import { TierListState } from '@/lib/types';
+import { MediaItem, TierListState } from '@/lib/types';
 
 /**
  * We use the 'nodejs' runtime instead of 'edge' because it is more stable
@@ -59,27 +59,27 @@ export async function GET(request: NextRequest) {
     ];
 
     // provide some mock items for the default view to make it look like a real tier list
-    const items = board?.items || {
+    const items: Record<string, MediaItem[]> = board?.items || {
       '1': [
-        { id: 'm1', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=1&backgroundColor=ef4444' } as any,
+        { id: 'm1', mbid: 'm1', type: 'album', title: 'Mock 1', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=1&backgroundColor=ef4444' } as MediaItem,
       ],
       '2': [
-        { id: 'm2', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=2&backgroundColor=f97316' } as any,
-        { id: 'm3', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=3&backgroundColor=f97316' } as any,
+        { id: 'm2', mbid: 'm2', type: 'album', title: 'Mock 2', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=2&backgroundColor=f97316' } as MediaItem,
+        { id: 'm3', mbid: 'm3', type: 'album', title: 'Mock 3', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=3&backgroundColor=f97316' } as MediaItem,
       ],
       '3': [
-        { id: 'm4', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=4&backgroundColor=eab308' } as any,
-        { id: 'm5', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=5&backgroundColor=eab308' } as any,
-        { id: 'm6', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=6&backgroundColor=eab308' } as any,
-        { id: 'm7', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=7&backgroundColor=eab308' } as any,
+        { id: 'm4', mbid: 'm4', type: 'album', title: 'Mock 4', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=4&backgroundColor=eab308' } as MediaItem,
+        { id: 'm5', mbid: 'm5', type: 'album', title: 'Mock 5', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=5&backgroundColor=eab308' } as MediaItem,
+        { id: 'm6', mbid: 'm6', type: 'album', title: 'Mock 6', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=6&backgroundColor=eab308' } as MediaItem,
+        { id: 'm7', mbid: 'm7', type: 'album', title: 'Mock 7', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=7&backgroundColor=eab308' } as MediaItem,
       ],
       '4': [
-        { id: 'm8', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=8&backgroundColor=22c55e' } as any,
-        { id: 'm9', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=9&backgroundColor=22c55e' } as any,
-        { id: 'm10', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=10&backgroundColor=22c55e' } as any,
+        { id: 'm8', mbid: 'm8', type: 'album', title: 'Mock 8', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=8&backgroundColor=22c55e' } as MediaItem,
+        { id: 'm9', mbid: 'm9', type: 'album', title: 'Mock 9', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=9&backgroundColor=22c55e' } as MediaItem,
+        { id: 'm10', mbid: 'm10', type: 'album', title: 'Mock 10', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=10&backgroundColor=22c55e' } as MediaItem,
       ],
       '5': [
-        { id: 'm1', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=11&backgroundColor=3b82f6' } as any,
+        { id: 'm11', mbid: 'm11', type: 'album', title: 'Mock 11', imageUrl: 'https://api.dicebear.com/7.x/shapes/png?seed=11&backgroundColor=3b82f6' } as MediaItem,
       ],
     };
     const headerColors = ['#3b82f6'];

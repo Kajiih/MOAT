@@ -1,3 +1,8 @@
+/**
+ * @file factory.ts
+ * @description Factory for retrieving the appropriate MediaService based on board category.
+ */
+
 import { BoardCategory } from '@/lib/types';
 
 import { TMDBService } from './cinema/TMDBService';

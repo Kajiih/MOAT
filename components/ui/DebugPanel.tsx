@@ -1,3 +1,8 @@
+/**
+ * @file DebugPanel.tsx
+ * @description A hidden debug panel using Leva to monitor application state and registry size.
+ */
+
 import { button, folder, monitor, useControls } from 'leva';
 import { useEffect } from 'react';
 
@@ -8,6 +13,12 @@ interface DebugPanelProps {
   pendingEnrichmentCount: number;
 }
 
+/**
+ * Debug panel component that integrates with Leva to provide a UI for monitoring board state.
+ * @param props - Component props.
+ * @param props.pendingEnrichmentCount - Number of items currently queued for enrichment.
+ * @returns null (Leva renders its own UI).
+ */
 export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
   const {
     state,

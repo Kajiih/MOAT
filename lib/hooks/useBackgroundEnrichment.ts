@@ -16,6 +16,7 @@ import { MediaItem } from '@/lib/types';
  * Main hook to coordinate background enrichment of board items.
  * @param items - List of all media items on the board.
  * @param onUpdateItem - Callback to update an item with fetched details.
+ * @returns An object containing the number of items still pending enrichment.
  */
 export function useBackgroundEnrichment(
   items: MediaItem[],

@@ -119,8 +119,9 @@ interface UseMediaSearchResult<T extends MediaItem> {
 
 /**
  * Custom hook to manage the state and data fetching for media searches using the active MediaService.
- * @param type
- * @param config
+ * @param type - The type of media to search for.
+ * @param config - Configuration options for the search hook.
+ * @returns An object containing search filters, results, and state.
  */
 export function useMediaSearch<T extends MediaType>(
   type: T,

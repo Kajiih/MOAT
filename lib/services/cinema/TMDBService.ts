@@ -169,14 +169,18 @@ export class TMDBService implements MediaService {
   // --- MOCKS ---
   private getMockSearch(query: string, type: MediaType): SearchResult {
       const mockResults: MediaItem[] = [];
-      for(let i=1; i<=5; i++) {
-          const base = {
-              id: `mock-${type}-${i}`,
-              mbid: `mock-${type}-${i}`,
-              title: `${type === 'movie' ? 'Mock Movie' : type === 'tv' ? 'Mock Show' : 'Mock Person'} ${i} (${query})`,
-              year: '2025',
-              imageUrl: '' 
-          };
+      for (let i = 1; i <= 5; i++) {
+        let titlePrefix = 'Mock Person';
+        if (type === 'movie') titlePrefix = 'Mock Movie';
+        else if (type === 'tv') titlePrefix = 'Mock Show';
+
+        const base = {
+          id: `mock-${type}-${i}`,
+          mbid: `mock-${type}-${i}`,
+          title: `${titlePrefix} ${i} (${query})`,
+          year: '2025',
+          imageUrl: '',
+        };
           
           switch (type) {
             case 'movie': { mockResults.push({ ...base, type: 'movie' }); break;
