@@ -27,6 +27,7 @@ export class MusicService implements MediaService {
       albumPrimaryTypes: options.filters?.albumPrimaryTypes || [],
       albumSecondaryTypes: options.filters?.albumSecondaryTypes || [],
       artistType: options.filters?.artistType || null,
+      artistCountry: options.filters?.artistCountry || null,
       tag: options.filters?.tag || null,
       minDuration: options.filters?.minDuration || null,
       maxDuration: options.filters?.maxDuration || null,

@@ -13,8 +13,9 @@ import { useDebounce } from 'use-debounce';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { useTierListContext } from '@/components/providers/TierListContext';
+import { getSearchUrl } from '@/lib/api';
+import { swrFetcher } from '@/lib/api/fetcher';
 import { usePersistentState } from '@/lib/hooks';
-import { getMediaService } from '@/lib/services/factory';
 import {
   AlbumItem,
   AlbumSelection,
@@ -82,26 +83,16 @@ const defaultState: SearchParamsState = {
 };
 
 /**
- * Internal interface for the SWR cache key.
- */
-interface SwrKey extends SearchParamsState {
-    category: string;
-    type: MediaType;
-    fuzzy: boolean;
-    wildcard: boolean;
-}
-
-/**
  * Configuration options for the useMediaSearch hook.
  */
 interface UseMediaSearchConfig {
   fuzzy?: boolean;
   wildcard?: boolean;
   enabled?: boolean;
-  artistId?: string; 
-  albumId?: string; 
-  ignoreFilters?: boolean; 
-  storageKey?: string; 
+  artistId?: string;
+  albumId?: string;
+  ignoreFilters?: boolean;
+  storageKey?: string;
   prefetchEnabled?: boolean;
 }
 
@@ -118,7 +109,7 @@ interface UseMediaSearchResult<T extends MediaItem> {
   wildcard: boolean;
   setWildcard: (val: boolean) => void;
   reset: () => void;
-  searchNow: () => void; 
+  searchNow: () => void;
   results: T[];
   totalPages: number;
   isLoading: boolean;
@@ -135,9 +126,10 @@ export function useMediaSearch<T extends MediaType>(
   type: T,
   config?: UseMediaSearchConfig,
 ): UseMediaSearchResult<MediaItemMap[T]> {
-  const { state: { category } } = useTierListContext();
-  const service = getMediaService(category || 'music');
-  
+  const {
+    state: { category },
+  } = useTierListContext();
+
   const storageKey = config?.storageKey || `moat-search-params-${type}`;
   const [state, setState] = usePersistentState<SearchParamsState>(storageKey, defaultState);
 
@@ -152,7 +144,8 @@ export function useMediaSearch<T extends MediaType>(
   const ignoreFilters = config?.ignoreFilters ?? false;
   const prefetchEnabled = config?.prefetchEnabled ?? true;
 
-  const [debouncedFilters, controlFilters] = useDebounce({
+  const [debouncedFilters, controlFilters] = useDebounce(
+    {
       query: state.query,
       minYear: state.minYear,
       maxYear: state.maxYear,
@@ -160,63 +153,72 @@ export function useMediaSearch<T extends MediaType>(
       tag: state.tag,
       minDuration: state.minDuration,
       maxDuration: state.maxDuration,
-  }, 300);
+    },
+    300,
+  );
 
   const searchNow = () => controlFilters.flush();
 
-  const updateFilters = useCallback((patch: Partial<SearchParamsState>) => {
-    setState((prev) => {
-      const next = { ...prev, ...patch, page: 1 };
-      if (next.query && next.query.startsWith(' ')) next.query = next.query.trimStart();
-      return next;
-    });
-  }, [setState]);
+  const updateFilters = useCallback(
+    (patch: Partial<SearchParamsState>) => {
+      setState((prev) => {
+        const next = { ...prev, ...patch, page: 1 };
+        if (next.query && next.query.startsWith(' ')) next.query = next.query.trimStart();
+        return next;
+      });
+    },
+    [setState],
+  );
 
   const handleSetPage = (val: number | ((prev: number) => number)) => {
     setState((prev) => ({ ...prev, page: typeof val === 'function' ? val(prev.page) : val }));
   };
 
-  // Simplified SWR Key calculation
-  const swrKey: SwrKey | null = useMemo(() => {
+  const searchUrl = useMemo(() => {
     if (!isEnabled) return null;
-    return {
-      ...state,
-      query: debouncedFilters.query,
-      minYear: ignoreFilters ? '' : debouncedFilters.minYear,
-      maxYear: ignoreFilters ? '' : debouncedFilters.maxYear,
-      artistCountry: ignoreFilters ? '' : debouncedFilters.artistCountry,
-      tag: ignoreFilters ? '' : debouncedFilters.tag,
-      minDuration: ignoreFilters ? '' : debouncedFilters.minDuration,
-      maxDuration: ignoreFilters ? '' : debouncedFilters.maxDuration,
+
+    return getSearchUrl({
       category: category || 'music',
       type,
+      page: state.page,
+      query: debouncedFilters.query,
+      artistId: forcedArtistId || state.selectedArtist?.id,
+      albumId: forcedAlbumId || state.selectedAlbum?.id,
+      minYear: ignoreFilters ? '' : debouncedFilters.minYear,
+      maxYear: ignoreFilters ? '' : debouncedFilters.maxYear,
+      albumPrimaryTypes: ignoreFilters ? [] : state.albumPrimaryTypes,
+      albumSecondaryTypes: ignoreFilters ? [] : state.albumSecondaryTypes,
+      artistType: ignoreFilters ? '' : state.artistType,
+      artistCountry: ignoreFilters ? '' : debouncedFilters.artistCountry,
+      tag: ignoreFilters ? '' : debouncedFilters.tag,
+      minDuration:
+        !ignoreFilters && debouncedFilters.minDuration
+          ? Number.parseInt(debouncedFilters.minDuration, 10)
+          : undefined,
+      maxDuration:
+        !ignoreFilters && debouncedFilters.maxDuration
+          ? Number.parseInt(debouncedFilters.maxDuration, 10)
+          : undefined,
       fuzzy: isFuzzy,
       wildcard: isWildcard,
-      selectedArtist: forcedArtistId ? ({ id: forcedArtistId, name: '' } as ArtistSelection) : state.selectedArtist,
-      selectedAlbum: forcedAlbumId ? ({ id: forcedAlbumId, name: '' } as AlbumSelection) : state.selectedAlbum,
-    };
+    });
   }, [
-    isEnabled, state, debouncedFilters, ignoreFilters, category, type, isFuzzy, isWildcard, forcedArtistId, forcedAlbumId
+    isEnabled,
+    category,
+    type,
+    state,
+    debouncedFilters,
+    forcedArtistId,
+    forcedAlbumId,
+    ignoreFilters,
+    isFuzzy,
+    isWildcard,
   ]);
 
-  const { data, error, isLoading, isValidating } = useSWR<SearchResult, Error & { status?: number }>(
-    swrKey,
-    async (k: SwrKey) => {
-        return service.search(k.query, k.type, {
-            page: k.page,
-            fuzzy: k.fuzzy,
-            wildcard: k.wildcard,
-            filters: {
-                ...k,
-                artistId: k.selectedArtist?.id,
-                albumId: k.selectedAlbum?.id,
-                minDuration: k.minDuration ? Number.parseInt(k.minDuration, 10) : undefined,
-                maxDuration: k.maxDuration ? Number.parseInt(k.maxDuration, 10) : undefined,
-            }
-        });
-    },
-    { keepPreviousData: true }
-  );
+  const { data, error, isLoading, isValidating } = useSWR<
+    SearchResult,
+    Error & { status?: number }
+  >(searchUrl, swrFetcher, { keepPreviousData: true });
 
   const { registerItems, getItem } = useMediaRegistry();
 
@@ -230,18 +232,16 @@ export function useMediaSearch<T extends MediaType>(
 
   // Prefetching
   useEffect(() => {
-    if (prefetchEnabled && data && state.page < data.totalPages && swrKey) {
-        const nextKey = { ...swrKey, page: state.page + 1 };
-        preload(nextKey, async (k: SwrKey) => {
-            return service.search(k.query, k.type, {
-                page: k.page,
-                fuzzy: k.fuzzy,
-                wildcard: k.wildcard,
-                filters: k
-            });
-        });
+    if (prefetchEnabled && data && state.page < data.totalPages && searchUrl) {
+      // Need to construct next page URL
+      const currentUrl = new URL(searchUrl, 'http://localhost'); // Dummy base for relative URL parsing
+      currentUrl.searchParams.set('page', (state.page + 1).toString());
+      // Re-extract the relative path + query
+      const nextUrl = currentUrl.pathname + currentUrl.search;
+      preload(nextUrl, swrFetcher);
     }
-  }, [data, state.page, swrKey, service, prefetchEnabled]);
+  }, [data, state.page, searchUrl, prefetchEnabled]);
+
   // Debug: Search Prefetch Monitor
   // Use imperative updates to ensure Leva stays in sync
   const [, setPrefetchStats] = useControls(
@@ -256,7 +256,7 @@ export function useMediaSearch<T extends MediaType>(
         { collapsed: true },
       ),
     }),
-    [type]
+    [type],
   );
 
   useEffect(() => {

@@ -5,12 +5,14 @@
  * @module APIUtils
  */
 
-import { MediaType } from '../types';
+import { BoardCategory, MediaType } from '../types';
 
 /**
  * Parameters for generating a search URL.
  */
 export interface SearchParams {
+  /** The board category (music, cinema, etc). */
+  category?: BoardCategory;
   /** The media type to search for (album, artist, song). */
   type: MediaType;
   /** The text query. */
@@ -55,6 +57,7 @@ export function getSearchUrl(params: SearchParams): string {
   const urlParams = new URLSearchParams();
 
   // 1. Essential params in fixed order
+  if (params.category) urlParams.append('category', params.category);
   urlParams.append('type', params.type);
   urlParams.append('page', (params.page || 1).toString());
 

@@ -10,8 +10,8 @@
 import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
-import { searchMusicBrainz } from '@/lib/services/musicbrainz';
-import { MediaType } from '@/lib/types';
+import { getMediaService } from '@/lib/services/factory';
+import { BoardCategory, MediaType } from '@/lib/types';
 
 /**
  * Handles GET requests to search for media items.
@@ -20,9 +20,9 @@ import { MediaType } from '@/lib/types';
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const category = (searchParams.get('category') as BoardCategory) || 'music';
   const type = (searchParams.get('type') as MediaType) || 'album';
   const queryParam = searchParams.get('query') || '';
-  const artistParam = searchParams.get('artist');
   const artistIdParam = searchParams.get('artistId');
   const albumIdParam = searchParams.get('albumId');
   const minYear = searchParams.get('minYear');
@@ -46,7 +46,6 @@ export async function GET(request: Request) {
   // If no main filters, return empty
   if (
     !queryParam &&
-    !artistParam &&
     !artistIdParam &&
     !albumIdParam &&
     !minYear &&
@@ -63,23 +62,24 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await searchMusicBrainz({
-      type,
-      query: queryParam,
-      artist: artistParam,
-      artistId: artistIdParam,
-      albumId: albumIdParam,
-      minYear,
-      maxYear,
-      albumPrimaryTypes,
-      albumSecondaryTypes,
-      artistType: artistType || undefined,
-      artistCountry: artistCountry || undefined,
-      tag: tag || undefined,
-      minDuration: minDuration ? Number.parseInt(minDuration, 10) : undefined,
-      maxDuration: maxDuration ? Number.parseInt(maxDuration, 10) : undefined,
+    const service = getMediaService(category);
+    const result = await service.search(queryParam, type, {
       page,
-      options: { fuzzy, wildcard },
+      fuzzy,
+      wildcard,
+      filters: {
+        artistId: artistIdParam,
+        albumId: albumIdParam,
+        minYear,
+        maxYear,
+        albumPrimaryTypes,
+        albumSecondaryTypes,
+        artistType: artistType || undefined,
+        artistCountry: artistCountry || undefined,
+        tag: tag || undefined,
+        minDuration: minDuration ? Number.parseInt(minDuration, 10) : undefined,
+        maxDuration: maxDuration ? Number.parseInt(maxDuration, 10) : undefined,
+      },
     });
 
     return NextResponse.json(result);
