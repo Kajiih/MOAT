@@ -105,7 +105,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   };
 
   return (
-    <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-200">
+    <div
+      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-200"
+      onClick={onClose}
+    >
       <div
         className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-neutral-700 bg-neutral-900 shadow-2xl duration-200"
         onClick={(e) => e.stopPropagation()}
