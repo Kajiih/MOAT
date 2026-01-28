@@ -182,7 +182,8 @@ test.describe('Tier List App', () => {
 
     // Trigger file chooser by clicking the visible label
     const fileChooserPromise = page.waitForEvent('filechooser');
-    await page.getByText('Import', { exact: true }).click();
+    await page.getByTitle('Board Options').click();
+    await page.getByText('Import JSON', { exact: true }).click();
     const fileChooser = await fileChooserPromise;
 
     await fileChooser.setFiles(filePath);
@@ -270,7 +271,8 @@ test.describe('Tier List App', () => {
 
     // Import
     const fileChooserPromise = page.waitForEvent('filechooser');
-    await page.getByText('Import', { exact: true }).click();
+    await page.getByTitle('Board Options').click();
+    await page.getByText('Import JSON', { exact: true }).click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
 

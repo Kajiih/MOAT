@@ -55,7 +55,8 @@ test.describe('Visual Regression', () => {
 
     // Import
     const fileChooserPromise = page.waitForEvent('filechooser');
-    await page.getByText('Import', { exact: true }).click();
+    await page.getByTitle('Board Options').click();
+    await page.getByText('Import JSON', { exact: true }).click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
 
