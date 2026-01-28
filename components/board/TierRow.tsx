@@ -86,6 +86,7 @@ export const TierRow = memo(function TierRow({
       type: 'tier',
       tier,
     },
+    disabled: isExport,
   });
 
   // Droppable logic for items being dropped into the tier

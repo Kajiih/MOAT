@@ -222,7 +222,7 @@ function BaseMediaCard({
   let interactionClasses = 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400';
   if (isExport) {
     if (onInfo) {
-      interactionClasses = 'hover:ring-2 hover:ring-neutral-400 cursor-default flex-shrink-0 z-0';
+      interactionClasses = 'cursor-pointer flex-shrink-0 z-0';
     } else {
       interactionClasses = 'flex-shrink-0 z-0';
     }
@@ -401,6 +401,7 @@ export function SortableMediaCard(props: MediaCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: draggableId,
     data: { mediaItem: props.item, sourceTier: props.tierId },
+    disabled: props.isExport,
   });
 
   const style = {
