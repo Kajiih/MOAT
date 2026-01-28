@@ -17,13 +17,11 @@ vi.mock('@vercel/kv', () => ({
 
 // We mock ImageResponse as a class/function that returns the args
 vi.mock('next/og', () => {
-    return {
-        ImageResponse: vi.fn().mockImplementation(function (content, options) {
-            this.content = content;
-            this.options = options;
-            return this;
-        })
-    };
+  return {
+    ImageResponse: vi.fn().mockImplementation(function (content: unknown, options: unknown) {
+      return { content, options };
+    }),
+  };
 });
 
 vi.mock('@/lib/logger', () => ({
