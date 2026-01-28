@@ -82,7 +82,7 @@ export async function scrubBoardImages(
   // Validate all unique URLs in parallel
   const validationResults = new Map<string, boolean>();
   await Promise.all(
-    Array.from(imageUrlsToValidate).map(async (url) => {
+    [...imageUrlsToValidate].map(async (url) => {
       const isValid = await validateImageUrl(url);
       validationResults.set(url, isValid);
     })

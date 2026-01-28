@@ -4,8 +4,8 @@
  * @module TMDBService
  */
 
-import { getMediaUI } from '@/lib/media-defs';
 import { logger } from '@/lib/logger';
+import { getMediaUI } from '@/lib/media-defs';
 import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '@/lib/services/types';
 import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
@@ -57,17 +57,21 @@ export class TMDBService implements MediaService {
 
     let endpoint = '';
     switch (type) {
-      case 'movie': 
+      case 'movie': { 
         endpoint = '/search/movie';
         break;
-      case 'tv': 
+      }
+      case 'tv': { 
         endpoint = '/search/tv';
         break;
-      case 'person': 
+      }
+      case 'person': { 
         endpoint = '/search/person';
         break;
-      default: 
+      }
+      default: { 
         return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+      }
     }
 
     const data = await this.fetch<{
@@ -94,9 +98,12 @@ export class TMDBService implements MediaService {
     
     let pathType: string;
     switch (type) {
-      case 'movie': pathType = 'movie'; break;
-      case 'tv': pathType = 'tv'; break;
-      default: pathType = 'person';
+      case 'movie': { pathType = 'movie'; break;
+      }
+      case 'tv': { pathType = 'tv'; break;
+      }
+      default: { pathType = 'person';
+      }
     }
 
     const endpoint = `/${pathType}/${id}`;
@@ -147,11 +154,15 @@ export class TMDBService implements MediaService {
     };
 
     switch (type) {
-      case 'movie': return { ...base, type: 'movie' };
-      case 'tv': return { ...base, type: 'tv' };
-      case 'person': return { ...base, type: 'person' };
-      default:
+      case 'movie': { return { ...base, type: 'movie' };
+      }
+      case 'tv': { return { ...base, type: 'tv' };
+      }
+      case 'person': { return { ...base, type: 'person' };
+      }
+      default: {
         throw new Error(`Unsupported type: ${type}`);
+      }
     }
   }
 
@@ -168,9 +179,12 @@ export class TMDBService implements MediaService {
           };
           
           switch (type) {
-            case 'movie': mockResults.push({ ...base, type: 'movie' }); break;
-            case 'tv': mockResults.push({ ...base, type: 'tv' }); break;
-            case 'person': mockResults.push({ ...base, type: 'person' }); break;
+            case 'movie': { mockResults.push({ ...base, type: 'movie' }); break;
+            }
+            case 'tv': { mockResults.push({ ...base, type: 'tv' }); break;
+            }
+            case 'person': { mockResults.push({ ...base, type: 'person' }); break;
+            }
           }
       }
       return { results: mockResults, page: 1, totalPages: 1, totalCount: 5 };
