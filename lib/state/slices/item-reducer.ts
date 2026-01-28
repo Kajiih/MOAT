@@ -18,14 +18,25 @@ export type UpdateItemPayload = Extract<TierListAction, { type: 'UPDATE_ITEM' }>
 
 /**
  * Utility function to find which tier (container) an item belongs to.
+ * Uses optimized O(1) lookup if available, otherwise falls back to O(N) scan.
  * @param id - The ID of the item to locate.
- * @param currentItems - The current items map from state.
+ * @param state - The current tier list state.
  * @returns The ID of the tier containing the item, or undefined if not found.
  */
-const findContainer = (
-  id: string,
-  currentItems: Record<string, MediaItem[]>,
-): string | undefined => {
+const findContainer = (id: string, state: TierListState): string | undefined => {
+  // Optimization: O(1) Lookup
+  if (state.itemLookup && state.itemLookup[id]) {
+    // Verify consistency (optional but good for safety during dev/migrations)
+    // If the lookup points to a tier, but the item isn't actually there, it's stale.
+    // However, for performance we trust the lookup.
+    // If we want to be paranoid:
+    // const claimedTier = state.itemLookup[id];
+    // if (state.items[claimedTier]?.some(i => i.id === id)) return claimedTier;
+    return state.itemLookup[id];
+  }
+
+  // Fallback: O(N) Scan
+  const currentItems = state.items;
   if (id in currentItems) return id;
   return Object.keys(currentItems).find((key) => currentItems[key].find((a) => a.id === id));
 };
@@ -61,6 +72,10 @@ function handleMoveFromSearch(
         { ...draggingItemFromSearch, id: activeId },
         ...state.items[overContainer].slice(newIndex),
       ],
+    },
+    itemLookup: {
+      ...state.itemLookup,
+      [activeId]: overContainer,
     },
   };
 }
@@ -117,6 +132,10 @@ function handleMoveBetweenContainers(
         ...state.items[overContainer].slice(newIndex),
       ],
     },
+    itemLookup: {
+      ...state.itemLookup,
+      [activeId]: overContainer,
+    },
   };
 }
 
@@ -130,8 +149,8 @@ function handleMoveBetweenContainers(
 export function handleMoveItem(state: TierListState, payload: MoveItemPayload): TierListState {
   const { activeId, overId, activeItem: draggingItemFromSearch } = payload;
 
-  const activeContainer = findContainer(activeId, state.items);
-  const overContainer = findContainer(overId, state.items);
+  const activeContainer = findContainer(activeId, state);
+  const overContainer = findContainer(overId, state);
 
   if (!overContainer) return state;
 
@@ -163,6 +182,7 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
   const { itemId, updates } = payload;
   const newItems = { ...state.items };
   let modified = false;
+  let newItemLookup = state.itemLookup;
 
   const tierIds = Object.keys(newItems);
   for (const tierId of tierIds) {
@@ -176,16 +196,25 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
         break;
       }
 
+      const newItem = { ...currentItem, ...updates } as MediaItem;
+
       newItems[tierId] = [
         ...list.slice(0, index),
-        { ...currentItem, ...updates } as MediaItem,
+        newItem,
         ...list.slice(index + 1),
       ];
       modified = true;
+
+      // Handle ID change (Normalization)
+      if (currentItem.id !== newItem.id && state.itemLookup) {
+        newItemLookup = { ...state.itemLookup };
+        delete newItemLookup[currentItem.id];
+        newItemLookup[newItem.id] = tierId;
+      }
       break;
     }
   }
-  return modified ? { ...state, items: newItems } : state;
+  return modified ? { ...state, items: newItems, itemLookup: newItemLookup } : state;
 }
 
 /**
@@ -202,12 +231,16 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
 
     case ActionType.REMOVE_ITEM: {
       const { tierId, itemId } = action.payload;
+      const newLookup = { ...state.itemLookup };
+      delete newLookup[itemId];
+
       return {
         ...state,
         items: {
           ...state.items,
           [tierId]: state.items[tierId].filter((a) => a.id !== itemId),
         },
+        itemLookup: newLookup,
       };
     }
 

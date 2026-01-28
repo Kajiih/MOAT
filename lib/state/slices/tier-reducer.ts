@@ -60,14 +60,27 @@ export function handleDeleteTier(state: TierListState, payload: DeleteTierPayloa
   const newItems = { ...state.items };
   delete newItems[id];
 
+  const newItemLookup = { ...state.itemLookup };
+
   if (fallbackId && orphanedItems.length > 0) {
     newItems[fallbackId] = [...newItems[fallbackId], ...orphanedItems];
+
+    // Update lookup for moved items
+    orphanedItems.forEach((item) => {
+      newItemLookup[item.id] = fallbackId;
+    });
+  } else {
+    // Remove lookup for deleted items
+    orphanedItems.forEach((item) => {
+      delete newItemLookup[item.id];
+    });
   }
 
   return {
     ...state,
     tierDefs: state.tierDefs.filter((t) => t.id !== id),
     items: newItems,
+    itemLookup: newItemLookup,
   };
 }
 

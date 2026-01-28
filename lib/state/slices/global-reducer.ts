@@ -29,7 +29,17 @@ export function globalReducer(state: TierListState, action: TierListAction): Tie
 
     case ActionType.IMPORT_STATE:
     case ActionType.SET_STATE: {
-      return action.payload.state;
+      const newState = action.payload.state;
+      // Self-healing: Ensure itemLookup exists
+      if (!newState.itemLookup) {
+        newState.itemLookup = {};
+        Object.entries(newState.items).forEach(([tierId, items]) => {
+          items.forEach((item) => {
+            newState.itemLookup![item.id] = tierId;
+          });
+        });
+      }
+      return newState;
     }
 
     default: {

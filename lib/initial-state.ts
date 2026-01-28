@@ -27,4 +27,5 @@ export const INITIAL_STATE: TierListState = {
     'tier-5': [],
     'tier-6': [],
   },
+  itemLookup: {},
 };

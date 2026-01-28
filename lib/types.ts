@@ -217,6 +217,11 @@ export interface TierListState {
   items: Record<string, MediaItem[]>;
   /** Broad category for the board. */
   category?: BoardCategory;
+  /**
+   * Optimized lookup map for item locations (itemId -> tierId).
+   * Reduces time complexity of drag operations from O(N*M) to O(1).
+   */
+  itemLookup?: Record<string, string>;
 }
 
 /**
@@ -330,6 +335,7 @@ export const TierListSchema = z.object({
   title: z.string(),
   tierDefs: z.array(TierDefinitionSchema),
   items: z.record(z.string(), z.array(z.any())),
+  itemLookup: z.record(z.string(), z.string()).optional(),
 });
 
 // --- Zod Schemas for MusicBrainz API ---
