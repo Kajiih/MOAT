@@ -39,7 +39,7 @@ export async function mbFetch<T = unknown>(
 
   const response = await fetch(url, { ...options, headers });
 
-  if (response.status === 503 && retryCount < 2) {
+  if ((response.status === 503 || response.status === 504) && retryCount < 2) {
     // Wait for 1-2 seconds before retrying (simple exponential-ish backoff)
     await new Promise((resolve) => setTimeout(resolve, 1000 * (retryCount + 1)));
     return mbFetch(endpoint, queryParams, options, retryCount + 1);
@@ -48,7 +48,7 @@ export async function mbFetch<T = unknown>(
   if (!response.ok) {
     const errorText = await response.text();
     logger.error(`MusicBrainz API Error (${response.status}) for ${url}: ${errorText}`);
-    throw new Error(`MusicBrainz API Error: ${response.status}`);
+    throw new Error(`MusicBrainz API Error: ${response.status} - ${errorText}`);
   }
 
   return response.json();

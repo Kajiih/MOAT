@@ -86,10 +86,17 @@ export async function GET(request: Request) {
   } catch (error: unknown) {
     logger.error({ error }, 'Error in search API');
     const message = error instanceof Error ? error.message : '';
-    const status = message.includes('503') ? 503 : 500;
-    return NextResponse.json(
-      { error: status === 503 ? 'MusicBrainz rate limit reached' : `Search failed: ${message}` },
-      { status },
-    );
+    let status = 500;
+    let userMessage = `Search failed: ${message}`;
+
+    if (message.includes('503')) {
+      status = 503;
+      userMessage = 'MusicBrainz rate limit reached. Please try again in a few seconds.';
+    } else if (message.includes('504')) {
+      status = 504;
+      userMessage = 'MusicBrainz is currently timed out (504). The service might be overloaded.';
+    }
+
+    return NextResponse.json({ error: userMessage, details: message }, { status });
   }
 }

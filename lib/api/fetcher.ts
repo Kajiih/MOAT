@@ -15,8 +15,8 @@
 export const swrFetcher = async <T>(url: string, retryCount = 0): Promise<T> => {
   const res = await fetch(url);
 
-  // Handle 503 Service Unavailable (rate limiting)
-  if (res.status === 503 && retryCount < 2) {
+  // Handle 503 Service Unavailable (rate limiting) & 504 Gateway Timeout
+  if ((res.status === 503 || res.status === 504) && retryCount < 2) {
     // Wait for 2 seconds before retrying
     await new Promise((resolve) => setTimeout(resolve, 2000));
     return swrFetcher(url, retryCount + 1);
