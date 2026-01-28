@@ -221,7 +221,11 @@ function BaseMediaCard({
 
   let interactionClasses = 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400';
   if (isExport) {
-    interactionClasses = 'flex-shrink-0 z-0';
+    if (onInfo) {
+      interactionClasses = 'hover:ring-2 hover:ring-neutral-400 cursor-default flex-shrink-0 z-0';
+    } else {
+      interactionClasses = 'flex-shrink-0 z-0';
+    }
   } else if (isAdded) {
     interactionClasses =
       'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0';
@@ -278,7 +282,7 @@ function BaseMediaCard({
       )}
 
       {/* Info Button */}
-      {!isExport && onInfo && (
+      {onInfo && (
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {

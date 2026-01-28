@@ -37,7 +37,7 @@ interface TierRowProps {
   /** Whether any drag operation is currently active globally. */
   isAnyDragging?: boolean;
   /** Callback to show details for an item. */
-  onInfo: (item: MediaItem) => void;
+  onInfo?: (item: MediaItem) => void;
   /** Whether the entire board is empty (used for empty state placeholder). */
   isBoardEmpty?: boolean;
   /** Whether this is the middle tier (used for empty state placeholder). */

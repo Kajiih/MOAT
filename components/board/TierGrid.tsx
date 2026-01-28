@@ -18,7 +18,7 @@ interface TierGridProps {
   items: MediaItem[];
   tierId: string;
   onRemoveItem: (itemId: string) => void;
-  onInfo: (item: MediaItem) => void;
+  onInfo?: (item: MediaItem) => void;
   isBoardEmpty?: boolean;
   isMiddleTier?: boolean;
   /** Whether the component is being rendered for a screenshot export. */

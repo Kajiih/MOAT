@@ -76,7 +76,6 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
           onRemoveItem={() => {}}
           onUpdateTier={() => {}}
           onDeleteTier={() => {}}
-          onInfo={() => {}}
         />
 
         {/* 3. Branding Footer - Symmetrical and Centered */}

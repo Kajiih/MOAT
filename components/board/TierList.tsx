@@ -35,7 +35,7 @@ interface TierListProps {
   /** Callback to delete an entire tier. */
   onDeleteTier: (id: string) => void;
   /** Callback to show detailed information for a media item. */
-  onInfo: (item: MediaItem) => void;
+  onInfo?: (item: MediaItem) => void;
 }
 
 /**
