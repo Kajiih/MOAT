@@ -18,7 +18,7 @@ import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
 import { getMediaService } from '@/lib/services/factory';
-import { MediaItem, MediaType, SongItem, SortOption } from '@/lib/types';
+import { BaseMediaItem, MediaItem, MediaType, SongItem, SortOption } from '@/lib/types';
 
 import { SearchFilters } from './filters/SearchFilters';
 import { useMediaSearch } from './hooks/useMediaSearch';
@@ -114,6 +114,26 @@ export function SearchTab({
         }
         case 'duration_asc': {
            return ((a as SongItem).duration || 0) - ((b as SongItem).duration || 0);
+        }
+        case 'rating_desc': {
+           const aVal = (a as BaseMediaItem).rating ?? -1;
+           const bVal = (b as BaseMediaItem).rating ?? -1;
+           return bVal - aVal;
+        }
+        case 'rating_asc': {
+           const aVal = (a as BaseMediaItem).rating ?? 999;
+           const bVal = (b as BaseMediaItem).rating ?? 999;
+           return aVal - bVal;
+        }
+        case 'reviews_desc': {
+           const aVal = (a as BaseMediaItem).reviewCount ?? -1;
+           const bVal = (b as BaseMediaItem).reviewCount ?? -1;
+           return bVal - aVal;
+        }
+        case 'reviews_asc': {
+           const aVal = (a as BaseMediaItem).reviewCount ?? 999999999;
+           const bVal = (b as BaseMediaItem).reviewCount ?? 999999999;
+           return aVal - bVal;
         }
         default: {
           return 0;

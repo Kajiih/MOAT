@@ -52,7 +52,11 @@ export type SortOption =
   | 'title_asc'
   | 'title_desc'
   | 'duration_desc'
-  | 'duration_asc';
+  | 'duration_asc'
+  | 'rating_desc'
+  | 'rating_asc'
+  | 'reviews_desc'
+  | 'reviews_asc';
 
 /**
  * Common properties shared by all media entities.
@@ -72,6 +76,10 @@ export interface BaseMediaItem {
   imageUrl?: string;
   /** Deep metadata (stored in state for persistence) */
   details?: MediaDetails;
+  /** Rating value (0-10 or 0-5 depending on source) */
+  rating?: number;
+  /** Number of reviews or popularity metric */
+  reviewCount?: number;
 }
 
 /**

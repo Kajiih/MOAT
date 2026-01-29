@@ -24,6 +24,9 @@ interface OpenLibraryBookDoc {
   author_name?: string[];
   first_publish_year?: number;
   cover_i?: number;
+  edition_count?: number;
+  ratings_average?: number;
+  review_count?: number;
 }
 
 interface OpenLibraryWorkDetails {
@@ -47,49 +50,55 @@ export class OpenLibraryService implements MediaService {
     type: MediaType,
     options: SearchOptions = {},
   ): Promise<SearchResult> {
-    const page = options.page || 1;
-    const limit = options.limit || 20;
-
     if (type === 'author') {
-      const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search/authors.json`);
-      searchUrl.searchParams.set('q', query);
-      
-      const response = await fetch(searchUrl.toString());
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Open Library Author API Error ${response.status}:`, errorText);
-        throw new Error(`Open Library API Error: ${response.status}`);
-      }
-      
-      const data = await response.json() as { docs?: OpenLibraryAuthorDoc[]; numFound?: number };
-      const results: AuthorItem[] = (data.docs || []).map((doc) => {
-         if (!doc.key || !doc.name) return null;
-         const item: AuthorItem = {
-           id: doc.key,
-           mbid: doc.key,
-           type: 'author',
-           title: doc.name,
-           year: doc.birth_date ? doc.birth_date.slice(-4) : undefined, 
-           imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`
-         };
-         return item;
-      }).filter((item): item is AuthorItem => item !== null);
-
-      return {
-        results,
-        page: 1, 
-        totalPages: 1,
-        totalCount: data.numFound || results.length
-      };
+      return this.searchAuthors(query);
     }
 
     if (type !== 'book') {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
-    
-    // ... Book Search Logic ...
-    const finalQuery = this.buildSearchQuery(query, options);
 
+    return this.searchBooks(query, options);
+  }
+
+  private async searchAuthors(query: string): Promise<SearchResult> {
+    const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search/authors.json`);
+    searchUrl.searchParams.set('q', query);
+    
+    const response = await fetch(searchUrl.toString());
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Open Library Author API Error ${response.status}:`, errorText);
+      throw new Error(`Open Library API Error: ${response.status}`);
+    }
+    
+    const data = await response.json() as { docs?: OpenLibraryAuthorDoc[]; numFound?: number };
+    const results: AuthorItem[] = (data.docs || []).map((doc) => {
+       if (!doc.key || !doc.name) return null;
+       const item: AuthorItem = {
+         id: doc.key,
+         mbid: doc.key,
+         type: 'author',
+         title: doc.name,
+         year: doc.birth_date ? doc.birth_date.slice(-4) : undefined, 
+         imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`
+       };
+       return item;
+    }).filter((item): item is AuthorItem => item !== null);
+
+    return {
+      results,
+      page: 1, 
+      totalPages: 1,
+      totalCount: data.numFound || results.length
+    };
+  }
+
+  private async searchBooks(query: string, options: SearchOptions): Promise<SearchResult> {
+    const page = options.page || 1;
+    const limit = options.limit || 20;
+
+    const finalQuery = this.buildSearchQuery(query, options);
     const isShortQuery = finalQuery && finalQuery.length < 3;
     
     if (!finalQuery || isShortQuery) {
@@ -103,9 +112,19 @@ export class OpenLibraryService implements MediaService {
     
     const sort = options.filters?.sort as string | undefined;
     if (sort && sort !== 'relevance') {
-       searchUrl.searchParams.set('sort', sort);
+       let apiSort = sort;
+       if (sort === 'rating_desc') apiSort = 'rating';
+       else if (sort === 'rating_asc') apiSort = '-rating';
+       else if (sort === 'reviews_desc') apiSort = 'editions';
+       else if (sort === 'reviews_asc') apiSort = '-editions';
+       else if (sort === 'date_desc') apiSort = 'new';
+       else if (sort === 'date_asc') apiSort = 'old';
+       
+       if (apiSort === 'rating' || apiSort === 'editions' || apiSort === 'new' || apiSort === 'old') {
+         searchUrl.searchParams.set('sort', apiSort);
+       }
     }
-    searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count,subject');
+    searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count,subject,ratings_average,review_count');
 
     try {
       const response = await fetch(searchUrl.toString());
@@ -136,6 +155,8 @@ export class OpenLibraryService implements MediaService {
           year,
           date: year ? `${year}-01-01` : undefined,
           imageUrl,
+          rating: doc.ratings_average,
+          reviewCount: doc.review_count || doc.edition_count,
         };
         return item;
       }).filter((item): item is BookItem => item !== null);
@@ -234,23 +255,6 @@ export class OpenLibraryService implements MediaService {
         type: 'range',
       },
       {
-        id: 'language',
-        label: 'Language',
-        type: 'select',
-        options: [
-          { label: 'Any', value: '' },
-          { label: 'English', value: 'eng' },
-          { label: 'French', value: 'fre' },
-          { label: 'Spanish', value: 'spa' },
-          { label: 'German', value: 'ger' },
-          { label: 'Italian', value: 'ita' },
-          { label: 'Japanese', value: 'jpn' },
-          { label: 'Chinese', value: 'chi' },
-          { label: 'Russian', value: 'rus' },
-          { label: 'Portuguese', value: 'por' },
-        ],
-      },
-      {
         id: 'bookType',
         label: 'Genre / Type',
         type: 'select',
@@ -288,10 +292,12 @@ export class OpenLibraryService implements MediaService {
         type: 'select',
         options: [
           { label: 'Relevance', value: 'relevance' },
-          { label: 'Top Rated', value: 'rating' },
-          { label: 'Most Editions', value: 'editions' },
-          { label: 'Newest', value: 'new' },
-          { label: 'Oldest', value: 'old' },
+          { label: 'Rating (Highest)', value: 'rating_desc' },
+          { label: 'Rating (Lowest)', value: 'rating_asc' },
+          { label: 'Reviews (Highest)', value: 'reviews_desc' },
+          { label: 'Reviews (Lowest)', value: 'reviews_asc' },
+          { label: 'Date (Newest)', value: 'date_desc' },
+          { label: 'Date (Oldest)', value: 'date_asc' },
         ],
       },
     ];
@@ -306,8 +312,6 @@ export class OpenLibraryService implements MediaService {
       defaults.selectedAuthor = null;
       defaults.minYear = '';
       defaults.maxYear = '';
-      defaults.language = '';
-      defaults.bookType = '';
       defaults.publisher = '';
       defaults.person = '';
       defaults.place = '';

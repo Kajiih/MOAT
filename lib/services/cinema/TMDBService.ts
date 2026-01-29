@@ -21,6 +21,8 @@ interface TMDBResult {
   profile_path?: string;
   release_date?: string;
   first_air_date?: string;
+  vote_average?: number;
+  vote_count?: number;
 }
 
 interface TMDBDetails extends TMDBResult {
@@ -146,6 +148,10 @@ export class TMDBService implements MediaService {
       type: 'select',
       options: [
         { label: 'Relevance', value: 'relevance' },
+        { label: 'Rating (Highest)', value: 'rating_desc' },
+        { label: 'Rating (Lowest)', value: 'rating_asc' },
+        { label: 'Reviews (Highest)', value: 'reviews_desc' },
+        { label: 'Reviews (Lowest)', value: 'reviews_asc' },
         { label: 'Date (Newest)', value: 'date_desc' },
         { label: 'Date (Oldest)', value: 'date_asc' },
         { label: 'Name (A-Z)', value: 'title_asc' },
@@ -162,6 +168,8 @@ export class TMDBService implements MediaService {
       title: item.title || item.name || 'Unknown',
       year: (item.release_date || item.first_air_date || '').split('-')[0],
       imageUrl: rawImageUrl ? `${IMAGE_BASE_URL}${rawImageUrl}` : undefined,
+      rating: item.vote_average,
+      reviewCount: item.vote_count,
     };
 
     switch (type) {
