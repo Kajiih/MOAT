@@ -90,7 +90,7 @@ export function SearchPanel() {
         </div>
       </div>
 
-      <div className="mb-4 grid shrink-0 grid-cols-3 gap-1 rounded-lg border border-neutral-800 bg-black p-1">
+      <div className="mb-4 flex shrink-0 gap-1 rounded-lg border border-neutral-800 bg-black p-1">
         {supportedTypes.map((type: MediaType) => {
           const config = service.getUIConfig(type);
           const Icon = config.Icon;
@@ -101,7 +101,7 @@ export function SearchPanel() {
               key={type}
               onClick={() => setActiveType(type)}
               title={`Search ${config.label}s`}
-              className={`flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${isActive ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'} `}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${isActive ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'} `}
             >
               <Icon size={12} />
               <span>{config.label}</span>
