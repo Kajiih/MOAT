@@ -149,7 +149,7 @@ export function useMediaSearch<T extends MediaType>(
     if (!isEnabled) return null;
 
     const { query, page, ...rest } = debouncedState;
-    const filters: Record<string, any> = {
+    const filters: Record<string, unknown> = {
       query,
       page,
       fuzzy: isFuzzy,
@@ -184,7 +184,7 @@ export function useMediaSearch<T extends MediaType>(
     if (config?.albumId) filters.albumId = config.albumId;
 
     return getSearchUrl(category || 'music', type, filters);
-  }, [isEnabled, debouncedState, isFuzzy, isWildcard, ignoreFilters, category, type, config]);
+  }, [isEnabled, debouncedState, isFuzzy, isWildcard, ignoreFilters, category, type, config, service]);
 
   const { data, error, isLoading, isValidating } = useSWR<
     SearchResult,
@@ -211,7 +211,7 @@ export function useMediaSearch<T extends MediaType>(
     }
   }, [data, state.page, searchUrl, prefetchEnabled]);
 
-  const [, setPrefetchStats] = useControls(
+  useControls(
     'Debug',
     () => ({
       [`Search Prefetch (${type})`]: folder(

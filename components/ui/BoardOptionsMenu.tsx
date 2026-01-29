@@ -10,8 +10,8 @@ import {
   Download,
   Keyboard,
   Layout,
-  Music,
   MoreVertical,
+  Music,
   Settings2,
   Trash2,
   Upload,
@@ -42,6 +42,8 @@ interface BoardOptionsMenuProps {
  * @param props.onShowShortcuts - Callback fired when the user clicks the shortcuts button.
  * @param props.showAdvanced - Whether advanced mode is currently enabled.
  * @param props.onToggleAdvanced - Callback fired when the user toggles advanced mode.
+ * @param props.currentCategory
+ * @param props.onUpdateCategory
  * @returns The rendered dropdown menu.
  */
 export function BoardOptionsMenu({

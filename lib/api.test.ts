@@ -4,33 +4,31 @@ import { getSearchUrl } from './api';
 
 describe('getSearchUrl', () => {
   it('should generate basic url with defaults', () => {
-    const url = getSearchUrl({ type: 'album' });
-    expect(url).toBe('/api/search?type=album&page=1');
+    const url = getSearchUrl('music', 'album', { page: 1 });
+    expect(url).toBe('/api/search?category=music&type=album&page=1');
   });
 
   it('should include query and page', () => {
-    const url = getSearchUrl({ type: 'artist', query: 'Beatles', page: 2 });
-    expect(url).toBe('/api/search?type=artist&page=2&query=Beatles');
+    const url = getSearchUrl('music', 'artist', { query: 'Beatles', page: 2 });
+    expect(url).toBe('/api/search?category=music&type=artist&page=2&query=Beatles');
   });
 
   it('should include filters', () => {
-    const url = getSearchUrl({
-      type: 'album',
+    const url = getSearchUrl('music', 'album', {
       minYear: '1990',
       maxYear: '2000',
     });
     expect(url).toContain('minYear=1990');
     expect(url).toContain('maxYear=2000');
+    expect(url).toContain('category=music');
   });
 
   it('should sort array params for cache consistency', () => {
     // We expect the URL params to be stable regardless of input order
-    const url1 = getSearchUrl({
-      type: 'album',
+    const url1 = getSearchUrl('music', 'album', {
       albumPrimaryTypes: ['Single', 'Album'],
     });
-    const url2 = getSearchUrl({
-      type: 'album',
+    const url2 = getSearchUrl('music', 'album', {
       albumPrimaryTypes: ['Album', 'Single'],
     });
 
@@ -40,8 +38,7 @@ describe('getSearchUrl', () => {
   });
 
   it('should include duration filters', () => {
-    const url = getSearchUrl({
-      type: 'song',
+    const url = getSearchUrl('music', 'song', {
       minDuration: 180_000,
       maxDuration: 300_000,
     });
@@ -50,8 +47,7 @@ describe('getSearchUrl', () => {
   });
 
   it('should include search config options', () => {
-    const url = getSearchUrl({
-      type: 'song',
+    const url = getSearchUrl('music', 'song', {
       fuzzy: false,
       wildcard: true,
     });

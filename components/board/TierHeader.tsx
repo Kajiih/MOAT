@@ -14,7 +14,7 @@
 'use client';
 
 import { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { getColorTheme } from '@/lib/colors';

@@ -8,7 +8,7 @@ import { MediaPicker } from '@/components/media/MediaPicker';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { SearchParamsState } from '@/components/search/hooks/useMediaSearch';
 import { getMediaService } from '@/lib/services/factory';
-import { MediaType } from '@/lib/types';
+import { ArtistSelection, MediaSelection, MediaType } from '@/lib/types';
 
 import { AlbumFilters } from './AlbumFilters'; // Keep for now for music
 // Keep for now for music
@@ -88,15 +88,15 @@ export function SearchFilters({
             return (
               <MediaPicker
                 key={def.id}
-                type={(def.pickerType || 'artist') as any}
-                selectedItem={filters[def.id] as any}
+                type={(def.pickerType || 'artist') as 'artist' | 'album' | 'author'}
+                selectedItem={filters[def.id] as MediaSelection | null}
                 onSelect={(item) => {
                    const patch: Partial<SearchParamsState> = { [def.id]: item };
                    // Special rule: if we pick an artist, reset the album
                    if (def.id === 'selectedArtist') patch.selectedAlbum = null;
                    updateFilters(patch);
                 }}
-                artistId={def.id === 'selectedAlbum' ? (filters.selectedArtist as any)?.id : undefined}
+                artistId={def.id === 'selectedAlbum' ? (filters.selectedArtist as ArtistSelection | null)?.id : undefined}
                 placeholder={def.label}
                 context={type}
               />
@@ -164,8 +164,9 @@ export function SearchFilters({
             );
           }
 
-          default:
+          default: {
             return null;
+          }
         }
       })}
     </div>

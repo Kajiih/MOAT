@@ -7,7 +7,7 @@
 
 import { Book, Clapperboard, Disc, LucideIcon, Music, Tv, User } from 'lucide-react';
 
-import { AlbumItem, ArtistItem, AuthorItem, BookItem, MediaItem, MediaType, SongItem } from '@/lib/types';
+import { AlbumItem, ArtistItem, BookItem, MediaItem, MediaType, SongItem } from '@/lib/types';
 
 interface MediaUIConfig {
   label: string;
