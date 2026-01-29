@@ -24,7 +24,7 @@ export function globalReducer(state: TierListState, action: TierListAction): Tie
     }
 
     case ActionType.CLEAR_BOARD: {
-      return getInitialState();
+      return { ...getInitialState(), category: state.category || 'music' };
     }
 
     case ActionType.IMPORT_STATE:
