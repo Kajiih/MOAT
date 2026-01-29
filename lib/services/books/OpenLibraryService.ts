@@ -3,7 +3,7 @@
  * @description Service provider for Open Library integration (Books).
  */
 
-import { BookItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
+import { ArtistItem, BookItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
 import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '../types';
 import { getMediaUI } from '@/lib/media-defs';
@@ -20,13 +20,46 @@ export class OpenLibraryService implements MediaService {
     type: MediaType,
     options: SearchOptions = {},
   ): Promise<SearchResult> {
+    const page = options.page || 1;
+    const limit = options.limit || 20;
+
+    if (type === 'artist') {
+      const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search/authors.json`);
+      searchUrl.searchParams.set('q', query);
+      // Pagination not strictly supported by search/authors.json in the same way? 
+      // Docs say it returns docs. Limit might not work, but let's try or just slice.
+      // Actually standard search API supports q=...&page=...
+      
+      const response = await fetch(searchUrl.toString());
+      if (!response.ok) throw new Error(`Open Library API Error: ${response.status}`);
+      
+      const data = await response.json();
+      const results: MediaItem[] = (data.docs || []).map((doc: any) => {
+         // doc.key is usually "OL123A"
+         const item: ArtistItem = {
+           id: doc.key,
+           mbid: doc.key,
+           type: 'artist',
+           title: doc.name,
+           year: doc.birth_date ? doc.birth_date.slice(-4) : undefined, // loose parsing
+           imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`
+         };
+         return item;
+      });
+
+      return {
+        results,
+        page: 1, 
+        totalPages: 1, // Author search pagination is flaky in OL
+        totalCount: data.numFound || results.length
+      };
+    }
+
     if (type !== 'book') {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
-
-    const page = options.page || 1;
-    const limit = options.limit || 20;
     
+    // ... Book Search Logic ...
     // Build query
     const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search.json`);
     
@@ -136,7 +169,7 @@ export class OpenLibraryService implements MediaService {
   }
 
   getSupportedTypes(): MediaType[] {
-    return ['book'];
+    return ['book', 'artist'];
   }
 
   getUIConfig(type: MediaType): MediaUIConfig {
@@ -148,12 +181,11 @@ export class OpenLibraryService implements MediaService {
 
     return [
       {
-        id: 'author',
-        label: 'Author',
-        type: 'text',
-        placeholder: 'Search by author...',
+        id: 'selectedAuthor',
+        label: 'Filter by Author',
+        type: 'picker',
+        pickerType: 'artist',
       },
-      // Open Library supports more advanced filtering but simple query is usually enough
     ];
   }
 }

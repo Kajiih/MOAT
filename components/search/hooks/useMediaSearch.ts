@@ -54,6 +54,7 @@ export interface SearchParamsState {
   query: string;
   selectedArtist: ArtistSelection | null;
   selectedAlbum: AlbumSelection | null;
+  selectedAuthor: ArtistSelection | null;
   minYear: string;
   maxYear: string;
   albumPrimaryTypes: string[];
@@ -71,6 +72,7 @@ const defaultState: SearchParamsState = {
   query: '',
   selectedArtist: null,
   selectedAlbum: null,
+  selectedAuthor: null,
   minYear: '',
   maxYear: '',
   albumPrimaryTypes: ['Album', 'EP'],
@@ -195,7 +197,7 @@ export function useMediaSearch<T extends MediaType>(
       artistType: ignoreFilters ? '' : state.artistType,
       artistCountry: ignoreFilters ? '' : debouncedFilters.artistCountry,
       tag: ignoreFilters ? '' : debouncedFilters.tag,
-      author: ignoreFilters ? '' : debouncedFilters.author,
+      author: state.selectedAuthor ? state.selectedAuthor.name : (ignoreFilters ? '' : debouncedFilters.author),
       minDuration:
         !ignoreFilters && debouncedFilters.minDuration
           ? Number.parseInt(debouncedFilters.minDuration, 10)

@@ -200,19 +200,16 @@ export function SearchFilters({
                 </div>
               );
           }
-          case 'author': {
+          case 'selectedAuthor': {
             return (
-              <div key={def.id}>
-                <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
-                  {def.label}
-                </div>
-                <input
-                  placeholder={def.placeholder}
-                  className={FILTER_INPUT_STYLES}
-                  value={filters.author}
-                  onChange={(e) => updateFilters({ author: e.target.value })}
-                />
-              </div>
+              <MediaPicker
+                key={def.id}
+                type="artist"
+                selectedItem={filters.selectedAuthor}
+                onSelect={(a) => updateFilters({ selectedAuthor: a })}
+                placeholder={def.label}
+                context={type}
+              />
             );
           }
           default: {
