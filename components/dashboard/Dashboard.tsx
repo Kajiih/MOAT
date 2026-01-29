@@ -32,7 +32,6 @@ const CreateBoardCard = ({
   onCreate: (title: string, category: BoardCategory) => void;
 }) => {
   const [isCreating, setIsCreating] = React.useState(false);
-  const [title, setTitle] = React.useState('');
   const [category, setCategory] = React.useState<BoardCategory>('music');
 
   if (!isCreating) {
@@ -55,19 +54,15 @@ const CreateBoardCard = ({
   return (
     <div className="flex h-48 flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-4 transition-all ring-2 ring-blue-500/50">
       <h3 className="mb-3 text-sm font-bold text-neutral-300">New Tier List</h3>
-      <div className="flex flex-1 flex-col gap-3">
-        <input
-          autoFocus
-          type="text"
-          placeholder="Board Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded bg-neutral-950 px-3 py-1.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+      <div className="flex flex-1 flex-col gap-4">
+        <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+          Select Category
+        </label>
         <select
+          autoFocus
           value={category}
           onChange={(e) => setCategory(e.target.value as BoardCategory)}
-          className="w-full rounded bg-neutral-950 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded bg-neutral-950 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           <option value="music">🎵 Music</option>
           <option value="cinema">🎬 Cinema</option>
@@ -77,13 +72,13 @@ const CreateBoardCard = ({
         <div className="mt-auto flex gap-2">
           <button
             onClick={() => setIsCreating(false)}
-            className="flex-1 rounded bg-neutral-800 py-1.5 text-xs font-bold text-neutral-400 hover:bg-neutral-700"
+            className="flex-1 rounded bg-neutral-800 py-2 text-xs font-bold text-neutral-400 hover:bg-neutral-700"
           >
             Cancel
           </button>
           <button
-            onClick={() => onCreate(title, category)}
-            className="flex-1 rounded bg-blue-600 py-1.5 text-xs font-bold text-white hover:bg-blue-500"
+            onClick={() => onCreate('', category)}
+            className="flex-1 rounded bg-blue-600 py-2 text-xs font-bold text-white hover:bg-blue-500"
           >
             Create
           </button>
