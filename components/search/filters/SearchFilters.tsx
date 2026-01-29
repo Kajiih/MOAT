@@ -212,6 +212,26 @@ export function SearchFilters({
               />
             );
           }
+          case 'bookType': {
+            return (
+              <div key={def.id}>
+                <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                  {def.label}
+                </div>
+                <select
+                  className={FILTER_INPUT_STYLES}
+                  value={filters.bookType}
+                  onChange={(e) => updateFilters({ bookType: e.target.value })}
+                >
+                  {def.options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          }
           default: {
             return null;
           }

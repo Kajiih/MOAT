@@ -67,6 +67,7 @@ export interface SearchParamsState {
   minDuration: string;
   maxDuration: string;
   author: string;
+  bookType: string;
   page: number;
 }
 
@@ -85,6 +86,7 @@ const defaultState: SearchParamsState = {
   minDuration: '',
   maxDuration: '',
   author: '',
+  bookType: '',
   page: 1,
 };
 
@@ -200,6 +202,7 @@ export function useMediaSearch<T extends MediaType>(
       artistCountry: ignoreFilters ? '' : debouncedFilters.artistCountry,
       tag: ignoreFilters ? '' : debouncedFilters.tag,
       author: state.selectedAuthor ? state.selectedAuthor.name : (ignoreFilters ? '' : debouncedFilters.author),
+      bookType: ignoreFilters ? '' : state.bookType,
       minDuration:
         !ignoreFilters && debouncedFilters.minDuration
           ? Number.parseInt(debouncedFilters.minDuration, 10)

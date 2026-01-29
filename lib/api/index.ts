@@ -47,6 +47,8 @@ export interface SearchParams {
   wildcard?: boolean;
   /** Filter by author (book). */
   author?: string;
+  /** Filter by book type (fiction, compilation, etc). */
+  bookType?: string;
 }
 
 /**
@@ -74,6 +76,7 @@ export function getSearchUrl(params: SearchParams): string {
     'artistCountry',
     'tag',
     'author',
+    'bookType',
   ];
 
   for (const key of simpleParams) {

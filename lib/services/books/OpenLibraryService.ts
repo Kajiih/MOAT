@@ -67,6 +67,7 @@ export class OpenLibraryService implements MediaService {
     const author = options.filters?.author as string | undefined;
     const minYear = options.filters?.minYear as string | undefined;
     const maxYear = options.filters?.maxYear as string | undefined;
+    const bookType = options.filters?.bookType as string | undefined;
     
     if (author) {
       searchUrl.searchParams.set('author', author);
@@ -79,9 +80,17 @@ export class OpenLibraryService implements MediaService {
        yearQuery = `first_publish_year:[${min} TO ${max}]`;
     }
 
+    let typeQuery = '';
+    if (bookType) {
+       typeQuery = `subject:${bookType}`;
+    }
+
     let finalQuery = query;
     if (yearQuery) {
        finalQuery = finalQuery ? `${finalQuery} ${yearQuery}` : yearQuery;
+    }
+    if (typeQuery) {
+       finalQuery = finalQuery ? `${finalQuery} ${typeQuery}` : typeQuery;
     }
 
     // Main query (if empty and we have an author filter, OpenLibrary handles it fine)
@@ -214,6 +223,20 @@ export class OpenLibraryService implements MediaService {
         id: 'yearRange',
         label: 'First Publish Year',
         type: 'range',
+      },
+      {
+        id: 'bookType',
+        label: 'Genre / Type',
+        type: 'select',
+        options: [
+          { label: 'Any', value: '' },
+          { label: 'Fiction', value: 'fiction' },
+          { label: 'Non-Fiction', value: 'non-fiction' },
+          { label: 'Compilation', value: 'compilation' },
+          { label: 'Anthology', value: 'anthology' },
+          { label: 'Textbook', value: 'textbook' },
+          { label: 'Biography', value: 'biography' },
+        ],
       },
     ];
   }
