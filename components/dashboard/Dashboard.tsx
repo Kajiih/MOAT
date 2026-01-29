@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Disc, Layout, Mic2, Music, Plus, Trash2 } from 'lucide-react';
+import { Book, Clapperboard, Disc, Layout, Mic2, Music, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -32,7 +32,6 @@ const CreateBoardCard = ({
   onCreate: (title: string, category: BoardCategory) => void;
 }) => {
   const [isCreating, setIsCreating] = React.useState(false);
-  const [category, setCategory] = React.useState<BoardCategory>('music');
 
   if (!isCreating) {
     return (
@@ -51,38 +50,37 @@ const CreateBoardCard = ({
     );
   }
 
+  const categories: { id: BoardCategory; label: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'music', label: 'Music', icon: <Music size={20} />, color: 'hover:bg-pink-500/10 hover:border-pink-500/50 hover:text-pink-400' },
+    { id: 'cinema', label: 'Cinema', icon: <Clapperboard size={20} />, color: 'hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-blue-400' },
+    { id: 'book', label: 'Books', icon: <Book size={20} />, color: 'hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400' },
+  ];
+
   return (
     <div className="flex h-48 flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-4 transition-all ring-2 ring-blue-500/50">
-      <h3 className="mb-3 text-sm font-bold text-neutral-300">New Tier List</h3>
-      <div className="flex flex-1 flex-col gap-4">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-          Select Category
-        </label>
-        <select
-          autoFocus
-          value={category}
-          onChange={(e) => setCategory(e.target.value as BoardCategory)}
-          className="w-full rounded bg-neutral-950 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-sm font-bold text-neutral-300 uppercase tracking-tight">Select Type</h3>
+        <button 
+          onClick={() => setIsCreating(false)}
+          className="text-[10px] font-bold text-neutral-600 hover:text-neutral-400 transition-colors"
         >
-          <option value="music">🎵 Music</option>
-          <option value="cinema">🎬 Cinema</option>
-          <option value="game">🎮 Games (Coming Soon)</option>
-          <option value="book">📚 Books</option>
-        </select>
-        <div className="mt-auto flex gap-2">
+          Cancel
+        </button>
+      </div>
+      
+      <div className="grid flex-1 grid-cols-2 gap-2">
+        {categories.map((cat) => (
           <button
-            onClick={() => setIsCreating(false)}
-            className="flex-1 rounded bg-neutral-800 py-2 text-xs font-bold text-neutral-400 hover:bg-neutral-700"
+            key={cat.id}
+            onClick={() => onCreate('', cat.id)}
+            className={`flex flex-col items-center justify-center gap-2 rounded-lg border border-neutral-800 bg-neutral-950/50 p-2 text-neutral-400 transition-all text-xs font-bold group ${cat.color}`}
           >
-            Cancel
+            <div className="transition-transform group-hover:scale-110">
+              {cat.icon}
+            </div>
+            {cat.label}
           </button>
-          <button
-            onClick={() => onCreate('', category)}
-            className="flex-1 rounded bg-blue-600 py-2 text-xs font-bold text-white hover:bg-blue-500"
-          >
-            Create
-          </button>
-        </div>
+        ))}
       </div>
     </div>
   );
