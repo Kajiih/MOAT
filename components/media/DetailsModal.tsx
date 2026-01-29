@@ -162,11 +162,9 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               <div className="mt-1 flex items-center gap-2 text-neutral-300">
                 <uiConfig.Icon size={16} className={uiConfig.colorClass} />
                 <span className="font-medium">
-                  {'artist' in enrichedItem
-                    ? enrichedItem.artist
-                    : 'author' in enrichedItem
-                      ? enrichedItem.author
-                      : 'Artist'}
+                  {('artist' in enrichedItem && enrichedItem.artist) ||
+                   ('author' in enrichedItem && enrichedItem.author) ||
+                   'Artist'}
                 </span>
                 {enrichedItem.year && (
                   <>
@@ -215,6 +213,17 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               {details.type === 'song' && <SongView details={details} />}
               {details.type === 'book' && (
                 <div className="space-y-6">
+                  {details.firstSentence && (
+                    <div className="relative rounded-lg border border-neutral-800 bg-neutral-950/50 p-4 italic">
+                      <div className="mb-2 text-[9px] font-bold tracking-widest text-neutral-500 uppercase">
+                        First Sentence
+                      </div>
+                      <p className="text-sm leading-relaxed text-neutral-300">
+                        &ldquo;{details.firstSentence}&rdquo;
+                      </p>
+                    </div>
+                  )}
+
                   {details.description && (
                     <div className="space-y-2">
                       <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
@@ -225,6 +234,25 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                       </p>
                     </div>
                   )}
+
+                  {details.places && details.places.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                        Setting / Places
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {details.places.map((place) => (
+                          <span
+                            key={place}
+                            className="flex items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-800/50 px-3 py-1 text-xs text-neutral-300"
+                          >
+                            <span className="text-[10px]">📍</span> {place}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {details.tags && details.tags.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">

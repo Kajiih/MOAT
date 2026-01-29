@@ -31,7 +31,10 @@ interface OpenLibraryWorkDetails {
   covers?: number[];
   description?: string | { value: string };
   subjects?: string[];
+  subject_places?: string[];
+  subject_people?: string[];
   links?: { title: string; url: string }[];
+  excerpts?: { excerpt: string; author?: { key: string } }[];
   first_publish_date?: string;
 }
 
@@ -85,44 +88,7 @@ export class OpenLibraryService implements MediaService {
     }
     
     // ... Book Search Logic ...
-    const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search.json`);
-    
-    const author = options.filters?.author as string | undefined;
-    const minYear = options.filters?.minYear as string | undefined;
-    const maxYear = options.filters?.maxYear as string | undefined;
-    const bookType = options.filters?.bookType as string | undefined;
-
-    const queryParts: string[] = [];
-    
-    let processedQuery = query.trim();
-    if (processedQuery && (options.fuzzy || options.wildcard)) {
-      processedQuery = constructLuceneQueryBasis(processedQuery, {
-        fuzzy: !!options.fuzzy,
-        wildcard: !!options.wildcard,
-      });
-    } else if (processedQuery) {
-       processedQuery = processedQuery.split(/\s+/).map((q) => escapeLucene(q)).join(' ');
-    }
-
-    if (processedQuery) {
-       queryParts.push(processedQuery);
-    }
-
-    if (author) {
-       queryParts.push(`author:"${escapeLucene(author)}"`);
-    }
-
-    if (minYear || maxYear) {
-       const min = minYear || '*';
-       const max = maxYear || '*';
-       queryParts.push(`first_publish_year:[${min} TO ${max}]`);
-    }
-
-    if (bookType) {
-       queryParts.push(`subject:${bookType}`);
-    }
-
-    const finalQuery = queryParts.join(' AND ');
+    const finalQuery = this.buildSearchQuery(query, options);
 
     const isShortQuery = finalQuery && finalQuery.length < 3;
     
@@ -130,9 +96,15 @@ export class OpenLibraryService implements MediaService {
        return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
+    const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search.json`);
     searchUrl.searchParams.set('q', finalQuery);
     searchUrl.searchParams.set('page', page.toString());
     searchUrl.searchParams.set('limit', limit.toString());
+    
+    const sort = options.filters?.sort as string | undefined;
+    if (sort) {
+       searchUrl.searchParams.set('sort', sort);
+    }
     searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count,subject');
 
     try {
@@ -212,6 +184,10 @@ export class OpenLibraryService implements MediaService {
         }
 
         const tags = Array.isArray(data.subjects) ? data.subjects.slice(0, 8) : undefined;
+        const places = Array.isArray(data.subject_places) ? data.subject_places.slice(0, 5) : undefined;
+        const firstSentence = (data.excerpts && data.excerpts.length > 0) 
+           ? data.excerpts[0].excerpt 
+           : undefined;
         const urls = Array.isArray(data.links) ? data.links.map((l) => ({ type: l.title, url: l.url })) : undefined;
 
         return {
@@ -220,6 +196,8 @@ export class OpenLibraryService implements MediaService {
             type: 'book',
             imageUrl,
             tags,
+            places,
+            firstSentence,
             date: data.first_publish_date,
             urls,
             description,
@@ -256,6 +234,23 @@ export class OpenLibraryService implements MediaService {
         type: 'range',
       },
       {
+        id: 'language',
+        label: 'Language',
+        type: 'select',
+        options: [
+          { label: 'Any', value: '' },
+          { label: 'English', value: 'eng' },
+          { label: 'French', value: 'fre' },
+          { label: 'Spanish', value: 'spa' },
+          { label: 'German', value: 'ger' },
+          { label: 'Italian', value: 'ita' },
+          { label: 'Japanese', value: 'jpn' },
+          { label: 'Chinese', value: 'chi' },
+          { label: 'Russian', value: 'rus' },
+          { label: 'Portuguese', value: 'por' },
+        ],
+      },
+      {
         id: 'bookType',
         label: 'Genre / Type',
         type: 'select',
@@ -267,6 +262,36 @@ export class OpenLibraryService implements MediaService {
           { label: 'Anthology', value: 'anthology' },
           { label: 'Textbook', value: 'textbook' },
           { label: 'Biography', value: 'biography' },
+        ],
+      },
+      {
+        id: 'publisher',
+        label: 'Publisher',
+        type: 'text',
+        placeholder: 'e.g. Penguin',
+      },
+      {
+        id: 'person',
+        label: 'Character / Person',
+        type: 'text',
+        placeholder: 'e.g. Harry Potter',
+      },
+      {
+        id: 'place',
+        label: 'Setting / Place',
+        type: 'text',
+        placeholder: 'e.g. London',
+      },
+      {
+        id: 'sort',
+        label: 'Sort By',
+        type: 'select',
+        options: [
+          { label: 'Relevance', value: '' },
+          { label: 'Top Rated', value: 'rating' },
+          { label: 'Most Editions', value: 'editions' },
+          { label: 'Newest', value: 'new' },
+          { label: 'Oldest', value: 'old' },
         ],
       },
     ];
@@ -281,7 +306,12 @@ export class OpenLibraryService implements MediaService {
       defaults.selectedAuthor = null;
       defaults.minYear = '';
       defaults.maxYear = '';
+      defaults.language = '';
       defaults.bookType = '';
+      defaults.publisher = '';
+      defaults.person = '';
+      defaults.place = '';
+      defaults.sort = '';
     }
 
     return defaults;
@@ -296,7 +326,12 @@ export class OpenLibraryService implements MediaService {
       minYear: params.get('minYear'),
       maxYear: params.get('maxYear'),
       author: params.get('author') || undefined,
+      language: params.get('language') || undefined,
       bookType: params.get('bookType') || undefined,
+      publisher: params.get('publisher') || undefined,
+      person: params.get('person') || undefined,
+      place: params.get('place') || undefined,
+      sort: params.get('sort') || undefined,
     };
 
     return {
@@ -305,5 +340,51 @@ export class OpenLibraryService implements MediaService {
       wildcard,
       filters,
     };
+  }
+
+  /**
+   * Builds a Lucene-style search query for the Open Library API.
+   * Logic extracted to reduce cognitive complexity.
+   * @param query - The search query string.
+   * @param options - The search options including filters.
+   * @returns A formatted Lucene query string.
+   */
+  private buildSearchQuery(query: string, options: SearchOptions): string {
+    const { fuzzy, wildcard, filters } = options;
+    const author = filters?.author as string | undefined;
+    const minYear = filters?.minYear as string | undefined;
+    const maxYear = filters?.maxYear as string | undefined;
+    const bookType = filters?.bookType as string | undefined;
+    const language = filters?.language as string | undefined;
+    const publisher = filters?.publisher as string | undefined;
+    const person = filters?.person as string | undefined;
+    const place = filters?.place as string | undefined;
+
+    const queryParts: string[] = [];
+    
+    let processedQuery = query.trim();
+    if (processedQuery && (fuzzy || wildcard)) {
+      processedQuery = constructLuceneQueryBasis(processedQuery, {
+        fuzzy: !!fuzzy,
+        wildcard: !!wildcard,
+      });
+    } else if (processedQuery) {
+       processedQuery = processedQuery.split(/\s+/).map((q) => escapeLucene(q)).join(' ');
+    }
+
+    if (processedQuery) queryParts.push(processedQuery);
+    if (author) queryParts.push(`author:"${escapeLucene(author)}"`);
+    if (minYear || maxYear) {
+       const min = minYear || '*';
+       const max = maxYear || '*';
+       queryParts.push(`first_publish_year:[${min} TO ${max}]`);
+    }
+    if (bookType) queryParts.push(`subject:${bookType}`);
+    if (language) queryParts.push(`language:${language}`);
+    if (publisher) queryParts.push(`publisher:"${escapeLucene(publisher)}"`);
+    if (person) queryParts.push(`person:"${escapeLucene(person)}"`);
+    if (place) queryParts.push(`place:"${escapeLucene(place)}"`);
+
+    return queryParts.join(' AND ');
   }
 }

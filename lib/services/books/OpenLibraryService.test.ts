@@ -33,4 +33,22 @@ describe('OpenLibraryService', () => {
         const hasHarry = result.results.some(r => r.title.toLowerCase().includes('harry') || (r as BookItem).author?.toLowerCase().includes('harry'));
         expect(hasHarry).toBe(true);
     });
+
+    it('should apply filters for language and publisher', async () => {
+        // Search for "The Hobbit" in English by Allen (original publisher)
+        const result = await service.search('Hobbit', 'book', {
+            filters: { language: 'eng', publisher: 'Allen' }
+        });
+        expect(result.results.length).toBeGreaterThan(0);
+        expect(result.results[0].title).toContain('Hobbit');
+    });
+
+    it('should respect the sort parameter', async () => {
+        // Search for popular books and sort by rating
+        const result = await service.search('Potter', 'book', {
+            filters: { sort: 'rating' }
+        });
+        expect(result.results.length).toBeGreaterThan(0);
+        expect(result.results[0].title.toLowerCase()).toContain('potter');
+    });
 });

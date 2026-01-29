@@ -328,6 +328,11 @@ export interface MediaDetails {
   /** Song specific: parent album ID. */
   albumId?: string;
 
+  /** Book specific: first sentence of the book. */
+  firstSentence?: string;
+  /** Book specific: settings/places. */
+  places?: string[];
+
   /** General description or bio. */
   description?: string;
 }
