@@ -65,14 +65,28 @@ export class OpenLibraryService implements MediaService {
     
     // Handle filters
     const author = options.filters?.author as string | undefined;
+    const minYear = options.filters?.minYear as string | undefined;
+    const maxYear = options.filters?.maxYear as string | undefined;
     
     if (author) {
       searchUrl.searchParams.set('author', author);
     }
 
+    let yearQuery = '';
+    if (minYear || maxYear) {
+       const min = minYear || '*';
+       const max = maxYear || '*';
+       yearQuery = `first_publish_year:[${min} TO ${max}]`;
+    }
+
+    let finalQuery = query;
+    if (yearQuery) {
+       finalQuery = finalQuery ? `${finalQuery} ${yearQuery}` : yearQuery;
+    }
+
     // Main query (if empty and we have an author filter, OpenLibrary handles it fine)
-    if (query) {
-      searchUrl.searchParams.set('q', query);
+    if (finalQuery) {
+      searchUrl.searchParams.set('q', finalQuery);
     } else if (!author) {
        // If no query and no author, return empty (standard behavior)
        return { results: [], page: 1, totalPages: 0, totalCount: 0 };
@@ -154,12 +168,22 @@ export class OpenLibraryService implements MediaService {
            ? `${COVERS_BASE_URL}/${data.covers[0]}-L.jpg` 
            : undefined;
 
+        const description = typeof data.description === 'string' 
+          ? data.description 
+          : data.description?.value;
+
+        const tags = Array.isArray(data.subjects) ? data.subjects.slice(0, 8) : undefined;
+        const urls = Array.isArray(data.links) ? data.links.map((l: any) => ({ type: l.title, url: l.url })) : undefined;
+
         return {
             id,
             mbid: id,
             type: 'book',
             imageUrl,
-            // We could parse description into tags or bio equivalent if we had stricter types
+            tags,
+            date: data.first_publish_date,
+            urls,
+            description,
         };
 
     } catch (error) {
@@ -185,6 +209,11 @@ export class OpenLibraryService implements MediaService {
         label: 'Filter by Author',
         type: 'picker',
         pickerType: 'author',
+      },
+      {
+        id: 'yearRange',
+        label: 'First Publish Year',
+        type: 'range',
       },
     ];
   }

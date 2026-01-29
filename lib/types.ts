@@ -327,6 +327,9 @@ export interface MediaDetails {
   album?: string;
   /** Song specific: parent album ID. */
   albumId?: string;
+
+  /** General description or bio. */
+  description?: string;
 }
 
 // --- Zod Schemas for State Validation ---

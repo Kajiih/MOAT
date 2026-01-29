@@ -162,7 +162,11 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               <div className="mt-1 flex items-center gap-2 text-neutral-300">
                 <uiConfig.Icon size={16} className={uiConfig.colorClass} />
                 <span className="font-medium">
-                  {'artist' in enrichedItem ? enrichedItem.artist : 'Artist'}
+                  {'artist' in enrichedItem
+                    ? enrichedItem.artist
+                    : 'author' in enrichedItem
+                      ? enrichedItem.author
+                      : 'Artist'}
                 </span>
                 {enrichedItem.year && (
                   <>
@@ -209,6 +213,57 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               {details.type === 'album' && <AlbumView details={details} />}
               {details.type === 'artist' && <ArtistView details={details} />}
               {details.type === 'song' && <SongView details={details} />}
+              {details.type === 'book' && (
+                <div className="space-y-6">
+                  {details.description && (
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                        Description
+                      </h3>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-300">
+                        {details.description}
+                      </p>
+                    </div>
+                  )}
+                  {details.tags && details.tags.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                        Subjects
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {details.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs text-neutral-300"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {details.urls && details.urls.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                        Links
+                      </h3>
+                      <div className="flex flex-col gap-1">
+                        {details.urls.map((link) => (
+                          <a
+                            key={link.url}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+                          >
+                            {link.type || 'More Info'}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
