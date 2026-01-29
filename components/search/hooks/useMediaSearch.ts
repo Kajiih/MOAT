@@ -21,6 +21,7 @@ import {
   AlbumSelection,
   ArtistItem,
   ArtistSelection,
+  AuthorItem,
   BookItem,
   GameItem,
   MediaItem,
@@ -44,6 +45,7 @@ type MediaItemMap = {
   person: PersonItem;
   game: GameItem;
   book: BookItem;
+  author: AuthorItem;
 };
 
 /**

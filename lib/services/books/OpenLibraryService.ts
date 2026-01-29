@@ -3,7 +3,7 @@
  * @description Service provider for Open Library integration (Books).
  */
 
-import { ArtistItem, BookItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
+import { AuthorItem, BookItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
 import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '../types';
 import { getMediaUI } from '@/lib/media-defs';
@@ -23,7 +23,7 @@ export class OpenLibraryService implements MediaService {
     const page = options.page || 1;
     const limit = options.limit || 20;
 
-    if (type === 'artist') {
+    if (type === 'author') {
       const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search/authors.json`);
       searchUrl.searchParams.set('q', query);
       // Pagination not strictly supported by search/authors.json in the same way? 
@@ -36,10 +36,10 @@ export class OpenLibraryService implements MediaService {
       const data = await response.json();
       const results: MediaItem[] = (data.docs || []).map((doc: any) => {
          // doc.key is usually "OL123A"
-         const item: ArtistItem = {
+         const item: AuthorItem = {
            id: doc.key,
            mbid: doc.key,
-           type: 'artist',
+           type: 'author',
            title: doc.name,
            year: doc.birth_date ? doc.birth_date.slice(-4) : undefined, // loose parsing
            imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`
@@ -169,7 +169,7 @@ export class OpenLibraryService implements MediaService {
   }
 
   getSupportedTypes(): MediaType[] {
-    return ['book', 'artist'];
+    return ['book', 'author'];
   }
 
   getUIConfig(type: MediaType): MediaUIConfig {
@@ -184,7 +184,7 @@ export class OpenLibraryService implements MediaService {
         id: 'selectedAuthor',
         label: 'Filter by Author',
         type: 'picker',
-        pickerType: 'artist',
+        pickerType: 'author',
       },
     ];
   }

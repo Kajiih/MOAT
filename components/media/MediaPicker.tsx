@@ -18,6 +18,7 @@ import {
   AlbumSelection,
   ArtistItem,
   ArtistSelection,
+  AuthorItem,
   MediaItem,
   MediaSelection,
 } from '@/lib/types';
@@ -28,7 +29,7 @@ import {
  */
 interface MediaPickerProps<T extends MediaSelection> {
   /** The type of media to search and select. */
-  type: 'artist' | 'album';
+  type: 'artist' | 'album' | 'author';
   /** Callback fired when an item is selected. */
   onSelect: (item: T | null) => void;
   /** The currently selected item. */
@@ -53,11 +54,11 @@ interface MediaPickerProps<T extends MediaSelection> {
  * @param props.type - The type of media.
  * @returns The rendered PickerImage component.
  */
-function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'artist' | 'album' }) {
+function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'artist' | 'album' | 'author' }) {
   const [error, setError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
-  const PlaceholderIcon = type === 'artist' ? User : Disc;
+  const PlaceholderIcon = (type === 'artist' || type === 'author') ? User : Disc;
 
   if (error) {
     return (
@@ -125,19 +126,19 @@ export function MediaPicker<T extends MediaSelection>({
   const [selectedImageError, setSelectedImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
-  const TypeIcon = type === 'artist' ? Mic2 : Disc;
-  const SelectedIcon = type === 'artist' ? User : Disc;
+  const TypeIcon = type === 'artist' ? Mic2 : (type === 'author' ? User : Disc);
+  const SelectedIcon = (type === 'artist' || type === 'author') ? User : Disc;
 
   const handleSelect = (item: MediaItem) => {
     let selection: MediaSelection;
 
     // Music Specific logic (keeping legacy support for now)
-    if (type === 'artist') {
+    if (type === 'artist' || type === 'author') {
       selection = {
         id: item.id,
         name: item.title,
         imageUrl: item.imageUrl,
-        disambiguation: (item as ArtistItem).disambiguation,
+        disambiguation: (item as ArtistItem | AuthorItem).id, // Using ID or disambiguation if available
       } as ArtistSelection;
     } else {
       selection = {
@@ -285,7 +286,7 @@ export function MediaPicker<T extends MediaSelection>({
                   {type === 'album' && <span>{(item as AlbumItem).artist}</span>}
                   {item.year && (
                     <span>
-                      • {type === 'artist' ? 'Est.' : ''} {item.year}
+                      • {type === 'artist' ? 'Est.' : (type === 'author' ? 'Born' : '')} {item.year}
                     </span>
                   )}
                 </div>

@@ -24,7 +24,8 @@ export type MediaType =
   | 'tv'
   | 'person'
   | 'game'
-  | 'book';
+  | 'book'
+  | 'author';
 
 /**
  * Broad category for a board, determining which service and UI to use.
@@ -149,6 +150,13 @@ export interface BookItem extends BaseMediaItem {
 }
 
 /**
+ * Represents a book author.
+ */
+export interface AuthorItem extends BaseMediaItem {
+  type: 'author';
+}
+
+/**
  * Represents a single normalized media item in the application.
  * This structure unifies data from different MusicBrainz entities (Release Group, Artist, Recording).
  */
@@ -160,7 +168,8 @@ export type MediaItem =
   | TVItem
   | PersonItem
   | GameItem
-  | BookItem;
+  | BookItem
+  | AuthorItem;
 
 /**
  * Represents a simplified artist object used for selection state in pickers.

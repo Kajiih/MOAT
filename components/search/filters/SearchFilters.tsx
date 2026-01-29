@@ -204,7 +204,7 @@ export function SearchFilters({
             return (
               <MediaPicker
                 key={def.id}
-                type="artist"
+                type="author"
                 selectedItem={filters.selectedAuthor}
                 onSelect={(a) => updateFilters({ selectedAuthor: a })}
                 placeholder={def.label}
