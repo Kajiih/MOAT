@@ -151,10 +151,6 @@ export class MusicService implements MediaService {
       type: 'select',
       options: [
         { label: 'Relevance', value: 'relevance' },
-        { label: 'Rating (Highest)', value: 'rating_desc' },
-        { label: 'Rating (Lowest)', value: 'rating_asc' },
-        { label: 'Reviews (Highest)', value: 'reviews_desc' },
-        { label: 'Reviews (Lowest)', value: 'reviews_asc' },
         { label: 'Date (Newest)', value: 'date_desc' },
         { label: 'Date (Oldest)', value: 'date_asc' },
         { label: 'Name (A-Z)', value: 'title_asc' },
