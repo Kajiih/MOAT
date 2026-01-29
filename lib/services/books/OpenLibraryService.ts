@@ -102,7 +102,7 @@ export class OpenLibraryService implements MediaService {
     searchUrl.searchParams.set('limit', limit.toString());
     
     const sort = options.filters?.sort as string | undefined;
-    if (sort) {
+    if (sort && sort !== 'relevance') {
        searchUrl.searchParams.set('sort', sort);
     }
     searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count,subject');
@@ -287,7 +287,7 @@ export class OpenLibraryService implements MediaService {
         label: 'Sort By',
         type: 'select',
         options: [
-          { label: 'Relevance', value: '' },
+          { label: 'Relevance', value: 'relevance' },
           { label: 'Top Rated', value: 'rating' },
           { label: 'Most Editions', value: 'editions' },
           { label: 'Newest', value: 'new' },
@@ -311,7 +311,7 @@ export class OpenLibraryService implements MediaService {
       defaults.publisher = '';
       defaults.person = '';
       defaults.place = '';
-      defaults.sort = '';
+      defaults.sort = 'relevance';
     }
 
     return defaults;

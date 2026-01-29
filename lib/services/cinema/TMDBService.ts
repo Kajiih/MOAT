@@ -140,6 +140,17 @@ export class TMDBService implements MediaService {
       label: 'Genre / Keywords',
       type: 'text',
       placeholder: 'e.g. Sci-Fi, Horror...',
+    }, {
+      id: 'sort',
+      label: 'Sort By',
+      type: 'select',
+      options: [
+        { label: 'Relevance', value: 'relevance' },
+        { label: 'Date (Newest)', value: 'date_desc' },
+        { label: 'Date (Oldest)', value: 'date_asc' },
+        { label: 'Name (A-Z)', value: 'title_asc' },
+        { label: 'Name (Z-A)', value: 'title_desc' },
+      ],
     }];
   }
 
@@ -209,6 +220,7 @@ export class TMDBService implements MediaService {
       minYear: '',
       maxYear: '',
       tag: '',
+      sort: 'relevance',
     };
   }
 
@@ -221,6 +233,7 @@ export class TMDBService implements MediaService {
       minYear: params.get('minYear'),
       maxYear: params.get('maxYear'),
       tag: params.get('tag') || undefined,
+      sort: params.get('sort') || 'relevance',
     };
 
     return {

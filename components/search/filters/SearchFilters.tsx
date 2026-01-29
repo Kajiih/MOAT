@@ -33,10 +33,10 @@ interface SearchFiltersProps {
  * Renders the full suite of search filters tailored to the active media type.
  * Combines entity-specific logic with shared filters like date range and tags.
  * @param props - Component props.
- * @param props.type - The active media type.
- * @param props.filters - Current filter parameters.
- * @param props.updateFilters - Dispatch function for filter updates.
- * @param props.compact - Toggle for high-density layout.
+ * @param props.type - The current search mode (artist, album, or song).
+ * @param props.filters - The current state of all search filters.
+ * @param props.updateFilters - Callback to update one or more filter values.
+ * @param props.compact - Whether to render in a compact layout (for pickers).
  * @returns Filter UI fragment.
  */
 export function SearchFilters({
@@ -64,7 +64,8 @@ export function SearchFilters({
 
   return (
     <div className={`space-y-3 ${compact ? 'text-[10px]' : ''}`}>
-      {dynamicFilters.map((def) => {
+
+      {dynamicFilters.filter(f => f.id !== 'sort').map((def) => {
         // 1. Handle Special Legacy/Custom Components first
         if (def.id === 'albumPrimaryTypes') {
           return (

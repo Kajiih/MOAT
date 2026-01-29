@@ -8,20 +8,27 @@
 import { ArrowUpDown } from 'lucide-react';
 import { useState } from 'react';
 
-import { MediaType, SortOption } from '@/lib/types';
+import { MediaType } from '@/lib/types';
 
 import { Popover } from './Popover';
+
+interface SortOptionItem {
+  label: string;
+  value: string;
+}
 
 /**
  * Props for the SortDropdown component.
  */
 interface SortDropdownProps {
   /** The current active sort option. */
-  sortOption: SortOption;
+  sortOption: string;
   /** Callback fired when a new sort option is selected. */
-  onSortChange: (option: SortOption) => void;
+  onSortChange: (option: string) => void;
   /** The type of media being sorted, which affects available options. */
   type?: MediaType;
+  /** Dynamic sort options from the media service. */
+  options?: SortOptionItem[];
 }
 
 /**
@@ -30,23 +37,27 @@ interface SortDropdownProps {
  * @param props.sortOption - The current active sort option.
  * @param props.onSortChange - Callback fired when a new sort option is selected.
  * @param props.type - The type of media being sorted, which affects available options.
+ * @param props.options - Dynamic sort options from the media service.
  * @returns The rendered SortDropdown component.
  */
-export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownProps) {
+export function SortDropdown({ sortOption, onSortChange, type, options }: SortDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const OPTIONS: { id: SortOption; label: string }[] = [
-    { id: 'relevance', label: 'Relevance' },
-    { id: 'date_desc', label: 'Date (Newest)' },
-    { id: 'date_asc', label: 'Date (Oldest)' },
-    { id: 'title_asc', label: 'Name (A-Z)' },
-    { id: 'title_desc', label: 'Name (Z-A)' },
+  const defaultOptions: { value: string; label: string }[] = [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'date_desc', label: 'Date (Newest)' },
+    { value: 'date_asc', label: 'Date (Oldest)' },
+    { value: 'title_asc', label: 'Name (A-Z)' },
+    { value: 'title_desc', label: 'Name (Z-A)' },
   ];
 
-  if (type === 'song') {
-    OPTIONS.push(
-      { id: 'duration_desc', label: 'Duration (Longest)' },
-      { id: 'duration_asc', label: 'Duration (Shortest)' },
+  const finalOptions = options || defaultOptions;
+
+  // For backward compatibility if options not provided but type is song
+  if (!options && type === 'song' && !finalOptions.some(o => o.value === 'duration_desc')) {
+    finalOptions.push(
+      { value: 'duration_desc', label: 'Duration (Longest)' },
+      { value: 'duration_asc', label: 'Duration (Shortest)' },
     );
   }
 
@@ -65,14 +76,14 @@ export function SortDropdown({ sortOption, onSortChange, type }: SortDropdownPro
       }
     >
       <div className="flex w-48 flex-col overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 p-1 shadow-xl">
-        {OPTIONS.map((opt) => (
+        {finalOptions.map((opt: SortOptionItem) => (
           <button
-            key={opt.id}
+            key={opt.value}
             onClick={() => {
-              onSortChange(opt.id);
+              onSortChange(opt.value);
               setIsOpen(false);
             }}
-            className={`rounded px-3 py-2 text-left text-xs transition-colors hover:bg-neutral-800 ${sortOption === opt.id ? 'bg-neutral-800 font-bold text-white' : 'text-neutral-400'}`}
+            className={`rounded px-3 py-2 text-left text-xs transition-colors hover:bg-neutral-800 ${sortOption === opt.value ? 'bg-neutral-800 font-bold text-white' : 'text-neutral-400'}`}
           >
             {opt.label}
           </button>

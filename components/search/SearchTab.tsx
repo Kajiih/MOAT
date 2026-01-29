@@ -12,12 +12,13 @@ import { Filter } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { MediaCard } from '@/components/media/MediaCard';
+import { useTierListContext } from '@/components/providers/TierListContext';
 import { Pagination } from '@/components/ui/Pagination';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
-import { usePersistentState } from '@/lib/hooks';
-import { MediaItem, MediaType, SortOption } from '@/lib/types';
+import { getMediaService } from '@/lib/services/factory';
+import { MediaItem, MediaType, SongItem, SortOption } from '@/lib/types';
 
 import { SearchFilters } from './filters/SearchFilters';
 import { useMediaSearch } from './hooks/useMediaSearch';
@@ -58,11 +59,9 @@ export function SearchTab({
   globalWildcard,
   onInfo,
 }: SearchTabProps) {
+  const { state: { category } } = useTierListContext();
+  const service = useMemo(() => getMediaService(category || 'music'), [category]);
   const { showFilters, toggleFilters } = useSearchFilters(type);
-  const [sortOption, setSortOption] = usePersistentState<SortOption>(
-    `moat-search-ui-${type}-sortOption`,
-    'relevance',
-  );
   
   // Logic: Enable prefetch by default, disable ONLY when interacting with filters/input
   const [shouldPrefetch, setShouldPrefetch] = useState(true);
@@ -95,6 +94,7 @@ export function SearchTab({
   }, [error, showToast]);
 
   const sortedResults = useMemo(() => {
+    const sortOption = (filters.sort as SortOption) || 'relevance';
     return searchResults.toSorted((a: MediaItem, b: MediaItem) => {
       switch (sortOption) {
         case 'date_desc': {
@@ -110,19 +110,17 @@ export function SearchTab({
           return b.title.localeCompare(a.title);
         }
         case 'duration_desc': {
-          // @ts-expect-error - duration check
-          return (b.duration || 0) - (a.duration || 0);
+           return ((b as SongItem).duration || 0) - ((a as SongItem).duration || 0);
         }
         case 'duration_asc': {
-          // @ts-expect-error - duration check
-          return (a.duration || 0) - (b.duration || 0);
+           return ((a as SongItem).duration || 0) - ((b as SongItem).duration || 0);
         }
         default: {
           return 0;
         }
       }
     });
-  }, [searchResults, sortOption]);
+  }, [searchResults, filters.sort]);
 
   const finalResults = useMemo(() => {
     if (showAdded) return sortedResults;
@@ -215,7 +213,12 @@ export function SearchTab({
             }}
           />
 
-          <SortDropdown sortOption={sortOption} onSortChange={setSortOption} type={type} />
+          <SortDropdown
+            sortOption={(filters.sort as string) || 'relevance'}
+            onSortChange={(val) => updateFilters({ sort: val })}
+            type={type}
+            options={service.getFilters(type).find((f) => f.id === 'sort')?.options}
+          />
 
           <button
             onClick={toggleFilters}

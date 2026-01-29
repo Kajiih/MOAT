@@ -145,6 +145,23 @@ export class MusicService implements MediaService {
       });
     }
 
+    filters.push({
+      id: 'sort',
+      label: 'Sort By',
+      type: 'select',
+      options: [
+        { label: 'Relevance', value: 'relevance' },
+        { label: 'Date (Newest)', value: 'date_desc' },
+        { label: 'Date (Oldest)', value: 'date_asc' },
+        { label: 'Name (A-Z)', value: 'title_asc' },
+        { label: 'Name (Z-A)', value: 'title_desc' },
+        ...(type === 'song' ? [
+          { label: 'Duration (Longest)', value: 'duration_desc' },
+          { label: 'Duration (Shortest)', value: 'duration_asc' },
+        ] : []),
+      ],
+    });
+
     return filters;
   }
 
@@ -180,6 +197,8 @@ export class MusicService implements MediaService {
       defaults.maxDuration = '';
     }
 
+    defaults.sort = 'relevance';
+
     return defaults;
   }
 
@@ -200,6 +219,7 @@ export class MusicService implements MediaService {
       tag: params.get('tag') || undefined,
       minDuration: params.get('minDuration') ? Number.parseInt(params.get('minDuration')!, 10) : undefined,
       maxDuration: params.get('maxDuration') ? Number.parseInt(params.get('maxDuration')!, 10) : undefined,
+      sort: params.get('sort') || 'relevance',
     };
 
     return {
