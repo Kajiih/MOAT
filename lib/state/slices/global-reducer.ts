@@ -6,7 +6,7 @@
  * @module GlobalSliceReducer
  */
 
-import { INITIAL_STATE } from '@/lib/initial-state';
+import { getInitialState } from '@/lib/initial-state';
 import { TierListState } from '@/lib/types';
 
 import { ActionType, TierListAction } from '../actions';
@@ -24,7 +24,7 @@ export function globalReducer(state: TierListState, action: TierListAction): Tie
     }
 
     case ActionType.CLEAR_BOARD: {
-      return INITIAL_STATE;
+      return getInitialState();
     }
 
     case ActionType.IMPORT_STATE:
@@ -40,6 +40,10 @@ export function globalReducer(state: TierListState, action: TierListAction): Tie
         });
       }
       return newState;
+    }
+
+    case ActionType.UPDATE_CATEGORY: {
+      return { ...state, category: action.payload.category };
     }
 
     default: {

@@ -56,10 +56,10 @@ export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory
   );
 
   const handleClear = useCallback(() => {
-    if (confirm('Clear everything?')) {
+    if (confirm('Clear everything and reset to a default Music board?')) {
       pushHistory();
       dispatch({ type: ActionType.CLEAR_BOARD });
-      showToast('Board cleared', 'info');
+      showToast('Board reset to default Music state', 'info');
     }
   }, [dispatch, showToast, pushHistory]);
 

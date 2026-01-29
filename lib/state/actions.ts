@@ -5,7 +5,7 @@
  * @module StateActions
  */
 
-import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.
@@ -37,6 +37,8 @@ export enum ActionType {
   IMPORT_STATE = 'IMPORT_STATE',
   /** Replaces state during Undo/Redo operations. */
   SET_STATE = 'SET_STATE',
+  /** Updates the category of the board. */
+  UPDATE_CATEGORY = 'UPDATE_CATEGORY',
 }
 
 /**
@@ -64,4 +66,5 @@ export type TierListAction =
   | { type: ActionType.RANDOMIZE_COLORS }
   | { type: ActionType.CLEAR_BOARD }
   | { type: ActionType.IMPORT_STATE; payload: { state: TierListState } }
-  | { type: ActionType.SET_STATE; payload: { state: TierListState } };
+  | { type: ActionType.SET_STATE; payload: { state: TierListState } }
+  | { type: ActionType.UPDATE_CATEGORY; payload: { category: BoardCategory } };

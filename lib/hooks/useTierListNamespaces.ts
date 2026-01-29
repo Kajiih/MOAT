@@ -16,7 +16,7 @@ import {
 import { useCallback, useEffect,useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
-import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Props for the useTierListNamespaces hook.
@@ -144,6 +144,8 @@ export function useTierListNamespaces({
       locate: utilsRaw.handleLocate,
       import: ioRaw.handleImport,
       export: ioRaw.handleExport,
+      updateCategory: (category: BoardCategory) =>
+        dispatch({ type: ActionType.UPDATE_CATEGORY, payload: { category } }),
     }),
     [
       structureRaw,

@@ -1,0 +1,3 @@
+- Oscar pill doesn't find all books
+  - search is weird in general
+- more tests on book search

@@ -8,7 +8,11 @@
 import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
 import { TierListState } from '@/lib/types';
 
-export const INITIAL_STATE: TierListState = {
+/**
+ * Returns a fresh instance of the initial state to avoid shared reference mutations.
+ * @returns A new TierListState object.
+ */
+export const getInitialState = (): TierListState => ({
   title: 'Untitled Tier List',
   category: 'music',
   tierDefs: [
@@ -28,4 +32,6 @@ export const INITIAL_STATE: TierListState = {
     'tier-6': [],
   },
   itemLookup: {},
-};
+});
+
+export const INITIAL_STATE: TierListState = getInitialState();

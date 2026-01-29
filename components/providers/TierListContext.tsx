@@ -27,7 +27,7 @@ import { INITIAL_STATE } from '@/lib/initial-state';
 import { syncBoardMetadata } from '@/lib/registry-utils';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
-import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
 
 import { useMediaRegistry } from './MediaRegistryProvider';
 
@@ -51,6 +51,7 @@ interface TierListContextType {
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
     export: () => void;
     publish: () => Promise<string | null>;
+    updateCategory: (category: BoardCategory) => void;
   };
   dnd: {
     sensors: SensorDescriptor<SensorOptions>[];
