@@ -62,107 +62,157 @@ export class MusicService implements MediaService {
   }
 
   getFilters(type: MediaType): FilterDefinition[] {
-    const filters: FilterDefinition[] = [];
+    switch (type) {
+      case 'artist': {
+        return [
+          {
+            id: 'yearRange',
+            label: 'Born / Formed',
+            type: 'range',
+          },
+          {
+            id: 'tag',
+            label: 'Tag / Genre',
+            type: 'text',
+            placeholder: 'e.g. rock, jazz, 80s...',
+          },
+          {
+            id: 'artistType',
+            label: 'Artist Type',
+            type: 'select',
+            options: [
+              { label: 'Any Type', value: '' },
+              { label: 'Person', value: 'Person' },
+              { label: 'Group', value: 'Group' },
+              { label: 'Orchestra', value: 'Orchestra' },
+              { label: 'Choir', value: 'Choir' },
+              { label: 'Character', value: 'Character' },
+              { label: 'Other', value: 'Other' },
+            ],
+          },
+          {
+            id: 'artistCountry',
+            label: 'Country',
+            type: 'text',
+            placeholder: 'e.g. US, GB, JP...',
+          },
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Date (Newest)', value: 'date_desc' },
+              { label: 'Date (Oldest)', value: 'date_asc' },
+              { label: 'Name (A-Z)', value: 'title_asc' },
+              { label: 'Name (Z-A)', value: 'title_desc' },
+            ],
+          },
+        ];
+      }
 
-    // Context Pickers (translated to 'picker' types)
-    if (type !== 'artist') {
-      filters.push({
-        id: 'selectedArtist',
-        paramName: 'artistId',
-        label: 'Filter by Artist',
-        type: 'picker',
-        pickerType: 'artist',
-      });
+      case 'album': {
+        return [
+          {
+            id: 'selectedArtist',
+            paramName: 'artistId',
+            label: 'Filter by Artist',
+            type: 'picker',
+            pickerType: 'artist',
+          },
+          {
+            id: 'yearRange',
+            label: 'Release Year',
+            type: 'range',
+          },
+          {
+            id: 'tag',
+            label: 'Tag / Genre',
+            type: 'text',
+            placeholder: 'e.g. rock, jazz, 80s...',
+          },
+          {
+            id: 'albumPrimaryTypes',
+            label: 'Primary Types',
+            type: 'toggle-group',
+            options: [
+              { label: 'Album', value: 'Album' },
+              { label: 'EP', value: 'EP' },
+              { label: 'Single', value: 'Single' },
+              { label: 'Broadcast', value: 'Broadcast' },
+              { label: 'Other', value: 'Other' },
+            ],
+            default: ['Album', 'EP'],
+          },
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Date (Newest)', value: 'date_desc' },
+              { label: 'Date (Oldest)', value: 'date_asc' },
+              { label: 'Name (A-Z)', value: 'title_asc' },
+              { label: 'Name (Z-A)', value: 'title_desc' },
+            ],
+          },
+        ];
+      }
 
-      if (type === 'song') {
-        filters.push({
-          id: 'selectedAlbum',
-          paramName: 'albumId',
-          label: 'Filter by Album',
-          type: 'picker',
-          pickerType: 'album',
-        });
+      case 'song': {
+        return [
+          {
+            id: 'selectedArtist',
+            paramName: 'artistId',
+            label: 'Filter by Artist',
+            type: 'picker',
+            pickerType: 'artist',
+          },
+          {
+            id: 'selectedAlbum',
+            paramName: 'albumId',
+            label: 'Filter by Album',
+            type: 'picker',
+            pickerType: 'album',
+          },
+          {
+            id: 'yearRange',
+            label: 'Release Year',
+            type: 'range',
+          },
+          {
+            id: 'tag',
+            label: 'Tag / Genre',
+            type: 'text',
+            placeholder: 'e.g. rock, jazz, 80s...',
+          },
+          {
+            id: 'durationRange',
+            label: 'Duration (Seconds)',
+            type: 'range',
+            placeholder: 'Sec',
+          },
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Date (Newest)', value: 'date_desc' },
+              { label: 'Date (Oldest)', value: 'date_asc' },
+              { label: 'Name (A-Z)', value: 'title_asc' },
+              { label: 'Name (Z-A)', value: 'title_desc' },
+              { label: 'Duration (Longest)', value: 'duration_desc' },
+              { label: 'Duration (Shortest)', value: 'duration_asc' },
+            ],
+          },
+        ];
+      }
+
+      default: {
+        return [];
       }
     }
-
-    // Common Filters
-    filters.push({
-      id: 'yearRange', // specialized ID for minYear/maxYear group
-      label: type === 'artist' ? 'Born / Formed' : 'Release Year',
-      type: 'range',
-    }, {
-      id: 'tag',
-      label: 'Tag / Genre',
-      type: 'text',
-      placeholder: 'e.g. rock, jazz, 80s...',
-    });
-
-    // Type Specific
-    if (type === 'artist') {
-      filters.push({
-        id: 'artistType',
-        label: 'Artist Type',
-        type: 'select',
-        options: [
-          { label: 'Any Type', value: '' },
-          { label: 'Person', value: 'Person' },
-          { label: 'Group', value: 'Group' },
-          { label: 'Orchestra', value: 'Orchestra' },
-          { label: 'Choir', value: 'Choir' },
-          { label: 'Character', value: 'Character' },
-          { label: 'Other', value: 'Other' },
-        ],
-      }, {
-        id: 'artistCountry',
-        label: 'Country',
-        type: 'text',
-        placeholder: 'e.g. US, GB, JP...',
-      });
-    }
-
-    if (type === 'album') {
-      filters.push({
-        id: 'albumPrimaryTypes',
-        label: 'Primary Types',
-        type: 'toggle-group',
-        options: [
-          { label: 'Album', value: 'Album' },
-          { label: 'EP', value: 'EP' },
-          { label: 'Single', value: 'Single' },
-          { label: 'Broadcast', value: 'Broadcast' },
-          { label: 'Other', value: 'Other' },
-        ],
-        default: ['Album', 'EP'],
-      });
-    }
-
-    if (type === 'song') {
-      filters.push({
-        id: 'durationRange',
-        label: 'Duration (Seconds)',
-        type: 'range',
-        placeholder: 'Sec',
-      });
-    }
-
-    filters.push({
-      id: 'sort',
-      label: 'Sort By',
-      type: 'select',
-      options: [
-        { label: 'Relevance', value: 'relevance' },
-        { label: 'Date (Newest)', value: 'date_desc' },
-        { label: 'Date (Oldest)', value: 'date_asc' },
-        { label: 'Name (A-Z)', value: 'title_asc' },
-        { label: 'Name (Z-A)', value: 'title_desc' },
-        ...(type === 'song' ? [
-          { label: 'Duration (Longest)', value: 'duration_desc' },
-          { label: 'Duration (Shortest)', value: 'duration_asc' },
-        ] : []),
-      ],
-    });
-
-    return filters;
   }
 
   getDefaultFilters(type: MediaType): Record<string, unknown> {

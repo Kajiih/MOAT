@@ -113,12 +113,34 @@ export class OpenLibraryService implements MediaService {
     const sort = options.filters?.sort as string | undefined;
     if (sort && sort !== 'relevance') {
        let apiSort = sort;
-       if (sort === 'rating_desc') apiSort = 'rating';
-       else if (sort === 'rating_asc') apiSort = '-rating';
-       else if (sort === 'reviews_desc') apiSort = 'editions';
-       else if (sort === 'reviews_asc') apiSort = '-editions';
-       else if (sort === 'date_desc') apiSort = 'new';
-       else if (sort === 'date_asc') apiSort = 'old';
+       switch (sort) {
+       case 'rating_desc': {
+       apiSort = 'rating';
+       break;
+       }
+       case 'rating_asc': {
+       apiSort = '-rating';
+       break;
+       }
+       case 'reviews_desc': {
+       apiSort = 'editions';
+       break;
+       }
+       case 'reviews_asc': {
+       apiSort = '-editions';
+       break;
+       }
+       case 'date_desc': {
+       apiSort = 'new';
+       break;
+       }
+       case 'date_asc': { {
+       apiSort = 'old';
+       // No default
+       }
+       break;
+       }
+       }
        
        if (apiSort === 'rating' || apiSort === 'editions' || apiSort === 'new' || apiSort === 'old') {
          searchUrl.searchParams.set('sort', apiSort);
@@ -239,64 +261,99 @@ export class OpenLibraryService implements MediaService {
   }
 
   getFilters(type: MediaType): FilterDefinition[] {
-    if (type !== 'book') return [];
+    switch (type) {
+      case 'book': {
+        return [
+          {
+            id: 'selectedAuthor',
+            paramName: 'author',
+            label: 'Filter by Author',
+            type: 'picker',
+            pickerType: 'author',
+          },
+          {
+            id: 'yearRange',
+            label: 'First Publish Year',
+            type: 'range',
+          },
+          {
+            id: 'bookType',
+            label: 'Genre / Type',
+            type: 'select',
+            options: [
+              { label: 'Any', value: '' },
+              { label: 'Fiction', value: 'fiction' },
+              { label: 'Non-Fiction', value: 'non-fiction' },
+              { label: 'Compilation', value: 'compilation' },
+              { label: 'Anthology', value: 'anthology' },
+              { label: 'Textbook', value: 'textbook' },
+              { label: 'Biography', value: 'biography' },
+            ],
+          },
+          {
+            id: 'language',
+            label: 'Language',
+            type: 'select',
+            options: [
+              { label: 'Any', value: '' },
+              { label: 'English', value: 'eng' },
+              { label: 'French', value: 'fre' },
+              { label: 'Spanish', value: 'spa' },
+              { label: 'German', value: 'ger' },
+              { label: 'Italian', value: 'ita' },
+              { label: 'Japanese', value: 'jpn' },
+            ],
+          },
+          {
+            id: 'publisher',
+            label: 'Publisher',
+            type: 'text',
+            placeholder: 'e.g. Penguin',
+          },
+          {
+            id: 'person',
+            label: 'Character / Person',
+            type: 'text',
+            placeholder: 'e.g. Harry Potter',
+          },
+          {
+            id: 'place',
+            label: 'Setting / Place',
+            type: 'text',
+            placeholder: 'e.g. London',
+          },
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Date (Newest)', value: 'date_desc' },
+              { label: 'Date (Oldest)', value: 'date_asc' },
+            ],
+          },
+        ];
+      }
 
-    return [
-      {
-        id: 'selectedAuthor',
-        paramName: 'author',
-        label: 'Filter by Author',
-        type: 'picker',
-        pickerType: 'author',
-      },
-      {
-        id: 'yearRange',
-        label: 'First Publish Year',
-        type: 'range',
-      },
-      {
-        id: 'bookType',
-        label: 'Genre / Type',
-        type: 'select',
-        options: [
-          { label: 'Any', value: '' },
-          { label: 'Fiction', value: 'fiction' },
-          { label: 'Non-Fiction', value: 'non-fiction' },
-          { label: 'Compilation', value: 'compilation' },
-          { label: 'Anthology', value: 'anthology' },
-          { label: 'Textbook', value: 'textbook' },
-          { label: 'Biography', value: 'biography' },
-        ],
-      },
-      {
-        id: 'publisher',
-        label: 'Publisher',
-        type: 'text',
-        placeholder: 'e.g. Penguin',
-      },
-      {
-        id: 'person',
-        label: 'Character / Person',
-        type: 'text',
-        placeholder: 'e.g. Harry Potter',
-      },
-      {
-        id: 'place',
-        label: 'Setting / Place',
-        type: 'text',
-        placeholder: 'e.g. London',
-      },
-      {
-        id: 'sort',
-        label: 'Sort By',
-        type: 'select',
-        options: [
-          { label: 'Relevance', value: 'relevance' },
-          { label: 'Date (Newest)', value: 'date_desc' },
-          { label: 'Date (Oldest)', value: 'date_asc' },
-        ],
-      },
-    ];
+      case 'author': {
+        return [
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Name (A-Z)', value: 'title_asc' },
+              { label: 'Name (Z-A)', value: 'title_desc' },
+            ],
+          },
+        ];
+      }
+
+      default: {
+        return [];
+      }
+    }
   }
 
   getDefaultFilters(type: MediaType): Record<string, unknown> {

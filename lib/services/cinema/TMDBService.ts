@@ -132,32 +132,91 @@ export class TMDBService implements MediaService {
     return getMediaUI(type);
   }
 
-  getFilters(_type: MediaType): FilterDefinition[] {
-    return [ {
-      id: 'yearRange',
-      label: 'Release Year',
-      type: 'range',
-    }, {
-      id: 'tag',
-      label: 'Genre / Keywords',
-      type: 'text',
-      placeholder: 'e.g. Sci-Fi, Horror...',
-    }, {
-      id: 'sort',
-      label: 'Sort By',
-      type: 'select',
-      options: [
-        { label: 'Relevance', value: 'relevance' },
-        { label: 'Rating (Highest)', value: 'rating_desc' },
-        { label: 'Rating (Lowest)', value: 'rating_asc' },
-        { label: 'Reviews (Highest)', value: 'reviews_desc' },
-        { label: 'Reviews (Lowest)', value: 'reviews_asc' },
-        { label: 'Date (Newest)', value: 'date_desc' },
-        { label: 'Date (Oldest)', value: 'date_asc' },
-        { label: 'Name (A-Z)', value: 'title_asc' },
-        { label: 'Name (Z-A)', value: 'title_desc' },
-      ],
-    }];
+  getFilters(type: MediaType): FilterDefinition[] {
+    switch (type) {
+      case 'movie': {
+        return [
+          {
+            id: 'yearRange',
+            label: 'Release Year',
+            type: 'range',
+          },
+          {
+            id: 'tag',
+            label: 'Genre / Keywords',
+            type: 'text',
+            placeholder: 'e.g. Sci-Fi, Horror...',
+          },
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Rating (Highest)', value: 'rating_desc' },
+              { label: 'Rating (Lowest)', value: 'rating_asc' },
+              { label: 'Reviews (Highest)', value: 'reviews_desc' },
+              { label: 'Reviews (Lowest)', value: 'reviews_asc' },
+              { label: 'Date (Newest)', value: 'date_desc' },
+              { label: 'Date (Oldest)', value: 'date_asc' },
+              { label: 'Name (A-Z)', value: 'title_asc' },
+              { label: 'Name (Z-A)', value: 'title_desc' },
+            ],
+          },
+        ];
+      }
+
+      case 'tv': {
+        return [
+          {
+            id: 'yearRange',
+            label: 'First Air Date',
+            type: 'range',
+          },
+          {
+            id: 'tag',
+            label: 'Genre / Keywords',
+            type: 'text',
+            placeholder: 'e.g. Drama, Comedy...',
+          },
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Rating (Highest)', value: 'rating_desc' },
+              { label: 'Rating (Lowest)', value: 'rating_asc' },
+              { label: 'Reviews (Highest)', value: 'reviews_desc' },
+              { label: 'Reviews (Lowest)', value: 'reviews_asc' },
+              { label: 'Date (Newest)', value: 'date_desc' },
+              { label: 'Date (Oldest)', value: 'date_asc' },
+              { label: 'Name (A-Z)', value: 'title_asc' },
+              { label: 'Name (Z-A)', value: 'title_desc' },
+            ],
+          },
+        ];
+      }
+
+      case 'person': {
+        return [
+          {
+            id: 'sort',
+            label: 'Sort By',
+            type: 'select',
+            options: [
+              { label: 'Relevance', value: 'relevance' },
+              { label: 'Name (A-Z)', value: 'title_asc' },
+              { label: 'Name (Z-A)', value: 'title_desc' },
+            ],
+          },
+        ];
+      }
+
+      default: {
+        return [];
+      }
+    }
   }
 
   private mapToMediaItem(item: TMDBResult, type: MediaType): MediaItem {

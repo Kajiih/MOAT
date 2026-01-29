@@ -131,8 +131,8 @@ export function SearchTab({
            return bVal - aVal;
         }
         case 'reviews_asc': {
-           const aVal = (a as BaseMediaItem).reviewCount ?? 999999999;
-           const bVal = (b as BaseMediaItem).reviewCount ?? 999999999;
+           const aVal = (a as BaseMediaItem).reviewCount ?? 999_999_999;
+           const bVal = (b as BaseMediaItem).reviewCount ?? 999_999_999;
            return aVal - bVal;
         }
         default: {
