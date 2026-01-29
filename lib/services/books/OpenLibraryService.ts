@@ -5,6 +5,7 @@
 
 import { AuthorItem, BookItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
+import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
 import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '../types';
 import { getMediaUI } from '@/lib/media-defs';
 
@@ -73,49 +74,52 @@ export class OpenLibraryService implements MediaService {
     const minYear = options.filters?.minYear as string | undefined;
     const maxYear = options.filters?.maxYear as string | undefined;
     const bookType = options.filters?.bookType as string | undefined;
+
+    const queryParts: string[] = [];
     
-    if (author) {
-      searchUrl.searchParams.set('author', author);
+    // Process main query with fuzzy/wildcard
+    let processedQuery = query.trim();
+    if (processedQuery && (options.fuzzy || options.wildcard)) {
+      processedQuery = constructLuceneQueryBasis(processedQuery, {
+        fuzzy: !!options.fuzzy,
+        wildcard: !!options.wildcard,
+      });
+    } else if (processedQuery) {
+       processedQuery = processedQuery.split(/\s+/).map(escapeLucene).join(' ');
     }
 
-    let yearQuery = '';
+    if (processedQuery) {
+       queryParts.push(processedQuery);
+    }
+
+    // Process author filter
+    if (author) {
+       queryParts.push(`author:"${escapeLucene(author)}"`);
+    }
+
+    // Process year filter
     if (minYear || maxYear) {
        const min = minYear || '*';
        const max = maxYear || '*';
-       yearQuery = `first_publish_year:[${min} TO ${max}]`;
+       queryParts.push(`first_publish_year:[${min} TO ${max}]`);
     }
 
-    let typeQuery = '';
+    // Process type/subject filter
     if (bookType) {
-       typeQuery = `subject:${bookType}`;
+       queryParts.push(`subject:${bookType}`);
     }
 
-    let finalQuery = query;
-    if (yearQuery) {
-       finalQuery = finalQuery ? `${finalQuery} ${yearQuery}` : yearQuery;
-    }
-    if (typeQuery) {
-       finalQuery = finalQuery ? `${finalQuery} ${typeQuery}` : typeQuery;
-    }
+    const finalQuery = queryParts.join(' AND ');
 
     // Open Library requires q to be at least 3 characters.
-    // However, if we have an author filter, q can be empty or short.
-    // If q is present but too short (< 3), and we're only searching by q, it will return 422.
-    // We handle this by either not sending the request or padding if possible, 
-    // but better to just return empty if it's purely a short query.
+    // However, if we have a filter (like author:Rowling), that counts towards total length.
     const isShortQuery = finalQuery && finalQuery.length < 3;
     
-    if (isShortQuery && !author) {
+    if (!finalQuery || isShortQuery) {
        return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
-    // Main query (if empty and we have an author filter, OpenLibrary handles it fine)
-    if (finalQuery) {
-      searchUrl.searchParams.set('q', finalQuery);
-    } else if (!author) {
-       // If no query and no author, return empty (standard behavior)
-       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
-    }
+    searchUrl.searchParams.set('q', finalQuery);
 
     searchUrl.searchParams.set('page', page.toString());
     searchUrl.searchParams.set('limit', limit.toString());

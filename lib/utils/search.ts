@@ -36,15 +36,13 @@ export function escapeLucene(term: string): string {
 }
 
 /**
- * Constructs a flexible Lucene query string for MusicBrainz.
- * Example: Converts "michael j" into `field:((michael* OR michael~1) AND j*)`
- * Supports partial matches (wildcard) and typo tolerance (fuzzy).
- * @param field - The field to search in (e.g., 'artist', 'release').
+ * Constructs the core Lucene query string without the field prefix.
+ * Example: Converts "michael j" into `(michael* OR michael~1) AND j*`
  * @param term - The search term.
  * @param options - Search options including fuzzy and wildcard.
- * @returns The constructed Lucene query string.
+ * @returns The constructed Lucene query parts joined by AND.
  */
-export function constructLuceneQuery(field: string, term: string, options: SearchOptions): string {
+export function constructLuceneQueryBasis(term: string, options: SearchOptions): string {
   const cleanTerm = term.trim();
   if (!cleanTerm) return '';
 
@@ -66,5 +64,19 @@ export function constructLuceneQuery(field: string, term: string, options: Searc
     return `(${strategies.join(' OR ')})`;
   });
 
-  return `${field}:(${queryParts.join(' AND ')})`;
+  return queryParts.join(' AND ');
+}
+
+/**
+ * Constructs a flexible Lucene query string for a specific field.
+ * Example: Converts "michael j" into `field:((michael* OR michael~1) AND j*)`
+ * @param field - The field to search in (e.g., 'artist', 'release').
+ * @param term - The search term.
+ * @param options - Search options including fuzzy and wildcard.
+ * @returns The constructed Lucene query string.
+ */
+export function constructLuceneQuery(field: string, term: string, options: SearchOptions): string {
+  const basis = constructLuceneQueryBasis(term, options);
+  if (!basis) return '';
+  return `${field}:(${basis})`;
 }
