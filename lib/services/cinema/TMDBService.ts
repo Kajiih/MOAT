@@ -32,6 +32,8 @@ interface TMDBDetails extends TMDBResult {
 }
 
 export class TMDBService implements MediaService {
+  readonly category = 'cinema' as const;
+  
   private async fetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
     if (!TMDB_API_KEY) {
         logger.warn('TMDB_API_KEY is missing. Returning null to trigger mock fallback.');
@@ -126,97 +128,6 @@ export class TMDBService implements MediaService {
 
   getSupportedTypes(): MediaType[] {
     return ['movie', 'tv', 'person'];
-  }
-
-  getUIConfig(type: MediaType): MediaUIConfig {
-    return getMediaUI(type);
-  }
-
-  getFilters(type: MediaType): FilterDefinition[] {
-    switch (type) {
-      case 'movie': {
-        return [
-          {
-            id: 'yearRange',
-            label: 'Release Year',
-            type: 'range',
-          },
-          {
-            id: 'tag',
-            label: 'Genre / Keywords',
-            type: 'text',
-            placeholder: 'e.g. Sci-Fi, Horror...',
-          },
-          {
-            id: 'sort',
-            label: 'Sort By',
-            type: 'select',
-            options: [
-              { label: 'Relevance', value: 'relevance' },
-              { label: 'Rating (Highest)', value: 'rating_desc' },
-              { label: 'Rating (Lowest)', value: 'rating_asc' },
-              { label: 'Reviews (Highest)', value: 'reviews_desc' },
-              { label: 'Reviews (Lowest)', value: 'reviews_asc' },
-              { label: 'Date (Newest)', value: 'date_desc' },
-              { label: 'Date (Oldest)', value: 'date_asc' },
-              { label: 'Name (A-Z)', value: 'title_asc' },
-              { label: 'Name (Z-A)', value: 'title_desc' },
-            ],
-          },
-        ];
-      }
-
-      case 'tv': {
-        return [
-          {
-            id: 'yearRange',
-            label: 'First Air Date',
-            type: 'range',
-          },
-          {
-            id: 'tag',
-            label: 'Genre / Keywords',
-            type: 'text',
-            placeholder: 'e.g. Drama, Comedy...',
-          },
-          {
-            id: 'sort',
-            label: 'Sort By',
-            type: 'select',
-            options: [
-              { label: 'Relevance', value: 'relevance' },
-              { label: 'Rating (Highest)', value: 'rating_desc' },
-              { label: 'Rating (Lowest)', value: 'rating_asc' },
-              { label: 'Reviews (Highest)', value: 'reviews_desc' },
-              { label: 'Reviews (Lowest)', value: 'reviews_asc' },
-              { label: 'Date (Newest)', value: 'date_desc' },
-              { label: 'Date (Oldest)', value: 'date_asc' },
-              { label: 'Name (A-Z)', value: 'title_asc' },
-              { label: 'Name (Z-A)', value: 'title_desc' },
-            ],
-          },
-        ];
-      }
-
-      case 'person': {
-        return [
-          {
-            id: 'sort',
-            label: 'Sort By',
-            type: 'select',
-            options: [
-              { label: 'Relevance', value: 'relevance' },
-              { label: 'Name (A-Z)', value: 'title_asc' },
-              { label: 'Name (Z-A)', value: 'title_desc' },
-            ],
-          },
-        ];
-      }
-
-      default: {
-        return [];
-      }
-    }
   }
 
   private mapToMediaItem(item: TMDBResult, type: MediaType): MediaItem {

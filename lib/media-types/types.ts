@@ -34,6 +34,8 @@ export interface FilterConfig {
   
   /** Default value for this filter */
   defaultValue?: unknown;
+  /** Alias for defaultValue (backward compatibility) */
+  default?: unknown;
 }
 
 /**

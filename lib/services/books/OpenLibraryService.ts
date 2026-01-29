@@ -45,6 +45,8 @@ interface OpenLibraryWorkDetails {
  * Service adapter for Open Library integration.
  */
 export class OpenLibraryService implements MediaService {
+  readonly category = 'book' as const;
+  
   async search(
     query: string,
     type: MediaType,
@@ -254,149 +256,6 @@ export class OpenLibraryService implements MediaService {
 
   getSupportedTypes(): MediaType[] {
     return ['book', 'author'];
-  }
-
-  getUIConfig(type: MediaType): MediaUIConfig {
-    return getMediaUI(type);
-  }
-
-  getFilters(type: MediaType): FilterDefinition[] {
-    switch (type) {
-      case 'book': {
-        return [
-          {
-            id: 'selectedAuthor',
-            paramName: 'author',
-            label: 'Filter by Author',
-            type: 'picker',
-            pickerType: 'author',
-          },
-          {
-            id: 'yearRange',
-            label: 'First Publish Year',
-            type: 'range',
-          },
-          {
-            id: 'bookType',
-            label: 'Genre / Type',
-            type: 'select',
-            options: [
-              { label: 'Any', value: '' },
-              { label: 'Fiction', value: 'fiction' },
-              { label: 'Non-Fiction', value: 'non-fiction' },
-              { label: 'Compilation', value: 'compilation' },
-              { label: 'Anthology', value: 'anthology' },
-              { label: 'Textbook', value: 'textbook' },
-              { label: 'Biography', value: 'biography' },
-            ],
-          },
-          {
-            id: 'language',
-            label: 'Language',
-            type: 'select',
-            options: [
-              { label: 'Any', value: '' },
-              { label: 'English', value: 'eng' },
-              { label: 'French', value: 'fre' },
-              { label: 'Spanish', value: 'spa' },
-              { label: 'German', value: 'ger' },
-              { label: 'Italian', value: 'ita' },
-              { label: 'Japanese', value: 'jpn' },
-            ],
-          },
-          {
-            id: 'publisher',
-            label: 'Publisher',
-            type: 'text',
-            placeholder: 'e.g. Penguin',
-          },
-          {
-            id: 'person',
-            label: 'Character / Person',
-            type: 'text',
-            placeholder: 'e.g. Harry Potter',
-          },
-          {
-            id: 'place',
-            label: 'Setting / Place',
-            type: 'text',
-            placeholder: 'e.g. London',
-          },
-          {
-            id: 'sort',
-            label: 'Sort By',
-            type: 'select',
-            options: [
-              { label: 'Relevance', value: 'relevance' },
-              { label: 'Date (Newest)', value: 'date_desc' },
-              { label: 'Date (Oldest)', value: 'date_asc' },
-            ],
-          },
-        ];
-      }
-
-      case 'author': {
-        return [
-          {
-            id: 'sort',
-            label: 'Sort By',
-            type: 'select',
-            options: [
-              { label: 'Relevance', value: 'relevance' },
-              { label: 'Name (A-Z)', value: 'title_asc' },
-              { label: 'Name (Z-A)', value: 'title_desc' },
-            ],
-          },
-        ];
-      }
-
-      default: {
-        return [];
-      }
-    }
-  }
-
-  getDefaultFilters(type: MediaType): Record<string, unknown> {
-    const defaults: Record<string, unknown> = {
-      query: '',
-    };
-
-    if (type === 'book') {
-      defaults.selectedAuthor = null;
-      defaults.minYear = '';
-      defaults.maxYear = '';
-      defaults.publisher = '';
-      defaults.person = '';
-      defaults.place = '';
-      defaults.sort = 'relevance';
-    }
-
-    return defaults;
-  }
-
-  parseSearchOptions(params: URLSearchParams): SearchOptions {
-    const page = Number.parseInt(params.get('page') || '1', 10);
-    const fuzzy = params.get('fuzzy') !== 'false';
-    const wildcard = params.get('wildcard') !== 'false';
-
-    const filters: Record<string, unknown> = {
-      minYear: params.get('minYear'),
-      maxYear: params.get('maxYear'),
-      author: params.get('author') || undefined,
-      language: params.get('language') || undefined,
-      bookType: params.get('bookType') || undefined,
-      publisher: params.get('publisher') || undefined,
-      person: params.get('person') || undefined,
-      place: params.get('place') || undefined,
-      sort: params.get('sort') || undefined,
-    };
-
-    return {
-      page,
-      fuzzy,
-      wildcard,
-      filters,
-    };
   }
 
   /**

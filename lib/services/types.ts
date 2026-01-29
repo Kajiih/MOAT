@@ -5,7 +5,7 @@
 
 import { LucideIcon } from 'lucide-react';
 
-import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
+import { BoardCategory, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
 /**
  * Options passed to the search method.
@@ -52,8 +52,14 @@ export interface MediaUIConfig {
 
 /**
  * Core interface for any media provider (Music, Cinema, etc.).
+ * Focused purely on data fetching - all configuration comes from the media type registry.
  */
 export interface MediaService {
+  /**
+   * The category this service handles (music, cinema, book, etc.).
+   */
+  readonly category: BoardCategory;
+  
   /**
    * Searches for items in the provider's database.
    */
@@ -69,25 +75,4 @@ export interface MediaService {
    * Used to populate the SearchPanel tabs.
    */
   getSupportedTypes(): MediaType[];
-
-  /**
-   * Returns the UI configuration (icon, color, text formatters) for a type.
-   */
-  getUIConfig(type: MediaType): MediaUIConfig;
-
-  /**
-   * Returns the available filters for a specific media type.
-   */
-  getFilters(type: MediaType): FilterDefinition[];
-
-  /**
-   * Returns the default filter values for a specific media type.
-   */
-  getDefaultFilters(type: MediaType): Record<string, unknown>;
-
-  /**
-   * Maps raw URL query parameters to a structured SearchOptions object.
-   * Encapsulates service-specific parameter names and types.
-   */
-  parseSearchOptions(params: URLSearchParams): SearchOptions;
 }

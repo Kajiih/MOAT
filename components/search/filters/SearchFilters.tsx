@@ -8,6 +8,7 @@ import { MediaPicker } from '@/components/media/MediaPicker';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { SearchParamsState } from '@/components/search/hooks/useMediaSearch';
 import { getMediaService } from '@/lib/services/factory';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import { ArtistSelection, MediaSelection, MediaType } from '@/lib/types';
 
 import { AlbumFilters } from './AlbumFilters'; // Keep for now for music
@@ -45,9 +46,7 @@ export function SearchFilters({
   updateFilters,
   compact = false,
 }: SearchFiltersProps) {
-  const { state: { category } } = useTierListContext();
-  const service = getMediaService(category || 'music');
-  const dynamicFilters = service.getFilters(type);
+  const dynamicFilters = mediaTypeRegistry.get(type).filters;
 
   // Helper wrappers for Album filters (Special handling for MusicBrainz legacy filter components)
   const togglePrimaryType = (t: string) => {
