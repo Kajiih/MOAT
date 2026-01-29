@@ -31,10 +31,15 @@ export class OpenLibraryService implements MediaService {
       // Actually standard search API supports q=...&page=...
       
       const response = await fetch(searchUrl.toString());
-      if (!response.ok) throw new Error(`Open Library API Error: ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Open Library Author API Error ${response.status}:`, errorText);
+        throw new Error(`Open Library API Error: ${response.status}`);
+      }
       
       const data = await response.json();
       const results: MediaItem[] = (data.docs || []).map((doc: any) => {
+         if (!doc.key || !doc.name) return null;
          // doc.key is usually "OL123A"
          const item: AuthorItem = {
            id: doc.key,
@@ -45,7 +50,7 @@ export class OpenLibraryService implements MediaService {
            imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`
          };
          return item;
-      });
+      }).filter((item: any): item is AuthorItem => item !== null);
 
       return {
         results,
@@ -93,6 +98,17 @@ export class OpenLibraryService implements MediaService {
        finalQuery = finalQuery ? `${finalQuery} ${typeQuery}` : typeQuery;
     }
 
+    // Open Library requires q to be at least 3 characters.
+    // However, if we have an author filter, q can be empty or short.
+    // If q is present but too short (< 3), and we're only searching by q, it will return 422.
+    // We handle this by either not sending the request or padding if possible, 
+    // but better to just return empty if it's purely a short query.
+    const isShortQuery = finalQuery && finalQuery.length < 3;
+    
+    if (isShortQuery && !author) {
+       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+    }
+
     // Main query (if empty and we have an author filter, OpenLibrary handles it fine)
     if (finalQuery) {
       searchUrl.searchParams.set('q', finalQuery);
@@ -103,18 +119,23 @@ export class OpenLibraryService implements MediaService {
 
     searchUrl.searchParams.set('page', page.toString());
     searchUrl.searchParams.set('limit', limit.toString());
-    // Request specific fields to minimize payload
-    searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count');
+    // Request specific fields to minimize payload, but be careful not to exclude too much
+    searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count,subject');
 
     try {
       const response = await fetch(searchUrl.toString());
       if (!response.ok) {
+        // Log more info for 422 or other errors
+        const errorText = await response.text();
+        console.error(`Open Library API Error ${response.status}:`, errorText, 'URL:', searchUrl.toString());
         throw new Error(`Open Library API Error: ${response.status}`);
       }
 
       const data = await response.json();
       
       const results: MediaItem[] = (data.docs || []).map((doc: any) => {
+        if (!doc.key || !doc.title) return null;
+
         const id = doc.key.replace('/works/', ''); // Remove prefix for ID
         const author = doc.author_name ? doc.author_name[0] : 'Unknown Author';
         const year = doc.first_publish_year ? doc.first_publish_year.toString() : undefined;
@@ -134,7 +155,7 @@ export class OpenLibraryService implements MediaService {
           imageUrl,
         };
         return item;
-      });
+      }).filter((item: any): item is BookItem => item !== null);
 
       const totalCount = data.numFound || 0;
       const totalPages = Math.ceil(totalCount / limit);

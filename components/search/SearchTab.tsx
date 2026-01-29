@@ -133,14 +133,20 @@ export function SearchTab({
     return null;
   }
 
-  // Check if any filter is active (simplified check)
-  const hasActiveFilters =
-    filters.query ||
-    filters.selectedArtist ||
-    filters.selectedAlbum ||
-    filters.minYear ||
-    filters.maxYear ||
-    filters.tag;
+  // Check if any filter is active to show results or "No results found"
+  const hasActiveFilters = useMemo(() => {
+    return !!(
+      filters.query ||
+      filters.selectedArtist ||
+      filters.selectedAlbum ||
+      filters.selectedAuthor ||
+      filters.minYear ||
+      filters.maxYear ||
+      filters.tag ||
+      filters.bookType ||
+      filters.author
+    );
+  }, [filters]);
 
   const renderContent = () => {
     if (isSearching) {

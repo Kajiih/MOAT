@@ -187,33 +187,39 @@ export function useMediaSearch<T extends MediaType>(
   const searchUrl = useMemo(() => {
     if (!isEnabled) return null;
 
-    return getSearchUrl({
+    const params: any = {
       category: category || 'music',
       type,
       page: state.page,
       query: debouncedFilters.query,
-      artistId: forcedArtistId || state.selectedArtist?.id,
-      albumId: forcedAlbumId || state.selectedAlbum?.id,
-      minYear: ignoreFilters ? '' : debouncedFilters.minYear,
-      maxYear: ignoreFilters ? '' : debouncedFilters.maxYear,
-      albumPrimaryTypes: ignoreFilters ? [] : state.albumPrimaryTypes,
-      albumSecondaryTypes: ignoreFilters ? [] : state.albumSecondaryTypes,
-      artistType: ignoreFilters ? '' : state.artistType,
-      artistCountry: ignoreFilters ? '' : debouncedFilters.artistCountry,
-      tag: ignoreFilters ? '' : debouncedFilters.tag,
-      author: state.selectedAuthor ? state.selectedAuthor.name : (ignoreFilters ? '' : debouncedFilters.author),
-      bookType: ignoreFilters ? '' : state.bookType,
-      minDuration:
-        !ignoreFilters && debouncedFilters.minDuration
-          ? Number.parseInt(debouncedFilters.minDuration, 10)
-          : undefined,
-      maxDuration:
-        !ignoreFilters && debouncedFilters.maxDuration
-          ? Number.parseInt(debouncedFilters.maxDuration, 10)
-          : undefined,
       fuzzy: isFuzzy,
       wildcard: isWildcard,
-    });
+    };
+
+    if (category === 'music' || !category) {
+      params.artistId = forcedArtistId || state.selectedArtist?.id;
+      params.albumId = forcedAlbumId || state.selectedAlbum?.id;
+      params.minYear = ignoreFilters ? '' : debouncedFilters.minYear;
+      params.maxYear = ignoreFilters ? '' : debouncedFilters.maxYear;
+      params.albumPrimaryTypes = ignoreFilters ? [] : state.albumPrimaryTypes;
+      params.albumSecondaryTypes = ignoreFilters ? [] : state.albumSecondaryTypes;
+      params.artistType = ignoreFilters ? '' : state.artistType;
+      params.artistCountry = ignoreFilters ? '' : debouncedFilters.artistCountry;
+      params.tag = ignoreFilters ? '' : debouncedFilters.tag;
+      params.minDuration = !ignoreFilters && debouncedFilters.minDuration
+          ? Number.parseInt(debouncedFilters.minDuration, 10)
+          : undefined;
+      params.maxDuration = !ignoreFilters && debouncedFilters.maxDuration
+          ? Number.parseInt(debouncedFilters.maxDuration, 10)
+          : undefined;
+    } else if (category === 'book') {
+      params.minYear = ignoreFilters ? '' : debouncedFilters.minYear;
+      params.maxYear = ignoreFilters ? '' : debouncedFilters.maxYear;
+      params.author = state.selectedAuthor ? state.selectedAuthor.name : (ignoreFilters ? '' : debouncedFilters.author);
+      params.bookType = ignoreFilters ? '' : state.bookType;
+    }
+
+    return getSearchUrl(params);
   }, [
     isEnabled,
     category,
