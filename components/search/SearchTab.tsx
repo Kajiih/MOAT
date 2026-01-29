@@ -129,10 +129,6 @@ export function SearchTab({
     return sortedResults.filter((item: MediaItem) => !addedItemIds.has(item.id));
   }, [sortedResults, showAdded, addedItemIds]);
 
-  if (isHidden) {
-    return null;
-  }
-
   // Check if any filter is active to show results or "No results found"
   const hasActiveFilters = useMemo(() => {
     return !!(
@@ -147,6 +143,10 @@ export function SearchTab({
       filters.author
     );
   }, [filters]);
+
+  if (isHidden) {
+    return null;
+  }
 
   const renderContent = () => {
     if (isSearching) {
