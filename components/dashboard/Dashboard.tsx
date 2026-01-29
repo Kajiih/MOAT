@@ -72,7 +72,7 @@ const CreateBoardCard = ({
           <option value="music">🎵 Music</option>
           <option value="cinema">🎬 Cinema</option>
           <option value="game">🎮 Games (Coming Soon)</option>
-          <option value="book">📚 Books (Coming Soon)</option>
+          <option value="book">📚 Books</option>
         </select>
         <div className="mt-auto flex gap-2">
           <button

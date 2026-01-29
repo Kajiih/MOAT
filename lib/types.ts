@@ -144,6 +144,8 @@ export interface GameItem extends BaseMediaItem {
  */
 export interface BookItem extends BaseMediaItem {
   type: 'book';
+  /** The author(s) of the book. */
+  author: string;
 }
 
 /**

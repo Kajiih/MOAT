@@ -1,3 +1,5 @@
+-> We need to wait for spotify to allow creating new API keys for developers.
+
 Currently, it is not yet possible to directly sync with Spotify, but it is a highly feasible and valuable feature to add to Moat's roadmap.
 
 At the moment, the application is built around the MusicBrainz metadata pipeline. This ensures that every item on your board has rich, standardized data (tracklists, deep history, high-res fallback images) independently of any specific streaming service.

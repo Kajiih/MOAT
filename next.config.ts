@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'assets.fanart.tv' },
       { protocol: 'https', hostname: 'commons.wikimedia.org' },
       { protocol: 'https', hostname: 'image.tmdb.org' },
+      { protocol: 'https', hostname: 'covers.openlibrary.org' },
     ],
   },
   // We use unoptimized for the screenshot engine to bypass resizing/formatting during capture

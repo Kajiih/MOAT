@@ -5,9 +5,9 @@
  * @module MediaDefs
  */
 
-import { Clapperboard, Disc, LucideIcon, Music, Tv, User } from 'lucide-react';
+import { Book, Clapperboard, Disc, LucideIcon, Music, Tv, User } from 'lucide-react';
 
-import { AlbumItem, ArtistItem, MediaItem, MediaType, SongItem } from '@/lib/types';
+import { AlbumItem, ArtistItem, BookItem, MediaItem, MediaType, SongItem } from '@/lib/types';
 
 interface MediaUIConfig {
   label: string;
@@ -73,10 +73,10 @@ export const MEDIA_CONFIG: Record<MediaType, MediaUIConfig> = {
   },
   book: {
     label: 'Book',
-    Icon: Disc,
-    colorClass: 'text-blue-400',
-    getSubtitle: (_item) => '',
-    getTertiaryText: (_item) => '',
+    Icon: Book,
+    colorClass: 'text-amber-600',
+    getSubtitle: (item) => (item as BookItem).author || 'Unknown Author',
+    getTertiaryText: (item) => (item.year ? `(${item.year})` : ''),
   },
 };
 

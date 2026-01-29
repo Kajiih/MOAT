@@ -5,6 +5,7 @@
 
 import { BoardCategory } from '@/lib/types';
 
+import { OpenLibraryService } from './books/OpenLibraryService';
 import { TMDBService } from './cinema/TMDBService';
 import { MusicService } from './music/MusicService';
 import { MediaService } from './types';
@@ -12,6 +13,7 @@ import { MediaService } from './types';
 // Singleton instances to avoid recreation
 const musicService = new MusicService();
 const cinemaService = new TMDBService();
+const bookService = new OpenLibraryService();
 
 /**
  * Factory to get the appropriate MediaService for a given board category.
@@ -23,12 +25,13 @@ export function getMediaService(category: BoardCategory = 'music'): MediaService
     case 'music': {
       return musicService;
     }
-    // Future categories will be added here
     case 'cinema': {
       return cinemaService;
     }
-    case 'game':
     case 'book': {
+      return bookService;
+    }
+    case 'game': {
       throw new Error(`Service for category "${category}" is not implemented yet.`);
     }
     default: {
