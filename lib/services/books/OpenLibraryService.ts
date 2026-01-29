@@ -29,7 +29,22 @@ export class OpenLibraryService implements MediaService {
     
     // Build query
     const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search.json`);
-    searchUrl.searchParams.set('q', query);
+    
+    // Handle filters
+    const author = options.filters?.author as string | undefined;
+    
+    if (author) {
+      searchUrl.searchParams.set('author', author);
+    }
+
+    // Main query (if empty and we have an author filter, OpenLibrary handles it fine)
+    if (query) {
+      searchUrl.searchParams.set('q', query);
+    } else if (!author) {
+       // If no query and no author, return empty (standard behavior)
+       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+    }
+
     searchUrl.searchParams.set('page', page.toString());
     searchUrl.searchParams.set('limit', limit.toString());
     // Request specific fields to minimize payload

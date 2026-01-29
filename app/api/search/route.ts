@@ -36,6 +36,7 @@ export async function GET(request: Request) {
   const tag = searchParams.get('tag');
   const minDuration = searchParams.get('minDuration');
   const maxDuration = searchParams.get('maxDuration');
+  const author = searchParams.get('author');
 
   // Read Search Configuration (default to true if not specified)
   const fuzzy = searchParams.get('fuzzy') !== 'false';
@@ -56,7 +57,8 @@ export async function GET(request: Request) {
     !artistCountry &&
     !tag &&
     !minDuration &&
-    !maxDuration
+    !maxDuration &&
+    !author
   ) {
     return NextResponse.json({ results: [], page, totalPages: 0 });
   }
@@ -79,6 +81,7 @@ export async function GET(request: Request) {
         tag: tag || undefined,
         minDuration: minDuration ? Number.parseInt(minDuration, 10) : undefined,
         maxDuration: maxDuration ? Number.parseInt(maxDuration, 10) : undefined,
+        author: author || undefined,
       },
     });
 

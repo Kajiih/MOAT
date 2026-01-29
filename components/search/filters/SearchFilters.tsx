@@ -200,6 +200,21 @@ export function SearchFilters({
                 </div>
               );
           }
+          case 'author': {
+            return (
+              <div key={def.id}>
+                <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                  {def.label}
+                </div>
+                <input
+                  placeholder={def.placeholder}
+                  className={FILTER_INPUT_STYLES}
+                  value={filters.author}
+                  onChange={(e) => updateFilters({ author: e.target.value })}
+                />
+              </div>
+            );
+          }
           default: {
             return null;
           }

@@ -45,6 +45,8 @@ export interface SearchParams {
   fuzzy?: boolean;
   /** Whether to use wildcard partial matching. */
   wildcard?: boolean;
+  /** Filter by author (book). */
+  author?: string;
 }
 
 /**
@@ -71,6 +73,7 @@ export function getSearchUrl(params: SearchParams): string {
     'artistType',
     'artistCountry',
     'tag',
+    'author',
   ];
 
   for (const key of simpleParams) {

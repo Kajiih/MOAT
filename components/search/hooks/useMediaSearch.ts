@@ -63,6 +63,7 @@ export interface SearchParamsState {
   tag: string;
   minDuration: string;
   maxDuration: string;
+  author: string;
   page: number;
 }
 
@@ -79,6 +80,7 @@ const defaultState: SearchParamsState = {
   tag: '',
   minDuration: '',
   maxDuration: '',
+  author: '',
   page: 1,
 };
 
@@ -154,6 +156,7 @@ export function useMediaSearch<T extends MediaType>(
       tag: state.tag,
       minDuration: state.minDuration,
       maxDuration: state.maxDuration,
+      author: state.author,
     },
     300,
   );
@@ -192,6 +195,7 @@ export function useMediaSearch<T extends MediaType>(
       artistType: ignoreFilters ? '' : state.artistType,
       artistCountry: ignoreFilters ? '' : debouncedFilters.artistCountry,
       tag: ignoreFilters ? '' : debouncedFilters.tag,
+      author: ignoreFilters ? '' : debouncedFilters.author,
       minDuration:
         !ignoreFilters && debouncedFilters.minDuration
           ? Number.parseInt(debouncedFilters.minDuration, 10)
