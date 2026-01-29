@@ -195,11 +195,39 @@ export class TMDBService implements MediaService {
   }
 
   private getMockDetails(id: string, type: MediaType): MediaDetails {
-      return {
-          id, 
-          mbid: id,
-          type,
-          date: '2025-01-01',
-      };
+    return {
+      id,
+      mbid: id,
+      type,
+      date: '2025-01-01',
+    };
+  }
+
+  getDefaultFilters(_type: MediaType): Record<string, unknown> {
+    return {
+      query: '',
+      minYear: '',
+      maxYear: '',
+      tag: '',
+    };
+  }
+
+  parseSearchOptions(params: URLSearchParams): SearchOptions {
+    const page = Number.parseInt(params.get('page') || '1', 10);
+    const fuzzy = params.get('fuzzy') !== 'false';
+    const wildcard = params.get('wildcard') !== 'false';
+
+    const filters: Record<string, unknown> = {
+      minYear: params.get('minYear'),
+      maxYear: params.get('maxYear'),
+      tag: params.get('tag') || undefined,
+    };
+
+    return {
+      page,
+      fuzzy,
+      wildcard,
+      filters,
+    };
   }
 }

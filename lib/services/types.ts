@@ -29,6 +29,8 @@ export type FilterType = 'text' | 'range' | 'select' | 'picker' | 'toggle-group'
  */
 export interface FilterDefinition {
   id: string;
+  /** The key used in the URL query string (defaults to id). */
+  paramName?: string;
   label: string;
   type: FilterType;
   placeholder?: string;
@@ -77,4 +79,15 @@ export interface MediaService {
    * Returns the available filters for a specific media type.
    */
   getFilters(type: MediaType): FilterDefinition[];
+
+  /**
+   * Returns the default filter values for a specific media type.
+   */
+  getDefaultFilters(type: MediaType): Record<string, unknown>;
+
+  /**
+   * Maps raw URL query parameters to a structured SearchOptions object.
+   * Encapsulates service-specific parameter names and types.
+   */
+  parseSearchOptions(params: URLSearchParams): SearchOptions;
 }

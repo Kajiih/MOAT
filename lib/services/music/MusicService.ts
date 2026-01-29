@@ -68,6 +68,7 @@ export class MusicService implements MediaService {
     if (type !== 'artist') {
       filters.push({
         id: 'selectedArtist',
+        paramName: 'artistId',
         label: 'Filter by Artist',
         type: 'picker',
         pickerType: 'artist',
@@ -76,6 +77,7 @@ export class MusicService implements MediaService {
       if (type === 'song') {
         filters.push({
           id: 'selectedAlbum',
+          paramName: 'albumId',
           label: 'Filter by Album',
           type: 'picker',
           pickerType: 'album',
@@ -144,5 +146,67 @@ export class MusicService implements MediaService {
     }
 
     return filters;
+  }
+
+  getDefaultFilters(type: MediaType): Record<string, unknown> {
+    const defaults: Record<string, unknown> = {
+      query: '',
+    };
+
+    if (type !== 'artist') {
+      defaults.selectedArtist = null;
+      if (type === 'song') {
+        defaults.selectedAlbum = null;
+      }
+    }
+
+    // Common
+    defaults.minYear = '';
+    defaults.maxYear = '';
+    defaults.tag = '';
+
+    if (type === 'artist') {
+      defaults.artistType = '';
+      defaults.artistCountry = '';
+    }
+
+    if (type === 'album') {
+      defaults.albumPrimaryTypes = ['Album', 'EP'];
+      defaults.albumSecondaryTypes = [];
+    }
+
+    if (type === 'song') {
+      defaults.minDuration = '';
+      defaults.maxDuration = '';
+    }
+
+    return defaults;
+  }
+
+  parseSearchOptions(params: URLSearchParams): SearchOptions {
+    const page = Number.parseInt(params.get('page') || '1', 10);
+    const fuzzy = params.get('fuzzy') !== 'false';
+    const wildcard = params.get('wildcard') !== 'false';
+
+    const filters: Record<string, unknown> = {
+      artistId: params.get('artistId'),
+      albumId: params.get('albumId'),
+      minYear: params.get('minYear'),
+      maxYear: params.get('maxYear'),
+      albumPrimaryTypes: params.getAll('albumPrimaryTypes'),
+      albumSecondaryTypes: params.getAll('albumSecondaryTypes'),
+      artistType: params.get('artistType') || undefined,
+      artistCountry: params.get('artistCountry') || undefined,
+      tag: params.get('tag') || undefined,
+      minDuration: params.get('minDuration') ? Number.parseInt(params.get('minDuration')!, 10) : undefined,
+      maxDuration: params.get('maxDuration') ? Number.parseInt(params.get('maxDuration')!, 10) : undefined,
+    };
+
+    return {
+      page,
+      fuzzy,
+      wildcard,
+      filters,
+    };
   }
 }

@@ -16,11 +16,10 @@ import { useTierListContext } from '@/components/providers/TierListContext';
 import { getSearchUrl } from '@/lib/api';
 import { swrFetcher } from '@/lib/api/fetcher';
 import { usePersistentState } from '@/lib/hooks';
+import { getMediaService } from '@/lib/services/factory';
 import {
   AlbumItem,
-  AlbumSelection,
   ArtistItem,
-  ArtistSelection,
   AuthorItem,
   BookItem,
   GameItem,
@@ -49,46 +48,13 @@ type MediaItemMap = {
 };
 
 /**
- * Represents the full state of search filters and pagination.
- * This structure is broad to accommodate multiple services.
+ * Generic search state including query, pagination and service-specific filters.
  */
 export interface SearchParamsState {
   query: string;
-  selectedArtist: ArtistSelection | null;
-  selectedAlbum: AlbumSelection | null;
-  selectedAuthor: ArtistSelection | null;
-  minYear: string;
-  maxYear: string;
-  albumPrimaryTypes: string[];
-  albumSecondaryTypes: string[];
-  artistType: string;
-  artistCountry: string;
-  tag: string;
-  minDuration: string;
-  maxDuration: string;
-  author: string;
-  bookType: string;
   page: number;
+  [key: string]: unknown; // Catch-all for dynamic filters
 }
-
-const defaultState: SearchParamsState = {
-  query: '',
-  selectedArtist: null,
-  selectedAlbum: null,
-  selectedAuthor: null,
-  minYear: '',
-  maxYear: '',
-  albumPrimaryTypes: ['Album', 'EP'],
-  albumSecondaryTypes: [],
-  artistType: '',
-  artistCountry: '',
-  tag: '',
-  minDuration: '',
-  maxDuration: '',
-  author: '',
-  bookType: '',
-  page: 1,
-};
 
 /**
  * Configuration options for the useMediaSearch hook.
@@ -139,6 +105,15 @@ export function useMediaSearch<T extends MediaType>(
     state: { category },
   } = useTierListContext();
 
+  const service = useMemo(() => getMediaService(category || 'music'), [category]);
+  const defaultState = useMemo(() => {
+    return {
+      query: '',
+      page: 1,
+      ...service.getDefaultFilters(type),
+    } as SearchParamsState;
+  }, [service, type]);
+
   const storageKey = config?.storageKey || `moat-search-params-${type}`;
   const [state, setState] = usePersistentState<SearchParamsState>(storageKey, defaultState);
 
@@ -148,26 +123,12 @@ export function useMediaSearch<T extends MediaType>(
   const isFuzzy = config?.fuzzy ?? internalFuzzy;
   const isWildcard = config?.wildcard ?? internalWildcard;
   const isEnabled = config?.enabled ?? true;
-  const forcedArtistId = config?.artistId;
-  const forcedAlbumId = config?.albumId;
   const ignoreFilters = config?.ignoreFilters ?? false;
   const prefetchEnabled = config?.prefetchEnabled ?? true;
 
-  const [debouncedFilters, controlFilters] = useDebounce(
-    {
-      query: state.query,
-      minYear: state.minYear,
-      maxYear: state.maxYear,
-      artistCountry: state.artistCountry,
-      tag: state.tag,
-      minDuration: state.minDuration,
-      maxDuration: state.maxDuration,
-      author: state.author,
-    },
-    300,
-  );
-
-  const searchNow = () => controlFilters.flush();
+  // Debounce the entire state for search
+  const [debouncedState, control] = useDebounce(state, 300);
+  const searchNow = () => control.flush();
 
   const updateFilters = useCallback(
     (patch: Partial<SearchParamsState>) => {
@@ -187,51 +148,43 @@ export function useMediaSearch<T extends MediaType>(
   const searchUrl = useMemo(() => {
     if (!isEnabled) return null;
 
-    const params: any = {
-      category: category || 'music',
-      type,
-      page: state.page,
-      query: debouncedFilters.query,
+    const { query, page, ...rest } = debouncedState;
+    const filters: Record<string, any> = {
+      query,
+      page,
       fuzzy: isFuzzy,
       wildcard: isWildcard,
     };
 
-    if (category === 'music' || !category) {
-      params.artistId = forcedArtistId || state.selectedArtist?.id;
-      params.albumId = forcedAlbumId || state.selectedAlbum?.id;
-      params.minYear = ignoreFilters ? '' : debouncedFilters.minYear;
-      params.maxYear = ignoreFilters ? '' : debouncedFilters.maxYear;
-      params.albumPrimaryTypes = ignoreFilters ? [] : state.albumPrimaryTypes;
-      params.albumSecondaryTypes = ignoreFilters ? [] : state.albumSecondaryTypes;
-      params.artistType = ignoreFilters ? '' : state.artistType;
-      params.artistCountry = ignoreFilters ? '' : debouncedFilters.artistCountry;
-      params.tag = ignoreFilters ? '' : debouncedFilters.tag;
-      params.minDuration = !ignoreFilters && debouncedFilters.minDuration
-          ? Number.parseInt(debouncedFilters.minDuration, 10)
-          : undefined;
-      params.maxDuration = !ignoreFilters && debouncedFilters.maxDuration
-          ? Number.parseInt(debouncedFilters.maxDuration, 10)
-          : undefined;
-    } else if (category === 'book') {
-      params.minYear = ignoreFilters ? '' : debouncedFilters.minYear;
-      params.maxYear = ignoreFilters ? '' : debouncedFilters.maxYear;
-      params.author = state.selectedAuthor ? state.selectedAuthor.name : (ignoreFilters ? '' : debouncedFilters.author);
-      params.bookType = ignoreFilters ? '' : state.bookType;
+    if (!ignoreFilters) {
+      const filterDefs = service.getFilters(type);
+      
+      Object.entries(rest).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === '') return;
+
+        const def = filterDefs.find(d => d.id === key);
+        const pName = def?.paramName || key;
+
+        if (def?.type === 'picker') {
+          // Special handling for pickers to extract the value
+          const pickerVal = value as { id?: string; name?: string } | null;
+          if (key === 'selectedAuthor') {
+            if (pickerVal?.name) filters[pName] = pickerVal.name;
+          } else {
+            if (pickerVal?.id) filters[pName] = pickerVal.id;
+          }
+        } else {
+          filters[pName] = value as string | number | boolean;
+        }
+      });
     }
 
-    return getSearchUrl(params);
-  }, [
-    isEnabled,
-    category,
-    type,
-    state,
-    debouncedFilters,
-    forcedArtistId,
-    forcedAlbumId,
-    ignoreFilters,
-    isFuzzy,
-    isWildcard,
-  ]);
+    // Force overrides from config
+    if (config?.artistId) filters.artistId = config.artistId;
+    if (config?.albumId) filters.albumId = config.albumId;
+
+    return getSearchUrl(category || 'music', type, filters);
+  }, [isEnabled, debouncedState, isFuzzy, isWildcard, ignoreFilters, category, type, config]);
 
   const { data, error, isLoading, isValidating } = useSWR<
     SearchResult,
@@ -251,17 +204,13 @@ export function useMediaSearch<T extends MediaType>(
   // Prefetching
   useEffect(() => {
     if (prefetchEnabled && data && state.page < data.totalPages && searchUrl) {
-      // Need to construct next page URL
-      const currentUrl = new URL(searchUrl, 'http://localhost'); // Dummy base for relative URL parsing
+      const currentUrl = new URL(searchUrl, 'http://localhost');
       currentUrl.searchParams.set('page', (state.page + 1).toString());
-      // Re-extract the relative path + query
       const nextUrl = currentUrl.pathname + currentUrl.search;
       preload(nextUrl, swrFetcher);
     }
   }, [data, state.page, searchUrl, prefetchEnabled]);
 
-  // Debug: Search Prefetch Monitor
-  // Use imperative updates to ensure Leva stays in sync
   const [, setPrefetchStats] = useControls(
     'Debug',
     () => ({
@@ -274,16 +223,8 @@ export function useMediaSearch<T extends MediaType>(
         { collapsed: true },
       ),
     }),
-    [type],
+    [type, prefetchEnabled, state.page, data?.totalPages],
   );
-
-  useEffect(() => {
-    setPrefetchStats({
-      'Prefetch Enabled': prefetchEnabled,
-      'Current Page': state.page,
-      'Total Pages': data?.totalPages || 0,
-    });
-  }, [setPrefetchStats, prefetchEnabled, state.page, data?.totalPages]);
 
   return {
     filters: state,

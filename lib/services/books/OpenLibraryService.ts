@@ -240,6 +240,7 @@ export class OpenLibraryService implements MediaService {
     return [
       {
         id: 'selectedAuthor',
+        paramName: 'author',
         label: 'Filter by Author',
         type: 'picker',
         pickerType: 'author',
@@ -264,5 +265,40 @@ export class OpenLibraryService implements MediaService {
         ],
       },
     ];
+  }
+
+  getDefaultFilters(type: MediaType): Record<string, unknown> {
+    const defaults: Record<string, unknown> = {
+      query: '',
+    };
+
+    if (type === 'book') {
+      defaults.selectedAuthor = null;
+      defaults.minYear = '';
+      defaults.maxYear = '';
+      defaults.bookType = '';
+    }
+
+    return defaults;
+  }
+
+  parseSearchOptions(params: URLSearchParams): SearchOptions {
+    const page = Number.parseInt(params.get('page') || '1', 10);
+    const fuzzy = params.get('fuzzy') !== 'false';
+    const wildcard = params.get('wildcard') !== 'false';
+
+    const filters: Record<string, unknown> = {
+      minYear: params.get('minYear'),
+      maxYear: params.get('maxYear'),
+      author: params.get('author') || undefined,
+      bookType: params.get('bookType') || undefined,
+    };
+
+    return {
+      page,
+      fuzzy,
+      wildcard,
+      filters,
+    };
   }
 }

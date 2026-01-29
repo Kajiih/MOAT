@@ -22,72 +22,18 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = (searchParams.get('category') as BoardCategory) || 'music';
   const type = (searchParams.get('type') as MediaType) || 'album';
-  const queryParam = searchParams.get('query') || '';
-  const artistIdParam = searchParams.get('artistId');
-  const albumIdParam = searchParams.get('albumId');
-  const minYear = searchParams.get('minYear');
-  const maxYear = searchParams.get('maxYear');
-
-  const albumPrimaryTypes = searchParams.getAll('albumPrimaryTypes');
-  const albumSecondaryTypes = searchParams.getAll('albumSecondaryTypes');
-
-  const artistType = searchParams.get('artistType');
-  const artistCountry = searchParams.get('artistCountry');
-  const tag = searchParams.get('tag');
-  const minDuration = searchParams.get('minDuration');
-  const maxDuration = searchParams.get('maxDuration');
-  const author = searchParams.get('author');
-  const bookType = searchParams.get('bookType');
-
-  // Read Search Configuration (default to true if not specified)
-  const fuzzy = searchParams.get('fuzzy') !== 'false';
-  const wildcard = searchParams.get('wildcard') !== 'false';
-
-  const page = Number.parseInt(searchParams.get('page') || '1', 10);
-
-  // If no main filters, return empty
-  if (
-    !queryParam &&
-    !artistIdParam &&
-    !albumIdParam &&
-    !minYear &&
-    !maxYear &&
-    albumPrimaryTypes.length === 0 &&
-    albumSecondaryTypes.length === 0 &&
-    !artistType &&
-    !artistCountry &&
-    !tag &&
-    !minDuration &&
-    !maxDuration &&
-    !author &&
-    !bookType
-  ) {
-    return NextResponse.json({ results: [], page, totalPages: 0 });
-  }
+  const query = searchParams.get('query') || '';
 
   try {
     const service = getMediaService(category);
-    const result = await service.search(queryParam, type, {
-      page,
-      fuzzy,
-      wildcard,
-      filters: {
-        artistId: artistIdParam,
-        albumId: albumIdParam,
-        minYear,
-        maxYear,
-        albumPrimaryTypes,
-        albumSecondaryTypes,
-        artistType: artistType || undefined,
-        artistCountry: artistCountry || undefined,
-        tag: tag || undefined,
-        minDuration: minDuration ? Number.parseInt(minDuration, 10) : undefined,
-        maxDuration: maxDuration ? Number.parseInt(maxDuration, 10) : undefined,
-        author: author || undefined,
-        bookType: bookType || undefined,
-      },
-    });
+    const options = service.parseSearchOptions(searchParams);
+    
+    // Quick exit if no search intent
+    if (!query && Object.values(options.filters || {}).every(v => !v || (Array.isArray(v) && v.length === 0))) {
+      return NextResponse.json({ results: [], page: options.page || 1, totalPages: 0 });
+    }
 
+    const result = await service.search(query, type, options);
     return NextResponse.json(result);
   } catch (error: unknown) {
     logger.error({ error }, 'Error in search API');

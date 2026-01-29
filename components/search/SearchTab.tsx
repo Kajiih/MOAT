@@ -131,17 +131,12 @@ export function SearchTab({
 
   // Check if any filter is active to show results or "No results found"
   const hasActiveFilters = useMemo(() => {
-    return !!(
-      filters.query ||
-      filters.selectedArtist ||
-      filters.selectedAlbum ||
-      filters.selectedAuthor ||
-      filters.minYear ||
-      filters.maxYear ||
-      filters.tag ||
-      filters.bookType ||
-      filters.author
-    );
+    return Object.entries(filters).some(([key, value]) => {
+      if (key === 'page') return false;
+      if (!value) return false;
+      if (Array.isArray(value)) return value.length > 0;
+      return true;
+    });
   }, [filters]);
 
   if (isHidden) {
