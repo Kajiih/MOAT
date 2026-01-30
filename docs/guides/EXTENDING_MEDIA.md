@@ -140,7 +140,56 @@ export class IGDBService implements MediaService {
 }
 ```
 
-### Step 2: Register the Service Factory
+### Step 2: Test your Service
+
+We use a **Fake Server** pattern with **MSW**. Never mock internal functions of your service; instead, simulate the API it talks to.
+
+#### 1. Create Mock Handlers
+Create `lib/services/games/mocks/handlers.ts`. Define a `fakeDb` and handlers that parse query parameters.
+
+```typescript
+import { http, HttpResponse } from 'msw';
+
+const BASE_URL = 'https://api.igdb.com';
+
+export const handlers = [
+  http.get(`${BASE_URL}/games`, ({ request }) => {
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
+
+    const fakeGames = [{ id: '1', name: 'Zelda' }];
+    const matches = fakeGames.filter(g => g.name.toLowerCase().includes(search));
+
+    return HttpResponse.json(matches);
+  })
+];
+```
+
+#### 2. Create the Test Suite
+Create `lib/services/games/IGDBService.test.ts`.
+
+```typescript
+import { setupServer } from 'msw/node';
+import { handlers } from './mocks/handlers';
+import { IGDBService } from './IGDBService';
+
+const server = setupServer(...handlers);
+
+describe('IGDBService Integration', () => {
+  const service = new IGDBService();
+
+  beforeAll(() => server.listen());
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+
+  it('should find games by search query', async () => {
+    const result = await service.search('Zelda', 'game');
+    expect(result.results[0].title).toBe('Zelda');
+  });
+});
+```
+
+### Step 3: Register the Service Factory
 Open `lib/services/factory.ts` and instantiate your service.
 
 ```typescript

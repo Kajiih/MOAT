@@ -9,7 +9,6 @@
 import { logger } from '@/lib/logger';
 import { MB_BASE_URL, USER_AGENT } from '@/lib/services/musicbrainz/config';
 
-const FANART_API_KEY = process.env.FANART_API_KEY;
 const FANART_BASE_URL = 'https://webservice.fanart.tv/v3/music';
 const WIKIDATA_API_URL = 'https://www.wikidata.org/w/api.php';
 const WIKIMEDIA_FILE_PATH_URL = 'https://commons.wikimedia.org/wiki/Special:FilePath';
@@ -28,10 +27,11 @@ function getWikimediaUrl(fileName: string, width: number = 500): string {
 /**
  * Constructs a Fanart.tv API URL.
  * @param mbid - The MusicBrainz ID of the artist.
+ * @param apiKey - The Fanart.tv API key.
  * @returns The Fanart.tv API URL.
  */
-function getFanartApiUrl(mbid: string): string {
-  return `${FANART_BASE_URL}/${mbid}?api_key=${FANART_API_KEY}`;
+function getFanartApiUrl(mbid: string, apiKey: string): string {
+  return `${FANART_BASE_URL}/${mbid}?api_key=${apiKey}`;
 }
 
 /**
@@ -49,9 +49,10 @@ function getFanartPreviewUrl(url: string): string {
  * @returns A promise that resolves to the image URL or undefined.
  */
 export async function getFanartImage(mbid: string): Promise<string | undefined> {
-  if (!FANART_API_KEY) return undefined;
+  const apiKey = process.env.FANART_API_KEY;
+  if (!apiKey) return undefined;
   try {
-    const res = await fetch(getFanartApiUrl(mbid), {
+    const res = await fetch(getFanartApiUrl(mbid, apiKey), {
       next: { revalidate: IMAGE_CACHE_TTL },
     });
     if (!res.ok) return undefined;

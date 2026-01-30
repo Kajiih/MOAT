@@ -79,5 +79,15 @@ describe('OpenLibraryService Integration (Fake Server)', () => {
     await expect(service.search('broken', 'book'))
       .rejects.toThrow('Open Library API Error: 500');
   });
+
+  it('should fetch book details correctly', async () => {
+    const details = await service.getDetails('OL1W', 'book');
+    
+    expect(details.id).toBe('OL1W');
+    expect(details.description).toBe('A great journey begins.');
+    expect(details.tags).toContain('Fantasy');
+  });
 });
+
+
 

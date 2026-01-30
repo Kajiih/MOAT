@@ -8,7 +8,6 @@ import { logger } from '@/lib/logger';
 import { MediaService, SearchOptions } from '@/lib/services/types';
 import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -33,14 +32,19 @@ interface TMDBDetails extends TMDBResult {
 export class TMDBService implements MediaService {
   readonly category = 'cinema' as const;
   
+  private getApiKey(): string {
+    return process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
+  }
+
   private async fetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
-    if (!TMDB_API_KEY) {
-        logger.warn('TMDB_API_KEY is missing. Returning null to trigger mock fallback.');
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+        logger.warn('TMDB_API_KEY is missing.');
         return null;
     }
 
     const query = new URLSearchParams(params);
-    query.append('api_key', TMDB_API_KEY);
+    query.append('api_key', apiKey);
     
     const res = await fetch(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`);
     if (!res.ok) throw new Error(`TMDB API Error: ${res.statusText}`);
@@ -54,8 +58,8 @@ export class TMDBService implements MediaService {
   ): Promise<SearchResult> {
     const page = options.page || 1;
     
-    if (!TMDB_API_KEY) {
-       return this.getMockSearch(query, type);
+    if (!this.getApiKey()) {
+       throw new Error('TMDB_API_KEY is missing');
     }
 
     let endpoint = '';
@@ -84,7 +88,9 @@ export class TMDBService implements MediaService {
       total_results: number;
     }>(endpoint, { query, page: page.toString() });
     
-    if (!data) return this.getMockSearch(query, type);
+    if (!data) {
+      return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+    }
 
     return {
       results: data.results.map((item) => this.mapToMediaItem(item, type)),
@@ -95,24 +101,24 @@ export class TMDBService implements MediaService {
   }
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
-    if (!TMDB_API_KEY) {
-        return this.getMockDetails(id, type);
+    if (!this.getApiKey()) {
+        throw new Error('TMDB_API_KEY is missing');
     }
     
     let pathType: string;
     switch (type) {
-      case 'movie': { pathType = 'movie'; break;
-      }
-      case 'tv': { pathType = 'tv'; break;
-      }
-      default: { pathType = 'person';
-      }
+      case 'movie': { pathType = 'movie'; break; }
+      case 'tv': { pathType = 'tv'; break; }
+      case 'person': { pathType = 'person'; break; }
+      default: { pathType = 'person'; }
     }
 
     const endpoint = `/${pathType}/${id}`;
     const data = await this.fetch<TMDBDetails>(endpoint);
 
-    if (!data) return this.getMockDetails(id, type);
+    if (!data) {
+      throw new Error(`Details not found for ${type} ${id}`);
+    }
 
     const rawImageUrl = data.poster_path || data.profile_path;
 
@@ -142,53 +148,13 @@ export class TMDBService implements MediaService {
     };
 
     switch (type) {
-      case 'movie': { return { ...base, type: 'movie' };
-      }
-      case 'tv': { return { ...base, type: 'tv' };
-      }
-      case 'person': { return { ...base, type: 'person' };
-      }
+      case 'movie': { return { ...base, type: 'movie' }; }
+      case 'tv': { return { ...base, type: 'tv' }; }
+      case 'person': { return { ...base, type: 'person' }; }
       default: {
         throw new Error(`Unsupported type: ${type}`);
       }
     }
-  }
-
-  // --- MOCKS ---
-  private getMockSearch(query: string, type: MediaType): SearchResult {
-      const mockResults: MediaItem[] = [];
-      for (let i = 1; i <= 5; i++) {
-        let titlePrefix = 'Mock Person';
-        if (type === 'movie') titlePrefix = 'Mock Movie';
-        else if (type === 'tv') titlePrefix = 'Mock Show';
-
-        const base = {
-          id: `mock-${type}-${i}`,
-          mbid: `mock-${type}-${i}`,
-          title: `${titlePrefix} ${i} (${query})`,
-          year: '2025',
-          imageUrl: '',
-        };
-          
-          switch (type) {
-            case 'movie': { mockResults.push({ ...base, type: 'movie' }); break;
-            }
-            case 'tv': { mockResults.push({ ...base, type: 'tv' }); break;
-            }
-            case 'person': { mockResults.push({ ...base, type: 'person' }); break;
-            }
-          }
-      }
-      return { results: mockResults, page: 1, totalPages: 1, totalCount: 5 };
-  }
-
-  private getMockDetails(id: string, type: MediaType): MediaDetails {
-    return {
-      id,
-      mbid: id,
-      type,
-      date: '2025-01-01',
-    };
   }
 
   getDefaultFilters(_type: MediaType): Record<string, unknown> {

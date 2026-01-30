@@ -39,6 +39,7 @@ export const handlers = [
     // We strictly parse the Lucene syntax to verify filter application.
     
     if (type === 'recording') {
+      const offset = Number.parseInt(url.searchParams.get('offset') || '0', 10);
       matches = fakeDb.recordings.filter(song => {
         // If query has 'arid:xyz', this song must match that artistId
         if (query.includes('arid:') && !query.includes(`arid:${song.artistId}`)) return false;
@@ -79,7 +80,7 @@ export const handlers = [
       return HttpResponse.json({
         created: new Date().toISOString(),
         count: matches.length,
-        offset: 0,
+        offset,
         recordings: matches.map(m => ({
           id: m.id,
           title: m.title,

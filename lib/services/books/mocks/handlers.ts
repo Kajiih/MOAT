@@ -138,6 +138,22 @@ export const handlers = [
         birth_date: m.birth_date
       }))
     });
+  }),
+
+  // Mock Work Details
+  http.get(`${OL_BASE}/works/:id.json`, ({ params }) => {
+    if (params.id === 'OL1W') {
+      return HttpResponse.json({
+        key: '/works/OL1W',
+        title: 'The Fellowship of the Ring',
+        covers: [123456],
+        description: 'A great journey begins.',
+        subjects: ['Fantasy', 'Adventure'],
+        first_publish_date: 'July 29, 1954'
+      });
+    }
+    return new HttpResponse(null, { status: 404 });
   })
 ];
+
 
