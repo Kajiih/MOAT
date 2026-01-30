@@ -13,7 +13,7 @@ import React from 'react';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { useUserPreferences } from '@/components/providers/UserPreferencesProvider';
 import { usePersistentState } from '@/lib/hooks';
-import { getMediaService } from '@/lib/services/factory';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaType } from '@/lib/types';
 
 import { SearchSettings } from './SearchSettings';
@@ -37,10 +37,11 @@ export function SearchPanel() {
   } = useTierListContext();
 
   const { showAdvanced } = useUserPreferences();
-
-  // Get service for current category
-  const service = getMediaService(category || 'music');
-  const supportedTypes = service.getSupportedTypes();
+  
+  // Get supported types for current category from registry
+  const supportedTypes = mediaTypeRegistry
+    .getByCategory(category || 'music')
+    .map((def) => def.id);
 
   const [activeType, setActiveType] = usePersistentState<MediaType>(
     `moat-search-active-type-${category || 'music'}`, // Namespace by category
@@ -92,8 +93,8 @@ export function SearchPanel() {
 
       <div className="mb-4 flex shrink-0 gap-1 rounded-lg border border-neutral-800 bg-black p-1">
         {supportedTypes.map((type: MediaType) => {
-          const config = service.getUIConfig(type);
-          const Icon = config.Icon;
+          const config = mediaTypeRegistry.get(type);
+          const Icon = config.icon;
           const isActive = activeType === type;
 
           return (

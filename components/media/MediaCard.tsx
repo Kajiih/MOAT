@@ -17,7 +17,7 @@ import { useState } from 'react';
 
 import { useInteraction } from '@/components/ui/InteractionContext';
 import { failedImages } from '@/lib/image-cache';
-import { getMediaUI } from '@/lib/media-defs';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaItem } from '@/lib/types';
 
 /**
@@ -203,7 +203,8 @@ function BaseMediaCard({
   resolvedUrl,
 }: BaseMediaCardProps) {
   const interaction = useInteraction();
-  const { Icon: TypeIcon, getSubtitle, getTertiaryText } = getMediaUI(item.type);
+  const definition = mediaTypeRegistry.get(item.type);
+  const { icon: TypeIcon, getSubtitle, getTertiaryText } = definition;
 
   if (isDragging) {
     return (

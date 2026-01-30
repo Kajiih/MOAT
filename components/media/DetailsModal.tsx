@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { useMediaDetails } from '@/lib/hooks';
 import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
-import { getMediaUI } from '@/lib/media-defs';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaItem } from '@/lib/types';
 import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
 
@@ -93,8 +93,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
   const hasImage = enrichedItem.imageUrl && !imageError;
 
-  const uiConfig = getMediaUI(enrichedItem.type);
-  const PlaceholderIcon = uiConfig.Icon;
+  const definition = mediaTypeRegistry.get(enrichedItem.type);
+  const PlaceholderIcon = definition.icon;
 
   const handleImageError = () => {
     if (!retryUnoptimized) {
@@ -160,7 +160,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                 {enrichedItem.title}
               </h2>
               <div className="mt-1 flex items-center gap-2 text-neutral-300">
-                <uiConfig.Icon size={16} className={uiConfig.colorClass} />
+                <definition.icon size={16} className={definition.colorClass} />
                 <span className="font-medium">
                   {('artist' in enrichedItem && enrichedItem.artist) ||
                    ('author' in enrichedItem && enrichedItem.author) ||
