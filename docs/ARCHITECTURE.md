@@ -62,8 +62,12 @@
 
 #### Media Services
 
-- **MusicBrainz**: `MusicBrainzService` for music metadata.
-- **TMDB**: `TMDBService` for movie and TV show metadata.
+- **Architecture**: Registry-based abstraction.
+- **Registry**: `MediaTypeRegistry` for centralized configuration (UI, filters, sorting).
+- **Services**: Pure API adapters for fetching data.
+  - **Music**: `MusicService` (MusicBrainz)
+  - **Cinema**: `TMDBService` (TMDB)
+  - **Books**: `OpenLibraryService` (Open Library)
 
 ### 2. State & Data Flow Strategy
 
@@ -107,15 +111,24 @@
 - **Synergy Pattern**:
   - Updates flow bidirectionally: If the background hook finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
-### 3. Service Layer (Backend)
+### 3. Media Architecture (Registry & Services)
 
-The backend logic handling MusicBrainz interactions is modularized into a Service Layer (`lib/services/musicbrainz/`).
+The application uses a **Registry-based Architecture** to manage diverse media types.
 
-- **Modules**:
-  - `client.ts`: The HTTP client wrapping `fetch`. Handles `User-Agent` headers and implements automatic retries for **503 Service Unavailable** errors (rate limiting).
-  - `query-builder.ts`: A pure logic module that translates internal filter objects (tags, year ranges, types) into Lucene-syntax query strings required by MusicBrainz.
-  - `search.ts`: Orchestrates the search flow: Query Build -> Fetch -> Validation (Zod) -> Mapping (Domain Types).
-  - `details.ts`: Handles deep metadata fetching, including resolving `release-group` to specific `release` entities for tracklists.
+#### A. Media Type Registry (`lib/media-types/`)
+The central authority for "What a media type is".
+- **Definitions**: JSON-like configuration files defining:
+  - Identity (ID, label, icon)
+  - UI Config (colors, subtitle formatters)
+  - Filters (definitions for text, select, range, etc.)
+  - Sort Options
+- **Registry**: Exposes a unified API (`get(type)`, `getByCategory(cat)`) for consumers.
+
+#### B. Service Layer (`lib/services/`)
+Pure **API Adapters** responsible for "How to fetch data".
+- **Responsibility**: Fetching data from external APIs and mapping it to the internal `MediaItem` schema.
+- **Interface**: All services implement `MediaService` (search, getDetails, category).
+- **Isolation**: Services contain NO UI or Filter configuration logic.
 
 ### 4. Performance & Optimization
 
@@ -172,8 +185,9 @@ The backend logic handling MusicBrainz interactions is modularized into a Servic
 - **Semantic Color Palette**: defined in `lib/colors.ts`, mapping abstract IDs (e.g., 'red', 'amber') to specific Tailwind CSS classes and Hex values.
 - **Dynamic Branding**: The `useBrandColors` and `useDynamicFavicon` hooks extract the top 4 tier colors to generate a matching favicon and logo on the fly, ensuring the app's identity reflects the user's content.
 - **Unified Media UI**:
-  - `lib/media-defs.tsx` acts as the single source of truth for UI configurations (icons, colors, label formatting) keyed by media type (`album`, `artist`, `song`).
-  - Components like `MediaCard` and `DetailsModal` consume this configuration to render dynamic content without scattered conditional logic.
+- **Unified Media UI**:
+  - `lib/media-types/registry.ts` acts as the single source of truth for UI configurations (icons, colors, label formatting).
+  - Components consume this configuration to render dynamic content without scattered conditional logic.
 
 ### 9. Screenshot Engine & Export Architecture
 
@@ -257,11 +271,13 @@ Moat supports dynamic Open Graph images for social sharing.
     - `item-reducer.ts`: Logic for item movements and metadata.
     - `global-reducer.ts`: Logic for board titles and state overrides.
 - `lib/services/`:
-  - `musicbrainz/`: Service layer for MusicBrainz integration.
-    - `client.ts`: HTTP client with 503 retry logic.
-    - `query-builder.ts`: Lucene query construction logic.
-    - `search.ts`: Search orchestration and validation.
-    - `details.ts`: Detail fetching orchestration.
+  - `music/`, `cinema/`, `books/`: Domain specific services.
+  - `factory.ts`: Service locator pattern.
+  - `types.ts`: Core service interfaces.
+- `lib/media-types/`:
+  - `definitions/`: Individual config files for each type.
+  - `registry.ts`: The singleton registry class.
+  - `types.ts`: Type definitions for the abstraction.
 - `lib/server/`:
   - `images.ts`: Multi-source image resolver (Fanart.tv, Wikidata).
   - `item-cache.ts`: Server-side LRU cache for mapped media items.
@@ -269,4 +285,4 @@ Moat supports dynamic Open Graph images for social sharing.
   - `io.ts`: Import/Export logic and JSON validation.
   - `mappers.ts`: Transformation logic from API schemas to internal domain types.
   - `search.ts`: Lucene query construction utilities.
-- `lib/media-defs.tsx`: UI configuration map for media types (icons, colors, formatters).
+  - `search.ts`: Lucene query construction utilities.

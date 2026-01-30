@@ -126,8 +126,20 @@ export function MediaPicker<T extends MediaSelection>({
   const [selectedImageError, setSelectedImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
-  const TypeIcon = type === 'artist' ? Mic2 : (type === 'author' ? User : Disc);
-  const SelectedIcon = (type === 'artist' || type === 'author') ? User : Disc;
+  // Determine icons based on type
+  let TypeIcon;
+  let SelectedIcon;
+  
+  if (type === 'artist') {
+    TypeIcon = Mic2;
+    SelectedIcon = User;
+  } else if (type === 'author') {
+    TypeIcon = User;
+    SelectedIcon = User;
+  } else {
+    TypeIcon = Disc;
+    SelectedIcon = Disc;
+  }
 
   const handleSelect = (item: MediaItem) => {
     let selection: MediaSelection;
@@ -160,6 +172,13 @@ export function MediaPicker<T extends MediaSelection>({
     onSelect(null);
     setSelectedImageError(false);
     setRetryUnoptimized(false);
+  };
+
+  // Helper to determine year label
+  const getYearLabel = () => {
+      if (type === 'artist') return 'Est.';
+      if (type === 'author') return 'Born';
+      return '';
   };
 
   if (selectedItem) {
@@ -286,7 +305,7 @@ export function MediaPicker<T extends MediaSelection>({
                   {type === 'album' && <span>{(item as AlbumItem).artist}</span>}
                   {item.year && (
                     <span>
-                      • {type === 'artist' ? 'Est.' : (type === 'author' ? 'Born' : '')} {item.year}
+                      • {getYearLabel()} {item.year}
                     </span>
                   )}
                 </div>

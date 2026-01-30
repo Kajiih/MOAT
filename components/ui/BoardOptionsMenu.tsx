@@ -42,8 +42,8 @@ interface BoardOptionsMenuProps {
  * @param props.onShowShortcuts - Callback fired when the user clicks the shortcuts button.
  * @param props.showAdvanced - Whether advanced mode is currently enabled.
  * @param props.onToggleAdvanced - Callback fired when the user toggles advanced mode.
- * @param props.currentCategory
- * @param props.onUpdateCategory
+ * @param props.currentCategory - The currently active board category (music, cinema, book).
+ * @param props.onUpdateCategory - Callback fired when the user changes the board category.
  * @returns The rendered dropdown menu.
  */
 export function BoardOptionsMenu({

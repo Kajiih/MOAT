@@ -7,9 +7,58 @@
 import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
-import { mediaTypeRegistry } from '@/lib/media-types';
+import { FilterConfig, mediaTypeRegistry } from '@/lib/media-types';
 import { getMediaService } from '@/lib/services/factory';
 import { BoardCategory, MediaType } from '@/lib/types';
+
+/**
+ * Helper to parse range filters (years, duration).
+ * @param filterDef - The filter configuration.
+ * @param searchParams - The URL search parameters.
+ * @param filters - The accumulator object for parsed filters.
+ */
+function parseRangeFilter(filterDef: FilterConfig, searchParams: URLSearchParams, filters: Record<string, unknown>) {
+  if (filterDef.id === 'yearRange') {
+    filters.minYear = searchParams.get('minYear') || undefined;
+    filters.maxYear = searchParams.get('maxYear') || undefined;
+  } else if (filterDef.id === 'durationRange') {
+    const minDuration = searchParams.get('minDuration');
+    const maxDuration = searchParams.get('maxDuration');
+    filters.minDuration = minDuration ? Number.parseInt(minDuration, 10) : undefined;
+    filters.maxDuration = maxDuration ? Number.parseInt(maxDuration, 10) : undefined;
+  }
+}
+
+/**
+ * Helper to parse a single filter definition.
+ * @param filterDef - The filter configuration.
+ * @param searchParams - The URL search parameters.
+ * @param filters - The accumulator object for parsed filters.
+ */
+function parseFilter(filterDef: FilterConfig, searchParams: URLSearchParams, filters: Record<string, unknown>) {
+  const paramName = filterDef.paramName || filterDef.id;
+
+  if (filterDef.type === 'toggle-group') {
+    // Multi-select filters
+    const values = searchParams.getAll(paramName);
+    if (values.length > 0) {
+      filters[filterDef.id] = values;
+    }
+    return;
+  }
+
+  if (filterDef.type === 'range') {
+    parseRangeFilter(filterDef, searchParams, filters);
+    return;
+  }
+
+  // Text, select, picker filters
+  const value = searchParams.get(paramName);
+  if (value) {
+    filters[filterDef.id] = value;
+  }
+}
+
 
 /**
  * Parse search parameters into SearchOptions format.
@@ -28,32 +77,7 @@ function parseSearchParams(searchParams: URLSearchParams, type: MediaType) {
 
   // Parse each filter based on its definition
   for (const filterDef of typeDefinition.filters) {
-    const paramName = filterDef.paramName || filterDef.id;
-    
-    if (filterDef.type === 'toggle-group') {
-      // Multi-select filters
-      const values = searchParams.getAll(paramName);
-      if (values.length > 0) {
-        filters[filterDef.id] = values;
-      }
-    } else if (filterDef.type === 'range') {
-      // Range filters (minYear/maxYear, etc.)
-      if (filterDef.id === 'yearRange') {
-        filters.minYear = searchParams.get('minYear') || undefined;
-        filters.maxYear = searchParams.get('maxYear') || undefined;
-      } else if (filterDef.id === 'durationRange') {
-        const minDuration = searchParams.get('minDuration');
-        const maxDuration = searchParams.get('maxDuration');
-        filters.minDuration = minDuration ? Number.parseInt(minDuration, 10) : undefined;
-        filters.maxDuration = maxDuration ? Number.parseInt(maxDuration, 10) : undefined;
-      }
-    } else {
-      // Text, select, picker filters
-      const value = searchParams.get(paramName);
-      if (value) {
-        filters[filterDef.id] = value;
-      }
-    }
+    parseFilter(filterDef, searchParams, filters);
   }
 
   // Always include sort

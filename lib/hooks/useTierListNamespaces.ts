@@ -154,6 +154,7 @@ export function useTierListNamespaces({
       removeItemFromTier,
       utilsRaw.handleLocate,
       ioRaw,
+      dispatch,
     ],
   );
 

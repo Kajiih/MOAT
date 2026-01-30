@@ -18,7 +18,7 @@ export class MediaTypeRegistry {
   
   /**
    * Register a media type definition.
-   * @param definition
+   * @param definition - The media type definition to register.
    */
   register(definition: MediaTypeDefinition): void {
     this.definitions.set(definition.id, definition);
@@ -26,7 +26,7 @@ export class MediaTypeRegistry {
   
   /**
    * Register multiple definitions at once.
-   * @param definitions
+   * @param definitions - Array of media type definitions to register.
    */
   registerMany(definitions: MediaTypeDefinition[]): void {
     for (const def of definitions) {
@@ -36,7 +36,7 @@ export class MediaTypeRegistry {
   
   /**
    * Register a category configuration.
-   * @param config
+   * @param config - The category configuration object.
    */
   registerCategory(config: CategoryConfig): void {
     this.categories.set(config.id, config);
@@ -44,8 +44,9 @@ export class MediaTypeRegistry {
   
   /**
    * Get a media type definition by ID.
-   * @param type
-   * @throws Error if type is not registered
+   * @param type - The media type identifier.
+   * @returns The media type definition.
+   * @throws {Error} if type is not registered
    */
   get(type: MediaType): MediaTypeDefinition {
     const def = this.definitions.get(type);
@@ -57,7 +58,8 @@ export class MediaTypeRegistry {
   
   /**
    * Get all media types for a category.
-   * @param category
+   * @param category - The board category.
+   * @returns Array of media type definitions for the category.
    */
   getByCategory(category: BoardCategory): MediaTypeDefinition[] {
     return [...this.definitions.values()]
@@ -66,7 +68,8 @@ export class MediaTypeRegistry {
   
   /**
    * Get category configuration.
-   * @param category
+   * @param category - The board category.
+   * @returns The category configuration or undefined if not found.
    */
   getCategory(category: BoardCategory): CategoryConfig | undefined {
     return this.categories.get(category);
@@ -74,8 +77,9 @@ export class MediaTypeRegistry {
   
   /**
    * Get a specific filter config by ID.
-   * @param type
-   * @param filterId
+   * @param type - The media type identifier.
+   * @param filterId - The ID of the filter to retrieve.
+   * @returns The filter configuration or undefined if not found.
    */
   getFilter(type: MediaType, filterId: string): FilterConfig | undefined {
     return this.get(type).filters.find(f => f.id === filterId);
@@ -83,7 +87,8 @@ export class MediaTypeRegistry {
   
   /**
    * Get all sort options for a type.
-   * @param type
+   * @param type - The media type identifier.
+   * @returns Array of sort option configurations.
    */
   getSortOptions(type: MediaType): SortOptionConfig[] {
     return this.get(type).sortOptions;
@@ -91,7 +96,8 @@ export class MediaTypeRegistry {
   
   /**
    * Get default filter values for a type.
-   * @param type
+   * @param type - The media type identifier.
+   * @returns Object containing default filter values.
    */
   getDefaultFilters(type: MediaType): Record<string, unknown> {
     return { ...this.get(type).defaultFilters };
@@ -99,7 +105,8 @@ export class MediaTypeRegistry {
   
   /**
    * Check if a type is registered.
-   * @param type
+   * @param type - The media type identifier.
+   * @returns True if the type is registered, false otherwise.
    */
   has(type: MediaType): boolean {
     return this.definitions.has(type);
@@ -107,6 +114,7 @@ export class MediaTypeRegistry {
   
   /**
    * Get all registered type IDs.
+   * @returns Array of formatted media type IDs.
    */
   getAllTypes(): MediaType[] {
     return [...this.definitions.keys()];
@@ -114,6 +122,7 @@ export class MediaTypeRegistry {
   
   /**
    * Get all registered types as definitions.
+   * @returns Array of all media type definitions.
    */
   getAllDefinitions(): MediaTypeDefinition[] {
     return [...this.definitions.values()];
