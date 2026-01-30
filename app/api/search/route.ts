@@ -102,7 +102,12 @@ export async function GET(request: Request) {
     const options = parseSearchParams(searchParams, type);
     
     // Quick exit if no search intent
-    if (!query && Object.values(options.filters || {}).every(v => !v || (Array.isArray(v) && v.length === 0))) {
+    const hasFilters = Object.entries(options.filters || {}).some(([key, v]) => {
+      if (key === 'sort' || key === 'query') return false;
+      return v && (!Array.isArray(v) || v.length > 0);
+    });
+
+    if (!query && !hasFilters) {
       return NextResponse.json({ results: [], page: options.page || 1, totalPages: 0 });
     }
 
