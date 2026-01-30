@@ -60,28 +60,25 @@ test.describe('Tier List App', () => {
     await expect(labels.nth(0)).toHaveText('S');
     await expect(labels.nth(1)).toHaveText('A');
 
-    // Locate the drag handle of the first tier.
-    // The handle is the parent div of the GripVertical icon.
-    const firstHandle = page.locator('div:has(> svg.lucide-grip-vertical)').first();
-    const secondRow = labels.nth(1);
+    // Locate the drag handle of the first tier and the second tier label as target
+    const firstHandle = page.getByTestId('tier-row-drag-handle').first();
+    const secondRowLabel = labels.nth(1);
 
-    // Get bounding boxes to calculate precise coordinates
+    // Get bounding boxes
     const handleBox = await firstHandle.boundingBox();
-    const targetBox = await secondRow.boundingBox();
+    const targetBox = await secondRowLabel.boundingBox();
 
     assertBoundingBox(handleBox);
     assertBoundingBox(targetBox);
 
-    // Perform Drag and Drop with steps
+    // Perform Drag and Drop
     await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
     await page.mouse.down();
 
-    // Move slowly to the target
+    // Move to the second row's label area
     await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, {
-      steps: 10,
+      steps: 15,
     });
-
-    // Wait a bit for the sorting animation/logic to trigger
     await page.mouse.up();
 
     // Verify order changed
@@ -125,36 +122,27 @@ test.describe('Tier List App', () => {
     await expect(card).toBeVisible();
 
     // 4. Drag card to the first tier
-    // The target is the sortable context of the first tier.
-    // TierRow renders a SortableContext.
-    // We can target the TierRow div itself. The TierRow doesn't have a direct testid for the drop zone,
-    // but we can target the list container roughly by the label 'S' or just the first row container.
-    // Let's target the area to the right of the label 'S'.
-
-    const firstTierLabel = page.getByText('S', { exact: true });
-    // The drop zone is the sibling of the label column.
-    // We can just drag to the far right of the first row element.
-
     const cardBox = await card.boundingBox();
-    const tierBox = await firstTierLabel.locator('..').locator('..').boundingBox(); // Go up to row container
-
     assertBoundingBox(cardBox);
-    assertBoundingBox(tierBox);
 
+    // Target the first tier's drop zone
+    const firstTierRow = page.getByTestId('tier-row').filter({ hasText: 'S' });
+    const dropZone = firstTierRow.getByTestId('tier-drop-zone');
+    const dropBox = await dropZone.boundingBox();
+    assertBoundingBox(dropBox);
+
+    // Perform the drag and drop
     await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
     await page.mouse.down();
 
-    // Drag to the center/right of the tier row
-    await page.mouse.move(tierBox.x + tierBox.width * 0.8, tierBox.y + tierBox.height / 2, {
+    // Move to the drop zone with enough steps to trigger dnd-kit detection
+    await page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, {
       steps: 20,
     });
-
     await page.mouse.up();
 
     // 5. Verify the item is now in the tier
     // The ID in the tier will be `media-card-song-1` (prefix 'search-' is removed by logic)
-    // Wait, the logic says: removeItemFromTier... and `id: activeId` logic.
-    // The logic in useTierListDnD removes 'search-' prefix when finalizing drop.
     const droppedCard = page.locator('#media-card-song-1');
     await expect(droppedCard).toBeVisible();
 
@@ -251,18 +239,23 @@ test.describe('Tier List App', () => {
 
   // Skipped because keyboard drag-and-drop interactions are currently flaky in headless
   // browser environments and require more robust synchronization for dnd-kit.
-  test.skip('should move item via keyboard', async ({ page }, testInfo) => {
-    // 1. Setup board via Import (more robust than DB hacking)
+  test('should move item via keyboard', async ({ page }, testInfo) => {
+    // 1. Setup board via Import
     const importData = {
       version: 1,
       title: 'Keyboard Test',
-      tierDefs: [
-        { id: '1', label: 'Start', color: 'red', items: [] },
-        { id: '2', label: 'End', color: 'blue', items: [] },
+      tiers: [
+        {
+          label: 'Start',
+          color: 'red',
+          items: [{ id: 'item-1', title: 'MoveMe', type: 'song', artist: 'Artist' }],
+        },
+        {
+          label: 'End',
+          color: 'blue',
+          items: [],
+        },
       ],
-      items: {
-        '1': [{ id: 'item-1', title: 'MoveMe', type: 'song', artist: 'Artist' }],
-      },
     };
 
     // Create temp file
@@ -276,29 +269,37 @@ test.describe('Tier List App', () => {
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
 
-    // Wait for item to appear
+    // Wait for item to appear and focus it
     const card = page.locator('#media-card-item-1');
     await expect(card).toBeVisible();
-    await card.focus();
-
-    // Cleanup
+    
+    // Cleanup early to avoid interfering with interaction
     fs.unlinkSync(filePath);
+
+    // Focus the card to prepare for keyboard interaction
+    await card.focus();
+    await expect(card).toBeFocused();
 
     // 3. Lift item
     await page.keyboard.press('Enter');
-    // Verify dnd-kit lift (aria-pressed or role description change).
-    // skipping explicit attribute check as it can be flaky in headless env; relying on final move result.
-    // await expect(card).toHaveAttribute('aria-pressed', 'true');
+    
+    // dnd-kit often adds aria-pressed or role description. 
+    // We wait a tiny bit for the sensor to activate.
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100);
 
     // 4. Move Down to next tier (ArrowDown) (Move from Tier 1 to Tier 2)
     await page.keyboard.press('ArrowDown');
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100);
 
     // 5. Drop
-    await page.keyboard.press('Space');
+    await page.keyboard.press(' '); // Space to drop
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(100);
 
     // 6. Verify item is in second tier
-    // The "End" label is in the second row. We verify "MoveMe" is in that visual container.
-    const secondRow = page.locator('.flex-row').filter({ hasText: 'End' });
+    const secondRow = page.getByTestId('tier-row').filter({ hasText: 'End' });
     await expect(secondRow).toContainText('MoveMe');
   });
 });

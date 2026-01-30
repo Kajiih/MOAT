@@ -208,6 +208,22 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
 #### C. API Route Testing
 - **Unit Testing**: API routes like `app/api/search` are tested as pure functions, verifying query parameter parsing, service delegation, and HTTP status code mapping.
 
+#### D. End-to-End (E2E) Testing
+- **Tooling**: Playwright is used for full browser environment testing, covering critical user journeys (CUJs).
+- **Core Coverage**:
+  - **Tier Management**: Adding, deleting, renaming, and reordering tiers.
+  - **Media Interaction**: Searching for media, dragging items from search to tiers, and cross-tier reordering.
+  - **Persistence**: Verifying data persists across page reloads via IndexedDB.
+  - **Data IO**: Testing JSON import/export functionality with real files.
+  - **Accessibility**: Ensuring keyboard-driven drag-and-drop operations (powered by dnd-kit) are functional and stable.
+- **Visual Regression**:
+  - Automated screenshot comparisons ensure UI consistency across Chromium and Firefox.
+  - Snapshot testing covers the default board state, populated boards, and the search panel.
+- **Stabilization Techniques**:
+  - Use of `data-testid` for robust element selection.
+  - Explicit synchronization for asynchronous state updates (debounce/IndexedDB).
+  - Multi-browser validation (Chromium, Firefox).
+
 ### 9. Screenshot Engine & Export Architecture
 
 The app employs a dedicated "Clean Room" architecture to generate professional-grade PNG exports.

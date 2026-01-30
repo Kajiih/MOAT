@@ -94,6 +94,7 @@ export function TierLabel({
         <div
           {...dragAttributes}
           {...dragListeners}
+          data-testid="tier-row-drag-handle"
           className={twMerge(
             'absolute top-1 left-1 cursor-grab p-1 text-black/40 transition-opacity hover:text-black active:cursor-grabbing',
             isAnyDragging

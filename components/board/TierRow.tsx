@@ -120,6 +120,9 @@ export const TierRow = memo(function TierRow({
     <div
       ref={setCombinedRef}
       style={style}
+      data-testid="tier-row"
+      data-tier-id={tier.id}
+      data-tier-label={tier.label}
       className={twMerge(
         'relative mb-2 flex min-h-[7rem] rounded-lg border bg-neutral-900 transition-all duration-200 ease-out',
         isOverRow
@@ -143,7 +146,10 @@ export const TierRow = memo(function TierRow({
       />
 
       {/* Items Column */}
-      <div className="relative flex min-h-[100px] min-w-0 flex-1 flex-col">
+      <div 
+        className="relative flex min-h-[100px] min-w-0 flex-1 flex-col"
+        data-testid="tier-drop-zone"
+      >
         {isOverRow && <div className="pointer-events-none absolute inset-0 z-10 bg-blue-500/5" />}
 
         <TierGrid

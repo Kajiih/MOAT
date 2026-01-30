@@ -12,9 +12,9 @@ import { mediaTypeRegistry } from './registry';
 // Register all media type definitions
 mediaTypeRegistry.registerMany([
   // Music
-  artistDefinition,
-  albumDefinition,
   songDefinition,
+  albumDefinition,
+  artistDefinition,
   
   // Cinema
   movieDefinition,
@@ -31,7 +31,7 @@ mediaTypeRegistry.registerCategory({
   id: 'music',
   label: 'Music',
   labelPlural: 'Music',
-  primaryTypes: ['album', 'artist', 'song'],
+  primaryTypes: ['song', 'album', 'artist'],
   secondaryTypes: [],
 });
 
