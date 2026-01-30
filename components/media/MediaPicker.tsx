@@ -7,8 +7,7 @@
 
 'use client';
 
-import { Disc, Filter, Mic2, User, X } from 'lucide-react';
-import Image from 'next/image';
+import { Disc, Filter, LucideIcon, Mic2, User, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
@@ -22,6 +21,7 @@ import {
   MediaItem,
   MediaSelection,
 } from '@/lib/types';
+import { MediaImage } from './MediaImage';
 
 /**
  * Props for the MediaPicker component.
@@ -44,47 +44,6 @@ interface MediaPickerProps<T extends MediaSelection> {
   context?: string;
   /** Custom placeholder for the search input. */
   placeholder?: string;
-}
-
-/**
- * Internal component to handle individual image error states in the list.
- * @param props - The props for the component.
- * @param props.src - The image source URL.
- * @param props.alt - The alt text for the image.
- * @param props.type - The type of media.
- * @returns The rendered PickerImage component.
- */
-function PickerImage({ src, alt, type }: { src: string; alt: string; type: 'artist' | 'album' | 'author' }) {
-  const [error, setError] = useState(false);
-  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
-
-  const PlaceholderIcon = (type === 'artist' || type === 'author') ? User : Disc;
-
-  if (error) {
-    return (
-      <div className="flex h-full w-full items-center justify-center text-neutral-500">
-        <PlaceholderIcon size={14} />
-      </div>
-    );
-  }
-
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      sizes="96px"
-      className="object-cover"
-      unoptimized={retryUnoptimized}
-      onError={() => {
-        if (!retryUnoptimized) {
-          setRetryUnoptimized(true);
-        } else {
-          setError(true);
-        }
-      }}
-    />
-  );
 }
 
 /**
@@ -122,24 +81,9 @@ export function MediaPicker<T extends MediaSelection>({
   const [isOpen, setIsOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Error state for the selected view
-  const [selectedImageError, setSelectedImageError] = useState(false);
-  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
-
-  // Determine icons based on type
-  let TypeIcon;
-  let SelectedIcon;
-  
-  if (type === 'artist') {
-    TypeIcon = Mic2;
-    SelectedIcon = User;
-  } else if (type === 'author') {
-    TypeIcon = User;
-    SelectedIcon = User;
-  } else {
-    TypeIcon = Disc;
-    SelectedIcon = Disc;
-  }
+  // Icons based on type
+  const TypeIcon = type === 'artist' ? Mic2 : (type === 'author' ? User : Disc);
+  const SelectedIcon = (type === 'artist' || type === 'author') ? User : Disc;
 
   const handleSelect = (item: MediaItem) => {
     let selection: MediaSelection;
@@ -164,14 +108,10 @@ export function MediaPicker<T extends MediaSelection>({
     onSelect(selection as T);
     setIsOpen(false);
     updateFilters({ query: '' });
-    setSelectedImageError(false);
-    setRetryUnoptimized(false);
   };
 
   const clearSelection = () => {
     onSelect(null);
-    setSelectedImageError(false);
-    setRetryUnoptimized(false);
   };
 
   // Helper to determine year label
@@ -182,32 +122,24 @@ export function MediaPicker<T extends MediaSelection>({
   };
 
   if (selectedItem) {
+    // Map selected item to a pseudo MediaItem for unified component usage
+    const pseudoItem: MediaItem = {
+      id: selectedItem.id,
+      mbid: selectedItem.id,
+      type: (type === 'artist' || type === 'author') ? type : 'album',
+      title: selectedItem.name,
+      imageUrl: selectedItem.imageUrl,
+    } as MediaItem;
+
     return (
       <div className="flex items-center justify-between rounded border border-neutral-700 bg-neutral-800 p-1 pr-2 text-sm text-neutral-200">
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-neutral-700">
-            {selectedItem.imageUrl && !selectedImageError ? (
-              <Image
-                src={selectedItem.imageUrl}
-                alt={selectedItem.name}
-                fill
-                sizes="96px"
-                className="object-cover"
-                unoptimized={retryUnoptimized}
-                onError={() => {
-                  if (!retryUnoptimized) {
-                    setRetryUnoptimized(true);
-                  } else {
-                    setSelectedImageError(true);
-                  }
-                }}
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-neutral-500">
-                <SelectedIcon size={14} />
-              </div>
-            )}
-          </div>
+          <MediaImage
+            item={pseudoItem}
+            TypeIcon={SelectedIcon}
+            containerClassName="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-neutral-700"
+            sizes="32px"
+          />
           <div className="flex min-w-0 flex-col">
             <span className="truncate text-[11px] leading-tight font-medium text-white">
               {selectedItem.name}
@@ -284,15 +216,12 @@ export function MediaPicker<T extends MediaSelection>({
                 handleSelect(item);
               }}
             >
-              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded border border-neutral-700 bg-neutral-800">
-                {item.imageUrl ? (
-                  <PickerImage src={item.imageUrl} alt={item.title} type={type} />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-neutral-500">
-                    <SelectedIcon size={14} />
-                  </div>
-                )}
-              </div>
+              <MediaImage
+                item={item}
+                TypeIcon={SelectedIcon}
+                containerClassName="relative h-8 w-8 shrink-0 overflow-hidden rounded border border-neutral-700 bg-neutral-800"
+                sizes="32px"
+              />
 
               <div className="flex flex-col overflow-hidden">
                 <span className="truncate font-medium text-white transition-colors group-hover:text-red-500">

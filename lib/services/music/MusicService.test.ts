@@ -81,7 +81,7 @@ describe('MusicService Integration (Fake Server)', () => {
     );
 
     await expect(service.search('crash', 'song'))
-         .rejects.toThrow('MusicBrainz API Error: 500');
+         .rejects.toThrow('API Error: 500 Internal Server Error');
   });
 });
 

@@ -9,8 +9,7 @@
 'use client';
 
 import { X } from 'lucide-react';
-import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { useMediaDetails } from '@/lib/hooks';
@@ -22,6 +21,7 @@ import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
 import { SongView } from './details/SongView';
+import { MediaImage } from './MediaImage';
 
 /**
  * Props for the DetailsModal component.
@@ -49,9 +49,6 @@ interface DetailsModalProps {
  */
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
   useEscapeKey(onClose, isOpen);
-
-  const [imageError, setImageError] = useState(false);
-  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
   const { getItem } = useMediaRegistry();
 
@@ -91,18 +88,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
   if (!isOpen || !enrichedItem) return null;
 
-  const hasImage = enrichedItem.imageUrl && !imageError;
-
   const definition = mediaTypeRegistry.get(enrichedItem.type);
   const PlaceholderIcon = definition.icon;
-
-  const handleImageError = () => {
-    if (!retryUnoptimized) {
-      setRetryUnoptimized(true);
-    } else {
-      setImageError(true);
-    }
-  };
 
   return (
     <div
@@ -115,46 +102,23 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
       >
         {/* Header with Cover Art */}
         <div className="relative h-48 shrink-0 overflow-hidden bg-neutral-950 sm:h-64">
-          {hasImage ? (
-            <>
-              <Image
-                src={enrichedItem.imageUrl!}
-                alt={enrichedItem.title}
-                fill
-                priority
-                unoptimized={retryUnoptimized}
-                className="object-cover opacity-60 blur-sm"
-                onError={handleImageError}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
-            </>
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-b from-neutral-800 to-neutral-900 opacity-50" />
-          )}
+          <MediaImage
+            item={enrichedItem}
+            priority
+            TypeIcon={PlaceholderIcon}
+            containerClassName="absolute inset-0"
+            imageClassName="object-cover opacity-60 blur-sm"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
 
           <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24">
-              {hasImage ? (
-                <Image
-                  src={enrichedItem.imageUrl!}
-                  alt={enrichedItem.title}
-                  fill
-                  unoptimized={retryUnoptimized}
-                  className="object-cover"
-                  onError={() => {
-                    if (!retryUnoptimized) {
-                      setRetryUnoptimized(true);
-                    } else {
-                      setImageError(true);
-                    }
-                  }}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-neutral-600">
-                  <PlaceholderIcon size={32} />
-                </div>
-              )}
-            </div>
+            <MediaImage
+              item={enrichedItem}
+              TypeIcon={PlaceholderIcon}
+              containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24"
+              sizes="96px"
+            />
             <div className="min-w-0 flex-1 pt-2">
               <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
                 {enrichedItem.title}

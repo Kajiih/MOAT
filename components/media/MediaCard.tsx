@@ -12,13 +12,10 @@ import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Eye, Info, LucideIcon, X } from 'lucide-react';
-import Image from 'next/image';
-import { useState } from 'react';
-
 import { useInteraction } from '@/components/ui/InteractionContext';
-import { failedImages } from '@/lib/image-cache';
 import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaItem } from '@/lib/types';
+import { MediaImage } from './MediaImage';
 
 /**
  * Props for the visual representation of a media card.
@@ -56,82 +53,7 @@ interface BaseMediaCardProps {
   resolvedUrl?: string;
 }
 
-/**
- * Renders the image or a placeholder for a media card.
- * @param props - The props for the component.
- * @param props.item - The media data object.
- * @param props.isExport - Whether the component is being rendered for export.
- * @param props.resolvedUrl - A pre-resolved Data URL for the image.
- * @param props.priority - Whether to prioritize loading the image.
- * @param props.TypeIcon - The icon component for the media type.
- * @returns The rendered MediaCardImage component.
- */
-function MediaCardImage({
-  item,
-  isExport,
-  resolvedUrl,
-  priority,
-  TypeIcon,
-}: {
-  item: MediaItem;
-  isExport: boolean;
-  resolvedUrl?: string;
-  priority: boolean;
-  TypeIcon: LucideIcon;
-}) {
-  const [imageError, setImageError] = useState(() => {
-    return item.imageUrl ? failedImages.has(item.imageUrl) : false;
-  });
-  const [retryUnoptimized, setRetryUnoptimized] = useState(false);
-
-  if (resolvedUrl || (item.imageUrl && !imageError)) {
-    if (isExport && resolvedUrl) {
-      return (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={resolvedUrl}
-          alt={item.title}
-          className="absolute inset-0 h-full w-full object-cover"
-          decoding="sync"
-        />
-      );
-    }
-    return (
-      <Image
-        src={item.imageUrl!}
-        alt={item.title}
-        fill
-        sizes="112px"
-        priority={priority}
-        unoptimized={retryUnoptimized}
-        className="pointer-events-none object-cover"
-        onError={() => {
-          if (!retryUnoptimized) {
-            setRetryUnoptimized(true);
-          } else {
-            if (item.imageUrl) failedImages.add(item.imageUrl);
-            setImageError(true);
-          }
-        }}
-      />
-    );
-  }
-
-  return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden border border-neutral-800 bg-neutral-900 p-2 text-neutral-600">
-      <TypeIcon size={24} className="mb-1 opacity-50" />
-      {isExport && (
-        <span className="mt-1 line-clamp-2 px-1 text-center text-[9px] leading-tight font-black uppercase opacity-30">
-          {item.title}
-        </span>
-      )}
-      <span className="mt-1 text-center text-[7px] leading-tight font-bold uppercase opacity-20">
-        {item.type}
-      </span>
-    </div>
-  );
-}
-
+// ... (Overlay component remains similar but could also be simplified if needed)
 function MediaCardOverlay({
   item,
   isExport,
@@ -250,7 +172,7 @@ function BaseMediaCard({
       onMouseLeave={!isExport ? () => interaction?.setHoveredItem(null) : undefined}
       className={containerClassName}
     >
-      <MediaCardImage
+      <MediaImage
         item={item}
         isExport={isExport}
         resolvedUrl={resolvedUrl}

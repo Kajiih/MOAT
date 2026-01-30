@@ -155,34 +155,4 @@ export class TMDBService implements MediaService {
       }
     }
   }
-
-  getDefaultFilters(_type: MediaType): Record<string, unknown> {
-    return {
-      query: '',
-      minYear: '',
-      maxYear: '',
-      tag: '',
-      sort: 'relevance',
-    };
-  }
-
-  parseSearchOptions(params: URLSearchParams): SearchOptions {
-    const page = Number.parseInt(params.get('page') || '1', 10);
-    const fuzzy = params.get('fuzzy') !== 'false';
-    const wildcard = params.get('wildcard') !== 'false';
-
-    const filters: Record<string, unknown> = {
-      minYear: params.get('minYear'),
-      maxYear: params.get('maxYear'),
-      tag: params.get('tag') || undefined,
-      sort: params.get('sort') || 'relevance',
-    };
-
-    return {
-      page,
-      fuzzy,
-      wildcard,
-      filters,
-    };
-  }
 }
