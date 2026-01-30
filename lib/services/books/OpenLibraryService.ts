@@ -3,11 +3,10 @@
  * @description Service provider for Open Library integration (Books).
  */
 
-import { getMediaUI } from '@/lib/media-defs';
 import { AuthorItem, BookItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
 import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
 
-import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '../types';
+import { MediaService, SearchOptions } from '../types';
 
 const OPEN_LIBRARY_BASE_URL = 'https://openlibrary.org';
 const COVERS_BASE_URL = 'https://covers.openlibrary.org/b/id';

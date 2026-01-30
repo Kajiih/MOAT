@@ -16,7 +16,7 @@ import { useTierListContext } from '@/components/providers/TierListContext';
 import { getSearchUrl } from '@/lib/api';
 import { swrFetcher } from '@/lib/api/fetcher';
 import { usePersistentState } from '@/lib/hooks';
-import { getMediaService } from '@/lib/services/factory';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import {
   AlbumItem,
   ArtistItem,
@@ -105,14 +105,13 @@ export function useMediaSearch<T extends MediaType>(
     state: { category },
   } = useTierListContext();
 
-  const service = useMemo(() => getMediaService(category || 'music'), [category]);
   const defaultState = useMemo(() => {
     return {
       query: '',
       page: 1,
-      ...service.getDefaultFilters(type),
+      ...mediaTypeRegistry.getDefaultFilters(type),
     } as SearchParamsState;
-  }, [service, type]);
+  }, [type]);
 
   const storageKey = config?.storageKey || `moat-search-params-${type}`;
   const [state, setState] = usePersistentState<SearchParamsState>(storageKey, defaultState);
@@ -157,7 +156,7 @@ export function useMediaSearch<T extends MediaType>(
     };
 
     if (!ignoreFilters) {
-      const filterDefs = service.getFilters(type);
+      const filterDefs = mediaTypeRegistry.get(type).filters;
       
       Object.entries(rest).forEach(([key, value]) => {
         if (value === null || value === undefined || value === '') return;
@@ -184,7 +183,7 @@ export function useMediaSearch<T extends MediaType>(
     if (config?.albumId) filters.albumId = config.albumId;
 
     return getSearchUrl(category || 'music', type, filters);
-  }, [isEnabled, debouncedState, isFuzzy, isWildcard, ignoreFilters, category, type, config, service]);
+  }, [isEnabled, debouncedState, isFuzzy, isWildcard, ignoreFilters, category, type, config]);
 
   const { data, error, isLoading, isValidating } = useSWR<
     SearchResult,

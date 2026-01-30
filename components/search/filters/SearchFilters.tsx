@@ -5,9 +5,7 @@
  */
 
 import { MediaPicker } from '@/components/media/MediaPicker';
-import { useTierListContext } from '@/components/providers/TierListContext';
 import { SearchParamsState } from '@/components/search/hooks/useMediaSearch';
-import { getMediaService } from '@/lib/services/factory';
 import { mediaTypeRegistry } from '@/lib/media-types';
 import { ArtistSelection, MediaSelection, MediaType } from '@/lib/types';
 

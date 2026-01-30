@@ -5,8 +5,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { getMediaUI } from '@/lib/media-defs';
-import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '@/lib/services/types';
+import { MediaService, SearchOptions } from '@/lib/services/types';
 import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
 const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';

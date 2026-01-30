@@ -12,12 +12,11 @@ import { Filter } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { MediaCard } from '@/components/media/MediaCard';
-import { useTierListContext } from '@/components/providers/TierListContext';
 import { Pagination } from '@/components/ui/Pagination';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
-import { getMediaService } from '@/lib/services/factory';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import { BaseMediaItem, MediaItem, MediaType, SongItem, SortOption } from '@/lib/types';
 
 import { SearchFilters } from './filters/SearchFilters';
@@ -59,8 +58,6 @@ export function SearchTab({
   globalWildcard,
   onInfo,
 }: SearchTabProps) {
-  const { state: { category } } = useTierListContext();
-  const service = useMemo(() => getMediaService(category || 'music'), [category]);
   const { showFilters, toggleFilters } = useSearchFilters(type);
   
   // Logic: Enable prefetch by default, disable ONLY when interacting with filters/input
@@ -237,7 +234,10 @@ export function SearchTab({
             sortOption={(filters.sort as string) || 'relevance'}
             onSortChange={(val) => updateFilters({ sort: val })}
             type={type}
-            options={service.getFilters(type).find((f) => f.id === 'sort')?.options}
+            options={mediaTypeRegistry.getSortOptions(type).map(opt => ({ 
+              label: opt.label, 
+              value: opt.value 
+            }))}
           />
 
           <button

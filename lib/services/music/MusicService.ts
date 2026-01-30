@@ -3,12 +3,11 @@
  * @description Service provider for MusicBrainz integration.
  */
 
-import { getMediaUI } from '@/lib/media-defs';
 import { getMediaDetails } from '@/lib/services/musicbrainz/details';
 import { searchMusicBrainz } from '@/lib/services/musicbrainz/search';
 import { MediaDetails, MediaType, SearchResult } from '@/lib/types';
 
-import { FilterDefinition, MediaService, MediaUIConfig, SearchOptions } from '../types';
+import { MediaService, SearchOptions } from '../types';
 
 /**
  * Service adapter for MusicBrainz integration.

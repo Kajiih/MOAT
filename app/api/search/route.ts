@@ -1,17 +1,66 @@
 /**
  * @file route.ts (api/search)
- * @description API Endpoint for searching media items against MusicBrainz.
- * Handles parsing of all query parameters (filters, pagination, sorting options)
- * and proxies them to the internal `searchMusicBrainz` function.
- * Implements basic error handling for upstream 503s (Rate Limiting).
- * @module ApiSearch
+ * @description API endpoint for searching media items using the media type registry.
+ * Parses query parameters and proxies them to the appropriate service.
  */
 
 import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import { getMediaService } from '@/lib/services/factory';
 import { BoardCategory, MediaType } from '@/lib/types';
+
+/**
+ * Parse search parameters into SearchOptions format.
+ * @param searchParams - URL search parameters containing filter values
+ * @param type - Media type to parse filters for
+ * @returns Parsed search options including page, fuzzy, wildcard, and filters
+ */
+function parseSearchParams(searchParams: URLSearchParams, type: MediaType) {
+  const page = Number.parseInt(searchParams.get('page') || '1', 10);
+  const fuzzy = searchParams.get('fuzzy') !== 'false';
+  const wildcard = searchParams.get('wildcard') !== 'false';
+
+  // Get all filters from the type definition
+  const typeDefinition = mediaTypeRegistry.get(type);
+  const filters: Record<string, unknown> = {};
+
+  // Parse each filter based on its definition
+  for (const filterDef of typeDefinition.filters) {
+    const paramName = filterDef.paramName || filterDef.id;
+    
+    if (filterDef.type === 'toggle-group') {
+      // Multi-select filters
+      const values = searchParams.getAll(paramName);
+      if (values.length > 0) {
+        filters[filterDef.id] = values;
+      }
+    } else if (filterDef.type === 'range') {
+      // Range filters (minYear/maxYear, etc.)
+      if (filterDef.id === 'yearRange') {
+        filters.minYear = searchParams.get('minYear') || undefined;
+        filters.maxYear = searchParams.get('maxYear') || undefined;
+      } else if (filterDef.id === 'durationRange') {
+        const minDuration = searchParams.get('minDuration');
+        const maxDuration = searchParams.get('maxDuration');
+        filters.minDuration = minDuration ? Number.parseInt(minDuration, 10) : undefined;
+        filters.maxDuration = maxDuration ? Number.parseInt(maxDuration, 10) : undefined;
+      }
+    } else {
+      // Text, select, picker filters
+      const value = searchParams.get(paramName);
+      if (value) {
+        filters[filterDef.id] = value;
+      }
+    }
+  }
+
+  // Always include sort
+  filters.sort = searchParams.get('sort') || 'relevance';
+
+  return { page, fuzzy, wildcard, filters };
+}
 
 /**
  * Handles GET requests to search for media items.
@@ -26,7 +75,7 @@ export async function GET(request: Request) {
 
   try {
     const service = getMediaService(category);
-    const options = service.parseSearchOptions(searchParams);
+    const options = parseSearchParams(searchParams, type);
     
     // Quick exit if no search intent
     if (!query && Object.values(options.filters || {}).every(v => !v || (Array.isArray(v) && v.length === 0))) {

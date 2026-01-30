@@ -1,3 +1,1 @@
-- Oscar pill doesn't find all books
-  - search is weird in general
-- more tests on book search
+Rating and reviews don't work on music (album and songs) on books (both book and authors) and on Person in movies, so let's remove it and check any sorting that doesn't correspond to actual sorting in the query
