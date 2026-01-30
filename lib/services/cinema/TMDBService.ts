@@ -5,6 +5,7 @@
  */
 
 import { logger } from '@/lib/logger';
+import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
 import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
 
@@ -46,9 +47,7 @@ export class TMDBService implements MediaService {
     const query = new URLSearchParams(params);
     query.append('api_key', apiKey);
     
-    const res = await fetch(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`);
-    if (!res.ok) throw new Error(`TMDB API Error: ${res.statusText}`);
-    return res.json() as Promise<T>;
+    return secureFetch<T>(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`);
   }
 
   async search(

@@ -73,7 +73,7 @@ describe('OpenLibraryService Integration (Fake Server)', () => {
     );
 
     await expect(service.search('broken', 'book'))
-      .rejects.toThrow('Open Library API Error: 500');
+      .rejects.toThrow('API Error: 500');
   });
 
   it('should fetch book details correctly', async () => {

@@ -1,8 +1,3 @@
-/**
- * @file factory.ts
- * @description Factory for retrieving the appropriate MediaService based on board category.
- */
-
 import { BoardCategory } from '@/lib/types';
 
 import { OpenLibraryService } from './books/OpenLibraryService';
@@ -10,10 +5,38 @@ import { TMDBService } from './cinema/TMDBService';
 import { MusicService } from './music/MusicService';
 import { MediaService } from './types';
 
-// Singleton instances to avoid recreation
-const musicService = new MusicService();
-const cinemaService = new TMDBService();
-const bookService = new OpenLibraryService();
+/**
+ * Registry to manage MediaService instances dynamically.
+ */
+class MediaServiceRegistry {
+  private services = new Map<BoardCategory, MediaService>();
+  private fallbackService: MediaService;
+
+  constructor() {
+    // Instantiate services
+    const music = new MusicService();
+    const cinema = new TMDBService();
+    const book = new OpenLibraryService();
+
+    // Register them
+    this.register(music);
+    this.register(cinema);
+    this.register(book);
+
+    this.fallbackService = music;
+  }
+
+  register(service: MediaService) {
+    this.services.set(service.category, service);
+  }
+
+  get(category: BoardCategory): MediaService {
+    return this.services.get(category) || this.fallbackService;
+  }
+}
+
+// Singleton instances
+const registry = new MediaServiceRegistry();
 
 /**
  * Factory to get the appropriate MediaService for a given board category.
@@ -21,22 +44,5 @@ const bookService = new OpenLibraryService();
  * @returns The MediaService instance.
  */
 export function getMediaService(category: BoardCategory = 'music'): MediaService {
-  switch (category) {
-    case 'music': {
-      return musicService;
-    }
-    case 'cinema': {
-      return cinemaService;
-    }
-    case 'book': {
-      return bookService;
-    }
-    case 'game': {
-      throw new Error(`Service for category "${category}" is not implemented yet.`);
-    }
-    default: {
-      // Fallback to music for safety in legacy cases
-      return musicService;
-    }
-  }
+  return registry.get(category);
 }

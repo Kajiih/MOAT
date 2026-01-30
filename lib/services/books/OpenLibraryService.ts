@@ -6,6 +6,7 @@
 import { AuthorItem, BookItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
 import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
 
+import { secureFetch } from '../shared/api-client';
 import { MediaService, SearchOptions } from '../types';
 
 const OPEN_LIBRARY_BASE_URL = 'https://openlibrary.org';
@@ -66,14 +67,7 @@ export class OpenLibraryService implements MediaService {
     const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search/authors.json`);
     searchUrl.searchParams.set('q', query);
     
-    const response = await fetch(searchUrl.toString());
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Open Library Author API Error ${response.status}:`, errorText);
-      throw new Error(`Open Library API Error: ${response.status}`);
-    }
-    
-    const data = await response.json() as { docs?: OpenLibraryAuthorDoc[]; numFound?: number };
+    const data = await secureFetch<{ docs?: OpenLibraryAuthorDoc[]; numFound?: number }>(searchUrl.toString());
     const results: AuthorItem[] = (data.docs || []).map((doc) => {
        if (!doc.key || !doc.name) return null;
        const item: AuthorItem = {
@@ -149,15 +143,7 @@ export class OpenLibraryService implements MediaService {
     }
     searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count,subject,ratings_average,review_count');
 
-    try {
-      const response = await fetch(searchUrl.toString());
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Open Library API Error ${response.status}:`, errorText, 'URL:', searchUrl.toString());
-        throw new Error(`Open Library API Error: ${response.status}`);
-      }
-
-      const data = await response.json() as { docs?: OpenLibraryBookDoc[]; numFound?: number };
+    const data = await secureFetch<{ docs?: OpenLibraryBookDoc[]; numFound?: number }>(searchUrl.toString());
       
       const results: BookItem[] = (data.docs || []).map((doc) => {
         if (!doc.key || !doc.title) return null;
@@ -193,11 +179,6 @@ export class OpenLibraryService implements MediaService {
         totalPages,
         totalCount,
       };
-
-    } catch (error) {
-      console.error('Open Library Search Error:', error);
-      throw error;
-    }
   }
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
@@ -206,16 +187,7 @@ export class OpenLibraryService implements MediaService {
     }
 
     try {
-        const response = await fetch(`${OPEN_LIBRARY_BASE_URL}/works/${id}.json`);
-        if (!response.ok) {
-           return {
-             id,
-             mbid: id,
-             type: 'book',
-           };
-        }
-        
-        const data = await response.json() as OpenLibraryWorkDetails;
+        const data = await secureFetch<OpenLibraryWorkDetails>(`${OPEN_LIBRARY_BASE_URL}/works/${id}.json`);
         const imageUrl = data.covers && data.covers.length > 0 
            ? `${COVERS_BASE_URL}/${data.covers[0]}-L.jpg` 
            : undefined;
