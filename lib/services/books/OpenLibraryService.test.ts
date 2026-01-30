@@ -1,54 +1,83 @@
+import { setupServer } from 'msw/node';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-import { describe, expect,it } from 'vitest';
-
-import { BookItem } from '@/lib/types';
-
+import { handlers } from './mocks/handlers';
 import { OpenLibraryService } from './OpenLibraryService';
 
-describe('OpenLibraryService', () => {
-    const service = new OpenLibraryService();
+const server = setupServer(...handlers);
 
-    it('should return results for "harry"', async () => {
-        const result = await service.search('harry', 'book');
-        expect(result.results.length).toBeGreaterThan(0);
-        expect(result.results[0].title.toLowerCase()).toContain('harry');
+describe('OpenLibraryService Integration (Fake Server)', () => {
+  const service = new OpenLibraryService();
+
+  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+
+  it('should find books by title in the "fake database"', async () => {
+    const result = await service.search('Fellowship', 'book');
+    
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].title).toBe('The Fellowship of the Ring');
+    expect(result.results[0].type).toBe('book');
+  });
+
+  it('should filter correctly by Author using Lucene query logic', async () => {
+    // Search for "Potter" but filter by author "Rowling"
+    const result = await service.search('Potter', 'book', {
+      filters: { selectedAuthor: 'Rowling' },
     });
 
-    it('should handle short queries by returning empty results instead of 422', async () => {
-        const result = await service.search('h', 'book');
-        expect(result.results).toEqual([]);
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].title).toContain('Harry Potter');
+  });
+
+  it('should return empty results for author mismatch', async () => {
+    // Tolkien didn't write Harry Potter
+    const result = await service.search('Potter', 'book', {
+      filters: { selectedAuthor: 'Tolkien' },
     });
 
-    it('should apply fuzzy search when enabled', async () => {
-        // We can't easily mock the fetch or check the URL without more setup,
-        // but we can verify that a fuzzy search for a typo returns results.
-        const result = await service.search('hary', 'book', { fuzzy: true });
-        expect(result.results.length).toBeGreaterThan(0);
-        expect(result.results[0].title.toLowerCase()).toContain('harry');
+    expect(result.results).toHaveLength(0);
+  });
+
+  it('should filter by Year Range correctly', async () => {
+    // Fellowship is 1954
+    const result = await service.search('Ring', 'book', {
+      filters: { minYear: '1950', maxYear: '1960' },
     });
 
-    it('should apply wildcard search when enabled', async () => {
-        const result = await service.search('harr', 'book', { wildcard: true });
-        expect(result.results.length).toBeGreaterThan(0);
-        const hasHarry = result.results.some(r => r.title.toLowerCase().includes('harry') || (r as BookItem).author?.toLowerCase().includes('harry'));
-        expect(hasHarry).toBe(true);
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].title).toContain('Fellowship');
+  });
+
+  it('should filter by Publisher', async () => {
+    const result = await service.search('Ring', 'book', {
+      filters: { publisher: 'George Allen' },
     });
 
-    it('should apply filters for language and publisher', async () => {
-        // Search for "The Hobbit" in English by Allen (original publisher)
-        const result = await service.search('Hobbit', 'book', {
-            filters: { publisher: 'Allen' }
-        });
-        expect(result.results.length).toBeGreaterThan(0);
-        expect(result.results[0].title).toContain('Hobbit');
-    });
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].title).toContain('Fellowship');
+  });
 
-    it('should respect the sort parameter', async () => {
-        // Search for popular books and sort by rating
-        const result = await service.search('Potter', 'book', {
-            filters: { sort: 'rating_desc' }
-        });
-        expect(result.results.length).toBeGreaterThan(0);
-        expect(result.results[0].title.toLowerCase()).toContain('potter');
-    });
+  it('should find authors using the Author API', async () => {
+    const result = await service.search('Tolkien', 'author');
+    
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].title).toBe('J.R.R. Tolkien');
+    expect(result.results[0].type).toBe('author');
+  });
+
+  it('should handle API errors gracefully', async () => {
+    // Override handler to return 500
+    const { http, HttpResponse } = await import('msw');
+    server.use(
+      http.get('https://openlibrary.org/search.json', () => {
+        return new HttpResponse(null, { status: 500 });
+      })
+    );
+
+    await expect(service.search('broken', 'book'))
+      .rejects.toThrow('Open Library API Error: 500');
+  });
 });
+

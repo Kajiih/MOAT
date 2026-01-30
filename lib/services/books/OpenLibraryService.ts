@@ -266,7 +266,7 @@ export class OpenLibraryService implements MediaService {
    */
   private buildSearchQuery(query: string, options: SearchOptions): string {
     const { fuzzy, wildcard, filters } = options;
-    const author = filters?.author as string | undefined;
+    const author = filters?.selectedAuthor as string | undefined;
     const minYear = filters?.minYear as string | undefined;
     const maxYear = filters?.maxYear as string | undefined;
     const bookType = filters?.bookType as string | undefined;
