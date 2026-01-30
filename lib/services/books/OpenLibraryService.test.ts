@@ -1,17 +1,13 @@
-import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
+import { setupMSW } from '@/lib/test/msw-test-utils';
 import { handlers } from './mocks/handlers';
 import { OpenLibraryService } from './OpenLibraryService';
-
-const server = setupServer(...handlers);
 
 describe('OpenLibraryService Integration (Fake Server)', () => {
   const service = new OpenLibraryService();
 
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
+  const server = setupMSW(handlers);
 
   it('should find books by title in the "fake database"', async () => {
     const result = await service.search('Fellowship', 'book');
@@ -84,7 +80,7 @@ describe('OpenLibraryService Integration (Fake Server)', () => {
     const details = await service.getDetails('OL1W', 'book');
     
     expect(details.id).toBe('OL1W');
-    expect(details.description).toBe('A great journey begins.');
+    expect(details.description).toBe('Mock description for The Fellowship of the Ring');
     expect(details.tags).toContain('Fantasy');
   });
 });

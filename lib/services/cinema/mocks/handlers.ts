@@ -1,11 +1,17 @@
 /**
  * @file handlers.ts
- * @description MSW handlers for TMDB API mock.
+ * @description MSW handlers for TMDB API mock using faker.
  */
 
+import { faker } from '@faker-js/faker';
 import { http, HttpResponse } from 'msw';
 
+import { matchesQuery } from '@/lib/test/lucene-evaluator';
+
 const TMDB_BASE = 'https://api.themoviedb.org/3';
+
+const SEED = 789;
+faker.seed(SEED);
 
 interface TMDBMockItem {
   id: number;
@@ -19,7 +25,12 @@ interface TMDBMockItem {
 const mockDb: Record<string, TMDBMockItem[]> = {
   movie: [
     { id: 1, title: 'Inception', release_date: '2010-07-16', poster_path: '/inception.jpg' },
-    { id: 2, title: 'Interstellar', release_date: '2014-11-07', poster_path: '/interstellar.jpg' },
+    ...Array.from({ length: 10 }, (_, i) => ({
+        id: 10 + i,
+        title: faker.commerce.productName(),
+        release_date: faker.date.past({ years: 20 }).toISOString().split('T')[0],
+        poster_path: `/${faker.string.alphanumeric(10)}.jpg`
+    }))
   ],
   tv: [
     { id: 101, name: 'Breaking Bad', first_air_date: '2008-01-20', poster_path: '/bb.jpg' },
@@ -33,15 +44,17 @@ const mockDb: Record<string, TMDBMockItem[]> = {
  * Mock TMDB Handlers.
  */
 export const handlers = [
-  // Search handlers
   http.get(`${TMDB_BASE}/search/:type`, ({ request, params }) => {
     const url = new URL(request.url);
-    const query = url.searchParams.get('query')?.toLowerCase() || '';
-    const type = params.type as string; // 'movie', 'tv', 'person'
+    const query = url.searchParams.get('query') || '';
+    const type = params.type as string; 
     
     const items = mockDb[type] || [];
     const matches = items.filter(item => 
-      (item.title || item.name || '').toLowerCase().includes(query)
+      matchesQuery(query, item, {
+          query: 'title', // Simple mapping
+          name: 'name'
+      })
     );
 
     return HttpResponse.json({
@@ -52,7 +65,6 @@ export const handlers = [
     });
   }),
 
-  // Details handlers
   http.get(`${TMDB_BASE}/:type/:id`, ({ params }) => {
     const type = params.type as string;
     const id = Number.parseInt(params.id as string, 10);
@@ -70,3 +82,4 @@ export const handlers = [
     });
   })
 ];
+

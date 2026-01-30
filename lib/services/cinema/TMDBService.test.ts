@@ -1,25 +1,21 @@
-import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { setupMSW } from '@/lib/test/msw-test-utils';
 import { handlers } from './mocks/handlers';
 import { TMDBService } from './TMDBService';
-
-const server = setupServer(...handlers);
 
 describe('TMDBService Integration (Fake Server)', () => {
   const service = new TMDBService();
 
+  setupMSW(handlers);
+
   beforeAll(() => {
     // We need the API KEY check to pass
     vi.stubEnv('NEXT_PUBLIC_TMDB_API_KEY', 'fake-key');
-    server.listen({ onUnhandledRequest: 'error' });
   });
-
-  afterEach(() => server.resetHandlers());
 
   afterAll(() => {
     vi.unstubAllEnvs();
-    server.close();
   });
 
   it('should find movies by title', async () => {
