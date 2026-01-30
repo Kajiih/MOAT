@@ -63,9 +63,9 @@ describe('useBoardRegistry', () => {
 
   it('should create a new board', async () => {
     vi.mocked(storage.keys).mockResolvedValue([]);
-    
+
     const { result } = renderHook(() => useBoardRegistry());
-    
+
     // Wait for initial load
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -84,11 +84,11 @@ describe('useBoardRegistry', () => {
     // Check persistence
     expect(storage.set).toHaveBeenCalledWith(
       `moat-meta-${newId!}`,
-      expect.objectContaining({ title: 'New Test Board', category: 'cinema' })
+      expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
     );
     expect(storage.set).toHaveBeenCalledWith(
       `moat-board-${newId!}`,
-      expect.objectContaining({ title: 'New Test Board', category: 'cinema' })
+      expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
     );
   });
 
@@ -151,8 +151,8 @@ describe('useBoardRegistry', () => {
 
     // Persistence check
     expect(storage.set).toHaveBeenCalledWith(
-        'moat-meta-board-1',
-        expect.objectContaining({ title: 'Updated Title' })
+      'moat-meta-board-1',
+      expect.objectContaining({ title: 'Updated Title' }),
     );
   });
 });

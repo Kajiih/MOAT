@@ -18,6 +18,7 @@ import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
 import { mediaTypeRegistry } from '@/lib/media-types';
 import { BaseMediaItem, MediaItem, MediaType, SongItem, SortOption } from '@/lib/types';
+import { toSearchId } from '@/lib/utils/ids';
 
 import { SearchFilters } from './filters/SearchFilters';
 import { useMediaSearch } from './hooks/useMediaSearch';
@@ -59,7 +60,7 @@ export function SearchTab({
   onInfo,
 }: SearchTabProps) {
   const { showFilters, toggleFilters } = useSearchFilters(type);
-  
+
   // Logic: Enable prefetch by default, disable ONLY when interacting with filters/input
   const [shouldPrefetch, setShouldPrefetch] = useState(true);
 
@@ -107,30 +108,30 @@ export function SearchTab({
           return b.title.localeCompare(a.title);
         }
         case 'duration_desc': {
-           return ((b as SongItem).duration || 0) - ((a as SongItem).duration || 0);
+          return ((b as SongItem).duration || 0) - ((a as SongItem).duration || 0);
         }
         case 'duration_asc': {
-           return ((a as SongItem).duration || 0) - ((b as SongItem).duration || 0);
+          return ((a as SongItem).duration || 0) - ((b as SongItem).duration || 0);
         }
         case 'rating_desc': {
-           const aVal = (a as BaseMediaItem).rating ?? -1;
-           const bVal = (b as BaseMediaItem).rating ?? -1;
-           return bVal - aVal;
+          const aVal = (a as BaseMediaItem).rating ?? -1;
+          const bVal = (b as BaseMediaItem).rating ?? -1;
+          return bVal - aVal;
         }
         case 'rating_asc': {
-           const aVal = (a as BaseMediaItem).rating ?? 999;
-           const bVal = (b as BaseMediaItem).rating ?? 999;
-           return aVal - bVal;
+          const aVal = (a as BaseMediaItem).rating ?? 999;
+          const bVal = (b as BaseMediaItem).rating ?? 999;
+          return aVal - bVal;
         }
         case 'reviews_desc': {
-           const aVal = (a as BaseMediaItem).reviewCount ?? -1;
-           const bVal = (b as BaseMediaItem).reviewCount ?? -1;
-           return bVal - aVal;
+          const aVal = (a as BaseMediaItem).reviewCount ?? -1;
+          const bVal = (b as BaseMediaItem).reviewCount ?? -1;
+          return bVal - aVal;
         }
         case 'reviews_asc': {
-           const aVal = (a as BaseMediaItem).reviewCount ?? 999_999_999;
-           const bVal = (b as BaseMediaItem).reviewCount ?? 999_999_999;
-           return aVal - bVal;
+          const aVal = (a as BaseMediaItem).reviewCount ?? 999_999_999;
+          const bVal = (b as BaseMediaItem).reviewCount ?? 999_999_999;
+          return aVal - bVal;
         }
         default: {
           return 0;
@@ -181,7 +182,7 @@ export function SearchTab({
                 <MediaCard
                   key={`${item.id}-${isAdded}`}
                   item={item}
-                  id={`search-${item.id}`}
+                  id={toSearchId(item.id)}
                   isAdded={isAdded}
                   onLocate={onLocate}
                   onInfo={onInfo}
@@ -196,9 +197,7 @@ export function SearchTab({
     return (
       <div className="custom-scrollbar flex-1 overflow-y-auto">
         {hasActiveFilters && (
-          <div className="mt-8 text-center text-sm text-neutral-600 italic">
-            No results found.
-          </div>
+          <div className="mt-8 text-center text-sm text-neutral-600 italic">No results found.</div>
         )}
       </div>
     );
@@ -206,14 +205,14 @@ export function SearchTab({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div 
+      <div
         className="mb-4 grid shrink-0 grid-cols-1 gap-2"
         onMouseEnter={() => setShouldPrefetch(false)}
         onMouseLeave={() => setShouldPrefetch(true)}
         onFocus={() => setShouldPrefetch(false)}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-             setShouldPrefetch(true);
+            setShouldPrefetch(true);
           }
         }}
       >
@@ -234,9 +233,9 @@ export function SearchTab({
             sortOption={(filters.sort as string) || 'relevance'}
             onSortChange={(val) => updateFilters({ sort: val })}
             type={type}
-            options={mediaTypeRegistry.getSortOptions(type).map(opt => ({ 
-              label: opt.label, 
-              value: opt.value 
+            options={mediaTypeRegistry.getSortOptions(type).map((opt) => ({
+              label: opt.label,
+              value: opt.value,
             }))}
           />
 
@@ -252,18 +251,16 @@ export function SearchTab({
         {/* Advanced Filters Panel */}
         {showFilters && (
           <div className="rounded border border-neutral-800 bg-neutral-900/50 p-2">
-            <SearchFilters
-              type={type}
-              filters={filters}
-              updateFilters={updateFilters}
-            />
+            <SearchFilters type={type} filters={filters} updateFilters={updateFilters} />
           </div>
         )}
       </div>
 
       {/* Results Area (Grid + Pagination) */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">{renderContent()}</div>
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+          {renderContent()}
+        </div>
 
         {/* Pagination Footer - Fixed at bottom */}
         {!isSearching && searchResults.length > 0 && totalPages > 1 && (

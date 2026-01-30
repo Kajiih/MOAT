@@ -20,7 +20,7 @@ describe('TMDBService Integration (Fake Server)', () => {
 
   it('should find movies by title', async () => {
     const result = await service.search('Inception', 'movie');
-    
+
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('Inception');
     expect(result.results[0].year).toBe('2010');
@@ -29,7 +29,7 @@ describe('TMDBService Integration (Fake Server)', () => {
 
   it('should find tv shows', async () => {
     const result = await service.search('Breaking', 'tv');
-    
+
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('Breaking Bad');
     expect(result.results[0].type).toBe('tv');
@@ -37,7 +37,7 @@ describe('TMDBService Integration (Fake Server)', () => {
 
   it('should find persons', async () => {
     const result = await service.search('Nolan', 'person');
-    
+
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('Christopher Nolan');
     expect(result.results[0].type).toBe('person');
@@ -45,7 +45,7 @@ describe('TMDBService Integration (Fake Server)', () => {
 
   it('should fetch details correctly', async () => {
     const details = await service.getDetails('1', 'movie');
-    
+
     expect(details.id).toBe('1');
     expect(details.date).toBe('2010-07-16');
     expect(details.imageUrl).toContain('inception.jpg');

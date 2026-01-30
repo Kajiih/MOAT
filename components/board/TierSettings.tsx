@@ -69,8 +69,10 @@ export function TierSettings({
         <button
           className={twMerge(
             'flex rounded bg-black/20 p-1 text-black transition-opacity hover:bg-black/40',
-            isAnyDragging ? 'pointer-events-none opacity-0' : 'opacity-0 group-hover/row:opacity-100',
-            isOpen && 'opacity-100 bg-black/40',
+            isAnyDragging
+              ? 'pointer-events-none opacity-0'
+              : 'opacity-0 group-hover/row:opacity-100',
+            isOpen && 'bg-black/40 opacity-100',
           )}
           title="Tier Settings"
         >
@@ -128,4 +130,3 @@ export function TierSettings({
     </Popover>
   );
 }
-

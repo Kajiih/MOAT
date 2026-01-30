@@ -51,7 +51,7 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
         {/* Header Section with Side Logo aligned to title */}
         <div className="relative mb-12 flex w-full flex-col items-center justify-center">
           {/* Top-Left Branding */}
-          <div className="absolute left-0 top-1/2 -translate-y-1/2">
+          <div className="absolute top-1/2 left-0 -translate-y-1/2">
             <BrandLogo colors={logoHexColors} variant="header" />
           </div>
 

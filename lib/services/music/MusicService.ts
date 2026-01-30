@@ -15,12 +15,8 @@ import { MediaService, SearchOptions } from '../types';
  */
 export class MusicService implements MediaService {
   readonly category = 'music' as const;
-  
-  async search(
-    query: string,
-    type: MediaType,
-    options: SearchOptions = {},
-  ): Promise<SearchResult> {
+
+  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     // Adapter to map generic options to MusicBrainz specific params
     return searchMusicBrainz({
       type,

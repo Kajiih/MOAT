@@ -91,7 +91,9 @@ export function MediaImage({
 
   // Placeholder mode
   return (
-    <div className={`${containerClassName} flex flex-col items-center justify-center overflow-hidden border border-neutral-800 bg-neutral-900 p-2 text-neutral-600`}>
+    <div
+      className={`${containerClassName} flex flex-col items-center justify-center overflow-hidden border border-neutral-800 bg-neutral-900 p-2 text-neutral-600`}
+    >
       <TypeIcon size={24} className="mb-1 opacity-50" />
       {isExport && (
         <span className="mt-1 line-clamp-2 px-1 text-center text-[9px] leading-tight font-black uppercase opacity-30">

@@ -1,4 +1,3 @@
-
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { GET } from './route';
 import { getMediaService } from '@/lib/services/factory';
@@ -20,7 +19,7 @@ vi.mock('next/server', () => ({
 
 describe('Search API Route', () => {
   const mockSearch = vi.fn();
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getMediaService).mockReturnValue({
@@ -29,7 +28,8 @@ describe('Search API Route', () => {
   });
 
   it('calls the correct service with parsed options', async () => {
-    const url = 'http://localhost/api/search?query=Queen&type=artist&category=music&minYear=1970&fuzzy=false';
+    const url =
+      'http://localhost/api/search?query=Queen&type=artist&category=music&minYear=1970&fuzzy=false';
     const request = new Request(url);
 
     mockSearch.mockResolvedValue({ results: [], page: 1, totalPages: 1 });
@@ -37,13 +37,17 @@ describe('Search API Route', () => {
     await GET(request);
 
     expect(getMediaService).toHaveBeenCalledWith('music');
-    expect(mockSearch).toHaveBeenCalledWith('Queen', 'artist', expect.objectContaining({
-      page: 1,
-      fuzzy: false,
-      filters: expect.objectContaining({
-        minYear: '1970'
-      })
-    }));
+    expect(mockSearch).toHaveBeenCalledWith(
+      'Queen',
+      'artist',
+      expect.objectContaining({
+        page: 1,
+        fuzzy: false,
+        filters: expect.objectContaining({
+          minYear: '1970',
+        }),
+      }),
+    );
   });
 
   it('returns empty results if no query and no filters provided', async () => {
@@ -71,17 +75,22 @@ describe('Search API Route', () => {
   });
 
   it('parses toggle-group filters (multi-select)', async () => {
-    const url = 'http://localhost/api/search?query=rock&type=album&albumPrimaryTypes=Album&albumPrimaryTypes=EP';
+    const url =
+      'http://localhost/api/search?query=rock&type=album&albumPrimaryTypes=Album&albumPrimaryTypes=EP';
     const request = new Request(url);
 
     mockSearch.mockResolvedValue({ results: [] });
 
     await GET(request);
 
-    expect(mockSearch).toHaveBeenCalledWith('rock', 'album', expect.objectContaining({
-      filters: expect.objectContaining({
-        albumPrimaryTypes: ['Album', 'EP']
-      })
-    }));
+    expect(mockSearch).toHaveBeenCalledWith(
+      'rock',
+      'album',
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          albumPrimaryTypes: ['Album', 'EP'],
+        }),
+      }),
+    );
   });
 });

@@ -98,6 +98,14 @@
     - `useTierStructure`: Handles adding/deleting tiers and randomizing colors.
     - `useTierListUtils`: Handles derived state (header colors) and UI utilities (scrolling).
 
+- **Detailed Support Systems**:
+  - **ID Normalization** (`lib/utils/ids.ts`): Standardizes how items are tracked across search results, the board, and the DOM.
+    - **Context Isolation**: Uses a standard prefixing system (`toSearchId`) to distinguish between an item in search results vs. the same item on the board within the same `dnd-kit` context.
+    - **Bi-directional Mapping**: Utilities like `fromSearchId` and `isSearchId` ensure stable state transitions during drag-and-drop operations.
+    - **DOM Stability**: Centralized `toDomId` generation ensures consistent element targeting for scrolling, anchoring, and integration testing.
+  - **Entity Mappers** (`lib/utils/mappers.ts`): Pure functions for transforming raw API responses (MusicBrainz, TMDB, OpenLibrary) into the internal `MediaItem` domain objects.
+  - **Optimization Primitives** (`lib/utils/comparisons.ts`): Optimized deep-comparison utilities like `hasMediaItemUpdates` prevent redundant state updates when merging metadata.
+
 - **Undo/Redo System**:
   - **History Management**: Implemented via `useHistory` hook which maintains `past` and `future` state stacks in memory.
   - **Integration**: The `TierListContext` integrates `useHistory` alongside `usePersistentState`.
@@ -118,7 +126,9 @@
 The application uses a **Registry-based Architecture** to manage diverse media types.
 
 #### A. Media Type Registry (`lib/media-types/`)
+
 The central authority for "What a media type is".
+
 - **Definitions**: JSON-like configuration files defining:
   - Identity (ID, label, icon)
   - UI Config (colors, subtitle formatters)
@@ -127,7 +137,9 @@ The central authority for "What a media type is".
 - **Registry**: Exposes a unified API (`get(type)`, `getByCategory(cat)`) for consumers.
 
 #### B. Service Layer (`lib/services/`)
+
 Pure **API Adapters** responsible for "How to fetch data".
+
 - **Responsibility**: Fetching data from external APIs and mapping it to the internal `MediaItem` schema.
 - **Interface**: All services implement `MediaService` (search, getDetails, category).
 - **Isolation**: Services contain NO UI or Filter configuration logic.
@@ -195,20 +207,24 @@ Pure **API Adapters** responsible for "How to fetch data".
 Moat employs a multi-layered testing strategy combining unit and integration tests driven by Vitest.
 
 #### A. Integration Testing (Fake Server Pattern)
+
 - **Mock Service Worker (MSW)**: Instead of mocking internal service methods or domain logic, the app intercepts network requests at the `fetch` level using MSW.
-- **Contract-Based Testing**: Tests assert on the *outcome* (data returned by the service) rather than implementation details (which function was called).
+- **Contract-Based Testing**: Tests assert on the _outcome_ (data returned by the service) rather than implementation details (which function was called).
 - **Lucene Query Validation**: A robust `lucene-evaluator` parses and evaluates complex queries (AND, OR, NOT, Wildcards) against a fake in-memory database, ensuring service-to-API compatibility.
 - **Error Simulation**: MSW allows granular simulation of API failures (503s, 500s, 404s) to verify exponential backoff and retry logic in the `secureFetch` client.
 
 #### B. UI Component Testing
+
 - **Focus**: Critical interactive components like `MediaCard`, `MediaPicker`, and `DetailsModal`.
 - **Methodology**: Uses `@testing-library/react` and `jsdom`. Mocks complex hooks (`useMediaSearch`, `useMediaDetails`) to test component logic in isolation from the network.
 - **Coverage**: Verifies rendering accuracy, user interactions (selection, deletion, hovering), and error states (image fallbacks).
 
 #### C. API Route Testing
+
 - **Unit Testing**: API routes like `app/api/search` are tested as pure functions, verifying query parameter parsing, service delegation, and HTTP status code mapping.
 
 #### D. End-to-End (E2E) Testing
+
 - **Tooling**: Playwright is used for full browser environment testing, covering critical user journeys (CUJs).
 - **Core Coverage**:
   - **Tier Management**: Adding, deleting, renaming, and reordering tiers.

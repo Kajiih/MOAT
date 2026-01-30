@@ -20,10 +20,7 @@ interface DebugPanelProps {
  * @returns null (Leva renders its own UI).
  */
 export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
-  const {
-    state,
-    isHydrated,
-  } = useTierListContext();
+  const { state, isHydrated } = useTierListContext();
   const { registrySize, clearRegistry } = useMediaRegistry();
 
   // General Board State
@@ -99,8 +96,6 @@ export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
       'Items Pending': pendingEnrichmentCount,
     });
   }, [setBackgroundStats, pendingEnrichmentCount]);
-
-
 
   // Hide the panel by default, or style it?
   // Leva handles its own UI, so we just return null.

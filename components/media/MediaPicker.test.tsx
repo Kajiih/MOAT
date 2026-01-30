@@ -1,4 +1,3 @@
-
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { MediaPicker } from './MediaPicker';
@@ -20,7 +19,7 @@ vi.mock('next/image', () => ({
 
 describe('MediaPicker', () => {
   const mockOnSelect = vi.fn();
-  
+
   const mockResults = [
     { id: 'artist-1', title: 'Artist One', imageUrl: 'img1.jpg', type: 'artist' },
     { id: 'artist-2', title: 'Artist Two', imageUrl: 'img2.jpg', type: 'artist' },
@@ -37,7 +36,7 @@ describe('MediaPicker', () => {
   it('renders input and placeholder', () => {
     vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as any);
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
-    
+
     expect(screen.getByPlaceholderText('Filter by artist...')).toBeDefined();
   });
 
@@ -51,7 +50,7 @@ describe('MediaPicker', () => {
     } as any);
 
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
-    
+
     const input = screen.getByPlaceholderText('Filter by artist...');
     fireEvent.change(input, { target: { value: 'Art' } });
     expect(updateFilters).toHaveBeenCalledWith({ query: 'Art' });
@@ -70,7 +69,7 @@ describe('MediaPicker', () => {
     } as any);
 
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
-    
+
     const input = screen.getByPlaceholderText('Filter by artist...');
     fireEvent.focus(input); // Open the results
 
@@ -79,12 +78,12 @@ describe('MediaPicker', () => {
 
     // Use mouseDown as the component uses onMouseDown to prevent blur
     fireEvent.mouseDown(resultBtn);
-    
+
     expect(mockOnSelect).toHaveBeenCalledWith({
       id: 'artist-1',
       name: 'Artist One',
       imageUrl: 'img1.jpg',
-      disambiguation: 'artist-1'
+      disambiguation: 'artist-1',
     });
   });
 
@@ -94,31 +93,33 @@ describe('MediaPicker', () => {
       isLoading: true,
     } as any);
 
-    const { container } = render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
+    const { container } = render(
+      <MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />,
+    );
     expect(container.querySelector('.animate-spin')).toBeDefined();
   });
 
   it('displays selected item and allows clearing', () => {
     vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as any);
     const selectedItem = { id: 'artist-1', name: 'Artist One', imageUrl: 'img1.jpg' };
-    
+
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={selectedItem} />);
-    
+
     expect(screen.getByText('Artist One')).toBeDefined();
-    
+
     const clearBtn = screen.getByRole('button'); // Only one button (X) when selected
     fireEvent.click(clearBtn);
-    
+
     expect(mockOnSelect).toHaveBeenCalledWith(null);
   });
 
   it('toggles filters view', () => {
     vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as any);
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
-    
+
     const filterBtn = screen.getByTitle('Toggle Filters');
     fireEvent.click(filterBtn);
-    
+
     // Check if SearchFilters is rendered (it's a child component)
     // We can check for a label that exists in SearchFilters, like "Born / Formed" for artists
     expect(screen.getByText(/Born \/ Formed/i)).toBeDefined();

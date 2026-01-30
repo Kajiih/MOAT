@@ -6,6 +6,8 @@
 
 import lucene from 'lucene';
 
+import { logger } from '@/lib/logger';
+
 /**
  * Checks if a mock item matches a Lucene query string.
  * @param query - The Lucene query string (e.g., 'artist:"Nirvana" AND year:1991').
@@ -16,7 +18,7 @@ import lucene from 'lucene';
 export function matchesQuery(
   query: string,
   item: Record<string, any>,
-  fieldMap?: Record<string, string>
+  fieldMap?: Record<string, string>,
 ): boolean {
   if (!query) return true;
 
@@ -24,7 +26,7 @@ export function matchesQuery(
     const ast = lucene.parse(query);
     return evaluateNode(ast, item, fieldMap);
   } catch (error) {
-    console.error('Lucene Parse Error:', error, 'Query:', query);
+    logger.error({ error, query }, 'Lucene Parse Error');
     return false;
   }
 }
@@ -32,7 +34,11 @@ export function matchesQuery(
 /**
  * Recursively evaluate an AST node.
  */
-function evaluateNode(node: any, item: Record<string, any>, fieldMap?: Record<string, string>): boolean {
+function evaluateNode(
+  node: any,
+  item: Record<string, any>,
+  fieldMap?: Record<string, string>,
+): boolean {
   if (!node) return true;
 
   // 1. Handle Operators (AND, OR, NOT)
@@ -40,13 +46,13 @@ function evaluateNode(node: any, item: Record<string, any>, fieldMap?: Record<st
     return evaluateNode(node.left, item, fieldMap) && evaluateNode(node.right, item, fieldMap);
   }
   if (node.operator === 'AND NOT') {
-      return evaluateNode(node.left, item, fieldMap) && !evaluateNode(node.right, item, fieldMap);
+    return evaluateNode(node.left, item, fieldMap) && !evaluateNode(node.right, item, fieldMap);
   }
   if (node.operator === 'OR' || node.operator === '||') {
     return evaluateNode(node.left, item, fieldMap) || evaluateNode(node.right, item, fieldMap);
   }
   if (node.operator === 'OR NOT') {
-      return evaluateNode(node.left, item, fieldMap) || !evaluateNode(node.right, item, fieldMap);
+    return evaluateNode(node.left, item, fieldMap) || !evaluateNode(node.right, item, fieldMap);
   }
   if (node.operator === 'NOT' || node.operator === '!' || node.start === 'NOT') {
     return !evaluateNode(node.left || node.right, item, fieldMap);
@@ -54,29 +60,31 @@ function evaluateNode(node: any, item: Record<string, any>, fieldMap?: Record<st
 
   // 2. Handle nested nodes without operators (sometimes parse results are wrapped)
   if (node.left && !node.right && !node.operator) {
-      return evaluateNode(node.left, item, fieldMap);
+    return evaluateNode(node.left, item, fieldMap);
   }
 
   // 3. Handle Single Terms / Fields / Ranges
   if (node.term !== undefined || node.term_min !== undefined || node.term_max !== undefined) {
     const field = fieldMap && node.field ? fieldMap[node.field] : node.field;
-    
+
     // If field is missing or implicit, search all values
     let itemValue: any;
     if (!field || field === '<implicit>') {
-        itemValue = Object.values(item).flat().join(' ');
+      itemValue = Object.values(item).flat().join(' ').toLowerCase();
     } else {
-        itemValue = item[field];
+      itemValue = item[field];
     }
-    
+
     if (itemValue === undefined || itemValue === null) return false;
 
     // Handle range queries
     if (node.term_min !== undefined || node.term_max !== undefined) {
-        const val = Number(itemValue);
-        const min = node.term_min === '*' || node.term_min === undefined ? -Infinity : Number(node.term_min);
-        const max = node.term_max === '*' || node.term_max === undefined ? Infinity : Number(node.term_max);
-        return val >= min && val <= max;
+      const val = Number(itemValue);
+      const min =
+        node.term_min === '*' || node.term_min === undefined ? -Infinity : Number(node.term_min);
+      const max =
+        node.term_max === '*' || node.term_max === undefined ? Infinity : Number(node.term_max);
+      return val >= min && val <= max;
     }
 
     // Handle simple terms
@@ -86,14 +94,14 @@ function evaluateNode(node: any, item: Record<string, any>, fieldMap?: Record<st
 
       // Support Wildcard (match against any term in the field)
       if (term.includes('*')) {
-          const regex = new RegExp('^' + term.replace(/\*/g, '.*') + '$', 'i');
-          const valTerms = valStr.split(/[\s,.;:!?()\[\]{}"]+/);
-          return valTerms.some(t => regex.test(t));
+        const regex = new RegExp('^' + term.replace(/\*/g, '.*') + '$');
+        const valTerms = valStr.split(/[\s,.;:!?()\[\]{}"]+/);
+        return valTerms.some((t) => regex.test(t));
       }
 
       // Support Fuzzy (just includes for simplicity in mocks)
       if (node.similarity) {
-          return valStr.includes(term.slice(0, -1));
+        return valStr.includes(term.slice(0, -1));
       }
 
       return valStr.includes(term);

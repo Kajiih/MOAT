@@ -9,10 +9,10 @@ const server = setupServer(
   http.get('https://webservice.fanart.tv/v3/music/:mbid', ({ params, request }) => {
     const url = new URL(request.url);
     if (!url.searchParams.get('api_key')) return new HttpResponse(null, { status: 401 });
-    
+
     if (params.mbid === 'mbid-fanart') {
       return HttpResponse.json({
-        artistthumb: [{ url: 'https://fanart.tv/fanart/artist.jpg' }]
+        artistthumb: [{ url: 'https://fanart.tv/fanart/artist.jpg' }],
       });
     }
     return new HttpResponse(null, { status: 404 });
@@ -22,10 +22,12 @@ const server = setupServer(
   http.get('https://musicbrainz.org/ws/2/artist/:mbid', ({ params }) => {
     if (params.mbid === 'mbid-wikidata') {
       return HttpResponse.json({
-        relations: [{
-          type: 'wikidata',
-          url: { resource: 'https://www.wikidata.org/wiki/Q123' }
-        }]
+        relations: [
+          {
+            type: 'wikidata',
+            url: { resource: 'https://www.wikidata.org/wiki/Q123' },
+          },
+        ],
       });
     }
     return new HttpResponse(null, { status: 404 });
@@ -37,16 +39,18 @@ const server = setupServer(
     if (url.searchParams.get('entity') === 'Q123') {
       return HttpResponse.json({
         claims: {
-          P18: [{
-            mainsnak: {
-              datavalue: { value: 'ArtistImage.jpg' }
-            }
-          }]
-        }
+          P18: [
+            {
+              mainsnak: {
+                datavalue: { value: 'ArtistImage.jpg' },
+              },
+            },
+          ],
+        },
       });
     }
     return HttpResponse.json({ claims: {} });
-  })
+  }),
 );
 
 describe('Image Service Integration (Fake Server)', () => {
@@ -54,9 +58,9 @@ describe('Image Service Integration (Fake Server)', () => {
     vi.stubEnv('FANART_API_KEY', 'fake-fanart-key');
     server.listen({ onUnhandledRequest: 'error' });
   });
-  
+
   afterEach(() => server.resetHandlers());
-  
+
   afterAll(() => {
     vi.unstubAllEnvs();
     server.close();

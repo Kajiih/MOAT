@@ -196,8 +196,11 @@ function ToastItem({
     info: 'border-blue-900/50 bg-neutral-900 text-blue-400',
   };
 
-  const baseStyles = 'pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-xl';
-  const stackStyles = stacked ? 'hover:bg-neutral-800' : 'animate-in slide-in-from-right-full duration-300';
+  const baseStyles =
+    'pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-xl';
+  const stackStyles = stacked
+    ? 'hover:bg-neutral-800'
+    : 'animate-in slide-in-from-right-full duration-300';
 
   return (
     <div className={`${baseStyles} ${typeStyles[toast.type]} ${stackStyles}`}>

@@ -3,6 +3,7 @@
 This plan proposes a set of ambitious improvements to the Moat Tier List application, focusing on architectural elegance, performance, and "power user" features.
 
 ## Fixes
+
 - Fix pagination prefetching: Currently it only prefetches one page and when go the the next page, it doesn't prefetch the next one.
 - Prefetch should be active unless the mouse is in the search/filter section (the card grid doesn't count).
   - We need to separate properly the top of the search and the rest with the results that should activate the prefetch.
@@ -11,6 +12,7 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 ## Proposed Changes
 
 ### 1. Refactor missing image handling: no image should be a first class citizen
+
 - Missing images are currently handled by a client-side set `failedImages`. This is not ideal because it's not persistent and it's not shared across devices.
 - We can use a server-side cache for missing images. This would allow us to share the cache across devices and make it persistent (can be useful for the screenshot engine or shared boards, og images, etc)
 - We can also use a client-side cache for missing images. This would allow us to avoid repeated fetch attempts during the session.

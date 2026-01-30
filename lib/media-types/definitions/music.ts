@@ -5,27 +5,29 @@
 
 import { Disc, Music, User } from 'lucide-react';
 
-import { AlbumItem, ArtistItem, SongItem } from '@/lib/types';
+import { AlbumItem, ArtistItem, SongItem, ARTIST_TYPES, PRIMARY_TYPES } from '@/lib/types';
 
 import { MediaTypeDefinition } from '../types';
 
 export const artistDefinition: MediaTypeDefinition = {
   id: 'artist',
   category: 'music',
-  
+
   label: 'Artist',
   labelPlural: 'Artists',
   icon: User,
   colorClass: 'text-purple-400',
-  
+
   getSubtitle: (item) => (item as ArtistItem).disambiguation || '',
   getTertiaryText: (item) => (item.year ? `Est. ${item.year}` : 'Artist'),
-  
+
   filters: [
     {
       id: 'yearRange',
       label: 'Born / Formed',
       type: 'range',
+      minKey: 'minYear',
+      maxKey: 'maxYear',
       defaultValue: { min: '', max: '' },
     },
     {
@@ -41,12 +43,7 @@ export const artistDefinition: MediaTypeDefinition = {
       type: 'select',
       options: [
         { label: 'Any Type', value: '' },
-        { label: 'Person', value: 'Person' },
-        { label: 'Group', value: 'Group' },
-        { label: 'Orchestra', value: 'Orchestra' },
-        { label: 'Choir', value: 'Choir' },
-        { label: 'Character', value: 'Character' },
-        { label: 'Other', value: 'Other' },
+        ...ARTIST_TYPES.map((t) => ({ label: t, value: t })),
       ],
       defaultValue: '',
     },
@@ -58,7 +55,7 @@ export const artistDefinition: MediaTypeDefinition = {
       defaultValue: '',
     },
   ],
-  
+
   sortOptions: [
     { value: 'relevance', label: 'Relevance' },
     { value: 'date_desc', label: 'Date (Newest)' },
@@ -66,7 +63,7 @@ export const artistDefinition: MediaTypeDefinition = {
     { value: 'title_asc', label: 'Name (A-Z)' },
     { value: 'title_desc', label: 'Name (Z-A)' },
   ],
-  
+
   defaultFilters: {
     query: '',
     minYear: '',
@@ -76,7 +73,7 @@ export const artistDefinition: MediaTypeDefinition = {
     artistCountry: '',
     sort: 'relevance',
   },
-  
+
   searchable: true,
   supportsDetails: true,
 };
@@ -84,15 +81,15 @@ export const artistDefinition: MediaTypeDefinition = {
 export const albumDefinition: MediaTypeDefinition = {
   id: 'album',
   category: 'music',
-  
+
   label: 'Album',
   labelPlural: 'Albums',
   icon: Disc,
   colorClass: 'text-blue-400',
-  
+
   getSubtitle: (item) => (item as AlbumItem).artist || 'Unknown',
   getTertiaryText: (item) => (item.year ? `(${item.year})` : ''),
-  
+
   filters: [
     {
       id: 'selectedArtist',
@@ -106,6 +103,8 @@ export const albumDefinition: MediaTypeDefinition = {
       id: 'yearRange',
       label: 'Release Year',
       type: 'range',
+      minKey: 'minYear',
+      maxKey: 'maxYear',
       defaultValue: { min: '', max: '' },
     },
     {
@@ -119,17 +118,11 @@ export const albumDefinition: MediaTypeDefinition = {
       id: 'albumPrimaryTypes',
       label: 'Primary Types',
       type: 'toggle-group',
-      options: [
-        { label: 'Album', value: 'Album' },
-        { label: 'EP', value: 'EP' },
-        { label: 'Single', value: 'Single' },
-        { label: 'Broadcast', value: 'Broadcast' },
-        { label: 'Other', value: 'Other' },
-      ],
+      options: [...PRIMARY_TYPES.map((t) => ({ label: t, value: t }))],
       defaultValue: ['Album', 'EP'],
     },
   ],
-  
+
   sortOptions: [
     { value: 'relevance', label: 'Relevance' },
     { value: 'date_desc', label: 'Date (Newest)' },
@@ -137,7 +130,7 @@ export const albumDefinition: MediaTypeDefinition = {
     { value: 'title_asc', label: 'Name (A-Z)' },
     { value: 'title_desc', label: 'Name (Z-A)' },
   ],
-  
+
   defaultFilters: {
     query: '',
     selectedArtist: null,
@@ -148,7 +141,7 @@ export const albumDefinition: MediaTypeDefinition = {
     albumSecondaryTypes: [],
     sort: 'relevance',
   },
-  
+
   searchable: true,
   supportsDetails: true,
 };
@@ -156,19 +149,19 @@ export const albumDefinition: MediaTypeDefinition = {
 export const songDefinition: MediaTypeDefinition = {
   id: 'song',
   category: 'music',
-  
+
   label: 'Song',
   labelPlural: 'Songs',
   icon: Music,
   colorClass: 'text-green-400',
-  
+
   getSubtitle: (item) => (item as SongItem).album || '',
   getTertiaryText: (item) => {
     const i = item as SongItem;
     const yearSuffix = i.year ? ` (${i.year})` : '';
     return `${i.artist || 'Unknown'}${yearSuffix}`;
   },
-  
+
   filters: [
     {
       id: 'selectedArtist',
@@ -190,6 +183,8 @@ export const songDefinition: MediaTypeDefinition = {
       id: 'yearRange',
       label: 'Release Year',
       type: 'range',
+      minKey: 'minYear',
+      maxKey: 'maxYear',
       defaultValue: { min: '', max: '' },
     },
     {
@@ -203,11 +198,13 @@ export const songDefinition: MediaTypeDefinition = {
       id: 'durationRange',
       label: 'Duration (Seconds)',
       type: 'range',
+      minKey: 'minDuration',
+      maxKey: 'maxDuration',
       placeholder: 'Sec',
       defaultValue: { min: '', max: '' },
     },
   ],
-  
+
   sortOptions: [
     { value: 'relevance', label: 'Relevance' },
     { value: 'date_desc', label: 'Date (Newest)' },
@@ -217,7 +214,7 @@ export const songDefinition: MediaTypeDefinition = {
     { value: 'duration_desc', label: 'Duration (Longest)' },
     { value: 'duration_asc', label: 'Duration (Shortest)' },
   ],
-  
+
   defaultFilters: {
     query: '',
     selectedArtist: null,
@@ -229,7 +226,7 @@ export const songDefinition: MediaTypeDefinition = {
     maxDuration: '',
     sort: 'relevance',
   },
-  
+
   searchable: true,
   supportsDetails: true,
 };

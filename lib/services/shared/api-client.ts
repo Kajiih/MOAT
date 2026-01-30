@@ -16,7 +16,7 @@ export interface RequestOptions extends RequestInit {
 export async function secureFetch<T = any>(
   url: string,
   options: RequestOptions = {},
-  retryCount = 0
+  retryCount = 0,
 ): Promise<T> {
   const { retryLimit = 2, ...fetchOptions } = options;
 
@@ -25,23 +25,26 @@ export async function secureFetch<T = any>(
 
     // Handle temporary server errors or rate limits
     if ([429, 503, 504].includes(response.status) && retryCount < retryLimit) {
-        const delay = 1000 * (retryCount + 1);
-        logger.warn(`API received ${response.status} for ${url}. Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return secureFetch<T>(url, options, retryCount + 1);
+      const delay = 1000 * (retryCount + 1);
+      logger.warn(`API received ${response.status} for ${url}. Retrying in ${delay}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return secureFetch<T>(url, options, retryCount + 1);
     }
 
     if (!response.ok) {
-        const text = await response.text();
-        logger.error({ status: response.status, url, body: text }, 'External API Error');
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      const text = await response.text();
+      logger.error({ status: response.status, url, body: text }, 'External API Error');
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
   } catch (error) {
-    if (retryCount < retryLimit && !(error instanceof Error && error.message.includes('API Error'))) {
-        logger.warn({ error, url }, 'Network Error, retrying...');
-        return secureFetch<T>(url, options, retryCount + 1);
+    if (
+      retryCount < retryLimit &&
+      !(error instanceof Error && error.message.includes('API Error'))
+    ) {
+      logger.warn({ error, url }, 'Network Error, retrying...');
+      return secureFetch<T>(url, options, retryCount + 1);
     }
     throw error;
   }

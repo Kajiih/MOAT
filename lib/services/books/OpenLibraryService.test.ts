@@ -11,7 +11,7 @@ describe('OpenLibraryService Integration (Fake Server)', () => {
 
   it('should find books by title in the "fake database"', async () => {
     const result = await service.search('Fellowship', 'book');
-    
+
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('The Fellowship of the Ring');
     expect(result.results[0].type).toBe('book');
@@ -57,7 +57,7 @@ describe('OpenLibraryService Integration (Fake Server)', () => {
 
   it('should find authors using the Author API', async () => {
     const result = await service.search('Tolkien', 'author');
-    
+
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('J.R.R. Tolkien');
     expect(result.results[0].type).toBe('author');
@@ -69,21 +69,17 @@ describe('OpenLibraryService Integration (Fake Server)', () => {
     server.use(
       http.get('https://openlibrary.org/search.json', () => {
         return new HttpResponse(null, { status: 500 });
-      })
+      }),
     );
 
-    await expect(service.search('broken', 'book'))
-      .rejects.toThrow('API Error: 500');
+    await expect(service.search('broken', 'book')).rejects.toThrow('API Error: 500');
   });
 
   it('should fetch book details correctly', async () => {
     const details = await service.getDetails('OL1W', 'book');
-    
+
     expect(details.id).toBe('OL1W');
     expect(details.description).toBe('Mock description for The Fellowship of the Ring');
     expect(details.tags).toContain('Fantasy');
   });
 });
-
-
-

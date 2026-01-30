@@ -43,7 +43,7 @@ interface UserPreferencesProviderProps {
 export function UserPreferencesProvider({ children }: UserPreferencesProviderProps) {
   const [showAdvanced, setShowAdvanced] = usePersistentState<boolean>(
     'moat-user-pref-advanced',
-    false
+    false,
   );
 
   return (

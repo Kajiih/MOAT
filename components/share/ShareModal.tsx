@@ -46,13 +46,13 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={onClose} 
+      <div
+        className="animate-in fade-in absolute inset-0 bg-black/80 backdrop-blur-sm duration-300"
+        onClick={onClose}
       />
 
       {/* Content */}
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 shadow-2xl animate-in zoom-in-95 duration-200">
+      <div className="animate-in zoom-in-95 relative w-full max-w-md overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 shadow-2xl duration-200">
         <div className="border-b border-neutral-800 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -71,20 +71,22 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
         </div>
 
         <div className="p-6">
-          <p className="mb-4 text-sm text-neutral-400 leading-relaxed">
+          <p className="mb-4 text-sm leading-relaxed text-neutral-400">
             Your board is now public! Anyone with the link can view it.
           </p>
 
-          <div className="flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 ring-neutral-800 focus-within:ring-blue-500/50 transition-all">
+          <div className="flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 ring-neutral-800 transition-all focus-within:ring-blue-500/50">
             <input
               readOnly
               value={shareUrl}
-              className="flex-1 bg-transparent px-2 py-1.5 text-sm font-mono text-neutral-300 outline-none"
+              className="flex-1 bg-transparent px-2 py-1.5 font-mono text-sm text-neutral-300 outline-none"
             />
             <button
               onClick={handleCopy}
               className={`flex items-center gap-2 rounded px-4 py-1.5 text-xs font-bold transition-all ${
-                copied ? 'bg-green-600 text-white' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white'
+                copied
+                  ? 'bg-green-600 text-white'
+                  : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white'
               }`}
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -103,7 +105,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               href={shareUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-blue-500 active:scale-95 shadow-lg shadow-blue-600/20"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 active:scale-95"
             >
               <ExternalLink size={16} />
               Visit Page

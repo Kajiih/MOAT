@@ -62,12 +62,12 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
     <ToastProvider>
       <MediaRegistryProvider>
         <InteractionContext.Provider value={{ setHoveredItem: () => {} }}>
-          <div className="min-h-screen bg-neutral-950 font-sans text-neutral-200 antialiased relative flex flex-col items-center pt-8 pb-8">
-            <div className="w-full max-w-[1200px] relative flex flex-col items-center px-4 md:px-8">
+          <div className="relative flex min-h-screen flex-col items-center bg-neutral-950 pt-8 pb-8 font-sans text-neutral-200 antialiased">
+            <div className="relative flex w-full max-w-[1200px] flex-col items-center px-4 md:px-8">
               {/* Header Section */}
               <div className="relative flex w-full flex-col items-center justify-center md:mb-12">
                 {/* Logo: Absolute top-left on desktop, static centered on mobile */}
-                <div className="mb-6 md:absolute md:left-0 md:top-1/2 md:mb-0 md:-translate-y-1/2">
+                <div className="mb-6 md:absolute md:top-1/2 md:left-0 md:mb-0 md:-translate-y-1/2">
                   <BrandLogo colors={brandColors} variant="header" />
                 </div>
 
@@ -97,13 +97,13 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
               </div>
 
               {/* CTA Section */}
-              <div className="mt-8 flex flex-col items-center gap-4 w-full">
+              <div className="mt-8 flex w-full flex-col items-center gap-4">
                 <p className="text-sm text-neutral-500 italic">
                   Created with MOAT - The Music Tier List App
                 </p>
                 <Link
                   href="/"
-                  className="rounded-full bg-blue-600 px-6 py-2 text-sm font-bold text-white transition-all hover:bg-blue-500 active:scale-95 shadow-lg shadow-blue-600/20"
+                  className="rounded-full bg-blue-600 px-6 py-2 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 active:scale-95"
                 >
                   Create Your Own Tier List
                 </Link>

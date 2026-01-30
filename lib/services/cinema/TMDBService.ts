@@ -32,7 +32,7 @@ interface TMDBDetails extends TMDBResult {
 
 export class TMDBService implements MediaService {
   readonly category = 'cinema' as const;
-  
+
   private getApiKey(): string {
     return process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
   }
@@ -40,42 +40,38 @@ export class TMDBService implements MediaService {
   private async fetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
-        logger.warn('TMDB_API_KEY is missing.');
-        return null;
+      logger.warn('TMDB_API_KEY is missing.');
+      return null;
     }
 
     const query = new URLSearchParams(params);
     query.append('api_key', apiKey);
-    
+
     return secureFetch<T>(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`);
   }
 
-  async search(
-    query: string,
-    type: MediaType,
-    options: SearchOptions = {},
-  ): Promise<SearchResult> {
+  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     const page = options.page || 1;
-    
+
     if (!this.getApiKey()) {
-       throw new Error('TMDB_API_KEY is missing');
+      throw new Error('TMDB_API_KEY is missing');
     }
 
     let endpoint = '';
     switch (type) {
-      case 'movie': { 
+      case 'movie': {
         endpoint = '/search/movie';
         break;
       }
-      case 'tv': { 
+      case 'tv': {
         endpoint = '/search/tv';
         break;
       }
-      case 'person': { 
+      case 'person': {
         endpoint = '/search/person';
         break;
       }
-      default: { 
+      default: {
         return { results: [], page: 1, totalPages: 0, totalCount: 0 };
       }
     }
@@ -86,7 +82,7 @@ export class TMDBService implements MediaService {
       total_pages: number;
       total_results: number;
     }>(endpoint, { query, page: page.toString() });
-    
+
     if (!data) {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
@@ -101,15 +97,26 @@ export class TMDBService implements MediaService {
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
     if (!this.getApiKey()) {
-        throw new Error('TMDB_API_KEY is missing');
+      throw new Error('TMDB_API_KEY is missing');
     }
-    
+
     let pathType: string;
     switch (type) {
-      case 'movie': { pathType = 'movie'; break; }
-      case 'tv': { pathType = 'tv'; break; }
-      case 'person': { pathType = 'person'; break; }
-      default: { pathType = 'person'; }
+      case 'movie': {
+        pathType = 'movie';
+        break;
+      }
+      case 'tv': {
+        pathType = 'tv';
+        break;
+      }
+      case 'person': {
+        pathType = 'person';
+        break;
+      }
+      default: {
+        pathType = 'person';
+      }
     }
 
     const endpoint = `/${pathType}/${id}`;
@@ -122,11 +129,11 @@ export class TMDBService implements MediaService {
     const rawImageUrl = data.poster_path || data.profile_path;
 
     return {
-        id,
-        mbid: id,
-        type,
-        imageUrl: rawImageUrl ? `${IMAGE_BASE_URL}${rawImageUrl}` : undefined,
-        date: data.release_date || data.first_air_date,
+      id,
+      mbid: id,
+      type,
+      imageUrl: rawImageUrl ? `${IMAGE_BASE_URL}${rawImageUrl}` : undefined,
+      date: data.release_date || data.first_air_date,
     };
   }
 
@@ -147,9 +154,15 @@ export class TMDBService implements MediaService {
     };
 
     switch (type) {
-      case 'movie': { return { ...base, type: 'movie' }; }
-      case 'tv': { return { ...base, type: 'tv' }; }
-      case 'person': { return { ...base, type: 'person' }; }
+      case 'movie': {
+        return { ...base, type: 'movie' };
+      }
+      case 'tv': {
+        return { ...base, type: 'tv' };
+      }
+      case 'person': {
+        return { ...base, type: 'person' };
+      }
       default: {
         throw new Error(`Unsupported type: ${type}`);
       }

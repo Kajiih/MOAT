@@ -54,7 +54,7 @@ export function SortDropdown({ sortOption, onSortChange, type, options }: SortDr
   const finalOptions = options || defaultOptions;
 
   // For backward compatibility if options not provided but type is song
-  if (!options && type === 'song' && !finalOptions.some(o => o.value === 'duration_desc')) {
+  if (!options && type === 'song' && !finalOptions.some((o) => o.value === 'duration_desc')) {
     finalOptions.push(
       { value: 'duration_desc', label: 'Duration (Longest)' },
       { value: 'duration_asc', label: 'Duration (Shortest)' },
@@ -92,4 +92,3 @@ export function SortDropdown({ sortOption, onSortChange, type, options }: SortDr
     </Popover>
   );
 }
-

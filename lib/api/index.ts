@@ -7,7 +7,6 @@
 
 import { BoardCategory, MediaType } from '../types';
 
-
 /**
  * Generates a normalized URL for search requests.
  * Ensures consistent parameter order and handles defaults for SWR cache hits.

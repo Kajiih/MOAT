@@ -171,8 +171,7 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
   // Optimization: If it's already in the right spot, we skip
   // (Mostly for handleDragOver which can be called many times)
   const isAlreadyAtTarget =
-    activeContainer !== overContainer &&
-    state.items[overContainer].some((i) => i.id === activeId);
+    activeContainer !== overContainer && state.items[overContainer].some((i) => i.id === activeId);
   if (isAlreadyAtTarget) return state;
 
   return handleMoveBetweenContainers(state, activeId, overId, activeContainer, overContainer);
@@ -198,11 +197,7 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
 
       const newItem = { ...currentItem, ...updates } as MediaItem;
 
-      newItems[tierId] = [
-        ...list.slice(0, index),
-        newItem,
-        ...list.slice(index + 1),
-      ];
+      newItems[tierId] = [...list.slice(0, index), newItem, ...list.slice(index + 1)];
       modified = true;
 
       // Handle ID change (Normalization)

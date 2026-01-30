@@ -92,7 +92,9 @@ export function SearchSettings({
                   className="accent-red-600"
                 />
               </label>
-              <p className="text-[10px] text-neutral-500">Finds matches starting with your query.</p>
+              <p className="text-[10px] text-neutral-500">
+                Finds matches starting with your query.
+              </p>
             </div>
           </div>
         </div>
@@ -100,4 +102,3 @@ export function SearchSettings({
     </Popover>
   );
 }
-

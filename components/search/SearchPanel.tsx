@@ -37,11 +37,9 @@ export function SearchPanel() {
   } = useTierListContext();
 
   const { showAdvanced } = useUserPreferences();
-  
+
   // Get supported types for current category from registry
-  const supportedTypes = mediaTypeRegistry
-    .getByCategory(category || 'music')
-    .map((def) => def.id);
+  const supportedTypes = mediaTypeRegistry.getByCategory(category || 'music').map((def) => def.id);
 
   const [activeType, setActiveType] = usePersistentState<MediaType>(
     `moat-search-active-type-${category || 'music'}`, // Namespace by category

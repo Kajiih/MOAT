@@ -272,7 +272,7 @@ test.describe('Tier List App', () => {
     // Wait for item to appear and focus it
     const card = page.locator('#media-card-item-1');
     await expect(card).toBeVisible();
-    
+
     // Cleanup early to avoid interfering with interaction
     fs.unlinkSync(filePath);
 
@@ -282,8 +282,8 @@ test.describe('Tier List App', () => {
 
     // 3. Lift item
     await page.keyboard.press('Enter');
-    
-    // dnd-kit often adds aria-pressed or role description. 
+
+    // dnd-kit often adds aria-pressed or role description.
     // We wait a tiny bit for the sensor to activate.
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100);

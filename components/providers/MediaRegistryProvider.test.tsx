@@ -52,7 +52,12 @@ describe('MediaRegistryProvider', () => {
     });
 
     // Update with an item that lacks image/details (e.g. from a fresh search)
-    const sparseItem: MediaItem = { id: '1', title: 'Updated Title', type: 'artist', mbid: 'mbid-1' };
+    const sparseItem: MediaItem = {
+      id: '1',
+      title: 'Updated Title',
+      type: 'artist',
+      mbid: 'mbid-1',
+    };
 
     act(() => {
       result.current.registerItem(sparseItem);

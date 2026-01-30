@@ -1,8 +1,4 @@
-import {
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-} from '@dnd-kit/core';
+import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -47,9 +43,7 @@ describe('useTierListDnD', () => {
   });
 
   it('should handle handleDragStart for a media item', () => {
-    const { result } = renderHook(() =>
-      useTierListDnD(mockState, mockDispatch, mockPushHistory),
-    );
+    const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
     const mediaItem: MediaItem = { id: 'm1', title: 'Song 1', type: 'song' } as MediaItem;
     const event = {
@@ -74,9 +68,7 @@ describe('useTierListDnD', () => {
   });
 
   it('should handle handleDragOver and dispatch MOVE_ITEM', () => {
-    const { result } = renderHook(() =>
-      useTierListDnD(mockState, mockDispatch, mockPushHistory),
-    );
+    const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
     const mediaItem: MediaItem = { id: 'm1', title: 'Song 1', type: 'song' } as MediaItem;
     const event = {
@@ -118,9 +110,7 @@ describe('useTierListDnD', () => {
   });
 
   it('should handle handleDragEnd for item reordering', () => {
-    const { result } = renderHook(() =>
-      useTierListDnD(mockState, mockDispatch, mockPushHistory),
-    );
+    const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
     const mediaItem: MediaItem = { id: 'm1', title: 'Song 1', type: 'song' } as MediaItem;
     const event = {
@@ -155,9 +145,7 @@ describe('useTierListDnD', () => {
   });
 
   it('should handle handleDragEnd for tier reordering', () => {
-    const { result } = renderHook(() =>
-      useTierListDnD(mockState, mockDispatch, mockPushHistory),
-    );
+    const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
     const event = {
       active: {
@@ -184,11 +172,13 @@ describe('useTierListDnD', () => {
   });
 
   it('should normalize ID after dragging an item from search', () => {
-    const { result } = renderHook(() =>
-      useTierListDnD(mockState, mockDispatch, mockPushHistory),
-    );
+    const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const canonicalItem: MediaItem = { id: 'real-id', title: 'Real Song', type: 'song' } as MediaItem;
+    const canonicalItem: MediaItem = {
+      id: 'real-id',
+      title: 'Real Song',
+      type: 'song',
+    } as MediaItem;
     const event = {
       active: {
         id: 'search-123',

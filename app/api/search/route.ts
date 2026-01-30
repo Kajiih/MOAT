@@ -17,7 +17,11 @@ import { BoardCategory, MediaType } from '@/lib/types';
  * @param searchParams - The URL search parameters.
  * @param filters - The accumulator object for parsed filters.
  */
-function parseRangeFilter(filterDef: FilterConfig, searchParams: URLSearchParams, filters: Record<string, unknown>) {
+function parseRangeFilter(
+  filterDef: FilterConfig,
+  searchParams: URLSearchParams,
+  filters: Record<string, unknown>,
+) {
   if (filterDef.id === 'yearRange') {
     filters.minYear = searchParams.get('minYear') || undefined;
     filters.maxYear = searchParams.get('maxYear') || undefined;
@@ -35,7 +39,11 @@ function parseRangeFilter(filterDef: FilterConfig, searchParams: URLSearchParams
  * @param searchParams - The URL search parameters.
  * @param filters - The accumulator object for parsed filters.
  */
-function parseFilter(filterDef: FilterConfig, searchParams: URLSearchParams, filters: Record<string, unknown>) {
+function parseFilter(
+  filterDef: FilterConfig,
+  searchParams: URLSearchParams,
+  filters: Record<string, unknown>,
+) {
   const paramName = filterDef.paramName || filterDef.id;
 
   if (filterDef.type === 'toggle-group') {
@@ -58,7 +66,6 @@ function parseFilter(filterDef: FilterConfig, searchParams: URLSearchParams, fil
     filters[filterDef.id] = value;
   }
 }
-
 
 /**
  * Parse search parameters into SearchOptions format.
@@ -100,7 +107,7 @@ export async function GET(request: Request) {
   try {
     const service = getMediaService(category);
     const options = parseSearchParams(searchParams, type);
-    
+
     // Quick exit if no search intent
     const hasFilters = Object.entries(options.filters || {}).some(([key, v]) => {
       if (key === 'sort' || key === 'query') return false;

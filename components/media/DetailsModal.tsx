@@ -127,8 +127,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                 <definition.icon size={16} className={definition.colorClass} />
                 <span className="font-medium">
                   {('artist' in enrichedItem && enrichedItem.artist) ||
-                   ('author' in enrichedItem && enrichedItem.author) ||
-                   'Artist'}
+                    ('author' in enrichedItem && enrichedItem.author) ||
+                    'Artist'}
                 </span>
                 {enrichedItem.year && (
                   <>
@@ -190,10 +190,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                   {details.description && (
                     <div className="space-y-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                      <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
                         Description
                       </h3>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-300">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-neutral-300">
                         {details.description}
                       </p>
                     </div>
@@ -201,7 +201,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                   {details.places && details.places.length > 0 && (
                     <div className="space-y-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                      <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
                         Setting / Places
                       </h3>
                       <div className="flex flex-wrap gap-2">
@@ -219,7 +219,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                   {details.tags && details.tags.length > 0 && (
                     <div className="space-y-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                      <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
                         Subjects
                       </h3>
                       <div className="flex flex-wrap gap-2">
@@ -236,7 +236,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                   )}
                   {details.urls && details.urls.length > 0 && (
                     <div className="space-y-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                      <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
                         Links
                       </h3>
                       <div className="flex flex-col gap-1">

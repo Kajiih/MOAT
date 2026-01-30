@@ -59,7 +59,7 @@ export interface MediaService {
    * The category this service handles (music, cinema, book, etc.).
    */
   readonly category: BoardCategory;
-  
+
   /**
    * Searches for items in the provider's database.
    */

@@ -25,9 +25,23 @@ const fakeDb = {
   })),
   // Add specific items we know we'll test for
   static: [
-    { id: 'song-1', title: 'Fake Song 1', artist: 'Fake Artist', artistId: 'artist-123', year: '1995', albumId: 'album-123' },
-    { id: 'song-2', title: 'Fake Song 2', artist: 'Another Artist', artistId: 'artist-456', year: '2020', albumId: 'album-789' },
-  ]
+    {
+      id: 'song-1',
+      title: 'Fake Song 1',
+      artist: 'Fake Artist',
+      artistId: 'artist-123',
+      year: '1995',
+      albumId: 'album-123',
+    },
+    {
+      id: 'song-2',
+      title: 'Fake Song 2',
+      artist: 'Another Artist',
+      artistId: 'artist-456',
+      year: '2020',
+      albumId: 'album-789',
+    },
+  ],
 };
 
 const allRecordings = [...fakeDb.static, ...fakeDb.recordings];
@@ -43,39 +57,40 @@ export const handlers = [
 
     if (type === 'recording') {
       const offset = Number.parseInt(url.searchParams.get('offset') || '0', 10);
-      
+
       // Use our new robust evaluator!
-      const matches = allRecordings.filter(song => {
-          // Special case for MusicBrainz complex fields
-          // We map Lucene fields (arid, rgid, date) to our internal mock object keys
-          return matchesQuery(query, song, {
-              arid: 'artistId',
-              rgid: 'albumId',
-              firstreleasedate: 'year',
-              recording: 'title'
-          });
+      const matches = allRecordings.filter((song) => {
+        // Special case for MusicBrainz complex fields
+        // We map Lucene fields (arid, rgid, date) to our internal mock object keys
+        return matchesQuery(query, song, {
+          arid: 'artistId',
+          rgid: 'albumId',
+          firstreleasedate: 'year',
+          recording: 'title',
+        });
       });
 
       return HttpResponse.json({
         created: new Date().toISOString(),
         count: matches.length,
         offset,
-        recordings: matches.slice(offset, offset + 15).map(m => ({
+        recordings: matches.slice(offset, offset + 15).map((m) => ({
           id: m.id,
           title: m.title,
           length: 240_000,
           'first-release-date': `${m.year}-01-01`,
           'artist-credit': [{ name: m.artist, artist: { id: m.artistId } }],
-          releases: [{ 
-            id: m.albumId,
-            title: 'Some Release',
-            'release-group': { id: m.albumId, title: 'Some Album' } 
-          }]
-        }))
+          releases: [
+            {
+              id: m.albumId,
+              title: 'Some Release',
+              'release-group': { id: m.albumId, title: 'Some Album' },
+            },
+          ],
+        })),
       });
     }
 
     return HttpResponse.json({ count: 0, offset: 0, recordings: [], 'release-groups': [] });
   }),
 ];
-

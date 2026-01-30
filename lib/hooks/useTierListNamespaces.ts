@@ -13,10 +13,11 @@ import {
   SensorDescriptor,
   SensorOptions,
 } from '@dnd-kit/core';
-import { useCallback, useEffect,useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { fromSearchId } from '@/lib/utils/ids';
 
 /**
  * Props for the useTierListNamespaces hook.
@@ -166,7 +167,7 @@ export function useTierListNamespaces({
     const ids = new Set<string>();
     allBoardItems.forEach((item) => {
       if (item && item.id) {
-        ids.add(item.id.replace(/^search-/, ''));
+        ids.add(fromSearchId(item.id));
       }
     });
     return ids;

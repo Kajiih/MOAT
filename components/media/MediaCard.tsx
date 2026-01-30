@@ -15,6 +15,7 @@ import { Eye, Info, LucideIcon, X } from 'lucide-react';
 import { useInteraction } from '@/components/ui/InteractionContext';
 import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaItem } from '@/lib/types';
+import { toDomId } from '@/lib/utils/ids';
 import { MediaImage } from './MediaImage';
 
 /**
@@ -163,7 +164,7 @@ function BaseMediaCard({
   return (
     <div
       ref={setNodeRef}
-      id={domId || `media-card-${item.id}`} // DOM ID for scrolling
+      id={domId || toDomId(item.id)} // DOM ID for scrolling
       style={style}
       {...listeners}
       {...attributes}
@@ -289,7 +290,7 @@ export function MediaCard(props: MediaCardProps) {
   return (
     <BaseMediaCard
       {...props}
-      domId={`media-card-${draggableId}`}
+      domId={toDomId(draggableId)}
       setNodeRef={setNodeRef}
       style={style}
       attributes={attributes}
@@ -335,7 +336,7 @@ export function SortableMediaCard(props: MediaCardProps) {
   return (
     <BaseMediaCard
       {...props}
-      domId={`media-card-${draggableId}`}
+      domId={toDomId(draggableId)}
       setNodeRef={setNodeRef}
       style={style}
       attributes={attributes}

@@ -23,6 +23,7 @@ import { Dispatch, useCallback, useState } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { isSearchId } from '@/lib/utils/ids';
 
 /**
  * Manages the Drag and Drop state and event handlers for the Tier List board.
@@ -157,7 +158,7 @@ export function useTierListDnD(
 
       // Finalization: If the item came from search (has search- prefix), normalize its ID to the canonical MBID
       // We do this AFTER the drag ends to ensure dnd-kit doesn't lose track of the item during the operation.
-      if (activeId.startsWith('search-') && active.data.current?.mediaItem) {
+      if (isSearchId(activeId) && active.data.current?.mediaItem) {
         const canonicalId = active.data.current.mediaItem.id;
         if (canonicalId && canonicalId !== activeId) {
           // Schedule normalization in the next tick to allow the move to complete fully

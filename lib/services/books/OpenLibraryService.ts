@@ -6,6 +6,7 @@
 import { AuthorItem, BookItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
 import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
 
+import { logger } from '@/lib/logger';
 import { secureFetch } from '../shared/api-client';
 import { MediaService, SearchOptions } from '../types';
 
@@ -46,12 +47,8 @@ interface OpenLibraryWorkDetails {
  */
 export class OpenLibraryService implements MediaService {
   readonly category = 'book' as const;
-  
-  async search(
-    query: string,
-    type: MediaType,
-    options: SearchOptions = {},
-  ): Promise<SearchResult> {
+
+  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     if (type === 'author') {
       return this.searchAuthors(query);
     }
@@ -66,26 +63,30 @@ export class OpenLibraryService implements MediaService {
   private async searchAuthors(query: string): Promise<SearchResult> {
     const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search/authors.json`);
     searchUrl.searchParams.set('q', query);
-    
-    const data = await secureFetch<{ docs?: OpenLibraryAuthorDoc[]; numFound?: number }>(searchUrl.toString());
-    const results: AuthorItem[] = (data.docs || []).map((doc) => {
-       if (!doc.key || !doc.name) return null;
-       const item: AuthorItem = {
-         id: doc.key,
-         mbid: doc.key,
-         type: 'author',
-         title: doc.name,
-         year: doc.birth_date ? doc.birth_date.slice(-4) : undefined, 
-         imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`
-       };
-       return item;
-    }).filter((item): item is AuthorItem => item !== null);
+
+    const data = await secureFetch<{ docs?: OpenLibraryAuthorDoc[]; numFound?: number }>(
+      searchUrl.toString(),
+    );
+    const results: AuthorItem[] = (data.docs || [])
+      .map((doc) => {
+        if (!doc.key || !doc.name) return null;
+        const item: AuthorItem = {
+          id: doc.key,
+          mbid: doc.key,
+          type: 'author',
+          title: doc.name,
+          year: doc.birth_date ? doc.birth_date.slice(-4) : undefined,
+          imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`,
+        };
+        return item;
+      })
+      .filter((item): item is AuthorItem => item !== null);
 
     return {
       results,
-      page: 1, 
+      page: 1,
       totalPages: 1,
-      totalCount: data.numFound || results.length
+      totalCount: data.numFound || results.length,
     };
   }
 
@@ -95,65 +96,75 @@ export class OpenLibraryService implements MediaService {
 
     const finalQuery = this.buildSearchQuery(query, options);
     const isShortQuery = finalQuery && finalQuery.length < 3;
-    
+
     if (!finalQuery || isShortQuery) {
-       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+      return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
     const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search.json`);
     searchUrl.searchParams.set('q', finalQuery);
     searchUrl.searchParams.set('page', page.toString());
     searchUrl.searchParams.set('limit', limit.toString());
-    
+
     const sort = options.filters?.sort as string | undefined;
     if (sort && sort !== 'relevance') {
-       let apiSort = sort;
-       switch (sort) {
-       case 'rating_desc': {
-       apiSort = 'rating';
-       break;
-       }
-       case 'rating_asc': {
-       apiSort = '-rating';
-       break;
-       }
-       case 'reviews_desc': {
-       apiSort = 'editions';
-       break;
-       }
-       case 'reviews_asc': {
-       apiSort = '-editions';
-       break;
-       }
-       case 'date_desc': {
-       apiSort = 'new';
-       break;
-       }
-       case 'date_asc': { {
-       apiSort = 'old';
-       // No default
-       }
-       break;
-       }
-       }
-       
-       if (apiSort === 'rating' || apiSort === 'editions' || apiSort === 'new' || apiSort === 'old') {
-         searchUrl.searchParams.set('sort', apiSort);
-       }
-    }
-    searchUrl.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i,edition_count,subject,ratings_average,review_count');
+      let apiSort = sort;
+      switch (sort) {
+        case 'rating_desc': {
+          apiSort = 'rating';
+          break;
+        }
+        case 'rating_asc': {
+          apiSort = '-rating';
+          break;
+        }
+        case 'reviews_desc': {
+          apiSort = 'editions';
+          break;
+        }
+        case 'reviews_asc': {
+          apiSort = '-editions';
+          break;
+        }
+        case 'date_desc': {
+          apiSort = 'new';
+          break;
+        }
+        case 'date_asc': {
+          {
+            apiSort = 'old';
+            // No default
+          }
+          break;
+        }
+      }
 
-    const data = await secureFetch<{ docs?: OpenLibraryBookDoc[]; numFound?: number }>(searchUrl.toString());
-      
-      const results: BookItem[] = (data.docs || []).map((doc) => {
+      if (
+        apiSort === 'rating' ||
+        apiSort === 'editions' ||
+        apiSort === 'new' ||
+        apiSort === 'old'
+      ) {
+        searchUrl.searchParams.set('sort', apiSort);
+      }
+    }
+    searchUrl.searchParams.set(
+      'fields',
+      'key,title,author_name,first_publish_year,cover_i,edition_count,subject,ratings_average,review_count',
+    );
+
+    const data = await secureFetch<{ docs?: OpenLibraryBookDoc[]; numFound?: number }>(
+      searchUrl.toString(),
+    );
+
+    const results: BookItem[] = (data.docs || [])
+      .map((doc) => {
         if (!doc.key || !doc.title) return null;
 
-        const id = doc.key.replace('/works/', ''); 
+        const id = doc.key.replace('/works/', '');
         const authorName = doc.author_name ? doc.author_name[0] : 'Unknown Author';
         const year = doc.first_publish_year ? doc.first_publish_year.toString() : undefined;
-        const imageUrl = doc.cover_i 
-          ? `${COVERS_BASE_URL}/${doc.cover_i}-M.jpg` 
-          : undefined;
+        const imageUrl = doc.cover_i ? `${COVERS_BASE_URL}/${doc.cover_i}-M.jpg` : undefined;
 
         const item: BookItem = {
           id: id,
@@ -168,17 +179,18 @@ export class OpenLibraryService implements MediaService {
           reviewCount: doc.review_count || doc.edition_count,
         };
         return item;
-      }).filter((item): item is BookItem => item !== null);
+      })
+      .filter((item): item is BookItem => item !== null);
 
-      const totalCount = data.numFound || 0;
-      const totalPages = Math.ceil(totalCount / limit);
+    const totalCount = data.numFound || 0;
+    const totalPages = Math.ceil(totalCount / limit);
 
-      return {
-        results,
-        page,
-        totalPages,
-        totalCount,
-      };
+    return {
+      results,
+      page,
+      totalPages,
+      totalCount,
+    };
   }
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
@@ -187,41 +199,50 @@ export class OpenLibraryService implements MediaService {
     }
 
     try {
-        const data = await secureFetch<OpenLibraryWorkDetails>(`${OPEN_LIBRARY_BASE_URL}/works/${id}.json`);
-        const imageUrl = data.covers && data.covers.length > 0 
-           ? `${COVERS_BASE_URL}/${data.covers[0]}-L.jpg` 
-           : undefined;
+      const data = await secureFetch<OpenLibraryWorkDetails>(
+        `${OPEN_LIBRARY_BASE_URL}/works/${id}.json`,
+      );
+      const imageUrl =
+        data.covers && data.covers.length > 0
+          ? `${COVERS_BASE_URL}/${data.covers[0]}-L.jpg`
+          : undefined;
 
-        let description: string | undefined;
-        if (typeof data.description === 'string') {
-          description = data.description;
-        } else if (data.description && typeof data.description === 'object' && 'value' in data.description) {
-          description = data.description.value;
-        }
+      let description: string | undefined;
+      if (typeof data.description === 'string') {
+        description = data.description;
+      } else if (
+        data.description &&
+        typeof data.description === 'object' &&
+        'value' in data.description
+      ) {
+        description = data.description.value;
+      }
 
-        const tags = Array.isArray(data.subjects) ? data.subjects.slice(0, 8) : undefined;
-        const places = Array.isArray(data.subject_places) ? data.subject_places.slice(0, 5) : undefined;
-        const firstSentence = (data.excerpts && data.excerpts.length > 0) 
-           ? data.excerpts[0].excerpt 
-           : undefined;
-        const urls = Array.isArray(data.links) ? data.links.map((l) => ({ type: l.title, url: l.url })) : undefined;
+      const tags = Array.isArray(data.subjects) ? data.subjects.slice(0, 8) : undefined;
+      const places = Array.isArray(data.subject_places)
+        ? data.subject_places.slice(0, 5)
+        : undefined;
+      const firstSentence =
+        data.excerpts && data.excerpts.length > 0 ? data.excerpts[0].excerpt : undefined;
+      const urls = Array.isArray(data.links)
+        ? data.links.map((l) => ({ type: l.title, url: l.url }))
+        : undefined;
 
-        return {
-            id,
-            mbid: id,
-            type: 'book',
-            imageUrl,
-            tags,
-            places,
-            firstSentence,
-            date: data.first_publish_date,
-            urls,
-            description,
-        };
-
+      return {
+        id,
+        mbid: id,
+        type: 'book',
+        imageUrl,
+        tags,
+        places,
+        firstSentence,
+        date: data.first_publish_date,
+        urls,
+        description,
+      };
     } catch (error) {
-        console.error('Open Library Details Error:', error);
-        return { id, mbid: id, type: 'book' };
+      logger.error({ error, id }, 'Open Library Details Error');
+      return { id, mbid: id, type: 'book' };
     }
   }
 
@@ -248,7 +269,7 @@ export class OpenLibraryService implements MediaService {
     const place = filters?.place as string | undefined;
 
     const queryParts: string[] = [];
-    
+
     let processedQuery = query.trim();
     if (processedQuery && (fuzzy || wildcard)) {
       processedQuery = constructLuceneQueryBasis(processedQuery, {
@@ -256,15 +277,18 @@ export class OpenLibraryService implements MediaService {
         wildcard: !!wildcard,
       });
     } else if (processedQuery) {
-       processedQuery = processedQuery.split(/\s+/).map((q) => escapeLucene(q)).join(' ');
+      processedQuery = processedQuery
+        .split(/\s+/)
+        .map((q) => escapeLucene(q))
+        .join(' ');
     }
 
     if (processedQuery) queryParts.push(processedQuery);
     if (author) queryParts.push(`author:"${escapeLucene(author)}"`);
     if (minYear || maxYear) {
-       const min = minYear || '*';
-       const max = maxYear || '*';
-       queryParts.push(`first_publish_year:[${min} TO ${max}]`);
+      const min = minYear || '*';
+      const max = maxYear || '*';
+      queryParts.push(`first_publish_year:[${min} TO ${max}]`);
     }
     if (bookType) queryParts.push(`subject:${bookType}`);
     if (language) queryParts.push(`language:${language}`);

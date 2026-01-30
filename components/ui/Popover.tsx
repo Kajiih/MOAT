@@ -79,16 +79,13 @@ export function Popover({
 
   return (
     <div className={twMerge('relative inline-block', className)} ref={containerRef}>
-      <div onClick={toggle} className="inline-block outline-none cursor-pointer">
+      <div onClick={toggle} className="inline-block cursor-pointer outline-none">
         {trigger}
       </div>
 
       {isOpen && (
         <div
-          className={twMerge(
-            'absolute z-50 mt-2',
-            contentClassName
-          )}
+          className={twMerge('absolute z-50 mt-2', contentClassName)}
           onClick={closeOnContentClick ? close : undefined}
         >
           {children}

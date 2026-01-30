@@ -1,4 +1,3 @@
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { DetailsModal } from './DetailsModal';
@@ -57,52 +56,57 @@ describe('DetailsModal', () => {
   it('renders title and artist when open', () => {
     vi.mocked(useMediaDetails).mockReturnValue({ isLoading: true } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
-    
+
     expect(screen.getByText('Test Album')).toBeDefined();
     expect(screen.getByText('Test Artist')).toBeDefined();
   });
 
   it('shows loading state', () => {
     vi.mocked(useMediaDetails).mockReturnValue({ isLoading: true } as any);
-    const { container } = render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
-    
+    const { container } = render(
+      <DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />,
+    );
+
     expect(container.querySelector('.animate-pulse')).toBeDefined();
   });
 
   it('shows error state', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({ error: new Error('Failed'), isLoading: false } as any);
+    vi.mocked(useMediaDetails).mockReturnValue({
+      error: new Error('Failed'),
+      isLoading: false,
+    } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
-    
+
     expect(screen.getByText(/Failed to load additional details/i)).toBeDefined();
   });
 
   it('renders AlbumView when album details are loaded', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({ 
-      details: { type: 'album' }, 
+    vi.mocked(useMediaDetails).mockReturnValue({
+      details: { type: 'album' },
       isLoading: false,
-      isFetching: false
+      isFetching: false,
     } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
-    
+
     expect(screen.getByTestId('album-view')).toBeDefined();
   });
 
   it('calls onUpdateItem when details are successfully fetched', async () => {
     const details = { type: 'album', tracks: [], imageUrl: 'new-img.jpg' };
-    vi.mocked(useMediaDetails).mockReturnValue({ 
-      details, 
-      isLoading: false, 
+    vi.mocked(useMediaDetails).mockReturnValue({
+      details,
+      isLoading: false,
       isFetching: false,
-      error: null
+      error: null,
     } as any);
 
     render(
-      <DetailsModal 
-        item={mockItem} 
-        isOpen={true} 
-        onClose={mockOnClose} 
-        onUpdateItem={mockOnUpdateItem} 
-      />
+      <DetailsModal
+        item={mockItem}
+        isOpen={true}
+        onClose={mockOnClose}
+        onUpdateItem={mockOnUpdateItem}
+      />,
     );
 
     await waitFor(() => {
@@ -116,7 +120,7 @@ describe('DetailsModal', () => {
   it('calls onClose when X button is clicked', () => {
     vi.mocked(useMediaDetails).mockReturnValue({ isLoading: false } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
-    
+
     const closeBtn = screen.getByRole('button');
     fireEvent.click(closeBtn);
     expect(mockOnClose).toHaveBeenCalled();
@@ -125,11 +129,11 @@ describe('DetailsModal', () => {
   it('calls onClose when backdrop is clicked', () => {
     vi.mocked(useMediaDetails).mockReturnValue({ isLoading: false } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
-    
+
     // The backdrop is the outermost div with onClick={onClose}
     const backdrop = screen.getByText('Test Album').closest('.fixed');
     if (!backdrop) throw new Error('Backdrop not found');
-    
+
     fireEvent.click(backdrop);
     expect(mockOnClose).toHaveBeenCalled();
   });

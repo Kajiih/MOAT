@@ -261,7 +261,12 @@ describe('useMediaSearch', () => {
 
   it('should enrich search results with data from the global registry', async () => {
     const { useMediaRegistry } = await import('@/components/providers/MediaRegistryProvider');
-    const mockItem1: MediaItem = { id: '1', title: 'Search Result', type: 'artist', mbid: 'mbid-1' };
+    const mockItem1: MediaItem = {
+      id: '1',
+      title: 'Search Result',
+      type: 'artist',
+      mbid: 'mbid-1',
+    };
     const mockItem1Enriched: MediaItem = { ...mockItem1, imageUrl: 'http://cached.com/image.jpg' };
 
     vi.mocked(useMediaRegistry).mockReturnValue({
@@ -269,9 +274,11 @@ describe('useMediaSearch', () => {
       registerItem: vi.fn(),
       registrySize: 0,
       clearRegistry: vi.fn(),
-      getItem: vi.fn((id: string) =>
-        id === '1' ? mockItem1Enriched : undefined,
-      ) as unknown as <T extends MediaItem>(id: string) => T | undefined,
+      getItem: vi.fn((id: string) => (id === '1' ? mockItem1Enriched : undefined)) as unknown as <
+        T extends MediaItem,
+      >(
+        id: string,
+      ) => T | undefined,
     });
 
     // @ts-expect-error - simplified mock for test

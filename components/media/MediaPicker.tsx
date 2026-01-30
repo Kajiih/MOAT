@@ -12,6 +12,7 @@ import { useState } from 'react';
 
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
 import { useMediaSearch } from '@/components/search/hooks/useMediaSearch';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import {
   AlbumItem,
   AlbumSelection,
@@ -81,9 +82,11 @@ export function MediaPicker<T extends MediaSelection>({
   const [isOpen, setIsOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
+  const definition = mediaTypeRegistry.get(type);
+
   // Icons based on type
-  const TypeIcon = type === 'artist' ? Mic2 : (type === 'author' ? User : Disc);
-  const SelectedIcon = (type === 'artist' || type === 'author') ? User : Disc;
+  const TypeIcon = definition.icon;
+  const SelectedIcon = definition.icon;
 
   const handleSelect = (item: MediaItem) => {
     let selection: MediaSelection;
@@ -114,19 +117,12 @@ export function MediaPicker<T extends MediaSelection>({
     onSelect(null);
   };
 
-  // Helper to determine year label
-  const getYearLabel = () => {
-      if (type === 'artist') return 'Est.';
-      if (type === 'author') return 'Born';
-      return '';
-  };
-
   if (selectedItem) {
     // Map selected item to a pseudo MediaItem for unified component usage
     const pseudoItem: MediaItem = {
       id: selectedItem.id,
       mbid: selectedItem.id,
-      type: (type === 'artist' || type === 'author') ? type : 'album',
+      type: type === 'artist' || type === 'author' ? type : 'album',
       title: selectedItem.name,
       imageUrl: selectedItem.imageUrl,
     } as MediaItem;
@@ -228,14 +224,12 @@ export function MediaPicker<T extends MediaSelection>({
                   {item.title}
                 </span>
                 <div className="flex items-center gap-1 truncate text-[10px] text-neutral-500">
-                  {type === 'artist' && (item as ArtistItem).disambiguation && (
-                    <span className="italic">({(item as ArtistItem).disambiguation})</span>
-                  )}
-                  {type === 'album' && <span>{(item as AlbumItem).artist}</span>}
-                  {item.year && (
-                    <span>
-                      • {getYearLabel()} {item.year}
-                    </span>
+                  <span>{definition.getSubtitle(item)}</span>
+                  {definition.getTertiaryText(item) && (
+                    <>
+                      <span className="opacity-50">•</span>
+                      <span>{definition.getTertiaryText(item)}</span>
+                    </>
                   )}
                 </div>
               </div>

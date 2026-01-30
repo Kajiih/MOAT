@@ -7,7 +7,7 @@ describe('Lucene Evaluator', () => {
     title: 'The Great Gatsby',
     author: 'F. Scott Fitzgerald',
     year: 1925,
-    tags: ['classic', 'drama']
+    tags: ['classic', 'drama'],
   };
 
   it('should match basic terms in any field', () => {
@@ -57,7 +57,7 @@ describe('Lucene Evaluator', () => {
   it('should use field mapping if provided', () => {
     const customItem = {
       mbid: 'abc',
-      full_name: 'John Doe'
+      full_name: 'John Doe',
     };
     expect(matchesQuery('id:abc', customItem, { id: 'mbid' })).toBe(true);
     expect(matchesQuery('name:"John Doe"', customItem, { name: 'full_name' })).toBe(true);

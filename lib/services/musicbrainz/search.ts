@@ -46,7 +46,6 @@ export interface SearchParams {
   options: SearchOptions;
 }
 
-
 /**
  * Performs a search against the MusicBrainz API.
  *

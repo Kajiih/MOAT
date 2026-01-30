@@ -79,7 +79,7 @@ export function BoardOptionsMenu({
     >
       <div className="w-64 origin-top-right rounded-xl border border-neutral-800 bg-neutral-900 p-2 shadow-2xl ring-1 ring-black/50">
         <div className="flex items-center justify-between px-3 py-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+          <h3 className="text-xs font-bold tracking-wider text-neutral-500 uppercase">
             Board Options
           </h3>
           <button onClick={() => setIsOpen(false)} className="text-neutral-500 hover:text-white">
@@ -153,7 +153,7 @@ export function BoardOptionsMenu({
           <div className="my-2 h-px bg-neutral-800" />
 
           <div className="px-3 py-2">
-            <h4 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-neutral-600">
+            <h4 className="mb-2 text-[10px] font-bold tracking-wider text-neutral-600 uppercase">
               Board Category
             </h4>
             <div className="grid grid-cols-3 gap-1">
@@ -166,7 +166,9 @@ export function BoardOptionsMenu({
                   }}
                   className={twMerge(
                     'flex flex-col items-center justify-center gap-1.5 rounded-lg border border-neutral-800 py-2.5 transition-all hover:bg-neutral-800',
-                    currentCategory === cat ? 'bg-blue-600/10 border-blue-600 text-blue-400' : 'text-neutral-500 hover:text-neutral-300'
+                    currentCategory === cat
+                      ? 'border-blue-600 bg-blue-600/10 text-blue-400'
+                      : 'text-neutral-500 hover:text-neutral-300',
                   )}
                 >
                   {cat === 'music' && <Music size={14} />}
@@ -195,4 +197,3 @@ export function BoardOptionsMenu({
     </Popover>
   );
 }
-

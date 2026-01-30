@@ -22,7 +22,7 @@ import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 import { failedImages } from '@/lib/image-cache';
 import { logger } from '@/lib/logger';
-import { BoardCategory,BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
+import { BoardCategory, BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
 
 // --- Sub-components for Dashboard ---
 
@@ -51,33 +51,46 @@ const CreateBoardCard = ({
   }
 
   const categories: { id: BoardCategory; label: string; icon: React.ReactNode; color: string }[] = [
-    { id: 'music', label: 'Music', icon: <Music size={20} />, color: 'hover:bg-pink-500/10 hover:border-pink-500/50 hover:text-pink-400' },
-    { id: 'cinema', label: 'Cinema', icon: <Clapperboard size={20} />, color: 'hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-blue-400' },
-    { id: 'book', label: 'Books', icon: <Book size={20} />, color: 'hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400' },
+    {
+      id: 'music',
+      label: 'Music',
+      icon: <Music size={20} />,
+      color: 'hover:bg-pink-500/10 hover:border-pink-500/50 hover:text-pink-400',
+    },
+    {
+      id: 'cinema',
+      label: 'Cinema',
+      icon: <Clapperboard size={20} />,
+      color: 'hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-blue-400',
+    },
+    {
+      id: 'book',
+      label: 'Books',
+      icon: <Book size={20} />,
+      color: 'hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400',
+    },
   ];
 
   return (
-    <div className="flex h-48 flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-4 transition-all ring-2 ring-blue-500/50">
+    <div className="flex h-48 flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-4 ring-2 ring-blue-500/50 transition-all">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-bold text-neutral-300 uppercase tracking-tight">Select Type</h3>
-        <button 
+        <h3 className="text-sm font-bold tracking-tight text-neutral-300 uppercase">Select Type</h3>
+        <button
           onClick={() => setIsCreating(false)}
-          className="text-[10px] font-bold text-neutral-600 hover:text-neutral-400 transition-colors"
+          className="text-[10px] font-bold text-neutral-600 transition-colors hover:text-neutral-400"
         >
           Cancel
         </button>
       </div>
-      
+
       <div className="grid flex-1 grid-cols-2 gap-2">
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => onCreate('', cat.id)}
-            className={`flex flex-col items-center justify-center gap-2 rounded-lg border border-neutral-800 bg-neutral-950/50 p-2 text-neutral-400 transition-all text-xs font-bold group ${cat.color}`}
+            className={`group flex flex-col items-center justify-center gap-2 rounded-lg border border-neutral-800 bg-neutral-950/50 p-2 text-xs font-bold text-neutral-400 transition-all ${cat.color}`}
           >
-            <div className="transition-transform group-hover:scale-110">
-              {cat.icon}
-            </div>
+            <div className="transition-transform group-hover:scale-110">{cat.icon}</div>
             {cat.label}
           </button>
         ))}
@@ -127,7 +140,10 @@ const MiniatureTierList = ({ tiers }: { tiers: TierPreview[] }) => {
       {tiers.map((tier) => {
         const theme = getColorTheme(tier.color);
         return (
-          <div key={tier.id} className="flex min-h-0 flex-1 border-b border-neutral-950 last:border-0">
+          <div
+            key={tier.id}
+            className="flex min-h-0 flex-1 border-b border-neutral-950 last:border-0"
+          >
             {/* Tier Label */}
             <div
               className={`flex w-8 items-center justify-center ${theme.bg} p-0.5 text-[6px] font-bold text-black uppercase`}
@@ -211,7 +227,6 @@ export function Dashboard() {
                 / Dashboard
               </span>
             </div>
-
           </div>
 
           {/* Board Grid */}

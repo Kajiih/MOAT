@@ -19,13 +19,13 @@ import { TierListSchema } from '@/lib/types';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // 1. Validate the board state
     const validation = TierListSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
         { error: 'Invalid board data', details: validation.error.format() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 

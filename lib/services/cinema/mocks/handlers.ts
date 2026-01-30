@@ -26,18 +26,14 @@ const mockDb: Record<string, TMDBMockItem[]> = {
   movie: [
     { id: 1, title: 'Inception', release_date: '2010-07-16', poster_path: '/inception.jpg' },
     ...Array.from({ length: 10 }, (_, i) => ({
-        id: 10 + i,
-        title: faker.commerce.productName(),
-        release_date: faker.date.past({ years: 20 }).toISOString().split('T')[0],
-        poster_path: `/${faker.string.alphanumeric(10)}.jpg`
-    }))
+      id: 10 + i,
+      title: faker.commerce.productName(),
+      release_date: faker.date.past({ years: 20 }).toISOString().split('T')[0],
+      poster_path: `/${faker.string.alphanumeric(10)}.jpg`,
+    })),
   ],
-  tv: [
-    { id: 101, name: 'Breaking Bad', first_air_date: '2008-01-20', poster_path: '/bb.jpg' },
-  ],
-  person: [
-    { id: 500, name: 'Christopher Nolan', poster_path: '/nolan.jpg' },
-  ]
+  tv: [{ id: 101, name: 'Breaking Bad', first_air_date: '2008-01-20', poster_path: '/bb.jpg' }],
+  person: [{ id: 500, name: 'Christopher Nolan', poster_path: '/nolan.jpg' }],
 };
 
 /**
@@ -47,21 +43,21 @@ export const handlers = [
   http.get(`${TMDB_BASE}/search/:type`, ({ request, params }) => {
     const url = new URL(request.url);
     const query = url.searchParams.get('query') || '';
-    const type = params.type as string; 
-    
+    const type = params.type as string;
+
     const items = mockDb[type] || [];
-    const matches = items.filter(item => 
+    const matches = items.filter((item) =>
       matchesQuery(query, item, {
-          query: 'title', // Simple mapping
-          name: 'name'
-      })
+        query: 'title', // Simple mapping
+        name: 'name',
+      }),
     );
 
     return HttpResponse.json({
       page: 1,
       results: matches,
       total_pages: 1,
-      total_results: matches.length
+      total_results: matches.length,
     });
   }),
 
@@ -69,7 +65,7 @@ export const handlers = [
     const type = params.type as string;
     const id = Number.parseInt(params.id as string, 10);
     const items = mockDb[type] || [];
-    const item = items.find(i => i.id === id);
+    const item = items.find((i) => i.id === id);
 
     if (!item) {
       return new HttpResponse(null, { status: 404 });
@@ -78,8 +74,7 @@ export const handlers = [
     return HttpResponse.json({
       ...item,
       overview: 'Mock overview',
-      tagline: 'Mock tagline'
+      tagline: 'Mock tagline',
     });
-  })
+  }),
 ];
-

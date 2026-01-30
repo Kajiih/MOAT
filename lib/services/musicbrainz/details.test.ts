@@ -11,12 +11,13 @@ const server = setupServer(
   http.get(`${MB_BASE}/artist/:id`, ({ params }) => {
     if (params.id === 'artist-1') {
       return HttpResponse.json({
-        tags: [{ name: 'rock', count: 10 }, { name: 'indie', count: 20 }],
+        tags: [
+          { name: 'rock', count: 10 },
+          { name: 'indie', count: 20 },
+        ],
         area: { name: 'London' },
         'life-span': { begin: '1990', ended: false },
-        relations: [
-          { type: 'wikidata', url: { resource: 'https://wikidata/Q123' } },
-        ],
+        relations: [{ type: 'wikidata', url: { resource: 'https://wikidata/Q123' } }],
       });
     }
     return new HttpResponse(null, { status: 404 });
@@ -40,11 +41,19 @@ const server = setupServer(
       return HttpResponse.json({
         'label-info': [{ label: { name: 'The Label' } }],
         date: '2020-01-01',
-        media: [{
-          tracks: [
-            { id: 't1', position: '1', title: 'Track 1', length: 180_000, recording: { id: 'r1' } },
-          ],
-        }],
+        media: [
+          {
+            tracks: [
+              {
+                id: 't1',
+                position: '1',
+                title: 'Track 1',
+                length: 180_000,
+                recording: { id: 'r1' },
+              },
+            ],
+          },
+        ],
       });
     }
     return new HttpResponse(null, { status: 404 });
@@ -56,10 +65,12 @@ const server = setupServer(
       return HttpResponse.json({
         tags: [{ name: 'pop', count: 1 }],
         length: 240_000,
-        releases: [{
-          title: 'The Album',
-          'release-group': { id: 'rg-1' },
-        }],
+        releases: [
+          {
+            title: 'The Album',
+            'release-group': { id: 'rg-1' },
+          },
+        ],
       });
     }
     return new HttpResponse(null, { status: 404 });
@@ -74,11 +85,11 @@ const server = setupServer(
   http.get('https://www.wikidata.org/w/api.php', () => {
     return HttpResponse.json({ claims: {} });
   }),
-  
+
   // Artist image fallback (if any)
   http.get('https://webservice.fanart.tv/v3/music/*', () => {
     return new HttpResponse(null, { status: 404 });
-  })
+  }),
 );
 
 describe('MusicBrainz Details Service Integration (Fake Server)', () => {
@@ -122,9 +133,7 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
         type: 'album',
         label: 'The Label',
         date: '2020-01-01',
-        tracks: [
-          { id: 'r1', position: '1', title: 'Track 1', length: '03:00' },
-        ],
+        tracks: [{ id: 'r1', position: '1', title: 'Track 1', length: '03:00' }],
       });
     });
 
@@ -153,10 +162,9 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
     server.use(
       http.get(`${MB_BASE}/artist/error-id`, () => {
         return new HttpResponse(null, { status: 500 });
-      })
+      }),
     );
     const result = await getMediaDetails('error-id', 'artist');
     expect(result).toEqual({ id: 'error-id', mbid: 'error-id', type: 'artist' });
   });
 });
-

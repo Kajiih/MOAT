@@ -61,112 +61,117 @@ export function SearchFilters({
 
   return (
     <div className={`space-y-3 ${compact ? 'text-[10px]' : ''}`}>
-
-      {dynamicFilters.filter(f => f.id !== 'sort').map((def) => {
-        // 1. Handle Special Legacy/Custom Components first
-        if (def.id === 'albumPrimaryTypes') {
-          return (
-            <AlbumFilters
-              key={def.id}
-              primaryTypes={(filters.albumPrimaryTypes as string[]) || []}
-              secondaryTypes={(filters.albumSecondaryTypes as string[]) || []}
-              onTogglePrimary={togglePrimaryType}
-              onToggleSecondary={toggleSecondaryType}
-              onResetPrimary={() => updateFilters({ albumPrimaryTypes: (def.default as string[]) || [] })}
-              onResetSecondary={() => updateFilters({ albumSecondaryTypes: [] })}
-              onSelectAllSecondary={() => {}} 
-              compact={compact}
-            />
-          );
-        }
-
-        // 2. Generic Rendering by Type
-        switch (def.type) {
-          case 'picker': {
+      {dynamicFilters
+        .filter((f) => f.id !== 'sort')
+        .map((def) => {
+          // 1. Handle Special Legacy/Custom Components first
+          if (def.id === 'albumPrimaryTypes') {
             return (
-              <MediaPicker
+              <AlbumFilters
                 key={def.id}
-                type={(def.pickerType || 'artist') as 'artist' | 'album' | 'author'}
-                selectedItem={filters[def.id] as MediaSelection | null}
-                onSelect={(item) => {
-                   const patch: Partial<SearchParamsState> = { [def.id]: item };
-                   // Special rule: if we pick an artist, reset the album
-                   if (def.id === 'selectedArtist') patch.selectedAlbum = null;
-                   updateFilters(patch);
-                }}
-                artistId={def.id === 'selectedAlbum' ? (filters.selectedArtist as ArtistSelection | null)?.id : undefined}
-                placeholder={def.label}
-                context={type}
+                primaryTypes={(filters.albumPrimaryTypes as string[]) || []}
+                secondaryTypes={(filters.albumSecondaryTypes as string[]) || []}
+                onTogglePrimary={togglePrimaryType}
+                onToggleSecondary={toggleSecondaryType}
+                onResetPrimary={() =>
+                  updateFilters({ albumPrimaryTypes: (def.default as string[]) || [] })
+                }
+                onResetSecondary={() => updateFilters({ albumSecondaryTypes: [] })}
+                onSelectAllSecondary={() => {}}
+                compact={compact}
               />
             );
           }
 
-          case 'range': {
-            // Specialized Range handling for Years vs Duration
-            const isDuration = def.id === 'durationRange';
-            const minKey = isDuration ? 'minDuration' : 'minYear';
-            const maxKey = isDuration ? 'maxDuration' : 'maxYear';
-
-            return (
-              <div key={def.id}>
-                <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
-                  {def.label}
-                </div>
-                <DateRangeFilter
-                  minYear={filters[minKey] as string}
-                  maxYear={filters[maxKey] as string}
-                  onMinYearChange={(val) => updateFilters({ [minKey]: val })}
-                  onMaxYearChange={(val) => updateFilters({ [maxKey]: val })}
-                  fromLabel={isDuration ? 'Min' : 'From Year'}
-                  toLabel={isDuration ? 'Max' : 'To Year'}
-                  compact={compact}
+          // 2. Generic Rendering by Type
+          switch (def.type) {
+            case 'picker': {
+              return (
+                <MediaPicker
+                  key={def.id}
+                  type={(def.pickerType || 'artist') as 'artist' | 'album' | 'author'}
+                  selectedItem={filters[def.id] as MediaSelection | null}
+                  onSelect={(item) => {
+                    const patch: Partial<SearchParamsState> = { [def.id]: item };
+                    // Special rule: if we pick an artist, reset the album
+                    if (def.id === 'selectedArtist') patch.selectedAlbum = null;
+                    updateFilters(patch);
+                  }}
+                  artistId={
+                    def.id === 'selectedAlbum'
+                      ? (filters.selectedArtist as ArtistSelection | null)?.id
+                      : undefined
+                  }
+                  placeholder={def.label}
+                  context={type}
                 />
-              </div>
-            );
-          }
+              );
+            }
 
-          case 'select': {
-            return (
-              <div key={def.id}>
-                <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
-                  {def.label}
+            case 'range': {
+              const minKey = def.minKey || 'minYear';
+              const maxKey = def.maxKey || 'maxYear';
+
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    {def.label}
+                  </div>
+                  <DateRangeFilter
+                    minYear={filters[minKey] as string}
+                    maxYear={filters[maxKey] as string}
+                    onMinYearChange={(val) => updateFilters({ [minKey]: val })}
+                    onMaxYearChange={(val) => updateFilters({ [maxKey]: val })}
+                    fromLabel={def.placeholder || (minKey === 'minDuration' ? 'Min' : 'From')}
+                    toLabel={def.placeholder || (maxKey === 'maxDuration' ? 'Max' : 'To')}
+                    compact={compact}
+                  />
                 </div>
-                <select
-                  className={FILTER_INPUT_STYLES}
-                  value={(filters[def.id] as string) || ''}
-                  onChange={(e) => updateFilters({ [def.id]: e.target.value })}
-                >
-                  {def.options?.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            );
-          }
+              );
+            }
 
-          case 'text': {
-            return (
-              <div key={def.id}>
-                <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
-                  {def.label}
+            case 'select': {
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    {def.label}
+                  </div>
+                  <select
+                    className={FILTER_INPUT_STYLES}
+                    value={(filters[def.id] as string) || ''}
+                    onChange={(e) => updateFilters({ [def.id]: e.target.value })}
+                  >
+                    {def.options?.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <input
-                  placeholder={def.placeholder}
-                  className={FILTER_INPUT_STYLES}
-                  value={(filters[def.id] as string) || ''}
-                  onChange={(e) => updateFilters({ [def.id]: e.target.value })}
-                />
-              </div>
-            );
-          }
+              );
+            }
 
-          default: {
-            return null;
+            case 'text': {
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    {def.label}
+                  </div>
+                  <input
+                    placeholder={def.placeholder}
+                    className={FILTER_INPUT_STYLES}
+                    value={(filters[def.id] as string) || ''}
+                    onChange={(e) => updateFilters({ [def.id]: e.target.value })}
+                  />
+                </div>
+              );
+            }
+
+            default: {
+              return null;
+            }
           }
-        }
-      })}
+        })}
     </div>
   );
 }

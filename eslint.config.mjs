@@ -47,7 +47,7 @@ const eslintConfig = defineConfig([
       'sonarjs/no-clear-text-protocols': 'off',
       'sonarjs/pseudo-random': 'off',
       // 'sonarjs/no-nested-conditional': 'off',  # For now it is useful to keep
-      'sonarjs/unused-import': 'off',  // Handled by unused-imports plugin
+      'sonarjs/unused-import': 'off', // Handled by unused-imports plugin
 
       // Unicorn Overrides
       // Check these if we keep or remove

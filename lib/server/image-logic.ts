@@ -65,10 +65,10 @@ export async function scrubBoardImages(
   itemsPerTier = 10,
 ): Promise<TierListState> {
   const newItems: Record<string, MediaItem[]> = {};
-  
+
   // Collect all images to validate (unique URLs only to optimize)
   const imageUrlsToValidate = new Set<string>();
-  
+
   for (const tier of state.tierDefs) {
     const tierItems = state.items[tier.id] || [];
     const displayedItems = tierItems.slice(0, itemsPerTier);
@@ -85,13 +85,17 @@ export async function scrubBoardImages(
     [...imageUrlsToValidate].map(async (url) => {
       const isValid = await validateImageUrl(url);
       validationResults.set(url, isValid);
-    })
+    }),
   );
 
   // Reconstruct items with scrubbed images
   for (const tierId in state.items) {
     newItems[tierId] = state.items[tierId].map((item) => {
-      if (item.imageUrl && validationResults.has(item.imageUrl) && !validationResults.get(item.imageUrl)) {
+      if (
+        item.imageUrl &&
+        validationResults.has(item.imageUrl) &&
+        !validationResults.get(item.imageUrl)
+      ) {
         return { ...item, imageUrl: undefined };
       }
       return item;

@@ -4,7 +4,7 @@
  * Registers all definitions and exports the configured registry.
  */
 
-import { authorDefinition,bookDefinition } from './definitions/books';
+import { authorDefinition, bookDefinition } from './definitions/books';
 import { movieDefinition, personDefinition, tvDefinition } from './definitions/cinema';
 import { albumDefinition, artistDefinition, songDefinition } from './definitions/music';
 import { mediaTypeRegistry } from './registry';
@@ -15,12 +15,12 @@ mediaTypeRegistry.registerMany([
   songDefinition,
   albumDefinition,
   artistDefinition,
-  
+
   // Cinema
   movieDefinition,
   tvDefinition,
   personDefinition,
-  
+
   // Books
   bookDefinition,
   authorDefinition,

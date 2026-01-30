@@ -24,8 +24,22 @@ const fakeBooks = Array.from({ length: 20 }, () => ({
 }));
 
 const staticBooks = [
-  { key: '/works/OL1W', title: 'The Fellowship of the Ring', author_name: ['J.R.R. Tolkien'], first_publish_year: 1954, language: ['eng'], publisher: ['George Allen & Unwin'] },
-  { key: '/works/OL2W', title: 'Harry Potter and the Philosopher\'s Stone', author_name: ['J.K. Rowling'], first_publish_year: 1997, language: ['eng'], publisher: ['Bloomsbury'] },
+  {
+    key: '/works/OL1W',
+    title: 'The Fellowship of the Ring',
+    author_name: ['J.R.R. Tolkien'],
+    first_publish_year: 1954,
+    language: ['eng'],
+    publisher: ['George Allen & Unwin'],
+  },
+  {
+    key: '/works/OL2W',
+    title: "Harry Potter and the Philosopher's Stone",
+    author_name: ['J.K. Rowling'],
+    first_publish_year: 1997,
+    language: ['eng'],
+    publisher: ['Bloomsbury'],
+  },
 ];
 
 const allBooks = [...staticBooks, ...fakeBooks];
@@ -39,17 +53,17 @@ export const handlers = [
     const query = url.searchParams.get('q') || '';
 
     const matches = allBooks.filter((book) => {
-        // Map Open Library Fields
-        return matchesQuery(query, book, {
-            author: 'author_name',
-            first_publish_year: 'first_publish_year',
-            publisher: 'publisher'
-        });
+      // Map Open Library Fields
+      return matchesQuery(query, book, {
+        author: 'author_name',
+        first_publish_year: 'first_publish_year',
+        publisher: 'publisher',
+      });
     });
 
     return HttpResponse.json({
       numFound: matches.length,
-      docs: matches.map(m => ({
+      docs: matches.map((m) => ({
         key: m.key,
         title: m.title,
         author_name: m.author_name,
@@ -58,8 +72,8 @@ export const handlers = [
         publisher: m.publisher,
         cover_i: 12_345,
         ratings_average: 4.5,
-        review_count: 100
-      }))
+        review_count: 100,
+      })),
     });
   }),
 
@@ -72,21 +86,21 @@ export const handlers = [
       { key: 'OL23919A', name: 'J.K. Rowling', birth_date: '31 July 1965' },
     ];
 
-    const matches = fakeAuthors.filter(a => a.name.toLowerCase().includes(query.toLowerCase()));
+    const matches = fakeAuthors.filter((a) => a.name.toLowerCase().includes(query.toLowerCase()));
 
     return HttpResponse.json({
       numFound: matches.length,
-      docs: matches.map(m => ({
+      docs: matches.map((m) => ({
         key: m.key,
         name: m.name,
-        birth_date: m.birth_date
-      }))
+        birth_date: m.birth_date,
+      })),
     });
   }),
 
   http.get(`${OL_BASE}/works/:id.json`, ({ params }) => {
-    const book = allBooks.find(b => b.key.endsWith(params.id as string));
-    
+    const book = allBooks.find((b) => b.key.endsWith(params.id as string));
+
     if (book) {
       return HttpResponse.json({
         key: book.key,
@@ -94,12 +108,9 @@ export const handlers = [
         covers: [123456],
         description: 'Mock description for ' + book.title,
         subjects: ['Fantasy', 'Adventure'],
-        first_publish_date: book.first_publish_year.toString()
+        first_publish_date: book.first_publish_year.toString(),
       });
     }
     return new HttpResponse(null, { status: 404 });
-  })
+  }),
 ];
-
-
-

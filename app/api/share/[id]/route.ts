@@ -16,10 +16,7 @@ import { TierListState } from '@/lib/types';
  * @param context.params - Promise resolving to the route parameters containing the board ID.
  * @returns A response containing the board data or an error message.
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const key = `moat-shared-${id}`;

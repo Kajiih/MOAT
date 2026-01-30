@@ -143,7 +143,6 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   // Unmount Flush
   React.useEffect(() => {
     return () => {
-       
       if (isHydratedRef.current && boardId) {
         syncBoardMetadata(boardId, latestStateRef.current);
       }

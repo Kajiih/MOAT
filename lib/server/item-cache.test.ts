@@ -9,7 +9,7 @@ describe('MediaItemCache', () => {
     type: 'song',
     title: 'Test Song',
     artist: 'Test Artist',
-    year: '2024'
+    year: '2024',
   };
 
   beforeEach(() => {
@@ -29,12 +29,12 @@ describe('MediaItemCache', () => {
   it('should handle item expiry', () => {
     const ttl = 1000; // 1 second
     serverItemCache.set(mockItem, ttl);
-    
+
     expect(serverItemCache.get('test-1')).toEqual(mockItem);
-    
+
     // Advance time past TTL
     vi.advanceTimersByTime(1001);
-    
+
     expect(serverItemCache.get('test-1')).toBeNull();
   });
 

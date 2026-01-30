@@ -17,7 +17,7 @@ import { useEffect } from 'react';
 export function useClickOutside(
   ref: React.RefObject<HTMLElement | null>,
   callback: () => void,
-  isActive: boolean = true
+  isActive: boolean = true,
 ) {
   useEffect(() => {
     if (!isActive) return;

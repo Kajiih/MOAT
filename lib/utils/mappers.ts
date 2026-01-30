@@ -34,9 +34,7 @@ const getCoverArtUrl = (id: string, type: 'release-group' | 'release' = 'release
  * @param credits - Array of artist credits from MusicBrainz.
  * @returns A formatted string or 'Unknown' if empty.
  */
-export const formatArtistCredit = (
-  credits?: z.infer<typeof MusicBrainzArtistCreditSchema>[],
-) => {
+export const formatArtistCredit = (credits?: z.infer<typeof MusicBrainzArtistCreditSchema>[]) => {
   if (!credits || credits.length === 0) return 'Unknown';
   return credits.map((c) => c.name + (c.joinphrase || '')).join('');
 };

@@ -18,24 +18,29 @@ export interface FilterConfig {
   label: string;
   /** Type of filter input */
   type: 'text' | 'range' | 'select' | 'picker' | 'toggle-group';
-  
+
   /** URL parameter name (defaults to id) */
   paramName?: string;
-  
+
   /** Placeholder text for text inputs */
   placeholder?: string;
   /** Helper text shown below the filter */
   helperText?: string;
-  
+
   /** Options for select/toggle-group types */
   options?: Array<{ label: string; value: string; icon?: LucideIcon }>;
   /** Media type for picker type */
   pickerType?: MediaType;
-  
+
   /** Default value for this filter */
   defaultValue?: unknown;
   /** Alias for defaultValue (backward compatibility) */
   default?: unknown;
+
+  /** For 'range' type: key in state for minimum value */
+  minKey?: string;
+  /** For 'range' type: key in state for maximum value */
+  maxKey?: string;
 }
 
 /**
@@ -60,7 +65,7 @@ export interface MediaTypeDefinition {
   id: MediaType;
   /** Category this type belongs to */
   category: BoardCategory;
-  
+
   // ===== UI Presentation =====
   /** Singular label (e.g., "Album") */
   label: string;
@@ -70,12 +75,12 @@ export interface MediaTypeDefinition {
   icon: LucideIcon;
   /** Tailwind color class */
   colorClass: string;
-  
+
   /** Extract subtitle from an item (e.g., artist name for album) */
   getSubtitle: (item: MediaItem) => string;
   /** Extract tertiary text from an item (e.g., year) */
   getTertiaryText: (item: MediaItem) => string;
-  
+
   // ===== Search & Filters =====
   /** Available filters for this type */
   filters: FilterConfig[];
@@ -83,7 +88,7 @@ export interface MediaTypeDefinition {
   sortOptions: SortOptionConfig[];
   /** Default filter values */
   defaultFilters: Record<string, unknown>;
-  
+
   // ===== Capabilities =====
   /** Whether this type can be searched */
   searchable: boolean;

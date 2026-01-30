@@ -12,15 +12,15 @@ import { MediaTypeDefinition } from '../types';
 export const bookDefinition: MediaTypeDefinition = {
   id: 'book',
   category: 'book',
-  
+
   label: 'Book',
   labelPlural: 'Books',
   icon: Book,
   colorClass: 'text-amber-600',
-  
+
   getSubtitle: (item) => (item as BookItem).author || 'Unknown Author',
   getTertiaryText: (item) => (item.year ? `(${item.year})` : ''),
-  
+
   filters: [
     {
       id: 'selectedAuthor',
@@ -34,6 +34,8 @@ export const bookDefinition: MediaTypeDefinition = {
       id: 'yearRange',
       label: 'First Publish Year',
       type: 'range',
+      minKey: 'minYear',
+      maxKey: 'maxYear',
       defaultValue: { min: '', max: '' },
     },
     {
@@ -88,13 +90,13 @@ export const bookDefinition: MediaTypeDefinition = {
       defaultValue: '',
     },
   ],
-  
+
   sortOptions: [
     { value: 'relevance', label: 'Relevance' },
     { value: 'date_desc', label: 'Date (Newest)', apiValue: 'new' },
     { value: 'date_asc', label: 'Date (Oldest)', apiValue: 'old' },
   ],
-  
+
   defaultFilters: {
     query: '',
     selectedAuthor: null,
@@ -107,7 +109,7 @@ export const bookDefinition: MediaTypeDefinition = {
     place: '',
     sort: 'relevance',
   },
-  
+
   searchable: true,
   supportsDetails: true,
 };
@@ -115,28 +117,28 @@ export const bookDefinition: MediaTypeDefinition = {
 export const authorDefinition: MediaTypeDefinition = {
   id: 'author',
   category: 'book',
-  
+
   label: 'Author',
   labelPlural: 'Authors',
   icon: User,
   colorClass: 'text-amber-500',
-  
+
   getSubtitle: () => 'Author',
   getTertiaryText: (item) => (item.year ? `Born: ${item.year}` : ''),
-  
+
   filters: [],
-  
+
   sortOptions: [
     { value: 'relevance', label: 'Relevance' },
     { value: 'title_asc', label: 'Name (A-Z)' },
     { value: 'title_desc', label: 'Name (Z-A)' },
   ],
-  
+
   defaultFilters: {
     query: '',
     sort: 'relevance',
   },
-  
+
   searchable: true,
   supportsDetails: true,
 };

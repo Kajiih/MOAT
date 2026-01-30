@@ -157,11 +157,11 @@ export function useMediaSearch<T extends MediaType>(
 
     if (!ignoreFilters) {
       const filterDefs = mediaTypeRegistry.get(type).filters;
-      
+
       Object.entries(rest).forEach(([key, value]) => {
         if (value === null || value === undefined || value === '') return;
 
-        const def = filterDefs.find(d => d.id === key);
+        const def = filterDefs.find((d) => d.id === key);
         const pName = def?.paramName || key;
 
         if (def?.type === 'picker') {
