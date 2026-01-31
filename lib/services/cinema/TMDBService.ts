@@ -61,6 +61,7 @@ export class TMDBService implements MediaService {
 
     let endpoint = '';
     const params: Record<string, string> = { page: page.toString() };
+    let isServerSorted = false; // Initialize as false
 
     // Common filters
     const minYear = filters.minYear as string | undefined;
@@ -92,6 +93,7 @@ export class TMDBService implements MediaService {
       // Use DISCOVER endpoint if query is empty (allows better sorting and filtering)
       switch (type) {
         case 'movie': {
+          isServerSorted = sort !== 'relevance'; // We are applying the sort in discover
           endpoint = '/discover/movie';
           if (minYear) params['primary_release_date.gte'] = `${minYear}-01-01`;
           if (maxYear) params['primary_release_date.lte'] = `${maxYear}-12-31`;
@@ -106,7 +108,7 @@ export class TMDBService implements MediaService {
               break;
             case 'rating_desc':
               params.sort_by = 'vote_average.desc';
-              params['vote_count.gte'] = '50'; // Filter out low-count noise for rating sort
+              params['vote_count.gte'] = '50';
               break;
             case 'rating_asc':
               params.sort_by = 'vote_average.asc';
@@ -130,6 +132,7 @@ export class TMDBService implements MediaService {
           break;
         }
         case 'tv': {
+          isServerSorted = sort !== 'relevance';
           endpoint = '/discover/tv';
           if (minYear) params['first_air_date.gte'] = `${minYear}-01-01`;
           if (maxYear) params['first_air_date.lte'] = `${maxYear}-12-31`;
@@ -167,7 +170,8 @@ export class TMDBService implements MediaService {
           break;
         }
         case 'person': {
-          endpoint = '/person/popular'; // Best we can do for "popular people" without a query
+          endpoint = '/person/popular'; // NO sort support on this endpoint
+          isServerSorted = false; 
           break;
         }
         default: {
@@ -192,7 +196,7 @@ export class TMDBService implements MediaService {
       page: data.page,
       totalPages: data.total_pages,
       totalCount: data.total_results,
-      isServerSorted: !query && sort !== 'relevance',
+      isServerSorted,
     };
   }
 
