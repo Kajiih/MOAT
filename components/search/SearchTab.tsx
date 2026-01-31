@@ -71,6 +71,7 @@ export function SearchTab({
     setPage,
     results: searchResults,
     totalPages,
+    isServerSorted,
     error,
     isLoading: isSearching,
     searchNow,
@@ -93,6 +94,12 @@ export function SearchTab({
 
   const sortedResults = useMemo(() => {
     const sortOption = (filters.sort as SortOption) || 'relevance';
+
+    // Skip client-side sorting if the server already handled it globally
+    if (isServerSorted || sortOption === 'relevance') {
+      return searchResults;
+    }
+
     return searchResults.toSorted((a: MediaItem, b: MediaItem) => {
       switch (sortOption) {
         case 'date_desc': {
@@ -138,7 +145,7 @@ export function SearchTab({
         }
       }
     });
-  }, [searchResults, filters.sort]);
+  }, [searchResults, filters.sort, isServerSorted]);
 
   const finalResults = useMemo(() => {
     if (showAdded) return sortedResults;
@@ -258,6 +265,11 @@ export function SearchTab({
 
       {/* Results Area (Grid + Pagination) */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {(filters.sort as string) && filters.sort !== 'relevance' && !isServerSorted && searchResults.length > 0 && (
+          <div className="mb-2 px-1 text-[10px] text-neutral-500 italic">
+            * Sorting applies to current page results only
+          </div>
+        )}
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
           {renderContent()}
         </div>

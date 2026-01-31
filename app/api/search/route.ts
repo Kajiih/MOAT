@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { FilterConfig, mediaTypeRegistry } from '@/lib/media-types';
 import { getMediaService } from '@/lib/services/factory';
-import { BoardCategory, MediaType } from '@/lib/types';
+import { BoardCategory, MediaType, SortOption } from '@/lib/types';
 
 /**
  * Helper to parse range filters (years, duration).
@@ -88,9 +88,9 @@ function parseSearchParams(searchParams: URLSearchParams, type: MediaType) {
   }
 
   // Always include sort
-  filters.sort = searchParams.get('sort') || 'relevance';
+  const sort = (searchParams.get('sort') as SortOption) || 'relevance';
 
-  return { page, fuzzy, wildcard, filters };
+  return { page, fuzzy, wildcard, filters, sort };
 }
 
 /**
@@ -114,7 +114,10 @@ export async function GET(request: Request) {
       return v && (!Array.isArray(v) || v.length > 0);
     });
 
-    if (!query && !hasFilters) {
+    const isDiscoveryCategory = category === 'cinema' || category === 'book';
+    const hasSpecificSort = options.sort && options.sort !== 'relevance';
+
+    if (!query && !hasFilters && !isDiscoveryCategory && !hasSpecificSort) {
       return NextResponse.json({ results: [], page: options.page || 1, totalPages: 0 });
     }
 

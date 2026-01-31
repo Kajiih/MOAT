@@ -106,9 +106,9 @@ export class OpenLibraryService implements MediaService {
     searchUrl.searchParams.set('page', page.toString());
     searchUrl.searchParams.set('limit', limit.toString());
 
-    const sort = options.filters?.sort as string | undefined;
+    const sort = options.sort;
     if (sort && sort !== 'relevance') {
-      let apiSort = sort;
+      let apiSort: string = sort;
       switch (sort) {
         case 'rating_desc': {
           apiSort = 'rating';
@@ -190,6 +190,7 @@ export class OpenLibraryService implements MediaService {
       page,
       totalPages,
       totalCount,
+      isServerSorted: !!sort && sort !== 'relevance',
     };
   }
 

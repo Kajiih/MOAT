@@ -40,6 +40,7 @@ export interface SearchResult {
   page: number;
   totalPages: number;
   totalCount: number;
+  isServerSorted?: boolean;
 }
 
 /**

@@ -52,27 +52,127 @@ export class TMDBService implements MediaService {
 
   async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     const page = options.page || 1;
+    const filters = options.filters || {};
+    const sort = options.sort || 'relevance';
 
     if (!this.getApiKey()) {
       throw new Error('TMDB_API_KEY is missing');
     }
 
     let endpoint = '';
-    switch (type) {
-      case 'movie': {
-        endpoint = '/search/movie';
-        break;
+    const params: Record<string, string> = { page: page.toString() };
+
+    // Common filters
+    const minYear = filters.minYear as string | undefined;
+    const maxYear = filters.maxYear as string | undefined;
+
+    if (query) {
+      // Use SEARCH endpoint if query is present (sort and complex filters not supported by TMDB search API)
+      switch (type) {
+        case 'movie': {
+          endpoint = '/search/movie';
+          if (minYear) params.primary_release_year = minYear;
+          break;
+        }
+        case 'tv': {
+          endpoint = '/search/tv';
+          if (minYear) params.first_air_date_year = minYear;
+          break;
+        }
+        case 'person': {
+          endpoint = '/search/person';
+          break;
+        }
+        default: {
+          return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+        }
       }
-      case 'tv': {
-        endpoint = '/search/tv';
-        break;
-      }
-      case 'person': {
-        endpoint = '/search/person';
-        break;
-      }
-      default: {
-        return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+      params.query = query;
+    } else {
+      // Use DISCOVER endpoint if query is empty (allows better sorting and filtering)
+      switch (type) {
+        case 'movie': {
+          endpoint = '/discover/movie';
+          if (minYear) params['primary_release_date.gte'] = `${minYear}-01-01`;
+          if (maxYear) params['primary_release_date.lte'] = `${maxYear}-12-31`;
+
+          // Handle sorting
+          switch (sort) {
+            case 'date_desc':
+              params.sort_by = 'release_date.desc';
+              break;
+            case 'date_asc':
+              params.sort_by = 'release_date.asc';
+              break;
+            case 'rating_desc':
+              params.sort_by = 'vote_average.desc';
+              params['vote_count.gte'] = '50'; // Filter out low-count noise for rating sort
+              break;
+            case 'rating_asc':
+              params.sort_by = 'vote_average.asc';
+              params['vote_count.gte'] = '10';
+              break;
+            case 'reviews_desc':
+              params.sort_by = 'vote_count.desc';
+              break;
+            case 'reviews_asc':
+              params.sort_by = 'vote_count.asc';
+              break;
+            case 'title_asc':
+              params.sort_by = 'original_title.asc';
+              break;
+            case 'title_desc':
+              params.sort_by = 'original_title.desc';
+              break;
+            default:
+              params.sort_by = 'popularity.desc';
+          }
+          break;
+        }
+        case 'tv': {
+          endpoint = '/discover/tv';
+          if (minYear) params['first_air_date.gte'] = `${minYear}-01-01`;
+          if (maxYear) params['first_air_date.lte'] = `${maxYear}-12-31`;
+
+          // Handle sorting
+          switch (sort) {
+            case 'date_desc':
+              params.sort_by = 'first_air_date.desc';
+              break;
+            case 'date_asc':
+              params.sort_by = 'first_air_date.asc';
+              break;
+            case 'rating_desc':
+              params.sort_by = 'vote_average.desc';
+              params['vote_count.gte'] = '20';
+              break;
+            case 'rating_asc':
+              params.sort_by = 'vote_average.asc';
+              break;
+            case 'reviews_desc':
+              params.sort_by = 'vote_count.desc';
+              break;
+            case 'reviews_asc':
+              params.sort_by = 'vote_count.asc';
+              break;
+            case 'title_asc':
+              params.sort_by = 'name.asc';
+              break;
+            case 'title_desc':
+              params.sort_by = 'name.desc';
+              break;
+            default:
+              params.sort_by = 'popularity.desc';
+          }
+          break;
+        }
+        case 'person': {
+          endpoint = '/person/popular'; // Best we can do for "popular people" without a query
+          break;
+        }
+        default: {
+          return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+        }
       }
     }
 
@@ -81,7 +181,7 @@ export class TMDBService implements MediaService {
       page: number;
       total_pages: number;
       total_results: number;
-    }>(endpoint, { query, page: page.toString() });
+    }>(endpoint, params);
 
     if (!data) {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
@@ -92,6 +192,7 @@ export class TMDBService implements MediaService {
       page: data.page,
       totalPages: data.total_pages,
       totalCount: data.total_results,
+      isServerSorted: !query && sort !== 'relevance',
     };
   }
 

@@ -17,7 +17,8 @@
       - **Songs**: Filter by duration.
       - **Books**: Filter by language, publisher, person, or place.
     - **Shared Logic**: Global toggles for Fuzzy Search, Partial Match, and "Show Added" items allow for consistent result behavior across all search tabs.
-    - **Server-Side Sorting**: Support for Relevance, Date, and Rating-based sorting.
+    - **Server-Side Sorting**: Support for Relevance, Date, and Rating-based sorting. The app prioritizes global server-side sorting (e.g., via TMDB Discover or Open Library features) over client-side sorting to ensure pagination works correctly. A UI indicator appears when results are only sorted on the current page.
+    - **Discovery Mode**: For Cinema and Books, leaving the search box empty displays "Popular" or "Trending" items, allowing for exploratory browsing via sort and filters without requiring a specific query.
   - **Persistent Global Library**: Every item encountered in search is stored in a persistent `MediaRegistry`. Once an image or tracklist is found, it is remembered across sessions.
   - **Self-Healing Images**: If an artist image is missing during search, the app automatically fetches it in the background from **Fanart.tv** or **Wikidata** once the item is added to the board.
 - **Deep Metadata Sync**:

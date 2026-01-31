@@ -86,6 +86,7 @@ interface UseMediaSearchResult<T extends MediaItem> {
   searchNow: () => void;
   results: T[];
   totalPages: number;
+  isServerSorted: boolean;
   isLoading: boolean;
   isValidating: boolean;
   error: (Error & { status?: number }) | null;
@@ -238,6 +239,7 @@ export function useMediaSearch<T extends MediaType>(
     searchNow,
     results: enrichedResults as MediaItemMap[T][],
     totalPages: data?.totalPages || 0,
+    isServerSorted: data?.isServerSorted || false,
     error: error || null,
     isLoading,
     isValidating,

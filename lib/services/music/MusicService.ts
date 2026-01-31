@@ -37,6 +37,7 @@ export class MusicService implements MediaService {
       fuzzy: options.fuzzy,
       wildcard: options.wildcard,
       options: {
+        ...options,
         fuzzy: options.fuzzy ?? true,
         wildcard: options.wildcard ?? true,
       },
