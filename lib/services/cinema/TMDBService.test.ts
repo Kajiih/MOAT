@@ -62,4 +62,39 @@ describe('TMDBService Integration (Fake Server)', () => {
     await expect(service.search('test', 'movie')).rejects.toThrow('TMDB_API_KEY is missing');
     vi.stubEnv('NEXT_PUBLIC_TMDB_API_KEY', 'fake-key');
   });
+
+  describe('Discovery and Sorting', () => {
+    it('should use discover endpoint when query is empty', async () => {
+      const result = await service.search('', 'movie');
+      expect(result.results.length).toBeGreaterThan(0);
+      expect(result.isServerSorted).toBe(false); // default relevance/popularity
+    });
+
+    it('should support sorting in discovery mode', async () => {
+      // Sort A-Z
+      const resultAZ = await service.search('', 'movie', { sort: 'title_asc' });
+      expect(resultAZ.results[0].title).toBe('A Movie');
+      expect(resultAZ.isServerSorted).toBe(true);
+
+      // Sort Z-A
+      const resultZA = await service.search('', 'movie', { sort: 'title_desc' });
+      expect(resultZA.results[0].title).toBe('Z Movie');
+      expect(resultZA.isServerSorted).toBe(true);
+    });
+
+    it('should use popular endpoint for people discovery and report as NOT server-sorted', async () => {
+      const result = await service.search('', 'person', { sort: 'title_asc' });
+      expect(result.results[0].title).toBe('Christopher Nolan');
+      expect(result.isServerSorted).toBe(false); // Should be false so client can re-sort alphabetically
+    });
+
+    it('should filter by year range in discovery mode', async () => {
+      const result = await service.search('', 'movie', {
+        filters: { minYear: '2021', maxYear: '2021' },
+      });
+      // B Movie is 2021
+      expect(result.results.every((r) => r.year === '2021')).toBe(true);
+      expect(result.results.some((r) => r.title === 'B Movie')).toBe(true);
+    });
+  });
 });

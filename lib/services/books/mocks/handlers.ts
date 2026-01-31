@@ -61,6 +61,13 @@ export const handlers = [
       });
     });
 
+    const sort = url.searchParams.get('sort');
+    if (sort === 'new') {
+      matches.sort((a, b) => (b.first_publish_year || 0) - (a.first_publish_year || 0));
+    } else if (sort === 'old') {
+      matches.sort((a, b) => (a.first_publish_year || 0) - (b.first_publish_year || 0));
+    }
+
     return HttpResponse.json({
       numFound: matches.length,
       docs: matches.map((m) => ({

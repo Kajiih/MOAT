@@ -265,11 +265,14 @@ export function SearchTab({
 
       {/* Results Area (Grid + Pagination) */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        {(filters.sort as string) && filters.sort !== 'relevance' && !isServerSorted && searchResults.length > 0 && (
-          <div className="mb-2 px-1 text-[10px] text-neutral-500 italic">
-            * Sorting applies to current page results only
-          </div>
-        )}
+        {(filters.sort as string) &&
+          filters.sort !== 'relevance' &&
+          !isServerSorted &&
+          searchResults.length > 0 && (
+            <div className="mb-2 px-1 text-[10px] text-neutral-500 italic">
+              * Sorting applies to current page results only
+            </div>
+          )}
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
           {renderContent()}
         </div>

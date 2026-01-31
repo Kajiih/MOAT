@@ -241,6 +241,15 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - Explicit synchronization for asynchronous state updates (debounce/IndexedDB).
   - Multi-browser validation (Chromium, Firefox).
 
+#### E. Sorting & Discovery Testing
+
+We use high-fidelity integration tests with MSW to verify our sorting and discovery logic across all media services:
+
+- **`TMDBService.test.ts`**: Verifies that empty queries correctly trigger discovery mode and that server-side sorting via `sort_by` works as expected.
+- **`OpenLibraryService.test.ts`**: Ensures the native `sort` parameter is correctly mapped and passed to the API.
+- **`MusicService.test.ts`**: Confirms that services without sorting support correctly report themselves as not server-sorted, allowing the client to take over.
+- **`route.test.ts`**: Validates the API's "Discovery Category" allow-list logic.
+
 ### 9. Screenshot Engine & Export Architecture
 
 The app employs a dedicated "Clean Room" architecture to generate professional-grade PNG exports.

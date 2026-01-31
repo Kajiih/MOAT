@@ -145,5 +145,11 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     0;
   const totalPages = Math.ceil(totalCount / limit);
 
-  return { results, page, totalPages, totalCount };
+  return {
+    results,
+    page,
+    totalPages,
+    totalCount,
+    isServerSorted: false,
+  };
 }

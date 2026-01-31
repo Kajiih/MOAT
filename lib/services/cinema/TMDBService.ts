@@ -171,7 +171,7 @@ export class TMDBService implements MediaService {
         }
         case 'person': {
           endpoint = '/person/popular'; // NO sort support on this endpoint
-          isServerSorted = false; 
+          isServerSorted = false;
           break;
         }
         default: {

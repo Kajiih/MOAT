@@ -25,11 +25,15 @@ interface TMDBMockItem {
 const mockDb: Record<string, TMDBMockItem[]> = {
   movie: [
     { id: 1, title: 'Inception', release_date: '2010-07-16', poster_path: '/inception.jpg' },
-    ...Array.from({ length: 10 }, (_, i) => ({
+    { id: 2, title: 'A Movie', release_date: '2020-01-01', poster_path: '/a.jpg' },
+    { id: 3, title: 'B Movie', release_date: '2021-01-01', poster_path: '/b.jpg' },
+    { id: 4, title: 'C Movie', release_date: '2022-01-01', poster_path: '/c.jpg' },
+    { id: 5, title: 'Z Movie', release_date: '2023-01-01', poster_path: '/z.jpg' },
+    ...Array.from({ length: 5 }, (_, i) => ({
       id: 10 + i,
-      title: faker.commerce.productName(),
-      release_date: faker.date.past({ years: 20 }).toISOString().split('T')[0],
-      poster_path: `/${faker.string.alphanumeric(10)}.jpg`,
+      title: 'Mock Movie ' + i,
+      release_date: '2000-01-01',
+      poster_path: `/mock${i}.jpg`,
     })),
   ],
   tv: [{ id: 101, name: 'Breaking Bad', first_air_date: '2008-01-20', poster_path: '/bb.jpg' }],
@@ -58,6 +62,52 @@ export const handlers = [
       results: matches,
       total_pages: 1,
       total_results: matches.length,
+    });
+  }),
+
+  http.get(`${TMDB_BASE}/discover/:type`, ({ request, params }) => {
+    const url = new URL(request.url);
+    const type = params.type as string;
+    const items = [...(mockDb[type] || [])];
+
+    // Filter by year if present
+    const minDate =
+      url.searchParams.get('primary_release_date.gte') ||
+      url.searchParams.get('first_air_date.gte');
+    const maxDate =
+      url.searchParams.get('primary_release_date.lte') ||
+      url.searchParams.get('first_air_date.lte');
+
+    let filtered = items;
+    if (minDate) {
+      filtered = filtered.filter((i) => (i.release_date || i.first_air_date || '') >= minDate);
+    }
+    if (maxDate) {
+      filtered = filtered.filter((i) => (i.release_date || i.first_air_date || '') <= maxDate);
+    }
+
+    // Handle dummy sorting for title in mock
+    const sortBy = url.searchParams.get('sort_by');
+    if (sortBy === 'original_title.asc' || sortBy === 'name.asc') {
+      filtered.sort((a, b) => (a.title || a.name || '').localeCompare(b.title || b.name || ''));
+    } else if (sortBy === 'original_title.desc' || sortBy === 'name.desc') {
+      filtered.sort((a, b) => (b.title || b.name || '').localeCompare(a.title || a.name || ''));
+    }
+
+    return HttpResponse.json({
+      page: 1,
+      results: filtered,
+      total_pages: 1,
+      total_results: filtered.length,
+    });
+  }),
+
+  http.get(`${TMDB_BASE}/person/popular`, () => {
+    return HttpResponse.json({
+      page: 1,
+      results: mockDb.person,
+      total_pages: 1,
+      total_results: mockDb.person.length,
     });
   }),
 

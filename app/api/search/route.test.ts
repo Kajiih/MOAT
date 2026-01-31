@@ -61,6 +61,18 @@ describe('Search API Route', () => {
     expect(mockSearch).not.toHaveBeenCalled();
   });
 
+  it('allows empty results for discovery categories like cinema', async () => {
+    const url = 'http://localhost/api/search?query=&category=cinema&type=movie';
+    const request = new Request(url);
+
+    mockSearch.mockResolvedValue({ results: [], page: 1, totalPages: 0 });
+
+    await GET(request);
+
+    expect(getMediaService).toHaveBeenCalledWith('cinema');
+    expect(mockSearch).toHaveBeenCalledWith('', 'movie', expect.anything());
+  });
+
   it('handles service errors and maps specific codes', async () => {
     const url = 'http://localhost/api/search?query=Queen';
     const request = new Request(url);

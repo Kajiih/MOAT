@@ -82,4 +82,18 @@ describe('OpenLibraryService Integration (Fake Server)', () => {
     expect(details.description).toBe('Mock description for The Fellowship of the Ring');
     expect(details.tags).toContain('Fantasy');
   });
+
+  it('should support sorting results', async () => {
+    // Fellowship is 1954, Potter is 1997
+    const query = 'Fellowship OR Philosopher';
+
+    const resultOld = await service.search(query, 'book', { sort: 'date_asc' });
+    expect(resultOld.results.length).toBeGreaterThanOrEqual(2);
+    expect(resultOld.results[0].title).toBe('The Fellowship of the Ring');
+    expect(resultOld.isServerSorted).toBe(true);
+
+    const resultNew = await service.search(query, 'book', { sort: 'date_desc' });
+    expect(resultNew.results[0].title).toBe("Harry Potter and the Philosopher's Stone");
+    expect(resultNew.isServerSorted).toBe(true);
+  });
 });

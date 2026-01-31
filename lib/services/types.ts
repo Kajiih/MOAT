@@ -5,7 +5,14 @@
 
 import { LucideIcon } from 'lucide-react';
 
-import { BoardCategory, MediaDetails, MediaItem, MediaType, SearchResult, SortOption } from '@/lib/types';
+import {
+  BoardCategory,
+  MediaDetails,
+  MediaItem,
+  MediaType,
+  SearchResult,
+  SortOption,
+} from '@/lib/types';
 
 /**
  * Options passed to the search method.

@@ -84,4 +84,9 @@ describe('MusicService Integration (Fake Server)', () => {
       'API Error: 500 Internal Server Error',
     );
   });
+
+  it('should report as NOT server-sorted (as MusicBrainz does not support API-side sorting)', async () => {
+    const result = await service.search('Fake', 'song', { sort: 'title_asc' });
+    expect(result.isServerSorted).toBe(false);
+  });
 });
