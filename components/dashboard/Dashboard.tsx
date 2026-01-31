@@ -17,9 +17,10 @@ import React from 'react';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Footer } from '@/components/ui/Footer';
 import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
-import { useBrandColors } from '@/lib/hooks';
+import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
+import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 import { failedImages } from '@/lib/image-cache';
 import { logger } from '@/lib/logger';
 import { BoardCategory, BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
@@ -32,6 +33,9 @@ const CreateBoardCard = ({
   onCreate: (title: string, category: BoardCategory) => void;
 }) => {
   const [isCreating, setIsCreating] = React.useState(false);
+
+  // Close the creation form when Escape is pressed
+  useEscapeKey(() => setIsCreating(false), isCreating);
 
   if (!isCreating) {
     return (
