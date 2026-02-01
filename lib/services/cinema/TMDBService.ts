@@ -53,131 +53,19 @@ export class TMDBService implements MediaService {
   async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     const page = options.page || 1;
     const filters = options.filters || {};
-    const sort = options.sort || 'relevance';
+    const sort = (options.sort as string) || 'relevance';
 
     if (!this.getApiKey()) {
       throw new Error('TMDB_API_KEY is missing');
     }
 
-    let endpoint = '';
     const params: Record<string, string> = { page: page.toString() };
-    let isServerSorted = false; // Initialize as false
+    const { endpoint, isServerSorted } = query
+      ? this.prepareSearchRequest(type, query, filters, params)
+      : this.prepareDiscoverRequest(type, sort, filters, params);
 
-    // Common filters
-    const minYear = filters.minYear as string | undefined;
-    const maxYear = filters.maxYear as string | undefined;
-
-    if (query) {
-      // Use SEARCH endpoint if query is present (sort and complex filters not supported by TMDB search API)
-      switch (type) {
-        case 'movie': {
-          endpoint = '/search/movie';
-          if (minYear) params.primary_release_year = minYear;
-          break;
-        }
-        case 'tv': {
-          endpoint = '/search/tv';
-          if (minYear) params.first_air_date_year = minYear;
-          break;
-        }
-        case 'person': {
-          endpoint = '/search/person';
-          break;
-        }
-        default: {
-          return { results: [], page: 1, totalPages: 0, totalCount: 0 };
-        }
-      }
-      params.query = query;
-    } else {
-      // Use DISCOVER endpoint if query is empty (allows better sorting and filtering)
-      switch (type) {
-        case 'movie': {
-          isServerSorted = sort !== 'relevance'; // We are applying the sort in discover
-          endpoint = '/discover/movie';
-          if (minYear) params['primary_release_date.gte'] = `${minYear}-01-01`;
-          if (maxYear) params['primary_release_date.lte'] = `${maxYear}-12-31`;
-
-          // Handle sorting
-          switch (sort) {
-            case 'date_desc':
-              params.sort_by = 'release_date.desc';
-              break;
-            case 'date_asc':
-              params.sort_by = 'release_date.asc';
-              break;
-            case 'rating_desc':
-              params.sort_by = 'vote_average.desc';
-              params['vote_count.gte'] = '50';
-              break;
-            case 'rating_asc':
-              params.sort_by = 'vote_average.asc';
-              params['vote_count.gte'] = '10';
-              break;
-            case 'reviews_desc':
-              params.sort_by = 'vote_count.desc';
-              break;
-            case 'reviews_asc':
-              params.sort_by = 'vote_count.asc';
-              break;
-            case 'title_asc':
-              params.sort_by = 'original_title.asc';
-              break;
-            case 'title_desc':
-              params.sort_by = 'original_title.desc';
-              break;
-            default:
-              params.sort_by = 'popularity.desc';
-          }
-          break;
-        }
-        case 'tv': {
-          isServerSorted = sort !== 'relevance';
-          endpoint = '/discover/tv';
-          if (minYear) params['first_air_date.gte'] = `${minYear}-01-01`;
-          if (maxYear) params['first_air_date.lte'] = `${maxYear}-12-31`;
-
-          // Handle sorting
-          switch (sort) {
-            case 'date_desc':
-              params.sort_by = 'first_air_date.desc';
-              break;
-            case 'date_asc':
-              params.sort_by = 'first_air_date.asc';
-              break;
-            case 'rating_desc':
-              params.sort_by = 'vote_average.desc';
-              params['vote_count.gte'] = '20';
-              break;
-            case 'rating_asc':
-              params.sort_by = 'vote_average.asc';
-              break;
-            case 'reviews_desc':
-              params.sort_by = 'vote_count.desc';
-              break;
-            case 'reviews_asc':
-              params.sort_by = 'vote_count.asc';
-              break;
-            case 'title_asc':
-              params.sort_by = 'name.asc';
-              break;
-            case 'title_desc':
-              params.sort_by = 'name.desc';
-              break;
-            default:
-              params.sort_by = 'popularity.desc';
-          }
-          break;
-        }
-        case 'person': {
-          endpoint = '/person/popular'; // NO sort support on this endpoint
-          isServerSorted = false;
-          break;
-        }
-        default: {
-          return { results: [], page: 1, totalPages: 0, totalCount: 0 };
-        }
-      }
+    if (!endpoint) {
+      return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
     const data = await this.fetch<{
@@ -198,6 +86,117 @@ export class TMDBService implements MediaService {
       totalCount: data.total_results,
       isServerSorted,
     };
+  }
+
+  private prepareSearchRequest(
+    type: MediaType,
+    query: string,
+    filters: Record<string, any>,
+    params: Record<string, string>,
+  ): { endpoint: string; isServerSorted: boolean } {
+    params.query = query;
+    const minYear = filters.minYear as string | undefined;
+
+    switch (type) {
+      case 'movie': {
+        if (minYear) params.primary_release_year = minYear;
+        return { endpoint: '/search/movie', isServerSorted: false };
+      }
+      case 'tv': {
+        if (minYear) params.first_air_date_year = minYear;
+        return { endpoint: '/search/tv', isServerSorted: false };
+      }
+      case 'person': {
+        return { endpoint: '/search/person', isServerSorted: false };
+      }
+      default: {
+        return { endpoint: '', isServerSorted: false };
+      }
+    }
+  }
+
+  private prepareDiscoverRequest(
+    type: MediaType,
+    sort: string,
+    filters: Record<string, any>,
+    params: Record<string, string>,
+  ): { endpoint: string; isServerSorted: boolean } {
+    const isServerSorted = sort !== 'relevance';
+    const minYear = filters.minYear as string | undefined;
+    const maxYear = filters.maxYear as string | undefined;
+
+    switch (type) {
+      case 'movie': {
+        if (minYear) params['primary_release_date.gte'] = `${minYear}-01-01`;
+        if (maxYear) params['primary_release_date.lte'] = `${maxYear}-12-31`;
+        params.sort_by = this.getMovieSortBy(sort, params);
+        return { endpoint: '/discover/movie', isServerSorted };
+      }
+      case 'tv': {
+        if (minYear) params['first_air_date.gte'] = `${minYear}-01-01`;
+        if (maxYear) params['first_air_date.lte'] = `${maxYear}-12-31`;
+        params.sort_by = this.getTvSortBy(sort, params);
+        return { endpoint: '/discover/tv', isServerSorted };
+      }
+      case 'person': {
+        return { endpoint: '/person/popular', isServerSorted: false };
+      }
+      default: {
+        return { endpoint: '', isServerSorted: false };
+      }
+    }
+  }
+
+  private getMovieSortBy(sort: string, params: Record<string, string>): string {
+    switch (sort) {
+      case 'date_desc':
+        return 'release_date.desc';
+      case 'date_asc':
+        return 'release_date.asc';
+      case 'rating_desc': {
+        params['vote_count.gte'] = '50';
+        return 'vote_average.desc';
+      }
+      case 'rating_asc': {
+        params['vote_count.gte'] = '50';
+        return 'vote_average.asc';
+      }
+      case 'reviews_desc':
+        return 'vote_count.desc';
+      case 'reviews_asc':
+        return 'vote_count.asc';
+      case 'title_asc':
+        return 'original_title.asc';
+      case 'title_desc':
+        return 'original_title.desc';
+      default:
+        return 'popularity.desc';
+    }
+  }
+
+  private getTvSortBy(sort: string, params: Record<string, string>): string {
+    switch (sort) {
+      case 'date_desc':
+        return 'first_air_date.desc';
+      case 'date_asc':
+        return 'first_air_date.asc';
+      case 'rating_desc': {
+        params['vote_count.gte'] = '20';
+        return 'vote_average.desc';
+      }
+      case 'rating_asc':
+        return 'vote_average.asc';
+      case 'reviews_desc':
+        return 'vote_count.desc';
+      case 'reviews_asc':
+        return 'vote_count.asc';
+      case 'title_asc':
+        return 'name.asc';
+      case 'title_desc':
+        return 'name.desc';
+      default:
+        return 'popularity.desc';
+    }
   }
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {

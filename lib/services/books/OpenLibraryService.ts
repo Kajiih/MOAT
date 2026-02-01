@@ -3,10 +3,10 @@
  * @description Service provider for Open Library integration (Books).
  */
 
+import { logger } from '@/lib/logger';
 import { AuthorItem, BookItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
 import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
 
-import { logger } from '@/lib/logger';
 import { secureFetch } from '../shared/api-client';
 import { MediaService, SearchOptions } from '../types';
 
@@ -107,23 +107,17 @@ export class OpenLibraryService implements MediaService {
     searchUrl.searchParams.set('limit', limit.toString());
 
     const sort = options.sort;
+    let isServerSorted = false;
+
     if (sort && sort !== 'relevance') {
-      let apiSort: string = sort;
+      let apiSort: string | null = null;
       switch (sort) {
         case 'rating_desc': {
           apiSort = 'rating';
           break;
         }
-        case 'rating_asc': {
-          apiSort = '-rating';
-          break;
-        }
         case 'reviews_desc': {
           apiSort = 'editions';
-          break;
-        }
-        case 'reviews_asc': {
-          apiSort = '-editions';
           break;
         }
         case 'date_desc': {
@@ -131,21 +125,14 @@ export class OpenLibraryService implements MediaService {
           break;
         }
         case 'date_asc': {
-          {
-            apiSort = 'old';
-            // No default
-          }
+          apiSort = 'old';
           break;
         }
       }
 
-      if (
-        apiSort === 'rating' ||
-        apiSort === 'editions' ||
-        apiSort === 'new' ||
-        apiSort === 'old'
-      ) {
+      if (apiSort) {
         searchUrl.searchParams.set('sort', apiSort);
+        isServerSorted = true;
       }
     }
     searchUrl.searchParams.set(
@@ -190,7 +177,7 @@ export class OpenLibraryService implements MediaService {
       page,
       totalPages,
       totalCount,
-      isServerSorted: !!sort && sort !== 'relevance',
+      isServerSorted,
     };
   }
 
