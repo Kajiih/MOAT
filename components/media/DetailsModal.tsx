@@ -11,12 +11,9 @@
 import { X } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 
-import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
-import { useMediaDetails } from '@/lib/hooks';
-import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
+import { useMediaResolver, useEscapeKey } from '@/lib/hooks';
 import { mediaTypeRegistry } from '@/lib/media-types';
-import { MediaItem } from '@/lib/types';
-import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
+import { MediaItem, TrackItem } from '@/lib/types';
 
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
@@ -50,45 +47,18 @@ interface DetailsModalProps {
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
   useEscapeKey(onClose, isOpen);
 
-  const { getItem } = useMediaRegistry();
+  // Use the unified Media Resolver to handle fetching and syncing
+  const { resolvedItem, isLoading, isFetching, error } = useMediaResolver(item, {
+    enabled: isOpen,
+    onUpdate: onUpdateItem,
+    persist: true,
+  });
 
-  // ENRICHMENT: Always prefer the version from the registry as it might have
-  // been "healed" by the bundler since this modal opened or the card rendered.
-  const enrichedItem = useMemo(() => {
-    if (!item) return null;
-    const fromRegistry = getItem(item.id);
-    if (!fromRegistry) return item;
+  const details = resolvedItem?.details;
 
-    // Only create a new object if there's actually a difference in visual fields
-    if (fromRegistry.imageUrl && !item.imageUrl) {
-      return { ...item, imageUrl: fromRegistry.imageUrl };
-    }
-    return item;
-  }, [item, getItem]);
+  if (!isOpen || !resolvedItem) return null;
 
-  const { details, isLoading, isFetching, error } = useMediaDetails(
-    isOpen && enrichedItem ? enrichedItem.id : null,
-    isOpen && enrichedItem ? enrichedItem.type : null,
-    enrichedItem?.details,
-  );
-
-  // Commit fetched details to board state
-  useEffect(() => {
-    if (details && !isFetching && !error && enrichedItem && onUpdateItem) {
-      const updates = {
-        details,
-        imageUrl: details.imageUrl || enrichedItem.imageUrl,
-      };
-
-      if (hasMediaItemUpdates(enrichedItem, updates)) {
-        onUpdateItem(enrichedItem.id, updates);
-      }
-    }
-  }, [details, isFetching, error, enrichedItem, onUpdateItem]);
-
-  if (!isOpen || !enrichedItem) return null;
-
-  const definition = mediaTypeRegistry.get(enrichedItem.type);
+  const definition = mediaTypeRegistry.get(resolvedItem.type);
   const PlaceholderIcon = definition.icon;
 
   return (
@@ -103,7 +73,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
         {/* Header with Cover Art */}
         <div className="relative h-48 shrink-0 overflow-hidden bg-neutral-950 sm:h-64">
           <MediaImage
-            item={enrichedItem}
+            item={resolvedItem}
             priority
             TypeIcon={PlaceholderIcon}
             containerClassName="absolute inset-0"
@@ -114,26 +84,26 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
           <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
             <MediaImage
-              item={enrichedItem}
+              item={resolvedItem}
               TypeIcon={PlaceholderIcon}
               containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24"
               sizes="96px"
             />
             <div className="min-w-0 flex-1 pt-2">
               <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
-                {enrichedItem.title}
+                {resolvedItem.title}
               </h2>
               <div className="mt-1 flex items-center gap-2 text-neutral-300">
                 <definition.icon size={16} className={definition.colorClass} />
                 <span className="font-medium">
-                  {('artist' in enrichedItem && enrichedItem.artist) ||
-                    ('author' in enrichedItem && enrichedItem.author) ||
+                  {('artist' in resolvedItem && resolvedItem.artist) ||
+                    ('author' in resolvedItem && resolvedItem.author) ||
                     'Artist'}
                 </span>
-                {enrichedItem.year && (
+                {resolvedItem.year && (
                   <>
                     <span className="text-neutral-600">•</span>
-                    <span className="text-neutral-400">{enrichedItem.year}</span>
+                    <span className="text-neutral-400">{resolvedItem.year}</span>
                   </>
                 )}
               </div>
@@ -205,7 +175,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                         Setting / Places
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {details.places.map((place) => (
+                        {details.places.map((place: string) => (
                           <span
                             key={place}
                             className="flex items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-800/50 px-3 py-1 text-xs text-neutral-300"
@@ -223,7 +193,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                         Subjects
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {details.tags.map((tag) => (
+                        {details.tags.map((tag: string) => (
                           <span
                             key={tag}
                             className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs text-neutral-300"
@@ -240,7 +210,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                         Links
                       </h3>
                       <div className="flex flex-col gap-1">
-                        {details.urls.map((link) => (
+                        {details.urls.map((link: { type: string; url: string }) => (
                           <a
                             key={link.url}
                             href={link.url}

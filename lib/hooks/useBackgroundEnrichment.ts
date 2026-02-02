@@ -9,7 +9,7 @@
 
 import { useEffect, useMemo } from 'react';
 
-import { useMediaDetails } from '@/lib/hooks';
+import { useMediaResolver } from '@/lib/hooks/useMediaResolver';
 import { MediaItem } from '@/lib/types';
 
 /**
@@ -46,7 +46,7 @@ export function useBackgroundEnrichment(
 
 /**
  * Helper hook to handle the fetch and sync for a single item (or empty slot).
- * Leverages SWR via useMediaDetails for caching and deduplication.
+ * Leverages the unified useMediaResolver.
  * @param item - The media item to sync, or undefined if the slot is empty.
  * @param onUpdateItem - Callback to update the item with fetched details.
  */
@@ -54,23 +54,10 @@ function useSingleItemSyncWrapper(
   item: MediaItem | undefined,
   onUpdateItem: (itemId: string, updates: Partial<MediaItem>) => void,
 ) {
-  // When item is undefined (empty slot), we pass null to useMediaDetails to disable fetching.
-
-  const shouldFetch = !!item && !item.details;
-  const { details, isLoading, isFetching, error } = useMediaDetails(
-    shouldFetch && item ? item.id : null,
-    item ? item.type : null,
-  );
-
-  useEffect(() => {
-    if (item && details && !isLoading && !isFetching && !error && shouldFetch) {
-      // Final guard: avoid updating if the item somehow already has details
-      if (item.details) return;
-
-      onUpdateItem(item.id, {
-        details,
-        imageUrl: details.imageUrl || item.imageUrl,
-      });
-    }
-  }, [details, isLoading, isFetching, error, item, onUpdateItem, shouldFetch]);
+  // Pass the item to the resolver. It handles checking the registry and fetching if needed.
+  useMediaResolver(item || null, {
+    enabled: !!item && !item.details,
+    onUpdate: onUpdateItem,
+    persist: true, // Ensure background updates go into the global registry
+  });
 }

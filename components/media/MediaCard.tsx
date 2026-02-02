@@ -13,6 +13,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Eye, Info, LucideIcon, X } from 'lucide-react';
 import { useInteraction } from '@/components/ui/InteractionContext';
+import { useMediaResolver } from '@/lib/hooks';
 import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaItem } from '@/lib/types';
 import { toDomId } from '@/lib/utils/ids';
@@ -109,7 +110,7 @@ function MediaCardOverlay({
  * @returns The rendered BaseMediaCard component.
  */
 function BaseMediaCard({
-  item,
+  item: initialItem,
   tierId,
   onRemove,
   setNodeRef,
@@ -125,6 +126,9 @@ function BaseMediaCard({
   isExport = false,
   resolvedUrl,
 }: BaseMediaCardProps) {
+  const { resolvedItem } = useMediaResolver(initialItem, { enabled: false });
+  const item = resolvedItem || initialItem;
+
   const interaction = useInteraction();
   const definition = mediaTypeRegistry.get(item.type);
   const { icon: TypeIcon, getSubtitle, getTertiaryText } = definition;

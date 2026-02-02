@@ -22,7 +22,8 @@
   - **Persistent Global Library**: Every item encountered in search is stored in a persistent `MediaRegistry`. Once an image or tracklist is found, it is remembered across sessions.
   - **Self-Healing Images**: If an artist image is missing during search, the app automatically fetches it in the background from **Fanart.tv** or **Wikidata** once the item is added to the board.
 - **Deep Metadata Sync**:
-  - **Background Enrichment**: A background hook (`useBackgroundEnrichment`) monitors the board and automatically fetches deep metadata (tracklists, tags, bio) for every item, ensuring the board is always "feature-complete."
+  - **Unified Media Resolution**: The central `useMediaResolver` hook manages the entire lifecycle of an item (Registry <-> Board <-> API). It ensures that whether an item is being enriched in the background or viewed in a modal, the logic for fetching and synchronization is identical.
+  - **Background Enrichment**: A background hook (`useBackgroundEnrichment`) monitors the board and automatically fetches deep metadata (tracklists, tags, bio) for every item without blocking user interaction.
   - **Zero-Latency Details**: Pre-fetched metadata is stored directly in the board state. Modals open instantly with full content, even while offline or after a fresh import.
 - **Image Reuse & Consistency**:
   - **Shared Asset IDs**: Tracks (recordings) automatically inherit visual metadata from their parent albums (release-groups). By linking items via `albumId`, the app ensures identical artwork is used for both albums and their songs.
@@ -144,6 +145,15 @@ Pure **API Adapters** responsible for "How to fetch data".
 - **Responsibility**: Fetching data from external APIs and mapping it to the internal `MediaItem` schema.
 - **Interface**: All services implement `MediaService` (search, getDetails, category).
 - **Isolation**: Services contain NO UI or Filter configuration logic.
+
+#### C. Media Enrichment Lifecycle
+
+The application uses a unified **Media Resolver** pattern to ensure consistency and prevent redundant network requests:
+
+1. **Discovery**: Search results return "Minimal" items.
+2. **Resolution**: `useMediaResolver` checks the **Global Media Registry** (IndexedDB). If a more complete version is found in the cache, it is propagated instantly to the UI.
+3. **Enrichment**: If metadata or high-res images are missing, it triggers an on-demand fetch from `/api/details`.
+4. **Synchronization**: New data is committed to both the **Board State** and the **Global Registry** in a single cycle. Because all cards (both on the board and in search results) consume the resolver, they update their visual state (e.g., healing a broken image or updating a subtitle) simultaneously.
 
 ### 4. Performance & Optimization
 

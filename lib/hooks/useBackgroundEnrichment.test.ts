@@ -5,20 +5,19 @@ import { MediaItem } from '@/lib/types';
 
 import { useBackgroundEnrichment } from './useBackgroundEnrichment';
 
-// Mock useMediaDetails
-const mockUseMediaDetails = vi.fn();
-vi.mock('@/lib/hooks/useMediaDetails', () => ({
-  useMediaDetails: (id: string | null, type: string | null) => mockUseMediaDetails(id, type),
+// Mock useMediaResolver
+const mockUseMediaResolver = vi.fn();
+vi.mock('@/lib/hooks/useMediaResolver', () => ({
+  useMediaResolver: (item: any, options: any) => mockUseMediaResolver(item, options),
 }));
 
 describe('useBackgroundEnrichment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Default mock implementation: not loading, no data
-    mockUseMediaDetails.mockReturnValue({
-      details: null,
+    // Default mock implementation: not enriched
+    mockUseMediaResolver.mockReturnValue({
+      isEnriched: false,
       isLoading: false,
-      isFetching: false,
       error: null,
     });
   });
@@ -41,11 +40,17 @@ describe('useBackgroundEnrichment', () => {
 
     renderHook(() => useBackgroundEnrichment(items, onUpdate));
 
-    // Should NOT call hook for item 1 (id: '1')
-    expect(mockUseMediaDetails).not.toHaveBeenCalledWith('1', 'album');
+    // Item 1 has details, so it should NOT be passed to the resolver
+    expect(mockUseMediaResolver).not.toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1' }),
+      expect.any(Object),
+    );
 
-    // Should call hook for item 2 (id: '2')
-    expect(mockUseMediaDetails).toHaveBeenCalledWith('2', 'album');
+    // Item 2 is missing details, so it should be passed and enabled
+    expect(mockUseMediaResolver).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '2' }),
+      expect.objectContaining({ enabled: true }),
+    );
   });
 
   it('should limit concurrent fetches to 3 items', () => {
@@ -54,57 +59,42 @@ describe('useBackgroundEnrichment', () => {
 
     renderHook(() => useBackgroundEnrichment(items, onUpdate));
 
-    // Should only have called for the first 3 items
-    expect(mockUseMediaDetails).toHaveBeenCalledWith('0', 'album');
-    expect(mockUseMediaDetails).toHaveBeenCalledWith('1', 'album');
-    expect(mockUseMediaDetails).toHaveBeenCalledWith('2', 'album');
+    // First 3 should be enabled
+    expect(mockUseMediaResolver).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '0' }),
+      expect.objectContaining({ enabled: true }),
+    );
+    expect(mockUseMediaResolver).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1' }),
+      expect.objectContaining({ enabled: true }),
+    );
+    expect(mockUseMediaResolver).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '2' }),
+      expect.objectContaining({ enabled: true }),
+    );
 
-    // Should NOT have called for the 4th or 5th
-    expect(mockUseMediaDetails).not.toHaveBeenCalledWith('3', 'album');
-    expect(mockUseMediaDetails).not.toHaveBeenCalledWith('4', 'album');
+    // 4th and 5th should be called with null or excluded (wait, the hook renders 3 slots)
+    // Actually the hook takes itemsToSync which is sliced at 3.
+    // So the mock should have 3 enabled calls and many potentially null calls? 
+    // Wait, the current implementation of useBackgroundEnrichment:
+    // slot1 = itemsToSync[0]; ...
+    // useSingleItemSyncWrapper(slot1, onUpdateItem);
+    
+    // So if itemsToSync has 3 items, the first 3 calls to useMediaResolver will have items.
+    // The rest will NOT be called because useBackgroundEnrichment only has 3 slots.
+    
+    expect(mockUseMediaResolver).toHaveBeenCalledTimes(3);
   });
 
-  it('should call onUpdateItem when details are successfully fetched', () => {
+  it('should correctly pass the onUpdate callback', () => {
     const item = createMockItem('1', false);
-    const mockDetails = { id: '1', type: 'album', title: 'Fetched Title' };
-
-    // Mock successful return for this item
-    mockUseMediaDetails.mockImplementation((id: string) => {
-      if (id === '1') {
-        return {
-          details: mockDetails,
-          isLoading: false,
-          isFetching: false,
-          error: null,
-        };
-      }
-      return { details: null };
-    });
-
     const onUpdate = vi.fn();
 
     renderHook(() => useBackgroundEnrichment([item], onUpdate));
 
-    expect(onUpdate).toHaveBeenCalledWith('1', {
-      details: mockDetails,
-      imageUrl: 'img.jpg', // Should fallback to existing image if details doesn't have one
-    });
-  });
-
-  it('should not call onUpdateItem if loading or error', () => {
-    const item = createMockItem('1', false);
-
-    // Mock loading state
-    mockUseMediaDetails.mockReturnValue({
-      details: null,
-      isLoading: true,
-      isFetching: true,
-      error: null,
-    });
-
-    const onUpdate = vi.fn();
-    renderHook(() => useBackgroundEnrichment([item], onUpdate));
-
-    expect(onUpdate).not.toHaveBeenCalled();
+    expect(mockUseMediaResolver).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1' }),
+      expect.objectContaining({ onUpdate, persist: true }),
+    );
   });
 });
