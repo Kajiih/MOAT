@@ -1,13 +1,16 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { DetailsModal } from './DetailsModal';
-import { useMediaDetails } from '@/lib/hooks';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
+import { useMediaDetails, useMediaResolver } from '@/lib/hooks';
+
+import { DetailsModal } from './DetailsModal';
 
 // Mock hooks
 vi.mock('@/lib/hooks', () => ({
   useMediaDetails: vi.fn(),
   useEscapeKey: vi.fn(),
+  useMediaResolver: vi.fn(),
 }));
 
 vi.mock('@/components/providers/MediaRegistryProvider', () => ({
@@ -45,16 +48,25 @@ describe('DetailsModal', () => {
     vi.mocked(useMediaRegistry).mockReturnValue({
       getItem: vi.fn().mockReturnValue(null),
     } as any);
+
+    // Default implementation for tests
+    vi.mocked(useMediaResolver).mockImplementation((item) => ({
+      resolvedItem: item,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      isEnriched: !!item?.details,
+    }));
   });
 
   it('renders nothing when closed', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({ isLoading: false } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: false } as any);
     render(<DetailsModal item={mockItem} isOpen={false} onClose={mockOnClose} />);
     expect(screen.queryByText('Test Album')).toBeNull();
   });
 
   it('renders title and artist when open', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({ isLoading: true } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: true } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     expect(screen.getByText('Test Album')).toBeDefined();
@@ -62,7 +74,7 @@ describe('DetailsModal', () => {
   });
 
   it('shows loading state', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({ isLoading: true } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: true } as any);
     const { container } = render(
       <DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />,
     );
@@ -71,7 +83,8 @@ describe('DetailsModal', () => {
   });
 
   it('shows error state', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({
+    vi.mocked(useMediaResolver).mockReturnValue({
+      resolvedItem: mockItem,
       error: new Error('Failed'),
       isLoading: false,
     } as any);
@@ -81,8 +94,8 @@ describe('DetailsModal', () => {
   });
 
   it('renders AlbumView when album details are loaded', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({
-      details: { type: 'album' },
+    vi.mocked(useMediaResolver).mockReturnValue({
+      resolvedItem: { ...mockItem, details: { type: 'album' } },
       isLoading: false,
       isFetching: false,
     } as any);
@@ -92,13 +105,19 @@ describe('DetailsModal', () => {
   });
 
   it('calls onUpdateItem when details are successfully fetched', async () => {
-    const details = { type: 'album', tracks: [], imageUrl: 'new-img.jpg' };
-    vi.mocked(useMediaDetails).mockReturnValue({
-      details,
-      isLoading: false,
-      isFetching: false,
-      error: null,
-    } as any);
+    const details = { id: mockItem.id, mbid: mockItem.mbid, type: 'album' as const, tracks: [], imageUrl: 'new-img.jpg' };
+    vi.mocked(useMediaResolver).mockImplementation((item, options) => {
+      // Simulate detail arrival
+      if (options?.onUpdate) {
+        options.onUpdate(item!.id, { details, imageUrl: 'new-img.jpg' });
+      }
+      return {
+        resolvedItem: { ...item, details },
+        isLoading: false,
+        isFetching: false,
+        error: null,
+      } as any;
+    });
 
     render(
       <DetailsModal
@@ -118,7 +137,7 @@ describe('DetailsModal', () => {
   });
 
   it('calls onClose when X button is clicked', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({ isLoading: false } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: false } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     const closeBtn = screen.getByRole('button');
@@ -127,7 +146,7 @@ describe('DetailsModal', () => {
   });
 
   it('calls onClose when backdrop is clicked', () => {
-    vi.mocked(useMediaDetails).mockReturnValue({ isLoading: false } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: false } as any);
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     // The backdrop is the outermost div with onClick={onClose}

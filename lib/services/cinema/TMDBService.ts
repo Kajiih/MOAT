@@ -149,10 +149,12 @@ export class TMDBService implements MediaService {
 
   private getMovieSortBy(sort: string, params: Record<string, string>): string {
     switch (sort) {
-      case 'date_desc':
+      case 'date_desc': {
         return 'release_date.desc';
-      case 'date_asc':
+      }
+      case 'date_asc': {
         return 'release_date.asc';
+      }
       case 'rating_desc': {
         params['vote_count.gte'] = '50';
         return 'vote_average.desc';
@@ -161,41 +163,54 @@ export class TMDBService implements MediaService {
         params['vote_count.gte'] = '50';
         return 'vote_average.asc';
       }
-      case 'reviews_desc':
+      case 'reviews_desc': {
         return 'vote_count.desc';
-      case 'reviews_asc':
+      }
+      case 'reviews_asc': {
         return 'vote_count.asc';
-      case 'title_asc':
+      }
+      case 'title_asc': {
         return 'original_title.asc';
-      case 'title_desc':
+      }
+      case 'title_desc': {
         return 'original_title.desc';
-      default:
+      }
+      default: {
         return 'popularity.desc';
+      }
     }
   }
 
   private getTvSortBy(sort: string, params: Record<string, string>): string {
     switch (sort) {
-      case 'date_desc':
+      case 'date_desc': {
         return 'first_air_date.desc';
-      case 'date_asc':
+      }
+      case 'date_asc': {
         return 'first_air_date.asc';
+      }
       case 'rating_desc': {
         params['vote_count.gte'] = '20';
         return 'vote_average.desc';
       }
-      case 'rating_asc':
+      case 'rating_asc': {
         return 'vote_average.asc';
-      case 'reviews_desc':
+      }
+      case 'reviews_desc': {
         return 'vote_count.desc';
-      case 'reviews_asc':
+      }
+      case 'reviews_asc': {
         return 'vote_count.asc';
-      case 'title_asc':
+      }
+      case 'title_asc': {
         return 'name.asc';
-      case 'title_desc':
+      }
+      case 'title_desc': {
         return 'name.desc';
-      default:
+      }
+      default: {
         return 'popularity.desc';
+      }
     }
   }
 

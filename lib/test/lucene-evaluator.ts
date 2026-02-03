@@ -94,7 +94,7 @@ function evaluateNode(
 
       // Support Wildcard (match against any term in the field)
       if (term.includes('*')) {
-        const regex = new RegExp('^' + term.replace(/\*/g, '.*') + '$');
+        const regex = new RegExp('^' + term.replaceAll('*', '.*') + '$');
         const valTerms = valStr.split(/[\s,.;:!?()\[\]{}"]+/);
         return valTerms.some((t) => regex.test(t));
       }

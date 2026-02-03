@@ -9,11 +9,10 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
 
-import { useMediaResolver, useEscapeKey } from '@/lib/hooks';
+import { useEscapeKey,useMediaResolver } from '@/lib/hooks';
 import { mediaTypeRegistry } from '@/lib/media-types';
-import { MediaItem, TrackItem } from '@/lib/types';
+import { MediaItem } from '@/lib/types';
 
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';

@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
@@ -56,7 +56,7 @@ describe('useMediaResolver', () => {
   });
 
   it('should trigger fetch if item is not enriched in registry', () => {
-    mockGetItem.mockReturnValue(undefined); // Not in cache
+    mockGetItem.mockReturnValue(); // Not in cache
 
     renderHook(() => useMediaResolver(mockItem, { enabled: true }));
 
@@ -64,7 +64,7 @@ describe('useMediaResolver', () => {
   });
 
   it('should NOT trigger fetch if enabled: false', () => {
-    mockGetItem.mockReturnValue(undefined);
+    mockGetItem.mockReturnValue();
 
     renderHook(() => useMediaResolver(mockItem, { enabled: false }));
 
@@ -72,7 +72,7 @@ describe('useMediaResolver', () => {
   });
 
   it('should update registry and call onUpdate when details are fetched', async () => {
-    mockGetItem.mockReturnValue(undefined);
+    mockGetItem.mockReturnValue();
     const mockDetails = { id: '1', type: 'album', mbid: 'mb1', title: 'Details' };
 
     mockUseMediaDetails.mockReturnValueOnce({

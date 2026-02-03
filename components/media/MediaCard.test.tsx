@@ -1,8 +1,12 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { MediaCard } from './MediaCard';
-import { MediaItem } from '@/lib/types';
+import { fireEvent,render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { InteractionContext } from '@/components/ui/InteractionContext';
+import { useMediaResolver } from '@/lib/hooks';
+import { MediaItem } from '@/lib/types';
+
+import { MediaCard } from './MediaCard';
 
 // Mock dnd-kit hooks
 vi.mock('@dnd-kit/core', () => ({
@@ -13,6 +17,17 @@ vi.mock('@dnd-kit/core', () => ({
     transform: null,
     isDragging: false,
   })),
+}));
+
+// Mock hooks
+vi.mock('@/lib/hooks', () => ({
+  useMediaDetails: vi.fn(),
+  useEscapeKey: vi.fn(),
+  useMediaResolver: vi.fn(),
+}));
+
+vi.mock('@/components/providers/MediaRegistryProvider', () => ({
+  useMediaRegistry: vi.fn(),
 }));
 
 // Mock next/image
@@ -44,6 +59,22 @@ describe('MediaCard', () => {
       <InteractionContext.Provider value={mockInteraction}>{ui}</InteractionContext.Provider>,
     );
   };
+
+  beforeEach(() => {
+    // Default implementation for useMediaRegistry in tests
+    vi.mocked(useMediaRegistry).mockReturnValue({
+      getItem: vi.fn().mockReturnValue(null),
+    } as any);
+
+    // Default implementation for useMediaResolver in tests
+    vi.mocked(useMediaResolver).mockImplementation((item) => ({
+      resolvedItem: item,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      isEnriched: !!item?.details,
+    }));
+  });
 
   it('renders item title and artist', () => {
     renderWithProviders(<MediaCard item={mockItem} />);
@@ -155,6 +186,22 @@ describe('SortableMediaCard', () => {
       isDragging: false,
     })),
   }));
+
+  beforeEach(() => {
+    // Default implementation for useMediaRegistry in tests
+    vi.mocked(useMediaRegistry).mockReturnValue({
+      getItem: vi.fn().mockReturnValue(null),
+    } as any);
+
+    // Default implementation for useMediaResolver in tests
+    vi.mocked(useMediaResolver).mockImplementation((item) => ({
+      resolvedItem: item,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      isEnriched: !!item?.details,
+    }));
+  });
 
   it('renders correctly', () => {
     render(

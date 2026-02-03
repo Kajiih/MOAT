@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { setupMSW } from '@/lib/test/msw-test-utils';
+
 import { handlers } from './mocks/handlers';
 import { OpenLibraryService } from './OpenLibraryService';
 

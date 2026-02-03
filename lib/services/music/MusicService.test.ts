@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { setupMSW } from '@/lib/test/msw-test-utils';
+
 import { handlers } from './mocks/handlers';
 import { MusicService } from './MusicService';
 

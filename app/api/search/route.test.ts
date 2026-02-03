@@ -1,7 +1,8 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { GET } from './route';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
+
 import { getMediaService } from '@/lib/services/factory';
-import { NextResponse } from 'next/server';
+
+import { GET } from './route';
 
 // Mock everything
 vi.mock('@/lib/services/factory', () => ({

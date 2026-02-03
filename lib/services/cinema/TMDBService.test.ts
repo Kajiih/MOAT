@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { setupMSW } from '@/lib/test/msw-test-utils';
+
 import { handlers } from './mocks/handlers';
 import { TMDBService } from './TMDBService';
 

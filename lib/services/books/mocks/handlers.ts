@@ -112,7 +112,7 @@ export const handlers = [
       return HttpResponse.json({
         key: book.key,
         title: book.title,
-        covers: [123456],
+        covers: [123_456],
         description: 'Mock description for ' + book.title,
         subjects: ['Fantasy', 'Adventure'],
         first_publish_date: book.first_publish_year.toString(),

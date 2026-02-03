@@ -1,6 +1,8 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { serverItemCache } from './item-cache';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { MediaItem } from '@/lib/types';
+
+import { serverItemCache } from './item-cache';
 
 describe('MediaItemCache', () => {
   const mockItem: MediaItem = {

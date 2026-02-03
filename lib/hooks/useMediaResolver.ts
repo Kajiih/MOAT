@@ -6,7 +6,7 @@
  * @module useMediaResolver
  */
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { MediaItem } from '@/lib/types';

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useMediaResolver } from '@/lib/hooks/useMediaResolver';
 import { MediaItem } from '@/lib/types';

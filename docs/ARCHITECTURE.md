@@ -243,6 +243,10 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - **Persistence**: Verifying data persists across page reloads via IndexedDB.
   - **Data IO**: Testing JSON import/export functionality with real files.
   - **Accessibility**: Ensuring keyboard-driven drag-and-drop operations (powered by dnd-kit) are functional and stable.
+- **Page Object Models (POM)**:
+  - `BoardPage`: Encapsulates board interactions (tiers, title, options).
+  - `SearchPanel`: Manages search tab switching, filtering, and dragging results.
+  - `DashboardPage`: Handles board creation, deletion, and cross-session persistence.
 - **Visual Regression**:
   - Automated screenshot comparisons ensure UI consistency across Chromium and Firefox.
   - Snapshot testing covers the default board state, populated boards, and the search panel.

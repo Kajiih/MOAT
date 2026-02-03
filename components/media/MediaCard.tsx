@@ -11,12 +11,14 @@ import { DraggableAttributes, useDraggable } from '@dnd-kit/core';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Eye, Info, LucideIcon, X } from 'lucide-react';
+import { Eye, Info, X } from 'lucide-react';
+
 import { useInteraction } from '@/components/ui/InteractionContext';
 import { useMediaResolver } from '@/lib/hooks';
 import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaItem } from '@/lib/types';
 import { toDomId } from '@/lib/utils/ids';
+
 import { MediaImage } from './MediaImage';
 
 /**
@@ -169,6 +171,7 @@ function BaseMediaCard({
     <div
       ref={setNodeRef}
       id={domId || toDomId(item.id)} // DOM ID for scrolling
+      data-testid={domId || toDomId(item.id)} // Specific test ID
       style={style}
       {...listeners}
       {...attributes}

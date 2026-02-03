@@ -7,7 +7,7 @@
 
 'use client';
 
-import { Disc, Filter, LucideIcon, Mic2, User, X } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { SearchFilters } from '@/components/search/filters/SearchFilters';
@@ -22,6 +22,7 @@ import {
   MediaItem,
   MediaSelection,
 } from '@/lib/types';
+
 import { MediaImage } from './MediaImage';
 
 /**

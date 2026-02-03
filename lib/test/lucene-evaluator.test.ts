@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { matchesQuery } from './lucene-evaluator';
 
 describe('Lucene Evaluator', () => {

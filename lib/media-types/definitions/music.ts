@@ -5,7 +5,7 @@
 
 import { Disc, Music, User } from 'lucide-react';
 
-import { AlbumItem, ArtistItem, SongItem, ARTIST_TYPES, PRIMARY_TYPES } from '@/lib/types';
+import { AlbumItem, ARTIST_TYPES, ArtistItem, PRIMARY_TYPES,SongItem } from '@/lib/types';
 
 import { MediaTypeDefinition } from '../types';
 
@@ -118,7 +118,7 @@ export const albumDefinition: MediaTypeDefinition = {
       id: 'albumPrimaryTypes',
       label: 'Primary Types',
       type: 'toggle-group',
-      options: [...PRIMARY_TYPES.map((t) => ({ label: t, value: t }))],
+      options: PRIMARY_TYPES.map((t) => ({ label: t, value: t })),
       defaultValue: ['Album', 'EP'],
     },
   ],

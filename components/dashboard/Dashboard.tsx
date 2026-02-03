@@ -17,9 +17,9 @@ import React from 'react';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Footer } from '@/components/ui/Footer';
 import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
-import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
+import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 import { failedImages } from '@/lib/image-cache';
 import { logger } from '@/lib/logger';
@@ -240,6 +240,7 @@ export function Dashboard() {
             {boards.map((board) => (
               <Link
                 key={board.id}
+                data-testid="board-card"
                 href={`/board/${board.id}`}
                 className="group relative flex flex-col overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-2 hover:ring-blue-500/50"
               >

@@ -1,3 +1,8 @@
+/**
+ * @file lucene.d.ts
+ * @description Type definitions for the 'lucene' module used for advanced search queries.
+ * @module lucene
+ */
 declare module 'lucene' {
   export interface LuceneAST {
     left?: LuceneAST;
