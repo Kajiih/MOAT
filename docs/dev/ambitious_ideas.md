@@ -137,6 +137,11 @@ Config snippet: perfectionist.configs['recommended-natural']
 
 ```
 
+## Rendering and optimization check
+- Check what is re-rendered each time we do something/modify the board
+- Check if we can optimize the rendering to only render what is necessary, if relevant
+- Selector Pattern?
+
 ## Rewrite
 
 - Multi-database support in mind
