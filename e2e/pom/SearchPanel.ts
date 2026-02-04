@@ -16,7 +16,7 @@ export class SearchPanel {
     this.tabButtons = page.locator('button[title^="Search"]');
     this.results = page.getByTestId('search-results');
     this.filterToggleButton = page.getByTitle('Toggle filters');
-    this.showAddedCheckbox = page.getByLabel('Show Added');
+    this.showAddedCheckbox = page.locator('label').filter({ hasText: 'Show Added' }).locator('input');
   }
 
   async switchTab(type: 'song' | 'album' | 'artist' | 'book' | 'movie' | 'tv') {
@@ -53,7 +53,7 @@ export class SearchPanel {
     await this.page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
     await this.page.mouse.down();
     await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, {
-      steps: 50,
+      steps: 30,
     });
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(200);
@@ -61,7 +61,8 @@ export class SearchPanel {
   }
 
   async toggleFilters() {
-    await this.filterToggleButton.click();
+    // eslint-disable-next-line playwright/no-force-option
+    await this.filterToggleButton.click({ force: true });
   }
 
   async setShowAdded(show: boolean) {

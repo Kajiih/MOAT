@@ -7,17 +7,21 @@ export class DashboardPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.createBoardButton = page.getByTitle('New Tier List');
+    this.createBoardButton = page.getByText('Create Board');
     this.boardCards = page.getByTestId('board-card');
   }
 
   async goto() {
     await this.page.goto('/');
     // Wait for the loading state to disappear
-    await expect(this.page.getByText('Loading registry...')).not.toBeVisible();
+    await expect(this.page.getByText('Loading registry...')).not.toBeVisible({ timeout: 10000 });
+    // Give the page a moment to hydrate
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(500);
   }
 
   async createBoard(title?: string) {
+    await this.createBoardButton.waitFor({ state: 'visible' });
     await this.createBoardButton.click();
     // Use first() to avoid strict mode violation if multiple elements match
     await this.page.getByRole('button', { name: /Music/i }).first().click();

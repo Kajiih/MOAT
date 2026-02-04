@@ -99,6 +99,7 @@ export function TierSettings({
               <button
                 key={c.id}
                 title={c.label}
+                data-testid="tier-color-dot"
                 className={twMerge(
                   'h-6 w-6 rounded-full border border-transparent transition-transform hover:scale-110',
                   c.bg,

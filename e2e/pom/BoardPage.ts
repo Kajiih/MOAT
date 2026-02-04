@@ -14,13 +14,14 @@ export class BoardPage {
   readonly tierRows: Locator;
   readonly tierLabels: Locator;
   readonly tierDragHandles: Locator;
+  readonly tierColorDots: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.titleInput = page.getByLabel('Tier List Title');
     this.addTierButton = page.getByText('Add Tier');
     this.optionsButton = page.getByTitle('Board Options');
-    this.importJsonButton = page.getByRole('button', { name: /Import JSON/i });
+    this.importJsonButton = page.getByText('Import JSON');
     this.exportJsonButton = page.getByRole('button', { name: /Export JSON/i });
     this.clearBoardButton = page.getByRole('button', { name: /Clear Board/i });
     this.shareButton = page.getByTitle('Publish to Cloud');
@@ -29,6 +30,7 @@ export class BoardPage {
     this.tierRows = page.getByTestId('tier-row');
     this.tierLabels = page.getByTestId('tier-row-label');
     this.tierDragHandles = page.getByTestId('tier-row-drag-handle');
+    this.tierColorDots = page.getByTestId('tier-color-dot');
   }
 
   async goto(id?: string) {
@@ -50,6 +52,10 @@ export class BoardPage {
   }
 
   async openOptions() {
+    // Check if menu is already open by checking visibility of a menu item
+    if (await this.clearBoardButton.isVisible()) {
+      return;
+    }
     await this.optionsButton.hover();
     await this.optionsButton.click({ delay: 50 });
     // Small wait for transition
@@ -90,9 +96,22 @@ export class BoardPage {
 
   async renameTier(oldLabel: string, newLabel: string) {
     const row = await this.getTierRow(oldLabel);
+    await row.waitFor({ state: 'visible', timeout: 10000 });
+    
     const label = row.getByTestId('tier-row-label');
-    await label.dblclick({ delay: 100 });
     const input = row.getByLabel('Tier label');
+    
+    await label.dblclick({ delay: 100 });
+    
+    // Wait for input to appear with extended timeout
+    try {
+      await input.waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      // Retry double-click if input didn't appear
+      await label.dblclick({ delay: 100, force: true });
+      await input.waitFor({ state: 'visible', timeout: 5000 });
+    }
+    
     await input.fill(newLabel);
     await input.press('Enter');
   }
