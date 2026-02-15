@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { logger } from '@/lib/logger';
@@ -63,7 +63,21 @@ export function usePersistentState<T>(key: string, initialValue: T) {
     // Prevent writing to storage before hydration is complete
     if (!isHydrated) return;
     storage.set(key, debouncedState);
-  }, [key, debouncedState, isHydrated]);
+  }, [key, debouncedState]);
+
+  // 3. Flush on unmount
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    return () => {
+      if (isHydrated) {
+        storage.set(key, stateRef.current);
+      }
+    };
+  }, [key, isHydrated]);
 
   return [state, setState, isHydrated] as const;
 }

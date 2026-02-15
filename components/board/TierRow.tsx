@@ -138,6 +138,7 @@ export const TierRow = memo(function TierRow({
         onDeleteTier={onDeleteTier}
         canDelete={canDelete}
         isAnyDragging={isAnyDragging}
+        isDragging={isDraggingTier}
         isExport={isExport}
         dragAttributes={attributes}
         dragListeners={listeners}

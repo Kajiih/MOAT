@@ -1,17 +1,22 @@
 import { expect, test } from '@playwright/test';
 
 import { BoardPage } from './pom/BoardPage';
+import { DashboardPage } from './pom/DashboardPage';
 import { SearchPanel } from './pom/SearchPanel';
 
 test.describe('Item Management', () => {
   test.setTimeout(60000);
   let boardPage: BoardPage;
+  let dashboardPage: DashboardPage;
   let searchPanel: SearchPanel;
 
   test.beforeEach(async ({ page }) => {
     boardPage = new BoardPage(page);
+    dashboardPage = new DashboardPage(page);
     searchPanel = new SearchPanel(page);
-    await boardPage.goto();
+    
+    await dashboardPage.goto();
+    await dashboardPage.createBoard('Item Management Test');
     
     // Setup: Add two items to tier S
     await page.route('**/api/search*', async (route) => {
@@ -47,7 +52,7 @@ test.describe('Item Management', () => {
     await page.waitForTimeout(500);
   });
 
-  test.fixme('should manage items: details, move, reorder, remove', async ({ page }) => {
+  test('should manage items: details, move, reorder, remove', async ({ page }) => {
     // FIXME: dnd-kit drag simulations are flaky in headless browsers
     const tierS = page.locator('[data-tier-label="S"]');
     const tierA = page.locator('[data-tier-label="A"]');
@@ -67,8 +72,15 @@ test.describe('Item Management', () => {
       });
     });
 
+    const allIds = await page.evaluate(() => 
+      Array.from(document.querySelectorAll('[data-testid]'))
+        .map(el => (el as HTMLElement).dataset.testid)
+        .filter(id => id?.startsWith('media-card-'))
+    );
+    console.log('Available media cards at fail point:', allIds);
+
     const card1 = page.getByTestId('media-card-item-1');
-    await expect(card1).toBeVisible({ timeout: 10000 });
+    await expect(card1).toBeVisible({ timeout: 15000 });
     await card1.click({ force: true });
     await page.keyboard.press('i');
     await expect(page.getByRole('dialog')).toBeVisible();

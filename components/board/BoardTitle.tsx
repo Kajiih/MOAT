@@ -72,6 +72,12 @@ export function BoardTitle({
       placeholder="Tier List Title"
       aria-label="Tier List Title"
       rows={1}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          titleRef.current?.blur();
+        }
+      }}
       className={twMerge(
         baseStyles,
         'w-full resize-none overflow-hidden rounded-md bg-transparent px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none md:w-auto md:max-w-[600px] md:min-w-[300px]',

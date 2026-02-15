@@ -101,14 +101,18 @@ export class BoardPage {
     const label = row.getByTestId('tier-row-label');
     const input = row.getByLabel('Tier label');
     
-    await label.dblclick({ delay: 100 });
+    // Ensure element is ready
+    await label.scrollIntoViewIfNeeded();
+    await label.hover();
     
-    // Wait for input to appear with extended timeout
     try {
-      await input.waitFor({ state: 'visible', timeout: 5000 });
+      await label.dblclick({ delay: 200, force: true });
+      await input.waitFor({ state: 'visible', timeout: 3000 });
     } catch {
-      // Retry double-click if input didn't appear
-      await label.dblclick({ delay: 100, force: true });
+      // Fallback: click then double click
+      await label.click();
+      await this.page.waitForTimeout(100);
+      await label.dblclick({ delay: 200, force: true });
       await input.waitFor({ state: 'visible', timeout: 5000 });
     }
     
@@ -135,23 +139,39 @@ export class BoardPage {
     const sourceHandle = this.tierDragHandles.nth(sourceIndex);
     const targetRow = this.tierRows.nth(targetIndex);
 
-    // Hover the row to make the handle visible/interactive
+    // Ensure source is ready
     await sourceRow.hover();
+    await sourceHandle.hover({ force: true });
     
     const sourceBox = await sourceHandle.boundingBox();
     const targetBox = await targetRow.boundingBox();
 
     if (!sourceBox || !targetBox) return;
 
-    // Manual drag
+    // Manual drag sequence optimized for dnd-kit
     await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
     await this.page.mouse.down();
-    // Move slowly
+    
+    // Hold to ensure drag start is registered
+    await this.page.waitForTimeout(200);
+    
+    // Initial small move to trigger sensor
+    await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2 + 10, { steps: 5 });
+    await this.page.waitForTimeout(100);
+
+    // Move to target
     await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 50 });
     
-    // Settle time
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(500);
+    // Hover over target for a bit
+    await this.page.waitForTimeout(200);
+    
+    // Small wiglle on target
+    await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2 + 5, { steps: 5 });
+    await this.page.waitForTimeout(100);
+
     await this.page.mouse.up();
+    
+    // Wait for animation/reorder to settle
+    await this.page.waitForTimeout(500);
   }
 }

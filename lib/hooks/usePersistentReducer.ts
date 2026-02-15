@@ -9,7 +9,7 @@
 
 'use client';
 
-import { Dispatch, Reducer, useEffect, useReducer, useState } from 'react';
+import { Dispatch, Reducer, useEffect, useReducer, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { logger } from '@/lib/logger';
@@ -97,7 +97,22 @@ export function usePersistentReducer<S, A>(
   useEffect(() => {
     if (!isHydrated) return;
     storage.set(key, debouncedState);
-  }, [key, debouncedState, isHydrated]);
+  }, [key, debouncedState]);
+
+  // 3. Flush on unmount
+  // We use a ref to always have the latest state for unmount flushing.
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    return () => {
+      if (isHydrated) {
+        storage.set(key, stateRef.current);
+      }
+    };
+  }, [key, isHydrated]);
 
   return [state, dispatch as Dispatch<A>, isHydrated];
 }

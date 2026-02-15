@@ -29,6 +29,8 @@ interface TierLabelProps {
   dragAttributes?: DraggableAttributes;
   /** Global dragging state. */
   isAnyDragging?: boolean;
+  /** Whether this specific tier is being dragged. */
+  isDragging?: boolean;
   /** Whether the component is being rendered for a screenshot export. */
   isExport?: boolean;
 }
@@ -42,6 +44,7 @@ interface TierLabelProps {
  * @param props.dragListeners - Synthetic listeners from dnd-kit for tier reordering.
  * @param props.dragAttributes - Draggable attributes from dnd-kit for tier reordering.
  * @param props.isAnyDragging - Global dragging state.
+ * @param props.isDragging - Whether this specific tier is being dragged.
  * @param props.isExport - Whether the component is being rendered for a screenshot export.
  * @returns The rendered TierLabel component.
  */
@@ -51,6 +54,7 @@ export function TierLabel({
   dragListeners,
   dragAttributes,
   isAnyDragging,
+  isDragging,
   isExport = false,
 }: TierLabelProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -98,7 +102,7 @@ export function TierLabel({
           className={twMerge(
             'absolute top-1 left-1 cursor-grab p-1 text-black/40 transition-opacity hover:text-black active:cursor-grabbing',
             isAnyDragging
-              ? 'pointer-events-none opacity-0'
+              ? (isDragging ? 'opacity-100' : 'pointer-events-none opacity-0')
               : 'opacity-0 group-hover/row:opacity-100',
           )}
         >
@@ -114,6 +118,7 @@ export function TierLabel({
           onBlur={handleSave}
           onKeyDown={handleKeyDown}
           className="h-full w-full resize-none overflow-hidden rounded bg-white/20 p-1 text-center text-sm font-bold text-black placeholder-black/50 focus:outline-none"
+          aria-label="Tier label"
           style={{ minHeight: '60px' }}
         />
       ) : (

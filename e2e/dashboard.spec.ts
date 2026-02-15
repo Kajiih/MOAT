@@ -15,7 +15,7 @@ test.describe('Dashboard and Multi-Board', () => {
     await dashboardPage.goto();
   });
 
-  test.fixme('should create, modify, and see changes in dashboard', async ({ page }) => {
+  test('should create, modify, and see changes in dashboard', async ({ page }) => {
     // FIXME: Dashboard hydration is flaky in headless browsers
     const boardTitle = `Board ${Date.now()}`;
     
@@ -32,7 +32,7 @@ test.describe('Dashboard and Multi-Board', () => {
 
     // 4. Go back to dashboard
     await boardPage.dashboardButton.click();
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(/\/dashboard$/);
 
     // 5. Verify board exists in dashboard
     await expect(page.getByText(boardTitle)).toBeVisible();
@@ -42,7 +42,7 @@ test.describe('Dashboard and Multi-Board', () => {
     await expect(page.getByText(boardTitle)).toBeHidden();
   });
 
-  test.fixme('should open an existing board', async ({ page }) => {
+  test('should open an existing board', async ({ page }) => {
     // FIXME: Dashboard hydration is flaky in headless browsers
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);

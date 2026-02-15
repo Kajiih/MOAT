@@ -12,7 +12,7 @@ export class DashboardPage {
   }
 
   async goto() {
-    await this.page.goto('/');
+    await this.page.goto('/dashboard');
     // Wait for the loading state to disappear
     await expect(this.page.getByText('Loading registry...')).not.toBeVisible({ timeout: 10000 });
     // Give the page a moment to hydrate

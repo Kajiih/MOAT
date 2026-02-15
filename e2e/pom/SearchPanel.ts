@@ -52,11 +52,24 @@ export class SearchPanel {
 
     await this.page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
     await this.page.mouse.down();
-    await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, {
-      steps: 30,
-    });
+    
+    // Hold to ensure drag start
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(200);
+    
+    // Initial small move to trigger sensor
+    await this.page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2 + 10, { steps: 5 });
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(100);
+
+    await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, {
+      steps: 50,
+    });
+    
+    // Hover over target
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(200);
+    
     await this.page.mouse.up();
   }
 

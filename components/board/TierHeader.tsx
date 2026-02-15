@@ -29,6 +29,7 @@ interface TierHeaderProps {
   onDeleteTier: (id: string) => void;
   canDelete: boolean;
   isAnyDragging?: boolean;
+  isDragging?: boolean;
   isExport?: boolean;
   dragAttributes?: DraggableAttributes;
   dragListeners?: DraggableSyntheticListeners;
@@ -42,6 +43,7 @@ export const TierHeader = memo(function TierHeader({
   onDeleteTier,
   canDelete,
   isAnyDragging,
+  isDragging,
   isExport = false,
   dragAttributes,
   dragListeners,
@@ -63,6 +65,7 @@ export const TierHeader = memo(function TierHeader({
         dragAttributes={dragAttributes}
         dragListeners={dragListeners}
         isAnyDragging={isAnyDragging}
+        isDragging={isDragging}
         isExport={isExport}
       />
 

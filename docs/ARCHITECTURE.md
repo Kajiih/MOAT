@@ -170,7 +170,9 @@ The application uses a unified **Media Resolver** pattern to ensure consistency 
 
 #### Persistence Logic
 
-- **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (1000ms).
+- **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (500-1000ms).
+- **Hydration-Safe Persistence**: The persistence hooks (`usePersistentReducer`, `usePersistentState`) are designed to prevent "state regression". They explicitly wait for the first debounce cycle after hydration BEFORE allowing a write to storage, ensuring that the `initialState` (the state before hydration) never overwrites the actual persisted data.
+- **Unmount Flush**: To ensure the latest user changes are never lost during rapid navigation, persistence hooks perform a synchronous-like storage write during the component unmount phase using a `useRef` to the latest state.
 - **Proactive Registry Warming**:
   - **Hydration Sync**: Immediately after the board state hydrates, all board items are pushed to the `MediaRegistry` in a single batch. This "warms" the global cache, ensuring search results for items already on your board are enriched instantly.
   - **Import Sync**: Board imports bypass individual item registration and use the batched `registerItems` API to populate the registry in bulk.
