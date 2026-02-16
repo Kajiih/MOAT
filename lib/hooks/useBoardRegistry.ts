@@ -28,22 +28,11 @@ export function useBoardRegistry() {
     const loadRegistry = async () => {
       try {
         const BOARD_INDEX_KEY = 'moat-boards-index';
-        let boardIds: string[] | undefined = await storage.get<string[]>(BOARD_INDEX_KEY);
-        let requiresMigration = false;
-
-        // Fallback / Migration: If no index found, scan all keys (Legacy method)
-        if (!boardIds) {
-          const allKeys = await storage.keys();
-          const metaKeys = allKeys.filter(
-            (k): k is string => typeof k === 'string' && k.startsWith('moat-meta-'),
-          );
-          boardIds = metaKeys.map((k) => k.replace('moat-meta-', ''));
-          requiresMigration = true;
-        }
+        const boardIds = (await storage.get<string[]>(BOARD_INDEX_KEY)) || [];
 
         if (boardIds.length === 0) {
-           setBoards([]);
-           return;
+          setBoards([]);
+          return;
         }
 
         // Fetch metadata for all IDs
@@ -56,13 +45,6 @@ export function useBoardRegistry() {
           .toSorted((a, b) => b.lastModified - a.lastModified);
 
         setBoards(validBoards);
-
-        // Self-heal: Save the index if we just migrated or if we found inconsistencies
-        // (Optional: we could also check if validBoards.length !== boardIds.length to prune ghosts)
-        if (requiresMigration) {
-          const validIds = validBoards.map((b) => b.id);
-          await storage.set(BOARD_INDEX_KEY, validIds);
-        }
       } catch (error) {
         logger.error({ error }, 'Failed to load board registry');
       } finally {

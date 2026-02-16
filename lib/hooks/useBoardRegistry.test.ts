@@ -39,9 +39,10 @@ describe('useBoardRegistry', () => {
       itemCount: 5,
     };
 
-    vi.mocked(storage.keys).mockResolvedValue(['moat-meta-board-1', 'other-key']);
     vi.mocked(storage.get).mockImplementation(async (key) => {
+      if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
+      return undefined;
     });
 
     const { result } = renderHook(() => useBoardRegistry());
@@ -57,12 +58,12 @@ describe('useBoardRegistry', () => {
     expect(result.current.isLoading).toBe(false);
     expect(result.current.boards).toHaveLength(1);
     expect(result.current.boards[0]).toEqual(mockMeta);
-    expect(storage.keys).toHaveBeenCalled();
+    expect(storage.get).toHaveBeenCalledWith('moat-boards-index');
     expect(storage.get).toHaveBeenCalledWith('moat-meta-board-1');
   });
 
   it('should create a new board', async () => {
-    vi.mocked(storage.keys).mockResolvedValue([]);
+    vi.mocked(storage.get).mockResolvedValue(undefined); // No existing index
 
     const { result } = renderHook(() => useBoardRegistry());
 
@@ -90,6 +91,11 @@ describe('useBoardRegistry', () => {
       `moat-board-${newId!}`,
       expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
     );
+    // Index update
+    expect(storage.set).toHaveBeenCalledWith(
+      'moat-boards-index',
+      expect.arrayContaining([newId!]),
+    );
   });
 
   it('should delete a board', async () => {
@@ -102,9 +108,8 @@ describe('useBoardRegistry', () => {
       itemCount: 5,
     };
 
-    vi.mocked(storage.keys).mockResolvedValue(['moat-meta-board-1']);
-    // Mock get to distinguish between index (undefined -> triggers fallback) and board meta
     vi.mocked(storage.get).mockImplementation(async (key) => {
+      if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
       return undefined;
     });
@@ -124,6 +129,8 @@ describe('useBoardRegistry', () => {
     expect(result.current.boards).toHaveLength(0);
     expect(storage.del).toHaveBeenCalledWith('moat-meta-board-1');
     expect(storage.del).toHaveBeenCalledWith('moat-board-board-1');
+    // Index update
+    expect(storage.set).toHaveBeenCalledWith('moat-boards-index', []);
   });
 
   it('should update board metadata', async () => {
@@ -136,8 +143,8 @@ describe('useBoardRegistry', () => {
       itemCount: 5,
     };
 
-    vi.mocked(storage.keys).mockResolvedValue(['moat-meta-board-1']);
     vi.mocked(storage.get).mockImplementation(async (key) => {
+      if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
       return undefined;
     });
