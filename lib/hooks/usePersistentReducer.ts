@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useCallback, useMemo, Dispatch, Reducer, useReducer } from 'react';
+import { Dispatch, Reducer, useCallback, useMemo, useReducer } from 'react';
 
 import { useStorageSync } from './useStorageSync';
 
@@ -32,17 +32,18 @@ interface HydrateAction<S> {
  * @param key - The storage key to use for persistence.
  * @returns A tuple of [state, dispatch, isHydrated].
  */
-export interface PersistentReducerOptions {
+export interface PersistentReducerOptions<S> {
   persistenceDelay?: number;
+  onSave?: (state: S) => void;
 }
 
 export function usePersistentReducer<S, A>(
   reducer: Reducer<S, A>,
   initialState: S,
   key: string,
-  options?: PersistentReducerOptions,
+  options?: PersistentReducerOptions<S>,
 ): [S, Dispatch<A>, boolean] {
-  const { persistenceDelay = 500 } = options || {};
+  const { persistenceDelay = 500, onSave } = options || {};
 
   /**
    * Wrapper reducer that intercepts hydration actions.
@@ -72,6 +73,7 @@ export function usePersistentReducer<S, A>(
     state,
     initialState,
     onHydrate,
+    onSave,
     persistenceDelay,
   });
 

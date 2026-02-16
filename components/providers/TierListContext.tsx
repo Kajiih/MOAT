@@ -17,12 +17,8 @@ import {
 } from '@dnd-kit/core';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
-
-import { useDebouncedCallback } from 'use-debounce';
-
 import { useTierListDnD } from '@/components/board/hooks/useTierListDnD';
 import { useTierListIO, useTierListUtils, useTierStructure } from '@/lib/hooks';
-import { useDebouncedEffect } from '@/lib/hooks/useDebouncedEffect';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
 import { useTierListNamespaces } from '@/lib/hooks/useTierListNamespaces';
@@ -101,6 +97,9 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     tierListReducer,
     INITIAL_STATE,
     storageKey,
+    {
+      onSave: (s) => syncBoardMetadata(boardId, s),
+    },
   );
 
   const historyRaw = useHistory<TierListState>();
@@ -121,20 +120,6 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       }
     }
   }, [isHydrated, state.items, registerItems]);
-
-  // --- Metadata Sync ---
-  // Keep the Dashboard Registry in sync with the current board state (title, item count).
-  // We use a separate debounce to avoid slamming the registry during rapid edits.
-  // We also flush on unmount to ensure the latest state is saved if the user leaves quickly.
-  useDebouncedEffect(
-    () => {
-      if (isHydrated && boardId) {
-        syncBoardMetadata(boardId, state);
-      }
-    },
-    1000,
-    [state, boardId, isHydrated],
-  );
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
