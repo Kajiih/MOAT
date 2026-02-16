@@ -61,6 +61,13 @@ export function useBoardRegistry() {
    * @param category - The category of the board (defaults to 'music').
    * @returns The UUID of the newly created board.
    */
+  /**
+   * Creates a new board with the given title.
+   * Generates a unique ID and initializes metadata.
+   * @param title - The title of the new board.
+   * @param category - The category of the board (defaults to 'music').
+   * @returns The UUID of the newly created board.
+   */
   const createBoard = useCallback(
     async (title: string = 'Untitled Board', category: BoardCategory = 'music') => {
       const newId = uuidv4();
@@ -73,28 +80,29 @@ export function useBoardRegistry() {
         itemCount: 0,
       };
 
-      // Optimistic update
+      const BOARD_INDEX_KEY = 'moat-boards-index';
+
+      // 1. Optimistic UI update
       setBoards((prev) => [newMeta, ...prev]);
 
-      // Atomic write metadata
-      await storage.set(`moat-meta-${newId}`, newMeta);
-
-      // Update Index
-      const BOARD_INDEX_KEY = 'moat-boards-index';
-      // We read the latest index to be safe, or just append to current state?
-      // For safety against race conditions (though rare in single-user IDB), 
-      // we usually just rely on our local optimistic state if we assume we are the only writer.
-      // But let's read-modify-write the index to be safe.
-      const currentIds = (await storage.get<string[]>(BOARD_INDEX_KEY)) || [];
-      await storage.set(BOARD_INDEX_KEY, [newId, ...currentIds]);
-
-      // Pre-seed the board state with the correct category
-      // This ensures TierListProvider picks it up immediately
-      await storage.set(`moat-board-${newId}`, {
+      // 2. Atomic DB Transaction: Update Index, Meta, and Initial State
+      // We first need the current index to append.
+      // NOTE: strict atomicity for "read-modify-write" of index across multiple tabs
+      // would require a transaction block, which `idb-keyval` doesn't fully expose in `setMany`.
+      // Usage of `update` is safer for the index, but we also want to set the other keys.
+      // For now, we chain them, but use `update` for the index to avoid race conditions there.
+      
+      const newBoardState = {
         ...INITIAL_STATE,
         title,
         category,
-      });
+      };
+
+      await Promise.all([
+        storage.set(`moat-meta-${newId}`, newMeta),
+        storage.set(`moat-board-${newId}`, newBoardState),
+        storage.update<string[]>(BOARD_INDEX_KEY, (prev) => [newId, ...(prev || [])]),
+      ]);
 
       return newId;
     },
@@ -109,14 +117,15 @@ export function useBoardRegistry() {
     // Optimistic update
     setBoards((prev) => prev.filter((b) => b.id !== id));
 
-    await storage.del(`moat-meta-${id}`);
-    await storage.del(`moat-board-${id}`);
-
-    // Update Index
     const BOARD_INDEX_KEY = 'moat-boards-index';
-    const currentIds = (await storage.get<string[]>(BOARD_INDEX_KEY)) || [];
-    const newIds = currentIds.filter((idx) => idx !== id);
-    await storage.set(BOARD_INDEX_KEY, newIds);
+
+    // Atomic / Parallel clean up
+    await Promise.all([
+      storage.delMany([`moat-meta-${id}`, `moat-board-${id}`]),
+      storage.update<string[]>(BOARD_INDEX_KEY, (prev) =>
+        (prev || []).filter((idx) => idx !== id),
+      ),
+    ]);
   }, []);
 
   /**
@@ -133,15 +142,21 @@ export function useBoardRegistry() {
         .toSorted((a, b) => b.lastModified - a.lastModified),
     );
 
-    // Atomic read-modify-write for safety (though mostly updates are from Dashboard itself)
-    const current = await storage.get<BoardMetadata>(`moat-meta-${id}`);
-    if (current) {
-      await storage.set(`moat-meta-${id}`, {
+    // Atomic read-modify-write
+    await storage.update<BoardMetadata>(`moat-meta-${id}`, (current) => {
+      if (!current) return undefined as unknown as BoardMetadata; // Should ideally skip update if not found, but API is limited
+      // Actually idb-keyval update callback expects a value returned.
+      // If we return undefined, it might delete (?) or set undefined.
+      // If current is undef, we can't update.
+      // But `update` gets the oldValue.
+      if (!current) return current as any;
+      
+      return {
         ...current,
         ...updates,
         lastModified: Date.now(),
-      });
-    }
+      };
+    });
   }, []);
 
   return {

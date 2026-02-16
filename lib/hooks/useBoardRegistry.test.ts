@@ -10,7 +10,10 @@ vi.mock('@/lib/storage', () => ({
   storage: {
     get: vi.fn(),
     set: vi.fn(),
+    update: vi.fn(), // New method
+    setMany: vi.fn(), // New method
     del: vi.fn(),
+    delMany: vi.fn(), // New method
     keys: vi.fn(),
   },
 }));
@@ -82,19 +85,19 @@ describe('useBoardRegistry', () => {
     expect(result.current.boards[0].category).toBe('cinema');
     expect(result.current.boards[0].id).toBe(newId!);
 
-    // Check persistence
+    // Check persistence using new batch methods
     expect(storage.set).toHaveBeenCalledWith(
       `moat-meta-${newId!}`,
       expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
     );
-    expect(storage.set).toHaveBeenCalledWith(
+     expect(storage.set).toHaveBeenCalledWith(
       `moat-board-${newId!}`,
       expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
     );
-    // Index update
-    expect(storage.set).toHaveBeenCalledWith(
+    // Index update via update()
+    expect(storage.update).toHaveBeenCalledWith(
       'moat-boards-index',
-      expect.arrayContaining([newId!]),
+      expect.any(Function),
     );
   });
 
@@ -127,10 +130,14 @@ describe('useBoardRegistry', () => {
     });
 
     expect(result.current.boards).toHaveLength(0);
-    expect(storage.del).toHaveBeenCalledWith('moat-meta-board-1');
-    expect(storage.del).toHaveBeenCalledWith('moat-board-board-1');
-    // Index update
-    expect(storage.set).toHaveBeenCalledWith('moat-boards-index', []);
+    
+    // Check batch deletion
+    expect(storage.delMany).toHaveBeenCalledWith([
+      'moat-meta-board-1',
+      'moat-board-board-1',
+    ]);
+    // Index update via update()
+    expect(storage.update).toHaveBeenCalledWith('moat-boards-index', expect.any(Function));
   });
 
   it('should update board metadata', async () => {
@@ -166,10 +173,10 @@ describe('useBoardRegistry', () => {
     // lastModified should be updated to roughly now
     expect(result.current.boards[0].lastModified).toBeGreaterThan(2000);
 
-    // Persistence check
-    expect(storage.set).toHaveBeenCalledWith(
+    // Update via atomic update()
+    expect(storage.update).toHaveBeenCalledWith(
       'moat-meta-board-1',
-      expect.objectContaining({ title: 'Updated Title' }),
+      expect.any(Function),
     );
   });
 });

@@ -4,7 +4,7 @@
  * Currently uses 'idb-keyval' for asynchronous IndexedDB storage.
  */
 
-import { del, get, keys, set } from 'idb-keyval';
+import { del, delMany, get, keys, set, setMany, update } from 'idb-keyval';
 
 /**
  * Interface defining the abstract storage backend for the application.
@@ -14,8 +14,14 @@ export interface StorageBackend {
   get: <T>(key: string) => Promise<T | undefined>;
   /** Persists a value by key. */
   set: <T>(key: string, value: T) => Promise<void>;
+  /** Safely updates a value using an atomic read-modify-write transaction. */
+  update: <T>(key: string, updater: (val: T | undefined) => T) => Promise<void>;
+  /** Persists multiple key-value pairs in a single transaction. */
+  setMany: (entries: [string, any][]) => Promise<void>;
   /** Removes a value by key. */
   del: (key: string) => Promise<void>;
+  /** Removes multiple values by keys in a single transaction. */
+  delMany: (keys: string[]) => Promise<void>;
   /** Retrieves all keys. */
   keys: () => Promise<IDBValidKey[]>;
 }
@@ -38,11 +44,32 @@ export const storage: StorageBackend = {
       logger.error({ error, key }, 'Storage set error');
     }
   },
+  update: async <T>(key: string, updater: (val: T | undefined) => T) => {
+    try {
+      await update(key, updater);
+    } catch (error) {
+      logger.error({ error, key }, 'Storage update error');
+    }
+  },
+  setMany: async (entries: [string, any][]) => {
+    try {
+      await setMany(entries);
+    } catch (error) {
+      logger.error({ error }, 'Storage setMany error');
+    }
+  },
   del: async (key: string) => {
     try {
       await del(key);
     } catch (error) {
       logger.error({ error, key }, 'Storage del error');
+    }
+  },
+  delMany: async (keys: string[]) => {
+    try {
+      await delMany(keys);
+    } catch (error) {
+      logger.error({ error }, 'Storage delMany error');
     }
   },
   keys: async () => {

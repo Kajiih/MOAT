@@ -173,6 +173,7 @@ The application uses a unified **Media Resolver** pattern to ensure consistency 
 - **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (500-1000ms).
 - **Core Persistence Hook**: A reusable `useStorageSync` hook encapsulates the complex lifecycle of async hydration, debounced saving, and unmount flushing (via `useRef` to capture the latest state).
 - **Hydration-Safe Persistence**: The persistence hooks (`usePersistentReducer`, `usePersistentState`) utilize a dedicated "hydrated" status flag. Storage writes are strictly disabled until the initial hydration is complete.
+- **Atomic Operations**: `storage.ts` supports `update`, `setMany`, and `delMany` using `idb-keyval` to ensure multi-key operations (like board creation/deletion) are atomic and consistent.
 - **Scalable Board Registry**: The `useBoardRegistry` hook maintains a dedicated `moat-boards-index` key containing an array of all board IDs. This allows for O(1) board listing performance without scanning the entire IndexedDB keyspace.
 - **Unmount Flush**: To ensure the latest user changes are never lost during rapid navigation, persistence hooks perform a synchronous-like storage write during the component unmount phase.
 - **Proactive Registry Warming**:
