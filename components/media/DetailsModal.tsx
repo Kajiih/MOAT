@@ -47,7 +47,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   useEscapeKey(onClose, isOpen);
 
   // Use the unified Media Resolver to handle fetching and syncing
-  const { resolvedItem, isLoading, isFetching, error } = useMediaResolver(item, {
+  const { resolvedItem, isLoading, error } = useMediaResolver(item, {
     enabled: isOpen,
     onUpdate: onUpdateItem,
     persist: true,

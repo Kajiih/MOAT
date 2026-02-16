@@ -16,12 +16,10 @@ vi.mock('@/lib/storage', () => ({
 
 // Simple reducer for testing
 const testReducer = (state: { count: number }, action: { type: 'increment' }) => {
-  switch (action.type) {
-    case 'increment':
-      return { count: state.count + 1 };
-    default:
-      return state;
+  if (action.type === 'increment') {
+    return { count: state.count + 1 };
   }
+  return state;
 };
 
 describe('usePersistentReducer', () => {
@@ -93,11 +91,11 @@ describe('usePersistentReducer', () => {
 
   it('should NOT persist state before hydration completes', async () => {
     // Simulate slow storage read
-    let resolveStorage: (val: any) => void;
+    let resolveStorage: (val: unknown) => void;
     const storagePromise = new Promise((resolve) => {
-      resolveStorage = resolve;
+      resolveStorage = resolve as (val: unknown) => void;
     });
-    vi.mocked(storage.get).mockReturnValue(storagePromise as any);
+    vi.mocked(storage.get).mockReturnValue(storagePromise as Promise<unknown>);
     vi.mocked(storage.set).mockClear();
 
     const { result } = renderHook(() =>

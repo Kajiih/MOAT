@@ -48,6 +48,7 @@ const eslintConfig = defineConfig([
       'sonarjs/pseudo-random': 'off',
       // 'sonarjs/no-nested-conditional': 'off',  # For now it is useful to keep
       'sonarjs/unused-import': 'off', // Handled by unused-imports plugin
+      'sonarjs/todo-tag': 'off', // Keep TODOs for now
 
       // Unicorn Overrides
       // Check these if we keep or remove

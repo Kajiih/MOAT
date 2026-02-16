@@ -144,12 +144,9 @@ export function useBoardRegistry() {
 
     // Atomic read-modify-write
     await storage.update<BoardMetadata>(`moat-meta-${id}`, (current) => {
-      if (!current) return undefined as unknown as BoardMetadata; // Should ideally skip update if not found, but API is limited
-      // Actually idb-keyval update callback expects a value returned.
-      // If we return undefined, it might delete (?) or set undefined.
-      // If current is undef, we can't update.
-      // But `update` gets the oldValue.
-      if (!current) return current as any;
+      // If the board disappears from storage (unlikely), we return current (undefined) to avoid creating a corrupted entry.
+      // We use the cast to satisfy the idb-keyval updater signature requirement.
+      if (!current) return current as unknown as BoardMetadata;
       
       return {
         ...current,

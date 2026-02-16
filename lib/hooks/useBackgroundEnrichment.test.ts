@@ -8,7 +8,7 @@ import { useBackgroundEnrichment } from './useBackgroundEnrichment';
 // Mock useMediaResolver
 const mockUseMediaResolver = vi.fn();
 vi.mock('@/lib/hooks/useMediaResolver', () => ({
-  useMediaResolver: (item: any, options: any) => mockUseMediaResolver(item, options),
+  useMediaResolver: (item: unknown, options: unknown) => mockUseMediaResolver(item, options),
 }));
 
 describe('useBackgroundEnrichment', () => {

@@ -14,7 +14,7 @@ export class DashboardPage {
   async goto() {
     await this.page.goto('/dashboard');
     // Wait for the loading state to disappear
-    await expect(this.page.getByText('Loading registry...')).not.toBeVisible({ timeout: 10000 });
+    await expect(this.page.getByText('Loading registry...')).not.toBeVisible({ timeout: 10_000 });
     // Give the page a moment to hydrate
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(500);

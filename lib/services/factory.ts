@@ -1,3 +1,7 @@
+/**
+ * @file factory.ts
+ * @description Registry to manage global MediaService instances.
+ */
 import { BoardCategory } from '@/lib/types';
 
 import { OpenLibraryService } from './books/OpenLibraryService';

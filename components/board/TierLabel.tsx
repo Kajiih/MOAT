@@ -91,6 +91,11 @@ export function TierLabel({
     }
   };
 
+  let dragOpacityClass = 'opacity-0 group-hover/row:opacity-100';
+  if (isAnyDragging) {
+    dragOpacityClass = isDragging ? 'opacity-100' : 'pointer-events-none opacity-0';
+  }
+
   return (
     <>
       {/* Drag Handle */}
@@ -101,9 +106,7 @@ export function TierLabel({
           data-testid="tier-row-drag-handle"
           className={twMerge(
             'absolute top-1 left-1 cursor-grab p-1 text-black/40 transition-opacity hover:text-black active:cursor-grabbing',
-            isAnyDragging
-              ? (isDragging ? 'opacity-100' : 'pointer-events-none opacity-0')
-              : 'opacity-0 group-hover/row:opacity-100',
+            dragOpacityClass,
           )}
         >
           <GripVertical size={16} />

@@ -23,9 +23,12 @@ describe('useMediaResolver', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useMediaRegistry as any).mockReturnValue({
+    vi.mocked(useMediaRegistry).mockReturnValue({
       getItem: mockGetItem,
       registerItem: mockRegisterItem,
+      registerItems: vi.fn(),
+      registrySize: 0,
+      clearRegistry: vi.fn(),
     });
 
     mockUseMediaDetails.mockReturnValue({
@@ -33,7 +36,7 @@ describe('useMediaResolver', () => {
       isLoading: false,
       isFetching: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useMediaDetails>);
   });
 
   const mockItem: MediaItem = {
@@ -80,7 +83,7 @@ describe('useMediaResolver', () => {
       isLoading: true,
       isFetching: true,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useMediaDetails>);
 
     const onUpdate = vi.fn();
     const { rerender } = renderHook(() => useMediaResolver(mockItem, { onUpdate, persist: true }));
@@ -91,7 +94,7 @@ describe('useMediaResolver', () => {
       isLoading: false,
       isFetching: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useMediaDetails>);
 
     rerender();
 

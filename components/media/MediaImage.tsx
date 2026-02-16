@@ -33,6 +33,15 @@ interface MediaImageProps {
 
 /**
  * Renders the image or a placeholder for a media item.
+ * @param props - The component props.
+ * @param props.item - The media item to render.
+ * @param props.isExport - Whether the image is for an export (screenshot).
+ * @param props.resolvedUrl - A data URL to use directly if provided (useful for exports).
+ * @param props.priority - Whether to load the image with high priority.
+ * @param props.TypeIcon - The icon to use as a placeholder if the image fails to load.
+ * @param props.sizes - Next.js image sizes attribute.
+ * @param props.containerClassName - CSS classes for the image container.
+ * @param props.imageClassName - CSS classes for the img element itself.
  */
 export function MediaImage({
   item,

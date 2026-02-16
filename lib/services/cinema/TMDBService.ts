@@ -91,7 +91,7 @@ export class TMDBService implements MediaService {
   private prepareSearchRequest(
     type: MediaType,
     query: string,
-    filters: Record<string, any>,
+    filters: Record<string, unknown>,
     params: Record<string, string>,
   ): { endpoint: string; isServerSorted: boolean } {
     params.query = query;
@@ -118,7 +118,7 @@ export class TMDBService implements MediaService {
   private prepareDiscoverRequest(
     type: MediaType,
     sort: string,
-    filters: Record<string, any>,
+    filters: Record<string, unknown>,
     params: Record<string, string>,
   ): { endpoint: string; isServerSorted: boolean } {
     const isServerSorted = sort !== 'relevance';

@@ -6,7 +6,7 @@
  * @module useMediaResolver
  */
 
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { MediaItem } from '@/lib/types';
@@ -37,9 +37,7 @@ export function useMediaResolver(item: MediaItem | null, options: UseMediaResolv
   const { getItem, registerItem } = useMediaRegistry();
 
   // 1. Check Global Registry for a "better" version of this item
-  const cached = useMemo(() => {
-    return item ? getItem(item.id) : undefined;
-  }, [item?.id, getItem]);
+  const cached = item ? getItem(item.id) : undefined;
 
   // 2. Determine if we need to fetch deep metadata
   // We fetch if the item exists but lacks 'details', and we don't have them in cache either.

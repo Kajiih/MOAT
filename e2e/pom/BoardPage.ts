@@ -87,7 +87,7 @@ export class BoardPage {
     // eslint-disable-next-line playwright/no-force-option
     await this.clearBoardButton.click({ delay: 50, force: true });
     // Verify it closed
-    await expect(this.clearBoardButton).not.toBeVisible();
+    await expect(this.clearBoardButton).toBeHidden();
   }
 
   async getTierRow(label: string) {
@@ -96,7 +96,7 @@ export class BoardPage {
 
   async renameTier(oldLabel: string, newLabel: string) {
     const row = await this.getTierRow(oldLabel);
-    await row.waitFor({ state: 'visible', timeout: 10000 });
+    await row.waitFor({ state: 'visible', timeout: 10_000 });
     
     const label = row.getByTestId('tier-row-label');
     const input = row.getByLabel('Tier label');

@@ -17,7 +17,7 @@ export interface StorageBackend {
   /** Safely updates a value using an atomic read-modify-write transaction. */
   update: <T>(key: string, updater: (val: T | undefined) => T) => Promise<void>;
   /** Persists multiple key-value pairs in a single transaction. */
-  setMany: (entries: [string, any][]) => Promise<void>;
+  setMany: (entries: [string, unknown][]) => Promise<void>;
   /** Removes a value by key. */
   del: (key: string) => Promise<void>;
   /** Removes multiple values by keys in a single transaction. */
@@ -51,7 +51,7 @@ export const storage: StorageBackend = {
       logger.error({ error, key }, 'Storage update error');
     }
   },
-  setMany: async (entries: [string, any][]) => {
+  setMany: async (entries: [string, unknown][]) => {
     try {
       await setMany(entries);
     } catch (error) {

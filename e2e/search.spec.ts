@@ -63,7 +63,7 @@ test.describe('Search Functionality', () => {
   });
 
   test.fixme('should hide and show already added items', async ({ page }) => {
-    // FIXME: Filter panel toggle is flaky in headless mode (checkbox not becoming visible)
+    // TODO: Filter panel toggle is flaky in headless mode (checkbox not becoming visible)
     // 1. Mock search to return one item
     await page.route('**/api/search*', async (route) => {
       await route.fulfill({

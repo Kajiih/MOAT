@@ -4,7 +4,7 @@
  * This is used ONLY for testing to simulate complex API filtering logic.
  */
 
-import lucene from 'lucene';
+import lucene, { LuceneAST } from 'lucene';
 
 import { logger } from '@/lib/logger';
 
@@ -17,7 +17,7 @@ import { logger } from '@/lib/logger';
  */
 export function matchesQuery(
   query: string,
-  item: Record<string, any>,
+  item: Record<string, unknown>,
   fieldMap?: Record<string, string>,
 ): boolean {
   if (!query) return true;
@@ -32,16 +32,17 @@ export function matchesQuery(
 }
 
 /**
- * Recursively evaluate an AST node.
+ * Evaluates binary operators (AND, OR, NOT).
+ * @param node - The AST node.
+ * @param item - The item to evaluate.
+ * @param fieldMap - Field mapping.
+ * @returns The boolean result of the operator.
  */
-function evaluateNode(
-  node: any,
-  item: Record<string, any>,
+function evaluateOperators(
+  node: LuceneAST,
+  item: Record<string, unknown>,
   fieldMap?: Record<string, string>,
-): boolean {
-  if (!node) return true;
-
-  // 1. Handle Operators (AND, OR, NOT)
+): boolean | null {
   if (node.operator === 'AND' || node.operator === '&&') {
     return evaluateNode(node.left, item, fieldMap) && evaluateNode(node.right, item, fieldMap);
   }
@@ -57,55 +58,109 @@ function evaluateNode(
   if (node.operator === 'NOT' || node.operator === '!' || node.start === 'NOT') {
     return !evaluateNode(node.left || node.right, item, fieldMap);
   }
+  return null;
+}
 
-  // 2. Handle nested nodes without operators (sometimes parse results are wrapped)
+/**
+ * Helper to evaluate a range query.
+ * @param node - The AST node.
+ * @param itemValue - The value to check.
+ * @returns True if matches.
+ */
+function evaluateRange(node: LuceneAST, itemValue: unknown): boolean {
+  const val = Number(itemValue);
+  const min =
+    node.term_min === '*' || node.term_min === undefined ? -Infinity : Number(node.term_min);
+  const max =
+    node.term_max === '*' || node.term_max === undefined ? Infinity : Number(node.term_max);
+  return val >= min && val <= max;
+}
+
+/**
+ * Helper to evaluate a simple term match.
+ * @param node - The AST node.
+ * @param itemValue - The value to check.
+ * @returns True if matches.
+ */
+function evaluateSimpleTermMatch(node: LuceneAST, itemValue: unknown): boolean {
+  if (node.term === undefined) return true;
+  
+  const term = node.term.toLowerCase();
+  const valStr = String(itemValue).toLowerCase();
+
+  // Support Wildcard
+  if (term.includes('*')) {
+    const regex = new RegExp('^' + term.replaceAll('*', '.*') + '$');
+    const valTerms = valStr.split(/[\s,.;:!?()\[\]{}"]+/);
+    return valTerms.some((t) => regex.test(t));
+  }
+
+  // Support Fuzzy
+  if (node.similarity) {
+    return valStr.includes(term.slice(0, -1));
+  }
+
+  return valStr.includes(term);
+}
+
+/**
+ * Evaluates a single term or range.
+ * @param node - The AST node.
+ * @param item - The item to evaluate.
+ * @param fieldMap - Field mapping.
+ * @returns The boolean result of the term evaluation.
+ */
+function evaluateTerm(
+  node: LuceneAST,
+  item: Record<string, unknown>,
+  fieldMap?: Record<string, string>,
+): boolean {
+  const field = fieldMap && node.field ? fieldMap[node.field] : node.field;
+
+  let itemValue: unknown;
+  if (!field || field === '<implicit>') {
+    itemValue = Object.values(item).flat().join(' ').toLowerCase();
+  } else {
+    itemValue = item[field];
+  }
+
+  if (itemValue === undefined || itemValue === null) return false;
+
+  // Handle range queries
+  if (node.term_min !== undefined || node.term_max !== undefined) {
+    return evaluateRange(node, itemValue);
+  }
+
+  // Handle simple terms
+  return evaluateSimpleTermMatch(node, itemValue);
+}
+
+/**
+ * Recursively evaluate an AST node.
+ * @param node - The AST node to evaluate.
+ * @param item - The item to test against.
+ * @param fieldMap - Field mapping.
+ * @returns True if matches.
+ */
+function evaluateNode(
+  node: LuceneAST | undefined,
+  item: Record<string, unknown>,
+  fieldMap?: Record<string, string>,
+): boolean {
+  if (!node) return true;
+
+  // 1. Handle Operators
+  const opResult = evaluateOperators(node, item, fieldMap);
+  if (opResult !== null) return opResult;
+
+  // 2. Handle nested nodes without operators
   if (node.left && !node.right && !node.operator) {
     return evaluateNode(node.left, item, fieldMap);
   }
 
   // 3. Handle Single Terms / Fields / Ranges
   if (node.term !== undefined || node.term_min !== undefined || node.term_max !== undefined) {
-    const field = fieldMap && node.field ? fieldMap[node.field] : node.field;
-
-    // If field is missing or implicit, search all values
-    let itemValue: any;
-    if (!field || field === '<implicit>') {
-      itemValue = Object.values(item).flat().join(' ').toLowerCase();
-    } else {
-      itemValue = item[field];
-    }
-
-    if (itemValue === undefined || itemValue === null) return false;
-
-    // Handle range queries
-    if (node.term_min !== undefined || node.term_max !== undefined) {
-      const val = Number(itemValue);
-      const min =
-        node.term_min === '*' || node.term_min === undefined ? -Infinity : Number(node.term_min);
-      const max =
-        node.term_max === '*' || node.term_max === undefined ? Infinity : Number(node.term_max);
-      return val >= min && val <= max;
-    }
-
-    // Handle simple terms
-    if (node.term !== undefined) {
-      const term = node.term.toLowerCase();
-      const valStr = String(itemValue).toLowerCase();
-
-      // Support Wildcard (match against any term in the field)
-      if (term.includes('*')) {
-        const regex = new RegExp('^' + term.replaceAll('*', '.*') + '$');
-        const valTerms = valStr.split(/[\s,.;:!?()\[\]{}"]+/);
-        return valTerms.some((t) => regex.test(t));
-      }
-
-      // Support Fuzzy (just includes for simplicity in mocks)
-      if (node.similarity) {
-        return valStr.includes(term.slice(0, -1));
-      }
-
-      return valStr.includes(term);
-    }
+    return evaluateTerm(node, item, fieldMap);
   }
 
   return true;

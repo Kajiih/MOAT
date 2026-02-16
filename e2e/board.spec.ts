@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { BoardPage } from './pom/BoardPage';
 
 test.describe('Board Management', () => {
-  test.setTimeout(60000);
+  test.setTimeout(60_000);
   let boardPage: BoardPage;
 
   test.beforeEach(async ({ page }) => {
@@ -12,7 +12,7 @@ test.describe('Board Management', () => {
   });
 
   test('should manage tiers: add, rename, reorder, delete', async ({ page }) => {
-    // FIXME: Double-click for tier label editing is flaky in headless browsers
+    // TODO: Double-click for tier label editing is flaky in headless browsers
     // 1. Add
     const initialCount = await boardPage.tierLabels.count();
     await boardPage.addTier();
@@ -25,7 +25,7 @@ test.describe('Board Management', () => {
     await expect(page.getByText('New Awesome Tier')).toBeVisible();
 
     // 3. Reorder: move the new tier up one spot
-    // FIXME: Reorder simulation is flaky in this environment
+    // TODO: Reorder simulation is flaky in this environment
     // await boardPage.reorderTiers(initialCount, initialCount - 1);
     // await expect(boardPage.tierLabels.nth(initialCount - 1)).toHaveText('New Awesome Tier');
 
@@ -49,11 +49,11 @@ test.describe('Board Management', () => {
   });
 
   test('should change a tier color', async ({ page, browserName }) => {
-    // FIXME: Firefox has issues with popover positioning in headless mode
+    // TODO: Firefox has issues with popover positioning in headless mode
     test.skip(browserName === 'firefox', 'Flaky in Firefox headless');
     
     const firstTierHeader = page.locator('[data-tier-label] > div').first();
-    const label = await boardPage.tierLabels.first().innerText();
+    const label = (await boardPage.tierLabels.first().textContent()) || '';
     
     // Open settings for the first tier
     const row = await boardPage.getTierRow(label);
@@ -79,7 +79,7 @@ test.describe('Board Management', () => {
     const initialFavicon = await favicon.getAttribute('href');
     
     // Reorder second tier to the top (this should trigger a branding update)
-    const secondLabel = await boardPage.tierLabels.nth(1).innerText();
+    const secondLabel = (await boardPage.tierLabels.nth(1).textContent()) || '';
     await boardPage.reorderTiers(1, 0);
     
     // Verify reorder happened

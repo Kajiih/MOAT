@@ -12,11 +12,13 @@ export interface RequestOptions extends RequestInit {
 
 /**
  * Robust fetcher with automatic retries for common server errors (503, 504, 429).
- * @param url
- * @param options
- * @param retryCount
+ * @template T - The expected response type.
+ * @param url - The full URL to fetch.
+ * @param options - Fetch options including retry limits and timeouts.
+ * @param retryCount - Current retry attempt.
+ * @returns The parsed JSON response.
  */
-export async function secureFetch<T = any>(
+export async function secureFetch<T = unknown>(
   url: string,
   options: RequestOptions = {},
   retryCount = 0,

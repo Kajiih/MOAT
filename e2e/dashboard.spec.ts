@@ -4,7 +4,7 @@ import { BoardPage } from './pom/BoardPage';
 import { DashboardPage } from './pom/DashboardPage';
 
 test.describe('Dashboard and Multi-Board', () => {
-  test.setTimeout(60000);
+  test.setTimeout(60_000);
   let dashboardPage: DashboardPage;
   let boardPage: BoardPage;
 
@@ -16,7 +16,7 @@ test.describe('Dashboard and Multi-Board', () => {
   });
 
   test('should create, modify, and see changes in dashboard', async ({ page }) => {
-    // FIXME: Dashboard hydration is flaky in headless browsers
+    // TODO: Dashboard hydration is flaky in headless browsers
     const boardTitle = `Board ${Date.now()}`;
     
     // 1. Create
@@ -43,7 +43,7 @@ test.describe('Dashboard and Multi-Board', () => {
   });
 
   test('should open an existing board', async ({ page }) => {
-    // FIXME: Dashboard hydration is flaky in headless browsers
+    // TODO: Dashboard hydration is flaky in headless browsers
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);
     

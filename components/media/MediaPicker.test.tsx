@@ -10,14 +10,7 @@ vi.mock('@/components/search/hooks/useMediaSearch', () => ({
   useMediaSearch: vi.fn(),
 }));
 
-// Mock next/image
-vi.mock('next/image', () => ({
-  __esModule: true,
-  default: ({ fill, priority, unoptimized, sizes, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} />;
-  },
-}));
+
 
 describe('MediaPicker', () => {
   const mockOnSelect = vi.fn();
@@ -36,7 +29,7 @@ describe('MediaPicker', () => {
   };
 
   it('renders input and placeholder', () => {
-    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as any);
+    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>);
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
 
     expect(screen.getByPlaceholderText('Filter by artist...')).toBeDefined();
@@ -49,7 +42,7 @@ describe('MediaPicker', () => {
       filters: { query: '' }, // Start empty
       updateFilters,
       results: mockResults,
-    } as any);
+    } as unknown as ReturnType<typeof useMediaSearch>);
 
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
 
@@ -68,7 +61,7 @@ describe('MediaPicker', () => {
       ...defaultHookReturn,
       filters: { query: 'Art' },
       results: mockResults,
-    } as any);
+    } as unknown as ReturnType<typeof useMediaSearch>);
 
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
 
@@ -93,7 +86,7 @@ describe('MediaPicker', () => {
     vi.mocked(useMediaSearch).mockReturnValue({
       ...defaultHookReturn,
       isLoading: true,
-    } as any);
+    } as unknown as ReturnType<typeof useMediaSearch>);
 
     const { container } = render(
       <MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />,
@@ -102,7 +95,7 @@ describe('MediaPicker', () => {
   });
 
   it('displays selected item and allows clearing', () => {
-    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as any);
+    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>);
     const selectedItem = { id: 'artist-1', name: 'Artist One', imageUrl: 'img1.jpg' };
 
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={selectedItem} />);
@@ -116,7 +109,7 @@ describe('MediaPicker', () => {
   });
 
   it('toggles filters view', () => {
-    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as any);
+    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>);
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
 
     const filterBtn = screen.getByTitle('Toggle Filters');

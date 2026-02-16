@@ -25,7 +25,7 @@ describe('Search API Route', () => {
     vi.clearAllMocks();
     vi.mocked(getMediaService).mockReturnValue({
       search: mockSearch,
-    } as any);
+    } as unknown as ReturnType<typeof getMediaService>);
   });
 
   it('calls the correct service with parsed options', async () => {

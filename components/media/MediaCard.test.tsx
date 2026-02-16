@@ -30,14 +30,7 @@ vi.mock('@/components/providers/MediaRegistryProvider', () => ({
   useMediaRegistry: vi.fn(),
 }));
 
-// Mock next/image
-vi.mock('next/image', () => ({
-  __esModule: true,
-  default: ({ fill, priority, unoptimized, sizes, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} />;
-  },
-}));
+
 
 describe('MediaCard', () => {
   const mockItem: MediaItem = {
@@ -64,7 +57,11 @@ describe('MediaCard', () => {
     // Default implementation for useMediaRegistry in tests
     vi.mocked(useMediaRegistry).mockReturnValue({
       getItem: vi.fn().mockReturnValue(null),
-    } as any);
+      registerItem: vi.fn(),
+      registerItems: vi.fn(),
+      registrySize: 0,
+      clearRegistry: vi.fn(),
+    });
 
     // Default implementation for useMediaResolver in tests
     vi.mocked(useMediaResolver).mockImplementation((item) => ({
@@ -191,7 +188,11 @@ describe('SortableMediaCard', () => {
     // Default implementation for useMediaRegistry in tests
     vi.mocked(useMediaRegistry).mockReturnValue({
       getItem: vi.fn().mockReturnValue(null),
-    } as any);
+      registerItem: vi.fn(),
+      registerItems: vi.fn(),
+      registrySize: 0,
+      clearRegistry: vi.fn(),
+    });
 
     // Default implementation for useMediaResolver in tests
     vi.mocked(useMediaResolver).mockImplementation((item) => ({

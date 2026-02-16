@@ -1,17 +1,14 @@
 import { expect, test } from '@playwright/test';
 
-import { BoardPage } from './pom/BoardPage';
 import { DashboardPage } from './pom/DashboardPage';
 import { SearchPanel } from './pom/SearchPanel';
 
 test.describe('Item Management', () => {
-  test.setTimeout(60000);
-  let boardPage: BoardPage;
+  test.setTimeout(60_000);
   let dashboardPage: DashboardPage;
   let searchPanel: SearchPanel;
 
   test.beforeEach(async ({ page }) => {
-    boardPage = new BoardPage(page);
     dashboardPage = new DashboardPage(page);
     searchPanel = new SearchPanel(page);
     
@@ -45,7 +42,7 @@ test.describe('Item Management', () => {
     await page.waitForTimeout(500);
 
     await searchPanel.dragToTier('item-2', 'S');
-    await expect(page.getByTestId('media-card-item-2')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('media-card-item-2')).toBeVisible({ timeout: 10_000 });
     
     // Wait for state to settle before running tests
     // eslint-disable-next-line playwright/no-wait-for-timeout
@@ -53,7 +50,7 @@ test.describe('Item Management', () => {
   });
 
   test('should manage items: details, move, reorder, remove', async ({ page }) => {
-    // FIXME: dnd-kit drag simulations are flaky in headless browsers
+    // TODO: dnd-kit drag simulations are flaky in headless browsers
     const tierS = page.locator('[data-tier-label="S"]');
     const tierA = page.locator('[data-tier-label="A"]');
     const cards = tierS.getByTestId(/^media-card-item-/);
@@ -73,14 +70,14 @@ test.describe('Item Management', () => {
     });
 
     const allIds = await page.evaluate(() => 
-      Array.from(document.querySelectorAll('[data-testid]'))
+      [...document.querySelectorAll('[data-testid]')]
         .map(el => (el as HTMLElement).dataset.testid)
         .filter(id => id?.startsWith('media-card-'))
     );
     console.log('Available media cards at fail point:', allIds);
 
     const card1 = page.getByTestId('media-card-item-1');
-    await expect(card1).toBeVisible({ timeout: 15000 });
+    await expect(card1).toBeVisible({ timeout: 15_000 });
     await card1.click({ force: true });
     await page.keyboard.press('i');
     await expect(page.getByRole('dialog')).toBeVisible();

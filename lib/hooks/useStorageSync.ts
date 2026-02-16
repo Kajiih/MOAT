@@ -18,6 +18,7 @@ import { storage } from '@/lib/storage';
  * Checks if two objects are shallowly equal.
  * @param a - First value to compare.
  * @param b - Second value to compare.
+ * @returns True if objects are shallowly equal, false otherwise.
  */
 function shallowEqual(a: unknown, b: unknown) {
   if (a === b) return true;
@@ -33,6 +34,10 @@ function shallowEqual(a: unknown, b: unknown) {
   return true;
 }
 
+/**
+ * Options for the useStorageSync hook.
+ * @template T - The type of the state being synchronized.
+ */
 export interface StorageSyncOptions<T> {
   /** The storage key to use. */
   key: string;
@@ -73,7 +78,7 @@ export function useStorageSync<T>({
   const onHydrateRef = useRef(onHydrate);
   const initialStateRef = useRef(initialState);
   const onSaveRef = useRef(onSave);
-  
+
   useEffect(() => {
     onHydrateRef.current = onHydrate;
   }, [onHydrate]);

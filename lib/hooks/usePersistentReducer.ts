@@ -13,7 +13,6 @@ import { Dispatch, Reducer, useCallback, useMemo, useReducer } from 'react';
 
 import { useStorageSync } from './useStorageSync';
 
-
 /** Internal action type used for state hydration. */
 const HYDRATE_ACTION = '@@PERSIST/HYDRATE';
 
@@ -24,19 +23,24 @@ interface HydrateAction<S> {
 }
 
 /**
- * A custom hook that combines useReducer with async persistence.
+ * Options for the usePersistentReducer hook.
  * @template S - The shape of the state.
- * @template A - The union type of possible actions.
- * @param reducer - The pure reducer function.
- * @param initialState - The default state to use before hydration.
- * @param key - The storage key to use for persistence.
- * @returns A tuple of [state, dispatch, isHydrated].
  */
 export interface PersistentReducerOptions<S> {
   persistenceDelay?: number;
   onSave?: (state: S) => void;
 }
 
+/**
+ * A custom hook that combines useReducer with async persistence.
+ * @template S - The shape of the state.
+ * @template A - The union type of possible actions.
+ * @param reducer - The pure reducer function.
+ * @param initialState - The default state to use before hydration.
+ * @param key - The storage key to use for persistence.
+ * @param options - Optional configuration for persistence delay and save callbacks.
+ * @returns A tuple of [state, dispatch, isHydrated].
+ */
 export function usePersistentReducer<S, A>(
   reducer: Reducer<S, A>,
   initialState: S,

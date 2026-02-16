@@ -2,7 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach,describe, expect, it, vi } from 'vitest';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
-import { useMediaDetails, useMediaResolver } from '@/lib/hooks';
+import { useMediaResolver } from '@/lib/hooks';
+import { MediaItem } from '@/lib/types';
 
 import { DetailsModal } from './DetailsModal';
 
@@ -22,14 +23,7 @@ vi.mock('./details/AlbumView', () => ({ AlbumView: () => <div data-testid="album
 vi.mock('./details/ArtistView', () => ({ ArtistView: () => <div data-testid="artist-view" /> }));
 vi.mock('./details/SongView', () => ({ SongView: () => <div data-testid="song-view" /> }));
 
-// Mock next/image
-vi.mock('next/image', () => ({
-  __esModule: true,
-  default: ({ fill, priority, unoptimized, sizes, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} />;
-  },
-}));
+
 
 describe('DetailsModal', () => {
   const mockItem = {
@@ -47,7 +41,11 @@ describe('DetailsModal', () => {
     vi.clearAllMocks();
     vi.mocked(useMediaRegistry).mockReturnValue({
       getItem: vi.fn().mockReturnValue(null),
-    } as any);
+      registerItem: vi.fn(),
+      registerItems: vi.fn(),
+      registrySize: 0,
+      clearRegistry: vi.fn(),
+    });
 
     // Default implementation for tests
     vi.mocked(useMediaResolver).mockImplementation((item) => ({
@@ -60,13 +58,25 @@ describe('DetailsModal', () => {
   });
 
   it('renders nothing when closed', () => {
-    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: false } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({
+      resolvedItem: mockItem,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      isEnriched: false,
+    });
     render(<DetailsModal item={mockItem} isOpen={false} onClose={mockOnClose} />);
     expect(screen.queryByText('Test Album')).toBeNull();
   });
 
   it('renders title and artist when open', () => {
-    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: true } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({
+      resolvedItem: mockItem,
+      isLoading: true,
+      isFetching: true,
+      error: null,
+      isEnriched: false,
+    });
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     expect(screen.getByText('Test Album')).toBeDefined();
@@ -74,7 +84,13 @@ describe('DetailsModal', () => {
   });
 
   it('shows loading state', () => {
-    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: true } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({
+      resolvedItem: mockItem,
+      isLoading: true,
+      isFetching: true,
+      error: null,
+      isEnriched: false,
+    });
     const { container } = render(
       <DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />,
     );
@@ -87,7 +103,9 @@ describe('DetailsModal', () => {
       resolvedItem: mockItem,
       error: new Error('Failed'),
       isLoading: false,
-    } as any);
+      isFetching: false,
+      isEnriched: false,
+    });
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     expect(screen.getByText(/Failed to load additional details/i)).toBeDefined();
@@ -95,10 +113,12 @@ describe('DetailsModal', () => {
 
   it('renders AlbumView when album details are loaded', () => {
     vi.mocked(useMediaResolver).mockReturnValue({
-      resolvedItem: { ...mockItem, details: { type: 'album' } },
+      resolvedItem: { ...mockItem, details: { id: mockItem.id, type: 'album' } } as unknown as MediaItem,
       isLoading: false,
       isFetching: false,
-    } as any);
+      error: null,
+      isEnriched: true,
+    });
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     expect(screen.getByTestId('album-view')).toBeDefined();
@@ -112,11 +132,12 @@ describe('DetailsModal', () => {
         options.onUpdate(item!.id, { details, imageUrl: 'new-img.jpg' });
       }
       return {
-        resolvedItem: { ...item, details },
+        resolvedItem: { ...item, details } as unknown as MediaItem,
         isLoading: false,
         isFetching: false,
         error: null,
-      } as any;
+        isEnriched: true,
+      } as unknown as ReturnType<typeof useMediaResolver>;
     });
 
     render(
@@ -137,7 +158,13 @@ describe('DetailsModal', () => {
   });
 
   it('calls onClose when X button is clicked', () => {
-    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: false } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({
+      resolvedItem: mockItem,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      isEnriched: false,
+    });
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     const closeBtn = screen.getByRole('button');
@@ -146,7 +173,13 @@ describe('DetailsModal', () => {
   });
 
   it('calls onClose when backdrop is clicked', () => {
-    vi.mocked(useMediaResolver).mockReturnValue({ resolvedItem: mockItem, isLoading: false } as any);
+    vi.mocked(useMediaResolver).mockReturnValue({
+      resolvedItem: mockItem,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      isEnriched: false,
+    });
     render(<DetailsModal item={mockItem} isOpen={true} onClose={mockOnClose} />);
 
     // The backdrop is the outermost div with onClick={onClose}
