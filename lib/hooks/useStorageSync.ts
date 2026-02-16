@@ -47,28 +47,42 @@ export function useStorageSync<T>({
 }: StorageSyncOptions<T>): boolean {
   const [isHydrated, setIsHydrated] = useState(false);
 
+  // Use refs for callbacks and constants to avoid re-triggering effects if they aren't stable
+  const onHydrateRef = useRef(onHydrate);
+  const initialStateRef = useRef(initialState);
+  
+  useEffect(() => {
+    onHydrateRef.current = onHydrate;
+  }, [onHydrate]);
+
+  useEffect(() => {
+    initialStateRef.current = initialState;
+  }, [initialState]);
+
   // 1. Hydrate from storage (Async)
   useEffect(() => {
     let isMounted = true;
+    setIsHydrated(false);
+
     const hydrate = async () => {
       try {
         const item = await storage.get<T>(key);
         if (item && isMounted) {
-          // Robustness: Merge with initialState if both are objects.
-          // This ensures that if the schema has changed (new keys added to initial state),
-          // the hydrated state will include them instead of being undefined.
+          const currentInitialState = initialStateRef.current;
           let hydratedState = item;
+
+          // Merge with initialState if both are objects
           if (
-            typeof initialState === 'object' &&
-            initialState !== null &&
-            !Array.isArray(initialState) &&
+            typeof currentInitialState === 'object' &&
+            currentInitialState !== null &&
+            !Array.isArray(currentInitialState) &&
             typeof item === 'object' &&
             item !== null &&
             !Array.isArray(item)
           ) {
-            hydratedState = { ...initialState, ...item };
+            hydratedState = { ...currentInitialState, ...item };
           }
-          onHydrate(hydratedState);
+          onHydrateRef.current(hydratedState);
         }
       } catch (error) {
         logger.error({ error, key }, 'Error reading storage key');
@@ -80,9 +94,7 @@ export function useStorageSync<T>({
     return () => {
       isMounted = false;
     };
-    // We explicitly assume onHydrate is stable or we want to re-run if it changes (which it shouldn't usually)
-    // In most cases, passing dispatch or setState setter is stable.
-  }, [key, initialState, onHydrate]);
+  }, [key]); // ONLY re-run when key changes
 
   // 2. Persist Updates (Debounced)
   // We track the hydrated value to avoid immediate write-back if the state matches what we just loaded.

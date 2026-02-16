@@ -9,7 +9,7 @@
 
 'use client';
 
-import { Dispatch, Reducer, useReducer } from 'react';
+import { useCallback, useMemo, Dispatch, Reducer, useReducer } from 'react';
 
 import { useStorageSync } from './useStorageSync';
 
@@ -46,24 +46,32 @@ export function usePersistentReducer<S, A>(
 
   /**
    * Wrapper reducer that intercepts hydration actions.
-   * @param state - The current state.
-   * @param action - The dispatched action.
-   * @returns The new state.
    */
-  const persistentReducer = (state: S, action: A | HydrateAction<S>): S => {
-    if ((action as HydrateAction<S>).type === HYDRATE_ACTION) {
-      return (action as HydrateAction<S>).payload;
-    }
-    return reducer(state, action as A);
-  };
+  const persistentReducer = useMemo(
+    () =>
+      (state: S, action: A | HydrateAction<S>): S => {
+        if ((action as HydrateAction<S>).type === HYDRATE_ACTION) {
+          return (action as HydrateAction<S>).payload;
+        }
+        return reducer(state, action as A);
+      },
+    [reducer],
+  );
 
   const [state, dispatch] = useReducer(persistentReducer, initialState);
+
+  const onHydrate = useCallback(
+    (payload: S) => {
+      dispatch({ type: HYDRATE_ACTION, payload });
+    },
+    [dispatch],
+  );
 
   const isHydrated = useStorageSync({
     key,
     state,
     initialState,
-    onHydrate: (payload) => dispatch({ type: HYDRATE_ACTION, payload }),
+    onHydrate,
     persistenceDelay,
   });
 
