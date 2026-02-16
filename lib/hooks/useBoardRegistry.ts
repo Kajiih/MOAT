@@ -27,18 +27,42 @@ export function useBoardRegistry() {
   useEffect(() => {
     const loadRegistry = async () => {
       try {
-        // Scan for all metadata keys
-        const allKeys = await storage.keys();
-        const metaKeys = allKeys.filter(
-          (k): k is string => typeof k === 'string' && k.startsWith('moat-meta-'),
+        const BOARD_INDEX_KEY = 'moat-boards-index';
+        let boardIds: string[] | undefined = await storage.get<string[]>(BOARD_INDEX_KEY);
+        let requiresMigration = false;
+
+        // Fallback / Migration: If no index found, scan all keys (Legacy method)
+        if (!boardIds) {
+          const allKeys = await storage.keys();
+          const metaKeys = allKeys.filter(
+            (k): k is string => typeof k === 'string' && k.startsWith('moat-meta-'),
+          );
+          boardIds = metaKeys.map((k) => k.replace('moat-meta-', ''));
+          requiresMigration = true;
+        }
+
+        if (boardIds.length === 0) {
+           setBoards([]);
+           return;
+        }
+
+        // Fetch metadata for all IDs
+        const metaItems = await Promise.all(
+          boardIds.map((id) => storage.get<BoardMetadata>(`moat-meta-${id}`)),
         );
-        const metaItems = await Promise.all(metaKeys.map((k) => storage.get<BoardMetadata>(k)));
 
         const validBoards = metaItems
           .filter((b): b is BoardMetadata => !!b)
           .toSorted((a, b) => b.lastModified - a.lastModified);
 
         setBoards(validBoards);
+
+        // Self-heal: Save the index if we just migrated or if we found inconsistencies
+        // (Optional: we could also check if validBoards.length !== boardIds.length to prune ghosts)
+        if (requiresMigration) {
+          const validIds = validBoards.map((b) => b.id);
+          await storage.set(BOARD_INDEX_KEY, validIds);
+        }
       } catch (error) {
         logger.error({ error }, 'Failed to load board registry');
       } finally {
@@ -73,6 +97,15 @@ export function useBoardRegistry() {
       // Atomic write metadata
       await storage.set(`moat-meta-${newId}`, newMeta);
 
+      // Update Index
+      const BOARD_INDEX_KEY = 'moat-boards-index';
+      // We read the latest index to be safe, or just append to current state?
+      // For safety against race conditions (though rare in single-user IDB), 
+      // we usually just rely on our local optimistic state if we assume we are the only writer.
+      // But let's read-modify-write the index to be safe.
+      const currentIds = (await storage.get<string[]>(BOARD_INDEX_KEY)) || [];
+      await storage.set(BOARD_INDEX_KEY, [newId, ...currentIds]);
+
       // Pre-seed the board state with the correct category
       // This ensures TierListProvider picks it up immediately
       await storage.set(`moat-board-${newId}`, {
@@ -96,6 +129,12 @@ export function useBoardRegistry() {
 
     await storage.del(`moat-meta-${id}`);
     await storage.del(`moat-board-${id}`);
+
+    // Update Index
+    const BOARD_INDEX_KEY = 'moat-boards-index';
+    const currentIds = (await storage.get<string[]>(BOARD_INDEX_KEY)) || [];
+    const newIds = currentIds.filter((idx) => idx !== id);
+    await storage.set(BOARD_INDEX_KEY, newIds);
   }, []);
 
   /**

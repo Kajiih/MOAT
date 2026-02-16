@@ -9,13 +9,10 @@
 
 'use client';
 
-import { Dispatch, Reducer, useEffect, useReducer, useRef, useState } from 'react';
+import { Dispatch, Reducer, useReducer } from 'react';
 
+import { useStorageSync } from './useStorageSync';
 
-import { useDebouncedCallback } from 'use-debounce';
-
-import { logger } from '@/lib/logger';
-import { storage } from '@/lib/storage';
 
 /** Internal action type used for state hydration. */
 const HYDRATE_ACTION = '@@PERSIST/HYDRATE';
@@ -46,6 +43,7 @@ export function usePersistentReducer<S, A>(
   options?: PersistentReducerOptions,
 ): [S, Dispatch<A>, boolean] {
   const { persistenceDelay = 500 } = options || {};
+
   /**
    * Wrapper reducer that intercepts hydration actions.
    * @param state - The current state.
@@ -60,70 +58,14 @@ export function usePersistentReducer<S, A>(
   };
 
   const [state, dispatch] = useReducer(persistentReducer, initialState);
-  const [isHydrated, setIsHydrated] = useState(false);
 
-  // 1. Hydrate from storage (Async)
-  // Effect runs once on mount to load the persisted state from db.
-  useEffect(() => {
-    let isMounted = true;
-    const hydrate = async () => {
-      try {
-        const item = await storage.get<S>(key);
-        if (item && isMounted) {
-          // Robustness: Merge with initialValue if both are objects.
-          // This ensures that if the schema has changed (new keys added to initial state),
-          // the hydrated state will include them instead of being undefined.
-          let hydratedState = item;
-          if (
-            typeof initialState === 'object' &&
-            initialState !== null &&
-            !Array.isArray(initialState) &&
-            typeof item === 'object' &&
-            item !== null &&
-            !Array.isArray(item)
-          ) {
-            hydratedState = { ...initialState, ...item };
-          }
-
-
-          dispatch({ type: HYDRATE_ACTION, payload: hydratedState });
-        }
-      } catch (error) {
-        logger.error({ error, key }, 'Error reading storage key');
-      } finally {
-        if (isMounted) setIsHydrated(true);
-      }
-    };
-    hydrate();
-    return () => {
-      isMounted = false;
-    };
-  }, [key, initialState]);
-
-  // 2. Persist Updates (Debounced)
-  const debouncedSave = useDebouncedCallback((value: S) => {
-    storage.set(key, value);
-  }, persistenceDelay);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    debouncedSave(state);
-  }, [state, isHydrated, debouncedSave]);
-
-  // 3. Flush on unmount
-  // We use a ref to always have the latest state for unmount flushing.
-  const stateRef = useRef(state);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
-
-  useEffect(() => {
-    return () => {
-      if (isHydrated) {
-        storage.set(key, stateRef.current);
-      }
-    };
-  }, [key, isHydrated]);
+  const isHydrated = useStorageSync({
+    key,
+    state,
+    initialState,
+    onHydrate: (payload) => dispatch({ type: HYDRATE_ACTION, payload }),
+    persistenceDelay,
+  });
 
   return [state, dispatch as Dispatch<A>, isHydrated];
 }

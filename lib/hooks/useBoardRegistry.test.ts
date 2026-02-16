@@ -103,7 +103,11 @@ describe('useBoardRegistry', () => {
     };
 
     vi.mocked(storage.keys).mockResolvedValue(['moat-meta-board-1']);
-    vi.mocked(storage.get).mockResolvedValue(mockMeta);
+    // Mock get to distinguish between index (undefined -> triggers fallback) and board meta
+    vi.mocked(storage.get).mockImplementation(async (key) => {
+      if (key === 'moat-meta-board-1') return mockMeta;
+      return undefined;
+    });
 
     const { result } = renderHook(() => useBoardRegistry());
 
@@ -133,13 +137,19 @@ describe('useBoardRegistry', () => {
     };
 
     vi.mocked(storage.keys).mockResolvedValue(['moat-meta-board-1']);
-    vi.mocked(storage.get).mockResolvedValue(mockMeta);
+    vi.mocked(storage.get).mockImplementation(async (key) => {
+      if (key === 'moat-meta-board-1') return mockMeta;
+      return undefined;
+    });
 
     const { result } = renderHook(() => useBoardRegistry());
 
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
+
+    expect(result.current.boards).toHaveLength(1); // Ensure load succeeded
+    expect(result.current.boards[0].title).toBe('Board 1');
 
     await act(async () => {
       await result.current.updateBoardMeta('board-1', { title: 'Updated Title' });

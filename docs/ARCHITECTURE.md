@@ -171,10 +171,12 @@ The application uses a unified **Media Resolver** pattern to ensure consistency 
 #### Persistence Logic
 
 - **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (500-1000ms).
-- **Hydration-Safe Persistence**: The persistence hooks (`usePersistentReducer`, `usePersistentState`) utilize a dedicated "hydrated" status flag. Storage writes are strictly disabled until the initial hydration is complete, and the write effect itself is debounced. This ensures that the `initialState` is never mistakenly written over valid persisted data during the initialization phase.
-- **Unmount Flush**: To ensure the latest user changes are never lost during rapid navigation, persistence hooks perform a synchronous-like storage write during the component unmount phase using a `useRef` to the latest state.
+- **Core Persistence Hook**: A reusable `useStorageSync` hook encapsulates the complex lifecycle of async hydration, debounced saving, and unmount flushing (via `useRef` to capture the latest state).
+- **Hydration-Safe Persistence**: The persistence hooks (`usePersistentReducer`, `usePersistentState`) utilize a dedicated "hydrated" status flag. Storage writes are strictly disabled until the initial hydration is complete.
+- **Scalable Board Registry**: The `useBoardRegistry` hook maintains a dedicated `moat-boards-index` key containing an array of all board IDs. This allows for O(1) board listing performance without scanning the entire IndexedDB keyspace, and includes self-healing logic to migrate from legacy storage patterns.
+- **Unmount Flush**: To ensure the latest user changes are never lost during rapid navigation, persistence hooks perform a synchronous-like storage write during the component unmount phase.
 - **Proactive Registry Warming**:
-  - **Hydration Sync**: Immediately after the board state hydrates, all board items are pushed to the `MediaRegistry` in a single batch. This "warms" the global cache, ensuring search results for items already on your board are enriched instantly.
+  - **Hydration Sync**: Immediately after the board state hydrates, all board items are pushed to the `MediaRegistry` in a single batch. This "warms" the global cache.
   - **Import Sync**: Board imports bypass individual item registration and use the batched `registerItems` API to populate the registry in bulk.
 - **Lazy Hydration**: Application state is hydrated asynchronously after the initial client mount. The app displays a loading state during this phase.
 - **Cross-Tab Sync**: (Note: Cross-tab sync via storage events is currently disabled with IndexedDB, but consistency is maintained via optimistic UI updates).
@@ -324,7 +326,7 @@ Moat supports dynamic Open Graph images for social sharing.
     - `KeyboardShortcutsModal.tsx`: Displays available keyboard shortcuts.
 - `lib/hooks/`:
   - `index.ts`: Barrel file exporting all hooks.
-  - `useBoardRegistry.ts`: **[New]** Manages the list of user boards.
+  - `useBoardRegistry.ts`: **[Scalable]** Manages the list of user boards using an index for O(1) retrieval.
   - `useDynamicFavicon.ts`: **[New]** Generates and applies dynamic favicons.
   - `useBrandColors.ts`: **[New]** Extracts palette from tier state.
   - `useTierListIO.ts`: Encapsulates Import/Export logic.
@@ -338,6 +340,7 @@ Moat supports dynamic Open Graph images for social sharing.
   - `useTierListNamespaces.ts`: Aggregates state and sub-hook logic into namespaced API objects.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
   - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
+  - `useStorageSync.ts`: **[New]** Primitive hook for syncing state with async storage (Hydration/Debounce/Flush).
   - `usePersistentState.ts`: Generic debounced `IndexedDB` synchronization.
   - `usePersistentReducer.ts`: Combines `useReducer` with async persistence.
 - `lib/state/`: Centralized State Logic
