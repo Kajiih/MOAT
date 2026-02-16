@@ -11,9 +11,9 @@ import { BoardCategory, MediaItem, MediaType, SortOption } from '@/lib/types';
 /**
  * Filter configuration with clear separation of concerns.
  */
-export interface FilterConfig {
+export interface FilterConfig<F extends string = string> {
   /** Unique identifier for this filter */
-  id: string;
+  id: F;
   /** Human-readable label */
   label: string;
   /** Type of filter input */
@@ -34,8 +34,6 @@ export interface FilterConfig {
 
   /** Default value for this filter */
   defaultValue?: unknown;
-  /** Alias for defaultValue (backward compatibility) */
-  default?: unknown;
 
   /** For 'range' type: key in state for minimum value */
   minKey?: string;
@@ -59,7 +57,7 @@ export interface SortOptionConfig {
  * Complete definition of a media type.
  * This is the single source of truth for everything related to a media type.
  */
-export interface MediaTypeDefinition {
+export interface MediaTypeDefinition<F extends string = string> {
   // ===== Identity =====
   /** Unique type identifier */
   id: MediaType;
@@ -83,11 +81,11 @@ export interface MediaTypeDefinition {
 
   // ===== Search & Filters =====
   /** Available filters for this type */
-  filters: FilterConfig[];
+  filters: FilterConfig<F>[];
   /** Available sort options */
   sortOptions: SortOptionConfig[];
   /** Default filter values */
-  defaultFilters: Record<string, unknown>;
+  defaultFilters: Record<F, unknown>;
 
   // ===== Capabilities =====
   /** Whether this type can be searched */

@@ -5,7 +5,14 @@
  * @module StateActions
  */
 
-import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import {
+  BoardCategory,
+  BoardId,
+  MediaItem,
+  TierDefinition,
+  TierId,
+  TierListState,
+} from '@/lib/types';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.
@@ -47,21 +54,24 @@ export enum ActionType {
  */
 export type TierListAction =
   | { type: ActionType.ADD_TIER }
-  | { type: ActionType.DELETE_TIER; payload: { id: string } }
-  | { type: ActionType.UPDATE_TIER; payload: { id: string; updates: Partial<TierDefinition> } }
+  | { type: ActionType.DELETE_TIER; payload: { id: string | TierId } }
+  | {
+      type: ActionType.UPDATE_TIER;
+      payload: { id: string | TierId; updates: Partial<TierDefinition> };
+    }
   | { type: ActionType.REORDER_TIERS; payload: { oldIndex: number; newIndex: number } }
   | {
       type: ActionType.MOVE_ITEM;
       payload: {
         activeId: string;
         overId: string;
-        activeTierId?: string; // Optional: Optimize lookup
-        overTierId?: string; // Optional: Optimize lookup
-        activeItem?: MediaItem; // For dragging from search
+        activeTierId?: string | TierId;
+        overTierId?: string | TierId;
+        activeItem?: MediaItem;
       };
     }
   | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: Partial<MediaItem> } }
-  | { type: ActionType.REMOVE_ITEM; payload: { tierId: string; itemId: string } }
+  | { type: ActionType.REMOVE_ITEM; payload: { tierId: string | TierId; itemId: string } }
   | { type: ActionType.UPDATE_TITLE; payload: { title: string } }
   | { type: ActionType.RANDOMIZE_COLORS }
   | { type: ActionType.CLEAR_BOARD }

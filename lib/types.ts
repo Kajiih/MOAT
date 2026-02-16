@@ -9,12 +9,25 @@ import { z } from 'zod';
 
 // --- Domain Types ---
 
+// --- Branding Helpers ---
+
+/**
+ * Branded type helper.
+ */
+declare const __brand: unique symbol;
+type Brand<T, TBrand> = T & { readonly [__brand]: TBrand };
+
+/** Branded identifier for a Board */
+export type BoardId = Brand<string, 'BoardId'>;
+/** Branded identifier for a Tier */
+export type TierId = Brand<string, 'TierId'>;
+/** Branded identifier for an Item (usually an MBID or standard UUID) */
+export type ItemId = Brand<string, 'ItemId'>;
+
+// --- Domain Types ---
+
 /**
  * Represents the type of media being handled.
- * - 'album', 'artist', 'song' (Music)
- * - 'movie', 'tv', 'person' (Cinema)
- * - 'game' (Video Games)
- * - 'book' (Literature)
  */
 export type MediaType =
   | 'album'
@@ -64,7 +77,7 @@ export type SortOption =
  */
 export interface BaseMediaItem {
   /** Unique identifier (Application/Board ID) */
-  id: string;
+  id: string; // Keep as string for dnd-kit compatibility, but internal logic prefers ItemId
   /** MusicBrainz ID (Database ID) */
   mbid: string;
   /** The primary title (Album name, Artist name, or Song title) */
@@ -167,7 +180,6 @@ export interface AuthorItem extends BaseMediaItem {
 
 /**
  * Represents a single normalized media item in the application.
- * This structure unifies data from different MusicBrainz entities (Release Group, Artist, Recording).
  */
 export type MediaItem =
   | AlbumItem
@@ -239,7 +251,6 @@ export interface TierListState {
   category?: BoardCategory;
   /**
    * Optimized lookup map for item locations (itemId -> tierId).
-   * Reduces time complexity of drag operations from O(N*M) to O(1).
    */
   itemLookup?: Record<string, string>;
 }
@@ -281,7 +292,7 @@ export interface BoardMetadata {
   previewData?: TierPreview[];
   /** Total number of items on the board. */
   itemCount: number;
-  /** Broad category (defaults to 'music' for legacy boards). */
+  /** Broad category. */
   category?: BoardCategory;
 }
 
@@ -300,7 +311,7 @@ export interface TrackItem {
 }
 
 /**
- * Deep metadata for a media item, fetched on demand or enriched in background.
+ * Deep metadata for a media item.
  */
 export interface MediaDetails {
   /** Application/Board ID */
@@ -355,15 +366,63 @@ export const TierDefinitionSchema = z.object({
 });
 
 /**
- * Since MediaItem is a complex union, we use a more permissive schema
- * for board state validation to avoid constant maintenance of duplicate definitions.
- * We strictly validate the structure but allow any properties for the items themselves.
+ * Standard base schema for all media items.
+ */
+const BaseMediaItemSchema = z.object({
+  id: z.string(),
+  mbid: z.string(),
+  title: z.string(),
+  year: z.string().optional(),
+  date: z.string().optional(),
+  imageUrl: z.string().optional(),
+  rating: z.number().optional(),
+  reviewCount: z.number().optional(),
+});
+
+/**
+ * Strictly typed schema for MediaItem union.
+ */
+export const MediaItemSchema = z.discriminatedUnion('type', [
+  BaseMediaItemSchema.extend({
+    type: z.literal('album'),
+    artist: z.string(),
+    primaryType: z.string().optional(),
+    secondaryTypes: z.array(z.string()).optional(),
+  }),
+  BaseMediaItemSchema.extend({
+    type: z.literal('artist'),
+    disambiguation: z.string().optional(),
+  }),
+  BaseMediaItemSchema.extend({
+    type: z.literal('song'),
+    artist: z.string(),
+    album: z.string().optional(),
+    albumId: z.string().optional(),
+    duration: z.number().optional(),
+  }),
+  BaseMediaItemSchema.extend({ type: z.literal('movie') }),
+  BaseMediaItemSchema.extend({ type: z.literal('tv') }),
+  BaseMediaItemSchema.extend({
+    type: z.literal('person'),
+    knownFor: z.string().optional(),
+  }),
+  BaseMediaItemSchema.extend({ type: z.literal('game') }),
+  BaseMediaItemSchema.extend({
+    type: z.literal('book'),
+    author: z.string(),
+  }),
+  BaseMediaItemSchema.extend({ type: z.literal('author') }),
+]);
+
+/**
+ * Strictly validated TierList schema for persistence and sharing.
  */
 export const TierListSchema = z.object({
   title: z.string(),
   tierDefs: z.array(TierDefinitionSchema),
-  items: z.record(z.string(), z.array(z.any())),
+  items: z.record(z.string(), z.array(MediaItemSchema)),
   itemLookup: z.record(z.string(), z.string()).optional(),
+  category: z.enum(['music', 'cinema', 'game', 'book']).optional(),
 });
 
 // --- Zod Schemas for MusicBrainz API ---
@@ -397,7 +456,7 @@ export const MusicBrainzArtistSchema = z.object({
 export const MusicBrainzRecordingSchema = z.object({
   id: z.string(),
   title: z.string(),
-  length: z.number().optional(), // Duration in milliseconds
+  length: z.number().optional(),
   'first-release-date': z.string().optional(),
   'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
   releases: z
@@ -419,11 +478,17 @@ export const MusicBrainzSearchResponseSchema = z.object({
   'release-groups': z.array(MusicBrainzReleaseGroupSchema).optional(),
   artists: z.array(MusicBrainzArtistSchema).optional(),
   recordings: z.array(MusicBrainzRecordingSchema).optional(),
-  'release-group-count': z.number().optional(),
-  'artist-count': z.number().optional(),
-  'recording-count': z.number().optional(),
   count: z.number().optional(),
 });
+
+// --- Utilities ---
+
+/**
+ * Helper to ensure exhaustive switches in TypeScript.
+ */
+export function assertNever(x: never): never {
+  throw new Error(`Unexpected object: ${x}`);
+}
 
 // --- MusicBrainz Constants ---
 
