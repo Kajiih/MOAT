@@ -84,8 +84,8 @@ export interface MediaTypeDefinition<F extends string = string> {
   filters: FilterConfig<F>[];
   /** Available sort options */
   sortOptions: SortOptionConfig[];
-  /** Default filter values */
-  defaultFilters: Record<F, unknown>;
+  /** Default filter values (Base filters like query/sort are always required) */
+  defaultFilters: Partial<Record<F, unknown>> & { query: string; sort: SortOption };
 
   // ===== Capabilities =====
   /** Whether this type can be searched */

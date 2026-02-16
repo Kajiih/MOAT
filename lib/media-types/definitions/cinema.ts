@@ -5,9 +5,10 @@
 
 import { Clapperboard, Tv, User } from 'lucide-react';
 
+import { CinemaFilters } from '../filters';
 import { MediaTypeDefinition } from '../types';
 
-export const movieDefinition: MediaTypeDefinition = {
+export const movieDefinition: MediaTypeDefinition<keyof CinemaFilters> = {
   id: 'movie',
   category: 'cinema',
 
@@ -61,7 +62,7 @@ export const movieDefinition: MediaTypeDefinition = {
   supportsDetails: true,
 };
 
-export const tvDefinition: MediaTypeDefinition = {
+export const tvDefinition: MediaTypeDefinition<keyof CinemaFilters> = {
   id: 'tv',
   category: 'cinema',
 
@@ -115,7 +116,7 @@ export const tvDefinition: MediaTypeDefinition = {
   supportsDetails: true,
 };
 
-export const personDefinition: MediaTypeDefinition = {
+export const personDefinition: MediaTypeDefinition<keyof CinemaFilters> = {
   id: 'person',
   category: 'cinema',
 

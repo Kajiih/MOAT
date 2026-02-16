@@ -5,6 +5,7 @@
  */
 
 import { logger } from '@/lib/logger';
+import { CinemaFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
 import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
@@ -30,7 +31,7 @@ interface TMDBDetails extends TMDBResult {
   genres?: { id: number; name: string }[];
 }
 
-export class TMDBService implements MediaService {
+export class TMDBService implements MediaService<CinemaFilters> {
   readonly category = 'cinema' as const;
 
   private getApiKey(): string {

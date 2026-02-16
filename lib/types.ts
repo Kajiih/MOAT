@@ -485,6 +485,7 @@ export const MusicBrainzSearchResponseSchema = z.object({
 
 /**
  * Helper to ensure exhaustive switches in TypeScript.
+ * @param x - The value that should have been handled exhaustively.
  */
 export function assertNever(x: never): never {
   throw new Error(`Unexpected object: ${x}`);

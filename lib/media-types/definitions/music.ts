@@ -5,11 +5,12 @@
 
 import { Disc, Music, User } from 'lucide-react';
 
-import { AlbumItem, ARTIST_TYPES, ArtistItem, PRIMARY_TYPES,SongItem } from '@/lib/types';
+import { AlbumItem, ARTIST_TYPES, ArtistItem, PRIMARY_TYPES, SongItem } from '@/lib/types';
 
+import { MusicFilters } from '../filters';
 import { MediaTypeDefinition } from '../types';
 
-export const artistDefinition: MediaTypeDefinition = {
+export const artistDefinition: MediaTypeDefinition<keyof MusicFilters> = {
   id: 'artist',
   category: 'music',
 
@@ -78,7 +79,7 @@ export const artistDefinition: MediaTypeDefinition = {
   supportsDetails: true,
 };
 
-export const albumDefinition: MediaTypeDefinition = {
+export const albumDefinition: MediaTypeDefinition<keyof MusicFilters> = {
   id: 'album',
   category: 'music',
 
@@ -146,7 +147,7 @@ export const albumDefinition: MediaTypeDefinition = {
   supportsDetails: true,
 };
 
-export const songDefinition: MediaTypeDefinition = {
+export const songDefinition: MediaTypeDefinition<keyof MusicFilters> = {
   id: 'song',
   category: 'music',
 

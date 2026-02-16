@@ -1,9 +1,11 @@
 /**
  * @file OpenLibraryService.ts
- * @description Service provider for Open Library integration (Books).
+ * @description Service provider for Open Library integration.
+ * @module OpenLibraryService
  */
 
 import { logger } from '@/lib/logger';
+import { BookFilters } from '@/lib/media-types/filters';
 import { AuthorItem, BookItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
 import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
 
@@ -45,7 +47,7 @@ interface OpenLibraryWorkDetails {
 /**
  * Service adapter for Open Library integration.
  */
-export class OpenLibraryService implements MediaService {
+export class OpenLibraryService implements MediaService<BookFilters> {
   readonly category = 'book' as const;
 
   async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {

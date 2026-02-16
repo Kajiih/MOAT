@@ -7,9 +7,10 @@ import { Book, User } from 'lucide-react';
 
 import { BookItem } from '@/lib/types';
 
+import { BookFilters } from '../filters';
 import { MediaTypeDefinition } from '../types';
 
-export const bookDefinition: MediaTypeDefinition = {
+export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
   id: 'book',
   category: 'book',
 
@@ -114,7 +115,7 @@ export const bookDefinition: MediaTypeDefinition = {
   supportsDetails: true,
 };
 
-export const authorDefinition: MediaTypeDefinition = {
+export const authorDefinition: MediaTypeDefinition<keyof BookFilters> = {
   id: 'author',
   category: 'book',
 

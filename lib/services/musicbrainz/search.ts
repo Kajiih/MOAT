@@ -7,6 +7,7 @@
 import { z } from 'zod';
 
 import { logger } from '@/lib/logger';
+import { MusicFilters } from '@/lib/media-types/filters';
 import { serverItemCache } from '@/lib/server/item-cache';
 import { MediaItem, MediaType, MusicBrainzSearchResponseSchema, SearchResult } from '@/lib/types';
 import {
@@ -14,8 +15,8 @@ import {
   mapRecordingToMediaItem,
   mapReleaseGroupToMediaItem,
 } from '@/lib/utils/mappers';
-import { SearchOptions } from '@/lib/utils/search';
 
+import { SearchOptions } from '../types';
 import { mbFetch } from './client';
 import { SEARCH_CACHE_TTL, SEARCH_LIMIT } from './config';
 import { buildMusicBrainzQuery } from './query-builder';
@@ -23,41 +24,20 @@ import { buildMusicBrainzQuery } from './query-builder';
 /**
  * Parameters for the MusicBrainz search.
  */
-export interface SearchParams {
+export interface SearchParams extends Partial<MusicFilters> {
   type: MediaType;
   query: string;
-  artist: string | null;
-  artistId: string | null;
-  albumId: string | null;
-  minYear: string | null;
-  maxYear: string | null;
-  albumPrimaryTypes: string[];
-  albumSecondaryTypes: string[];
-  // New filters
-  artistType?: string;
-  artistCountry?: string;
-  tag?: string;
-  minDuration?: number;
-  maxDuration?: number;
   // Config
   page: number;
   fuzzy?: boolean;
   wildcard?: boolean;
-  options: SearchOptions;
+  options: SearchOptions<MusicFilters>;
 }
 
 /**
  * Performs a search against the MusicBrainz API.
- *
- * Orchestration Flow:
- * 1. Delegates query construction to `buildMusicBrainzQuery`.
- * 2. Fetches data using `mbFetch` (with retry logic).
- * 3. Validates response against Zod schema (`MusicBrainzSearchResponseSchema`).
- * 4. Maps raw API results to internal `MediaItem` domain objects.
- * 5. Caches transformed items in `serverItemCache` to speed up future lookups.
- * @param params - Search filters and pagination options.
- * @returns A paginated `SearchResult` containing mapped `MediaItem`s.
- * @throws {Error} if validation fails or upstream API errors occur.
+ * @param params - Search parameters including query and filters.
+ * @returns A paginated SearchResult.
  */
 export async function searchMusicBrainz(params: SearchParams): Promise<SearchResult> {
   const { type, page } = params;
@@ -70,8 +50,8 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     type,
     query: params.query || '',
     artist: null, // Artist name is handled via artistId
-    artistId: params.artistId || null,
-    albumId: params.albumId || null,
+    artistId: params.selectedArtist || null,
+    albumId: params.selectedAlbum || null,
     minYear: params.minYear || null,
     maxYear: params.maxYear || null,
     albumPrimaryTypes: params.albumPrimaryTypes || [],
@@ -79,8 +59,8 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     artistType: params.artistType || null,
     artistCountry: params.artistCountry || null,
     tag: params.tag || null,
-    minDuration: params.minDuration || null,
-    maxDuration: params.maxDuration || null,
+    minDuration: params.minDuration ? Number.parseInt(params.minDuration, 10) : null,
+    maxDuration: params.maxDuration ? Number.parseInt(params.maxDuration, 10) : null,
     options: {
       fuzzy: params.fuzzy ?? true,
       wildcard: params.wildcard ?? true,
@@ -97,7 +77,8 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   const rawData = await mbFetch<MBSearchResponse>(
     endpoint,
     `query=${encodeURIComponent(finalQuery)}&limit=${limit}&offset=${offset}`,
-    { next: { revalidate: SEARCH_CACHE_TTL } },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { next: { revalidate: SEARCH_CACHE_TTL } } as any,
   );
 
   const parsed = MusicBrainzSearchResponseSchema.safeParse(rawData);
@@ -138,10 +119,10 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
   }
 
   const totalCount =
-    rawData.count ||
-    rawData['release-group-count'] ||
-    rawData['artist-count'] ||
-    rawData['recording-count'] ||
+    parsed.data.count ||
+    parsed.data['release-groups']?.length || // Fallback if count is missing
+    parsed.data.artists?.length ||
+    parsed.data.recordings?.length ||
     0;
   const totalPages = Math.ceil(totalCount / limit);
 

@@ -48,9 +48,11 @@ export function tierListReducer(state: TierListState, action: TierListAction): T
     case ActionType.CLEAR_BOARD:
     case ActionType.IMPORT_STATE:
     case ActionType.SET_STATE:
-    case ActionType.UPDATE_CATEGORY:
+    case ActionType.UPDATE_CATEGORY: {
       return state;
-    default:
+    }
+    default: {
       return assertNever(action);
+    }
   }
 }

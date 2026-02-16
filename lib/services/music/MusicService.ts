@@ -3,6 +3,7 @@
  * @description Service provider for MusicBrainz integration.
  */
 
+import { MusicFilters } from '@/lib/media-types/filters';
 import { getMediaDetails } from '@/lib/services/musicbrainz/details';
 import { searchMusicBrainz } from '@/lib/services/musicbrainz/search';
 import { MediaDetails, MediaType, SearchResult } from '@/lib/types';
@@ -13,26 +14,19 @@ import { MediaService, SearchOptions } from '../types';
  * Service adapter for MusicBrainz integration.
  * Wraps existing logic to implement the generic MediaService interface.
  */
-export class MusicService implements MediaService {
+export class MusicService implements MediaService<MusicFilters> {
   readonly category = 'music' as const;
 
-  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
+  async search(
+    query: string,
+    type: MediaType,
+    options: SearchOptions<MusicFilters> = {},
+  ): Promise<SearchResult> {
     // Adapter to map generic options to MusicBrainz specific params
     return searchMusicBrainz({
+      ...options.filters,
       type,
       query,
-      artist: null,
-      artistId: (options.filters?.selectedArtist as string) || null,
-      albumId: (options.filters?.selectedAlbum as string) || null,
-      minYear: (options.filters?.minYear as string) || null,
-      maxYear: (options.filters?.maxYear as string) || null,
-      albumPrimaryTypes: (options.filters?.albumPrimaryTypes as string[]) || [],
-      albumSecondaryTypes: (options.filters?.albumSecondaryTypes as string[]) || [],
-      artistType: (options.filters?.artistType as string) || undefined,
-      artistCountry: (options.filters?.artistCountry as string) || undefined,
-      tag: (options.filters?.tag as string) || undefined,
-      minDuration: (options.filters?.minDuration as number) || undefined,
-      maxDuration: (options.filters?.maxDuration as number) || undefined,
       page: options.page || 1,
       fuzzy: options.fuzzy,
       wildcard: options.wildcard,

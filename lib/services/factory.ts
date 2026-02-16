@@ -7,14 +7,14 @@ import { BoardCategory } from '@/lib/types';
 import { OpenLibraryService } from './books/OpenLibraryService';
 import { TMDBService } from './cinema/TMDBService';
 import { MusicService } from './music/MusicService';
-import { MediaService } from './types';
+import { AnyMediaService, MediaService } from './types';
 
 /**
  * Registry to manage MediaService instances dynamically.
  */
 class MediaServiceRegistry {
-  private services = new Map<BoardCategory, MediaService>();
-  private fallbackService: MediaService;
+  private services = new Map<BoardCategory, AnyMediaService>();
+  private fallbackService: AnyMediaService;
 
   constructor() {
     // Instantiate services
@@ -23,18 +23,18 @@ class MediaServiceRegistry {
     const book = new OpenLibraryService();
 
     // Register them
-    this.register(music);
-    this.register(cinema);
-    this.register(book);
+    this.register(music as AnyMediaService);
+    this.register(cinema as AnyMediaService);
+    this.register(book as AnyMediaService);
 
-    this.fallbackService = music;
+    this.fallbackService = music as unknown as AnyMediaService;
   }
 
-  register(service: MediaService) {
+  register(service: AnyMediaService) {
     this.services.set(service.category, service);
   }
 
-  get(category: BoardCategory): MediaService {
+  get(category: BoardCategory): AnyMediaService {
     return this.services.get(category) || this.fallbackService;
   }
 }
@@ -47,6 +47,6 @@ const registry = new MediaServiceRegistry();
  * @param category - The category of the board (music, cinema, etc.)
  * @returns The MediaService instance.
  */
-export function getMediaService(category: BoardCategory = 'music'): MediaService {
+export function getMediaService(category: BoardCategory = 'music'): AnyMediaService {
   return registry.get(category);
 }

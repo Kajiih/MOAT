@@ -69,6 +69,7 @@
 - **Registry**: `MediaServiceRegistry` (singleton) for dynamic service discovery and fallback handling.
 - **Registry**: `MediaTypeRegistry` for centralized UI configuration (icons, filters, sorting).
 - **Services**: Pure API adapters for fetching data.
+  - **Type Safety**: All services implement `MediaService<F>`, where `F` is a category-specific filter type (e.g., `MusicFilters`, `CinemaFilters`). This ensures end-to-end type safety from the UI filters down to the API query builders.
   - **Music**: `MusicService` (MusicBrainz)
   - **Cinema**: `TMDBService` (TMDB)
   - **Books**: `OpenLibraryService` (Open Library)
@@ -144,8 +145,9 @@ The central authority for "What a media type is".
 Pure **API Adapters** responsible for "How to fetch data".
 
 - **Responsibility**: Fetching data from external APIs and mapping it to the internal `MediaItem` schema.
-- **Interface**: All services implement `MediaService` (search, getDetails, category).
-- **Isolation**: Services contain NO UI or Filter configuration logic.
+- **Interface**: All services implement `MediaService<F>` (search, getDetails, category).
+- **Type Safety**: Use of generics for `SearchOptions<F>` ensures that filter persistence and application are strictly validated against the category's requirements.
+- **Isolation**: Services contain NO UI logic; they only consume the typed filters provided by the UI layer.
 
 #### C. Media Enrichment Lifecycle
 

@@ -14,17 +14,19 @@ import {
   SortOption,
 } from '@/lib/types';
 
+import { CategoryFilters } from '../media-types/filters';
+
 /**
  * Options passed to the search method.
  */
-export interface SearchOptions {
+export interface SearchOptions<F = Record<string, unknown>> {
   fuzzy?: boolean;
   wildcard?: boolean;
   limit?: number;
   page?: number;
   sort?: SortOption;
   // Specific filters (can be expanded)
-  filters?: Record<string, unknown>;
+  filters?: Partial<F>;
 }
 
 /**
@@ -35,8 +37,8 @@ export type FilterType = 'text' | 'range' | 'select' | 'picker' | 'toggle-group'
 /**
  * Definition of a filter field for a specific media type.
  */
-export interface FilterDefinition {
-  id: string;
+export interface FilterDefinition<F extends string = string> {
+  id: F;
   /** The key used in the URL query string (defaults to id). */
   paramName?: string;
   label: string;
@@ -62,7 +64,7 @@ export interface MediaUIConfig {
  * Core interface for any media provider (Music, Cinema, etc.).
  * Focused purely on data fetching - all configuration comes from the media type registry.
  */
-export interface MediaService {
+export interface MediaService<F = Record<string, unknown>> {
   /**
    * The category this service handles (music, cinema, book, etc.).
    */
@@ -71,7 +73,7 @@ export interface MediaService {
   /**
    * Searches for items in the provider's database.
    */
-  search(query: string, type: MediaType, options?: SearchOptions): Promise<SearchResult>;
+  search(query: string, type: MediaType, options?: SearchOptions<F>): Promise<SearchResult>;
 
   /**
    * Retrieves detailed metadata for a specific item.
@@ -84,3 +86,8 @@ export interface MediaService {
    */
   getSupportedTypes(): MediaType[];
 }
+
+/**
+ * Universal type for any registered media service.
+ */
+export type AnyMediaService = MediaService<CategoryFilters>;
