@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 interface BoardTitleProps {
@@ -25,7 +25,7 @@ interface BoardTitleProps {
 
 /**
  * Renders the board title.
- * In the main application, it's an auto-resizing textarea.
+ * In the main application, it's an auto-resizing textarea with local state.
  * In the export board, it's a static h1 with identical styling.
  * @param props - The props for the component.
  * @param props.title - The current title text.
@@ -42,7 +42,13 @@ export function BoardTitle({
   onFocus,
   className,
 }: BoardTitleProps) {
+  const [localTitle, setLocalTitle] = useState(title);
   const titleRef = useRef<HTMLTextAreaElement>(null);
+
+  // Sync local title if global title changes externally (e.g., hydration or history)
+  useEffect(() => {
+    setLocalTitle(title);
+  }, [title]);
 
   // Auto-resize textarea height based on content
   useEffect(() => {
@@ -50,7 +56,24 @@ export function BoardTitle({
       titleRef.current.style.height = 'auto';
       titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
     }
-  }, [title, isExport]);
+  }, [localTitle, isExport]);
+
+  const handleBlur = () => {
+    if (localTitle !== title) {
+      onChange?.(localTitle);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      titleRef.current?.blur();
+    }
+    if (e.key === 'Escape') {
+      setLocalTitle(title);
+      titleRef.current?.blur();
+    }
+  };
 
   const baseStyles =
     'text-neutral-200 text-4xl font-black tracking-tighter italic text-center leading-[1.1]';
@@ -66,18 +89,14 @@ export function BoardTitle({
   return (
     <textarea
       ref={titleRef}
-      value={title}
-      onChange={(e) => onChange?.(e.target.value)}
+      value={localTitle}
+      onChange={(e) => setLocalTitle(e.target.value)}
+      onBlur={handleBlur}
       onFocus={onFocus}
+      onKeyDown={handleKeyDown}
       placeholder="Tier List Title"
       aria-label="Tier List Title"
       rows={1}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          titleRef.current?.blur();
-        }
-      }}
       className={twMerge(
         baseStyles,
         'w-full resize-none overflow-hidden rounded-md bg-transparent px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none md:w-auto md:max-w-[600px] md:min-w-[300px]',

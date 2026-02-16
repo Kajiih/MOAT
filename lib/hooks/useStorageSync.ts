@@ -8,11 +8,12 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import { useEffect, useRef, useState } from 'react';
 
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
+
+import { useDebouncedEffect } from './useDebouncedEffect';
 
 export interface StorageSyncOptions<T> {
   /** The storage key to use. */
@@ -30,6 +31,11 @@ export interface StorageSyncOptions<T> {
 /**
  * A primitive hook for syncing state with asynchronous storage (IndexedDB).
  * @param options - Configuration options.
+ * @param options.key - The storage key to use.
+ * @param options.state - The current state value to persist.
+ * @param options.initialState - The initial state value.
+ * @param options.onHydrate - Callback to update state on hydration.
+ * @param options.persistenceDelay - Delay in ms for debounced writes.
  * @returns boolean - Whether the state has been hydrated from storage.
  */
 export function useStorageSync<T>({
@@ -79,23 +85,22 @@ export function useStorageSync<T>({
   }, [key, initialState, onHydrate]);
 
   // 2. Persist Updates (Debounced)
-  const debouncedSave = useDebouncedCallback((value: T) => {
-    storage.set(key, value);
-  }, persistenceDelay);
+  // We track the hydrated value to avoid immediate write-back if the state matches what we just loaded.
+  const lastSavedStateRef = useRef<T | null>(null);
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    debouncedSave(state);
-  }, [state, isHydrated, debouncedSave]);
+  useDebouncedEffect(
+    () => {
+      if (!isHydrated) return;
 
-  // 3. Flush on unmount
-  // We use flush() to ensure any pending debounced writes are executed immediately
-  // before the component unmounts. This avoids "double writes" and ensures consistency.
-  useEffect(() => {
-    return () => {
-      debouncedSave.flush();
-    };
-  }, [debouncedSave]);
+      // Optimization: Skip write if state hasn't changed since last hydration/save
+      if (lastSavedStateRef.current === state) return;
+
+      storage.set(key, state);
+      lastSavedStateRef.current = state;
+    },
+    persistenceDelay,
+    [state, isHydrated, key],
+  );
 
   return isHydrated;
 }
