@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { storage } from '@/lib/storage';
 
@@ -15,14 +15,6 @@ vi.mock('@/lib/storage', () => ({
 }));
 
 describe('usePersistentState', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('should initialize with default value and then hydrate', async () => {
     vi.mocked(storage.get).mockResolvedValue(null); // Storage empty
 
@@ -57,15 +49,19 @@ describe('usePersistentState', () => {
 
   it('should persist state changes to storage after debounce', async () => {
     vi.mocked(storage.get).mockResolvedValue(null);
-    const { result } = renderHook(() => usePersistentState('test-key', 'initial'));
+    vi.mocked(storage.set).mockClear();
+
+    const TEST_DELAY = 100;
+
+    const { result } = renderHook(() =>
+      usePersistentState('test-key', 'initial', { persistenceDelay: TEST_DELAY }),
+    );
 
     await waitFor(() => expect(result.current[2]).toBe(true));
 
-    // Clear initial sync save
+    // Hydration syncs initial state
+    await waitFor(() => expect(storage.set).toHaveBeenCalled(), { timeout: 1000 });
     vi.mocked(storage.set).mockClear();
-
-    // Enable fake timers AFTER hydration to avoid messing with waitFor/Promises during setup
-    vi.useFakeTimers();
 
     // 1. Update state
     act(() => {
@@ -78,13 +74,13 @@ describe('usePersistentState', () => {
     // Verify NOT yet in storage (debounce)
     expect(storage.set).not.toHaveBeenCalled();
 
-    // 2. Advance time
-    act(() => {
-      vi.advanceTimersByTime(1100);
-    });
-
-    // 3. Verify in storage
-    expect(storage.set).toHaveBeenCalledWith('test-key', 'updated');
+    // 2. Wait for debounce
+    await waitFor(
+      () => {
+        expect(storage.set).toHaveBeenCalledWith('test-key', 'updated');
+      },
+      { timeout: 1000 },
+    );
   });
 
   it('should handle storage errors gracefully', async () => {

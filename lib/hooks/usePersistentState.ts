@@ -8,7 +8,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useDebounce } from 'use-debounce';
+
+
+import { useDebouncedCallback } from 'use-debounce';
 
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
@@ -19,7 +21,12 @@ import { storage } from '@/lib/storage';
  * @param initialValue - The initial value of the state.
  * @returns A stateful value, a function to update it, and a hydration status flag.
  */
-export function usePersistentState<T>(key: string, initialValue: T) {
+export interface PersistentStateOptions {
+  persistenceDelay?: number;
+}
+
+export function usePersistentState<T>(key: string, initialValue: T, options?: PersistentStateOptions) {
+  const { persistenceDelay = 1000 } = options || {};
   const [isHydrated, setIsHydrated] = useState(false);
   const [state, setState] = useState<T>(initialValue);
 
@@ -39,8 +46,11 @@ export function usePersistentState<T>(key: string, initialValue: T) {
             item !== null &&
             !Array.isArray(item)
           ) {
-            setState({ ...initialValue, ...item });
+            const hydratedState = { ...initialValue, ...item };
+
+            setState(hydratedState);
           } else {
+
             setState(item);
           }
         }
@@ -57,13 +67,14 @@ export function usePersistentState<T>(key: string, initialValue: T) {
   }, [key, initialValue]);
 
   // 2. Persist Updates: Debounce the write to storage
-  const [debouncedState] = useDebounce(state, 1000);
+  const debouncedSave = useDebouncedCallback((value: T) => {
+    storage.set(key, value);
+  }, persistenceDelay);
 
   useEffect(() => {
-    // Prevent writing to storage before hydration is complete
     if (!isHydrated) return;
-    storage.set(key, debouncedState);
-  }, [key, debouncedState]);
+    debouncedSave(state);
+  }, [state, isHydrated, debouncedSave]);
 
   // 3. Flush on unmount
   const stateRef = useRef(state);

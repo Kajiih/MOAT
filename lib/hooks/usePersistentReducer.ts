@@ -10,7 +10,9 @@
 'use client';
 
 import { Dispatch, Reducer, useEffect, useReducer, useRef, useState } from 'react';
-import { useDebounce } from 'use-debounce';
+
+
+import { useDebouncedCallback } from 'use-debounce';
 
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
@@ -33,11 +35,17 @@ interface HydrateAction<S> {
  * @param key - The storage key to use for persistence.
  * @returns A tuple of [state, dispatch, isHydrated].
  */
+export interface PersistentReducerOptions {
+  persistenceDelay?: number;
+}
+
 export function usePersistentReducer<S, A>(
   reducer: Reducer<S, A>,
   initialState: S,
   key: string,
+  options?: PersistentReducerOptions,
 ): [S, Dispatch<A>, boolean] {
+  const { persistenceDelay = 500 } = options || {};
   /**
    * Wrapper reducer that intercepts hydration actions.
    * @param state - The current state.
@@ -77,6 +85,7 @@ export function usePersistentReducer<S, A>(
             hydratedState = { ...initialState, ...item };
           }
 
+
           dispatch({ type: HYDRATE_ACTION, payload: hydratedState });
         }
       } catch (error) {
@@ -92,12 +101,14 @@ export function usePersistentReducer<S, A>(
   }, [key, initialState]);
 
   // 2. Persist Updates (Debounced)
-  const [debouncedState] = useDebounce(state, 500);
+  const debouncedSave = useDebouncedCallback((value: S) => {
+    storage.set(key, value);
+  }, persistenceDelay);
 
   useEffect(() => {
     if (!isHydrated) return;
-    storage.set(key, debouncedState);
-  }, [key, debouncedState]);
+    debouncedSave(state);
+  }, [state, isHydrated, debouncedSave]);
 
   // 3. Flush on unmount
   // We use a ref to always have the latest state for unmount flushing.
