@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { logger } from '@/lib/logger';
@@ -89,20 +89,13 @@ export function useStorageSync<T>({
   }, [state, isHydrated, debouncedSave]);
 
   // 3. Flush on unmount
-  const stateRef = useRef(state);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
-
+  // We use flush() to ensure any pending debounced writes are executed immediately
+  // before the component unmounts. This avoids "double writes" and ensures consistency.
   useEffect(() => {
     return () => {
-      if (isHydrated) {
-        // Force a synchronous-like start of the async write
-        // We use stateRef to ensure we have the very latest value
-        storage.set(key, stateRef.current);
-      }
+      debouncedSave.flush();
     };
-  }, [key, isHydrated]);
+  }, [debouncedSave]);
 
   return isHydrated;
 }

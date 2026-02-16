@@ -137,23 +137,12 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     }
   }, [state, boardId, isHydrated, debouncedMetaSync]);
 
-  // Keep refs up to date for unmount flush
-  const latestStateRef = React.useRef(state);
-  const isHydratedRef = React.useRef(isHydrated);
-
-  React.useEffect(() => {
-    latestStateRef.current = state;
-    isHydratedRef.current = isHydrated;
-  }, [state, isHydrated]);
-
   // Unmount Flush
   React.useEffect(() => {
     return () => {
-      if (isHydratedRef.current && boardId) {
-        syncBoardMetadata(boardId, latestStateRef.current);
-      }
+      debouncedMetaSync.flush();
     };
-  }, [boardId]);
+  }, [debouncedMetaSync]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {

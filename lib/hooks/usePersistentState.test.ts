@@ -94,4 +94,31 @@ describe('usePersistentState', () => {
     expect(result.current[0]).toBe('default');
     consoleSpy.mockRestore();
   });
+
+  it('should flush pending changes to storage on unmount', async () => {
+    vi.mocked(storage.get).mockResolvedValue(null);
+    vi.mocked(storage.set).mockClear();
+
+    const { result, unmount } = renderHook(() =>
+      usePersistentState('test-key-unmount', 'initial', { persistenceDelay: 5000 }),
+    );
+
+    // Wait for hydration
+    await waitFor(() => expect(result.current[2]).toBe(true));
+    vi.mocked(storage.set).mockClear(); // Clear initial save
+
+    // Update state
+    act(() => {
+      result.current[1]('updated-value');
+    });
+
+    // Verify not saved yet (long delay)
+    expect(storage.set).not.toHaveBeenCalled();
+
+    // Unmount
+    unmount();
+
+    // Verify saved immediately
+    expect(storage.set).toHaveBeenCalledWith('test-key-unmount', 'updated-value');
+  });
 });

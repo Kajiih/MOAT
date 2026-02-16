@@ -20,7 +20,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
   const { id } = await params;
 
   return (
-    <TierListProvider boardId={id}>
+    <TierListProvider key={id} boardId={id}>
       <TierListApp />
     </TierListProvider>
   );
