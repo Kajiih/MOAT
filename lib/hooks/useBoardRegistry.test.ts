@@ -45,7 +45,6 @@ describe('useBoardRegistry', () => {
     vi.mocked(storage.get).mockImplementation(async (key) => {
       if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
-      return undefined;
     });
 
     const { result } = renderHook(() => useBoardRegistry());
@@ -90,15 +89,12 @@ describe('useBoardRegistry', () => {
       `moat-meta-${newId!}`,
       expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
     );
-     expect(storage.set).toHaveBeenCalledWith(
+    expect(storage.set).toHaveBeenCalledWith(
       `moat-board-${newId!}`,
       expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
     );
     // Index update via update()
-    expect(storage.update).toHaveBeenCalledWith(
-      'moat-boards-index',
-      expect.any(Function),
-    );
+    expect(storage.update).toHaveBeenCalledWith('moat-boards-index', expect.any(Function));
   });
 
   it('should delete a board', async () => {
@@ -114,7 +110,7 @@ describe('useBoardRegistry', () => {
     vi.mocked(storage.get).mockImplementation(async (key) => {
       if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
-      return undefined;
+      return;
     });
 
     const { result } = renderHook(() => useBoardRegistry());
@@ -130,12 +126,9 @@ describe('useBoardRegistry', () => {
     });
 
     expect(result.current.boards).toHaveLength(0);
-    
+
     // Check batch deletion
-    expect(storage.delMany).toHaveBeenCalledWith([
-      'moat-meta-board-1',
-      'moat-board-board-1',
-    ]);
+    expect(storage.delMany).toHaveBeenCalledWith(['moat-meta-board-1', 'moat-board-board-1']);
     // Index update via update()
     expect(storage.update).toHaveBeenCalledWith('moat-boards-index', expect.any(Function));
   });
@@ -153,7 +146,7 @@ describe('useBoardRegistry', () => {
     vi.mocked(storage.get).mockImplementation(async (key) => {
       if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
-      return undefined;
+      return;
     });
 
     const { result } = renderHook(() => useBoardRegistry());
@@ -174,9 +167,6 @@ describe('useBoardRegistry', () => {
     expect(result.current.boards[0].lastModified).toBeGreaterThan(2000);
 
     // Update via atomic update()
-    expect(storage.update).toHaveBeenCalledWith(
-      'moat-meta-board-1',
-      expect.any(Function),
-    );
+    expect(storage.update).toHaveBeenCalledWith('moat-meta-board-1', expect.any(Function));
   });
 });

@@ -59,15 +59,14 @@ describe('useMediaResolver', () => {
   });
 
   it('should trigger fetch if item is not enriched in registry', () => {
-    mockGetItem.mockReturnValue(); // Not in cache
-
+    mockGetItem.mockReturnValue(undefined); // Not in cache
     renderHook(() => useMediaResolver(mockItem, { enabled: true }));
 
     expect(mockUseMediaDetails).toHaveBeenCalledWith('1', 'album');
   });
 
   it('should NOT trigger fetch if enabled: false', () => {
-    mockGetItem.mockReturnValue();
+    mockGetItem.mockReturnValue(undefined);
 
     renderHook(() => useMediaResolver(mockItem, { enabled: false }));
 
@@ -75,7 +74,7 @@ describe('useMediaResolver', () => {
   });
 
   it('should update registry and call onUpdate when details are fetched', async () => {
-    mockGetItem.mockReturnValue();
+    mockGetItem.mockReturnValue(undefined);
     const mockDetails = { id: '1', type: 'album', mbid: 'mb1', title: 'Details' };
 
     mockUseMediaDetails.mockReturnValueOnce({

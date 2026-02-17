@@ -107,6 +107,15 @@ const eslintConfig = defineConfig([
     files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'e2e/**'],
     rules: {
       'sonarjs/no-nested-functions': 'off',
+      'unicorn/no-useless-undefined': 'off',
+    },
+  },
+
+  // MSW Handlers and Mocks
+  {
+    files: ['**/mocks/handlers.ts'],
+    rules: {
+      'unicorn/no-useless-undefined': 'off',
     },
   },
 

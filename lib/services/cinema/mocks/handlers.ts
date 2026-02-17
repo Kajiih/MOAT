@@ -20,6 +20,7 @@ interface TMDBMockItem {
   release_date?: string;
   first_air_date?: string;
   poster_path?: string;
+  [key: string]: unknown;
 }
 
 const mockDb: Record<string, TMDBMockItem[]> = {

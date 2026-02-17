@@ -74,7 +74,7 @@ export function SearchFilters({
                 onTogglePrimary={togglePrimaryType}
                 onToggleSecondary={toggleSecondaryType}
                 onResetPrimary={() =>
-                  updateFilters({ albumPrimaryTypes: (def.default as string[]) || [] })
+                  updateFilters({ albumPrimaryTypes: (def.defaultValue as string[]) || [] })
                 }
                 onResetSecondary={() => updateFilters({ albumSecondaryTypes: [] })}
                 onSelectAllSecondary={() => {}}

@@ -39,10 +39,10 @@ test.describe('Board Management', () => {
     const firstTierHeader = page.locator('[data-tier-label] > div').first();
     await expect(firstTierHeader).toBeVisible();
     const initialClass = await firstTierHeader.getAttribute('class');
-    
+
     // Click the floating randomize button directly
     await page.getByTitle('Randomize Colors').click();
-    
+
     // Check that at least the first tier changed class (highly probable)
     // We wait for the class attribute to be different
     await expect(firstTierHeader).not.toHaveClass(initialClass || '');
@@ -51,20 +51,20 @@ test.describe('Board Management', () => {
   test('should change a tier color', async ({ page, browserName }) => {
     // TODO: Firefox has issues with popover positioning in headless mode
     test.skip(browserName === 'firefox', 'Flaky in Firefox headless');
-    
+
     const firstTierHeader = page.locator('[data-tier-label] > div').first();
     const label = (await boardPage.tierLabels.first().textContent()) || '';
-    
+
     // Open settings for the first tier
     const row = await boardPage.getTierRow(label);
     await row.getByTitle('Tier Settings').click();
-    
+
     // Now dots are visible
     const redDot = row.getByTitle('Red').first();
     await expect(redDot).toBeVisible();
     // Use evaluate to bypass viewport checks for popover content
     await redDot.evaluate((el: HTMLElement) => el.click());
-    
+
     // Close settings
     await page.keyboard.press('Escape');
 
@@ -77,19 +77,19 @@ test.describe('Board Management', () => {
     const favicon = page.locator('link#dynamic-favicon');
     await expect(favicon).toBeAttached();
     const initialFavicon = await favicon.getAttribute('href');
-    
+
     // Reorder second tier to the top (this should trigger a branding update)
     const secondLabel = (await boardPage.tierLabels.nth(1).textContent()) || '';
     await boardPage.reorderTiers(1, 0);
-    
+
     // Verify reorder happened
     await expect(boardPage.tierLabels.first()).toHaveText(secondLabel);
-    
+
     // Wait for a bit as favicon update might be debounced
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(1500);
 
     const newFavicon = favicon;
-    await expect(newFavicon).not.toHaveAttribute('href', initialFavicon);
+    await expect(newFavicon).not.toHaveAttribute('href', initialFavicon || '');
   });
 });
