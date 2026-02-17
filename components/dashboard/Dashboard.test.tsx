@@ -25,7 +25,7 @@ vi.mock('@/lib/hooks/useBoardRegistry', () => ({
   useBoardRegistry: () => ({
     boards: [],
     isLoading: false,
-    createBoard: vi.fn((title: string, category: string) => 'new-id'),
+    createBoard: vi.fn((_title: string, _category: string) => 'new-id'),
     deleteBoard: vi.fn(),
   }),
 }));

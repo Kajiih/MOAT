@@ -74,8 +74,7 @@ export class SearchPanel {
   }
 
   async toggleFilters() {
-    // eslint-disable-next-line playwright/no-force-option
-    await this.filterToggleButton.click({ force: true });
+    await this.filterToggleButton.click();
   }
 
   async setShowAdded(show: boolean) {

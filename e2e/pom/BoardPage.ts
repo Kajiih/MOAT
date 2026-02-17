@@ -52,22 +52,18 @@ export class BoardPage {
   }
 
   async openOptions() {
-    // Check if menu is already open by checking visibility of a menu item
-    if (await this.clearBoardButton.isVisible()) {
-      return;
-    }
+    // Idempotent: if the menu is already open, don't toggle it off.
+    if (await this.clearBoardButton.isVisible()) return;
+
     await this.optionsButton.hover();
     await this.optionsButton.click({ delay: 50 });
-    // Small wait for transition
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(200);
+    await this.clearBoardButton.waitFor({ state: 'visible' });
   }
 
   async importJson(filePath: string) {
     await this.openOptions();
     const fileChooserPromise = this.page.waitForEvent('filechooser');
-    // eslint-disable-next-line playwright/no-force-option
-    await this.importJsonButton.click({ force: true });
+    await this.importJsonButton.click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
   }
@@ -75,103 +71,94 @@ export class BoardPage {
   async exportJson() {
     await this.openOptions();
     const downloadPromise = this.page.waitForEvent('download');
-    // eslint-disable-next-line playwright/no-force-option
-    await this.exportJsonButton.click({ force: true });
+    await this.exportJsonButton.click();
     return downloadPromise;
   }
 
   async clearBoard() {
     await this.openOptions();
-    // Wait for the menu item to be stably attached and visible
-    await this.clearBoardButton.waitFor({ state: 'visible', timeout: 5000 });
-    // eslint-disable-next-line playwright/no-force-option
-    await this.clearBoardButton.click({ delay: 50, force: true });
-    // Verify it closed
+    await this.clearBoardButton.click({ delay: 50 });
     await expect(this.clearBoardButton).toBeHidden();
   }
 
-  async getTierRow(label: string) {
+  getTierRow(label: string) {
     return this.page.locator(`[data-tier-label="${label}"]`);
   }
 
   async renameTier(oldLabel: string, newLabel: string) {
-    const row = await this.getTierRow(oldLabel);
-    await row.waitFor({ state: 'visible', timeout: 10_000 });
-    
+    const row = this.getTierRow(oldLabel);
+    await row.waitFor({ state: 'visible' });
+
     const label = row.getByTestId('tier-row-label');
     const input = row.getByLabel('Tier label');
-    
-    // Ensure element is ready
+
     await label.scrollIntoViewIfNeeded();
     await label.hover();
-    
-    try {
-      await label.dblclick({ delay: 200, force: true });
-      await input.waitFor({ state: 'visible', timeout: 3000 });
-    } catch {
-      // Fallback: click then double click
-      await label.click();
-      await this.page.waitForTimeout(100);
-      await label.dblclick({ delay: 200, force: true });
-      await input.waitFor({ state: 'visible', timeout: 5000 });
-    }
-    
+    await label.dblclick({ delay: 200 });
+    await input.waitFor({ state: 'visible' });
+
     await input.fill(newLabel);
     await input.press('Enter');
   }
 
   async deleteTier(label: string) {
-    const row = await this.getTierRow(label);
+    const row = this.getTierRow(label);
     await row.getByTitle('Tier Settings').click({ delay: 100 });
     this.page.once('dialog', dialog => dialog.accept());
     await this.page.getByRole('button', { name: /Delete Tier/i }).click({ delay: 100 });
   }
 
   async changeTierColor(label: string) {
-    const row = await this.getTierRow(label);
+    const row = this.getTierRow(label);
     await row.getByTitle('Tier Settings').click({ delay: 100 });
     await this.page.getByTitle('Blue').click({ delay: 100 });
     await this.page.keyboard.press('Escape');
   }
 
+  /**
+   * Performs a manual drag-and-drop reorder of tier rows.
+   * Uses raw mouse events because dnd-kit's PointerSensor requires
+   * specific hold/move sequences that Playwright's dragTo() cannot replicate.
+   * The waitForTimeout calls are protocol-level pauses for sensor activation
+   * — there is no DOM state or event to wait on.
+   */
+  /* eslint-disable playwright/no-wait-for-timeout */
   async reorderTiers(sourceIndex: number, targetIndex: number) {
-    const sourceRow = this.tierRows.nth(sourceIndex);
     const sourceHandle = this.tierDragHandles.nth(sourceIndex);
     const targetRow = this.tierRows.nth(targetIndex);
 
-    // Ensure source is ready
-    await sourceRow.hover();
-    await sourceHandle.hover({ force: true });
-    
+    // hover() auto-waits for visibility — no need for explicit expect
+    await sourceHandle.hover();
+
     const sourceBox = await sourceHandle.boundingBox();
     const targetBox = await targetRow.boundingBox();
-
-    if (!sourceBox || !targetBox) return;
+    if (!sourceBox || !targetBox) {
+      throw new Error(`Cannot reorder: bounding box missing for source (index ${sourceIndex}) or target (index ${targetIndex})`);
+    }
 
     // Manual drag sequence optimized for dnd-kit
     await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
     await this.page.mouse.down();
-    
-    // Hold to ensure drag start is registered
+
+    // Hold for sensor activation
     await this.page.waitForTimeout(200);
-    
-    // Initial small move to trigger sensor
+
+    // Small move to trigger drag start
     await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2 + 10, { steps: 5 });
     await this.page.waitForTimeout(100);
 
     // Move to target
     await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 50 });
-    
-    // Hover over target for a bit
     await this.page.waitForTimeout(200);
-    
-    // Small wiglle on target
+
+    // Small wiggle on target to confirm position
     await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2 + 5, { steps: 5 });
     await this.page.waitForTimeout(100);
 
     await this.page.mouse.up();
-    
+
     // Wait for animation/reorder to settle
     await this.page.waitForTimeout(500);
   }
+  /* eslint-enable playwright/no-wait-for-timeout */
 }

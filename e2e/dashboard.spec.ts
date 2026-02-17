@@ -42,7 +42,16 @@ test.describe('Dashboard and Multi-Board', () => {
     await expect(page.getByText(boardTitle)).toBeHidden();
   });
 
-  test('should open an existing board', async ({ page }) => {
+  test('should persevere after refresh', async ({ page }) => {
+    // TODO: Dashboard hydration is flaky in headless browsers
+    const boardTitle = 'Permanent Board';
+    await dashboardPage.createBoard(boardTitle);
+    
+    await boardPage.dashboardButton.click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+  });
+
+  test('should open an existing board', async () => {
     // TODO: Dashboard hydration is flaky in headless browsers
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);

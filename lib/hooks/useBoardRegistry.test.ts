@@ -110,7 +110,6 @@ describe('useBoardRegistry', () => {
     vi.mocked(storage.get).mockImplementation(async (key) => {
       if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
-      return;
     });
 
     const { result } = renderHook(() => useBoardRegistry());
@@ -146,7 +145,6 @@ describe('useBoardRegistry', () => {
     vi.mocked(storage.get).mockImplementation(async (key) => {
       if (key === 'moat-boards-index') return ['board-1'];
       if (key === 'moat-meta-board-1') return mockMeta;
-      return;
     });
 
     const { result } = renderHook(() => useBoardRegistry());

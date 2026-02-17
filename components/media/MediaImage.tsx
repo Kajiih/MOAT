@@ -42,6 +42,7 @@ interface MediaImageProps {
  * @param props.sizes - Next.js image sizes attribute.
  * @param props.containerClassName - CSS classes for the image container.
  * @param props.imageClassName - CSS classes for the img element itself.
+ * @returns The rendered media image or placeholder.
  */
 export function MediaImage({
   item,

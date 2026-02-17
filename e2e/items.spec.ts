@@ -69,16 +69,9 @@ test.describe('Item Management', () => {
       });
     });
 
-    const allIds = await page.evaluate(() => 
-      [...document.querySelectorAll('[data-testid]')]
-        .map(el => (el as HTMLElement).dataset.testid)
-        .filter(id => id?.startsWith('media-card-'))
-    );
-    console.log('Available media cards at fail point:', allIds);
-
     const card1 = page.getByTestId('media-card-item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
-    await card1.click({ force: true });
+    await card1.click();
     await page.keyboard.press('i');
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByText('A very detailed description')).toBeVisible();
@@ -89,10 +82,10 @@ test.describe('Item Management', () => {
     await expect(cards).toHaveCount(2);
     const box1 = await cards.nth(0).boundingBox();
     const box2 = await cards.nth(1).boundingBox();
-    if (box1 && box2) {
-      // Drag item-2 to the left of item-1
-      await cards.nth(1).dragTo(cards.nth(0));
-    }
+    expect(box1).not.toBeNull();
+    expect(box2).not.toBeNull();
+    // Drag item-2 to the left of item-1
+    await cards.nth(1).dragTo(cards.nth(0));
     // Wait for sortable to update
     await expect(cards.nth(0)).toContainText('Second Item');
 
@@ -102,7 +95,7 @@ test.describe('Item Management', () => {
     await expect(tierS).not.toContainText('First Item');
 
     // 4. Remove
-    await card1.click({ force: true });
+    await card1.click();
     await page.keyboard.press('x');
     await expect(card1).toBeHidden();
   });

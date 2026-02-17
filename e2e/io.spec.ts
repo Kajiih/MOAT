@@ -21,7 +21,7 @@ test.describe('Import/Export/Share', () => {
     await boardPage.goto();
   });
 
-  test('should import and export a tier list', async ({ page }, testInfo) => {
+  test('should import and export a tier list', async ({}, testInfo) => {
     const importData = {
       version: 1,
       title: 'IO Test Board',
@@ -78,7 +78,7 @@ test.describe('Import/Export/Share', () => {
     await expect(page.getByText('Board Published')).toBeVisible();
     
     // 4. Click Copy
-    await page.getByRole('button', { name: 'Copy' }).click({ force: true });
+    await page.getByRole('button', { name: 'Copy' }).click();
     
     // 5. Verify Toast (Synchronous with click usually)
     await expect(page.getByText(/Link copied/i)).toBeVisible();
