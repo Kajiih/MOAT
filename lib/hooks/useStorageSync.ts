@@ -15,25 +15,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
 
-/**
- * Checks if two objects are shallowly equal.
- * @param a - First value to compare.
- * @param b - Second value to compare.
- * @returns True if objects are shallowly equal, false otherwise.
- */
-function shallowEqual(a: unknown, b: unknown) {
-  if (a === b) return true;
-  if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) return false;
-  const objA = a as Record<string, unknown>;
-  const objB = b as Record<string, unknown>;
-  const keysA = Object.keys(objA);
-  const keysB = Object.keys(objB);
-  if (keysA.length !== keysB.length) return false;
-  for (const key of keysA) {
-    if (objA[key] !== objB[key]) return false;
-  }
-  return true;
-}
+
 
 /**
  * Options for the useStorageSync hook.
@@ -79,6 +61,8 @@ export function useStorageSync<T>({
   const onHydrateRef = useRef(onHydrate);
   const initialStateRef = useRef(initialState);
   const onSaveRef = useRef(onSave);
+  // We track the hydrated value to avoid immediate write-back if the state matches what we just loaded.
+  const lastSavedStateRef = useRef<T | null>(null);
 
   useEffect(() => {
     onHydrateRef.current = onHydrate;
@@ -116,6 +100,8 @@ export function useStorageSync<T>({
             hydratedState = { ...currentInitialState, ...item };
           }
           onHydrateRef.current(hydratedState);
+          // Initialize tracking ref to prevent immediate re-save
+          lastSavedStateRef.current = hydratedState;
         }
       } catch (error) {
         logger.error({ error, key }, 'Error reading storage key');
@@ -130,11 +116,9 @@ export function useStorageSync<T>({
   }, [key]); // ONLY re-run when key changes
 
   // 2. Persist Updates (Debounced)
-  // We track the hydrated value to avoid immediate write-back if the state matches what we just loaded.
-  const lastSavedStateRef = useRef<T | null>(null);
-
   const debouncedSave = useDebouncedCallback((value: T) => {
     // Deep check to prevent redundant writes (serialization + IDB overhead)
+    // This is the single source of truth for "change detection"
     if (deepEqual(value, lastSavedStateRef.current)) return;
 
     storage.set(key, value);
@@ -145,29 +129,21 @@ export function useStorageSync<T>({
   useEffect(() => {
     if (!isHydrated) return;
 
-    // Optimization: Skip write if state hasn't changed since last hydration/save
-    // We use a slightly more robust check than just referential equality
-    if (shallowEqual(lastSavedStateRef.current, state)) return;
-
+    // We no longer skip scheduling based on shallow equality.
+    // We trust deepEqual in the callback to be the gatekeeper.
+    // This handles cases where state is referentially new but deep-equal (reverts),
+    // and ensures we don't miss updates that shallow-check might misjudge.
     debouncedSave(state);
   }, [state, isHydrated, debouncedSave]);
 
   // 3. Flush on unmount
-  const stateRef = useRef(state);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
-
   useEffect(() => {
     return () => {
-      // If we are hydrated and have a pending change, flush it.
-      // We check against lastSavedStateRef to see if a flush is actually needed.
-      if (isHydrated && !shallowEqual(lastSavedStateRef.current, stateRef.current)) {
-        storage.set(key, stateRef.current);
-        onSaveRef.current?.(stateRef.current);
-      }
+      // Ensure any pending write is executed before unmount.
+      // The callback itself contains the deepEqual check, so this is safe and efficient.
+      debouncedSave.flush();
     };
-  }, [key, isHydrated]);
+  }, [debouncedSave]);
 
   return isHydrated;
 }
