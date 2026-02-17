@@ -174,7 +174,7 @@ The application uses a unified **Media Resolver** pattern to ensure consistency 
 #### Persistence Logic
 
 - **Debounced Writes**: To avoid performance degradation during rapid state changes (e.g., dragging items), `IndexedDB` writes are debounced (500-1000ms).
-- **Core Persistence Hook**: A reusable `useStorageSync` hook encapsulates the complex lifecycle of async hydration, debounced saving, and unmount flushing. It employs an optimization ref to prevent redundant "write-backs" immediately after hydration if the state remains unchanged.
+- **Core Persistence Hook**: A reusable `useStorageSync` hook encapsulates the complex lifecycle of async hydration, debounced saving, and unmount flushing. It employs **shallow comparison** to skip scheduling unnecessary saves, and **deep comparison** before the actual write to prevent redundant serialization and I/O if the state content is identical despite new object references.
 - **standardized Side-Effects**: The `useDebouncedEffect` hook provides a unified pattern for debounced side-effects (metadata sync, storage sync) that automatically handles the mandatory unmount flush to prevent data loss.
 - **Hydration-Safe Persistence**: The persistence hooks (`usePersistentReducer`, `usePersistentState`) utilize a dedicated "hydrated" status flag. Storage writes are strictly disabled until the initial hydration is complete.
 - **Atomic Operations**: `storage.ts` supports `update`, `setMany`, and `delMany` using `idb-keyval` to ensure multi-key operations (like board creation/deletion) are atomic and consistent.

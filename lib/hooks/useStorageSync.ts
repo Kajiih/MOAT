@@ -8,6 +8,7 @@
 
 'use client';
 
+import deepEqual from 'fast-deep-equal';
 import { useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -133,6 +134,9 @@ export function useStorageSync<T>({
   const lastSavedStateRef = useRef<T | null>(null);
 
   const debouncedSave = useDebouncedCallback((value: T) => {
+    // Deep check to prevent redundant writes (serialization + IDB overhead)
+    if (deepEqual(value, lastSavedStateRef.current)) return;
+
     storage.set(key, value);
     lastSavedStateRef.current = value;
     onSaveRef.current?.(value);
