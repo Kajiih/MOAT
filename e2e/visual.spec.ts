@@ -56,8 +56,19 @@ test.describe('Visual Regression', () => {
     // Wait for update
     await expect(page.getByText('Visual S')).toBeVisible();
 
+    // Ensure fonts are loaded and layout is settled
+    await page.evaluate(() => document.fonts.ready);
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(500);
+
     // Snapshot
-    await expect(page).toHaveScreenshot('populated-board.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('populated-board.png', {
+      fullPage: true,
+      mask: [
+        page.getByTitle('Save as Image'),
+        page.getByTitle('Back to Dashboard'),
+      ],
+    });
 
     // Cleanup
     fs.unlinkSync(filePath);

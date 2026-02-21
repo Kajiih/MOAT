@@ -22,16 +22,12 @@ test.describe('Board Management', () => {
 
     // 2. Rename the new tier (last one)
     await boardPage.renameTier('New Tier', 'New Awesome Tier');
-    // Give it a moment to update state
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500);
     await expect(page.getByText('New Awesome Tier')).toBeVisible();
 
     // 3. Reorder: move the new tier up TWO spots for better stability
     // Currently at index 6, move to 4
     await boardPage.reorderTiersViaKeyboard(6, 4);
-    const labels = await boardPage.getTierLabels();
-    expect(labels[4]).toBe('New Awesome Tier');
+    await expect(boardPage.tierLabels.nth(4)).toHaveText('New Awesome Tier');
 
     // 4. Delete
     await boardPage.deleteTier('New Awesome Tier');
@@ -46,7 +42,7 @@ test.describe('Board Management', () => {
     const getColors = async () => {
       const all = await tiers.all();
       return Promise.all(all.map(t => t.evaluate(el => {
-        const bgClass = Array.from(el.classList).find(c => c.startsWith('bg-'));
+        const bgClass = [...el.classList].find(c => c.startsWith('bg-'));
         return bgClass;
       })));
     };
@@ -110,11 +106,12 @@ test.describe('Board Management', () => {
     // Verify reorder happened
     await expect(boardPage.tierLabels.first()).toHaveText(secondLabel!);
 
-    // Wait for a bit as favicon update might be debounced
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(1500);
-
-    const newFavicon = favicon;
-    await expect(newFavicon).not.toHaveAttribute('href', initialFavicon || '');
+    // Wait for the favicon to update (it is debounced in the app)
+    await expect.poll(async () => {
+      return favicon.getAttribute('href');
+    }, {
+      message: 'Favicon should update after tier reorder',
+      timeout: 5000,
+    }).not.toBe(initialFavicon);
   });
 });

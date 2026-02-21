@@ -1,5 +1,7 @@
 import { type Locator, type Page } from '@playwright/test';
 
+import { manualDragAndDrop } from '../utils/mouse';
+
 export class SearchPanel {
   readonly page: Page;
   readonly container: Locator;
@@ -45,36 +47,7 @@ export class SearchPanel {
     const tierRow = this.page.locator(`[data-tier-label="${tierLabel}"]`);
     const dropZone = tierRow.getByTestId('tier-drop-zone');
 
-    const cardBox = await card.boundingBox();
-    const dropBox = await dropZone.boundingBox();
-
-    if (!cardBox || !dropBox) throw new Error('Could not find bounding boxes for drag and drop');
-
-    await this.page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
-    await this.page.mouse.down();
-    
-    // Hold to ensure drag start
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(200);
-    
-    // Initial small move to trigger sensor
-    await this.page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2 + 10, { steps: 5 });
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(100);
-
-    // Move to drop zone center
-    await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, {
-      steps: 50,
-    });
-    
-    // Small wiggle to confirm position
-    await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2 + 5, { steps: 5 });
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(300);
-    
-    await this.page.mouse.up();
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(500);
+    await manualDragAndDrop(this.page, card, dropZone);
   }
 
   async toggleFilters() {
@@ -82,7 +55,7 @@ export class SearchPanel {
   }
 
   async setShowAdded(show: boolean) {
-    const text = await this.showAddedButton.innerText();
+    const text = (await this.showAddedButton.textContent()) || '';
     const isShowing = text.includes('Hide Added'); // If it says "Hide Added", it is currently showing
     if (isShowing !== show) {
       await this.showAddedButton.click();

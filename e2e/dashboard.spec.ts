@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { BoardPage } from './pom/BoardPage';
 import { DashboardPage } from './pom/DashboardPage';
+import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Dashboard and Multi-Board', () => {
   test.setTimeout(60_000);
@@ -9,14 +10,13 @@ test.describe('Dashboard and Multi-Board', () => {
   let boardPage: BoardPage;
 
   test.beforeEach(async ({ page }) => {
+    await clearBrowserStorage(page);
     dashboardPage = new DashboardPage(page);
     boardPage = new BoardPage(page);
-    // Ensure we start at dashboard and it's clean (or at least predictable)
     await dashboardPage.goto();
   });
 
-  test('should create, modify, and see changes in dashboard', async ({ page }) => {
-    // TODO: Dashboard hydration is flaky in headless browsers
+  test('should create, modify, and see changes in dashboard', async () => {
     const boardTitle = `Board ${Date.now()}`;
     
     // 1. Create
@@ -25,21 +25,26 @@ test.describe('Dashboard and Multi-Board', () => {
     // 2. We should be redirected to the new board
     await expect(boardPage.titleInput).toHaveValue(boardTitle);
     
-    // 3. Add a tier and wait for persistence
+    // 3. Add a tier (triggers auto-save/persistence)
+    const initialTiers = await boardPage.tierLabels.count();
     await boardPage.addTier();
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(1500);
+    await expect(boardPage.tierLabels).toHaveCount(initialTiers + 1);
 
-    // 4. Go back to dashboard
-    await boardPage.dashboardButton.click();
-    await expect(page).toHaveURL(/\/dashboard$/);
-
-    // 5. Verify board exists in dashboard
-    await expect(page.getByText(boardTitle)).toBeVisible();
+    // 4. Go back to dashboard and verify board exists
+    // We poll for the board title on the dashboard to handle the debounced persistence
+    await expect.poll(async () => {
+      await boardPage.dashboardButton.click();
+      await expect(dashboardPage.page).toHaveURL(/\/dashboard$/);
+      return dashboardPage.page.getByText(boardTitle).isVisible();
+    }, {
+      message: 'Board should appear in dashboard after creation and modification',
+      timeout: 10_000,
+      intervals: [1000, 2000],
+    }).toBeTruthy();
     
-    // 6. Delete board
+    // 5. Delete board
     await dashboardPage.deleteBoard(boardTitle);
-    await expect(page.getByText(boardTitle)).toBeHidden();
+    await expect(dashboardPage.page.getByText(boardTitle)).toBeHidden();
   });
 
   test('should persevere after refresh', async ({ page }) => {
