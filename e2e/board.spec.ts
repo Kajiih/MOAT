@@ -1,12 +1,14 @@
 import { expect, test } from '@playwright/test';
 
 import { BoardPage } from './pom/BoardPage';
+import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Board Management', () => {
   test.setTimeout(60_000);
   let boardPage: BoardPage;
 
   test.beforeEach(async ({ page }) => {
+    await clearBrowserStorage(page);
     boardPage = new BoardPage(page);
     await boardPage.goto();
   });
@@ -25,10 +27,11 @@ test.describe('Board Management', () => {
     await page.waitForTimeout(500);
     await expect(page.getByText('New Awesome Tier')).toBeVisible();
 
-    // 3. Reorder: move the new tier up one spot
-    // TODO: Reorder simulation is flaky in this environment
-    // await boardPage.reorderTiers(initialCount, initialCount - 1);
-    // await expect(boardPage.tierLabels.nth(initialCount - 1)).toHaveText('New Awesome Tier');
+    // 3. Reorder: move the new tier up TWO spots for better stability
+    // Currently at index 6, move to 4
+    await boardPage.reorderTiersViaKeyboard(6, 4);
+    const labels = await boardPage.getTierLabels();
+    expect(labels[4]).toBe('New Awesome Tier');
 
     // 4. Delete
     await boardPage.deleteTier('New Awesome Tier');
@@ -102,7 +105,7 @@ test.describe('Board Management', () => {
     // Reorder second tier to the top (this should trigger a branding update)
     const secondLabel = await boardPage.tierLabels.nth(1).textContent();
     expect(secondLabel).not.toBeNull();
-    await boardPage.reorderTiers(1, 0);
+    await boardPage.reorderTiersViaKeyboard(1, 0);
 
     // Verify reorder happened
     await expect(boardPage.tierLabels.first()).toHaveText(secondLabel!);

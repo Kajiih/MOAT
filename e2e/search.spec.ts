@@ -2,12 +2,14 @@ import { expect, test } from '@playwright/test';
 
 import { BoardPage } from './pom/BoardPage';
 import { SearchPanel } from './pom/SearchPanel';
+import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Search Functionality', () => {
   let boardPage: BoardPage;
   let searchPanel: SearchPanel;
 
   test.beforeEach(async ({ page }) => {
+    await clearBrowserStorage(page);
     boardPage = new BoardPage(page);
     searchPanel = new SearchPanel(page);
     await boardPage.goto();
@@ -29,7 +31,7 @@ test.describe('Search Functionality', () => {
     await searchPanel.search('Test');
     await searchPanel.dragToTier('item-1', 'S');
 
-    await expect(page.locator('#media-card-item-1')).toBeVisible();
+    await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 10_000 });
   });
 
   test('should navigate through different pages of results', async ({ page }) => {
@@ -62,8 +64,7 @@ test.describe('Search Functionality', () => {
     expect(callCount).toBeGreaterThan(1);
   });
 
-  test.fixme('should hide and show already added items', async ({ page }) => {
-    // TODO: Filter panel toggle is flaky in headless mode (checkbox not becoming visible)
+  test('should hide and show already added items', async ({ page }) => {
     // 1. Mock search to return one item
     await page.route('**/api/search*', async (route) => {
       await route.fulfill({
@@ -80,19 +81,18 @@ test.describe('Search Functionality', () => {
     
     // 2. Add it to board
     await searchPanel.dragToTier('duplicate-1', 'S');
-    await expect(page.locator('#media-card-duplicate-1')).toBeVisible();
+    await expect(page.getByTestId('media-card-duplicate-1')).toBeVisible({ timeout: 10_000 });
 
-    // 3. Toggle "Show Added" (uncheck it)
-    await searchPanel.toggleFilters();
-    await expect(searchPanel.showAddedCheckbox).toBeVisible();
+    // 3. Toggle "Show Added" (Hide it)
+    await expect(searchPanel.showAddedButton).toBeVisible();
     await searchPanel.setShowAdded(false);
 
     // 4. Verify it's hidden in search results
-    await expect(page.locator('#media-card-search-duplicate-1')).toBeHidden();
+    await expect(page.getByTestId('media-card-search-duplicate-1')).toBeHidden();
 
-    // 5. Toggle "Show Added" (check it)
+    // 5. Toggle "Show Added" (Show it)
     await searchPanel.setShowAdded(true);
-    await expect(page.locator('#media-card-search-duplicate-1')).toBeVisible();
+    await expect(page.getByTestId('media-card-search-duplicate-1')).toBeVisible();
   });
 
   test('should use specific filters for a tab', async ({ page }) => {

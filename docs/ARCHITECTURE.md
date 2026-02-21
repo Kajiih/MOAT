@@ -261,11 +261,14 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - Automated screenshot comparisons ensure UI consistency across Chromium and Firefox.
   - Snapshot testing covers the default board state, populated boards, and the search panel.
 - **Stabilization Techniques**:
-  - Use of `data-testid` for robust element selection.
-  - **Storage Isolation**: Tests explicitly clear `localStorage`, `sessionStorage`, and `IndexedDB` before each run to prevent state pollution from previous sessions.
-  - **Normalization Resilience**: Handle edge cases where item IDs might have been inconsistently prefixed during rapid drag-and-drop operations, ensuring a clean "Board ID" is always available.
-  - **Modal Accessibility**: Use of standard WIRA roles (`role="dialog"`, `aria-modal="true"`) to make components more discoverable for testing tools and assistive technologies.
-  - Multi-browser validation (Chromium, Firefox).
+  - **Robust Locators**: Extensive use of `data-testid` and Playwright's `getBy*` locators to avoid brittle CSS selectors. Legacy `#media-card-*` selectors have been eliminated in favor of stable test-ids.
+  - **Storage Isolation**: A centralized `clearBrowserStorage` utility ensures every test starts with a clean `localStorage`, `sessionStorage`, and `IndexedDB`. This prevents cross-test pollution which is a common source of flakiness in persistence-heavy apps.
+  - **stable Drag-and-Drop**: 
+    - **Keyboard Simulation**: Critical reordering flows (Tiers and Items) utilize `dnd-kit`'s `KeyboardSensor` via `Space` and `Arrow` key simulations. This is significantly more robust in headless environments and low-resource CI containers than mouse-based drag simulations.
+    - **Optimized Mouse Events**: manual mouse sequences (move -> down -> wait -> move -> wiggle -> up) are used for cross-container moves where keyboard navigation is less practical, ensuring sensors have enough time to trigger.
+  - **Modal Stability**: Use of standard WIRA roles (`role="dialog"`, `aria-modal="true"`) to make components more discoverable for testing tools and assistive technologies.
+  - **Dynamic State Waiting**: Reliance on Playwright's auto-waiting assertions (like `toBeVisible` with custom timeouts) instead of arbitrary `waitForTimeout` calls, making the suite faster and more resilient.
+- **Multi-browser validation**: Chromium is the primary target for development, with verification on Firefox for cross-engine compatibility.
 
 #### E. Sorting & Discovery Testing
 

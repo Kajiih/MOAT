@@ -2,12 +2,14 @@ import { expect, test } from '@playwright/test';
 
 import { BoardPage } from './pom/BoardPage';
 import { SearchPanel } from './pom/SearchPanel';
+import { clearBrowserStorage } from './utils/storage';
 
 test.describe('General Board Actions', () => {
   let boardPage: BoardPage;
   let searchPanel: SearchPanel;
 
   test.beforeEach(async ({ page }) => {
+    await clearBrowserStorage(page);
     boardPage = new BoardPage(page);
     searchPanel = new SearchPanel(page);
     await boardPage.goto();

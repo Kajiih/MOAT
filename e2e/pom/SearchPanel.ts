@@ -7,7 +7,7 @@ export class SearchPanel {
   readonly tabButtons: Locator;
   readonly results: Locator;
   readonly filterToggleButton: Locator;
-  readonly showAddedCheckbox: Locator;
+  readonly showAddedButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -16,7 +16,7 @@ export class SearchPanel {
     this.tabButtons = page.locator('button[title^="Search"]');
     this.results = page.getByTestId('search-results');
     this.filterToggleButton = page.getByTitle('Toggle filters');
-    this.showAddedCheckbox = page.locator('label').filter({ hasText: 'Show Added' }).locator('input');
+    this.showAddedButton = page.getByRole('button', { name: /(Show|Hide) Added/i });
   }
 
   async switchTab(type: 'song' | 'album' | 'artist' | 'book' | 'movie' | 'tv') {
@@ -37,7 +37,7 @@ export class SearchPanel {
   }
 
   async getResultCard(id: string) {
-    return this.page.locator(`#media-card-search-${id}`);
+    return this.page.getByTestId(`media-card-search-${id}`);
   }
 
   async dragToTier(itemId: string, tierLabel: string) {
@@ -62,15 +62,19 @@ export class SearchPanel {
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(100);
 
+    // Move to drop zone center
     await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, {
       steps: 50,
     });
     
-    // Hover over target
+    // Small wiggle to confirm position
+    await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2 + 5, { steps: 5 });
     // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(200);
+    await this.page.waitForTimeout(300);
     
     await this.page.mouse.up();
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(500);
   }
 
   async toggleFilters() {
@@ -78,9 +82,10 @@ export class SearchPanel {
   }
 
   async setShowAdded(show: boolean) {
-    const isChecked = await this.showAddedCheckbox.isChecked();
-    if (isChecked !== show) {
-      await this.showAddedCheckbox.click();
+    const text = await this.showAddedButton.innerText();
+    const isShowing = text.includes('Hide Added'); // If it says "Hide Added", it is currently showing
+    if (isShowing !== show) {
+      await this.showAddedButton.click();
     }
   }
 }

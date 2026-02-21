@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 
+import { BoardPage } from './pom/BoardPage';
 import { DashboardPage } from './pom/DashboardPage';
 import { SearchPanel } from './pom/SearchPanel';
-import { BoardPage } from './pom/BoardPage';
+import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Item Management', () => {
   test.setTimeout(60_000);
@@ -11,15 +12,7 @@ test.describe('Item Management', () => {
   let searchPanel: SearchPanel;
 
   test.beforeEach(async ({ page }) => {
-    // Clear storage to ensure test isolation
-    await page.goto('/');
-    await page.evaluate(async () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      // Clear IndexedDB
-      const dbs = await window.indexedDB.databases();
-      dbs.forEach(db => { if (db.name) window.indexedDB.deleteDatabase(db.name); });
-    });
+    await clearBrowserStorage(page);
 
     dashboardPage = new DashboardPage(page);
     boardPage = new BoardPage(page);
@@ -98,7 +91,7 @@ test.describe('Item Management', () => {
     // 2. Reorder in S
     await expect(cards).toHaveCount(2);
     // Drag item-2 (index 1) to position of item-1 (index 0)
-    await boardPage.reorderItems('S', 1, 0);
+    await boardPage.reorderItemsViaKeyboard('S', 1, 0);
     await expect(cards.nth(0)).toContainText('Second Item');
 
     // 3. Move from S to A

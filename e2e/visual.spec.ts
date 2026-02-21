@@ -2,18 +2,11 @@ import fs from 'node:fs';
 
 import { expect, test } from '@playwright/test';
 
+import { clearBrowserStorage } from './utils/storage';
+
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
-    // Reset storage to ensure clean state
-    await page.addInitScript(() => {
-      const dbs = globalThis.indexedDB.databases();
-      dbs.then((databases) => {
-        databases.forEach((db) => {
-          if (db.name) globalThis.indexedDB.deleteDatabase(db.name);
-        });
-      });
-      localStorage.clear();
-    });
+    await clearBrowserStorage(page);
     await page.goto('/');
     // Wait for hydration
     await expect(page.getByLabel('Tier List Title')).toBeVisible();

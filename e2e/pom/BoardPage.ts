@@ -33,6 +33,10 @@ export class BoardPage {
     this.tierColorDots = page.getByTestId('tier-color-dot');
   }
 
+  async getTierLabels(): Promise<string[]> {
+    return this.tierLabels.allTextContents();
+  }
+
   async goto(id?: string) {
     if (id) {
       await this.page.goto(`/board/${id}`);
@@ -152,12 +156,13 @@ export class BoardPage {
     await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2 + 10, { steps: 5 });
     await this.page.waitForTimeout(100);
 
-    // Move to target
-    await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 50 });
+    // Move to target - use a slight offset to ensure we clear the threshold
+    const targetY = targetBox.y + (sourceIndex > targetIndex ? 5 : targetBox.height - 5);
+    await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetY, { steps: 50 });
     await this.page.waitForTimeout(200);
 
     // Small wiggle on target to confirm position
-    await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2 + 5, { steps: 5 });
+    await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetY + (sourceIndex > targetIndex ? -2 : 2), { steps: 5 });
     await this.page.waitForTimeout(100);
 
     await this.page.mouse.up();
@@ -214,6 +219,59 @@ export class BoardPage {
     await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, { steps: 20 });
     await this.page.waitForTimeout(200);
     await this.page.mouse.up();
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Reorders tiers using keyboard shortcuts (Space, ArrowUp/Down, Space).
+   * Much more stable in headless environments than mouse simulation.
+   */
+  async reorderTiersViaKeyboard(sourceIndex: number, targetIndex: number) {
+    const handle = this.tierDragHandles.nth(sourceIndex);
+    await handle.focus();
+    await this.page.keyboard.press(' '); // Start drag
+    
+    const steps = Math.abs(sourceIndex - targetIndex);
+    const key = targetIndex < sourceIndex ? 'ArrowUp' : 'ArrowDown';
+    
+    for (let i = 0; i < steps; i++) {
+      await this.page.keyboard.press(key);
+      // eslint-disable-next-line playwright/no-wait-for-timeout
+      await this.page.waitForTimeout(100);
+    }
+    
+    await this.page.keyboard.press(' '); // End drag
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Reorders items within a tier using keyboard shortcuts.
+   */
+  async reorderItemsViaKeyboard(tierLabel: string, sourceIndex: number, targetIndex: number) {
+    const tierRow = this.getTierRow(tierLabel);
+    const cards = tierRow.getByTestId(/^media-card-item-/);
+    const sourceCard = cards.nth(sourceIndex);
+
+    await sourceCard.focus();
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(200);
+    
+    await this.page.keyboard.press(' '); // Start drag
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(200);
+    
+    const steps = Math.abs(sourceIndex - targetIndex);
+    const key = targetIndex < sourceIndex ? 'ArrowLeft' : 'ArrowRight';
+    
+    for (let i = 0; i < steps; i++) {
+      await this.page.keyboard.press(key);
+      // eslint-disable-next-line playwright/no-wait-for-timeout
+      await this.page.waitForTimeout(200);
+    }
+    
+    await this.page.keyboard.press(' '); // End drag
+    // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(500);
   }
   /* eslint-enable playwright/no-wait-for-timeout */
