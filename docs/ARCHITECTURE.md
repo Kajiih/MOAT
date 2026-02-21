@@ -262,7 +262,9 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - Snapshot testing covers the default board state, populated boards, and the search panel.
 - **Stabilization Techniques**:
   - Use of `data-testid` for robust element selection.
-  - Explicit synchronization for asynchronous state updates (debounce/IndexedDB).
+  - **Storage Isolation**: Tests explicitly clear `localStorage`, `sessionStorage`, and `IndexedDB` before each run to prevent state pollution from previous sessions.
+  - **Normalization Resilience**: Handle edge cases where item IDs might have been inconsistently prefixed during rapid drag-and-drop operations, ensuring a clean "Board ID" is always available.
+  - **Modal Accessibility**: Use of standard WIRA roles (`role="dialog"`, `aria-modal="true"`) to make components more discoverable for testing tools and assistive technologies.
   - Multi-browser validation (Chromium, Firefox).
 
 #### E. Sorting & Discovery Testing

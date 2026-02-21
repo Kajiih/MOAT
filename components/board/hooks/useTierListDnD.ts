@@ -163,7 +163,10 @@ export function useTierListDnD(
 
       // Finalization: If the item came from search (has search- prefix), normalize its ID to the canonical MBID
       if (isSearchId(activeId) && active.data.current?.mediaItem) {
-        const canonicalId = active.data.current.mediaItem.id;
+        const item = active.data.current.mediaItem;
+        // Use mbid as canonical if available, otherwise strip prefix from id if it was somehow propagated
+        const canonicalId = item.mbid || item.id.replace(/^search-/, '');
+
         if (canonicalId && canonicalId !== activeId) {
           dispatch({
             type: ActionType.UPDATE_ITEM,

@@ -77,6 +77,7 @@ export class BoardPage {
 
   async clearBoard() {
     await this.openOptions();
+    this.page.once('dialog', (dialog) => dialog.accept());
     await this.clearBoardButton.click({ delay: 50 });
     await expect(this.clearBoardButton).toBeHidden();
   }
@@ -162,6 +163,57 @@ export class BoardPage {
     await this.page.mouse.up();
 
     // Wait for animation/reorder to settle
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Reorders items within a tier using manual mouse events.
+   */
+  async reorderItems(tierLabel: string, sourceIndex: number, targetIndex: number) {
+    const tierRow = this.getTierRow(tierLabel);
+    const cards = tierRow.getByTestId(/^media-card-item-/);
+    const sourceCard = cards.nth(sourceIndex);
+    const targetCard = cards.nth(targetIndex);
+
+    const sourceBox = await sourceCard.boundingBox();
+    const targetBox = await targetCard.boundingBox();
+
+    if (!sourceBox || !targetBox) {
+      throw new Error('Could not find bounding boxes for item reorder');
+    }
+
+    await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+    await this.page.mouse.down();
+    await this.page.waitForTimeout(200);
+    await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2 + 5, { steps: 5 });
+    await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 20 });
+    await this.page.waitForTimeout(200);
+    await this.page.mouse.up();
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Moves an item from its current position to a specific tier's drop zone.
+   */
+  async moveItemToTier(itemId: string, targetTierLabel: string) {
+    const card = this.getMediaCard(itemId);
+    const targetTier = this.getTierRow(targetTierLabel);
+    const dropZone = targetTier.getByTestId('tier-drop-zone');
+
+    const cardBox = await card.boundingBox();
+    const dropBox = await dropZone.boundingBox();
+
+    if (!cardBox || !dropBox) {
+      throw new Error('Could not find bounding boxes for item move');
+    }
+
+    await this.page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
+    await this.page.mouse.down();
+    await this.page.waitForTimeout(200);
+    await this.page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2 + 5, { steps: 5 });
+    await this.page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, { steps: 20 });
+    await this.page.waitForTimeout(200);
+    await this.page.mouse.up();
     await this.page.waitForTimeout(500);
   }
   /* eslint-enable playwright/no-wait-for-timeout */

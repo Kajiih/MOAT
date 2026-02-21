@@ -229,7 +229,8 @@ function BaseMediaCard({
 
       {/* Notes Indicator */}
       {item.notes && (
-        <div 
+        <div
+          data-testid="notes-indicator"
           className="pointer-events-none absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
           title="Contains personal notes"
         >
