@@ -88,6 +88,7 @@ describe('useTierListDnD', () => {
     };
 
     act(() => {
+      result.current.handleDragStart(event as unknown as DragStartEvent);
       result.current.handleDragOver(event as unknown as DragOverEvent);
     });
 

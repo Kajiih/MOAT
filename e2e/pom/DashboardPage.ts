@@ -15,9 +15,8 @@ export class DashboardPage {
     await this.page.goto('/dashboard');
     // Wait for the loading state to disappear
     await expect(this.page.getByText('Loading registry...')).not.toBeVisible({ timeout: 10_000 });
-    // Give the page a moment to hydrate
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(500);
+    // Wait for core UI to be ready (hydration complete)
+    await expect(this.createBoardButton).toBeVisible();
   }
 
   async createBoard(title?: string) {

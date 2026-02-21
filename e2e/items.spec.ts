@@ -47,10 +47,6 @@ test.describe('Item Management', () => {
 
     await searchPanel.dragToTier('item-2', 'S');
     await expect(page.getByTestId('media-card-item-2')).toBeVisible({ timeout: 15_000 });
-    
-    // Wait for state to settle before running tests
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500);
   });
 
   test('should manage items: details, move, reorder, remove', async ({ page }) => {

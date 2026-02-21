@@ -167,7 +167,7 @@ export class BoardPage {
   async deleteTier(label: string) {
     const row = this.getTierRow(label);
     await row.getByTitle('Tier Settings').click({ delay: 100 });
-    this.page.once('dialog', dialog => dialog.accept());
+    this.page.once('dialog', (dialog) => dialog.accept());
     await this.page.getByRole('button', { name: /Delete Tier/i }).click({ delay: 100 });
   }
 
