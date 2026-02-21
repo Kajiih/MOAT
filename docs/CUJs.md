@@ -33,6 +33,10 @@
 - Open the details of an item
 - Remove an item from a tier
 
+### Item notes
+- Add a note to an item
+- Edit an existing note
+
 ## Import/Export/Share
 
 - Import a tier list

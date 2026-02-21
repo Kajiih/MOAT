@@ -144,6 +144,15 @@ function handleGlobalShortcuts(
 function useAppShortcuts(props: UseAppShortcutsProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger global shortcuts if the user is typing in an input or textarea
+      const target = e.target as HTMLElement;
+      if (
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) &&
+        e.key !== 'Escape'
+      ) {
+        return;
+      }
+
       if (handleUndoRedo(e, props)) return;
       handleHoverShortcuts(e, props);
       handleGlobalShortcuts(e, props);
@@ -169,7 +178,7 @@ export default function TierListApp() {
     state,
     isHydrated,
     actions: { randomizeColors, removeItemFromTier, updateMediaItem },
-    dnd: { sensors, activeItem, activeTier, handleDragStart, handleDragOver, handleDragEnd },
+    dnd: { sensors, activeItem, activeTier, handleDragStart, handleDragOver, handleDragEnd, handleDragCancel },
     ui: { headerColors, detailsItem, allBoardItems, showDetails, closeDetails, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo },
   } = useTierListContext();
@@ -245,12 +254,13 @@ export default function TierListApp() {
           <div className="mx-auto max-w-[1600px]">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
 
-            <DndContext
+              <DndContext
               sensors={sensors}
               collisionDetection={rectIntersection}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
               onDragEnd={handleDragEnd}
+              onDragCancel={handleDragCancel}
             >
               <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_450px]">
                 <div>

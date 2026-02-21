@@ -9,6 +9,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useEscapeKey,useMediaResolver } from '@/lib/hooks';
 import { mediaTypeRegistry } from '@/lib/media-types';
@@ -225,10 +226,95 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                   )}
                 </div>
               )}
+
+              {/* Personal Notes Section */}
+              <div className="mt-8 border-t border-neutral-800 pt-6">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                    Personal Notes
+                  </h3>
+                  <span className="text-[10px] text-neutral-600">Auto-saves to board</span>
+                </div>
+                <LocalNotesEditor
+                  initialNotes={resolvedItem.notes || ''}
+                  itemId={resolvedItem.id}
+                  onUpdate={onUpdateItem}
+                />
+              </div>
             </>
           )}
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Internal component to handle notes editing with local state and debounced updates.
+ * This prevents the entire application from re-rendering on every keystroke,
+ * which can cause focus loss and lag.
+ * @param props - Component props.
+ * @param props.initialNotes - The initial notes value from the parent state.
+ * @param props.itemId - The ID of the item being edited.
+ * @param props.onUpdate - Callback to persist changes back to the global state.
+ * @returns The rendered notes editor.
+ */
+function LocalNotesEditor({
+  initialNotes,
+  itemId,
+  onUpdate,
+}: {
+  initialNotes: string;
+  itemId: string;
+  onUpdate?: (id: string, updates: Partial<MediaItem>) => void;
+}) {
+  const [notes, setNotes] = useState(initialNotes);
+  const [prevInitialNotes, setPrevInitialNotes] = useState(initialNotes);
+  const notesRef = useRef(notes);
+  const onUpdateRef = useRef(onUpdate);
+
+  // Keep refs up to date
+  useEffect(() => {
+    notesRef.current = notes;
+  }, [notes]);
+
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+  }, [onUpdate]);
+
+  // Sync with prop if the initialNotes from parent changed (e.g. background update or cross-tab)
+  if (initialNotes !== prevInitialNotes) {
+    setPrevInitialNotes(initialNotes);
+    setNotes(initialNotes);
+  }
+
+  // Debounce the update to the global state
+  useEffect(() => {
+    // Skip if no change from current starting point
+    if (notes === initialNotes) return;
+
+    const timeoutId = setTimeout(() => {
+      onUpdateRef.current?.(itemId, { notes });
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [notes, itemId, initialNotes]);
+
+  // CRITICAL: Flush on unmount to prevent data loss when closing the modal quickly
+  useEffect(() => {
+    return function flushNotesOnUnmount() {
+      if (notesRef.current !== initialNotes) {
+        onUpdateRef.current?.(itemId, { notes: notesRef.current });
+      }
+    };
+  }, [itemId, initialNotes]);
+
+  return (
+    <textarea
+      value={notes}
+      onChange={(e) => setNotes(e.target.value)}
+      placeholder="Write your thoughts about this item... (e.g. why it's in this tier)"
+      className="w-full min-h-[120px] rounded-lg border border-neutral-800 bg-neutral-950 p-4 text-sm leading-relaxed text-neutral-300 placeholder:text-neutral-700 focus:border-neutral-600 focus:ring-0 focus:outline-none transition-colors"
+    />
   );
 }

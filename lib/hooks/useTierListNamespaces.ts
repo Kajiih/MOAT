@@ -41,6 +41,7 @@ interface UseTierListNamespacesProps {
     handleDragStart: (event: DragStartEvent) => void;
     handleDragOver: (event: DragOverEvent) => void;
     handleDragEnd: (event: DragEndEvent) => void;
+    handleDragCancel: () => void;
   };
   structureRaw: {
     handleAddTier: () => void;
@@ -174,19 +175,25 @@ export function useTierListNamespaces({
   }, [allBoardItems]);
 
   // Namespace: ui
-  const ui = useMemo(
-    () => ({
+  const ui = useMemo(() => {
+    // Find the 'live' version of the item on the board if it exists.
+    // This ensure that the details modal always shows up-to-date data (like notes)
+    // even if it was opened from a stale search result or previous state.
+    const liveDetailsItem = uiState.detailsItem
+      ? allBoardItems.find((i) => i.id === uiState.detailsItem!.id) || uiState.detailsItem
+      : null;
+
+    return {
       headerColors: utilsRaw.headerColors,
-      detailsItem: uiState.detailsItem,
+      detailsItem: liveDetailsItem,
       showDetails: (item: MediaItem) => uiState.setDetailsItem(item),
       closeDetails: () => uiState.setDetailsItem(null),
       showShortcuts: uiState.showShortcuts,
       setShowShortcuts: uiState.setShowShortcuts,
       addedItemIds,
       allBoardItems,
-    }),
-    [utilsRaw.headerColors, uiState, addedItemIds, allBoardItems],
-  );
+    };
+  }, [utilsRaw.headerColors, uiState, addedItemIds, allBoardItems]);
 
   return {
     actions,

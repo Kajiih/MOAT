@@ -85,8 +85,9 @@
      - This architecture decouples state transitions from UI components, using a standard `dispatch(Action)` pattern.
   2. **Global Media Registry**: A persistent `IndexedDB` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat.
-  4. **Optimized Merging**: The registry uses shallow diffing of critical metadata (title, artist, primary images) before falling back to deep object comparison, minimizing unnecessary state updates and disk writes.
+  4. **Optimized Merging**: The registry uses shallow diffing of critical metadata (title, artist, primary images, and notes) before falling back to deep object comparison, minimizing unnecessary state updates and disk writes.
   5. **Batch Processing**: The `registerItems` API allows processing hundreds of items in a single React render cycle and a single IndexedDB transaction, critical for imports and search result delivery.
+  6. **Safe Upward Merging**: The synchronization logic between the Registry and the Board is uni-directional for metadata but bi-directional for state. To prevent data loss (e.g., losing personal notes), the merging logic in `item-reducer.ts` ignores `undefined` values in update payloads, ensuring that a partial object from the cache never unsets populated fields on the board.
 
 - **Hook Composition Pattern**:
   - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally.

@@ -84,6 +84,10 @@ export class BoardPage {
   getTierRow(label: string) {
     return this.page.locator(`[data-tier-label="${label}"]`);
   }
+  
+  getMediaCard(id: string) {
+    return this.page.getByTestId(`media-card-${id}`);
+  }
 
   async renameTier(oldLabel: string, newLabel: string) {
     const row = this.getTierRow(oldLabel);

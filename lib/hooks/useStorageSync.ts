@@ -138,7 +138,7 @@ export function useStorageSync<T>({
 
   // 3. Flush on unmount
   useEffect(() => {
-    return () => {
+    return function flushOnUnmount() {
       // Ensure any pending write is executed before unmount.
       // The callback itself contains the deepEqual check, so this is safe and efficient.
       debouncedSave.flush();

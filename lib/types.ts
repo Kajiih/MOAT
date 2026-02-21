@@ -94,6 +94,8 @@ export interface BaseMediaItem {
   rating?: number;
   /** Number of reviews or popularity metric */
   reviewCount?: number;
+  /** Personal notes about the item. */
+  notes?: string;
 }
 
 /**
@@ -377,6 +379,7 @@ const BaseMediaItemSchema = z.object({
   imageUrl: z.string().optional(),
   rating: z.number().optional(),
   reviewCount: z.number().optional(),
+  notes: z.string().optional(),
 });
 
 /**

@@ -19,7 +19,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { Dispatch, useCallback, useState } from 'react';
+import { Dispatch, useCallback, useRef, useState } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
@@ -46,6 +46,7 @@ export function useTierListDnD(
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
+  const isDraggingRef = useRef(false);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -68,6 +69,7 @@ export function useTierListDnD(
 
   const handleDragStart = useCallback(
     (e: DragStartEvent) => {
+      isDraggingRef.current = true;
       pushHistory();
       const { active } = e;
       if (active.data.current?.type === 'tier') {
@@ -107,6 +109,8 @@ export function useTierListDnD(
       // within the same render cycle (due to layout shifts).
       // See: https://github.com/clauderic/dnd-kit/issues/496
       setTimeout(() => {
+        if (!isDraggingRef.current) return;
+        
         dispatch({
           type: ActionType.MOVE_ITEM,
           payload: {
@@ -123,6 +127,7 @@ export function useTierListDnD(
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
+      isDraggingRef.current = false;
       const { active, over } = event;
       setActiveItem(null);
       setActiveTier(null);
@@ -170,6 +175,13 @@ export function useTierListDnD(
     [dispatch, state.tierDefs],
   );
 
+  const handleDragCancel = useCallback(() => {
+    isDraggingRef.current = false;
+    setActiveItem(null);
+    setActiveTier(null);
+    setOverId(null);
+  }, []);
+
   return {
     sensors,
     activeItem,
@@ -178,5 +190,6 @@ export function useTierListDnD(
     handleDragStart,
     handleDragOver,
     handleDragEnd,
+    handleDragCancel,
   };
 }

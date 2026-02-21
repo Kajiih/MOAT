@@ -60,6 +60,7 @@ interface TierListContextType {
     handleDragStart: (event: DragStartEvent) => void;
     handleDragOver: (event: DragOverEvent) => void;
     handleDragEnd: (event: DragEndEvent) => void;
+    handleDragCancel: () => void;
   };
   ui: {
     headerColors: string[];

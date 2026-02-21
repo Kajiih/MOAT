@@ -105,13 +105,28 @@ describe('MediaRegistryProvider', () => {
       result.current.registerItem(item);
     });
 
-    // We can't easily check 'setRegistry' calls here since we mocked usePersistentState
-    // to use internal useState, but we can verify the state remains the same reference if possible.
-    // Instead, let's just ensure logic is sound.
     act(() => {
       result.current.registerItem({ ...item });
     });
 
     expect(result.current.getItem('1')).toEqual(item);
+  });
+
+  it('should update notes in the registry', () => {
+    const { result } = renderHook(() => useMediaRegistry(), { wrapper });
+
+    const item: MediaItem = { id: '1', title: 'Test', type: 'artist', mbid: 'mbid-1', notes: 'Old' };
+
+    act(() => {
+      result.current.registerItem(item);
+    });
+
+    expect(result.current.getItem('1')?.notes).toBe('Old');
+
+    act(() => {
+      result.current.registerItem({ ...item, notes: 'New' });
+    });
+
+    expect(result.current.getItem('1')?.notes).toBe('New');
   });
 });

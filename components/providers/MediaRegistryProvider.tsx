@@ -61,7 +61,7 @@ function shouldUpdateItem(existing: MediaItem, newItem: MediaItem): boolean {
   const isDetailsChanged =
     newItem.details && JSON.stringify(newItem.details) !== JSON.stringify(existing.details);
 
-  const isMetadataGeneralChanged = newItem.title !== existing.title;
+  const isMetadataGeneralChanged = newItem.title !== existing.title || newItem.notes !== existing.notes;
   let isArtistChanged = false;
 
   // Only compare 'artist' field for types that have it

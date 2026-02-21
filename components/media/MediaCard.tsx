@@ -11,7 +11,7 @@ import { DraggableAttributes, useDraggable } from '@dnd-kit/core';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Eye, Info, X } from 'lucide-react';
+import { Eye, Info, StickyNote, X } from 'lucide-react';
 
 import { useInteraction } from '@/components/ui/InteractionContext';
 import { useMediaResolver } from '@/lib/hooks';
@@ -225,6 +225,16 @@ function BaseMediaCard({
         >
           <Info size={12} />
         </button>
+      )}
+
+      {/* Notes Indicator */}
+      {item.notes && (
+        <div 
+          className="pointer-events-none absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
+          title="Contains personal notes"
+        >
+          <StickyNote size={10} strokeWidth={3} />
+        </div>
       )}
 
       {/* Type Badge (Only if no info button and no image) */}
