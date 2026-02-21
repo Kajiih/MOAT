@@ -37,9 +37,6 @@ test.describe('General Board Actions', () => {
     await searchPanel.switchTab('song');
     await searchPanel.search('Test');
     await searchPanel.dragToTier('item-1', 'S');
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500);
-    
     await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 10_000 });
 
     // 2. Clear board

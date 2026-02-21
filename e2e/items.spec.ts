@@ -50,16 +50,10 @@ test.describe('Item Management', () => {
     await expect(await searchPanel.getResultCard('item-2')).toBeVisible();
 
     await searchPanel.dragToTier('item-1', 'S');
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500); 
     await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 15_000 });
 
-    // Small delay between drags
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500);
-
     await searchPanel.dragToTier('item-2', 'S');
-    await expect(page.getByTestId('media-card-item-2')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('media-card-item-2')).toBeVisible({ timeout: 15_000 });
     
     // Wait for state to settle before running tests
     // eslint-disable-next-line playwright/no-wait-for-timeout

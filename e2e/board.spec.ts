@@ -36,17 +36,35 @@ test.describe('Board Management', () => {
   });
 
   test('should randomize tier colors', async ({ page }) => {
-    // Check initial classes of the first tier header (the colored box inside the row)
-    const firstTierHeader = page.locator('[data-tier-label] > div').first();
-    await expect(firstTierHeader).toBeVisible();
-    const initialClass = await firstTierHeader.getAttribute('class');
+    // 1. Capture initial colors of all tiers
+    const tiers = page.locator('[data-tier-label] > div:first-child');
+    await expect(tiers).toHaveCount(6);
+    
+    const getColors = async () => {
+      const all = await tiers.all();
+      return Promise.all(all.map(t => t.evaluate(el => {
+        const bgClass = Array.from(el.classList).find(c => c.startsWith('bg-'));
+        return bgClass;
+      })));
+    };
 
-    // Click the floating randomize button directly
+    const initialColors = await getColors();
+
+    // 2. Click the floating randomize button
     await page.getByTitle('Randomize Colors').click();
 
-    // Check that at least the first tier changed class (highly probable)
-    // We wait for the class attribute to be different
-    await expect(firstTierHeader).not.toHaveClass(initialClass || '');
+    // 3. Wait for the success toast as a signal that the action fired
+    await expect(page.getByText('Colors randomized!')).toBeVisible();
+
+    // 4. Verify that the collective colors have changed
+    // We expect the new set of colors to be different from the old one
+    await expect.poll(async () => {
+      const currentColors = await getColors();
+      return JSON.stringify(initialColors) !== JSON.stringify(currentColors);
+    }, {
+      message: 'Expected tier colors to change after randomization',
+      timeout: 5000,
+    }).toBeTruthy();
   });
 
   test('should change a tier color', async ({ page, browserName }) => {
