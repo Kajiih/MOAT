@@ -71,6 +71,16 @@ export interface MediaService<F = Record<string, unknown>> {
   readonly category: BoardCategory;
 
   /**
+   * Unique identifier for this service (e.g., 'rawg', 'igdb', 'musicbrainz').
+   */
+  readonly id: string;
+
+  /**
+   * Human-readable label for UI display (e.g., 'RAWG', 'IGDB').
+   */
+  readonly label: string;
+
+  /**
    * Searches for items in the provider's database.
    */
   search(query: string, type: MediaType, options?: SearchOptions<F>): Promise<SearchResult>;

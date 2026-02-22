@@ -1,14 +1,15 @@
 /**
  * @file SearchPanel.tsx
  * @description The sidebar component responsible for searching and filtering media items.
- * It manages the active tab (Album/Artist/Song), global search settings, and renders persistent SearchTabs.
+ * When a category has multiple services (e.g., RAWG/IGDB for games),
+ * the available tabs, filters, and sort options are driven by the selected service.
  * @module SearchPanel
  */
 
 'use client';
 
 import { Eye, EyeOff, Search } from 'lucide-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { useUserPreferences } from '@/components/providers/UserPreferencesProvider';
@@ -21,12 +22,7 @@ import { SearchTab } from './SearchTab';
 
 /**
  * The sidebar component responsible for searching and filtering media items.
- * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
- */
-
-/**
- * The sidebar component responsible for searching and filtering media items.
- * It manages the active tab (Album/Artist/Song) and renders persistant SearchTabs for each.
+ * Derives available tabs from the selected service when multiple services exist.
  * @returns The rendered SearchPanel component.
  */
 export function SearchPanel() {
@@ -38,11 +34,29 @@ export function SearchPanel() {
 
   const { showAdvanced } = useUserPreferences();
 
-  // Get supported types for current category from registry
-  const supportedTypes = mediaTypeRegistry.getByCategory(category || 'music').map((def) => def.id);
+  const currentCategory = category || 'music';
+  const categoryConfig = mediaTypeRegistry.getCategory(currentCategory);
+  const hasMultipleServices = (categoryConfig?.services?.length ?? 0) > 1;
+
+  // Service selection (only meaningful when multiple services exist)
+  const [serviceId, setServiceId] = usePersistentState<string>(
+    `moat-search-service-${currentCategory}`,
+    categoryConfig?.services?.[0]?.id ?? '',
+  );
+
+  // Derive supported types from the selected service, or fall back to static category types
+  const supportedTypes = useMemo(() => {
+    if (hasMultipleServices && categoryConfig?.services) {
+      const selectedService = categoryConfig.services.find((s) => s.id === serviceId);
+      if (selectedService) return selectedService.types;
+      // Fallback to first service if saved serviceId is invalid
+      return categoryConfig.services[0].types;
+    }
+    return mediaTypeRegistry.getByCategory(currentCategory).map((def) => def.id);
+  }, [currentCategory, hasMultipleServices, categoryConfig, serviceId]);
 
   const [activeType, setActiveType] = usePersistentState<MediaType>(
-    `moat-search-active-type-${category || 'music'}`, // Namespace by category
+    `moat-search-active-type-${currentCategory}-${serviceId}`, // Namespace by category AND service
     supportedTypes[0],
   );
   const [showAdded, setShowAdded] = usePersistentState<boolean>('moat-search-show-added', true);
@@ -50,10 +64,6 @@ export function SearchPanel() {
   // Global Search Settings (Synchronized across all tabs and filters)
   const [fuzzy, setFuzzy] = usePersistentState<boolean>('moat-search-fuzzy', true);
   const [wildcard, setWildcard] = usePersistentState<boolean>('moat-search-wildcard', true);
-  const [service, setService] = usePersistentState<string>(
-    `moat-search-service-${category || 'music'}`,
-    category === 'game' ? 'rawg' : '',
-  );
 
   // Ensure active type is valid for current service
   React.useEffect(() => {
@@ -90,27 +100,32 @@ export function SearchPanel() {
             {showAdded ? <EyeOff size={12} /> : <Eye size={12} />}
             <span>{showAdded ? 'Hide Added' : 'Show Added'}</span>
           </button>
-
-          {category === 'game' && (
-            <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-black p-0.5">
-              {['rawg', 'igdb'].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setService(s)}
-                  className={`rounded px-2 py-1 text-[10px] font-bold uppercase transition-all ${
-                    service === s
-                      ? 'bg-neutral-800 text-white shadow-sm'
-                      : 'text-neutral-500 hover:text-neutral-400'
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
+      {/* Service Toggle (only shown when multiple services exist) */}
+      {hasMultipleServices && categoryConfig?.services && (
+        <div className="mb-3 flex shrink-0 items-center gap-2">
+          <span className="text-[10px] font-medium text-neutral-500">Database:</span>
+          <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-black p-0.5">
+            {categoryConfig.services.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setServiceId(s.id)}
+                className={`rounded px-2.5 py-1 text-[10px] font-bold uppercase transition-all ${
+                  serviceId === s.id
+                    ? 'bg-neutral-800 text-white shadow-sm'
+                    : 'text-neutral-500 hover:text-neutral-400'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Media Type Tabs (driven by selected service) */}
       <div className="mb-4 flex shrink-0 gap-1 rounded-lg border border-neutral-800 bg-black p-1">
         {supportedTypes.map((type: MediaType) => {
           const config = mediaTypeRegistry.get(type);
@@ -134,7 +149,7 @@ export function SearchPanel() {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {supportedTypes.map((type: MediaType) => (
           <SearchTab
-            key={type}
+            key={`${serviceId}-${type}`}
             type={type}
             addedItemIds={addedItemIds}
             onLocate={handleLocate}
@@ -142,7 +157,7 @@ export function SearchPanel() {
             showAdded={showAdded}
             globalFuzzy={fuzzy}
             globalWildcard={wildcard}
-            serviceId={service}
+            serviceId={serviceId}
             onInfo={onInfo}
           />
         ))}
@@ -150,3 +165,4 @@ export function SearchPanel() {
     </div>
   );
 }
+

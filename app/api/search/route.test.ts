@@ -37,7 +37,7 @@ describe('Search API Route', () => {
 
     await GET(request);
 
-    expect(getMediaService).toHaveBeenCalledWith('music');
+    expect(getMediaService).toHaveBeenCalledWith('music', undefined);
     expect(mockSearch).toHaveBeenCalledWith(
       'Queen',
       'artist',
@@ -70,7 +70,7 @@ describe('Search API Route', () => {
 
     await GET(request);
 
-    expect(getMediaService).toHaveBeenCalledWith('cinema');
+    expect(getMediaService).toHaveBeenCalledWith('cinema', undefined);
     expect(mockSearch).toHaveBeenCalledWith('', 'movie', expect.anything());
   });
 

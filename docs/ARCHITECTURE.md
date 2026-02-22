@@ -143,7 +143,7 @@ The central authority for "What a media type is".
   - UI Config (colors, subtitle formatters)
   - Filters (definitions for text, select, range, etc.)
   - Sort Options
-- **Multi-Service Category**: For **Games**, the registry supports multiple concurrent services (RAWG, IGDB), allowing users to switch data sources dynamically via a UI toggle.
+- **Multi-Service Category**: For **Games**, the registry supports multiple concurrent services (RAWG, IGDB). The `CategoryConfig.services` array declares which types each service provides, and the `SearchPanel` derives available tabs from the selected service.
 - **Registry**: Exposes a unified API (`get(type)`, `getByCategory(cat)`, `get(category, serviceId)`) for consumers.
 
 #### B. Service Layer (`lib/services/`)

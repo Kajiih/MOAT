@@ -95,6 +95,18 @@ export interface MediaTypeDefinition<F extends string = string> {
 }
 
 /**
+ * Metadata for a service provider within a category.
+ */
+export interface ServiceConfig {
+  /** Service identifier (e.g., 'rawg', 'igdb') */
+  id: string;
+  /** Human-readable label */
+  label: string;
+  /** The media types this service supports */
+  types: MediaType[];
+}
+
+/**
  * Configuration for a media type category (e.g., "music", "cinema").
  */
 export interface CategoryConfig {
@@ -104,8 +116,10 @@ export interface CategoryConfig {
   label: string;
   /** Plural form */
   labelPlural: string;
-  /** Primary media types in this category */
+  /** Primary media types in this category (used when there is only one service) */
   primaryTypes: MediaType[];
   /** Secondary/supporting types */
   secondaryTypes: MediaType[];
+  /** Available service providers. If > 1, the UI shows a service toggle. */
+  services?: ServiceConfig[];
 }

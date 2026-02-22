@@ -49,6 +49,8 @@ interface OpenLibraryWorkDetails {
  */
 export class OpenLibraryService implements MediaService<BookFilters> {
   readonly category = 'book' as const;
+  readonly id = 'openlibrary';
+  readonly label = 'Open Library';
 
   async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     if (type === 'author') {

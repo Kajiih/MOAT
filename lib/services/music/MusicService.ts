@@ -16,6 +16,8 @@ import { MediaService, SearchOptions } from '../types';
  */
 export class MusicService implements MediaService<MusicFilters> {
   readonly category = 'music' as const;
+  readonly id = 'musicbrainz';
+  readonly label = 'MusicBrainz';
 
   async search(
     query: string,

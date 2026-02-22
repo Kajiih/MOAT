@@ -1,5 +1,13 @@
 # Features List: MOAT - Tier List App
 
+## Vocabulary
+
+- Media/Media type: "Music", "Movie", "Video Games", "Books"
+- Service/Database: "Musicbrainz", "TMDB"
+  - A media type can have several service
+- Entitity type: A kid of entity depending on a Media (`Album`, `Song` or `Artit` for the `Music` media)
+- Item: A particular entity of a media ("Michael Jackson" is an `Artist` in the `Music` media)
+
 ## 1. Core Tier List Functionality
 
 The heart of the application, focusing on the user's ability to create, organize, and manage tier lists.

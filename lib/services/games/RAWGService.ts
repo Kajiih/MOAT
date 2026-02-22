@@ -53,6 +53,8 @@ interface RAWGDeveloperListResponse {
 
 export class RAWGService implements MediaService<GameFilters> {
   readonly category = 'game' as const;
+  readonly id = 'rawg';
+  readonly label = 'RAWG';
 
   private getApiKey(): string {
     return process.env.RAWG_API_KEY || '';

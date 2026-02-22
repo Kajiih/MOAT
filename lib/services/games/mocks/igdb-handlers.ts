@@ -1,3 +1,8 @@
+/**
+ * @file igdb-handlers.ts
+ * @description MSW handlers for mocking the IGDB API in tests.
+ */
+
 import { http, HttpResponse } from 'msw';
 
 export const igdbHandlers = [
@@ -19,7 +24,7 @@ export const igdbHandlers = [
         {
           id: 1942,
           name: 'The Witcher 3: Wild Hunt',
-          first_release_date: 1431993600,
+          first_release_date: 1_431_993_600,
           cover: { image_id: 'co1p98' },
           total_rating: 94.8,
           total_rating_count: 5000,
@@ -37,7 +42,7 @@ export const igdbHandlers = [
           id: 1942,
           name: 'The Witcher 3: Wild Hunt',
           summary: 'The best game ever.',
-          first_release_date: 1431993600,
+          first_release_date: 1_431_993_600,
           cover: { image_id: 'co1p98' },
           involved_companies: [
             { company: { name: 'CD PROJEKT RED' }, developer: true }

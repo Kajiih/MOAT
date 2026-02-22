@@ -61,8 +61,12 @@ mediaTypeRegistry.registerCategory({
   id: 'game',
   label: 'Games',
   labelPlural: 'Games',
-  primaryTypes: ['game', 'franchise'],
+  primaryTypes: ['game'],
   secondaryTypes: ['developer'],
+  services: [
+    { id: 'rawg', label: 'RAWG', types: ['game', 'developer'] },
+    { id: 'igdb', label: 'IGDB', types: ['game', 'franchise'] },
+  ],
 });
 
 // Export the configured registry

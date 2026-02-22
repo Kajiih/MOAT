@@ -10,7 +10,7 @@ import { logger } from '@/lib/logger';
 import { GameFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
-import { FranchiseItem, GameItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
+import { FranchiseItem, GameItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
 
 const IGDB_BASE_URL = 'https://api.igdb.com/v4';
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2/token';
@@ -48,6 +48,8 @@ let tokenExpiry: number = 0;
 
 export class IGDBService implements MediaService<GameFilters> {
   readonly category = 'game' as const;
+  readonly id = 'igdb';
+  readonly label = 'IGDB';
 
   private getClientId(): string {
     return process.env.IGDB_CLIENT_ID || '';
@@ -259,13 +261,27 @@ export class IGDBService implements MediaService<GameFilters> {
 
   private getSortOrdering(sort: string): string | undefined {
     switch (sort) {
-      case 'rating_desc': return 'total_rating desc';
-      case 'rating_asc': return 'total_rating asc';
-      case 'date_desc': return 'first_release_date desc';
-      case 'date_asc': return 'first_release_date asc';
-      case 'title_asc': return 'name asc';
-      case 'title_desc': return 'name desc';
-      default: return undefined;
+      case 'rating_desc': {
+        return 'total_rating desc';
+      }
+      case 'rating_asc': {
+        return 'total_rating asc';
+      }
+      case 'date_desc': {
+        return 'first_release_date desc';
+      }
+      case 'date_asc': {
+        return 'first_release_date asc';
+      }
+      case 'title_asc': {
+        return 'name asc';
+      }
+      case 'title_desc': {
+        return 'name desc';
+      }
+      default: {
+        return undefined;
+      }
     }
   }
 

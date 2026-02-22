@@ -33,6 +33,8 @@ interface TMDBDetails extends TMDBResult {
 
 export class TMDBService implements MediaService<CinemaFilters> {
   readonly category = 'cinema' as const;
+  readonly id = 'tmdb';
+  readonly label = 'TMDB';
 
   private getApiKey(): string {
     return process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
