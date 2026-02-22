@@ -68,19 +68,26 @@ test.describe('Resilience and Failure Modes', () => {
     const boardCard = page.locator('[data-tier-label="S"]').getByTestId('media-card-error-item-1');
     await expect(boardCard).toBeVisible({ timeout: 10000 });
 
-    // Attempt to open details, which triggers background enrichment fetch
+    // Attempt to open details
     await boardCard.hover();
-    await boardCard.getByRole('button', { name: /View details/i }).click();
+    const detailsButton = boardCard.getByRole('button', { name: /View details/i });
+    await expect(detailsButton).toBeVisible();
+    await detailsButton.click();
+
+    // Verify dialog opens
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
 
     // Verify it handles the details fetch failure properly (inline error message)
     await expect(async () => {
-      const errorMsg = page.getByText(/Failed to load additional details/i);
-      await expect(errorMsg).toBeVisible();
-    }).toPass();
+      const errorMsg = dialog.getByText(/Failed to load additional details/i);
+      await expect(errorMsg).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 10000 });
 
     // The details modal probably opens anyway but with basic info (which is fine, it shouldn't crash)
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible();
-    await expect(dialog).toContainText('Error Item');
+    await expect(dialog.getByText('Error Item')).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
   });
 });
