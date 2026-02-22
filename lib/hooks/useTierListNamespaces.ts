@@ -49,6 +49,7 @@ interface UseTierListNamespacesProps {
     handleDeleteTier: (id: string) => void;
     handleRandomizeColors: () => void;
     handleClear: () => void;
+    handleResetItems: () => void;
   };
   ioRaw: {
     handleExport: () => void;
@@ -146,6 +147,7 @@ export function useTierListNamespaces({
       locate: utilsRaw.handleLocate,
       import: ioRaw.handleImport,
       export: ioRaw.handleExport,
+      resetItems: structureRaw.handleResetItems,
       updateCategory: (category: BoardCategory) =>
         dispatch({ type: ActionType.UPDATE_CATEGORY, payload: { category } }),
     }),

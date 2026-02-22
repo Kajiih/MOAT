@@ -26,6 +26,7 @@ interface BoardOptionsMenuProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
   onClear: () => void;
+  onResetItems: () => void;
   onShowShortcuts: () => void;
   showAdvanced: boolean;
   onToggleAdvanced: (value: boolean) => void;
@@ -39,6 +40,7 @@ interface BoardOptionsMenuProps {
  * @param props.onImport - Callback fired when the user selects a JSON file.
  * @param props.onExport - Callback fired when the user clicks the export button.
  * @param props.onClear - Callback fired when the user clicks the clear button.
+ * @param props.onResetItems - Callback fired when the user clicks the reset items button.
  * @param props.onShowShortcuts - Callback fired when the user clicks the shortcuts button.
  * @param props.showAdvanced - Whether advanced mode is currently enabled.
  * @param props.onToggleAdvanced - Callback fired when the user toggles advanced mode.
@@ -50,6 +52,7 @@ export function BoardOptionsMenu({
   onImport,
   onExport,
   onClear,
+  onResetItems,
   onShowShortcuts,
   showAdvanced,
   onToggleAdvanced,
@@ -181,6 +184,17 @@ export function BoardOptionsMenu({
           </div>
 
           <div className="my-2 h-px bg-neutral-800" />
+          
+          <button
+            onClick={() => {
+              onResetItems();
+              setIsOpen(false);
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+          >
+            <Trash2 size={18} className="text-neutral-500" />
+            <span>Reset items to unranked</span>
+          </button>
 
           <button
             onClick={() => {

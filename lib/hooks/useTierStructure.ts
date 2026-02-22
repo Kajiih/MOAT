@@ -63,11 +63,20 @@ export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory
     }
   }, [dispatch, showToast, pushHistory]);
 
+  const handleResetItems = useCallback(() => {
+    if (confirm('Move all ranked items back to unranked?')) {
+      pushHistory();
+      dispatch({ type: ActionType.MOVE_ALL_TO_UNRANKED });
+      showToast('All items moved to unranked', 'info');
+    }
+  }, [dispatch, showToast, pushHistory]);
+
   return {
     handleAddTier,
     handleUpdateTier,
     handleDeleteTier,
     handleRandomizeColors,
     handleClear,
+    handleResetItems,
   };
 }

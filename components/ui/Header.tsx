@@ -48,6 +48,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
       export: handleExport,
       publish: handlePublish,
       clear: handleClear,
+      resetItems: handleResetItems,
       updateTitle,
       updateCategory,
     },
@@ -140,6 +141,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
             onImport={handleImport}
             onExport={handleExport}
             onClear={handleClear}
+            onResetItems={handleResetItems}
             onShowShortcuts={() => setShowShortcuts(true)}
             showAdvanced={showAdvanced}
             onToggleAdvanced={setShowAdvanced}

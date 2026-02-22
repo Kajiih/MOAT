@@ -43,6 +43,7 @@ interface TierListContextType {
     deleteTier: (id: string) => void;
     randomizeColors: () => void;
     clear: () => void;
+    resetItems: () => void;
     updateTitle: (title: string) => void;
     updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => void;
     removeItemFromTier: (tierId: string, itemId: string) => void;

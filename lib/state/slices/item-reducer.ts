@@ -243,6 +243,35 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
       return handleUpdateItem(state, action.payload);
     }
 
+    case ActionType.MOVE_ALL_TO_UNRANKED: {
+      const allItems = Object.values(state.items).flat();
+      if (allItems.length === 0) return state;
+
+      const newItems: Record<string, MediaItem[]> = {};
+      const newLookup: Record<string, string> = {};
+
+      // Initialize all tiers as empty
+      state.tierDefs.forEach((tier) => {
+        newItems[tier.id] = [];
+      });
+
+      const unrankedTier =
+        state.tierDefs.find((t) => t.label.toLowerCase() === 'unranked') || state.tierDefs.at(-1);
+
+      if (unrankedTier) {
+        newItems[unrankedTier.id] = allItems;
+        allItems.forEach((item) => {
+          newLookup[item.id] = unrankedTier.id;
+        });
+      }
+
+      return {
+        ...state,
+        items: newItems,
+        itemLookup: newLookup,
+      };
+    }
+
     default: {
       return state;
     }

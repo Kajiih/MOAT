@@ -39,6 +39,8 @@ export enum ActionType {
   SET_STATE = 'SET_STATE',
   /** Updates the category of the board. */
   UPDATE_CATEGORY = 'UPDATE_CATEGORY',
+  /** Moves all items from ranked tiers back to the unranked section. */
+  MOVE_ALL_TO_UNRANKED = 'MOVE_ALL_TO_UNRANKED',
 }
 
 /**
@@ -70,4 +72,5 @@ export type TierListAction =
   | { type: ActionType.CLEAR_BOARD }
   | { type: ActionType.IMPORT_STATE; payload: { state: TierListState } }
   | { type: ActionType.SET_STATE; payload: { state: TierListState } }
-  | { type: ActionType.UPDATE_CATEGORY; payload: { category: BoardCategory } };
+  | { type: ActionType.UPDATE_CATEGORY; payload: { category: BoardCategory } }
+  | { type: ActionType.MOVE_ALL_TO_UNRANKED };

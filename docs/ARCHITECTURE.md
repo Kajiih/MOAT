@@ -51,6 +51,7 @@
   - **High-Res Rendering**: Export boards as professional PNG images via `html-to-image`. The capture logic automatically excludes UI controls and the search panel for a clean, branded output.
 - **History Control**:
   - **Undo/Redo**: Full state history management allows users to revert actions (drag-and-drop, text edits, deletions) with standard keyboard shortcuts or UI buttons.
+  - **Reset Items**: A "Reset items to unranked" feature allows users to move all ranked items back to the "Unranked" tier in a single click, providing a quick way to restart the ranking process without losing board items.
   - **Keyboard Shortcuts Modal**: A helpful modal accessible from the header lists all available keyboard shortcuts.
 
 ## Technical Architecture

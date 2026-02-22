@@ -100,4 +100,20 @@ test.describe('Item Management', () => {
     // The notes indicator badge should now be visible on the card
     await expect(card1.getByTestId('notes-indicator')).toBeVisible();
   });
+
+  test('should reset all items to unranked', async ({ page, boardPage }) => {
+    // Both items from beforeEach are in S
+    await expect(page.locator('[data-tier-label="S"] [data-testid^="media-card-item-"]')).toHaveCount(2);
+
+    // Trigger reset
+    await boardPage.openOptions();
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByText('Reset items to unranked').click();
+
+    // Verify S is empty
+    await expect(page.locator('[data-tier-label="S"] [data-testid^="media-card-item-"]')).toHaveCount(0);
+
+    // Verify Unranked has the items
+    await expect(page.locator('[data-tier-label="Unranked"] [data-testid^="media-card-item-"]')).toHaveCount(2);
+  });
 });
