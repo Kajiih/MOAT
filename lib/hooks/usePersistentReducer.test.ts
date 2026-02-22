@@ -129,4 +129,65 @@ describe('usePersistentReducer', () => {
       expect(result.current[2]).toBe(true);
     });
   });
+
+  it('should batch multiple rapid dispatches into a single storage write', async () => {
+    vi.mocked(storage.get).mockResolvedValue(null);
+    vi.mocked(storage.set).mockClear();
+
+    const TEST_DELAY = 100;
+    const { result } = renderHook(() =>
+      usePersistentReducer(testReducer, { count: 0 }, 'batch-key', {
+        persistenceDelay: TEST_DELAY,
+      }),
+    );
+
+    await waitFor(() => expect(result.current[2]).toBe(true));
+    vi.mocked(storage.set).mockClear();
+
+    // 1. Rapidly dispatch multiple actions
+    act(() => {
+      result.current[1]({ type: 'increment' });
+      result.current[1]({ type: 'increment' });
+      result.current[1]({ type: 'increment' });
+    });
+
+    expect(result.current[0].count).toBe(3);
+
+    // 2. Wait for the debounce period
+    await waitFor(
+      () => {
+        // Should only be called ONCE with the final state
+        expect(storage.set).toHaveBeenCalledTimes(1);
+        expect(storage.set).toHaveBeenCalledWith('batch-key', { count: 3 });
+      },
+      { timeout: 1000 },
+    );
+  });
+
+  it('should flush pending reducer changes on unmount', async () => {
+    vi.mocked(storage.get).mockResolvedValue(null);
+    vi.mocked(storage.set).mockClear();
+
+    const { result, unmount } = renderHook(() =>
+      usePersistentReducer(testReducer, { count: 0 }, 'flush-unmount-key', {
+        persistenceDelay: 5000,
+      }),
+    );
+
+    await waitFor(() => expect(result.current[2]).toBe(true));
+    vi.mocked(storage.set).mockClear();
+
+    // Trigger change
+    act(() => {
+      result.current[1]({ type: 'increment' });
+    });
+
+    expect(storage.set).not.toHaveBeenCalled();
+
+    // Unmount while write is pending
+    unmount();
+
+    // Should flush immediately
+    expect(storage.set).toHaveBeenCalledWith('flush-unmount-key', { count: 1 });
+  });
 });
