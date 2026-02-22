@@ -12,7 +12,7 @@ export class DashboardPage {
   }
 
   async goto() {
-    await this.page.goto('/dashboard');
+    await this.page.goto('/dashboard', { waitUntil: 'commit' });
     // Wait for the loading state to disappear
     await expect(this.page.getByText('Loading registry...')).not.toBeVisible({ timeout: 10_000 });
     // Wait for core UI to be ready (hydration complete)
