@@ -3,12 +3,14 @@ import fs from 'node:fs';
 import { expect, test } from '@playwright/test';
 
 import { BoardPage } from './pom/BoardPage';
+import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Import/Export/Share', () => {
   test.setTimeout(60_000);
   let boardPage: BoardPage;
 
   test.beforeEach(async ({ page }) => {
+    await clearBrowserStorage(page);
     boardPage = new BoardPage(page);
     // Mock clipboard for headless browsers
     await page.addInitScript(() => {

@@ -1,7 +1,9 @@
 /**
  * @file setup.tsx
- * @description Global Vitest setup file. Contains global mocks for framework components.
+ * @description Global Vitest setup file. Contains global mocks for framework components and custom matchers.
  */
+
+import './matchers/tierlist';
 
 import { vi } from 'vitest';
 

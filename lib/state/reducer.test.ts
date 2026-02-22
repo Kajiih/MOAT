@@ -25,9 +25,8 @@ describe('tierListReducer', () => {
 
     const nextState = tierListReducer(state, action);
 
-    const newTierId = nextState.tierDefs[0]?.id;
-    expect(newTierId).toBe('mock-uuid');
-    expect(nextState.items[newTierId]).toEqual([]);
+    expect(nextState).toHaveTier('New Tier');
+    expect(nextState).toHaveItemCount(0, 'New Tier');
   });
 
   it('should handle DELETE_TIER by removing the tier and migrating its items', () => {
@@ -47,10 +46,9 @@ describe('tierListReducer', () => {
     const nextState = tierListReducer(state, action);
 
     // Behavior: The tier is gone, but the item is preserved in the remaining tier
-    expect(nextState.tierDefs.find((t) => t.id === 'delete')).toBeUndefined();
-    expect(Object.values(nextState.items).flat()).toContainEqual(
-      expect.objectContaining({ id: 'item-1' }),
-    );
+    expect(nextState).not.toHaveTier('Delete');
+    expect(nextState).toHaveTier('Keep');
+    expect(nextState).toContainItem('item-1', 'Keep');
   });
 
   it('should handle MOVE_ITEM by updating item positions', () => {
@@ -98,7 +96,7 @@ describe('tierListReducer', () => {
   it('should handle UPDATE_TITLE', () => {
     const action = { type: ActionType.UPDATE_TITLE, payload: { title: 'New' } } as const;
     const nextState = tierListReducer(createBaseState(), action);
-    expect(nextState.title).toBe('New');
+    expect(nextState).toHaveTitle('New');
   });
 
   it('should handle SET_STATE by replacing the entire state', () => {
@@ -110,6 +108,8 @@ describe('tierListReducer', () => {
     const action = { type: ActionType.SET_STATE, payload: { state: newState } } as const;
     const nextState = tierListReducer(createBaseState(), action);
     expect(nextState).toEqual(newState);
+    expect(nextState).toHaveTitle('Forced State');
+    expect(nextState).toHaveTier('Forced');
   });
 
   it('should be idempotent when moving item over its own tier container', () => {
