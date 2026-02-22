@@ -61,6 +61,17 @@ export interface BookFilters extends BaseFilters {
 }
 
 /**
+ * Filter state for Game-related media types.
+ */
+export interface GameFilters extends BaseFilters {
+  yearRange?: { min: string; max: string };
+  minYear?: string;
+  maxYear?: string;
+  platform?: string;
+  tag?: string;
+}
+
+/**
  * Discriminanted union or helper type to get filter type by category.
  */
-export type CategoryFilters = MusicFilters | CinemaFilters | BookFilters;
+export type CategoryFilters = MusicFilters | CinemaFilters | BookFilters | GameFilters;

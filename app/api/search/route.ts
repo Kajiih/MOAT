@@ -114,7 +114,7 @@ export async function GET(request: Request) {
       return v && (!Array.isArray(v) || v.length > 0);
     });
 
-    const isDiscoveryCategory = category === 'cinema' || category === 'book';
+    const isDiscoveryCategory = category === 'cinema' || category === 'book' || category === 'game';
     const hasSpecificSort = options.sort && options.sort !== 'relevance';
 
     if (!query && !hasFilters && !isDiscoveryCategory && !hasSpecificSort) {

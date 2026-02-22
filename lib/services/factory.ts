@@ -6,8 +6,9 @@ import { BoardCategory } from '@/lib/types';
 
 import { OpenLibraryService } from './books/OpenLibraryService';
 import { TMDBService } from './cinema/TMDBService';
+import { RAWGService } from './games/RAWGService';
 import { MusicService } from './music/MusicService';
-import { AnyMediaService, MediaService } from './types';
+import { AnyMediaService } from './types';
 
 /**
  * Registry to manage MediaService instances dynamically.
@@ -21,11 +22,13 @@ class MediaServiceRegistry {
     const music = new MusicService();
     const cinema = new TMDBService();
     const book = new OpenLibraryService();
+    const game = new RAWGService();
 
     // Register them
     this.register(music as AnyMediaService);
     this.register(cinema as AnyMediaService);
     this.register(book as AnyMediaService);
+    this.register(game as AnyMediaService);
 
     this.fallbackService = music as unknown as AnyMediaService;
   }

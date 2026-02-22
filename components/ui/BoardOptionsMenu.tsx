@@ -8,6 +8,7 @@
 import {
   Book,
   Download,
+  Gamepad2,
   Keyboard,
   Layout,
   MoreVertical,
@@ -32,7 +33,7 @@ interface BoardOptionsMenuProps {
   showAdvanced: boolean;
   onToggleAdvanced: (value: boolean) => void;
   currentCategory?: string;
-  onUpdateCategory?: (category: 'music' | 'cinema' | 'book') => void;
+  onUpdateCategory?: (category: 'music' | 'cinema' | 'book' | 'game') => void;
 }
 
 /**
@@ -168,8 +169,8 @@ export function BoardOptionsMenu({
             <h4 className="mb-2 text-[10px] font-bold tracking-wider text-neutral-600 uppercase">
               Board Category
             </h4>
-            <div className="grid grid-cols-3 gap-1">
-              {(['music', 'cinema', 'book'] as const).map((cat) => (
+            <div className="grid grid-cols-4 gap-1">
+              {(['music', 'cinema', 'book', 'game'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => {
@@ -186,7 +187,8 @@ export function BoardOptionsMenu({
                   {cat === 'music' && <Music size={14} />}
                   {cat === 'cinema' && <Layout size={14} />}
                   {cat === 'book' && <Book size={14} />}
-                  <span className="text-[10px] font-bold capitalize">{cat}</span>
+                  {cat === 'game' && <Gamepad2 size={14} />}
+                  <span className="text-[10px] font-bold capitalize">{cat === 'game' ? 'Games' : cat}</span>
                 </button>
               ))}
             </div>

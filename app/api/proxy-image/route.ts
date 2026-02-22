@@ -22,6 +22,7 @@ const ALLOWED_HOSTS = new Set([
   'commons.wikimedia.org',
   'upload.wikimedia.org',
   'i.scdn.co', // Spotify
+  'media.rawg.io', // RAWG video game covers
 ]);
 
 /**

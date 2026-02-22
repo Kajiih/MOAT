@@ -8,10 +8,12 @@
 import useSWR from 'swr';
 
 import { swrFetcher } from '@/lib/api/fetcher';
+import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaDetails, MediaType } from '@/lib/types';
 
 /**
  * Custom hook to fetch detailed information for a specific media item.
+ * Automatically derives the board category from the media type.
  * @param id - The ID of the media item to fetch.
  * @param type - The type of the media item.
  * @param fallbackData - Optional fallback data.
@@ -22,8 +24,11 @@ export function useMediaDetails(
   type: MediaType | null,
   fallbackData?: MediaDetails,
 ) {
+  // Derive the category from the media type via the registry
+  const category = type && mediaTypeRegistry.has(type) ? mediaTypeRegistry.get(type).category : null;
+
   const { data, isLoading, error, isValidating } = useSWR<MediaDetails>(
-    id && type ? `/api/details?id=${id}&type=${type}` : null,
+    id && type && category ? `/api/details?id=${id}&type=${type}&category=${category}` : null,
     swrFetcher,
     {
       fallbackData,

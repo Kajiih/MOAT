@@ -9,7 +9,7 @@
 ### 1. Advanced Metadata Pipeline
 
 - **Search & Discovery**:
-  - **Multi-Service Architecture**: Pluggable media services (MusicBrainz, TMDB, OpenLibrary) with a unified search interface.
+  - **Multi-Service Architecture**: Pluggable media services (MusicBrainz, TMDB, OpenLibrary, RAWG) with a unified search interface.
   - **Unified Filter System**: Consolidated filter panel (`SearchFilters`) tailored to each media type, including:
     - **Entity Specific Filters**:
       - **Artists**: Filter by type and country.
@@ -74,6 +74,7 @@
   - **Music**: `MusicService` (MusicBrainz)
   - **Cinema**: `TMDBService` (TMDB)
   - **Books**: `OpenLibraryService` (Open Library)
+  - **Games**: `RAWGService` (RAWG Video Games Database)
 - **Robustness**: Shared `secureFetch` client with automatic exponential backoff retries for 503, 504, and 429 errors.
 
 ### 2. State & Data Flow Strategy
@@ -293,6 +294,7 @@ We use high-fidelity integration tests with MSW to verify our sorting and discov
 - **`TMDBService.test.ts`**: Verifies that empty queries correctly trigger discovery mode and that server-side sorting via `sort_by` works as expected.
 - **`OpenLibraryService.test.ts`**: Ensures the native `sort` parameter is correctly mapped and passed to the API.
 - **`MusicService.test.ts`**: Confirms that services without sorting support correctly report themselves as not server-sorted, allowing the client to take over.
+- **`RAWGService.test.ts`**: Tests game search, details fetching, platform/developer mapping, and RAWG-specific ordering parameters.
 - **`route.test.ts`**: Validates the API's "Discovery Category" allow-list logic.
 
 #### G. Integration & Propagation Testing
@@ -385,7 +387,7 @@ Moat supports dynamic Open Graph images for social sharing.
     - `item-reducer.ts`: Logic for item movements and metadata.
     - `global-reducer.ts`: Logic for board titles and state overrides.
 - `lib/services/`:
-  - `music/`, `cinema/`, `books/`: Domain specific services.
+  - `music/`, `cinema/`, `books/`, `games/`: Domain specific services.
   - `factory.ts`: Service locator pattern.
   - `types.ts`: Core service interfaces.
 - `lib/media-types/`:

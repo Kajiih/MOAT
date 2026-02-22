@@ -162,6 +162,10 @@ export interface PersonItem extends BaseMediaItem {
  */
 export interface GameItem extends BaseMediaItem {
   type: 'game';
+  /** The primary developer studio. */
+  developer?: string;
+  /** Platforms the game is available on (e.g., ['PC', 'PlayStation 5']). */
+  platforms?: string[];
 }
 
 /**
@@ -355,6 +359,15 @@ export interface MediaDetails {
   /** Book specific: settings/places. */
   places?: string[];
 
+  /** Game specific: primary developer studio. */
+  developer?: string;
+  /** Game specific: publishing company. */
+  publisher?: string;
+  /** Game specific: platforms (e.g. ['PC', 'PlayStation 5']). */
+  platforms?: string[];
+  /** Game specific: Metacritic score (0-100). */
+  metacritic?: number;
+
   /** General description or bio. */
   description?: string;
 }
@@ -409,7 +422,11 @@ export const MediaItemSchema = z.discriminatedUnion('type', [
     type: z.literal('person'),
     knownFor: z.string().optional(),
   }),
-  BaseMediaItemSchema.extend({ type: z.literal('game') }),
+  BaseMediaItemSchema.extend({
+    type: z.literal('game'),
+    developer: z.string().optional(),
+    platforms: z.array(z.string()).optional(),
+  }),
   BaseMediaItemSchema.extend({
     type: z.literal('book'),
     author: z.string(),

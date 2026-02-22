@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Book, Clapperboard, Disc, Layout, Mic2, Music, Plus, Trash2 } from 'lucide-react';
+import { Book, Clapperboard, Disc, Gamepad2, Layout, Mic2, Music, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -66,6 +66,12 @@ const CreateBoardCard = ({
       label: 'Cinema',
       icon: <Clapperboard size={20} />,
       color: 'hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-blue-400',
+    },
+    {
+      id: 'game',
+      label: 'Games',
+      icon: <Gamepad2 size={20} />,
+      color: 'hover:bg-purple-500/10 hover:border-purple-500/50 hover:text-purple-400',
     },
     {
       id: 'book',

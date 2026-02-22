@@ -17,6 +17,7 @@ import { MediaItem } from '@/lib/types';
 
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
+import { GameView } from './details/GameView';
 import { SongView } from './details/SongView';
 import { MediaImage } from './MediaImage';
 
@@ -147,6 +148,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               {details.type === 'album' && <AlbumView details={details} />}
               {details.type === 'artist' && <ArtistView details={details} />}
               {details.type === 'song' && <SongView details={details} />}
+              {details.type === 'game' && <GameView details={details} />}
               {details.type === 'book' && (
                 <div className="space-y-6">
                   {details.firstSentence && (
