@@ -234,17 +234,22 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
 - **Lucene Query Validation**: A robust `lucene-evaluator` parses and evaluates complex queries (AND, OR, NOT, Wildcards) against a fake in-memory database, ensuring service-to-API compatibility.
 - **Error Simulation**: MSW allows granular simulation of API failures (503s, 500s, 404s) to verify exponential backoff and retry logic in the `secureFetch` client.
 
-#### B. UI Component Testing
+#### B. State Management Testing
+
+- **Reducers**: `tierListReducer` is tested as a pure function. Every action (Move Item, Add Tier, Rename, etc.) is verified for correct state transitions and immutability.
+- **Custom Matchers**: A domain-specific assertion library (`lib/test/matchers/tierlist.ts`) provides high-level matchers like `expect(state).toHaveTier('S')`, `expect(state).toContainItem('id')`, and `expect(state).toHaveItemCount(count, 'tier')`. Globally registered and fully type-safe, these matchers make tests more declarative and resilient to internal state structure changes.
+
+#### C. UI Component Testing
 
 - **Focus**: Critical interactive components like `MediaCard`, `MediaPicker`, and `DetailsModal`.
 - **Methodology**: Uses `@testing-library/react` and `jsdom`. Mocks complex hooks (`useMediaSearch`, `useMediaDetails`) to test component logic in isolation from the network.
 - **Coverage**: Verifies rendering accuracy, user interactions (selection, deletion, hovering), and error states (image fallbacks).
 
-#### C. API Route Testing
+#### D. API Route Testing
 
 - **Unit Testing**: API routes like `app/api/search` are tested as pure functions, verifying query parameter parsing, service delegation, and HTTP status code mapping.
 
-#### D. End-to-End (E2E) Testing
+#### E. End-to-End (E2E) Testing
 
 - **Tooling**: Playwright is used for full browser environment testing, covering critical user journeys (CUJs).
 - **Core Coverage**:
@@ -259,18 +264,18 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - `DashboardPage`: Handles board creation, deletion, and cross-session persistence.
 - **Visual Regression**:
   - Automated screenshot comparisons ensure UI consistency across Chromium and Firefox.
-  - Snapshot testing covers the default board state, populated boards, and the search panel.
-- **Stabilization Techniques**:
-  - **Robust Locators**: Extensive use of `data-testid` and Playwright's `getBy*` locators to avoid brittle CSS selectors. Legacy `#media-card-*` selectors have been eliminated in favor of stable test-ids.
-  - **Storage Isolation**: A centralized `clearBrowserStorage` utility ensures every test starts with a clean `localStorage`, `sessionStorage`, and `IndexedDB`. This prevents cross-test pollution which is a common source of flakiness in persistence-heavy apps.
-  - **stable Drag-and-Drop**: 
-    - **Keyboard Simulation**: Critical reordering flows (Tiers and Items) utilize `dnd-kit`'s `KeyboardSensor` via `Space` and `Arrow` key simulations. This is significantly more robust in headless environments and low-resource CI containers than mouse-based drag simulations.
-    - **Optimized Mouse Events**: manual mouse sequences (move -> down -> wait -> move -> wiggle -> up) are used for cross-container moves where keyboard navigation is less practical, ensuring sensors have enough time to trigger.
-  - **Modal Stability**: Use of standard WIRA roles (`role="dialog"`, `aria-modal="true"`) to make components more discoverable for testing tools and assistive technologies.
-  - **Dynamic State Waiting**: Reliance on Playwright's auto-waiting assertions (like `toBeVisible` with custom timeouts) instead of arbitrary `waitForTimeout` calls, making the suite faster and more resilient.
+  - **Stability**: Snapshot tests wait for `document.fonts.ready` and include a settlement pause to prevent layout shift artifacts.
+  - **Masking**: Dynamic or transient UI elements (like the Camera icon or Back to Dashboard button) are masked during capture to focus only on board state consistency.
+  - **Stabilization Techniques**:
+    - **Robust Locators**: Extensive use of `data-testid` and Playwright's `getBy*` locators to avoid brittle CSS selectors. Legacy `#media-card-*` selectors have been eliminated in favor of stable test-ids.
+    - **Storage Isolation**: A centralized `clearBrowserStorage` utility ensures every test starts with a clean `localStorage`, `sessionStorage`, and `IndexedDB`.
+    - **Stable Drag-and-Drop**: 
+      - **Keyboard Simulation**: Critical reordering flows (Tiers and Items) utilize `dnd-kit`'s `KeyboardSensor` via `Space` and `Arrow` key simulations. Keyboard reordering includes intentional timing buffers (300ms-500ms) to ensure state reconciliation in slow/headless CI environments.
+      - **Centralized Mouse Utility**: Manual mouse sequences are consolidated into a `manualDragAndDrop` helper (`e2e/utils/mouse.ts`), providing a standard, reproducible move-down-wiggle-up sequence for cross-container interactions.
+    - **Asynchronous Polling**: Reliance on `expect.poll` for non-deterministic state updates (e.g., verifying a debounced favicon change or dashboard persistence) instead of arbitrary `waitForTimeout` sleeps.
 - **Multi-browser validation**: Chromium is the primary target for development, with verification on Firefox for cross-engine compatibility.
 
-#### E. Sorting & Discovery Testing
+#### F. Sorting & Discovery Testing
 
 We use high-fidelity integration tests with MSW to verify our sorting and discovery logic across all media services:
 
