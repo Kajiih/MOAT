@@ -53,13 +53,18 @@ test.describe('Visual Regression', () => {
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
 
-    // Wait for update
+    // Wait for the specific goal post (Visual S appearing)
     await expect(page.getByText('Visual S')).toBeVisible();
 
-    // Ensure fonts are loaded and layout is settled
+    // Ensure icons and layout are ready
     await page.evaluate(() => document.fonts.ready);
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500);
+    await expect(page.locator('.lucide-camera')).toBeVisible();
+    
+    // Final settling poll to ensure no layout shift is in progress
+    await expect.poll(async () => {
+      const box = await page.getByText('Visual S').boundingBox();
+      return box?.y;
+    }, { timeout: 2000 }).toBeGreaterThan(0);
 
     // Snapshot
     await expect(page).toHaveScreenshot('populated-board.png', {

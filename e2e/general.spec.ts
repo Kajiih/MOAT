@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { BoardPage } from './pom/BoardPage';
 import { SearchPanel } from './pom/SearchPanel';
-import { clearBrowserStorage } from './utils/storage';
+import { clearBrowserStorage, waitForStorageValue } from './utils/storage';
 
 test.describe('General Board Actions', () => {
   let boardPage: BoardPage;
@@ -49,16 +49,34 @@ test.describe('General Board Actions', () => {
   });
 
   test('should persist data after reload', async ({ page }) => {
-    await expect(boardPage.tierLabels).toHaveCount(6);
-
+    const uniqueTitle = `Persist Test ${Date.now()}`;
+    await boardPage.setBoardTitle(uniqueTitle);
     await boardPage.addTier();
     await expect(boardPage.tierLabels).toHaveCount(7);
 
-    // Wait for debounce (1000ms in architecture)
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(1500);
+    // Get the dynamic board ID from the URL reliably
+    const urlParts = page.url().split('/').filter(Boolean);
+    const boardId = urlParts[urlParts.length - 1];
+    
+    // console.log(`E2E: Persisting board ${boardId} with title ${uniqueTitle}`);
+
+    // Wait for debounce and persistence using polling
+    await waitForStorageValue(page, `moat-board-${boardId}`, (state: any) => {
+      if (!state) return false;
+      const titleMatch = state.title === uniqueTitle;
+      const countMatch = state.tierDefs?.length === 7;
+      // if (titleMatch && countMatch) console.log(`E2E: Found correct state in IDB! Title: ${state.title}, Tiers: ${state.tierDefs.length}`);
+      return titleMatch && countMatch;
+    });
 
     await page.reload();
+    // Ensure board is re-hydrated
+    await expect(boardPage.titleInput).toBeVisible();
+    
+    const currentUrl = page.url();
+    // console.log(`E2E: Reloaded. Current URL: ${currentUrl}`);
+    
+    await expect(boardPage.titleInput).toHaveValue(uniqueTitle);
     await expect(boardPage.tierLabels).toHaveCount(7);
   });
 });

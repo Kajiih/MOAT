@@ -192,37 +192,52 @@ export class BoardPage {
     const targetTier = this.getTierRow(targetTierLabel);
     const dropZone = targetTier.getByTestId('tier-drop-zone');
 
-    await manualDragAndDrop(this.page, card, dropZone);
+    await manualDragAndDrop(this.page, card.first(), dropZone);
+
+    // After manual drag, wait for the clone overlay to vanish
+    await expect(this.page.getByTestId(`media-card-${itemId}`)).toHaveCount(1, { timeout: 5000 });
   }
 
   /**
    * Reorders tiers using keyboard shortcuts (Space, ArrowUp/Down, Space).
-   * Much more stable in headless environments than mouse simulation.
    * @param sourceIndex - Original index of the tier.
    * @param targetIndex - Destination index of the tier.
    */
   async reorderTiersViaKeyboard(sourceIndex: number, targetIndex: number) {
     const handle = this.tierDragHandles.nth(sourceIndex);
     await handle.focus();
+    
+    // Get the label of the tier we're moving for verification
+    const tierLabel = await this.tierLabels.nth(sourceIndex).textContent();
+
     await this.page.keyboard.press(' '); // Start drag
     
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(300); // Wait for drag start to be registered
+    // Wait for dnd-kit accessibility state to reflect dragging
+    await expect(handle).toHaveAttribute('aria-pressed', 'true');
     
     const steps = Math.abs(sourceIndex - targetIndex);
     const key = targetIndex < sourceIndex ? 'ArrowUp' : 'ArrowDown';
     
     for (let i = 0; i < steps; i++) {
       await this.page.keyboard.press(key);
+      // Small pause to allow dnd-kit to process coordinate updates
       // eslint-disable-next-line playwright/no-wait-for-timeout
-      await this.page.waitForTimeout(300); // Increased for Firefox stability
+      await this.page.waitForTimeout(150); 
     }
     
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(300); // Let the last move settle
     await this.page.keyboard.press(' '); // End drag
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(1000); // Wait for animations to finish
+    
+    // Wait for drag to end
+    await expect(handle).not.toHaveAttribute('aria-pressed', 'true');
+    
+    // Verify final position using polling instead of fixed timeout
+    await expect.poll(async () => {
+      const labels = await this.getTierLabels();
+      return labels[targetIndex];
+    }).toBe(tierLabel);
+
+    // Ensure the drag overlay has fully unmounted to prevent strict mode violations later
+    await expect(this.page.locator(`[data-tier-label="${tierLabel}"]`)).toHaveCount(1);
   }
 
   /**
@@ -237,12 +252,15 @@ export class BoardPage {
     const sourceCard = cards.nth(sourceIndex);
 
     await sourceCard.focus();
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(300);
+    // Wait for focus to settle
+    await expect(sourceCard).toBeFocused();
     
+    const sourceText = await sourceCard.textContent();
+
     await this.page.keyboard.press(' '); // Start drag
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(300);
+    
+    // Instead of aria-pressed, we check for the placeholder class because dnd-kit replaces the element
+    await expect(sourceCard).toHaveClass(/border-dashed/);
     
     const steps = Math.abs(sourceIndex - targetIndex);
     const key = targetIndex < sourceIndex ? 'ArrowLeft' : 'ArrowRight';
@@ -250,13 +268,19 @@ export class BoardPage {
     for (let i = 0; i < steps; i++) {
       await this.page.keyboard.press(key);
       // eslint-disable-next-line playwright/no-wait-for-timeout
-      await this.page.waitForTimeout(300);
+      await this.page.waitForTimeout(150); 
     }
     
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(300);
     await this.page.keyboard.press(' '); // End drag
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(1000);
+    await expect(sourceCard).not.toHaveClass(/border-dashed/);
+
+    // Verify final position
+    await expect.poll(async () => {
+      const updatedCards = tierRow.getByTestId(/^media-card-item-/);
+      return await updatedCards.nth(targetIndex).textContent();
+    }).toContain(sourceText);
+
+    // Ensure the drag overlay has fully unmounted to prevent strict mode violations later
+    await expect(this.page.getByTestId(/^media-card-item-/).filter({ hasText: sourceText || '' })).toHaveCount(1);
   }
 }

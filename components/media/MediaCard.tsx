@@ -139,6 +139,8 @@ function BaseMediaCard({
     return (
       <div
         ref={setNodeRef}
+        id={domId || toDomId(item.id)}
+        data-testid={domId || toDomId(item.id)}
         style={style}
         className="z-0 h-28 w-28 rounded-md border-2 border-dashed border-blue-500/50 bg-blue-500/10"
       />

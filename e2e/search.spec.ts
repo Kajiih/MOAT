@@ -80,12 +80,27 @@ test.describe('Search Functionality', () => {
     await searchPanel.search('Unique');
     
     // 2. Add it to board
+    const resultCard = await searchPanel.getResultCard('duplicate-1');
+    await expect(resultCard).toBeVisible();
     await searchPanel.dragToTier('duplicate-1', 'S');
-    await expect(page.getByTestId('media-card-duplicate-1')).toBeVisible({ timeout: 10_000 });
+    // We expect the item to exist on the board now.
+    await expect(page.locator('[data-tier-label="S"]').getByTestId('media-card-duplicate-1')).toBeVisible({ timeout: 10_000 });
+    // Verify it's actually in the tier, not just testing the drag overlay
+    await expect(page.locator('[data-tier-label="S"]').getByTestId(/^media-card-/)).toHaveCount(1);
+
+    // Give the dnd-kit drop animation time to fully complete and unmount
+    // This is required because the DragOverlay shares the same DOM ID ('media-card-duplicate-1') as the board item
+    // You cannot simply use `toHaveCount(1)` because the count is 1 *during* the drag (just the clone),
+    // then 2 when it hits the board, then returns to 1 when the clone fades.
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(500);
 
     // 3. Toggle "Show Added" (Hide it)
     await expect(searchPanel.showAddedButton).toBeVisible();
     await searchPanel.setShowAdded(false);
+    
+    // VERIFY state actually toggled
+    await expect(searchPanel.showAddedButton).toContainText('Show Added');
 
     // 4. Verify it's hidden in search results
     await expect(page.getByTestId('media-card-search-duplicate-1')).toBeHidden();
