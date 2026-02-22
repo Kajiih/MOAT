@@ -110,7 +110,7 @@ export function useTierListDnD(
       // See: https://github.com/clauderic/dnd-kit/issues/496
       setTimeout(() => {
         if (!isDraggingRef.current) return;
-        
+
         dispatch({
           type: ActionType.MOVE_ITEM,
           payload: {

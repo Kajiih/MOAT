@@ -11,7 +11,7 @@
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { useEscapeKey,useMediaResolver } from '@/lib/hooks';
+import { useEscapeKey, useMediaResolver } from '@/lib/hooks';
 import { mediaTypeRegistry } from '@/lib/media-types';
 import { MediaItem } from '@/lib/types';
 
@@ -230,7 +230,6 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                   </div>
                 </div>
               )}
-
             </>
           )}
 
@@ -319,7 +318,7 @@ function LocalNotesEditor({
       value={notes}
       onChange={(e) => setNotes(e.target.value)}
       placeholder="Write your thoughts about this item... (e.g. why it's in this tier)"
-      className="w-full min-h-[120px] rounded-lg border border-neutral-800 bg-neutral-950 p-4 text-sm leading-relaxed text-neutral-300 placeholder:text-neutral-700 focus:border-neutral-600 focus:ring-0 focus:outline-none transition-colors"
+      className="min-h-[120px] w-full rounded-lg border border-neutral-800 bg-neutral-950 p-4 text-sm leading-relaxed text-neutral-300 transition-colors placeholder:text-neutral-700 focus:border-neutral-600 focus:ring-0 focus:outline-none"
     />
   );
 }

@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
@@ -29,8 +29,6 @@ vi.mock('@/lib/hooks', () => ({
 vi.mock('@/components/providers/MediaRegistryProvider', () => ({
   useMediaRegistry: vi.fn(),
 }));
-
-
 
 describe('MediaCard', () => {
   const mockItem: MediaItem = {

@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { useMediaSearch } from '@/components/search/hooks/useMediaSearch';
@@ -9,8 +9,6 @@ import { MediaPicker } from './MediaPicker';
 vi.mock('@/components/search/hooks/useMediaSearch', () => ({
   useMediaSearch: vi.fn(),
 }));
-
-
 
 describe('MediaPicker', () => {
   const mockOnSelect = vi.fn();
@@ -29,7 +27,9 @@ describe('MediaPicker', () => {
   };
 
   it('renders input and placeholder', () => {
-    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>);
+    vi.mocked(useMediaSearch).mockReturnValue(
+      defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>,
+    );
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
 
     expect(screen.getByPlaceholderText('Filter by artist...')).toBeDefined();
@@ -95,7 +95,9 @@ describe('MediaPicker', () => {
   });
 
   it('displays selected item and allows clearing', () => {
-    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>);
+    vi.mocked(useMediaSearch).mockReturnValue(
+      defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>,
+    );
     const selectedItem = { id: 'artist-1', name: 'Artist One', imageUrl: 'img1.jpg' };
 
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={selectedItem} />);
@@ -109,7 +111,9 @@ describe('MediaPicker', () => {
   });
 
   it('toggles filters view', () => {
-    vi.mocked(useMediaSearch).mockReturnValue(defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>);
+    vi.mocked(useMediaSearch).mockReturnValue(
+      defaultHookReturn as unknown as ReturnType<typeof useMediaSearch>,
+    );
     render(<MediaPicker type="artist" onSelect={mockOnSelect} selectedItem={null} />);
 
     const filterBtn = screen.getByTitle('Toggle Filters');

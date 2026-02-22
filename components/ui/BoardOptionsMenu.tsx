@@ -108,7 +108,15 @@ export function BoardOptionsMenu({
           <label className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white">
             <Upload size={18} className="text-neutral-500" />
             <span>Import JSON</span>
-            <input type="file" onChange={onImport} accept=".json" className="hidden" />
+            <input
+              type="file"
+              onChange={(e) => {
+                onImport(e);
+                setIsOpen(false);
+              }}
+              accept=".json"
+              className="hidden"
+            />
           </label>
 
           <button
@@ -184,7 +192,7 @@ export function BoardOptionsMenu({
           </div>
 
           <div className="my-2 h-px bg-neutral-800" />
-          
+
           <button
             onClick={() => {
               onResetItems();

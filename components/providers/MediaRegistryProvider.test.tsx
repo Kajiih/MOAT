@@ -115,7 +115,13 @@ describe('MediaRegistryProvider', () => {
   it('should update notes in the registry', () => {
     const { result } = renderHook(() => useMediaRegistry(), { wrapper });
 
-    const item: MediaItem = { id: '1', title: 'Test', type: 'artist', mbid: 'mbid-1', notes: 'Old' };
+    const item: MediaItem = {
+      id: '1',
+      title: 'Test',
+      type: 'artist',
+      mbid: 'mbid-1',
+      notes: 'Old',
+    };
 
     act(() => {
       result.current.registerItem(item);

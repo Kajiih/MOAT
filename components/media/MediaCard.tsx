@@ -233,7 +233,7 @@ function BaseMediaCard({
       {item.notes && (
         <div
           data-testid="notes-indicator"
-          className="pointer-events-none absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
+          className="pointer-events-none absolute right-1 bottom-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
           title="Contains personal notes"
         >
           <StickyNote size={10} strokeWidth={3} />

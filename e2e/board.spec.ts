@@ -3,8 +3,7 @@ import { expect, test } from './fixtures';
 test.describe('Board Management', () => {
   test.setTimeout(60_000);
 
-  test.beforeEach(async ({ page }) => {
-  });
+  test.beforeEach(async ({ page }) => {});
 
   test('should manage tiers: add, rename, reorder, delete', async ({ page, boardPage }) => {
     await boardPage.goto();
@@ -20,7 +19,7 @@ test.describe('Board Management', () => {
     await expect(page.getByText('New Awesome Tier')).toBeVisible();
 
     // 3. Reorder: move the new tier up ONE spot for better stability
-    const newIndex = await boardPage.tierLabels.count() - 1;
+    const newIndex = (await boardPage.tierLabels.count()) - 1;
     const targetIndex = newIndex - 1;
     await boardPage.reorderTiersViaKeyboard(newIndex, targetIndex);
     await expect(boardPage.tierLabels.nth(targetIndex)).toHaveText('New Awesome Tier');
@@ -36,13 +35,17 @@ test.describe('Board Management', () => {
     // 1. Capture initial colors of all tiers
     const tiers = page.locator('[data-tier-label] > div:first-child');
     await expect(tiers).toHaveCount(6);
-    
+
     const getColors = async () => {
       const all = await tiers.all();
-      return Promise.all(all.map(t => t.evaluate(el => {
-        const bgClass = [...el.classList].find(c => c.startsWith('bg-'));
-        return bgClass;
-      })));
+      return Promise.all(
+        all.map((t) =>
+          t.evaluate((el) => {
+            const bgClass = [...el.classList].find((c) => c.startsWith('bg-'));
+            return bgClass;
+          }),
+        ),
+      );
     };
 
     const initialColors = await getColors();
@@ -55,18 +58,22 @@ test.describe('Board Management', () => {
 
     // 4. Verify that the collective colors have changed
     // We expect the new set of colors to be different from the old one
-    await expect.poll(async () => {
-      const currentColors = await getColors();
-      return JSON.stringify(initialColors) !== JSON.stringify(currentColors);
-    }, {
-      message: 'Expected tier colors to change after randomization',
-      timeout: 5000,
-    }).toBeTruthy();
+    await expect
+      .poll(
+        async () => {
+          const currentColors = await getColors();
+          return JSON.stringify(initialColors) !== JSON.stringify(currentColors);
+        },
+        {
+          message: 'Expected tier colors to change after randomization',
+          timeout: 5000,
+        },
+      )
+      .toBeTruthy();
   });
 
   test('should change a tier color', async ({ page, boardPage, browserName }) => {
     await boardPage.goto();
-
 
     const firstTierHeader = page.locator('[data-tier-label] > div').first();
     const label = await boardPage.tierLabels.first().textContent();
@@ -107,11 +114,16 @@ test.describe('Board Management', () => {
     await expect(boardPage.tierLabels.first()).toHaveText(secondLabel!);
 
     // Wait for the favicon to update (it is debounced in the app)
-    await expect.poll(async () => {
-      return favicon.getAttribute('href');
-    }, {
-      message: 'Favicon should update after tier reorder',
-      timeout: 5000,
-    }).not.toBe(initialFavicon);
+    await expect
+      .poll(
+        async () => {
+          return favicon.getAttribute('href');
+        },
+        {
+          message: 'Favicon should update after tier reorder',
+          timeout: 5000,
+        },
+      )
+      .not.toBe(initialFavicon);
   });
 });

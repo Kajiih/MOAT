@@ -41,7 +41,8 @@ export default defineConfig({
           'browser.download.manager.showWhenStarting': false,
           'browser.download.panel.shown': false,
           'browser.download.useDownloadDir': true,
-          'browser.helperApps.neverAsk.saveToDisk': 'application/json,image/png,application/octet-stream',
+          'browser.helperApps.neverAsk.saveToDisk':
+            'application/json,image/png,application/octet-stream',
           'pdfjs.disabled': true,
         },
       } as any,

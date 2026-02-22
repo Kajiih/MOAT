@@ -178,7 +178,15 @@ export default function TierListApp() {
     state,
     isHydrated,
     actions: { randomizeColors, removeItemFromTier, updateMediaItem },
-    dnd: { sensors, activeItem, activeTier, handleDragStart, handleDragOver, handleDragEnd, handleDragCancel },
+    dnd: {
+      sensors,
+      activeItem,
+      activeTier,
+      handleDragStart,
+      handleDragOver,
+      handleDragEnd,
+      handleDragCancel,
+    },
     ui: { headerColors, detailsItem, allBoardItems, showDetails, closeDetails, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo },
   } = useTierListContext();
@@ -254,7 +262,7 @@ export default function TierListApp() {
           <div className="mx-auto max-w-[1600px]">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
 
-              <DndContext
+            <DndContext
               sensors={sensors}
               collisionDetection={rectIntersection}
               onDragStart={handleDragStart}

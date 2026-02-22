@@ -15,6 +15,7 @@
 - Rename a tier
 - Change a tier color
 - Randomize tier colors
+- Reset items to unranked
 
 ## Search
 
@@ -34,6 +35,7 @@
 - Remove an item from a tier
 
 ### Item notes
+
 - Add a note to an item
 - Edit an existing note
 

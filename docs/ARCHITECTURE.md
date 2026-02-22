@@ -263,7 +263,7 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - `BoardPage`: Encapsulates board interactions (tiers, title, options).
   - `SearchPanel`: Manages search tab switching, filtering, and dragging results.
   - `DashboardPage`: Handles board creation, deletion, and cross-session persistence.
-- **Fixture-Based Architecture**: 
+- **Fixture-Based Architecture**:
   - An extended Playwright `test` fixture (`e2e/fixtures.ts`) automatically provisions POM instances and handles routine cleanup (e.g., `clearBrowserStorage`) per test, drastically reducing boilerplate.
 - **API Mocking Strategy**:
   - Shared factory helpers (`e2e/utils/mocks.ts`) provide standardized `page.route` intercepts (`mockSearchResults`, `mockItemDetails`). This guarantees consistent structural dummy data across search and details interactions without repetitive setup strings.
@@ -274,16 +274,16 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - **Stabilization Techniques**:
     - **Robust Locators**: Extensive use of `data-testid` and Playwright's `getBy*` locators to avoid brittle CSS selectors. Legacy `#media-card-*` selectors have been eliminated in favor of stable test-ids.
     - **Storage Isolation**: A centralized `clearBrowserStorage` utility ensures every test starts with a clean `localStorage`, `sessionStorage`, and `IndexedDB`.
-    - **Stable Drag-and-Drop**: 
+    - **Stable Drag-and-Drop**:
       - **Keyboard Simulation**: Critical reordering flows (Tiers and Items) utilize `dnd-kit`'s `KeyboardSensor` via `Space` and `Arrow` key simulations. Keyboard reordering includes intentional timing buffers (300ms-500ms) to ensure state reconciliation in slow/headless CI environments.
       - **Centralized Mouse Utility**: Manual mouse sequences are consolidated into a `manualDragAndDrop` helper (`e2e/utils/mouse.ts`), providing a standard, reproducible move-down-wiggle-up sequence for cross-container interactions.
     - **Asynchronous Polling**: Reliance on `expect.poll` for non-deterministic state updates (e.g., verifying a debounced favicon change or dashboard persistence) instead of arbitrary `waitForTimeout` sleeps.
 - **Multi-browser validation**: Full parity between Chromium and Firefox.
-    - **Firefox Parity Fixes**:
-        - **Programmatic Downloads**: Configured via `firefoxUserPrefs` in `playwright.config.ts`.
-        - **Screenshot Stability**: Uses `fontEmbedCSS: ''` for Firefox to avoid a known `html-to-image` crash caused by font metadata parsing.
-        - **Navigation Resilience**: Uses `127.0.0.1` and `waitUntil: 'commit'` to prevent `NS_BINDING_ABORTED` errors.
-        - **Storage Isolation**: Relies on Playwright's native context isolation rather than manual `clearBrowserStorage` calls which are blocked by Firefox's security model on certain origins.
+  - **Firefox Parity Fixes**:
+    - **Programmatic Downloads**: Configured via `firefoxUserPrefs` in `playwright.config.ts`.
+    - **Screenshot Stability**: Uses `fontEmbedCSS: ''` for Firefox to avoid a known `html-to-image` crash caused by font metadata parsing.
+    - **Navigation Resilience**: Uses `127.0.0.1` and `waitUntil: 'commit'` to prevent `NS_BINDING_ABORTED` errors.
+    - **Storage Isolation**: Relies on Playwright's native context isolation rather than manual `clearBrowserStorage` calls which are blocked by Firefox's security model on certain origins.
 
 #### F. Sorting & Discovery Testing
 

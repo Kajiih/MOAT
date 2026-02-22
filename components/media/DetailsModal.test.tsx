@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
 import { useMediaResolver } from '@/lib/hooks';
@@ -22,8 +22,6 @@ vi.mock('@/components/providers/MediaRegistryProvider', () => ({
 vi.mock('./details/AlbumView', () => ({ AlbumView: () => <div data-testid="album-view" /> }));
 vi.mock('./details/ArtistView', () => ({ ArtistView: () => <div data-testid="artist-view" /> }));
 vi.mock('./details/SongView', () => ({ SongView: () => <div data-testid="song-view" /> }));
-
-
 
 describe('DetailsModal', () => {
   const mockItem = {
@@ -113,7 +111,10 @@ describe('DetailsModal', () => {
 
   it('renders AlbumView when album details are loaded', () => {
     vi.mocked(useMediaResolver).mockReturnValue({
-      resolvedItem: { ...mockItem, details: { id: mockItem.id, type: 'album' } } as unknown as MediaItem,
+      resolvedItem: {
+        ...mockItem,
+        details: { id: mockItem.id, type: 'album' },
+      } as unknown as MediaItem,
       isLoading: false,
       isFetching: false,
       error: null,
@@ -125,7 +126,13 @@ describe('DetailsModal', () => {
   });
 
   it('calls onUpdateItem when details are successfully fetched', async () => {
-    const details = { id: mockItem.id, mbid: mockItem.mbid, type: 'album' as const, tracks: [], imageUrl: 'new-img.jpg' };
+    const details = {
+      id: mockItem.id,
+      mbid: mockItem.mbid,
+      type: 'album' as const,
+      tracks: [],
+      imageUrl: 'new-img.jpg',
+    };
     vi.mocked(useMediaResolver).mockImplementation((item, options) => {
       // Simulate detail arrival
       if (options?.onUpdate) {
