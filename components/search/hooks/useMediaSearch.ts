@@ -22,6 +22,8 @@ import {
   ArtistItem,
   AuthorItem,
   BookItem,
+  DeveloperItem,
+  FranchiseItem,
   GameItem,
   MediaItem,
   MediaType,
@@ -45,6 +47,8 @@ type MediaItemMap = {
   game: GameItem;
   book: BookItem;
   author: AuthorItem;
+  developer: DeveloperItem;
+  franchise: FranchiseItem;
 };
 
 /**
@@ -68,6 +72,7 @@ interface UseMediaSearchConfig {
   ignoreFilters?: boolean;
   storageKey?: string;
   prefetchEnabled?: boolean;
+  serviceId?: string;
 }
 
 /**
@@ -182,6 +187,7 @@ export function useMediaSearch<T extends MediaType>(
     // Force overrides from config
     if (config?.artistId) filters.artistId = config.artistId;
     if (config?.albumId) filters.albumId = config.albumId;
+    if (config?.serviceId) filters.service = config.serviceId;
 
     return getSearchUrl(category || 'music', type, filters);
   }, [isEnabled, debouncedState, isFuzzy, isWildcard, ignoreFilters, category, type, config]);

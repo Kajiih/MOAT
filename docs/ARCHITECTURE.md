@@ -74,7 +74,9 @@
   - **Music**: `MusicService` (MusicBrainz)
   - **Cinema**: `TMDBService` (TMDB)
   - **Books**: `OpenLibraryService` (Open Library)
-  - **Games**: `RAWGService` (RAWG Video Games Database). Supports **Games** and **Developers** (Studios).
+  - **Games**: Supports multiple providers:
+    - **RAWG**: Primary database for **Games** and **Developers** (Studios).
+    - **IGDB**: Primary database for **Franchises** (Series) and secondary database for Games.
 - **Robustness**: Shared `secureFetch` client with automatic exponential backoff retries for 503, 504, and 429 errors.
 
 ### 2. State & Data Flow Strategy
@@ -141,7 +143,8 @@ The central authority for "What a media type is".
   - UI Config (colors, subtitle formatters)
   - Filters (definitions for text, select, range, etc.)
   - Sort Options
-- **Registry**: Exposes a unified API (`get(type)`, `getByCategory(cat)`) for consumers.
+- **Multi-Service Category**: For **Games**, the registry supports multiple concurrent services (RAWG, IGDB), allowing users to switch data sources dynamically via a UI toggle.
+- **Registry**: Exposes a unified API (`get(type)`, `getByCategory(cat)`, `get(category, serviceId)`) for consumers.
 
 #### B. Service Layer (`lib/services/`)
 

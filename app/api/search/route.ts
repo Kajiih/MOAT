@@ -106,9 +106,10 @@ export async function GET(request: Request) {
   const category = (searchParams.get('category') as BoardCategory) || 'music';
   const type = (searchParams.get('type') as MediaType) || 'album';
   const query = searchParams.get('query') || '';
+  const serviceId = searchParams.get('service') || undefined;
 
   try {
-    const service = getMediaService(category);
+    const service = getMediaService(category, serviceId);
     const options = parseSearchParams(searchParams, type);
 
     // Quick exit if no search intent

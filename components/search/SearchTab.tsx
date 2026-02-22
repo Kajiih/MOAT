@@ -33,6 +33,7 @@ interface SearchTabProps {
   globalFuzzy: boolean;
   globalWildcard: boolean;
   onInfo: (item: MediaItem) => void;
+  serviceId?: string;
 }
 
 /**
@@ -58,6 +59,7 @@ export function SearchTab({
   globalFuzzy,
   globalWildcard,
   onInfo,
+  serviceId,
 }: SearchTabProps) {
   const { showFilters, toggleFilters } = useSearchFilters(type);
 
@@ -80,6 +82,7 @@ export function SearchTab({
     wildcard: globalWildcard,
     enabled: !isHidden,
     prefetchEnabled: shouldPrefetch,
+    serviceId,
   });
 
   const { showToast } = useToast();

@@ -6,7 +6,7 @@
 
 import { authorDefinition, bookDefinition } from './definitions/books';
 import { movieDefinition, personDefinition, tvDefinition } from './definitions/cinema';
-import { developerDefinition, gameDefinition } from './definitions/games';
+import { developerDefinition, franchiseDefinition, gameDefinition } from './definitions/games';
 import { albumDefinition, artistDefinition, songDefinition } from './definitions/music';
 import { mediaTypeRegistry } from './registry';
 
@@ -25,6 +25,7 @@ mediaTypeRegistry.registerMany([
   // Games
   gameDefinition,
   developerDefinition,
+  franchiseDefinition,
 
   // Books
   bookDefinition,
@@ -60,7 +61,7 @@ mediaTypeRegistry.registerCategory({
   id: 'game',
   label: 'Games',
   labelPlural: 'Games',
-  primaryTypes: ['game'],
+  primaryTypes: ['game', 'franchise'],
   secondaryTypes: ['developer'],
 });
 

@@ -50,6 +50,10 @@ export function SearchPanel() {
   // Global Search Settings (Synchronized across all tabs and filters)
   const [fuzzy, setFuzzy] = usePersistentState<boolean>('moat-search-fuzzy', true);
   const [wildcard, setWildcard] = usePersistentState<boolean>('moat-search-wildcard', true);
+  const [service, setService] = usePersistentState<string>(
+    `moat-search-service-${category || 'music'}`,
+    category === 'game' ? 'rawg' : '',
+  );
 
   // Ensure active type is valid for current service
   React.useEffect(() => {
@@ -86,6 +90,24 @@ export function SearchPanel() {
             {showAdded ? <EyeOff size={12} /> : <Eye size={12} />}
             <span>{showAdded ? 'Hide Added' : 'Show Added'}</span>
           </button>
+
+          {category === 'game' && (
+            <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-black p-0.5">
+              {['rawg', 'igdb'].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setService(s)}
+                  className={`rounded px-2 py-1 text-[10px] font-bold uppercase transition-all ${
+                    service === s
+                      ? 'bg-neutral-800 text-white shadow-sm'
+                      : 'text-neutral-500 hover:text-neutral-400'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -120,6 +142,7 @@ export function SearchPanel() {
             showAdded={showAdded}
             globalFuzzy={fuzzy}
             globalWildcard={wildcard}
+            serviceId={service}
             onInfo={onInfo}
           />
         ))}

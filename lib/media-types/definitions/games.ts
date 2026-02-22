@@ -3,7 +3,7 @@
  * @description Media type definitions for video game types.
  */
 
-import { Building2, Gamepad2 } from 'lucide-react';
+import { Building2, Gamepad2, Library } from 'lucide-react';
 
 import { GameFilters } from '../filters';
 import { MediaTypeDefinition } from '../types';
@@ -96,6 +96,38 @@ export const developerDefinition: MediaTypeDefinition<keyof GameFilters> = {
 
   getSubtitle: () => 'Studio',
   getTertiaryText: () => 'Game Developer',
+
+  filters: [],
+
+  sortOptions: [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'title_asc', label: 'Name (A-Z)' },
+    { value: 'title_desc', label: 'Name (Z-A)' },
+  ],
+
+  defaultFilters: {
+    query: '',
+    sort: 'relevance',
+  },
+
+  searchable: true,
+  supportsDetails: true,
+};
+
+export const franchiseDefinition: MediaTypeDefinition<keyof GameFilters> = {
+  id: 'franchise',
+  category: 'game',
+
+  label: 'Franchise',
+  labelPlural: 'Franchises',
+  icon: Library,
+  colorClass: 'text-pink-400',
+
+  getSubtitle: (item) =>
+    'gameCount' in item && item.gameCount
+      ? `${item.gameCount} Games`
+      : 'Video Game Series',
+  getTertiaryText: () => 'Franchise',
 
   filters: [],
 
