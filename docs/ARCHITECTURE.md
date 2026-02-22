@@ -74,7 +74,7 @@
   - **Music**: `MusicService` (MusicBrainz)
   - **Cinema**: `TMDBService` (TMDB)
   - **Books**: `OpenLibraryService` (Open Library)
-  - **Games**: `RAWGService` (RAWG Video Games Database)
+  - **Games**: `RAWGService` (RAWG Video Games Database). Supports **Games** and **Developers** (Studios).
 - **Robustness**: Shared `secureFetch` client with automatic exponential backoff retries for 503, 504, and 429 errors.
 
 ### 2. State & Data Flow Strategy

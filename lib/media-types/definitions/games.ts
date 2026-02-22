@@ -3,7 +3,7 @@
  * @description Media type definitions for video game types.
  */
 
-import { Gamepad2 } from 'lucide-react';
+import { Building2, Gamepad2 } from 'lucide-react';
 
 import { GameFilters } from '../filters';
 import { MediaTypeDefinition } from '../types';
@@ -84,3 +84,33 @@ export const gameDefinition: MediaTypeDefinition<keyof GameFilters> = {
   searchable: true,
   supportsDetails: true,
 };
+
+export const developerDefinition: MediaTypeDefinition<keyof GameFilters> = {
+  id: 'developer',
+  category: 'game',
+
+  label: 'Developer',
+  labelPlural: 'Developers',
+  icon: Building2,
+  colorClass: 'text-indigo-400',
+
+  getSubtitle: () => 'Studio',
+  getTertiaryText: () => 'Game Developer',
+
+  filters: [],
+
+  sortOptions: [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'title_asc', label: 'Name (A-Z)' },
+    { value: 'title_desc', label: 'Name (Z-A)' },
+  ],
+
+  defaultFilters: {
+    query: '',
+    sort: 'relevance',
+  },
+
+  searchable: true,
+  supportsDetails: true,
+};
+

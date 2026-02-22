@@ -202,4 +202,34 @@ export const handlers = [
 
     return HttpResponse.json(game);
   }),
+
+  http.get(`${RAWG_BASE}/developers`, ({ request }) => {
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search') || '';
+
+    let filtered = [
+      { id: 10, name: 'Rockstar North', slug: 'rockstar-north', image_background: '/rockstar.jpg' },
+      { id: 1, name: 'Valve Software', slug: 'valve-software', image_background: '/valve.jpg' },
+    ];
+
+    if (search) {
+      filtered = filtered.filter(d => d.name.toLowerCase().includes(search.toLowerCase()));
+    }
+
+    return HttpResponse.json({
+      count: filtered.length,
+      results: filtered,
+    });
+  }),
+
+  http.get(`${RAWG_BASE}/developers/:id`, ({ params }) => {
+    const id = Number.parseInt(params.id as string, 10);
+    const devs = [
+      { id: 10, name: 'Rockstar North', slug: 'rockstar-north', image_background: '/rockstar.jpg', description: 'Makers of GTA' },
+      { id: 1, name: 'Valve Software', slug: 'valve-software', image_background: '/valve.jpg', description: 'Makers of Portal' },
+    ];
+    const dev = devs.find(d => d.id === id);
+    if (!dev) return new HttpResponse(null, { status: 404 });
+    return HttpResponse.json(dev);
+  }),
 ];

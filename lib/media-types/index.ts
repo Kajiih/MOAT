@@ -6,7 +6,7 @@
 
 import { authorDefinition, bookDefinition } from './definitions/books';
 import { movieDefinition, personDefinition, tvDefinition } from './definitions/cinema';
-import { gameDefinition } from './definitions/games';
+import { developerDefinition, gameDefinition } from './definitions/games';
 import { albumDefinition, artistDefinition, songDefinition } from './definitions/music';
 import { mediaTypeRegistry } from './registry';
 
@@ -24,6 +24,7 @@ mediaTypeRegistry.registerMany([
 
   // Games
   gameDefinition,
+  developerDefinition,
 
   // Books
   bookDefinition,
@@ -60,7 +61,7 @@ mediaTypeRegistry.registerCategory({
   label: 'Games',
   labelPlural: 'Games',
   primaryTypes: ['game'],
-  secondaryTypes: [],
+  secondaryTypes: ['developer'],
 });
 
 // Export the configured registry

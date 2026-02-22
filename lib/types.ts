@@ -38,7 +38,8 @@ export type MediaType =
   | 'person'
   | 'game'
   | 'book'
-  | 'author';
+  | 'author'
+  | 'developer';
 
 /**
  * Broad category for a board, determining which service and UI to use.
@@ -185,6 +186,13 @@ export interface AuthorItem extends BaseMediaItem {
 }
 
 /**
+ * Represents a video game developer studio.
+ */
+export interface DeveloperItem extends BaseMediaItem {
+  type: 'developer';
+}
+
+/**
  * Represents a single normalized media item in the application.
  */
 export type MediaItem =
@@ -196,7 +204,8 @@ export type MediaItem =
   | PersonItem
   | GameItem
   | BookItem
-  | AuthorItem;
+  | AuthorItem
+  | DeveloperItem;
 
 /**
  * Represents a simplified artist object used for selection state in pickers.
@@ -432,6 +441,7 @@ export const MediaItemSchema = z.discriminatedUnion('type', [
     author: z.string(),
   }),
   BaseMediaItemSchema.extend({ type: z.literal('author') }),
+  BaseMediaItemSchema.extend({ type: z.literal('developer') }),
 ]);
 
 /**
