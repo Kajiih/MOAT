@@ -14,7 +14,6 @@ import { GameItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/li
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
-/** Response shape for a single game from the RAWG API. */
 interface RAWGGame {
   id: number;
   slug: string;
@@ -24,26 +23,32 @@ interface RAWGGame {
   rating?: number;
   ratings_count?: number;
   metacritic?: number;
-  /** Simplified parent platforms (e.g., PC, PlayStation, Xbox). */
   parent_platforms?: { platform: { id: number; name: string; slug: string } }[];
-  /** Full platform list. */
   platforms?: { platform: { id: number; name: string; slug: string } }[];
   genres?: { id: number; name: string; slug: string }[];
   developers?: { id: number; name: string; slug: string }[];
   publishers?: { id: number; name: string; slug: string }[];
-  /** HTML-formatted description (full details only). */
   description?: string;
-  /** Plain-text description (full details only). */
   description_raw?: string;
   tags?: { id: number; name: string; slug: string; language: string }[];
 }
 
-/** RAWG paginated list response. */
+interface RAWGDeveloper {
+  id: number;
+  name: string;
+  slug: string;
+  image_background?: string;
+  description?: string;
+}
+
 interface RAWGListResponse {
   count: number;
-  next?: string;
-  previous?: string;
   results: RAWGGame[];
+}
+
+interface RAWGDeveloperListResponse {
+  count: number;
+  results: RAWGDeveloper[];
 }
 
 export class RAWGService implements MediaService<GameFilters> {
@@ -69,21 +74,12 @@ export class RAWGService implements MediaService<GameFilters> {
     return secureFetch<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`);
   }
 
-  async search(
+  private buildSearchParams(
     query: string,
-    type: MediaType,
-    options: SearchOptions = {},
-  ): Promise<SearchResult> {
-    const page = options.page || 1;
-    const filters = options.filters || {};
-    const sort = (options.sort as string) || 'relevance';
-
-    if (!this.getApiKey()) {
-      throw new Error('RAWG_API_KEY is missing');
-    }
-
+    options: SearchOptions,
+  ): Record<string, string> {
     const params: Record<string, string> = {
-      page: page.toString(),
+      page: (options.page || 1).toString(),
       page_size: '20',
     };
 
@@ -92,56 +88,72 @@ export class RAWGService implements MediaService<GameFilters> {
       params.search_precise = 'true';
     }
 
-    let endpoint = '/games';
-    if (type === 'developer') {
-      endpoint = '/developers';
-    }
-
-    // Apply filters (only for games)
-    if (endpoint === '/games') {
-      const minYear = filters.minYear as string | undefined;
-      const maxYear = filters.maxYear as string | undefined;
-      if (minYear || maxYear) {
-        const start = minYear ? `${minYear}-01-01` : '1970-01-01';
-        const end = maxYear ? `${maxYear}-12-31` : '2030-12-31';
-        params.dates = `${start},${end}`;
-      }
-
-      const platform = filters.platform as string | undefined;
-      if (platform) {
-        params.platforms = platform;
-      }
-
-      const tag = filters.tag as string | undefined;
-      if (tag) {
-        params.genres = tag.toLowerCase();
-      }
-    }
-
-    // Apply sorting
-    const isServerSorted = sort !== 'relevance';
-    const ordering = this.getSortOrdering(sort);
+    const ordering = this.getSortOrdering((options.sort as string) || 'relevance');
     if (ordering) {
       params.ordering = ordering;
     }
 
-    const data = await this.fetch<RAWGListResponse>(endpoint, params);
+    return params;
+  }
+
+  private applyGameFilters(params: Record<string, string>, filters: GameFilters): void {
+    const minYear = filters.minYear as string | undefined;
+    const maxYear = filters.maxYear as string | undefined;
+    if (minYear || maxYear) {
+      const start = minYear ? `${minYear}-01-01` : '1970-01-01';
+      const end = maxYear ? `${maxYear}-12-31` : '2030-12-31';
+      params.dates = `${start},${end}`;
+    }
+
+    const platform = filters.platform as string | undefined;
+    if (platform) {
+      params.platforms = platform;
+    }
+
+    const tag = filters.tag as string | undefined;
+    if (tag) {
+      params.genres = tag.toLowerCase();
+    }
+  }
+
+  async search(
+    query: string,
+    type: MediaType,
+    options: SearchOptions = {},
+  ): Promise<SearchResult> {
+    if (!this.getApiKey()) {
+      throw new Error('RAWG_API_KEY is missing');
+    }
+
+    const filters = (options.filters || {}) as unknown as GameFilters;
+    const params = this.buildSearchParams(query, options);
+    const endpoint = type === 'developer' ? '/developers' : '/games';
+
+    if (endpoint === '/games') {
+      this.applyGameFilters(params, filters);
+    }
+
+    const data = await this.fetch<RAWGListResponse | RAWGDeveloperListResponse>(
+      endpoint,
+      params,
+    );
 
     if (!data) {
-      return { results: [], page: 1, totalPages: 0, totalCount: 0 };
+      return { results: [], page: options.page || 1, totalPages: 0, totalCount: 0 };
     }
 
     const totalPages = Math.ceil(data.count / 20);
+    const results = (data.results as (RAWGGame | RAWGDeveloper)[]).map((res) => {
+      if (type === 'developer') return this.mapToDeveloperItem(res as RAWGDeveloper);
+      return this.mapToMediaItem(res as RAWGGame);
+    });
 
     return {
-      results: data.results.map((res: any) => {
-        if (type === 'developer') return this.mapToDeveloperItem(res);
-        return this.mapToMediaItem(res);
-      }),
-      page,
+      results,
+      page: options.page || 1,
       totalPages,
       totalCount: data.count,
-      isServerSorted,
+      isServerSorted: (options.sort as string) !== 'relevance',
     };
   }
 
@@ -150,57 +162,48 @@ export class RAWGService implements MediaService<GameFilters> {
       throw new Error('RAWG_API_KEY is missing');
     }
 
-    let endpoint = `/games/${id}`;
-    if (type === 'developer') {
-      endpoint = `/developers/${id}`;
-    }
-
-    const data = await this.fetch<any>(endpoint);
+    const endpoint = type === 'developer' ? `/developers/${id}` : `/games/${id}`;
+    const data = await this.fetch<RAWGGame | RAWGDeveloper>(endpoint);
 
     if (!data) {
       throw new Error(`Details not found for ${type} ${id}`);
     }
 
     if (type === 'developer') {
+      const dev = data as RAWGDeveloper;
       return {
         id,
         mbid: id,
         type: 'developer',
-        imageUrl: data.image_background ?? undefined,
-        description: data.description ?? undefined,
-        urls: [
-          { type: 'RAWG', url: `https://rawg.io/developers/${data.slug}` },
-        ],
+        imageUrl: dev.image_background,
+        description: dev.description,
+        urls: [{ type: 'RAWG', url: `https://rawg.io/developers/${dev.slug}` }],
       };
     }
 
+    const game = data as RAWGGame;
     const platforms =
-      data.parent_platforms?.map((p: any) => p.platform.name) ??
-      data.platforms?.map((p: any) => p.platform.name);
+      game.parent_platforms?.map((p) => p.platform.name) ??
+      game.platforms?.map((p) => p.platform.name);
 
     const tags = [
-      ...(data.genres?.map((g: any) => g.name) ?? []),
-      ...(data.tags?.filter((t: any) => t.language === 'eng').map((t: any) => t.name) ?? []).slice(0, 10),
-    ];
-
-    // Build external links
-    const urls: { type: string; url: string }[] = [
-      { type: 'RAWG', url: `https://rawg.io/games/${data.slug}` },
+      ...(game.genres?.map((g) => g.name) ?? []),
+      ...(game.tags?.filter((t) => t.language === 'eng').map((t) => t.name) ?? []).slice(0, 10),
     ];
 
     return {
       id,
       mbid: id,
       type: 'game',
-      imageUrl: data.background_image ?? undefined,
-      date: data.released ?? undefined,
-      description: data.description_raw ?? undefined,
-      developer: data.developers?.[0]?.name,
-      publisher: data.publishers?.[0]?.name,
+      imageUrl: game.background_image,
+      date: game.released,
+      description: game.description_raw,
+      developer: game.developers?.[0]?.name,
+      publisher: game.publishers?.[0]?.name,
       platforms,
-      metacritic: data.metacritic ?? undefined,
+      metacritic: game.metacritic,
       tags: tags.length > 0 ? tags : undefined,
-      urls,
+      urls: [{ type: 'RAWG', url: `https://rawg.io/games/${game.slug}` }],
     };
   }
 
@@ -208,11 +211,6 @@ export class RAWGService implements MediaService<GameFilters> {
     return ['game', 'developer'];
   }
 
-  /**
-   * Maps RAWG sort option strings to RAWG API ordering parameter values.
-   * @param sort - The sort option string from the search UI.
-   * @returns The RAWG API ordering parameter, or undefined for relevance (default).
-   */
   private getSortOrdering(sort: string): string | undefined {
     switch (sort) {
       case 'rating_desc': {
@@ -248,30 +246,27 @@ export class RAWGService implements MediaService<GameFilters> {
   private mapToMediaItem(game: RAWGGame): MediaItem {
     const platforms = game.parent_platforms?.map((p) => p.platform.name);
 
-    const item: GameItem = {
+    return {
       id: game.id.toString(),
       mbid: game.id.toString(),
       type: 'game',
       title: game.name,
       year: game.released?.split('-')[0],
-      imageUrl: game.background_image ?? undefined,
+      imageUrl: game.background_image,
       rating: game.rating,
       reviewCount: game.ratings_count,
       developer: game.developers?.[0]?.name,
       platforms,
-    };
-
-    return item;
+    } as GameItem;
   }
 
-  private mapToDeveloperItem(dev: Record<string, any>): MediaItem {
+  private mapToDeveloperItem(dev: RAWGDeveloper): MediaItem {
     return {
-      id: String(dev.id),
-      mbid: String(dev.id),
+      id: dev.id.toString(),
+      mbid: dev.id.toString(),
       type: 'developer',
-      title: String(dev.name || 'Unknown'),
-      imageUrl: (dev.image_background as string) || undefined,
+      title: dev.name || 'Unknown',
+      imageUrl: dev.image_background,
     };
   }
-
 }
