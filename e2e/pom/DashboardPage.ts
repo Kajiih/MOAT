@@ -19,11 +19,11 @@ export class DashboardPage {
     await expect(this.createBoardButton).toBeVisible();
   }
 
-  async createBoard(title?: string) {
+  async createBoard(title?: string, category: 'Music' | 'Cinema' | 'Books' | 'Games' = 'Music') {
     await this.createBoardButton.waitFor({ state: 'visible' });
     await this.createBoardButton.click();
     // Use first() to avoid strict mode violation if multiple elements match
-    await this.page.getByRole('button', { name: /Music/i }).first().click();
+    await this.page.getByRole('button', { name: new RegExp(category, 'i') }).first().click();
 
     // Once on the board page, we can rename it if needed
     if (title) {

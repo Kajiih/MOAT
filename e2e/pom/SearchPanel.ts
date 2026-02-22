@@ -10,6 +10,7 @@ export class SearchPanel {
   readonly results: Locator;
   readonly filterToggleButton: Locator;
   readonly showAddedButton: Locator;
+  readonly serviceToggle: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -19,18 +20,42 @@ export class SearchPanel {
     this.results = page.getByTestId('search-results');
     this.filterToggleButton = page.getByTitle('Toggle filters');
     this.showAddedButton = page.getByRole('button', { name: /(Show|Hide) Added/i });
+    this.serviceToggle = page.locator('text=Database:').locator('..');
   }
 
-  async switchTab(type: 'song' | 'album' | 'artist' | 'book' | 'movie' | 'tv') {
+  async switchTab(
+    type:
+      | 'song'
+      | 'album'
+      | 'artist'
+      | 'book'
+      | 'movie'
+      | 'tv'
+      | 'game'
+      | 'developer'
+      | 'franchise',
+  ) {
     const titleMap = {
-      song: 'Search songs',
-      album: 'Search albums',
-      artist: 'Search artists',
-      book: 'Search books',
-      movie: 'Search movies',
-      tv: 'Search tv shows',
+      song: 'Search Songs',
+      album: 'Search Albums',
+      artist: 'Search Artists',
+      book: 'Search Books',
+      movie: 'Search Movies',
+      tv: 'Search TV Shows',
+      game: 'Search Games',
+      developer: 'Search Developers',
+      franchise: 'Search Franchises',
     };
-    await this.page.getByTitle(titleMap[type]).click();
+    await this.page.getByTitle(titleMap[type], { exact: false }).click();
+  }
+
+  /**
+   * Switches the active service/database (e.g., RAWG ↔ IGDB).
+   * Only visible when the category has multiple services.
+   * @param label - The service label (e.g., 'RAWG', 'IGDB').
+   */
+  async switchService(label: string) {
+    await this.serviceToggle.getByRole('button', { name: label, exact: true }).click();
   }
 
   async search(query: string) {
