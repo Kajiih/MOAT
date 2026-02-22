@@ -262,6 +262,10 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - `BoardPage`: Encapsulates board interactions (tiers, title, options).
   - `SearchPanel`: Manages search tab switching, filtering, and dragging results.
   - `DashboardPage`: Handles board creation, deletion, and cross-session persistence.
+- **Fixture-Based Architecture**: 
+  - An extended Playwright `test` fixture (`e2e/fixtures.ts`) automatically provisions POM instances and handles routine cleanup (e.g., `clearBrowserStorage`) per test, drastically reducing boilerplate.
+- **API Mocking Strategy**:
+  - Shared factory helpers (`e2e/utils/mocks.ts`) provide standardized `page.route` intercepts (`mockSearchResults`, `mockItemDetails`). This guarantees consistent structural dummy data across search and details interactions without repetitive setup strings.
 - **Visual Regression**:
   - Automated screenshot comparisons ensure UI consistency across Chromium and Firefox.
   - **Stability**: Snapshot tests wait for `document.fonts.ready` and include a settlement pause to prevent layout shift artifacts.

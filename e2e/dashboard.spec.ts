@@ -1,22 +1,15 @@
-import { expect, test } from '@playwright/test';
-
-import { BoardPage } from './pom/BoardPage';
-import { DashboardPage } from './pom/DashboardPage';
+import { expect, test } from './fixtures';
 import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Dashboard and Multi-Board', () => {
   test.setTimeout(60_000);
-  let dashboardPage: DashboardPage;
-  let boardPage: BoardPage;
 
   test.beforeEach(async ({ page }) => {
     await clearBrowserStorage(page);
-    dashboardPage = new DashboardPage(page);
-    boardPage = new BoardPage(page);
-    await dashboardPage.goto();
   });
 
-  test('should create, modify, and see changes in dashboard', async () => {
+  test('should create, modify, and see changes in dashboard', async ({ dashboardPage, boardPage }) => {
+    await dashboardPage.goto();
     const boardTitle = `Board ${Date.now()}`;
     
     // 1. Create
@@ -47,7 +40,8 @@ test.describe('Dashboard and Multi-Board', () => {
     await expect(dashboardPage.page.getByText(boardTitle)).toBeHidden();
   });
 
-  test('should persevere after refresh', async ({ page }) => {
+  test('should persevere after refresh', async ({ page, dashboardPage, boardPage }) => {
+    await dashboardPage.goto();
     // TODO: Dashboard hydration is flaky in headless browsers
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);
@@ -56,7 +50,8 @@ test.describe('Dashboard and Multi-Board', () => {
     await expect(page).toHaveURL(/\/dashboard$/);
   });
 
-  test('should open an existing board', async () => {
+  test('should open an existing board', async ({ dashboardPage, boardPage }) => {
+    await dashboardPage.goto();
     // TODO: Dashboard hydration is flaky in headless browsers
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);

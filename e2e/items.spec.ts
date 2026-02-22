@@ -1,42 +1,20 @@
-import { expect, test } from '@playwright/test';
-
-import { BoardPage } from './pom/BoardPage';
-import { DashboardPage } from './pom/DashboardPage';
-import { SearchPanel } from './pom/SearchPanel';
+import { expect, test } from './fixtures';
+import { mockItemDetails, mockSearchResults } from './utils/mocks';
 import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Item Management', () => {
   test.setTimeout(60_000);
-  let dashboardPage: DashboardPage;
-  let boardPage: BoardPage;
-  let searchPanel: SearchPanel;
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, dashboardPage, searchPanel }) => {
     await clearBrowserStorage(page);
-
-    dashboardPage = new DashboardPage(page);
-    boardPage = new BoardPage(page);
-    searchPanel = new SearchPanel(page);
-    
     await dashboardPage.goto();
     await dashboardPage.createBoard('Item Management Test');
     
     // Setup: Add two items to tier S
-    await page.route('**/api/search*', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          results: [
-            { id: 'item-1', mbid: 'item-1', title: 'First Item', type: 'song', artist: 'Artist 1' },
-            { id: 'item-2', mbid: 'item-2', title: 'Second Item', type: 'song', artist: 'Artist 2' },
-          ],
-          page: 1,
-          totalPages: 1,
-          totalCount: 2,
-        }),
-      });
-    });
+    await mockSearchResults(page, [
+      { id: 'item-1', title: 'First Item', type: 'song', artist: 'Artist 1' },
+      { id: 'item-2', title: 'Second Item', type: 'song', artist: 'Artist 2' },
+    ]);
 
     await searchPanel.search('Setup');
     await expect(await searchPanel.getResultCard('item-1')).toBeVisible();
@@ -49,26 +27,19 @@ test.describe('Item Management', () => {
     await expect(page.getByTestId('media-card-item-2')).toBeVisible({ timeout: 15_000 });
   });
 
-  test('should manage items: details, move, reorder, remove', async ({ page }) => {
+  test('should manage items: details, move, reorder, remove', async ({ page, boardPage }) => {
     // TODO: dnd-kit drag simulations are flaky in headless browsers
     const tierS = page.locator('[data-tier-label="S"]');
     const tierA = page.locator('[data-tier-label="A"]');
     const cards = tierS.getByTestId(/^media-card-item-/);
     
     // 1. Details
-    await page.route('**/api/details*', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'item-1',
-          mbid: 'item-1',
-          title: 'First Item',
-          type: 'song',
-          artist: 'Artist 1',
-          description: 'A very detailed description',
-        }),
-      });
+    await mockItemDetails(page, {
+      id: 'item-1',
+      title: 'First Item',
+      type: 'song',
+      artist: 'Artist 1',
+      description: 'A very detailed description',
     });
 
     const card1 = page.getByTestId('media-card-item-1');
@@ -106,19 +77,12 @@ test.describe('Item Management', () => {
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
     // Route API before opening the modal
-    await page.route('**/api/details*', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'item-1',
-          mbid: 'item-1',
-          title: 'First Item',
-          type: 'song',
-          artist: 'Artist 1',
-          description: 'A very detailed description',
-        }),
-      });
+    await mockItemDetails(page, {
+      id: 'item-1',
+      title: 'First Item',
+      type: 'song',
+      artist: 'Artist 1',
+      description: 'A very detailed description',
     });
 
     // Open details via button (more reliable than shortcut in tests)

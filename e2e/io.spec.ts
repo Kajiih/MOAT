@@ -1,17 +1,13 @@
 import fs from 'node:fs';
 
-import { expect, test } from '@playwright/test';
-
-import { BoardPage } from './pom/BoardPage';
+import { expect, test } from './fixtures';
 import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Import/Export/Share', () => {
   test.setTimeout(60_000);
-  let boardPage: BoardPage;
 
   test.beforeEach(async ({ page }) => {
     await clearBrowserStorage(page);
-    boardPage = new BoardPage(page);
     // Mock clipboard for headless browsers
     await page.addInitScript(() => {
       Object.defineProperty(navigator, 'clipboard', {
@@ -20,10 +16,11 @@ test.describe('Import/Export/Share', () => {
         },
       });
     });
-    await boardPage.goto();
   });
 
-  test('should import and export a tier list', async ({}, testInfo) => {
+  test('should import and export a tier list', async ({ boardPage }, testInfo) => {
+    await boardPage.goto();
+
     const importData = {
       version: 1,
       title: 'IO Test Board',
@@ -51,7 +48,9 @@ test.describe('Import/Export/Share', () => {
     fs.unlinkSync(filePath);
   });
 
-  test('should trigger image save', async ({ page, browserName }) => {
+  test('should trigger image save', async ({ page, boardPage, browserName }) => {
+    await boardPage.goto();
+
     // TODO: Firefox has issues with programmatic downloads in headless mode
     test.skip(browserName === 'firefox', 'Flaky in Firefox headless');
     
@@ -63,7 +62,9 @@ test.describe('Import/Export/Share', () => {
     expect(download.suggestedFilename()).toContain('.png');
   });
 
-  test('should copy sharing link', async ({ page }) => {
+  test('should copy sharing link', async ({ page, boardPage }) => {
+    await boardPage.goto();
+
     // 1. Mock the publish API
     await page.route('**/api/share/publish', async (route) => {
       await route.fulfill({

@@ -1,19 +1,16 @@
-import { expect, test } from '@playwright/test';
-
-import { BoardPage } from './pom/BoardPage';
+import { expect, test } from './fixtures';
 import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Board Management', () => {
   test.setTimeout(60_000);
-  let boardPage: BoardPage;
 
   test.beforeEach(async ({ page }) => {
     await clearBrowserStorage(page);
-    boardPage = new BoardPage(page);
-    await boardPage.goto();
   });
 
-  test('should manage tiers: add, rename, reorder, delete', async ({ page }) => {
+  test('should manage tiers: add, rename, reorder, delete', async ({ page, boardPage }) => {
+    await boardPage.goto();
+
     // TODO: Double-click for tier label editing is flaky in headless browsers
     // 1. Add
     const initialCount = await boardPage.tierLabels.count();
@@ -34,7 +31,9 @@ test.describe('Board Management', () => {
     await expect(boardPage.tierLabels).toHaveCount(initialCount);
   });
 
-  test('should randomize tier colors', async ({ page }) => {
+  test('should randomize tier colors', async ({ page, boardPage }) => {
+    await boardPage.goto();
+
     // 1. Capture initial colors of all tiers
     const tiers = page.locator('[data-tier-label] > div:first-child');
     await expect(tiers).toHaveCount(6);
@@ -66,7 +65,9 @@ test.describe('Board Management', () => {
     }).toBeTruthy();
   });
 
-  test('should change a tier color', async ({ page, browserName }) => {
+  test('should change a tier color', async ({ page, boardPage, browserName }) => {
+    await boardPage.goto();
+
     // TODO: Firefox has issues with popover positioning in headless mode
     test.skip(browserName === 'firefox', 'Flaky in Firefox headless');
 
@@ -92,7 +93,9 @@ test.describe('Board Management', () => {
     await expect(firstTierHeader).toHaveClass(/bg-red-/);
   });
 
-  test('should update branding (favicon) when reordering tiers', async ({ page }) => {
+  test('should update branding (favicon) when reordering tiers', async ({ page, boardPage }) => {
+    await boardPage.goto();
+
     // Get initial favicon href
     const favicon = page.locator('link#dynamic-favicon');
     await expect(favicon).toBeAttached();

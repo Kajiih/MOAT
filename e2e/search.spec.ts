@@ -1,31 +1,18 @@
-import { expect, test } from '@playwright/test';
-
-import { BoardPage } from './pom/BoardPage';
-import { SearchPanel } from './pom/SearchPanel';
+import { expect, test } from './fixtures';
+import { mockSearchDynamic, mockSearchResults } from './utils/mocks';
 import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Search Functionality', () => {
-  let boardPage: BoardPage;
-  let searchPanel: SearchPanel;
-
   test.beforeEach(async ({ page }) => {
     await clearBrowserStorage(page);
-    boardPage = new BoardPage(page);
-    searchPanel = new SearchPanel(page);
-    await boardPage.goto();
   });
 
-  test('should search and drag an item to a tier', async ({ page }) => {
-    await page.route('**/api/search*', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          results: [{ id: 'item-1', title: 'Search Result', type: 'song', artist: 'Artist' }],
-          page: 1,
-        }),
-      });
-    });
+  test('should search and drag an item to a tier', async ({ page, boardPage, searchPanel }) => {
+    await boardPage.goto();
+
+    await mockSearchResults(page, [
+      { id: 'item-1', title: 'Search Result', type: 'song', artist: 'Artist' },
+    ]);
 
     await searchPanel.switchTab('song');
     await searchPanel.search('Test');
@@ -34,22 +21,18 @@ test.describe('Search Functionality', () => {
     await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('should navigate through different pages of results', async ({ page }) => {
+  test('should navigate through different pages of results', async ({ page, boardPage, searchPanel }) => {
+    await boardPage.goto();
+
     let callCount = 0;
-    await page.route('**/api/search*', async (route) => {
+    await mockSearchDynamic(page, (url) => {
       callCount++;
-      const url = new URL(route.request().url());
       const pageNum = url.searchParams.get('page') || '1';
-      
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          results: [{ id: `item-p${pageNum}`, title: `Item Page ${pageNum}`, type: 'song' }],
-          page: Number.parseInt(pageNum),
-          totalPages: 2,
-        }),
-      });
+      return {
+        results: [{ id: `item-p${pageNum}`, title: `Item Page ${pageNum}`, type: 'song' }],
+        page: Number.parseInt(pageNum),
+        totalPages: 2,
+      };
     });
 
     await searchPanel.search('MultiPage');
@@ -64,18 +47,13 @@ test.describe('Search Functionality', () => {
     expect(callCount).toBeGreaterThan(1);
   });
 
-  test('should hide and show already added items', async ({ page }) => {
+  test('should hide and show already added items', async ({ page, boardPage, searchPanel }) => {
+    await boardPage.goto();
+
     // 1. Mock search to return one item
-    await page.route('**/api/search*', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          results: [{ id: 'duplicate-1', title: 'Unique Item', type: 'song' }],
-          page: 1,
-        }),
-      });
-    });
+    await mockSearchResults(page, [
+      { id: 'duplicate-1', title: 'Unique Item', type: 'song' },
+    ]);
 
     await searchPanel.search('Unique');
     
@@ -83,8 +61,10 @@ test.describe('Search Functionality', () => {
     const resultCard = await searchPanel.getResultCard('duplicate-1');
     await expect(resultCard).toBeVisible();
     await searchPanel.dragToTier('duplicate-1', 'S');
+
     // We expect the item to exist on the board now.
-    await expect(page.locator('[data-tier-label="S"]').getByTestId('media-card-duplicate-1')).toBeVisible({ timeout: 10_000 });
+    const boardCard = page.locator('[data-tier-label="S"]').getByTestId('media-card-duplicate-1');
+    await expect(boardCard).toBeVisible({ timeout: 10_000 });
     // Verify it's actually in the tier, not just testing the drag overlay
     await expect(page.locator('[data-tier-label="S"]').getByTestId(/^media-card-/)).toHaveCount(1);
 
@@ -94,7 +74,6 @@ test.describe('Search Functionality', () => {
     // then 2 when it hits the board, then returns to 1 when the clone fades.
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(500);
-
     // 3. Toggle "Show Added" (Hide it)
     await expect(searchPanel.showAddedButton).toBeVisible();
     await searchPanel.setShowAdded(false);
@@ -110,7 +89,9 @@ test.describe('Search Functionality', () => {
     await expect(page.getByTestId('media-card-search-duplicate-1')).toBeVisible();
   });
 
-  test('should use specific filters for a tab', async ({ page }) => {
+  test('should use specific filters for a tab', async ({ page, boardPage, searchPanel }) => {
+    await boardPage.goto();
+
     let capturedUrl: string | undefined;
     await page.route('**/api/search*', async (route) => {
       capturedUrl = route.request().url();
@@ -120,8 +101,7 @@ test.describe('Search Functionality', () => {
     await searchPanel.switchTab('artist');
     await searchPanel.toggleFilters();
 
-    // Find a filter specific to artist (e.g. Country or Type)
-    // Based on ARCHITECTURE: "Artists: Filter    // Use the Country filter which is a text input with a specific placeholder
+    // Use the Country filter which is a text input with a specific placeholder
     const countryInput = page.getByPlaceholder('e.g. US, GB, JP...');
     
     await expect(countryInput).toBeVisible();
