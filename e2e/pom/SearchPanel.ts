@@ -42,7 +42,7 @@ export class SearchPanel {
       book: 'Search Books',
       movie: 'Search Movies',
       tv: 'Search TV Shows',
-      game: 'Search Games',
+      game: 'Search Video Games',
       developer: 'Search Developers',
       franchise: 'Search Franchises',
     };

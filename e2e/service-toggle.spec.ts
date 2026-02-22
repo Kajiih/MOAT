@@ -21,7 +21,7 @@ test.describe('Service Toggle (Multi-Database)', () => {
     await searchPanel.switchService('RAWG');
 
     // RAWG supports Game + Developer
-    await expect(page.getByTitle('Search Games', { exact: false })).toBeVisible();
+    await expect(page.getByTitle('Search Video Games', { exact: false })).toBeVisible();
     await expect(page.getByTitle('Search Developers', { exact: false })).toBeVisible();
     // RAWG does NOT support Franchise
     await expect(page.getByTitle('Search Franchises', { exact: false })).toBeHidden();
@@ -34,7 +34,7 @@ test.describe('Service Toggle (Multi-Database)', () => {
     await searchPanel.switchService('IGDB');
 
     // IGDB supports Game + Franchise
-    await expect(page.getByTitle('Search Games', { exact: false })).toBeVisible();
+    await expect(page.getByTitle('Search Video Games', { exact: false })).toBeVisible();
     await expect(page.getByTitle('Search Franchises', { exact: false })).toBeVisible();
     // IGDB does NOT support Developer
     await expect(page.getByTitle('Search Developers', { exact: false })).toBeHidden();
