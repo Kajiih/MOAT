@@ -1,13 +1,11 @@
 import fs from 'node:fs';
 
 import { expect, test } from './fixtures';
-import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Import/Export/Share', () => {
   test.setTimeout(60_000);
 
   test.beforeEach(async ({ page }) => {
-    await clearBrowserStorage(page);
     // Mock clipboard for headless browsers
     await page.addInitScript(() => {
       Object.defineProperty(navigator, 'clipboard', {
@@ -51,14 +49,16 @@ test.describe('Import/Export/Share', () => {
   test('should trigger image save', async ({ page, boardPage, browserName }) => {
     await boardPage.goto();
 
-    // TODO: Firefox has issues with programmatic downloads in headless mode
-    test.skip(browserName === 'firefox', 'Flaky in Firefox headless');
     
     // Save as Image usually takes a screenshot and triggers a download
-    const downloadPromise = page.waitForEvent('download');
+    const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
     await boardPage.cameraButton.click();
-    const download = await downloadPromise;
     
+    // In some browsers, image generation is slow. 
+    // If the toast appears, it means internal processing finished successfully.
+    await expect(page.getByText(/Screenshot saved/i)).toBeVisible({ timeout: 60000 });
+    
+    const download = await downloadPromise;
     expect(download.suggestedFilename()).toContain('.png');
   });
 

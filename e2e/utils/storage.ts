@@ -9,34 +9,41 @@ import { expect, type Page } from '@playwright/test';
  * @param page - The Playwright Page object.
  */
 export async function clearBrowserStorage(page: Page) {
-  // We navigate to a stable route that doesn't redirect immediately (like /board/:id)
-  // to avoid NS_BINDING_ABORTED issues in Firefox during fast subsequent navigations.
+  const tryClear = async () => {
+    try {
+      await page.evaluate(async () => {
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear all IndexedDB databases
+        if (globalThis.indexedDB && globalThis.indexedDB.databases) {
+          const dbs = await globalThis.indexedDB.databases();
+          for (const db of dbs) {
+            if (db.name) indexedDB.deleteDatabase(db.name);
+          }
+        } else {
+          indexedDB.deleteDatabase('keyval-store');
+        }
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // If we're on about:blank, we must navigate first
   if (page.url() === 'about:blank') {
-    await page.goto('/dashboard');
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
   }
 
-  await page.evaluate(async () => {
-    // Clear standard storage
-    localStorage.clear();
-    sessionStorage.clear();
-
-    // Clear all IndexedDB databases
-    if (globalThis.indexedDB && globalThis.indexedDB.databases) {
-      const dbs = await globalThis.indexedDB.databases();
-      for (const db of dbs) {
-        if (db.name) {
-          try {
-            globalThis.indexedDB.deleteDatabase(db.name);
-          } catch (e) {
-            // Ignore errors during deletion
-          }
-        }
-      }
-    }
-  });
-
-  // Instead of fixed timeout, we verify DBs are actually gone or at least we've triggered it
-  // Most browsers process this fast enough that the next navigation is clean.
+  const success = await tryClear();
+  if (!success) {
+    // If first attempt failed (e.g. Firefox SecurityError), try navigating to dashboard and try again
+    await page.goto('/dashboard');
+    await page.waitForLoadState('networkidle');
+    await tryClear();
+  }
 }
 
 /**

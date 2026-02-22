@@ -1,11 +1,9 @@
 import { expect, test } from './fixtures';
-import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Dashboard and Multi-Board', () => {
   test.setTimeout(60_000);
 
   test.beforeEach(async ({ page }) => {
-    await clearBrowserStorage(page);
   });
 
   test('should create, modify, and see changes in dashboard', async ({ dashboardPage, boardPage }) => {

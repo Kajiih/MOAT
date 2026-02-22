@@ -1,10 +1,8 @@
 import { expect, test } from './fixtures';
 import { mockSearchDynamic, mockSearchResults } from './utils/mocks';
-import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Search Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    await clearBrowserStorage(page);
   });
 
   test('should search and drag an item to a tier', async ({ page, boardPage, searchPanel }) => {

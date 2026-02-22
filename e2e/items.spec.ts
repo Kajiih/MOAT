@@ -1,12 +1,10 @@
 import { expect, test } from './fixtures';
 import { mockItemDetails, mockSearchResults } from './utils/mocks';
-import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Item Management', () => {
   test.setTimeout(60_000);
 
   test.beforeEach(async ({ page, dashboardPage, searchPanel }) => {
-    await clearBrowserStorage(page);
     await dashboardPage.goto();
     await dashboardPage.createBoard('Item Management Test');
     

@@ -1,11 +1,9 @@
 import fs from 'node:fs';
 
 import { expect, test } from './fixtures';
-import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
-    await clearBrowserStorage(page);
     await page.goto('/');
     // Wait for hydration
     await expect(page.getByLabel('Tier List Title')).toBeVisible();

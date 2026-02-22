@@ -277,7 +277,12 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
       - **Keyboard Simulation**: Critical reordering flows (Tiers and Items) utilize `dnd-kit`'s `KeyboardSensor` via `Space` and `Arrow` key simulations. Keyboard reordering includes intentional timing buffers (300ms-500ms) to ensure state reconciliation in slow/headless CI environments.
       - **Centralized Mouse Utility**: Manual mouse sequences are consolidated into a `manualDragAndDrop` helper (`e2e/utils/mouse.ts`), providing a standard, reproducible move-down-wiggle-up sequence for cross-container interactions.
     - **Asynchronous Polling**: Reliance on `expect.poll` for non-deterministic state updates (e.g., verifying a debounced favicon change or dashboard persistence) instead of arbitrary `waitForTimeout` sleeps.
-- **Multi-browser validation**: Chromium is the primary target for development, with verification on Firefox for cross-engine compatibility.
+- **Multi-browser validation**: Full parity between Chromium and Firefox.
+    - **Firefox Parity Fixes**:
+        - **Programmatic Downloads**: Configured via `firefoxUserPrefs` in `playwright.config.ts`.
+        - **Screenshot Stability**: Uses `fontEmbedCSS: ''` for Firefox to avoid a known `html-to-image` crash caused by font metadata parsing.
+        - **Navigation Resilience**: Uses `127.0.0.1` and `waitUntil: 'commit'` to prevent `NS_BINDING_ABORTED` errors.
+        - **Storage Isolation**: Relies on Playwright's native context isolation rather than manual `clearBrowserStorage` calls which are blocked by Firefox's security model on certain origins.
 
 #### F. Sorting & Discovery Testing
 

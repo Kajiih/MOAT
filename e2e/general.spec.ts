@@ -1,11 +1,8 @@
 import { expect, test } from './fixtures';
 import { mockSearchResults } from './utils/mocks';
-import { clearBrowserStorage, waitForStorageValue } from './utils/storage';
+import { waitForStorageValue } from './utils/storage';
 
 test.describe('General Board Actions', () => {
-  test.beforeEach(async ({ page }) => {
-    await clearBrowserStorage(page);
-  });
 
   test('should rename a tier list and reflect in document title', async ({ page, boardPage }) => {
     await boardPage.goto();

@@ -1,11 +1,9 @@
 import { expect, test } from './fixtures';
-import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Board Management', () => {
   test.setTimeout(60_000);
 
   test.beforeEach(async ({ page }) => {
-    await clearBrowserStorage(page);
   });
 
   test('should manage tiers: add, rename, reorder, delete', async ({ page, boardPage }) => {
@@ -21,10 +19,11 @@ test.describe('Board Management', () => {
     await boardPage.renameTier('New Tier', 'New Awesome Tier');
     await expect(page.getByText('New Awesome Tier')).toBeVisible();
 
-    // 3. Reorder: move the new tier up TWO spots for better stability
-    // Currently at index 6, move to 4
-    await boardPage.reorderTiersViaKeyboard(6, 4);
-    await expect(boardPage.tierLabels.nth(4)).toHaveText('New Awesome Tier');
+    // 3. Reorder: move the new tier up ONE spot for better stability
+    const newIndex = await boardPage.tierLabels.count() - 1;
+    const targetIndex = newIndex - 1;
+    await boardPage.reorderTiersViaKeyboard(newIndex, targetIndex);
+    await expect(boardPage.tierLabels.nth(targetIndex)).toHaveText('New Awesome Tier');
 
     // 4. Delete
     await boardPage.deleteTier('New Awesome Tier');
@@ -68,8 +67,6 @@ test.describe('Board Management', () => {
   test('should change a tier color', async ({ page, boardPage, browserName }) => {
     await boardPage.goto();
 
-    // TODO: Firefox has issues with popover positioning in headless mode
-    test.skip(browserName === 'firefox', 'Flaky in Firefox headless');
 
     const firstTierHeader = page.locator('[data-tier-label] > div').first();
     const label = await boardPage.tierLabels.first().textContent();

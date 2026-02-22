@@ -52,11 +52,7 @@ export class BoardPage {
    * @param id - Optional board UUID.
    */
   async goto(id?: string) {
-    if (id) {
-      await this.page.goto(`/board/${id}`);
-    } else {
-      await this.page.goto('/');
-    }
+    await this.page.goto(id ? `/board/${id}` : '/', { waitUntil: 'commit' });
     await expect(this.titleInput).toBeVisible();
   }
 

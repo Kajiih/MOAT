@@ -1,9 +1,7 @@
 import { expect, test } from './fixtures';
-import { clearBrowserStorage } from './utils/storage';
 
 test.describe('Resilience and Failure Modes', () => {
   test.beforeEach(async ({ page }) => {
-    await clearBrowserStorage(page);
   });
 
   test('should display toast error when search API fails', async ({ page, boardPage, searchPanel }) => {

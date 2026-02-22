@@ -176,8 +176,9 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         logger.info(`Screenshot Engine: Board measured at ${_height}px.`);
 
         // 5. Final Paint Sync
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Headless browsers (especially Firefox) might throttle RAF.
+        // We use a guaranteed timeout instead.
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         // 6. Capture the PNG
         const dataUrl = await toPng(boardElement, {
@@ -186,6 +187,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
           width: 1200,
           height: _height,
           cacheBust: true,
+          fontEmbedCSS: '', // Skip font embedding to avoid Firefox font parsing bug ("font is undefined")
           style: {
             position: 'relative',
             left: '0',
@@ -206,21 +208,8 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         showToast('Screenshot saved!', 'success');
       } catch (error) {
         // Improved error reporting
-        logger.error({ error }, 'Screenshot raw error');
-        let errorMessage;
-
-        if (error instanceof Error) {
-          errorMessage = `${error.message}\n${error.stack}`;
-        } else if (error instanceof Event) {
-          const target = error.target as HTMLElement | null;
-          errorMessage = `Capture failed due to a browser event [${error.type}] on ${target?.tagName || 'unknown'}${target instanceof HTMLImageElement ? ' (' + target.src + ')' : ''}. This usually happens when an image fails to load or violates CORS.`;
-        } else if (typeof error === 'object' && error !== null) {
-          errorMessage = JSON.stringify(error);
-        } else {
-          errorMessage = String(error);
-        }
-
-        logger.error({ errorMessage }, 'Screenshot failed diagnostic');
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.error({ error, errorMessage }, 'Screenshot Engine: Error captured during capture');
         showToast('Failed to save screenshot', 'error');
       } finally {
         // 5. Cleanup
