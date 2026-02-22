@@ -56,20 +56,22 @@ test.describe('Visual Regression', () => {
     // Ensure icons and layout are ready
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator('.lucide-camera')).toBeVisible();
-    
+
     // Final settling poll to ensure no layout shift is in progress
-    await expect.poll(async () => {
-      const box = await page.getByText('Visual S').boundingBox();
-      return box?.y;
-    }, { timeout: 2000 }).toBeGreaterThan(0);
+    await expect
+      .poll(
+        async () => {
+          const box = await page.getByText('Visual S').boundingBox();
+          return box?.y;
+        },
+        { timeout: 2000 },
+      )
+      .toBeGreaterThan(0);
 
     // Snapshot
     await expect(page).toHaveScreenshot('populated-board.png', {
       fullPage: true,
-      mask: [
-        page.getByTitle('Save as Image'),
-        page.getByTitle('Back to Dashboard'),
-      ],
+      mask: [page.getByTitle('Save as Image'), page.getByTitle('Back to Dashboard')],
     });
 
     // Cleanup

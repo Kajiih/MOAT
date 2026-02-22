@@ -1,10 +1,13 @@
 import { expect, test } from './fixtures';
 
 test.describe('Resilience and Failure Modes', () => {
-  test.beforeEach(async ({ page }) => {
-  });
+  test.beforeEach(async ({ page }) => {});
 
-  test('should display toast error when search API fails', async ({ page, boardPage, searchPanel }) => {
+  test('should display toast error when search API fails', async ({
+    page,
+    boardPage,
+    searchPanel,
+  }) => {
     await boardPage.goto();
 
     // Route search API to simulate a 503 Service Unavailable (MusicBrainz rate limit)
@@ -27,7 +30,11 @@ test.describe('Resilience and Failure Modes', () => {
     await expect(page.getByText('No results found.')).toBeVisible();
   });
 
-  test('should display toast error when fetching item details fails', async ({ page, boardPage, searchPanel }) => {
+  test('should display toast error when fetching item details fails', async ({
+    page,
+    boardPage,
+    searchPanel,
+  }) => {
     await boardPage.goto();
 
     // Set up a normal search result so we have something to drag
@@ -36,7 +43,9 @@ test.describe('Resilience and Failure Modes', () => {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          results: [{ mbid: 'error-item-1', id: 'error-item-1', title: 'Error Item', type: 'song' }],
+          results: [
+            { mbid: 'error-item-1', id: 'error-item-1', title: 'Error Item', type: 'song' },
+          ],
           page: 1,
           totalPages: 1,
           totalCount: 1,
@@ -68,7 +77,7 @@ test.describe('Resilience and Failure Modes', () => {
       const errorMsg = page.getByText(/Failed to load additional details/i);
       await expect(errorMsg).toBeVisible();
     }).toPass();
-    
+
     // The details modal probably opens anyway but with basic info (which is fine, it shouldn't crash)
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();

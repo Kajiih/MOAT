@@ -22,9 +22,7 @@ test.describe('Import/Export/Share', () => {
     const importData = {
       version: 1,
       title: 'IO Test Board',
-      tiers: [
-        { label: 'Imported', color: 'red', items: [] },
-      ],
+      tiers: [{ label: 'Imported', color: 'red', items: [] }],
       items: {},
     };
 
@@ -41,7 +39,7 @@ test.describe('Import/Export/Share', () => {
     const download = await boardPage.exportJson();
 
     expect(download.suggestedFilename()).toContain('.json');
-    
+
     // Cleanup
     fs.unlinkSync(filePath);
   });
@@ -49,15 +47,14 @@ test.describe('Import/Export/Share', () => {
   test('should trigger image save', async ({ page, boardPage, browserName }) => {
     await boardPage.goto();
 
-    
     // Save as Image usually takes a screenshot and triggers a download
     const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
     await boardPage.cameraButton.click();
-    
-    // In some browsers, image generation is slow. 
+
+    // In some browsers, image generation is slow.
     // If the toast appears, it means internal processing finished successfully.
     await expect(page.getByText(/Screenshot saved/i)).toBeVisible({ timeout: 60000 });
-    
+
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toContain('.png');
   });
@@ -76,13 +73,13 @@ test.describe('Import/Export/Share', () => {
 
     // 2. Click Share
     await boardPage.shareButton.click();
-    
+
     // 3. Wait for Share Modal
     await expect(page.getByText('Board Published')).toBeVisible();
-    
+
     // 4. Click Copy
     await page.getByRole('button', { name: 'Copy' }).click();
-    
+
     // 5. Verify Toast (Synchronous with click usually)
     await expect(page.getByText(/Link copied/i)).toBeVisible();
   });

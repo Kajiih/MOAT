@@ -26,7 +26,11 @@ export interface PersistentStateOptions {
  * @param options - Optional configuration for persistence.
  * @returns A tuple of [state, setState, isHydrated].
  */
-export function usePersistentState<T>(key: string, initialValue: T, options?: PersistentStateOptions) {
+export function usePersistentState<T>(
+  key: string,
+  initialValue: T,
+  options?: PersistentStateOptions,
+) {
   const { persistenceDelay = 1000 } = options || {};
   const [state, setState] = useState<T>(initialValue);
 

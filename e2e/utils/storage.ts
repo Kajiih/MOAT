@@ -35,7 +35,7 @@ export async function waitForStorageValue<T>(
                 const store = tx.objectStore('keyval');
                 const getRequest = store.get(storageKey);
                 getRequest.onsuccess = () => {
-                   resolve(getRequest.result);
+                  resolve(getRequest.result);
                 };
                 getRequest.onerror = () => resolve(undefined);
               } catch (e) {

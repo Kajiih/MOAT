@@ -125,7 +125,7 @@ export class BoardPage {
   getTierRow(label: string) {
     return this.page.locator(`[data-tier-label="${label}"]`);
   }
-  
+
   /**
    * Gets a media card locator by its ID.
    * @param id - The item ID.
@@ -202,7 +202,7 @@ export class BoardPage {
   async reorderTiersViaKeyboard(sourceIndex: number, targetIndex: number) {
     // Get the label of the tier we're moving for verification
     const tierLabel = await this.tierLabels.nth(sourceIndex).textContent();
-    
+
     // Use positional index to acquire the handle before drag starts.
     // We can't use `getTierRow(label).getByTestId(...)` because dnd-kit's drag overlay
     // duplicates the entire tier row (including data-tier-label), causing strict mode violations mid-drag.
@@ -210,38 +210,45 @@ export class BoardPage {
     await handle.focus();
 
     await this.page.keyboard.press(' '); // Start drag
-    
+
     // Wait for dnd-kit accessibility state to reflect dragging
     await expect(handle).toHaveAttribute('aria-pressed', 'true');
-    
+
     const steps = Math.abs(sourceIndex - targetIndex);
     const key = targetIndex < sourceIndex ? 'ArrowUp' : 'ArrowDown';
-    
+
     for (let i = 0; i < steps; i++) {
       const prevBox = await handle.boundingBox();
       await this.page.keyboard.press(key);
-      
+
       // dnd-kit doesn't reorder the DOM until drop — it only applies CSS transforms mid-drag.
       // Poll until the handle's visual position changes, confirming the keyboard event was processed.
-      await expect.poll(async () => {
-        const currBox = await handle.boundingBox();
-        return prevBox && currBox && (currBox.y !== prevBox.y || currBox.x !== prevBox.x);
-      }, {
-        message: 'wait for tier list UI to reflect keyboard move',
-        timeout: 1000,
-      }).toBeTruthy();
+      await expect
+        .poll(
+          async () => {
+            const currBox = await handle.boundingBox();
+            return prevBox && currBox && (currBox.y !== prevBox.y || currBox.x !== prevBox.x);
+          },
+          {
+            message: 'wait for tier list UI to reflect keyboard move',
+            timeout: 1000,
+          },
+        )
+        .toBeTruthy();
     }
-    
+
     await this.page.keyboard.press(' '); // End drag
-    
+
     // Wait for drag to end
     await expect(handle).not.toHaveAttribute('aria-pressed', 'true');
-    
+
     // Verify final position using polling instead of fixed timeout
-    await expect.poll(async () => {
-      const labels = await this.getTierLabels();
-      return labels[targetIndex];
-    }).toBe(tierLabel);
+    await expect
+      .poll(async () => {
+        const labels = await this.getTierLabels();
+        return labels[targetIndex];
+      })
+      .toBe(tierLabel);
 
     // Ensure the drag overlay has fully unmounted to prevent strict mode violations later
     await expect(this.page.locator(`[data-tier-label="${tierLabel}"]`)).toHaveCount(1);
@@ -261,46 +268,55 @@ export class BoardPage {
     await sourceCard.focus();
     // Wait for focus to settle
     await expect(sourceCard).toBeFocused();
-    
+
     const sourceText = await sourceCard.textContent();
 
     await this.page.keyboard.press(' '); // Start drag
-    
+
     // Instead of aria-pressed, we check for the placeholder class because dnd-kit replaces the element
     await expect(sourceCard).toHaveClass(/border-dashed/);
-    
+
     const steps = Math.abs(sourceIndex - targetIndex);
     const key = targetIndex < sourceIndex ? 'ArrowLeft' : 'ArrowRight';
-    
+
     for (let i = 0; i < steps; i++) {
       const getCardTexts = async () => {
         const currentCards = tierRow.getByTestId(/^media-card-item-/);
         return await currentCards.allTextContents();
       };
-      
+
       const currentTexts = await getCardTexts();
       await this.page.keyboard.press(key);
-      
+
       // Wait for SortableContext to restructure the card array in the DOM
-      await expect.poll(async () => {
-        const afterTexts = await getCardTexts();
-        return JSON.stringify(currentTexts) !== JSON.stringify(afterTexts);
-      }, {
-        message: 'wait for horizontal grid to reflect keyboard move',
-        timeout: 1000,
-      }).toBeTruthy();
+      await expect
+        .poll(
+          async () => {
+            const afterTexts = await getCardTexts();
+            return JSON.stringify(currentTexts) !== JSON.stringify(afterTexts);
+          },
+          {
+            message: 'wait for horizontal grid to reflect keyboard move',
+            timeout: 1000,
+          },
+        )
+        .toBeTruthy();
     }
-    
+
     await this.page.keyboard.press(' '); // End drag
     await expect(sourceCard).not.toHaveClass(/border-dashed/);
 
     // Verify final position
-    await expect.poll(async () => {
-      const updatedCards = tierRow.getByTestId(/^media-card-item-/);
-      return await updatedCards.nth(targetIndex).textContent();
-    }).toContain(sourceText);
+    await expect
+      .poll(async () => {
+        const updatedCards = tierRow.getByTestId(/^media-card-item-/);
+        return await updatedCards.nth(targetIndex).textContent();
+      })
+      .toContain(sourceText);
 
     // Ensure the drag overlay has fully unmounted to prevent strict mode violations later
-    await expect(this.page.getByTestId(/^media-card-item-/).filter({ hasText: sourceText || '' })).toHaveCount(1);
+    await expect(
+      this.page.getByTestId(/^media-card-item-/).filter({ hasText: sourceText || '' }),
+    ).toHaveCount(1);
   }
 }

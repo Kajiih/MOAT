@@ -75,14 +75,14 @@ describe('useBackgroundEnrichment', () => {
 
     // 4th and 5th should be called with null or excluded (wait, the hook renders 3 slots)
     // Actually the hook takes itemsToSync which is sliced at 3.
-    // So the mock should have 3 enabled calls and many potentially null calls? 
+    // So the mock should have 3 enabled calls and many potentially null calls?
     // Wait, the current implementation of useBackgroundEnrichment:
     // slot1 = itemsToSync[0]; ...
     // useSingleItemSyncWrapper(slot1, onUpdateItem);
-    
+
     // So if itemsToSync has 3 items, the first 3 calls to useMediaResolver will have items.
     // The rest will NOT be called because useBackgroundEnrichment only has 3 slots.
-    
+
     expect(mockUseMediaResolver).toHaveBeenCalledTimes(3);
   });
 

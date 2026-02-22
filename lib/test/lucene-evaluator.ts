@@ -84,7 +84,7 @@ function evaluateRange(node: LuceneAST, itemValue: unknown): boolean {
  */
 function evaluateSimpleTermMatch(node: LuceneAST, itemValue: unknown): boolean {
   if (node.term === undefined) return true;
-  
+
   const term = node.term.toLowerCase();
   const valStr = String(itemValue).toLowerCase();
 

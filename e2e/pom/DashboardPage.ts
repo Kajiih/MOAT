@@ -24,7 +24,7 @@ export class DashboardPage {
     await this.createBoardButton.click();
     // Use first() to avoid strict mode violation if multiple elements match
     await this.page.getByRole('button', { name: /Music/i }).first().click();
-    
+
     // Once on the board page, we can rename it if needed
     if (title) {
       const titleInput = this.page.getByLabel('Tier List Title');
@@ -42,8 +42,8 @@ export class DashboardPage {
   async deleteBoard(title: string) {
     const card = this.boardCards.filter({ hasText: title }).first();
     await card.hover();
-    
-    this.page.once('dialog', dialog => dialog.accept());
+
+    this.page.once('dialog', (dialog) => dialog.accept());
     await card.getByTitle('Delete Board').click();
   }
 }

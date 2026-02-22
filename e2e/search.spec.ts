@@ -2,8 +2,7 @@ import { expect, test } from './fixtures';
 import { mockSearchDynamic, mockSearchResults } from './utils/mocks';
 
 test.describe('Search Functionality', () => {
-  test.beforeEach(async ({ page }) => {
-  });
+  test.beforeEach(async ({ page }) => {});
 
   test('should search and drag an item to a tier', async ({ page, boardPage, searchPanel }) => {
     await boardPage.goto();
@@ -19,7 +18,11 @@ test.describe('Search Functionality', () => {
     await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('should navigate through different pages of results', async ({ page, boardPage, searchPanel }) => {
+  test('should navigate through different pages of results', async ({
+    page,
+    boardPage,
+    searchPanel,
+  }) => {
     await boardPage.goto();
 
     let callCount = 0;
@@ -49,12 +52,10 @@ test.describe('Search Functionality', () => {
     await boardPage.goto();
 
     // 1. Mock search to return one item
-    await mockSearchResults(page, [
-      { id: 'duplicate-1', title: 'Unique Item', type: 'song' },
-    ]);
+    await mockSearchResults(page, [{ id: 'duplicate-1', title: 'Unique Item', type: 'song' }]);
 
     await searchPanel.search('Unique');
-    
+
     // 2. Add it to board
     const resultCard = await searchPanel.getResultCard('duplicate-1');
     await expect(resultCard).toBeVisible();
@@ -67,7 +68,7 @@ test.describe('Search Functionality', () => {
     await expect(page.locator('[data-tier-label="S"]').getByTestId(/^media-card-/)).toHaveCount(1);
 
     // dnd-kit globally suppresses click events for a few hundred milliseconds after a
-    // drag operation completes (to prevent ghost clicks). 
+    // drag operation completes (to prevent ghost clicks).
     // We use Playwright's expect.toPass() to retry the click until the suppression lifts
     // and the button state officially toggles.
     await expect(async () => {
@@ -97,11 +98,11 @@ test.describe('Search Functionality', () => {
 
     // Use the Country filter which is a text input with a specific placeholder
     const countryInput = page.getByPlaceholder('e.g. US, GB, JP...');
-    
+
     await expect(countryInput).toBeVisible();
     await countryInput.fill('FR');
     await searchPanel.search('Frenchie');
-      
+
     expect(capturedUrl).toContain('artistCountry=FR');
   });
 });

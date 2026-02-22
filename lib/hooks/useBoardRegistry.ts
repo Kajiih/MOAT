@@ -91,7 +91,7 @@ export function useBoardRegistry() {
       // would require a transaction block, which `idb-keyval` doesn't fully expose in `setMany`.
       // Usage of `update` is safer for the index, but we also want to set the other keys.
       // For now, we chain them, but use `update` for the index to avoid race conditions there.
-      
+
       const newBoardState = {
         ...INITIAL_STATE,
         title,
@@ -122,9 +122,7 @@ export function useBoardRegistry() {
     // Atomic / Parallel clean up
     await Promise.all([
       storage.delMany([`moat-meta-${id}`, `moat-board-${id}`]),
-      storage.update<string[]>(BOARD_INDEX_KEY, (prev) =>
-        (prev || []).filter((idx) => idx !== id),
-      ),
+      storage.update<string[]>(BOARD_INDEX_KEY, (prev) => (prev || []).filter((idx) => idx !== id)),
     ]);
   }, []);
 
@@ -147,7 +145,7 @@ export function useBoardRegistry() {
       // If the board disappears from storage (unlikely), we return current (undefined) to avoid creating a corrupted entry.
       // We use the cast to satisfy the idb-keyval updater signature requirement.
       if (!current) return current as unknown as BoardMetadata;
-      
+
       return {
         ...current,
         ...updates,

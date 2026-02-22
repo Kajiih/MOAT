@@ -15,8 +15,6 @@ import { useDebouncedCallback } from 'use-debounce';
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
 
-
-
 /**
  * Options for the useStorageSync hook.
  * @template T - The type of the state being synchronized.

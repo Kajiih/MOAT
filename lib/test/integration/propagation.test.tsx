@@ -59,9 +59,7 @@ describe('State Propagation Integration', () => {
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <MediaRegistryProvider>
-      <TierListProvider boardId="test-board">
-        {children}
-      </TierListProvider>
+      <TierListProvider boardId="test-board">{children}</TierListProvider>
     </MediaRegistryProvider>
   );
 
@@ -78,31 +76,34 @@ describe('State Propagation Integration', () => {
     vi.mocked(storage.get).mockResolvedValue(initialState);
 
     // Mock the API details that will be "discovered" by the resolver
-    const mockDetails = { 
-      type: 'song', 
+    const mockDetails = {
+      type: 'song',
       genres: ['Integration Test'],
-      imageUrl: 'enriched-image.jpg'
+      imageUrl: 'enriched-image.jpg',
     };
 
-    // 1. Render a hook that simulates a component (like DetailsModal) 
+    // 1. Render a hook that simulates a component (like DetailsModal)
     // using useMediaResolver within the TierListProvider
-    const { result, rerender } = renderHook(() => {
-      const context = useTierListContext();
-      
-      // Pull the item directly from the context state to ensure we are testing propagation
-      const itemOnBoard = context.state.items['tier-1']?.[0];
-      
-      const resolver = useMediaResolver(itemOnBoard || null, {
-        enabled: context.isHydrated,
-        onUpdate: (id, updates) => context.actions.updateMediaItem(id, updates),
-      });
+    const { result, rerender } = renderHook(
+      () => {
+        const context = useTierListContext();
 
-      return { context, resolver };
-    }, { wrapper });
+        // Pull the item directly from the context state to ensure we are testing propagation
+        const itemOnBoard = context.state.items['tier-1']?.[0];
+
+        const resolver = useMediaResolver(itemOnBoard || null, {
+          enabled: context.isHydrated,
+          onUpdate: (id, updates) => context.actions.updateMediaItem(id, updates),
+        });
+
+        return { context, resolver };
+      },
+      { wrapper },
+    );
 
     // Wait for hydration so the resolver becomes 'enabled'
     await waitFor(() => expect(result.current.context.isHydrated).toBe(true));
-    
+
     // Safety check: verify initial state
     expect(result.current.context.state.items['tier-1'][0].details).toBeUndefined();
 
@@ -118,12 +119,15 @@ describe('State Propagation Integration', () => {
     rerender();
 
     // 3. Verify that the update flowed: Resolver -> onUpdate -> Context Action -> Reducer -> State
-    await waitFor(() => {
-      const updatedItem = result.current.context.state.items['tier-1'][0];
-      expect(updatedItem?.details).toEqual(mockDetails);
-      expect(updatedItem?.imageUrl).toBe('enriched-image.jpg');
-    }, { timeout: 3000 });
-    
+    await waitFor(
+      () => {
+        const updatedItem = result.current.context.state.items['tier-1'][0];
+        expect(updatedItem?.details).toEqual(mockDetails);
+        expect(updatedItem?.imageUrl).toBe('enriched-image.jpg');
+      },
+      { timeout: 3000 },
+    );
+
     // Verify it also hit the Media Registry (as side effect of resolver + persistent persist: true)
     expect(result.current.resolver.resolvedItem?.details).toEqual(mockDetails);
   });
@@ -147,19 +151,34 @@ describe('State Propagation Integration', () => {
 
     // Mock API responses for both items
     mockUseMediaDetails.mockImplementation((id) => {
-      if (id === 'song-1') return { details: { type: 'song', genres: ['S1'] } as any, isLoading: false, isFetching: false, error: null };
-      if (id === 'song-2') return { details: { type: 'song', genres: ['S2'] } as any, isLoading: false, isFetching: false, error: null };
+      if (id === 'song-1')
+        return {
+          details: { type: 'song', genres: ['S1'] } as any,
+          isLoading: false,
+          isFetching: false,
+          error: null,
+        };
+      if (id === 'song-2')
+        return {
+          details: { type: 'song', genres: ['S2'] } as any,
+          isLoading: false,
+          isFetching: false,
+          error: null,
+        };
       return { details: undefined, isLoading: false, isFetching: false, error: null };
     });
 
-    const { result, rerender } = renderHook(() => {
-      const { state, actions, isHydrated } = useTierListContext();
-      const allItems = Object.values(state.items).flat();
-      
-      const enrichment = useBackgroundEnrichment(allItems, actions.updateMediaItem);
+    const { result, rerender } = renderHook(
+      () => {
+        const { state, actions, isHydrated } = useTierListContext();
+        const allItems = Object.values(state.items).flat();
 
-      return { state, isHydrated, enrichment };
-    }, { wrapper });
+        const enrichment = useBackgroundEnrichment(allItems, actions.updateMediaItem);
+
+        return { state, isHydrated, enrichment };
+      },
+      { wrapper },
+    );
 
     await waitFor(() => {
       expect(result.current.isHydrated).toBe(true);
@@ -171,14 +190,17 @@ describe('State Propagation Integration', () => {
     rerender();
 
     // 2. Verify both items eventually get their details via background propagation
-    await waitFor(() => {
-      const items = Object.values(result.current.state.items).flat();
-      const s1 = items.find(i => i.id === 'song-1');
-      const s2 = items.find(i => i.id === 'song-2');
-      
-      expect(s1?.details).toBeDefined();
-      expect(s2?.details).toBeDefined();
-    }, { timeout: 4000 });
+    await waitFor(
+      () => {
+        const items = Object.values(result.current.state.items).flat();
+        const s1 = items.find((i) => i.id === 'song-1');
+        const s2 = items.find((i) => i.id === 'song-2');
+
+        expect(s1?.details).toBeDefined();
+        expect(s2?.details).toBeDefined();
+      },
+      { timeout: 4000 },
+    );
 
     expect(result.current.enrichment.pendingCount).toBe(0);
   });

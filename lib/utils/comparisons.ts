@@ -23,7 +23,7 @@ export function hasMediaItemUpdates(current: MediaItem, updates: Partial<MediaIt
     // If values are referentially equal, move on
     if (newValue === oldValue) continue;
 
-    // Ignore undefined values in updates. Partial updates should only update 
+    // Ignore undefined values in updates. Partial updates should only update
     // fields they explicitly provide, not unset existing ones.
     if (newValue === undefined) continue;
 

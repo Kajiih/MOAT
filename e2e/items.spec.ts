@@ -7,7 +7,7 @@ test.describe('Item Management', () => {
   test.beforeEach(async ({ page, dashboardPage, searchPanel }) => {
     await dashboardPage.goto();
     await dashboardPage.createBoard('Item Management Test');
-    
+
     // Setup: Add two items to tier S
     await mockSearchResults(page, [
       { id: 'item-1', title: 'First Item', type: 'song', artist: 'Artist 1' },
@@ -30,7 +30,7 @@ test.describe('Item Management', () => {
     const tierS = page.locator('[data-tier-label="S"]');
     const tierA = page.locator('[data-tier-label="A"]');
     const cards = tierS.getByTestId(/^media-card-item-/);
-    
+
     // 1. Details
     await mockItemDetails(page, {
       id: 'item-1',
@@ -42,7 +42,7 @@ test.describe('Item Management', () => {
 
     const card1 = page.getByTestId('media-card-item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
-    
+
     // Open details via button (more reliable than shortcut in tests)
     await card1.hover();
     await card1.getByRole('button', { name: /View details/i }).click();
@@ -92,7 +92,7 @@ test.describe('Item Management', () => {
     const notesEditor = page.getByPlaceholder(/write your thoughts/i);
     await expect(notesEditor).toBeVisible();
     await notesEditor.fill('This is a test note for item 1');
-    
+
     // Close modal — the unmount flush handler persists the note immediately
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toBeHidden();
@@ -103,17 +103,23 @@ test.describe('Item Management', () => {
 
   test('should reset all items to unranked', async ({ page, boardPage }) => {
     // Both items from beforeEach are in S
-    await expect(page.locator('[data-tier-label="S"] [data-testid^="media-card-item-"]')).toHaveCount(2);
+    await expect(
+      page.locator('[data-tier-label="S"] [data-testid^="media-card-item-"]'),
+    ).toHaveCount(2);
 
     // Trigger reset
     await boardPage.openOptions();
-    page.once('dialog', dialog => dialog.accept());
+    page.once('dialog', (dialog) => dialog.accept());
     await page.getByText('Reset items to unranked').click();
 
     // Verify S is empty
-    await expect(page.locator('[data-tier-label="S"] [data-testid^="media-card-item-"]')).toHaveCount(0);
+    await expect(
+      page.locator('[data-tier-label="S"] [data-testid^="media-card-item-"]'),
+    ).toHaveCount(0);
 
     // Verify Unranked has the items
-    await expect(page.locator('[data-tier-label="Unranked"] [data-testid^="media-card-item-"]')).toHaveCount(2);
+    await expect(
+      page.locator('[data-tier-label="Unranked"] [data-testid^="media-card-item-"]'),
+    ).toHaveCount(2);
   });
 });

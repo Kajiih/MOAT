@@ -109,7 +109,10 @@ export function createBook(overrides: Partial<BookItem> = {}): BookItem {
  * @param factory - Factory function to use.
  * @returns Array of media items.
  */
-export function createMany<T extends MediaItem>(count: number, factory: (overrides?: Partial<T>) => T): T[] {
+export function createMany<T extends MediaItem>(
+  count: number,
+  factory: (overrides?: Partial<T>) => T,
+): T[] {
   return Array.from({ length: count }, () => factory());
 }
 
