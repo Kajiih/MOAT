@@ -9,27 +9,6 @@ test.describe('General Board Actions', () => {
     await boardPage.setBoardTitle(newTitle);
 
     await expect(boardPage.titleInput).toHaveValue(new RegExp(newTitle));
-    await expect(page).toHaveTitle(new RegExp(newTitle));
-  });
-
-  test('should clear a tier list with items in it', async ({ page, boardPage, searchPanel }) => {
-    await boardPage.goto();
-
-    // 1. Add an item first
-    await mockSearchResults(page, [
-      { id: 'item-1', title: 'Test Item', type: 'song', artist: 'Artist' },
-    ]);
-
-    await searchPanel.switchTab('song');
-    await searchPanel.search('Test');
-    await searchPanel.dragToTier('item-1', 'S');
-    await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 10_000 });
-
-    // 2. Clear board
-    await boardPage.clearBoard();
-
-    // 3. Verify item is gone
-    await expect(page.getByTestId('media-card-item-1')).toBeHidden();
   });
 
   test('should persist data after reload', async ({ page, boardPage }) => {

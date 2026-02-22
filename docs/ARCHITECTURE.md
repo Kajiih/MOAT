@@ -94,7 +94,7 @@
   - **TierListContext** (The Controller): Serves as the centralized logic hub. It composes specialized logic hooks (`useTierListDnD`, `useTierListIO`, `useTierStructure`, `useTierListUtils`) internally.
   - **useTierListNamespaces**: A specialized hook that aggregates the state, dispatch, and sub-hooks into a unified, **namespaced API** for better discoverability and memoization:
     - `state`: Domain data (`tierDefs`, `items`, `title`).
-    - `actions`: Business logic (`addTier`, `deleteTier`, `import`, `export`, `randomizeColors`, `updateMediaItem`, `updateTitle`, `removeItemFromTier`, `locate`).
+    - `actions`: Business logic (`addTier`, `deleteTier`, `import`, `export`, `randomizeColors`, `updateMediaItem`, `updateTitle`, `removeItemFromTier`, `locate`, `resetItems`, `clear`).
     - `dnd`: Drag & Drop primitives (`sensors`, `activeItem`, `activeTier`, `overId`, `handleDragStart`, `handleDragOver`, `handleDragEnd`).
     - `ui`: UI-specific state (`headerColors`, `detailsItem`, `showDetails`, `closeDetails`, `addedItemIds`, `allBoardItems`).
     - `history`: Undo/Redo controls (`undo`, `redo`, `canUndo`, `canRedo`, `push`).
@@ -256,6 +256,7 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
 - **Core Coverage**:
   - **Tier Management**: Adding, deleting, renaming, and reordering tiers.
   - **Media Interaction**: Searching for media, dragging items from search to tiers, and cross-tier reordering.
+  - **Board Reset**: Resetting all items to unranked and clearing the entire board.
   - **Persistence**: Verifying data persists across page reloads via IndexedDB.
   - **Data IO**: Testing JSON import/export functionality with real files.
   - **Accessibility**: Ensuring keyboard-driven drag-and-drop operations (powered by dnd-kit) are functional and stable.

@@ -9,6 +9,7 @@ export class BoardPage {
   readonly optionsButton: Locator;
   readonly importJsonButton: Locator;
   readonly exportJsonButton: Locator;
+  readonly resetItemsButton: Locator;
   readonly clearBoardButton: Locator;
   readonly shareButton: Locator;
   readonly cameraButton: Locator;
@@ -29,7 +30,8 @@ export class BoardPage {
     this.optionsButton = page.getByTitle('Board Options');
     this.importJsonButton = page.getByText('Import JSON');
     this.exportJsonButton = page.getByRole('button', { name: /Export JSON/i });
-    this.clearBoardButton = page.getByRole('button', { name: /Clear Board/i });
+    this.resetItemsButton = page.getByTestId('reset-items-button');
+    this.clearBoardButton = page.getByTestId('clear-board-button');
     this.shareButton = page.getByTitle('Publish to Cloud');
     this.cameraButton = page.getByTitle('Save as Image');
     this.dashboardButton = page.getByTitle('Back to Dashboard');
@@ -115,6 +117,16 @@ export class BoardPage {
     this.page.once('dialog', (dialog) => dialog.accept());
     await this.clearBoardButton.click({ delay: 50 });
     await expect(this.clearBoardButton).toBeHidden();
+  }
+
+  /**
+   * Resets all items to the unranked tier after a confirmation dialog.
+   */
+  async resetItems() {
+    await this.openOptions();
+    this.page.once('dialog', (dialog) => dialog.accept());
+    await this.resetItemsButton.click({ delay: 50 });
+    await expect(this.resetItemsButton).toBeHidden();
   }
 
   /**

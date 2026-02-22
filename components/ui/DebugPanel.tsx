@@ -97,6 +97,24 @@ export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
     });
   }, [setBackgroundStats, pendingEnrichmentCount]);
 
+  // History Controls
+  const { history } = useTierListContext();
+  useControls(
+    'Debug',
+    () => ({
+      History: folder(
+        {
+          'Can Undo': { value: history.canUndo, disabled: true },
+          'Can Redo': { value: history.canRedo, disabled: true },
+          Undo: button(() => history.undo(), { disabled: !history.canUndo }),
+          Redo: button(() => history.redo(), { disabled: !history.canRedo }),
+        },
+        { collapsed: true },
+      ),
+    }),
+    [history],
+  );
+
   // Hide the panel by default, or style it?
   // Leva handles its own UI, so we just return null.
   return null;
