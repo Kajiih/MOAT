@@ -284,6 +284,13 @@ We use high-fidelity integration tests with MSW to verify our sorting and discov
 - **`MusicService.test.ts`**: Confirms that services without sorting support correctly report themselves as not server-sorted, allowing the client to take over.
 - **`route.test.ts`**: Validates the API's "Discovery Category" allow-list logic.
 
+#### G. Integration & Propagation Testing
+
+To ensure that distributed hooks correctly synchronize with the global application state, we maintain integration tests in `lib/test/integration/`.
+
+- **Propagation Tests**: `propagation.test.tsx` verifies the end-to-end flow between `useMediaResolver` and `TierListProvider`. It ensures that as soon as a resolver discovers enriched metadata (background or on-demand), it triggers the appropriate global actions to update the board state.
+- **Background Synchronization**: Validates that `useBackgroundEnrichment` correctly identifies items needing metadata and orchestrates their resolution without user intervention.
+
 ### 9. Screenshot Engine & Export Architecture
 
 The app employs a dedicated "Clean Room" architecture to generate professional-grade PNG exports.
