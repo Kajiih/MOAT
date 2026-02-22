@@ -204,11 +204,14 @@ export class BoardPage {
    * @param targetIndex - Destination index of the tier.
    */
   async reorderTiersViaKeyboard(sourceIndex: number, targetIndex: number) {
-    const handle = this.tierDragHandles.nth(sourceIndex);
-    await handle.focus();
-    
     // Get the label of the tier we're moving for verification
     const tierLabel = await this.tierLabels.nth(sourceIndex).textContent();
+    
+    // Use positional index to acquire the handle before drag starts.
+    // We can't use `getTierRow(label).getByTestId(...)` because dnd-kit's drag overlay
+    // duplicates the entire tier row (including data-tier-label), causing strict mode violations mid-drag.
+    const handle = this.tierDragHandles.nth(sourceIndex);
+    await handle.focus();
 
     await this.page.keyboard.press(' '); // Start drag
     
@@ -219,10 +222,18 @@ export class BoardPage {
     const key = targetIndex < sourceIndex ? 'ArrowUp' : 'ArrowDown';
     
     for (let i = 0; i < steps; i++) {
+      const prevBox = await handle.boundingBox();
       await this.page.keyboard.press(key);
-      // Small pause to allow dnd-kit to process coordinate updates
-      // eslint-disable-next-line playwright/no-wait-for-timeout
-      await this.page.waitForTimeout(150); 
+      
+      // dnd-kit doesn't reorder the DOM until drop — it only applies CSS transforms mid-drag.
+      // Poll until the handle's visual position changes, confirming the keyboard event was processed.
+      await expect.poll(async () => {
+        const currBox = await handle.boundingBox();
+        return prevBox && currBox && (currBox.y !== prevBox.y || currBox.x !== prevBox.x);
+      }, {
+        message: 'wait for tier list UI to reflect keyboard move',
+        timeout: 1000,
+      }).toBeTruthy();
     }
     
     await this.page.keyboard.press(' '); // End drag
@@ -266,9 +277,22 @@ export class BoardPage {
     const key = targetIndex < sourceIndex ? 'ArrowLeft' : 'ArrowRight';
     
     for (let i = 0; i < steps; i++) {
+      const getCardTexts = async () => {
+        const currentCards = tierRow.getByTestId(/^media-card-item-/);
+        return await currentCards.allTextContents();
+      };
+      
+      const currentTexts = await getCardTexts();
       await this.page.keyboard.press(key);
-      // eslint-disable-next-line playwright/no-wait-for-timeout
-      await this.page.waitForTimeout(150); 
+      
+      // Wait for SortableContext to restructure the card array in the DOM
+      await expect.poll(async () => {
+        const afterTexts = await getCardTexts();
+        return JSON.stringify(currentTexts) !== JSON.stringify(afterTexts);
+      }, {
+        message: 'wait for horizontal grid to reflect keyboard move',
+        timeout: 1000,
+      }).toBeTruthy();
     }
     
     await this.page.keyboard.press(' '); // End drag
