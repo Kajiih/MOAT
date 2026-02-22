@@ -103,7 +103,7 @@ export function SearchTab({
       return searchResults;
     }
 
-    return searchResults.toSorted((a: MediaItem, b: MediaItem) => {
+    return (searchResults as MediaItem[]).toSorted((a, b) => {
       switch (sortOption) {
         case 'date_desc': {
           return (b.date || b.year || '').localeCompare(a.date || a.year || '');
