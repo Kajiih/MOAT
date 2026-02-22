@@ -1,9 +1,8 @@
 import { expect, test } from './fixtures';
-import { mockSearchResults } from './utils/mocks';
 import { waitForStorageValue } from './utils/storage';
 
 test.describe('General Board Actions', () => {
-  test('should rename a tier list and reflect in document title', async ({ page, boardPage }) => {
+  test('should rename a tier list and reflect in document title', async ({ boardPage }) => {
     await boardPage.goto();
     const newTitle = 'My Epic Tier List';
     await boardPage.setBoardTitle(newTitle);

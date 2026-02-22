@@ -24,6 +24,7 @@ test.describe('Board Reset and Clear Actions', () => {
       await expect(card).toBeVisible();
       await searchPanel.dragToTier(id, 'S');
       await expect(page.getByTestId(`media-card-${id}`)).toBeVisible({ timeout: 15_000 });
+      // eslint-disable-next-line playwright/no-wait-for-timeout
       await page.waitForTimeout(500); // Settle
     }
   });
@@ -72,6 +73,7 @@ test.describe('Board Reset and Clear Actions', () => {
 
     // Undo - Use only one shortcut to avoid double-undoing
     // We use Control+z which is handled for both Meta and Ctrl in our app code
+    // eslint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(500); // Wait for reset to fully settle in UI
     await boardPage.page.keyboard.press('Control+z');
 

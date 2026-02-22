@@ -4,7 +4,7 @@
  * Verifies that async resolver updates correctly trigger state updates in the provider.
  */
 
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -12,6 +12,7 @@ import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvi
 import { TierListProvider, useTierListContext } from '@/components/providers/TierListContext';
 import { useBackgroundEnrichment, useMediaDetails, useMediaResolver } from '@/lib/hooks';
 import { createSong, createTierListState } from '@/lib/test/factories';
+import { MediaItem } from '@/lib/types';
 
 // Mock dependencies
 vi.mock('@/lib/hooks/useMediaDetails', () => ({
@@ -109,7 +110,7 @@ describe('State Propagation Integration', () => {
 
     // 2. Simulate the async arrival of enrichment data (e.g. SWR resolves)
     mockUseMediaDetails.mockReturnValue({
-      details: mockDetails as any,
+      details: mockDetails as unknown as NonNullable<MediaItem['details']>,
       isLoading: false,
       isFetching: false,
       error: null,
@@ -141,7 +142,6 @@ describe('State Propagation Integration', () => {
     });
 
     const { storage } = await import('@/lib/storage');
-    // vi.mocked(storage.get).mockResolvedValue(initialState);
     vi.mocked(storage.get).mockImplementation((key) => {
       if (typeof key === 'string' && key.startsWith('moat-board-')) {
         return Promise.resolve(initialState);
@@ -153,14 +153,18 @@ describe('State Propagation Integration', () => {
     mockUseMediaDetails.mockImplementation((id) => {
       if (id === 'song-1')
         return {
-          details: { type: 'song', genres: ['S1'] } as any,
+          details: { type: 'song', genres: ['S1'] } as unknown as NonNullable<
+            MediaItem['details']
+          >,
           isLoading: false,
           isFetching: false,
           error: null,
         };
       if (id === 'song-2')
         return {
-          details: { type: 'song', genres: ['S2'] } as any,
+          details: { type: 'song', genres: ['S2'] } as unknown as NonNullable<
+            MediaItem['details']
+          >,
           isLoading: false,
           isFetching: false,
           error: null,

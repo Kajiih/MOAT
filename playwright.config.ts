@@ -45,7 +45,7 @@ export default defineConfig({
             'application/json,image/png,application/octet-stream',
           'pdfjs.disabled': true,
         },
-      } as any,
+      } as Record<string, unknown>,
     },
 
     /* Test against mobile viewports. */

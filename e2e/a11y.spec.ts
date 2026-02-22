@@ -3,8 +3,6 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './fixtures';
 
 test.describe('Accessibility Requirements', () => {
-  test.beforeEach(async ({ page }) => {});
-
   test('default board should not have any automatically detectable accessibility issues', async ({
     page,
     boardPage,

@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures';
 
 test.describe('Resilience and Failure Modes', () => {
-  test.beforeEach(async ({ page }) => {});
+  test.beforeEach(async () => {});
 
   test('should display toast error when search API fails', async ({
     page,
@@ -66,7 +66,7 @@ test.describe('Resilience and Failure Modes', () => {
     // Now drag it to the board
     await searchPanel.dragToTier('error-item-1', 'S');
     const boardCard = page.locator('[data-tier-label="S"]').getByTestId('media-card-error-item-1');
-    await expect(boardCard).toBeVisible({ timeout: 10000 });
+    await expect(boardCard).toBeVisible({ timeout: 10_000 });
 
     // Attempt to open details
     await boardCard.hover();
@@ -76,13 +76,13 @@ test.describe('Resilience and Failure Modes', () => {
 
     // Verify dialog opens
     const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
 
     // Verify it handles the details fetch failure properly (inline error message)
     await expect(async () => {
       const errorMsg = dialog.getByText(/Failed to load additional details/i);
       await expect(errorMsg).toBeVisible({ timeout: 1000 });
-    }).toPass({ timeout: 10000 });
+    }).toPass({ timeout: 10_000 });
 
     // The details modal probably opens anyway but with basic info (which is fine, it shouldn't crash)
     await expect(dialog.getByText('Error Item')).toBeVisible();

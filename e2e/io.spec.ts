@@ -44,16 +44,16 @@ test.describe('Import/Export/Share', () => {
     fs.unlinkSync(filePath);
   });
 
-  test('should trigger image save', async ({ page, boardPage, browserName }) => {
+  test('should trigger image save', async ({ page, boardPage }) => {
     await boardPage.goto();
 
     // Save as Image usually takes a screenshot and triggers a download
-    const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
+    const downloadPromise = page.waitForEvent('download', { timeout: 60_000 });
     await boardPage.cameraButton.click();
 
     // In some browsers, image generation is slow.
     // If the toast appears, it means internal processing finished successfully.
-    await expect(page.getByText(/Screenshot saved/i)).toBeVisible({ timeout: 60000 });
+    await expect(page.getByText(/Screenshot saved/i)).toBeVisible({ timeout: 60_000 });
 
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toContain('.png');

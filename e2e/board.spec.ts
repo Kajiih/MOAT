@@ -3,7 +3,7 @@ import { expect, test } from './fixtures';
 test.describe('Board Management', () => {
   test.setTimeout(60_000);
 
-  test.beforeEach(async ({ page }) => {});
+  test.beforeEach(async () => {});
 
   test('should manage tiers: add, rename, reorder, delete', async ({ page, boardPage }) => {
     await boardPage.goto();
@@ -72,7 +72,7 @@ test.describe('Board Management', () => {
       .toBeTruthy();
   });
 
-  test('should change a tier color', async ({ page, boardPage, browserName }) => {
+  test('should change a tier color', async ({ page, boardPage }) => {
     await boardPage.goto();
 
     const firstTierHeader = page.locator('[data-tier-label] > div').first();

@@ -3,7 +3,7 @@ import { expect, test } from './fixtures';
 test.describe('Dashboard and Multi-Board', () => {
   test.setTimeout(60_000);
 
-  test.beforeEach(async ({ page }) => {});
+  test.beforeEach(async () => {});
 
   test('should create, modify, and see changes in dashboard', async ({
     dashboardPage,

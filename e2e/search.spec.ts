@@ -2,7 +2,7 @@ import { expect, test } from './fixtures';
 import { mockSearchDynamic, mockSearchResults } from './utils/mocks';
 
 test.describe('Search Functionality', () => {
-  test.beforeEach(async ({ page }) => {});
+  test.beforeEach(async () => {});
 
   test('should search and drag an item to a tier', async ({ page, boardPage, searchPanel }) => {
     await boardPage.goto();

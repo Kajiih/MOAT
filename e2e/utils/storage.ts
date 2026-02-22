@@ -14,7 +14,6 @@ export async function waitForStorageValue<T>(
   predicate: (val: T | undefined) => boolean,
   timeout = 5000,
 ) {
-  let latestVal: T | undefined;
   await expect
     .poll(
       async () => {
@@ -38,13 +37,12 @@ export async function waitForStorageValue<T>(
                   resolve(getRequest.result);
                 };
                 getRequest.onerror = () => resolve(undefined);
-              } catch (e) {
+              } catch {
                 resolve(undefined);
               }
             };
           });
         }, key);
-        latestVal = result as T;
         return predicate(result as T);
       },
       {
