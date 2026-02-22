@@ -68,6 +68,34 @@ const eslintConfig = defineConfig([
     },
   },
 
+  // Forbid production code from importing from test-only directories/files
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    ignores: [
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      'e2e/**',
+      'lib/test/**',
+      '**/mocks/**',
+      'vitest.config.mts',
+      'playwright.config.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/test/**', '**/e2e/**', '**/*.test', '**/*.spec'],
+              message:
+                'Production code should not import from test utilities or test files. Move shared utilities to a non-test directory if needed.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   // JSDoc enforcement for JS/TS files
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
