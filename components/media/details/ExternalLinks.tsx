@@ -11,59 +11,35 @@ import { ExternalLink } from 'lucide-react';
  * Props for the ExternalLinks component.
  */
 interface ExternalLinksProps {
-  /** The MusicBrainz ID of the entity. */
-  mbId: string;
-  /** The type of media entity. */
-  type: 'album' | 'artist' | 'song';
-  /** Optional array of additional external URLs from the metadata. */
+  /** Optional array of external URLs from the metadata. */
   urls?: { type: string; url: string }[];
 }
 
 /**
- * Renders a collection of external links for a media item, always including its MusicBrainz profile.
+ * Renders a collection of external links for a media item.
  * @param props - The props for the component.
- * @param props.mbId - The MusicBrainz ID of the entity.
- * @param props.type - The type of media entity.
- * @param props.urls - Optional array of additional external URLs from the metadata.
- * @returns The rendered ExternalLinks component.
+ * @param props.urls - Optional array of external URLs.
+ * @returns The rendered ExternalLinks component, or null if no urls.
  */
-export function ExternalLinks({ mbId, type, urls }: ExternalLinksProps) {
-  const mbTypeMap: Record<string, string> = {
-    album: 'release-group',
-    song: 'recording',
-    artist: 'artist',
-  };
-  const mbType = mbTypeMap[type] || 'artist';
-  const musicBrainzUrl = `https://musicbrainz.org/${mbType}/${mbId}`;
+export function ExternalLinks({ urls }: ExternalLinksProps) {
+  if (!urls || urls.length === 0) return null;
 
   return (
     <div className="mt-6">
       <h3 className="mb-2 text-sm font-bold text-neutral-500 uppercase">Links</h3>
       <div className="flex flex-wrap gap-3">
-        <a
-          href={musicBrainzUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 rounded bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white"
-        >
-          <ExternalLink size={12} />
-          <span>MusicBrainz</span>
-        </a>
-
-        {urls &&
-          urls.length > 0 &&
-          urls.map((link) => (
-            <a
-              key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white"
-            >
-              <ExternalLink size={12} />
-              <span className="capitalize">{link.type}</span>
-            </a>
-          ))}
+        {urls.map((link) => (
+          <a
+            key={link.url}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white"
+          >
+            <ExternalLink size={12} />
+            <span className="capitalize">{link.type}</span>
+          </a>
+        ))}
       </div>
     </div>
   );

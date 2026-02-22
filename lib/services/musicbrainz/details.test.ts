@@ -119,7 +119,10 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
         type: 'artist',
         tags: ['indie', 'rock'],
         area: 'London',
-        urls: [{ type: 'wikidata', url: 'https://wikidata/Q123' }],
+        urls: [
+          { type: 'MusicBrainz', url: 'https://musicbrainz.org/artist/artist-1' },
+          { type: 'wikidata', url: 'https://wikidata/Q123' },
+        ],
       });
     });
   });
@@ -134,6 +137,7 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
         label: 'The Label',
         date: '2020-01-01',
         tracks: [{ id: 'r1', position: '1', title: 'Track 1', length: '03:00' }],
+        urls: [{ type: 'MusicBrainz', url: 'https://musicbrainz.org/release-group/album-1' }],
       });
     });
 
@@ -154,6 +158,7 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
         length: '04:00',
         album: 'The Album',
         albumId: 'rg-1',
+        urls: [{ type: 'MusicBrainz', url: 'https://musicbrainz.org/recording/song-1' }],
       });
     });
   });

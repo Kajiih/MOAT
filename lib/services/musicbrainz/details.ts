@@ -111,6 +111,7 @@ async function getAlbumDetails(
     label: data['label-info']?.[0]?.label?.name,
     date: data.date,
     releaseId: release.id,
+    urls: [{ type: 'MusicBrainz', url: `https://musicbrainz.org/release-group/${id}` }],
   };
 }
 
@@ -135,19 +136,22 @@ async function getArtistDetails(id: string): Promise<MediaDetails> {
       end: data['life-span']?.end,
       ended: data['life-span']?.ended,
     },
-    urls: data.relations
-      ?.filter(
-        (r: MBRelation) =>
-          r.type === 'wikidata' ||
-          r.type === 'wikipedia' ||
-          r.type === 'youtube' ||
-          r.type === 'social network' ||
-          r.type === 'streaming',
-      )
-      .map((r: MBRelation) => ({
-        type: r.type,
-        url: r.url?.resource || '',
-      })),
+    urls: [
+      { type: 'MusicBrainz', url: `https://musicbrainz.org/artist/${id}` },
+      ...(data.relations
+        ?.filter(
+          (r: MBRelation) =>
+            r.type === 'wikidata' ||
+            r.type === 'wikipedia' ||
+            r.type === 'youtube' ||
+            r.type === 'social network' ||
+            r.type === 'streaming',
+        )
+        .map((r: MBRelation) => ({
+          type: r.type,
+          url: r.url?.resource || '',
+        })) || []),
+    ],
   };
 }
 
@@ -167,6 +171,7 @@ async function getSongDetails(id: string): Promise<MediaDetails> {
     length: data.length ? new Date(data.length).toISOString().slice(14, 19) : undefined,
     album: release?.title,
     albumId: release?.['release-group']?.id,
+    urls: [{ type: 'MusicBrainz', url: `https://musicbrainz.org/recording/${id}` }],
   };
 }
 

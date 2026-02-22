@@ -156,6 +156,11 @@ export class RAWGService implements MediaService<GameFilters> {
       ...(data.tags?.filter((t) => t.language === 'eng').map((t) => t.name) ?? []).slice(0, 10),
     ];
 
+    // Build external links
+    const urls: { type: string; url: string }[] = [
+      { type: 'RAWG', url: `https://rawg.io/games/${data.slug}` },
+    ];
+
     return {
       id,
       mbid: id,
@@ -168,6 +173,7 @@ export class RAWGService implements MediaService<GameFilters> {
       platforms,
       metacritic: data.metacritic ?? undefined,
       tags: tags.length > 0 ? tags : undefined,
+      urls,
     };
   }
 

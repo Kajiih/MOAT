@@ -9,8 +9,6 @@ import { Clock, Disc, ExternalLink } from 'lucide-react';
 
 import { MediaDetails } from '@/lib/types';
 
-import { ExternalLinks } from './ExternalLinks';
-
 /**
  * Props for the SongView component.
  */
@@ -82,7 +80,6 @@ export function SongView({ details }: SongViewProps) {
         </div>
       )}
 
-      <ExternalLinks mbId={details.mbid} type="song" />
     </div>
   );
 }

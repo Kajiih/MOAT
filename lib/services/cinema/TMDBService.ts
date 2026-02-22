@@ -248,12 +248,23 @@ export class TMDBService implements MediaService<CinemaFilters> {
 
     const rawImageUrl = data.poster_path || data.profile_path;
 
+    // Build external links
+    const urls: { type: string; url: string }[] = [
+      { type: 'TMDB', url: `https://www.themoviedb.org/${pathType}/${id}` },
+    ];
+    if ('homepage' in data && typeof data.homepage === 'string' && data.homepage) {
+      urls.push({ type: 'Official Website', url: data.homepage });
+    }
+
     return {
       id,
       mbid: id,
       type,
       imageUrl: rawImageUrl ? `${IMAGE_BASE_URL}${rawImageUrl}` : undefined,
       date: data.release_date || data.first_air_date,
+      description: data.overview,
+      tags: data.genres?.map((g) => g.name),
+      urls,
     };
   }
 

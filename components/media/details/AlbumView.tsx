@@ -9,8 +9,6 @@ import { Calendar, Disc, ExternalLink } from 'lucide-react';
 
 import { MediaDetails } from '@/lib/types';
 
-import { ExternalLinks } from './ExternalLinks';
-
 /**
  * Props for the AlbumView component.
  */
@@ -90,7 +88,6 @@ export function AlbumView({ details }: AlbumViewProps) {
         </div>
       )}
 
-      <ExternalLinks mbId={details.mbid} type="album" urls={details.urls} />
     </div>
   );
 }

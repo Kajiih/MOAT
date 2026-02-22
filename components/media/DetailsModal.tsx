@@ -17,6 +17,7 @@ import { MediaItem } from '@/lib/types';
 
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
+import { ExternalLinks } from './details/ExternalLinks';
 import { GameView } from './details/GameView';
 import { SongView } from './details/SongView';
 import { MediaImage } from './MediaImage';
@@ -212,26 +213,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                 </div>
               )}
 
-              {details.urls && details.urls.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
-                    Links
-                  </h3>
-                  <div className="flex flex-col gap-1">
-                    {details.urls.map((link: { type: string; url: string }) => (
-                      <a
-                        key={link.url}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
-                      >
-                        {link.type || 'More Info'}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <ExternalLinks urls={details.urls} />
             </>
           )}
 

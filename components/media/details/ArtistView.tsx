@@ -9,8 +9,6 @@ import { MapPin } from 'lucide-react';
 
 import { MediaDetails } from '@/lib/types';
 
-import { ExternalLinks } from './ExternalLinks';
-
 /**
  * Props for the ArtistView component.
  */
@@ -55,7 +53,6 @@ export function ArtistView({ details }: ArtistViewProps) {
         </div>
       )}
 
-      <ExternalLinks mbId={details.mbid} type="artist" urls={details.urls} />
     </div>
   );
 }
