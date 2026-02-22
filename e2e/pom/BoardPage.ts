@@ -220,11 +220,14 @@ export class BoardPage {
     // duplicates the entire tier row (including data-tier-label), causing strict mode violations mid-drag.
     const handle = this.tierDragHandles.nth(sourceIndex);
     await handle.focus();
+    await expect(handle).toBeFocused();
 
     await this.page.keyboard.press(' '); // Start drag
 
     // Wait for dnd-kit accessibility state to reflect dragging
     await expect(handle).toHaveAttribute('aria-pressed', 'true');
+    // dnd-kit uses requestAnimationFrame for layout measuring before accepting move commands
+    await this.page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)));
 
     const steps = Math.abs(sourceIndex - targetIndex);
     const key = targetIndex < sourceIndex ? 'ArrowUp' : 'ArrowDown';

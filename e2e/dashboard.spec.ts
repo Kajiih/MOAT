@@ -23,22 +23,36 @@ test.describe('Dashboard and Multi-Board', () => {
     await boardPage.addTier();
     await expect(boardPage.tierLabels).toHaveCount(initialTiers + 1);
 
-    // 4. Go back to dashboard and verify board exists
-    // We poll for the board title on the dashboard to handle the debounced persistence
-    await expect
-      .poll(
-        async () => {
-          await boardPage.dashboardButton.click();
-          await expect(dashboardPage.page).toHaveURL(/\/dashboard$/);
-          return dashboardPage.page.getByText(boardTitle).isVisible();
-        },
-        {
-          message: 'Board should appear in dashboard after creation and modification',
-          timeout: 10_000,
-          intervals: [1000, 2000],
-        },
-      )
-      .toBeTruthy();
+    // 4. Wait for debounce/save to flush to IndexedDB
+    // Idiomatic Playwright: directly await the underlying state change (IndexedDB write)
+    // before attempting UI navigation, avoiding both fixed timeouts and flaky page reloads.
+    await dashboardPage.page.waitForFunction(
+      async (title) => {
+        return new Promise((resolve) => {
+          const req = indexedDB.open('keyval-store');
+          req.onsuccess = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('keyval')) return resolve(false);
+            const tx = db.transaction('keyval', 'readonly');
+            const store = tx.objectStore('keyval');
+            const getReq = store.get('tier-list-index');
+            getReq.onsuccess = () => {
+              const index = getReq.result || [];
+              resolve(index.some((b: any) => b.title === title));
+            };
+            getReq.onerror = () => resolve(false);
+          };
+          req.onerror = () => resolve(false);
+        });
+      },
+      boardTitle,
+      { timeout: 10_000 },
+    );
+
+    // 5. Go back to dashboard and verify board exists
+    await boardPage.dashboardButton.click();
+    await dashboardPage.page.waitForURL(/\/dashboard$/);
+    await expect(dashboardPage.page.getByText(boardTitle)).toBeVisible({ timeout: 5000 });
 
     // 5. Delete board
     await dashboardPage.deleteBoard(boardTitle);
