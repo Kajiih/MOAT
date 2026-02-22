@@ -79,11 +79,14 @@ function parseSearchParams(searchParams: URLSearchParams, type: MediaType) {
   const wildcard = searchParams.get('wildcard') !== 'false';
 
   // Get all filters from the type definition
+  if (!mediaTypeRegistry.has(type)) {
+    throw new Error(`Media type "${type}" is not registered`);
+  }
   const typeDefinition = mediaTypeRegistry.get(type);
   const filters: Record<string, unknown> = {};
 
   // Parse each filter based on its definition
-  for (const filterDef of typeDefinition.filters) {
+  for (const filterDef of (typeDefinition.filters || [])) {
     parseFilter(filterDef, searchParams, filters);
   }
 

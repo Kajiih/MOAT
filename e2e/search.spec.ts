@@ -100,9 +100,16 @@ test.describe('Search Functionality', () => {
     const countryInput = page.getByPlaceholder('e.g. US, GB, JP...');
 
     await expect(countryInput).toBeVisible();
-    await countryInput.fill('FR');
-    await searchPanel.search('Frenchie');
 
-    expect(capturedUrl).toContain('artistCountry=FR');
+    const [request] = await Promise.all([
+      page.waitForRequest((req) => req.url().includes('artistCountry=FR')),
+      (async () => {
+        await countryInput.fill('FR');
+        await searchPanel.search('Frenchie');
+      })(),
+    ]);
+
+    expect(request.url()).toContain('artistCountry=FR');
+    expect(request.url()).toContain('query=Frenchie');
   });
 });
