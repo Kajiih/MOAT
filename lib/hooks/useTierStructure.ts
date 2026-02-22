@@ -56,20 +56,14 @@ export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory
   );
 
   const handleClear = useCallback(() => {
-    if (confirm('Clear everything on the board?')) {
-      pushHistory();
-      dispatch({ type: ActionType.CLEAR_BOARD });
-      showToast('Board cleared', 'info');
-    }
-  }, [dispatch, showToast, pushHistory]);
+    pushHistory();
+    dispatch({ type: ActionType.CLEAR_BOARD });
+  }, [dispatch, pushHistory]);
 
   const handleResetItems = useCallback(() => {
-    if (confirm('Move all ranked items back to unranked?')) {
-      pushHistory();
-      dispatch({ type: ActionType.MOVE_ALL_TO_UNRANKED });
-      showToast('All items moved to unranked', 'info');
-    }
-  }, [dispatch, showToast, pushHistory]);
+    pushHistory();
+    dispatch({ type: ActionType.MOVE_ALL_TO_UNRANKED });
+  }, [dispatch, pushHistory]);
 
   return {
     handleAddTier,

@@ -219,12 +219,9 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
           {/* Personal Notes Section - Always visible */}
           <div className="mt-8 border-t border-neutral-800 pt-6">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
-                Personal Notes
-              </h3>
-              <span className="text-[10px] text-neutral-600">Auto-saves to board</span>
-            </div>
+            <h3 className="mb-3 text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+              Personal Notes
+            </h3>
             <LocalNotesEditor
               initialNotes={resolvedItem.notes || ''}
               itemId={resolvedItem.id}
