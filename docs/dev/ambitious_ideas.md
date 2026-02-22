@@ -138,14 +138,90 @@ Config snippet: perfectionist.configs['recommended-natural']
 ```
 
 ## Rendering and optimization check
+
 - Check what is re-rendered each time we do something/modify the board
 - Check if we can optimize the rendering to only render what is necessary, if relevant
 - Selector Pattern?
 
-## Rewrite
+# New Ideas
 
-- Multi-database support in mind
-- Material UI based
-- Professional logging/error handling
-- Professional project structure
-- Use eslint perfectionist
+## Multi-tab protection
+
+If a user opens the same board in two tabs, "Last Write Wins." There is no locking or conflict detection. Proposed Fix: Implement a Sequence Clock or Vector Clock.
+
+Logic: Each state update increments a version.
+useStorageSync
+checks version before writing. If the DB version is higher than our hydrated version + local changes, trigger a "Reload Required" toast.
+
+## Auto Save to disk
+
+Auto-saving to disk in case user forgets to save and browser loses data
+
+### AI says
+
+This is a great request. You want to implement an "Auto-export to disk" feature to protect users from data loss if the browser clears IndexedDB or crashes catastrophically.
+
+Basically, you want a periodic, automatic JSON export to the user's hard drive.
+
+The Problem
+Traditional web apps cannot "auto-save to disk" silently without user interaction due to browser security models (FS Access API usually requires a user gesture). However, we can use the File System Access API (if supported) to request permission once to save to a specific file handle, and then write to it periodically.
+
+Proposed Solution: "Continuous Backup"
+UI: Add a "Enable Auto-Backup" button in the header or settings.
+Permission: When clicked, use window.showSaveFilePicker() to ask the user where to save the backup (e.g., backup.json).
+Persistence: Store this FileSystemFileHandle in IndexedDB.
+Loop: Every X minutes (or on save), if we have a valid handle, write the
+ExportData
+JSON to that file handle silently.
+Constraint: The File System Access API is powerful but has browser support limitations (mainly Chromium). For Firefox/Safari, we might fall back to just manual exports or a "Download Backup" reminder.
+
+## Also
+E. Simplicity: Custom "Hydration" Event
+Current Issue: Components like
+SearchPanel
+use isHydrated to hide/show parts of the UI, which can cause layout shifts. Proposed Fix: Move INITIAL_STATE merging into the Server Layer (via a Next.js API route that speculatively loads from IDB) or use a Loading Strategy Provider.
+
+Here is a breakdown of moving local persistence (like activeType, showAdded, fuzzy) from components like
+SearchPanel
+into a centralized
+UserPreferencesProvider
+.
+
+✅ Benefits (UX & Consistency)
+Eliminates Layout Shifts ("Pop-in"):
+Current: The main app loads -> The Search Panel mounts -> activeType hydrates a few ms later -> The tab switches from "Album" (default) to "Artist" (saved). This visible flicker feels unpolished.
+Proposed: The app enters a "Loading" state until both the Board Data and User Preferences are fully loaded. When the UI appears, it is instantly in the correct state.
+Single Source of Truth:
+You have one place to inspect default values (
+UserPreferencesProvider
+) rather than hunting through individual components to find where moat-search-fuzzy is defined.
+Component Purity:
+SearchPanel
+becomes a cleaner "dumb" component that just receives props (e.g., isFuzzyEnabled) rather than managing its own IndexedDB lifecycle. This makes it easier to test and storybook.
+Cross-Component Access:
+If you later decide that another component (e.g., a "Quick Filter" in the Header) needs access to the fuzzy setting, it's already available in the context. You don't need to prop-drill or duplicate hooks.
+⚠️ Drawbacks (Complexity & Performance)
+Increased "Time to First Paint":
+Current: The user sees the board immediately, while the search panel might flicker slightly later.
+Proposed: The user stares at the "Loading..." spinner for slightly longer (waiting for secondary preferences to load).
+Mitigation: IndexedDB is fast (<50ms usually), so this is likely imperceptible, but it is technically a blocking dependency.
+Complexity with Dynamic Keys:
+activeType is currently scoped by category (moat-search-active-type-${category}).
+In a local component, this is easy:
+usePersistentState(key)
+.
+In a global provider, you must carefully structure the state (e.g., activeTypes: Record<Category, MediaType>) to handle all possible board categories. This adds boilerplate logic to the provider that was previously simple and co-located.
+Over-Abstration:
+If a setting is truly only used in
+SearchPanel
+.tsx (like activeType), moving it to a global Context can feel like "Global Variable" pollution. It increases the cognitive load of the global context for data that is locally scoped.
+Recommendation
+I recommend a hybrid approach:
+
+Move Global Toggles: Move fuzzy, wildcard, showAdded, and showAdvanced to
+UserPreferencesProvider
+. These are truly global/user-wide settings.
+Keep activeType Local: Since activeType depends on the current board's category (which changes as you navigate), keeping it local to
+SearchPanel
+avoids complex synchronization logic in the global provider. The layout shift from tabs is usually minimal compared to toggles appearing/disappearing.
+Do you want to proceed with this hybrid centralization?
