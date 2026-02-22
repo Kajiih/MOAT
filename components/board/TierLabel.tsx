@@ -104,6 +104,7 @@ export function TierLabel({
           {...dragAttributes}
           {...dragListeners}
           data-testid="tier-row-drag-handle"
+          aria-label="Drag to reorder tier"
           className={twMerge(
             'absolute top-1 left-1 cursor-grab p-1 text-black/40 transition-opacity hover:text-black active:cursor-grabbing',
             dragOpacityClass,
