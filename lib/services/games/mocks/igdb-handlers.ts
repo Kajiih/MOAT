@@ -28,11 +28,9 @@ export const igdbHandlers = [
           cover: { image_id: 'co1p98' },
           total_rating: 94.8,
           total_rating_count: 5000,
-          involved_companies: [
-            { company: { name: 'CD PROJEKT RED' }, developer: true }
-          ],
+          involved_companies: [{ company: { name: 'CD PROJEKT RED' }, developer: true }],
           platforms: [{ name: 'PC' }, { name: 'PlayStation 4' }],
-        }
+        },
       ]);
     }
 
@@ -44,13 +42,11 @@ export const igdbHandlers = [
           summary: 'The best game ever.',
           first_release_date: 1_431_993_600,
           cover: { image_id: 'co1p98' },
-          involved_companies: [
-            { company: { name: 'CD PROJEKT RED' }, developer: true }
-          ],
+          involved_companies: [{ company: { name: 'CD PROJEKT RED' }, developer: true }],
           platforms: [{ name: 'PC' }],
           genres: [{ name: 'RPG' }],
-          url: 'https://www.igdb.com/games/the-witcher-3-wild-hunt'
-        }
+          url: 'https://www.igdb.com/games/the-witcher-3-wild-hunt',
+        },
       ]);
     }
 
@@ -67,7 +63,7 @@ export const igdbHandlers = [
           id: 1,
           name: 'The Witcher',
           games: [1942, 1, 2],
-        }
+        },
       ]);
     }
 
@@ -77,8 +73,8 @@ export const igdbHandlers = [
           id: 1,
           name: 'The Witcher',
           games: [1942, 1, 2],
-          url: 'https://www.igdb.com/franchises/the-witcher'
-        }
+          url: 'https://www.igdb.com/franchises/the-witcher',
+        },
       ]);
     }
 

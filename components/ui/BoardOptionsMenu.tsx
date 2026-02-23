@@ -188,7 +188,9 @@ export function BoardOptionsMenu({
                   {cat === 'cinema' && <Layout size={14} />}
                   {cat === 'book' && <Book size={14} />}
                   {cat === 'game' && <Gamepad2 size={14} />}
-                  <span className="text-[10px] font-bold capitalize">{cat === 'game' ? 'Games' : cat}</span>
+                  <span className="text-[10px] font-bold capitalize">
+                    {cat === 'game' ? 'Games' : cat}
+                  </span>
                 </button>
               ))}
             </div>

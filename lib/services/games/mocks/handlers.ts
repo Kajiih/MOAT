@@ -138,9 +138,7 @@ export const handlers = [
 
     // Filter by search query
     if (search) {
-      filtered = filtered.filter((game) =>
-        matchesQuery(search, game, { name: 'name' }),
-      );
+      filtered = filtered.filter((game) => matchesQuery(search, game, { name: 'name' }));
     }
 
     // Filter by date range
@@ -179,7 +177,8 @@ export const handlers = [
             return 0;
           }
         }
-        const cmp = typeof aVal === 'string' ? aVal.localeCompare(bVal as string) : aVal - (bVal as number);
+        const cmp =
+          typeof aVal === 'string' ? aVal.localeCompare(bVal as string) : aVal - (bVal as number);
         return desc ? -cmp : cmp;
       });
     }
@@ -213,7 +212,7 @@ export const handlers = [
     ];
 
     if (search) {
-      filtered = filtered.filter(d => d.name.toLowerCase().includes(search.toLowerCase()));
+      filtered = filtered.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
     }
 
     return HttpResponse.json({
@@ -225,10 +224,22 @@ export const handlers = [
   http.get(`${RAWG_BASE}/developers/:id`, ({ params }) => {
     const id = Number.parseInt(params.id as string, 10);
     const devs = [
-      { id: 10, name: 'Rockstar North', slug: 'rockstar-north', image_background: '/rockstar.jpg', description: 'Makers of GTA' },
-      { id: 1, name: 'Valve Software', slug: 'valve-software', image_background: '/valve.jpg', description: 'Makers of Portal' },
+      {
+        id: 10,
+        name: 'Rockstar North',
+        slug: 'rockstar-north',
+        image_background: '/rockstar.jpg',
+        description: 'Makers of GTA',
+      },
+      {
+        id: 1,
+        name: 'Valve Software',
+        slug: 'valve-software',
+        image_background: '/valve.jpg',
+        description: 'Makers of Portal',
+      },
     ];
-    const dev = devs.find(d => d.id === id);
+    const dev = devs.find((d) => d.id === id);
     if (!dev) return new HttpResponse(null, { status: 404 });
     return HttpResponse.json(dev);
   }),

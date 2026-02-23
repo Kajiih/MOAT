@@ -23,7 +23,10 @@ export class DashboardPage {
     await this.createBoardButton.waitFor({ state: 'visible' });
     await this.createBoardButton.click();
     // Use first() to avoid strict mode violation if multiple elements match
-    await this.page.getByRole('button', { name: new RegExp(category, 'i') }).first().click();
+    await this.page
+      .getByRole('button', { name: new RegExp(category, 'i') })
+      .first()
+      .click();
 
     // Once on the board page, we can rename it if needed
     if (title) {

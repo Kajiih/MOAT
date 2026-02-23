@@ -8,7 +8,17 @@
 
 'use client';
 
-import { Book, Clapperboard, Disc, Gamepad2, Layout, Mic2, Music, Plus, Trash2 } from 'lucide-react';
+import {
+  Book,
+  Clapperboard,
+  Disc,
+  Gamepad2,
+  Layout,
+  Mic2,
+  Music,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

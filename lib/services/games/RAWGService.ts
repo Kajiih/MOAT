@@ -60,10 +60,7 @@ export class RAWGService implements MediaService<GameFilters> {
     return process.env.RAWG_API_KEY || '';
   }
 
-  private async fetch<T>(
-    endpoint: string,
-    params: Record<string, string> = {},
-  ): Promise<T | null> {
+  private async fetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
       logger.warn('RAWG_API_KEY is missing.');
@@ -76,10 +73,7 @@ export class RAWGService implements MediaService<GameFilters> {
     return secureFetch<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`);
   }
 
-  private buildSearchParams(
-    query: string,
-    options: SearchOptions,
-  ): Record<string, string> {
+  private buildSearchParams(query: string, options: SearchOptions): Record<string, string> {
     const params: Record<string, string> = {
       page: (options.page || 1).toString(),
       page_size: '20',
@@ -118,11 +112,7 @@ export class RAWGService implements MediaService<GameFilters> {
     }
   }
 
-  async search(
-    query: string,
-    type: MediaType,
-    options: SearchOptions = {},
-  ): Promise<SearchResult> {
+  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     if (!this.getApiKey()) {
       throw new Error('RAWG_API_KEY is missing');
     }
@@ -135,10 +125,7 @@ export class RAWGService implements MediaService<GameFilters> {
       this.applyGameFilters(params, filters);
     }
 
-    const data = await this.fetch<RAWGListResponse | RAWGDeveloperListResponse>(
-      endpoint,
-      params,
-    );
+    const data = await this.fetch<RAWGListResponse | RAWGDeveloperListResponse>(endpoint, params);
 
     if (!data) {
       return { results: [], page: options.page || 1, totalPages: 0, totalCount: 0 };

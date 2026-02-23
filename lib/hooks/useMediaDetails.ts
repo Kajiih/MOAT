@@ -25,7 +25,8 @@ export function useMediaDetails(
   fallbackData?: MediaDetails,
 ) {
   // Derive the category from the media type via the registry
-  const category = type && mediaTypeRegistry.has(type) ? mediaTypeRegistry.get(type).category : null;
+  const category =
+    type && mediaTypeRegistry.has(type) ? mediaTypeRegistry.get(type).category : null;
 
   const { data, isLoading, error, isValidating } = useSWR<MediaDetails>(
     id && type && category ? `/api/details?id=${id}&type=${type}&category=${category}` : null,

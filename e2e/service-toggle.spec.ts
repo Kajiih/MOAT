@@ -41,9 +41,7 @@ test.describe('Service Toggle (Multi-Database)', () => {
   });
 
   test('should search through the selected service', async ({ page, searchPanel }) => {
-    await mockSearchResults(page, [
-      { id: 'game-1', title: 'The Witcher 3', type: 'game' },
-    ]);
+    await mockSearchResults(page, [{ id: 'game-1', title: 'The Witcher 3', type: 'game' }]);
 
     await searchPanel.switchService('IGDB');
     await searchPanel.search('Witcher');

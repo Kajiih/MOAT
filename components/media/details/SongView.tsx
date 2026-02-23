@@ -79,7 +79,6 @@ export function SongView({ details }: SongViewProps) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

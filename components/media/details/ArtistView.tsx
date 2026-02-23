@@ -52,7 +52,6 @@ export function ArtistView({ details }: ArtistViewProps) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

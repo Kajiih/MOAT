@@ -18,10 +18,7 @@ export const gameDefinition: MediaTypeDefinition<keyof GameFilters> = {
   colorClass: 'text-purple-400',
 
   getSubtitle: (item) =>
-    [
-      'developer' in item && item.developer ? item.developer : undefined,
-      item.year,
-    ]
+    ['developer' in item && item.developer ? item.developer : undefined, item.year]
       .filter(Boolean)
       .join(' • '),
   getTertiaryText: (item) =>
@@ -124,15 +121,12 @@ export const franchiseDefinition: MediaTypeDefinition<keyof GameFilters> = {
   colorClass: 'text-pink-400',
 
   getSubtitle: (item) =>
-    'gameCount' in item && item.gameCount
-      ? `${item.gameCount} Games`
-      : 'Video Game Series',
+    'gameCount' in item && item.gameCount ? `${item.gameCount} Games` : 'Video Game Series',
   getTertiaryText: () => 'Franchise',
 
   filters: [],
 
   sortOptions: [
-    { value: 'relevance', label: 'Relevance' },
     { value: 'title_asc', label: 'Name (A-Z)' },
     { value: 'title_desc', label: 'Name (Z-A)' },
     { value: 'date_desc', label: 'Date (Newly Created)' },
@@ -141,10 +135,9 @@ export const franchiseDefinition: MediaTypeDefinition<keyof GameFilters> = {
 
   defaultFilters: {
     query: '',
-    sort: 'relevance',
+    sort: 'title_asc',
   },
 
   searchable: true,
   supportsDetails: true,
 };
-

@@ -87,7 +87,6 @@ export function AlbumView({ details }: AlbumViewProps) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

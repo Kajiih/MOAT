@@ -16,7 +16,7 @@ test.describe('Board Reset and Clear Actions', () => {
     ]);
 
     await searchPanel.search('Setup');
-    
+
     // Drag multiple items to Tier S - this is more stable for setup
     const items = ['item-1', 'item-2', 'item-3'];
     for (const id of items) {
@@ -45,7 +45,7 @@ test.describe('Board Reset and Clear Actions', () => {
 
     // Verify Unranked has all 3 items
     await expect(boardPage.getTierRow('Unranked').getByTestId(/^media-card-item-/)).toHaveCount(3);
-    
+
     // Verify items still exist in lookup/UI
     await expect(page.getByTestId('media-card-item-1')).toBeVisible();
     await expect(page.getByTestId('media-card-item-2')).toBeVisible();
@@ -61,7 +61,7 @@ test.describe('Board Reset and Clear Actions', () => {
 
     // Verify EVERYTHING is gone
     await expect(page.getByTestId(/^media-card-item-/)).toHaveCount(0);
-    
+
     // Verify tiers are reset to default count (6)
     await expect(boardPage.tierLabels).toHaveCount(6);
     await expect(boardPage.tierLabels.first()).toHaveText('S');
@@ -78,7 +78,9 @@ test.describe('Board Reset and Clear Actions', () => {
     await boardPage.page.keyboard.press('Control+z');
 
     // Verify state is restored to 3 items in S
-    await expect(boardPage.getTierRow('S').getByTestId(/^media-card-item-/)).toHaveCount(3, { timeout: 15_000 });
+    await expect(boardPage.getTierRow('S').getByTestId(/^media-card-item-/)).toHaveCount(3, {
+      timeout: 15_000,
+    });
     // And consequently 0 in Unranked
     await expect(boardPage.getTierRow('Unranked').getByTestId(/^media-card-item-/)).toHaveCount(0);
   });

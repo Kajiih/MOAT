@@ -86,7 +86,7 @@ function parseSearchParams(searchParams: URLSearchParams, type: MediaType) {
   const filters: Record<string, unknown> = {};
 
   // Parse each filter based on its definition
-  for (const filterDef of (typeDefinition.filters || [])) {
+  for (const filterDef of typeDefinition.filters || []) {
     parseFilter(filterDef, searchParams, filters);
   }
 

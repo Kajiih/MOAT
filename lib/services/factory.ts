@@ -99,4 +99,3 @@ export function getMediaService(
 export function getServicesForCategory(category: BoardCategory): ServiceInfo[] {
   return registry.getServicesForCategory(category);
 }
-

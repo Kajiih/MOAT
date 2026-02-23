@@ -153,18 +153,14 @@ describe('State Propagation Integration', () => {
     mockUseMediaDetails.mockImplementation((id) => {
       if (id === 'song-1')
         return {
-          details: { type: 'song', genres: ['S1'] } as unknown as NonNullable<
-            MediaItem['details']
-          >,
+          details: { type: 'song', genres: ['S1'] } as unknown as NonNullable<MediaItem['details']>,
           isLoading: false,
           isFetching: false,
           error: null,
         };
       if (id === 'song-2')
         return {
-          details: { type: 'song', genres: ['S2'] } as unknown as NonNullable<
-            MediaItem['details']
-          >,
+          details: { type: 'song', genres: ['S2'] } as unknown as NonNullable<MediaItem['details']>,
           isLoading: false,
           isFetching: false,
           error: null,

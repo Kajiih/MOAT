@@ -186,6 +186,7 @@ JSON to that file handle silently.
 Constraint: The File System Access API is powerful but has browser support limitations (mainly Chromium). For Firefox/Safari, we might fall back to just manual exports or a "Download Backup" reminder.
 
 ## Also
+
 E. Simplicity: Custom "Hydration" Event
 Current Issue: Components like
 SearchPanel
