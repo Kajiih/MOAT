@@ -191,12 +191,21 @@ export class IGDBService implements MediaService<GameFilters> {
     limit: number,
     offset: number,
   ): Promise<SearchResult> {
+    const escapedQuery = query.replace(/"/g, '\\"');
     let igdbQuery = `fields name, games; limit ${limit}; offset ${offset};`;
-    if (query) {
-      igdbQuery += ` search "${query}";`;
-    } else {
-      igdbQuery += ` sort name asc;`;
+    
+    // TODO(P1): Add support for fuzzy search, wildcard search, etc.
+    if (escapedQuery) {
+      // The franchises endpoint does not support the 'search' keyword directly.
+      // We must use a where clause with a case-insensitive wildcard text match.
+      // Note: '~' is the case-insensitive operator in APICalypse.
+      igdbQuery += ` where name ~ *"${escapedQuery}"*;`;
     }
+
+    // Always apply a sort for consistency. For franchises, alphabetical is the logical default.
+    const sort = (options.sort as string) || 'title_asc';
+    const order = this.getSortOrdering(sort, true);
+    if (order) igdbQuery += ` sort ${order};`;
 
     const data = await this.fetch<IGDBFranchise>('/franchises', igdbQuery);
 
@@ -259,8 +268,11 @@ export class IGDBService implements MediaService<GameFilters> {
     return ['game', 'franchise'];
   }
 
-  private getSortOrdering(sort: string): string | undefined {
+  private getSortOrdering(sort: string, isFranchise = false): string | undefined {
     switch (sort) {
+      case 'relevance': {
+        return isFranchise ? 'name asc' : undefined;
+      }
       case 'rating_desc': {
         return 'total_rating desc';
       }
@@ -268,10 +280,10 @@ export class IGDBService implements MediaService<GameFilters> {
         return 'total_rating asc';
       }
       case 'date_desc': {
-        return 'first_release_date desc';
+        return isFranchise ? 'created_at desc' : 'first_release_date desc';
       }
       case 'date_asc': {
-        return 'first_release_date asc';
+        return isFranchise ? 'created_at asc' : 'first_release_date asc';
       }
       case 'title_asc': {
         return 'name asc';

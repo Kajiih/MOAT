@@ -135,6 +135,8 @@ export const franchiseDefinition: MediaTypeDefinition<keyof GameFilters> = {
     { value: 'relevance', label: 'Relevance' },
     { value: 'title_asc', label: 'Name (A-Z)' },
     { value: 'title_desc', label: 'Name (Z-A)' },
+    { value: 'date_desc', label: 'Date (Newly Created)' },
+    { value: 'date_asc', label: 'Date (Oldest)' },
   ],
 
   defaultFilters: {

@@ -143,6 +143,16 @@ Config snippet: perfectionist.configs['recommended-natural']
 - Check if we can optimize the rendering to only render what is necessary, if relevant
 - Selector Pattern?
 
+## Testing framework to verify that the API is working as expected
+
+- Filters
+- Sort
+- Search
+  - fuzzy
+  - wildcard
+  - etc
+- Pagination?
+
 # New Ideas
 
 ## Multi-tab protection
