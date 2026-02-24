@@ -2,6 +2,14 @@
 
 This plan proposes a set of ambitious improvements to the Moat Tier List application, focusing on architectural elegance, performance, and "power user" features.
 
+## Rework of Sorts
+
+- We can allow 2 types of sorts:
+  - Main Sorts: Sorts implemented by the database APIs, like by release year for songs in musicbrainz
+  - Manual server-side (MOAT's server) sorting (e.g. by rating for songs in musicbrainz), equivalent to current "sort only applied to current page" but with a better UX, and more predictable and understandable for the user, because they would now apply to the whole search results (all pages), but only available in cases where the results are not too large (e.g. less than X items or X pages).
+
+In basic usecases, we should only display the "Main Sorts" because we can't have a reliable manual sorts without having all the data, which would require fetching too much data. However, where there are less than X items a given search (or X pages of result for example), we can fetch them all and sort them manually to provide a better experience. We should make clear to the user that those sorts exists when available.
+
 ## Fixes
 
 - Fix pagination prefetching: Currently it only prefetches one page and when go the the next page, it doesn't prefetch the next one.
