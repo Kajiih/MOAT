@@ -21,6 +21,8 @@
   - Never use a short term solution, always target long term solutions and improvements.
   - Don't hesitate to refactor smaller or larger pieces to improve idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.
   - At the end of the implementation of a new feature, build and run integration tests.
-  - We are in development mode, so we can make breaking changes, ambitious refactoring, using cutting edge solutions, etc.
+  - We are in early development mode with no real users, so we can make breaking changes, ambitious refactoring, using cutting edge solutions, etc.
+  - Our UI and API should be simple, predictable and reliable, always focus on those aspects.
+
 
 Start by reading the [app's architecture documentation](docs/ARCHITECTURE.md)

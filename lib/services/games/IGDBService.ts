@@ -184,15 +184,33 @@ export class IGDBService implements MediaService<GameFilters> {
     limit: number,
     offset: number,
   ): Promise<SearchResult> {
-    const escapedQuery = query.replace(/"/g, '\\"');
+    const isWildcard = options.wildcard !== false;
+    const isFuzzy = options.fuzzy !== false;
+
     let igdbQuery = `fields name, games; limit ${limit}; offset ${offset};`;
 
-    // TODO(P1): Add support for fuzzy search, wildcard search, etc.
-    if (escapedQuery) {
-      // The franchises endpoint does not support the 'search' keyword directly.
-      // We must use a where clause with a case-insensitive wildcard text match.
-      // Note: '~' is the case-insensitive operator in APICalypse.
-      igdbQuery += ` where name ~ *"${escapedQuery}"*;`;
+    if (query) {
+      const escapedQuery = query.replace(/"/g, '\\"');
+
+      // Enhanced search: If multiple words are provided, we require all of them (AND logic).
+      // This provides a more predictable and flexible search than a simple substring match.
+      if (isFuzzy || escapedQuery.includes(' ')) {
+        // Advanced search: split into words and require all of them (AND logic)
+        // using case-insensitive substring matching.
+        const words = escapedQuery
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((word) => `name ~ *"${word}"*`);
+        if (words.length > 0) {
+          igdbQuery += ` where ${words.join(' & ')};`;
+        }
+      } else if (isWildcard) {
+        // Single word substring search
+        igdbQuery += ` where name ~ *"${escapedQuery}"*;`;
+      } else {
+        // Exact name match
+        igdbQuery += ` where name ~ "${escapedQuery}";`;
+      }
     }
 
     // Always apply a sort for consistency. For franchises, alphabetical is the logical default.
