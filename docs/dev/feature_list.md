@@ -7,6 +7,8 @@
   - A media type can have several service
 - Entitity type: A kid of entity depending on a Media (`Album`, `Song` or `Artit` for the `Music` media)
 - Item: A particular entity of a media ("Michael Jackson" is an `Artist` in the `Music` media)
+- Board/Tier List: A tier list.
+- Dashboard: The main page where the user can manage multiple independent tier lists.
 
 ## 1. Core Tier List Functionality
 
