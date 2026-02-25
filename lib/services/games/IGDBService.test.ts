@@ -35,6 +35,7 @@ describe('IGDBService Integration (Fake Server)', () => {
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('The Witcher');
     expect(result.results[0].type).toBe('franchise');
+    expect(result.results[0].imageUrl).toContain('co1p98');
     expect('gameCount' in result.results[0] && result.results[0].gameCount).toBe(3);
   });
 
@@ -53,6 +54,7 @@ describe('IGDBService Integration (Fake Server)', () => {
 
     expect(details.id).toBe('1');
     expect(details.type).toBe('franchise');
+    expect(details.imageUrl).toContain('co1p98');
     expect(details.description).toContain('franchise with 3 games');
     expect(details.urls?.[0].url).toContain('franchises/the-witcher');
   });

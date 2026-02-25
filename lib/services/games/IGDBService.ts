@@ -33,7 +33,7 @@ interface IGDBGame {
 interface IGDBFranchise {
   id: number;
   name: string;
-  games?: number[];
+  games?: (number | { id: number; cover?: { id: number; image_id: string } })[];
   url: string;
 }
 
@@ -187,7 +187,7 @@ export class IGDBService implements MediaService<GameFilters> {
     const isWildcard = options.wildcard !== false;
     const isFuzzy = options.fuzzy !== false;
 
-    let igdbQuery = `fields name, games; limit ${limit}; offset ${offset};`;
+    let igdbQuery = `fields name, games.cover.image_id; limit ${limit}; offset ${offset};`;
 
     if (query) {
       const escapedQuery = query.replace(/"/g, '\\"');
@@ -239,15 +239,18 @@ export class IGDBService implements MediaService<GameFilters> {
     if (type === 'franchise') {
       const data = await this.fetch<IGDBFranchise>(
         '/franchises',
-        `fields name, games, url; where id = ${id};`,
+        `fields name, games.cover.image_id, url; where id = ${id};`,
       );
       if (!data || data.length === 0) throw new Error(`Franchise not found: ${id}`);
 
       const franchise = data[0];
+      const imageUrl = this.getFranchiseImage(franchise);
+
       return {
         id,
         mbid: id,
         type: 'franchise',
+        imageUrl,
         description: `Video game franchise with ${franchise.games?.length || 0} games.`,
         urls: [{ type: 'IGDB', url: franchise.url }],
       };
@@ -332,6 +335,16 @@ export class IGDBService implements MediaService<GameFilters> {
       type: 'franchise',
       title: franchise.name,
       gameCount: franchise.games?.length,
+      imageUrl: this.getFranchiseImage(franchise),
     } as FranchiseItem;
+  }
+
+  private getFranchiseImage(franchise: IGDBFranchise): string | undefined {
+    // Find the first game in the franchise that has a cover
+    const gameWithCover = franchise.games?.find((g) => typeof g !== 'number' && g.cover?.image_id);
+    if (gameWithCover && typeof gameWithCover !== 'number' && gameWithCover.cover) {
+      return `https://images.igdb.com/igdb/image/upload/t_cover_big/${gameWithCover.cover.image_id}.jpg`;
+    }
+    return undefined;
   }
 }

@@ -62,7 +62,7 @@ export const igdbHandlers = [
         {
           id: 1,
           name: 'The Witcher',
-          games: [1942, 1, 2],
+          games: [{ id: 1942, cover: { id: 101, image_id: 'co1p98' } }, 1, 2],
         },
       ]);
     }
@@ -72,7 +72,7 @@ export const igdbHandlers = [
         {
           id: 1,
           name: 'The Witcher',
-          games: [1942, 1, 2],
+          games: [{ id: 1942, cover: { id: 101, image_id: 'co1p98' } }, 1, 2],
           url: 'https://www.igdb.com/franchises/the-witcher',
         },
       ]);
