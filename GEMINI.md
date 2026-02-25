@@ -14,6 +14,10 @@
 - We also use integration tests with playwright.
   - You can implement integration test if they are relevant.
   - Use `PLAYWRIGHT_HTML_OPEN='never' npx playwright test` to run tests.
+- Follow test-driven development principles.
+  - In particular, when solving a bug, first find how to reproduce it with a test, then fix it.
+  - When implementing a new feature, first write a test that describes the desired behavior, then implement the feature.
+  - We have powerful mocking and testing infrastructure, use it, and improve it when needed.
 
 - Write documentation to important or not trivial units of code, including modules, functions, variables, etc.
 - Always follow best practices of modern web development, and focus on idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.

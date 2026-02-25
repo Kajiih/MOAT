@@ -10,6 +10,11 @@ This plan proposes a set of ambitious improvements to the Moat Tier List applica
 
 In basic usecases, we should only display the "Main Sorts" because we can't have a reliable manual sorts without having all the data, which would require fetching too much data. However, where there are less than X items a given search (or X pages of result for example), we can fetch them all and sort them manually to provide a better experience. We should make clear to the user that those sorts exists when available.
 
+## Pooling lists from user account
+
+- A great feature would be to be able to directly create a list to rank items from a user's account (e.g. a user's liked songs, a user's followed artists, songs in a playlist, etc.)
+
+
 ## Fixes
 
 - Fix pagination prefetching: Currently it only prefetches one page and when go the the next page, it doesn't prefetch the next one.
