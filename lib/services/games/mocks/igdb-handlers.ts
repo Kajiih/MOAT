@@ -57,7 +57,7 @@ export const igdbHandlers = [
   http.post('https://api.igdb.com/v4/franchises', async ({ request }) => {
     const body = await request.text();
 
-    if (body.includes('search "The Witcher"')) {
+    if (body.includes('where name ~ *"The"* & name ~ *"Witcher"*')) {
       return HttpResponse.json([
         {
           id: 1,

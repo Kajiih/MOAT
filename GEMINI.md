@@ -24,5 +24,4 @@
   - We are in early development mode with no real users, so we can make breaking changes, ambitious refactoring, using cutting edge solutions, etc.
   - Our UI and API should be simple, predictable and reliable, always focus on those aspects.
 
-
 Start by reading the [app's architecture documentation](docs/ARCHITECTURE.md)
