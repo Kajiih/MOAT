@@ -18,6 +18,7 @@
   - In particular, when solving a bug, first find how to reproduce it with a test, then fix it.
   - When implementing a new feature, first write a test that describes the desired behavior, then implement the feature.
   - We have powerful mocking and testing infrastructure, use it, and improve it when needed.
+- Always make sure that what you understand perfectly what you are supposed to do before starting working on it. There is no stupid question, and we need to always look for the best solution.
 
 - Write documentation to important or not trivial units of code, including modules, functions, variables, etc.
 - Always follow best practices of modern web development, and focus on idiomaticity, simplicity, performance, clarity, maintainability, scalability and locality of behavior.

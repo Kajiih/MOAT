@@ -48,6 +48,7 @@ interface SearchTabProps {
  * @param props.globalFuzzy - Global setting for fuzzy search.
  * @param props.globalWildcard - Global setting for wildcard search.
  * @param props.onInfo - Callback to show details for an item.
+ * @param props.serviceId - The ID of the currently selected service.
  * @returns The rendered SearchTab component, or null if hidden.
  */
 export function SearchTab({

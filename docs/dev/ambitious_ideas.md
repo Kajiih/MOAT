@@ -249,3 +249,6 @@ Keep activeType Local: Since activeType depends on the current board's category 
 SearchPanel
 avoids complex synchronization logic in the global provider. The layout shift from tabs is usually minimal compared to toggles appearing/disappearing.
 Do you want to proceed with this hybrid centralization?
+
+## New databases
+- [Bookbrainz](https://bookbrainz.org/) when ready

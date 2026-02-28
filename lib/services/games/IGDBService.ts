@@ -190,26 +190,24 @@ export class IGDBService implements MediaService<GameFilters> {
     let igdbQuery = `fields name, games.cover.image_id; limit ${limit}; offset ${offset};`;
 
     if (query) {
-      const escapedQuery = query.replace(/"/g, '\\"');
+      const sanitized = query.replaceAll(String.raw`"`, '');
+      const words = sanitized.split(/\s+/).filter((w) => w.length > 0);
 
       // Enhanced search: If multiple words are provided, we require all of them (AND logic).
       // This provides a more predictable and flexible search than a simple substring match.
-      if (isFuzzy || escapedQuery.includes(' ')) {
+      if (isFuzzy || words.length > 1) {
         // Advanced search: split into words and require all of them (AND logic)
         // using case-insensitive substring matching.
-        const words = escapedQuery
-          .split(/\s+/)
-          .filter(Boolean)
-          .map((word) => `name ~ *"${word}"*`);
+        const conditions = words.map((word) => `name ~ *"${word}"*`);
         if (words.length > 0) {
-          igdbQuery += ` where ${words.join(' & ')};`;
+          igdbQuery += ` where ${conditions.join(' & ')};`;
         }
       } else if (isWildcard) {
-        // Single word substring search
-        igdbQuery += ` where name ~ *"${escapedQuery}"*;`;
+        // Simple substring search
+        igdbQuery += ` where name ~ *"${sanitized}"*;`;
       } else {
         // Exact name match
-        igdbQuery += ` where name ~ "${escapedQuery}";`;
+        igdbQuery += ` where name = "${sanitized}";`;
       }
     }
 

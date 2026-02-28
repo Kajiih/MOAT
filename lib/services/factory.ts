@@ -5,6 +5,7 @@
  */
 import { BoardCategory } from '@/lib/types';
 
+import { HardcoverService } from './books/HardcoverService';
 import { OpenLibraryService } from './books/OpenLibraryService';
 import { TMDBService } from './cinema/TMDBService';
 import { IGDBService } from './games/IGDBService';
@@ -33,12 +34,14 @@ class MediaServiceRegistry {
     const music = new MusicService();
     const cinema = new TMDBService();
     const book = new OpenLibraryService();
+    const hardcover = new HardcoverService();
     const rawg = new RAWGService();
     const igdb = new IGDBService();
 
     this.register(music as AnyMediaService);
     this.register(cinema as AnyMediaService);
     this.register(book as AnyMediaService);
+    this.register(hardcover as AnyMediaService);
     this.register(rawg as AnyMediaService);
     this.register(igdb as AnyMediaService);
 
@@ -52,6 +55,9 @@ class MediaServiceRegistry {
 
   /**
    * Get a service by category and optional service id.
+   * @param category - The category of the board.
+   * @param serviceId - Optional service ID to select a specific provider.
+   * @returns The MediaService instance.
    */
   get(category: BoardCategory, serviceId?: string): AnyMediaService {
     const categoryServices = this.services.get(category) || [];
@@ -65,6 +71,8 @@ class MediaServiceRegistry {
   /**
    * Get all services registered for a category.
    * Returns metadata usable by the client without importing service classes.
+   * @param category - The category of the board.
+   * @returns Metadata of all services registered for the category.
    */
   getServicesForCategory(category: BoardCategory): ServiceInfo[] {
     const categoryServices = this.services.get(category) || [];
@@ -95,6 +103,8 @@ export function getMediaService(
 /**
  * Get all available services for a category.
  * Used by the client to populate service toggle UI.
+ * @param category - The category of the board.
+ * @returns Metadata of all available services for the category.
  */
 export function getServicesForCategory(category: BoardCategory): ServiceInfo[] {
   return registry.getServicesForCategory(category);

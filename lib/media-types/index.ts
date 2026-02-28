@@ -4,7 +4,7 @@
  * Registers all definitions and exports the configured registry.
  */
 
-import { authorDefinition, bookDefinition } from './definitions/books';
+import { authorDefinition, bookDefinition, seriesDefinition } from './definitions/books';
 import { movieDefinition, personDefinition, tvDefinition } from './definitions/cinema';
 import { developerDefinition, franchiseDefinition, gameDefinition } from './definitions/games';
 import { albumDefinition, artistDefinition, songDefinition } from './definitions/music';
@@ -30,6 +30,7 @@ mediaTypeRegistry.registerMany([
   // Books
   bookDefinition,
   authorDefinition,
+  seriesDefinition,
 ]);
 
 // Register category configurations
@@ -54,7 +55,11 @@ mediaTypeRegistry.registerCategory({
   label: 'Books',
   labelPlural: 'Books',
   primaryTypes: ['book'],
-  secondaryTypes: ['author'],
+  secondaryTypes: ['author', 'series'],
+  services: [
+    { id: 'openlibrary', label: 'Open Library', types: ['book', 'author'] },
+    { id: 'hardcover', label: 'Hardcover', types: ['book', 'series', 'author'] },
+  ],
 });
 
 mediaTypeRegistry.registerCategory({

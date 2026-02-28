@@ -3,9 +3,9 @@
  * @description Media type definitions for book-related types.
  */
 
-import { Book, User } from 'lucide-react';
+import { Book, Library, User } from 'lucide-react';
 
-import { BookItem } from '@/lib/types';
+import { BookItem, SeriesItem } from '@/lib/types';
 
 import { BookFilters } from '../filters';
 import { MediaTypeDefinition } from '../types';
@@ -126,6 +126,38 @@ export const authorDefinition: MediaTypeDefinition<keyof BookFilters> = {
 
   getSubtitle: () => 'Author',
   getTertiaryText: (item) => (item.year ? `Born: ${item.year}` : ''),
+
+  filters: [],
+
+  sortOptions: [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'title_asc', label: 'Name (A-Z)' },
+    { value: 'title_desc', label: 'Name (Z-A)' },
+  ],
+
+  defaultFilters: {
+    query: '',
+    sort: 'relevance',
+  },
+
+  searchable: true,
+  supportsDetails: true,
+};
+
+export const seriesDefinition: MediaTypeDefinition<keyof BookFilters> = {
+  id: 'series',
+  category: 'book',
+
+  label: 'Series',
+  labelPlural: 'Series',
+  icon: Library,
+  colorClass: 'text-amber-700',
+
+  getSubtitle: () => 'Book Series',
+  getTertiaryText: (item) => {
+    const series = item as SeriesItem;
+    return series.bookCount ? `${series.bookCount} books` : '';
+  },
 
   filters: [],
 

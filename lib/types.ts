@@ -40,7 +40,8 @@ export type MediaType =
   | 'book'
   | 'author'
   | 'developer'
-  | 'franchise';
+  | 'franchise'
+  | 'series';
 
 /**
  * Broad category for a board, determining which service and UI to use.
@@ -203,6 +204,15 @@ export interface FranchiseItem extends BaseMediaItem {
 }
 
 /**
+ * Represents a book series.
+ */
+export interface SeriesItem extends BaseMediaItem {
+  type: 'series';
+  /** Number of books in the series. */
+  bookCount?: number;
+}
+
+/**
  * Represents a single normalized media item in the application.
  */
 export type MediaItem =
@@ -216,7 +226,8 @@ export type MediaItem =
   | BookItem
   | AuthorItem
   | DeveloperItem
-  | FranchiseItem;
+  | FranchiseItem
+  | SeriesItem;
 
 /**
  * Represents a simplified artist object used for selection state in pickers.
@@ -456,6 +467,10 @@ export const MediaItemSchema = z.discriminatedUnion('type', [
   BaseMediaItemSchema.extend({
     type: z.literal('franchise'),
     gameCount: z.number().optional(),
+  }),
+  BaseMediaItemSchema.extend({
+    type: z.literal('series'),
+    bookCount: z.number().optional(),
   }),
 ]);
 
