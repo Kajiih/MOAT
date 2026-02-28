@@ -62,14 +62,17 @@ export class HardcoverService implements MediaService<BookFilters> {
     }
   }
 
-  private async searchSeries(query: string, _options: SearchOptions): Promise<SearchResult> {
+  private async searchSeries(query: string, options: SearchOptions): Promise<SearchResult> {
     if (!query.trim()) {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
+    const page = options.page || 1;
+    const perPage = options.limit || 20;
+
     const gql = `
-      query SearchSeries($query: String!, $query_type: String!) {
-        search(query: $query, query_type: $query_type, per_page: 20) {
+      query SearchSeries($query: String!, $query_type: String!, $page: Int!, $per_page: Int!) {
+        search(query: $query, query_type: $query_type, page: $page, per_page: $per_page) {
           results
         }
       }
@@ -79,6 +82,8 @@ export class HardcoverService implements MediaService<BookFilters> {
       const data = await this.client.request<{ search: { results: any } }>(gql, {
         query,
         query_type: 'Series',
+        page,
+        per_page: perPage,
       });
 
       let resultsObj = data.search?.results;
@@ -106,11 +111,14 @@ export class HardcoverService implements MediaService<BookFilters> {
         };
       });
 
+      const totalCount = resultsObj?.found || results.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+
       return {
         results,
-        page: 1,
-        totalPages: 1,
-        totalCount: results.length,
+        page,
+        totalPages,
+        totalCount,
       };
     } catch (error) {
       logger.error(
@@ -126,12 +134,16 @@ export class HardcoverService implements MediaService<BookFilters> {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
+    const page = options.page || 1;
+    const perPage = options.limit || 20;
+
     const gql = `
-      query SearchBooks($query: String!, $query_type: String!) {
+      query SearchBooks($query: String!, $query_type: String!, $page: Int!, $per_page: Int!) {
         search(
           query: $query, 
           query_type: $query_type, 
-          per_page: 20
+          page: $page,
+          per_page: $per_page
         ) {
           results
         }
@@ -142,6 +154,8 @@ export class HardcoverService implements MediaService<BookFilters> {
       const variables = {
         query: query.trim(),
         query_type: 'Book',
+        page,
+        per_page: perPage,
       };
 
       const data = await this.client.request<{ search: { results: any } }>(gql, variables);
@@ -205,11 +219,14 @@ export class HardcoverService implements MediaService<BookFilters> {
         } as BookItem;
       });
 
+      const totalCount = resultsObj?.found || results.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+
       return {
         results,
-        page: 1,
-        totalPages: 1,
-        totalCount: results.length,
+        page,
+        totalPages,
+        totalCount,
       };
     } catch (error) {
       logger.error(
@@ -220,14 +237,17 @@ export class HardcoverService implements MediaService<BookFilters> {
     }
   }
 
-  private async searchAuthors(query: string, _options: SearchOptions): Promise<SearchResult> {
+  private async searchAuthors(query: string, options: SearchOptions): Promise<SearchResult> {
     if (!query.trim()) {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
+    const page = options.page || 1;
+    const perPage = options.limit || 20;
+
     const gql = `
-      query SearchAuthors($query: String!, $query_type: String!) {
-        search(query: $query, query_type: $query_type, per_page: 20) {
+      query SearchAuthors($query: String!, $query_type: String!, $page: Int!, $per_page: Int!) {
+        search(query: $query, query_type: $query_type, page: $page, per_page: $per_page) {
           results
         }
       }
@@ -237,6 +257,8 @@ export class HardcoverService implements MediaService<BookFilters> {
       const data = await this.client.request<{ search: { results: any } }>(gql, {
         query,
         query_type: 'Author',
+        page,
+        per_page: perPage,
       });
 
       let resultsObj = data.search?.results;
@@ -263,11 +285,14 @@ export class HardcoverService implements MediaService<BookFilters> {
         };
       });
 
+      const totalCount = resultsObj?.found || results.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+
       return {
         results,
-        page: 1,
-        totalPages: 1,
-        totalCount: results.length,
+        page,
+        totalPages,
+        totalCount,
       };
     } catch (error) {
       logger.error(

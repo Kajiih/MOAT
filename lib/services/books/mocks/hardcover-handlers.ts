@@ -11,13 +11,15 @@ export const hardcoverHandlers = [
 
     // Unified Search Mock (Typesense-backed)
     if (query.includes('query Search')) {
-      const { query: searchTerm, query_type: type } = variables;
+      const { query: searchTerm, query_type: type, page = 1, per_page = 20 } = variables;
 
       if (type === 'Series' && searchTerm.includes('Witcher')) {
         return HttpResponse.json({
           data: {
             search: {
               results: {
+                found: 1,
+                page,
                 hits: [
                   {
                     document: {
@@ -35,36 +37,64 @@ export const hardcoverHandlers = [
         });
       }
 
-      if (type === 'Book' && searchTerm.includes('Fellowship')) {
+      if (type === 'Book' && searchTerm.includes('Harry Potter')) {
         return HttpResponse.json({
           data: {
             search: {
               results: {
+                found: 2,
+                page,
                 hits: [
                   {
                     document: {
                       id: 101,
-                      title: 'The Fellowship of the Ring',
-                      release_year: 1954,
-                      image: { url: 'https://images.hardcover.app/book/101.jpg' },
-                      rating: 4.8,
-                      ratings_count: 1500,
-                      author_names: ['J.R.R. Tolkien'],
-                      author_ids: [201],
-                      author_url: 'https://hardcover.app/authors/jrr-tolkien',
+                      title: 'Harry Potter and the Philosopher Stone',
+                      author_names: ['J.K. Rowling'],
+                      release_year: 1997,
+                      image_url: 'https://hardcover.app/books/hp1',
                     },
                   },
                   {
                     document: {
                       id: 102,
-                      title: 'The Lord of the Rings: Complete Collection',
-                      release_year: 2000,
-                      image: { url: 'https://images.hardcover.app/book/102.jpg' },
-                      rating: 4.9,
-                      ratings_count: 5000,
+                      title: 'Harry Potter and the Chamber of Secrets',
+                      author_names: ['J.K. Rowling'],
+                      release_year: 1998,
+                      image_url: 'https://hardcover.app/books/hp2',
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        });
+      }
+
+      if (type === 'Book' && searchTerm.includes('Fellowship')) {
+        return HttpResponse.json({
+          data: {
+            search: {
+              results: {
+                found: 2,
+                page,
+                hits: [
+                  {
+                    document: {
+                      id: 201,
+                      title: 'The Fellowship of the Ring',
                       author_names: ['J.R.R. Tolkien'],
                       author_ids: [201],
                       author_url: 'https://hardcover.app/authors/jrr-tolkien',
+                      release_year: 1954,
+                    },
+                  },
+                  {
+                    document: {
+                      id: 202,
+                      title: 'The Fellowship of the Ring (Special Edition)',
+                      author_names: ['J.R.R. Tolkien'],
+                      author_ids: [201],
+                      release_year: 2004,
                       compilation: true,
                     },
                   },
@@ -80,6 +110,8 @@ export const hardcoverHandlers = [
           data: {
             search: {
               results: {
+                found: 1,
+                page,
                 hits: [
                   {
                     document: {
