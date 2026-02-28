@@ -277,7 +277,13 @@ export class OpenLibraryService implements MediaService<BookFilters> {
     }
 
     if (processedQuery) queryParts.push(processedQuery);
-    if (author) queryParts.push(`author:"${escapeLucene(author)}"`);
+    if (author) {
+      if (author.startsWith('/authors/')) {
+        queryParts.push(`author_key:"${escapeLucene(author)}"`);
+      } else {
+        queryParts.push(`author:"${escapeLucene(author)}"`);
+      }
+    }
     if (minYear || maxYear) {
       const min = minYear || '*';
       const max = maxYear || '*';

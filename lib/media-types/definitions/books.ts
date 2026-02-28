@@ -30,7 +30,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
       type: 'picker',
       pickerType: 'author',
       defaultValue: null,
-      services: ['openlibrary', 'hardcover'],
+      services: ['openlibrary'],
     },
     {
       id: 'yearRange',

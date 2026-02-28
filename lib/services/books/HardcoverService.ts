@@ -122,14 +122,9 @@ export class HardcoverService implements MediaService<BookFilters> {
   }
 
   private async searchBooks(query: string, options: SearchOptions): Promise<SearchResult> {
-    const bookFilters = options.filters as BookFilters | undefined;
-    const authorSlug = bookFilters?.selectedAuthor;
-
-    if (!query.trim() && !authorSlug) {
+    if (!query.trim()) {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
-
-    const searchQuery = query.trim() ? query : authorSlug!;
 
     const gql = `
       query SearchBooks($query: String!, $query_type: String!) {
@@ -145,7 +140,7 @@ export class HardcoverService implements MediaService<BookFilters> {
 
     try {
       const variables = {
-        query: searchQuery,
+        query: query.trim(),
         query_type: 'Book',
       };
 
@@ -169,25 +164,8 @@ export class HardcoverService implements MediaService<BookFilters> {
 
       // Apply in-memory filtering as the search endpoint has limited filter support
       // We filter RAW hits before mapping to have access to all original fields (like contributions)
+      const bookFilters = options.filters as BookFilters | undefined;
       if (bookFilters) {
-        if (bookFilters.selectedAuthor) {
-          const authorIdRaw = bookFilters.selectedAuthor.toLowerCase();
-          hits = hits.filter((hit: any) => {
-            const b = hit.document || hit;
-            // Robust match: check contributions, author_id, slugs and URLs in author_url
-            return (
-              b.author_ids?.some((id: any) => id.toString() === authorIdRaw) || 
-              (b.author_id?.toString() === authorIdRaw) ||
-              (b.author_url?.toLowerCase().includes(authorIdRaw)) ||
-              (b.contributions?.some((c: any) => 
-                c.author?.id?.toString() === authorIdRaw || 
-                c.author?.slug?.toLowerCase() === authorIdRaw
-              )) ||
-              (b.author_names?.some((n: string) => n.toLowerCase().includes(authorIdRaw))) ||
-              (b.author?.toLowerCase().includes(authorIdRaw))
-            );
-          });
-        }
         if (bookFilters.excludeCompilations?.includes('true')) {
           hits = hits.filter((hit: any) => {
             const b = hit.document || hit;

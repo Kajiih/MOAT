@@ -162,26 +162,8 @@ export function useMediaSearch<T extends MediaType>(
     };
 
     if (!ignoreFilters) {
-      const filterDefs = mediaTypeRegistry.get(type).filters;
-
-      Object.entries(rest).forEach(([key, value]) => {
-        if (value === null || value === undefined || value === '') return;
-
-        const def = filterDefs.find((d) => d.id === key);
-        const pName = def?.paramName || key;
-
-        if (def?.type === 'picker') {
-          // Special handling for pickers to extract the value
-          const pickerVal = value as { id?: string; name?: string } | null;
-          if (key === 'selectedAuthor') {
-            if (pickerVal?.name) filters[pName] = pickerVal.name;
-          } else {
-            if (pickerVal?.id) filters[pName] = pickerVal.id;
-          }
-        } else {
-          filters[pName] = value as string | number | boolean;
-        }
-      });
+      const serialized = mediaTypeRegistry.serializeFilters(type, rest);
+      Object.assign(filters, serialized);
     }
 
     // Force overrides from config

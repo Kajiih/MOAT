@@ -112,6 +112,65 @@ export class MediaTypeRegistry {
   }
 
   /**
+   * Serializes search state into URL-friendly parameters based on filter definitions.
+   * Handles complex objects (pickers) by extracting the configured valueKey.
+   * @param type - The media type identifier.
+   * @param state - The current search parameters state.
+   * @returns A Record of serialized string or array values.
+   */
+  serializeFilters(
+    type: MediaType,
+    state: Record<string, unknown>,
+  ): Record<string, string | string[]> {
+    const def = this.get(type);
+    const serialized: Record<string, string | string[]> = {};
+
+    def.filters.forEach((filter) => {
+      const value = state[filter.id];
+      if (value === null || value === undefined || value === '') return;
+
+      const paramName = filter.paramName || filter.id;
+
+      switch (filter.type) {
+        case 'picker': {
+          const pickerVal = value as Record<string, unknown>;
+          const key = filter.valueKey || 'id';
+          if (pickerVal[key]) {
+            serialized[paramName] = String(pickerVal[key]);
+          }
+          break;
+        }
+        case 'toggle-group': {
+          if (Array.isArray(value) && value.length > 0) {
+            serialized[paramName] = value.map(String);
+          }
+          break;
+        }
+        case 'range': {
+          // Special handling for range filters which map to multiple keys
+          if (filter.id === 'yearRange' || filter.id === 'releaseYear') {
+            const min = state.minYear || state[filter.minKey || ''];
+            const max = state.maxYear || state[filter.maxKey || ''];
+            if (min) serialized.minYear = String(min);
+            if (max) serialized.maxYear = String(max);
+          } else if (filter.id === 'durationRange') {
+            const min = state.minDuration || state[filter.minKey || ''];
+            const max = state.maxDuration || state[filter.maxKey || ''];
+            if (min) serialized.minDuration = String(min);
+            if (max) serialized.maxDuration = String(max);
+          }
+          break;
+        }
+        default: {
+          serialized[paramName] = String(value);
+        }
+      }
+    });
+
+    return serialized;
+  }
+
+  /**
    * Get all registered type IDs.
    * @returns Array of formatted media type IDs.
    */

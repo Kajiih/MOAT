@@ -50,6 +50,8 @@ export const hardcoverHandlers = [
                       rating: 4.8,
                       ratings_count: 1500,
                       author_names: ['J.R.R. Tolkien'],
+                      author_ids: [201],
+                      author_url: 'https://hardcover.app/authors/jrr-tolkien',
                     },
                   },
                   {
@@ -61,6 +63,8 @@ export const hardcoverHandlers = [
                       rating: 4.9,
                       ratings_count: 5000,
                       author_names: ['J.R.R. Tolkien'],
+                      author_ids: [201],
+                      author_url: 'https://hardcover.app/authors/jrr-tolkien',
                       compilation: true,
                     },
                   },
