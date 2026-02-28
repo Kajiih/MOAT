@@ -169,7 +169,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                         Setting / Places
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {details.places.map((place: string) => (
+                        {Array.from(new Set(details.places)).map((place: string) => (
                           <span
                             key={place}
                             className="flex items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-800/50 px-3 py-1 text-xs text-neutral-300"
@@ -201,7 +201,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                     Subjects
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {details.tags.map((tag: string) => (
+                    {Array.from(new Set(details.tags)).map((tag: string) => (
                       <span
                         key={tag}
                         className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs text-neutral-300"

@@ -28,7 +28,7 @@ export function ExternalLinks({ urls }: ExternalLinksProps) {
     <div className="mt-6">
       <h3 className="mb-2 text-sm font-bold text-neutral-500 uppercase">Links</h3>
       <div className="flex flex-wrap gap-3">
-        {urls.map((link) => (
+        {Array.from(new Map(urls.map((link) => [link.url, link])).values()).map((link) => (
           <a
             key={link.url}
             href={link.url}
