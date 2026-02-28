@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'covers.openlibrary.org' },
       { protocol: 'https', hostname: 'media.rawg.io' },
       { protocol: 'https', hostname: 'images.igdb.com' },
+      { protocol: 'https', hostname: 'assets.hardcover.app' },
     ],
   },
   // We use unoptimized for the screenshot engine to bypass resizing/formatting during capture

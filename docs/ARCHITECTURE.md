@@ -300,7 +300,15 @@ We use high-fidelity integration tests with MSW to verify our sorting and discov
 - **`RAWGService.test.ts`**: Tests game search, details fetching, platform/developer mapping, and RAWG-specific ordering parameters.
 - **`route.test.ts`**: Validates the API's "Discovery Category" allow-list logic.
 
-#### G. Integration & Propagation Testing
+#### G. Real API Integration Testing (Live Tests)
+
+- **Purpose**: Verify service logic, mapping, and API contract compatibility against live external endpoints.
+- **Framework**: A dedicated environment in `lib/services/integration-tests/` that skips MSW mocks.
+- **Environment**: Requires real tokens/keys in `.env.local` (manually loaded via `setup.ts`).
+- **Resilience**: Includes artificial delays (e.g., 1.1s for MusicBrainz) to respect public API rate limits.
+- **Usage**: Run via `npm run test:integration`. This provides a "smoke test" to catch breaking API changes (like the Hardcover.app Typesense migration) that unit tests with static mocks might miss.
+
+#### H. Integration & Propagation Testing
 
 To ensure that distributed hooks correctly synchronize with the global application state, we maintain integration tests in `lib/test/integration/`.
 

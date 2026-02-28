@@ -120,25 +120,34 @@ export class HardcoverService implements MediaService<BookFilters> {
     `;
 
     try {
-      const data = await this.graphqlQuery<{ search: { results: any[] } }>(gql, {
+      const data = await this.graphqlQuery<{ search: { results: any } }>(gql, {
         query,
         type: 'Series',
       });
 
       const searchData = data.search;
-      const resultsArray =
-        typeof searchData?.results === 'string'
-          ? JSON.parse(searchData.results)
-          : searchData?.results || [];
+      let resultsObj = searchData?.results;
+      if (typeof resultsObj === 'string') {
+        try {
+          resultsObj = JSON.parse(resultsObj);
+        } catch (e) {
+          logger.error({ error: e, results: resultsObj }, 'Failed to parse Hardcover results string');
+          resultsObj = { hits: [] };
+        }
+      }
 
-      const results: SeriesItem[] = resultsArray.map((s: any) => ({
-        id: s.id?.toString() || s.slug,
-        mbid: s.slug,
-        type: 'series',
-        title: s.name,
-        imageUrl: s.image_url,
-        bookCount: s.books_count,
-      }));
+      const hits = resultsObj?.hits || [];
+      const results: SeriesItem[] = hits.map((hit: any) => {
+        const s = hit.document || hit;
+        return {
+          id: s.id?.toString() || s.slug,
+          mbid: s.slug,
+          type: 'series',
+          title: s.name,
+          imageUrl: s.image_url || s.image?.url,
+          bookCount: s.books_count,
+        };
+      });
 
       return {
         results,
@@ -169,28 +178,37 @@ export class HardcoverService implements MediaService<BookFilters> {
     `;
 
     try {
-      const data = await this.graphqlQuery<{ search: { results: any[] } }>(gql, {
+      const data = await this.graphqlQuery<{ search: { results: any } }>(gql, {
         query,
         type: 'Book',
       });
 
       const searchData = data.search;
-      const resultsArray =
-        typeof searchData?.results === 'string'
-          ? JSON.parse(searchData.results)
-          : searchData?.results || [];
+      let resultsObj = searchData?.results;
+      if (typeof resultsObj === 'string') {
+        try {
+          resultsObj = JSON.parse(resultsObj);
+        } catch (e) {
+          logger.error({ error: e, results: resultsObj }, 'Failed to parse Hardcover results string');
+          resultsObj = { hits: [] };
+        }
+      }
 
-      const results: BookItem[] = resultsArray.map((b: any) => ({
-        id: b.id?.toString() || b.slug,
-        mbid: b.id?.toString() || b.slug,
-        type: 'book',
-        title: b.title,
-        author: b.author_names?.join(', ') || 'Unknown Author',
-        year: (b.release_year || b.release_date_i)?.toString(),
-        imageUrl: b.image_url,
-        rating: b.rating,
-        reviewCount: b.ratings_count,
-      }));
+      const hits = resultsObj?.hits || [];
+      const results: BookItem[] = hits.map((hit: any) => {
+        const b = hit.document || hit;
+        return {
+          id: b.id?.toString() || b.slug,
+          mbid: b.id?.toString() || b.slug,
+          type: 'book',
+          title: b.title,
+          author: b.author_names?.join(', ') || 'Unknown Author',
+          year: (b.release_year || b.release_date_i)?.toString(),
+          imageUrl: b.image_url || b.image?.url,
+          rating: b.rating,
+          reviewCount: b.ratings_count,
+        };
+      });
 
       return {
         results,
@@ -221,24 +239,33 @@ export class HardcoverService implements MediaService<BookFilters> {
     `;
 
     try {
-      const data = await this.graphqlQuery<{ search: { results: any[] } }>(gql, {
+      const data = await this.graphqlQuery<{ search: { results: any } }>(gql, {
         query,
         type: 'Author',
       });
 
       const searchData = data.search;
-      const resultsArray =
-        typeof searchData?.results === 'string'
-          ? JSON.parse(searchData.results)
-          : searchData?.results || [];
+      let resultsObj = searchData?.results;
+      if (typeof resultsObj === 'string') {
+        try {
+          resultsObj = JSON.parse(resultsObj);
+        } catch (e) {
+          logger.error({ error: e, results: resultsObj }, 'Failed to parse Hardcover results string');
+          resultsObj = { hits: [] };
+        }
+      }
 
-      const results: AuthorItem[] = resultsArray.map((a: any) => ({
-        id: a.id?.toString() || a.slug,
-        mbid: a.slug,
-        type: 'author',
-        title: a.name,
-        imageUrl: a.image_url,
-      }));
+      const hits = resultsObj?.hits || [];
+      const results: AuthorItem[] = hits.map((hit: any) => {
+        const a = hit.document || hit;
+        return {
+          id: a.id?.toString() || a.slug,
+          mbid: a.slug,
+          type: 'author',
+          title: a.name,
+          imageUrl: a.image_url || a.image?.url,
+        };
+      });
 
       return {
         results,
