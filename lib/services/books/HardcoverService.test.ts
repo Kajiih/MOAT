@@ -33,6 +33,7 @@ describe('HardcoverService Integration (Fake Server)', () => {
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('The Witcher');
+    expect(result.results[0].imageUrl).toBe('https://images.hardcover.app/book/witcher-cover.jpg');
     expect(result.results[0].type).toBe('series');
     expect((result.results[0] as SeriesItem).bookCount).toBe(8);
   });

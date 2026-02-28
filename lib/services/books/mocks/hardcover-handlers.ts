@@ -129,6 +129,27 @@ export const hardcoverHandlers = [
       }
     }
 
+    // Book Series Images Mock
+    if (query.includes('query GetSeriesBooks')) {
+      const { ids } = variables as unknown as { ids: number[] };
+      const book_series: any[] = [];
+      
+      if (ids.includes(1)) {
+        book_series.push({
+          series_id: 1,
+          book: {
+            image: { url: 'https://images.hardcover.app/book/witcher-cover.jpg' }
+          }
+        });
+      }
+      
+      return HttpResponse.json({
+        data: {
+          book_series
+        }
+      });
+    }
+
     return HttpResponse.json({ data: { series: [], books: [], authors: [] } });
   }),
 ];

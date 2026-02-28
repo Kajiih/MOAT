@@ -99,7 +99,8 @@ export class HardcoverService implements MediaService<BookFilters> {
 
       // Handle nested hits if Typesense structure is present
       const hits = resultsObj?.hits || (Array.isArray(resultsObj) ? resultsObj : []);
-      const results: SeriesItem[] = hits.map((hit: any) => {
+      
+      const seriesItems: SeriesItem[] = hits.map((hit: any) => {
         const s = hit.document || hit;
         return {
           id: s.id?.toString() || s.slug,
@@ -108,14 +109,29 @@ export class HardcoverService implements MediaService<BookFilters> {
           title: s.name,
           imageUrl: s.image_url || s.image?.url || s.document?.image_url || s.document?.image?.url || s.author?.image?.url,
           bookCount: s.books_count,
-        };
+        } as SeriesItem;
       });
 
-      const totalCount = resultsObj?.found || results.length;
+      // Enhance series images if possible
+      const seriesIds = seriesItems
+        .map(s => parseInt(s.id, 10))
+        .filter(id => !isNaN(id));
+
+      if (seriesIds.length > 0) {
+        const imageMap = await this.fetchSeriesBookImages(seriesIds);
+        seriesItems.forEach(item => {
+          const id = parseInt(item.id, 10);
+          if (!isNaN(id) && imageMap.has(id)) {
+            item.imageUrl = imageMap.get(id);
+          }
+        });
+      }
+
+      const totalCount = resultsObj?.found || seriesItems.length;
       const totalPages = Math.ceil(totalCount / perPage);
 
       return {
-        results,
+        results: seriesItems,
         page,
         totalPages,
         totalCount,
@@ -314,5 +330,40 @@ export class HardcoverService implements MediaService<BookFilters> {
 
   getSupportedTypes(): MediaType[] {
     return ['book', 'series', 'author'];
+  }
+
+  /**
+   * Fetches the first book's cover image for a list of series IDs.
+   */
+  private async fetchSeriesBookImages(seriesIds: number[]): Promise<Map<number, string>> {
+    if (seriesIds.length === 0) return new Map();
+
+    const gql = `
+      query GetSeriesBooks($ids: [Int!]!) {
+        book_series(where: {series_id: {_in: $ids}, position: {_eq: 1}}) {
+          series_id
+          book {
+            image {
+              url
+            }
+          }
+        }
+      }
+    `;
+
+    try {
+      const data = await this.client.request<{ book_series: any[] }>(gql, { ids: seriesIds });
+      const imageMap = new Map<number, string>();
+      data.book_series.forEach((bs) => {
+        const url = bs.book?.image?.url;
+        if (url) {
+          imageMap.set(bs.series_id, url);
+        }
+      });
+      return imageMap;
+    } catch (error) {
+      logger.error({ error, seriesIds }, 'Failed to fetch series book images');
+      return new Map();
+    }
   }
 }
