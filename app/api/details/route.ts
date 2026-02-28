@@ -21,13 +21,14 @@ export async function GET(request: Request) {
   const id = searchParams.get('id');
   const type = searchParams.get('type') as MediaType;
   const category = (searchParams.get('category') as BoardCategory) || 'music';
+  const serviceId = searchParams.get('service');
 
   if (!id || !type) {
     return NextResponse.json({ error: 'Missing id or type' }, { status: 400 });
   }
 
   try {
-    const service = getMediaService(category);
+    const service = getMediaService(category, serviceId || undefined);
     const details = await service.getDetails(id, type);
     return NextResponse.json(details);
   } catch (error) {

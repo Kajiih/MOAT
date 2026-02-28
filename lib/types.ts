@@ -99,6 +99,8 @@ export interface BaseMediaItem {
   reviewCount?: number;
   /** Personal notes about the item. */
   notes?: string;
+  /** The ID of the service that provided this item. */
+  serviceId?: string;
 }
 
 /**
@@ -357,6 +359,8 @@ export interface MediaDetails {
   mbid: string;
   /** Entity type. */
   type: MediaType;
+  /** Primary display title. */
+  title?: string;
   /** Array of descriptive tags. */
   tags?: string[];
   /** External resource links. */
@@ -398,9 +402,15 @@ export interface MediaDetails {
   platforms?: string[];
   /** Game specific: Metacritic score (0-100). */
   metacritic?: number;
+  /** Rating value (0-10 or 0-5 depending on source) */
+  rating?: number;
+  /** Number of reviews or popularity metric */
+  reviewCount?: number;
 
   /** General description or bio. */
   description?: string;
+  /** The ID of the service that provided these details. */
+  serviceId?: string;
 }
 
 // --- Zod Schemas for State Validation ---
@@ -424,6 +434,7 @@ const BaseMediaItemSchema = z.object({
   rating: z.number().optional(),
   reviewCount: z.number().optional(),
   notes: z.string().optional(),
+  serviceId: z.string().optional(),
 });
 
 /**

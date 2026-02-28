@@ -251,6 +251,7 @@ export class IGDBService implements MediaService<GameFilters> {
         imageUrl,
         description: `Video game franchise with ${franchise.games?.length || 0} games.`,
         urls: [{ type: 'IGDB', url: franchise.url }],
+        serviceId: this.id,
       };
     }
 
@@ -283,6 +284,7 @@ export class IGDBService implements MediaService<GameFilters> {
         ...(game.themes?.map((t) => t.name) || []),
       ],
       urls: [{ type: 'IGDB', url: game.url }],
+      serviceId: this.id,
     };
   }
 
@@ -323,6 +325,7 @@ export class IGDBService implements MediaService<GameFilters> {
       reviewCount: game.total_rating_count,
       developer,
       platforms: game.platforms?.map((p) => p.name),
+      serviceId: this.id,
     } as GameItem;
   }
 
@@ -334,6 +337,7 @@ export class IGDBService implements MediaService<GameFilters> {
       title: franchise.name,
       gameCount: franchise.games?.length,
       imageUrl: this.getFranchiseImage(franchise),
+      serviceId: this.id,
     } as FranchiseItem;
   }
 

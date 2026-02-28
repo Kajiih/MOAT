@@ -150,6 +150,60 @@ export const hardcoverHandlers = [
       });
     }
 
+    // Book Details Mock
+    if (query.includes('query GetBook(')) {
+      return HttpResponse.json({
+        data: {
+          books_by_pk: {
+            id: variables.id,
+            title: 'Harry Potter and the Philosopher Stone',
+            description: 'A young wizard discovers his heritage.',
+            release_date: '1997-06-26',
+            rating: 4.5,
+            ratings_count: 1000,
+            image: { url: 'https://hardcover.app/books/hp1-L' },
+            taggings: [{ tag: { tag: 'Fantasy' } }],
+            contributions: [{ author: { name: 'J.K. Rowling' } }]
+          }
+        }
+      });
+    }
+
+    // Series Details Mock
+    if (query.includes('query GetSeries(')) {
+      return HttpResponse.json({
+        data: {
+          series_by_pk: {
+            id: variables.id,
+            name: 'The Witcher',
+            description: 'The adventures of Geralt of Rivia.',
+            books_count: 8,
+            book_series: [
+              { book: { title: 'The Last Wish', id: 1001 } }
+            ]
+          }
+        }
+      });
+    }
+
+    // Author Details Mock
+    if (query.includes('query GetAuthor(')) {
+      return HttpResponse.json({
+        data: {
+          authors_by_pk: {
+            id: variables.id,
+            name: 'J.R.R. Tolkien',
+            bio: 'The father of modern fantasy.',
+            born_date: '1892-01-03',
+            death_date: '1973-09-02',
+            location: 'Oxford, UK',
+            links: [{ title: 'Official', url: 'https://tolkien.co.uk' }],
+            image: { url: 'https://images.hardcover.app/author/201.jpg' }
+          }
+        }
+      });
+    }
+
     return HttpResponse.json({ data: { series: [], books: [], authors: [] } });
   }),
 ];

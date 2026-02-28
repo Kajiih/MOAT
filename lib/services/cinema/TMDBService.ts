@@ -267,6 +267,7 @@ export class TMDBService implements MediaService<CinemaFilters> {
       description: data.overview,
       tags: data.genres?.map((g) => g.name),
       urls,
+      serviceId: this.id,
     };
   }
 
@@ -284,6 +285,7 @@ export class TMDBService implements MediaService<CinemaFilters> {
       imageUrl: rawImageUrl ? `${IMAGE_BASE_URL}${rawImageUrl}` : undefined,
       rating: item.vote_average,
       reviewCount: item.vote_count,
+      serviceId: this.id,
     };
 
     switch (type) {

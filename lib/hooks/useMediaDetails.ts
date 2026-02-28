@@ -22,6 +22,7 @@ import { MediaDetails, MediaType } from '@/lib/types';
 export function useMediaDetails(
   id: string | null,
   type: MediaType | null,
+  serviceId?: string | null,
   fallbackData?: MediaDetails,
 ) {
   // Derive the category from the media type via the registry
@@ -29,7 +30,9 @@ export function useMediaDetails(
     type && mediaTypeRegistry.has(type) ? mediaTypeRegistry.get(type).category : null;
 
   const { data, isLoading, error, isValidating } = useSWR<MediaDetails>(
-    id && type && category ? `/api/details?id=${id}&type=${type}&category=${category}` : null,
+    id && type && category
+      ? `/api/details?id=${id}&type=${type}&category=${category}${serviceId ? `&service=${serviceId}` : ''}`
+      : null,
     swrFetcher,
     {
       fallbackData,

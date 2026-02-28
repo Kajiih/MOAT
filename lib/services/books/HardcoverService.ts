@@ -109,6 +109,7 @@ export class HardcoverService implements MediaService<BookFilters> {
           title: s.name,
           imageUrl: s.image_url || s.image?.url || s.document?.image_url || s.document?.image?.url || s.author?.image?.url,
           bookCount: s.books_count,
+          serviceId: this.id,
         } as SeriesItem;
       });
 
@@ -232,6 +233,7 @@ export class HardcoverService implements MediaService<BookFilters> {
           imageUrl: b.image_url || b.image?.url,
           rating: b.rating,
           reviewCount: b.ratings_count,
+          serviceId: this.id,
         } as BookItem;
       });
 
@@ -298,6 +300,7 @@ export class HardcoverService implements MediaService<BookFilters> {
           type: 'author',
           title: a.name,
           imageUrl: a.image_url || a.image?.url,
+          serviceId: this.id,
         };
       });
 
@@ -320,11 +323,147 @@ export class HardcoverService implements MediaService<BookFilters> {
   }
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
-    // Basic details implementation - can be expanded later
+    try {
+      const numericId = parseInt(id, 10);
+      const isNumeric = !isNaN(numericId) && /^\d+$/.test(id);
+
+      switch (type) {
+        case 'book':
+          return await this.getBookDetails(id, isNumeric ? numericId : undefined);
+        case 'series':
+          return await this.getSeriesDetails(id, isNumeric ? numericId : undefined);
+        case 'author':
+          return await this.getAuthorDetails(id, isNumeric ? numericId : undefined);
+        default:
+          return { id, mbid: id, type };
+      }
+    } catch (error) {
+      logger.error({ error, id, type }, 'Hardcover getDetails error');
+      return { id, mbid: id, type };
+    }
+  }
+
+  private async getBookDetails(id: string, numericId?: number): Promise<MediaDetails> {
+    const query = numericId !== undefined
+      ? `query GetBook($id: Int!) {
+          books_by_pk(id: $id) {
+            id title slug description release_date rating ratings_count
+            image { url }
+            taggings { tag { tag } }
+          }
+        }`
+      : `query GetBook($slug: String!) {
+          books(where: {slug: {_eq: $slug}}, limit: 1) {
+            id title slug description release_date rating ratings_count
+            image { url }
+            taggings { tag { tag } }
+          }
+        }`;
+
+    const variables = numericId !== undefined ? { id: numericId } : { slug: id };
+    const data = await this.client.request<any>(query, variables);
+    const b = numericId !== undefined ? data.books_by_pk : data.books?.[0];
+    
+    if (!b) return { id, mbid: id, type: 'book' };
+
     return {
-      id,
-      mbid: id,
-      type: type as MediaType,
+      id: b.id.toString(),
+      mbid: b.slug || b.id.toString(),
+      type: 'book',
+      title: b.title,
+      imageUrl: b.image?.url,
+      description: b.description || undefined,
+      date: b.release_date,
+      rating: b.rating != null ? parseFloat(b.rating.toString()) : undefined,
+      reviewCount: b.ratings_count,
+      tags: b.taggings?.map((t: any) => t.tag?.tag).filter(Boolean),
+      serviceId: this.id,
+    };
+  }
+
+  private async getSeriesDetails(id: string, numericId?: number): Promise<MediaDetails> {
+    const query = numericId !== undefined
+      ? `query GetSeries($id: Int!) {
+          series_by_pk(id: $id) {
+            id name slug description books_count
+            book_series(order_by: {position: asc}) {
+              book { title id }
+            }
+          }
+        }`
+      : `query GetSeries($slug: String!) {
+          series(where: {slug: {_eq: $slug}}, limit: 1) {
+            id name slug description books_count
+            book_series(order_by: {position: asc}) {
+              book { title id }
+            }
+          }
+        }`;
+
+    const variables = numericId !== undefined ? { id: numericId } : { slug: id };
+    const data = await this.client.request<any>(query, variables);
+    const s = numericId !== undefined ? data.series_by_pk : data.series?.[0];
+    
+    if (!s) return { id, mbid: id, type: 'series' };
+
+    return {
+      id: s.id.toString(),
+      mbid: s.slug || s.id.toString(),
+      type: 'series',
+      title: s.name,
+      description: s.description || undefined,
+      tags: s.book_series?.map((bs: any) => bs.book?.title).filter(Boolean),
+      length: s.books_count != null ? `${s.books_count} books` : undefined,
+      serviceId: this.id,
+    };
+  }
+
+  private async getAuthorDetails(id: string, numericId?: number): Promise<MediaDetails> {
+    const query = numericId !== undefined
+      ? `query GetAuthor($id: Int!) {
+          authors_by_pk(id: $id) {
+            id name slug bio born_date death_date location links
+            image { url }
+          }
+        }`
+      : `query GetAuthor($slug: String!) {
+          authors(where: {slug: {_eq: $slug}}, limit: 1) {
+            id name slug bio born_date death_date location links
+            image { url }
+          }
+        }`;
+
+    const variables = numericId !== undefined ? { id: numericId } : { slug: id };
+    const data = await this.client.request<any>(query, variables);
+    const a = numericId !== undefined ? data.authors_by_pk : data.authors?.[0];
+    
+    if (!a) return { id, mbid: id, type: 'author' };
+
+    let links: { type: string, url: string }[] | undefined;
+    if (Array.isArray(a.links)) {
+      links = a.links
+        .filter((l: any) => l.url && (l.url.startsWith('http') || l.url.startsWith('/')))
+        .map((l: any) => ({
+          type: l.title || l.type?.key?.replace('/type/', '') || 'Link',
+          url: l.url.startsWith('/') ? `https://openlibrary.org${l.url}` : l.url
+        }));
+    }
+
+    return {
+      id: a.id.toString(),
+      mbid: a.slug || a.id.toString(),
+      type: 'author',
+      title: a.name,
+      imageUrl: a.image?.url,
+      description: a.bio || undefined,
+      area: a.location || undefined,
+      lifeSpan: {
+        begin: a.born_date || undefined,
+        end: a.death_date || undefined,
+        ended: !!a.death_date
+      },
+      urls: links,
+      serviceId: this.id,
     };
   }
 

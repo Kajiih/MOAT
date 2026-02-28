@@ -167,6 +167,7 @@ export class RAWGService implements MediaService<GameFilters> {
         imageUrl: dev.image_background,
         description: dev.description,
         urls: [{ type: 'RAWG', url: `https://rawg.io/developers/${dev.slug}` }],
+        serviceId: this.id,
       };
     }
 
@@ -193,6 +194,7 @@ export class RAWGService implements MediaService<GameFilters> {
       metacritic: game.metacritic,
       tags: tags.length > 0 ? tags : undefined,
       urls: [{ type: 'RAWG', url: `https://rawg.io/games/${game.slug}` }],
+      serviceId: this.id,
     };
   }
 
@@ -246,6 +248,7 @@ export class RAWGService implements MediaService<GameFilters> {
       reviewCount: game.ratings_count,
       developer: game.developers?.[0]?.name,
       platforms,
+      serviceId: this.id,
     } as GameItem;
   }
 
@@ -256,6 +259,7 @@ export class RAWGService implements MediaService<GameFilters> {
       type: 'developer',
       title: dev.name || 'Unknown',
       imageUrl: dev.image_background,
+      serviceId: this.id,
     };
   }
 }

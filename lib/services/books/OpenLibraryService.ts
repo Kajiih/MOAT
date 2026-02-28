@@ -81,6 +81,7 @@ export class OpenLibraryService implements MediaService<BookFilters> {
           title: doc.name,
           year: doc.birth_date ? doc.birth_date.slice(-4) : undefined,
           imageUrl: `https://covers.openlibrary.org/a/olid/${doc.key}-M.jpg`,
+          serviceId: this.id,
         };
         return item;
       })
@@ -168,6 +169,7 @@ export class OpenLibraryService implements MediaService<BookFilters> {
           imageUrl,
           rating: doc.ratings_average,
           reviewCount: doc.review_count || doc.edition_count,
+          serviceId: this.id,
         };
         return item;
       })
@@ -186,6 +188,9 @@ export class OpenLibraryService implements MediaService<BookFilters> {
   }
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
+    if (type === 'author') {
+      return this.getAuthorDetails(id);
+    }
     if (type !== 'book') {
       throw new Error(`Type ${type} not supported by OpenLibraryService`);
     }
@@ -231,10 +236,57 @@ export class OpenLibraryService implements MediaService<BookFilters> {
         date: data.first_publish_date,
         urls,
         description,
+        serviceId: this.id,
       };
     } catch (error) {
       logger.error({ error, id }, 'Open Library Details Error');
       return { id, mbid: id, type: 'book' };
+    }
+  }
+
+  private async getAuthorDetails(id: string): Promise<MediaDetails> {
+    try {
+      // id might be "/authors/OL..." or just "OL..."
+      const authorPath = id.startsWith('/') ? id : `/authors/${id}`;
+      const data = (await secureFetch<any>(
+        `${OPEN_LIBRARY_BASE_URL}${authorPath}.json`,
+      )) as any;
+
+      const imageUrl =
+        data.photos && data.photos.length > 0
+          ? `https://covers.openlibrary.org/a/id/${data.photos[0]}-L.jpg`
+          : undefined;
+
+      let bio: string | undefined;
+      if (typeof data.bio === 'string') {
+        bio = data.bio;
+      } else if (data.bio && typeof data.bio === 'object' && 'value' in data.bio) {
+        bio = data.bio.value;
+      }
+
+      const urls = data.links?.map((l: any) => ({
+        type: l.title || l.type?.key?.replace('/type/', '') || 'Link',
+        url: l.url
+      }));
+
+      return {
+        id,
+        mbid: id,
+        type: 'author',
+        title: data.name,
+        description: bio,
+        imageUrl,
+        lifeSpan: {
+          begin: data.birth_date,
+          end: data.death_date,
+          ended: !!data.death_date
+        },
+        urls,
+        serviceId: this.id,
+      };
+    } catch (error) {
+      logger.error({ error, id }, 'Open Library Author Details Error');
+      return { id, mbid: id, type: 'author' };
     }
   }
 

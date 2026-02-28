@@ -47,6 +47,7 @@ export function useMediaResolver(item: MediaItem | null, options: UseMediaResolv
   const { details, isLoading, error, isFetching } = useMediaDetails(
     shouldFetch && item ? item.id : null,
     shouldFetch && item ? item.type : null,
+    shouldFetch && item ? item.serviceId : null,
   );
 
   /**

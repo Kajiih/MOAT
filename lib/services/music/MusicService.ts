@@ -24,8 +24,7 @@ export class MusicService implements MediaService<MusicFilters> {
     type: MediaType,
     options: SearchOptions<MusicFilters> = {},
   ): Promise<SearchResult> {
-    // Adapter to map generic options to MusicBrainz specific params
-    return searchMusicBrainz({
+    const result = await searchMusicBrainz({
       ...options.filters,
       type,
       query,
@@ -38,13 +37,22 @@ export class MusicService implements MediaService<MusicFilters> {
         wildcard: options.wildcard ?? true,
       },
     });
+
+    // Populate serviceId for each search result
+    result.results = result.results.map(item => ({
+      ...item,
+      serviceId: this.id
+    }));
+
+    return result;
   }
 
   async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
-    const result = await getMediaDetails(id, type);
-    // getMediaDetails returns either MediaDetails or a fallback object.
-    // The interface expects MediaDetails, which covers both cases in current typing.
-    return result as MediaDetails;
+    const result = (await getMediaDetails(id, type)) as MediaDetails;
+    return {
+      ...result,
+      serviceId: this.id
+    };
   }
 
   getSupportedTypes(): MediaType[] {
