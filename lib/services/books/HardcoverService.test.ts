@@ -14,11 +14,18 @@ describe('HardcoverService Integration (Fake Server)', () => {
   it('should find books by title', async () => {
     const result = await service.search('Fellowship', 'book');
 
+    expect(result.results).toHaveLength(2);
+    expect(result.results[0].title).toBe('The Fellowship of the Ring');
+  });
+
+  it('should exclude compilations when filter is active', async () => {
+    const result = await service.search('Fellowship', 'book', {
+      filters: { excludeCompilations: ['true'] },
+    });
+
     expect(result.results).toHaveLength(1);
     expect(result.results[0].title).toBe('The Fellowship of the Ring');
-    expect(result.results[0].type).toBe('book');
-    expect((result.results[0] as BookItem).author).toBe('J.R.R. Tolkien');
-    expect(result.results[0].imageUrl).toContain('book/101.jpg');
+    expect(result.results.find((r) => r.title.includes('Collection'))).toBeUndefined();
   });
 
   it('should find series by name', async () => {

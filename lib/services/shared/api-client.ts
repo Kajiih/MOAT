@@ -8,22 +8,23 @@ import { logger } from '@/lib/logger';
 export interface RequestOptions extends RequestInit {
   retryLimit?: number;
   timeout?: number;
+  raw?: boolean;
 }
 
 /**
  * Robust fetcher with automatic retries for common server errors (503, 504, 429).
- * @template T - The expected response type.
+ * @template T - The expected response type (ignored if options.raw is true).
  * @param url - The full URL to fetch.
- * @param options - Fetch options including retry limits and timeouts.
+ * @param options - Fetch options including retry limits, timeouts, and raw response flag.
  * @param retryCount - Current retry attempt.
- * @returns The parsed JSON response.
+ * @returns The parsed JSON response OR the raw Response object if options.raw is true.
  */
 export async function secureFetch<T = unknown>(
   url: string,
   options: RequestOptions = {},
   retryCount = 0,
-): Promise<T> {
-  const { retryLimit = 2, ...fetchOptions } = options;
+): Promise<T | Response> {
+  const { retryLimit = 2, raw = false, ...fetchOptions } = options;
 
   try {
     const response = await fetch(url, fetchOptions);
@@ -40,6 +41,10 @@ export async function secureFetch<T = unknown>(
       const text = await response.text();
       logger.error({ status: response.status, url, body: text }, 'External API Error');
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    if (raw) {
+      return response;
     }
 
     return response.json();

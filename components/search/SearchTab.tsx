@@ -152,8 +152,9 @@ export function SearchTab({
   }, [searchResults, filters.sort, isServerSorted]);
 
   const finalResults = useMemo(() => {
-    if (showAdded) return sortedResults;
-    return sortedResults.filter((item: MediaItem) => !addedItemIds.has(item.id));
+    const results = sortedResults as MediaItem[];
+    if (showAdded) return results;
+    return results.filter((item: MediaItem) => !addedItemIds.has(item.id));
   }, [sortedResults, showAdded, addedItemIds]);
 
   // Check if any filter is active to show results or "No results found"
@@ -262,7 +263,12 @@ export function SearchTab({
         {/* Advanced Filters Panel */}
         {showFilters && (
           <div className="rounded border border-neutral-800 bg-neutral-900/50 p-2">
-            <SearchFilters type={type} filters={filters} updateFilters={updateFilters} />
+            <SearchFilters
+              type={type}
+              serviceId={serviceId}
+              filters={filters}
+              updateFilters={updateFilters}
+            />
           </div>
         )}
       </div>

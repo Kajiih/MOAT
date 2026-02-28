@@ -39,6 +39,8 @@ export interface FilterConfig<F extends string = string> {
   minKey?: string;
   /** For 'range' type: key in state for maximum value */
   maxKey?: string;
+  /** Optional: list of service IDs that support this filter. If undefined, supported by all services. */
+  services?: string[];
 }
 
 /**

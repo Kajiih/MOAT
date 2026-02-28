@@ -68,9 +68,9 @@ export class OpenLibraryService implements MediaService<BookFilters> {
     const searchUrl = new URL(`${OPEN_LIBRARY_BASE_URL}/search/authors.json`);
     searchUrl.searchParams.set('q', query);
 
-    const data = await secureFetch<{ docs?: OpenLibraryAuthorDoc[]; numFound?: number }>(
+    const data = (await secureFetch<{ docs?: OpenLibraryAuthorDoc[]; numFound?: number }>(
       searchUrl.toString(),
-    );
+    )) as { docs?: OpenLibraryAuthorDoc[]; numFound?: number };
     const results: AuthorItem[] = (data.docs || [])
       .map((doc) => {
         if (!doc.key || !doc.name) return null;
@@ -144,9 +144,9 @@ export class OpenLibraryService implements MediaService<BookFilters> {
       'key,title,author_name,first_publish_year,cover_i,edition_count,subject,ratings_average,review_count',
     );
 
-    const data = await secureFetch<{ docs?: OpenLibraryBookDoc[]; numFound?: number }>(
+    const data = (await secureFetch<{ docs?: OpenLibraryBookDoc[]; numFound?: number }>(
       searchUrl.toString(),
-    );
+    )) as { docs?: OpenLibraryBookDoc[]; numFound?: number };
 
     const results: BookItem[] = (data.docs || [])
       .map((doc) => {
@@ -191,9 +191,9 @@ export class OpenLibraryService implements MediaService<BookFilters> {
     }
 
     try {
-      const data = await secureFetch<OpenLibraryWorkDetails>(
+      const data = (await secureFetch<OpenLibraryWorkDetails>(
         `${OPEN_LIBRARY_BASE_URL}/works/${id}.json`,
-      );
+      )) as OpenLibraryWorkDetails;
       const imageUrl =
         data.covers && data.covers.length > 0
           ? `${COVERS_BASE_URL}/${data.covers[0]}-L.jpg`
@@ -250,7 +250,8 @@ export class OpenLibraryService implements MediaService<BookFilters> {
    * @returns A formatted Lucene query string.
    */
   private buildSearchQuery(query: string, options: SearchOptions): string {
-    const { fuzzy, wildcard, filters } = options;
+    const filters = options.filters as BookFilters | undefined;
+    const { fuzzy, wildcard } = options;
     const author = filters?.selectedAuthor as string | undefined;
     const minYear = filters?.minYear as string | undefined;
     const maxYear = filters?.maxYear as string | undefined;

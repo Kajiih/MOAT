@@ -30,6 +30,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
       type: 'picker',
       pickerType: 'author',
       defaultValue: null,
+      services: ['openlibrary', 'hardcover'],
     },
     {
       id: 'yearRange',
@@ -38,6 +39,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
       minKey: 'minYear',
       maxKey: 'maxYear',
       defaultValue: { min: '', max: '' },
+      services: ['openlibrary', 'hardcover'],
     },
     {
       id: 'bookType',
@@ -53,6 +55,15 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
         { label: 'Biography', value: 'biography' },
       ],
       defaultValue: '',
+      services: ['openlibrary'],
+    },
+    {
+      id: 'excludeCompilations',
+      label: 'Exclude Compilations',
+      type: 'toggle-group',
+      options: [{ label: 'Exclude Compilations', value: 'true' }],
+      defaultValue: ['true'],
+      services: ['hardcover'],
     },
     {
       id: 'language',
@@ -68,6 +79,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
         { label: 'Japanese', value: 'jpn' },
       ],
       defaultValue: '',
+      services: ['openlibrary'],
     },
     {
       id: 'publisher',
@@ -75,6 +87,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
       type: 'text',
       placeholder: 'e.g. Penguin',
       defaultValue: '',
+      services: ['openlibrary'],
     },
     {
       id: 'person',
@@ -82,6 +95,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
       type: 'text',
       placeholder: 'e.g. Harry Potter',
       defaultValue: '',
+      services: ['openlibrary'],
     },
     {
       id: 'place',
@@ -89,6 +103,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
       type: 'text',
       placeholder: 'e.g. London',
       defaultValue: '',
+      services: ['openlibrary'],
     },
   ],
 
@@ -108,6 +123,7 @@ export const bookDefinition: MediaTypeDefinition<keyof BookFilters> = {
     publisher: '',
     person: '',
     place: '',
+    excludeCompilations: ['true'],
     sort: 'relevance',
   },
 

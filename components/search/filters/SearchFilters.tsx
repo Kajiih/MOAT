@@ -13,6 +13,7 @@ import { AlbumFilters } from './AlbumFilters'; // Keep for now for music
 // Keep for now for music
 import { DateRangeFilter } from './DateRangeFilter';
 import { FILTER_INPUT_STYLES } from './FilterPrimitives';
+import { FilterButton } from '@/components/ui/FilterButton';
 
 /**
  * Props for the SearchFilters component.
@@ -20,6 +21,8 @@ import { FILTER_INPUT_STYLES } from './FilterPrimitives';
 interface SearchFiltersProps {
   /** The current search mode (artist, album, or song). */
   type: MediaType;
+  /** The active service ID. */
+  serviceId?: string;
   /** The current state of all search filters. */
   filters: SearchParamsState;
   /** Callback to update one or more filter values. */
@@ -33,6 +36,7 @@ interface SearchFiltersProps {
  * Combines entity-specific logic with shared filters like date range and tags.
  * @param props - Component props.
  * @param props.type - The current search mode (artist, album, or song).
+ * @param props.serviceId - The current active service ID.
  * @param props.filters - The current state of all search filters.
  * @param props.updateFilters - Callback to update one or more filter values.
  * @param props.compact - Whether to render in a compact layout (for pickers).
@@ -40,11 +44,15 @@ interface SearchFiltersProps {
  */
 export function SearchFilters({
   type,
+  serviceId,
   filters,
   updateFilters,
   compact = false,
 }: SearchFiltersProps) {
-  const dynamicFilters = mediaTypeRegistry.get(type).filters;
+  const dynamicFilters = mediaTypeRegistry.get(type).filters.filter((f) => {
+    if (!serviceId || !f.services) return true;
+    return f.services.includes(serviceId);
+  });
 
   // Helper wrappers for Album filters (Special handling for MusicBrainz legacy filter components)
   const togglePrimaryType = (t: string) => {
@@ -163,6 +171,36 @@ export function SearchFilters({
                     value={(filters[def.id] as string) || ''}
                     onChange={(e) => updateFilters({ [def.id]: e.target.value })}
                   />
+                </div>
+              );
+            }
+
+            case 'toggle-group': {
+              const currentValues = (filters[def.id] as string[]) || [];
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 flex items-center justify-between text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    <span>{def.label}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {def.options?.map((opt) => {
+                      const isSelected = currentValues.includes(opt.value);
+                      return (
+                        <FilterButton
+                          key={opt.value}
+                          label={opt.label}
+                          isSelected={isSelected}
+                          onClick={() => {
+                            const newValues = isSelected
+                              ? currentValues.filter((v: string) => v !== opt.value)
+                              : [...currentValues, opt.value];
+                            updateFilters({ [def.id]: newValues });
+                          }}
+                          variant="secondary"
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
               );
             }

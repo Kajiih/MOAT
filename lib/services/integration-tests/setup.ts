@@ -23,5 +23,10 @@ export function loadIntegrationEnv() {
         }
       }
     });
+    if (process.env.HARDCOVER_TOKEN) {
+      console.log('HARDCOVER_TOKEN loaded successfully');
+    } else {
+      console.warn('HARDCOVER_TOKEN not found after loading .env.local');
+    }
   }
 }

@@ -80,9 +80,9 @@ export class IGDBService implements MediaService<GameFilters> {
         grant_type: 'client_credentials',
       });
 
-      const data = await secureFetch<TwitchToken>(`${TWITCH_AUTH_URL}?${params.toString()}`, {
+      const data = (await secureFetch<TwitchToken>(`${TWITCH_AUTH_URL}?${params.toString()}`, {
         method: 'POST',
-      });
+      })) as TwitchToken;
 
       cachedToken = data.access_token;
       // Expire 1 minute early for safety
@@ -101,7 +101,7 @@ export class IGDBService implements MediaService<GameFilters> {
     if (!token || !clientId) return null;
 
     try {
-      return await secureFetch<T[]>(`${IGDB_BASE_URL}${endpoint}`, {
+      return (await secureFetch<T[]>(`${IGDB_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Client-ID': clientId,
@@ -109,7 +109,7 @@ export class IGDBService implements MediaService<GameFilters> {
           Accept: 'application/json',
         },
         body: query,
-      });
+      })) as T[];
     } catch (error) {
       logger.error({ error, endpoint, query }, 'IGDB API Call failed');
       return null;

@@ -58,6 +58,7 @@ export interface BookFilters extends BaseFilters {
   publisher?: string;
   person?: string;
   place?: string;
+  excludeCompilations?: string[];
 }
 
 /**

@@ -11,7 +11,7 @@ export const hardcoverHandlers = [
 
     // Unified Search Mock (Typesense-backed)
     if (query.includes('query Search')) {
-      const { query: searchTerm, type } = variables;
+      const { query: searchTerm, query_type: type } = variables;
 
       if (type === 'Series' && searchTerm.includes('Witcher')) {
         return HttpResponse.json({
@@ -50,6 +50,18 @@ export const hardcoverHandlers = [
                       rating: 4.8,
                       ratings_count: 1500,
                       author_names: ['J.R.R. Tolkien'],
+                    },
+                  },
+                  {
+                    document: {
+                      id: 102,
+                      title: 'The Lord of the Rings: Complete Collection',
+                      release_year: 2000,
+                      image: { url: 'https://images.hardcover.app/book/102.jpg' },
+                      rating: 4.9,
+                      ratings_count: 5000,
+                      author_names: ['J.R.R. Tolkien'],
+                      compilation: true,
                     },
                   },
                 ],

@@ -10,7 +10,8 @@
 
 - **Search & Discovery**:
   - **Multi-Service Architecture**: Pluggable media services (MusicBrainz, TMDB, OpenLibrary, RAWG) with a unified search interface.
-  - **Unified Filter System**: Consolidated filter panel (`SearchFilters`) tailored to each media type, including:
+  - **Unified Filter System**: Consolidated filter panel (`SearchFilters`) tailored to each media type and **specific service**, including:
+    - **Service-Aware Filtering**: The `SearchFilters` component now receives the active `serviceId` and only displays tools supported by that service (e.g., specific book categories or year ranges).
     - **Entity Specific Filters**:
       - **Artists**: Filter by type and country.
       - **Albums**: Filter by primary and secondary types.

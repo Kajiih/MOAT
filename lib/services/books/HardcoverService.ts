@@ -4,6 +4,8 @@
  * @module HardcoverService
  */
 
+import { GraphQLClient } from 'graphql-request';
+
 import { logger } from '@/lib/logger';
 import { BookFilters } from '@/lib/media-types/filters';
 import {
@@ -20,41 +22,6 @@ import { MediaService, SearchOptions } from '../types';
 
 const HARDCOVER_API_URL = 'https://api.hardcover.app/v1/graphql';
 
-interface HardcoverResponse<T> {
-  data: T;
-  errors?: { message: string }[];
-}
-
-interface HardcoverSeries {
-  id: number;
-  name: string;
-  slug: string;
-  books_count: number;
-  image_url?: string;
-  description?: string;
-}
-
-interface HardcoverBook {
-  id: number;
-  title: string;
-  release_year?: number;
-  image_url?: string;
-  rating?: number;
-  reviews_count?: number;
-  contributions: {
-    author: {
-      name: string;
-    };
-  }[];
-}
-
-interface HardcoverAuthor {
-  id: number;
-  name: string;
-  slug: string;
-  image_url?: string;
-}
-
 /**
  * Service adapter for Hardcover.app integration.
  */
@@ -62,6 +29,24 @@ export class HardcoverService implements MediaService<BookFilters> {
   readonly category = 'book' as const;
   readonly id = 'hardcover';
   readonly label = 'Hardcover';
+
+  private client: GraphQLClient;
+
+  constructor() {
+    this.client = new GraphQLClient(HARDCOVER_API_URL, {
+      fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+        secureFetch(input.toString(), { ...init, raw: true }) as Promise<Response>,
+      headers: () => {
+        const token = (process.env.HARDCOVER_TOKEN ?? '') as string;
+        const authHeader = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers['Authorization'] = authHeader;
+        }
+        return headers;
+      },
+    });
+  }
 
   async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
     switch (type) {
@@ -77,56 +62,27 @@ export class HardcoverService implements MediaService<BookFilters> {
     }
   }
 
-  private async graphqlQuery<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
-    const authHeader = process.env.HARDCOVER_TOKEN
-      ? (process.env.HARDCOVER_TOKEN.startsWith('Bearer ')
-          ? process.env.HARDCOVER_TOKEN
-          : `Bearer ${process.env.HARDCOVER_TOKEN}`)
-      : undefined;
-
-    const response = await secureFetch<HardcoverResponse<T>>(HARDCOVER_API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ query, variables }),
-      headers: {
-        'Content-Type': 'application/json',
-        ...(authHeader ? { Authorization: authHeader } : {}),
-      },
-    });
-
-    if (response.errors && response.errors.length > 0) {
-      logger.error({ errors: response.errors, query: query.substring(0, 500) }, 'Hardcover GraphQL Error');
-      throw new Error(`Hardcover API Error: ${response.errors[0].message}`);
-    }
-
-    if (!response.data) {
-      logger.error({ response, query: query.substring(0, 500) }, 'Hardcover API Missing Data');
-      throw new Error('Hardcover API returned no data');
-    }
-
-    return response.data;
-  }
-
   private async searchSeries(query: string, _options: SearchOptions): Promise<SearchResult> {
     if (!query.trim()) {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
     const gql = `
-      query SearchSeries($query: String!, $type: String!) {
-        search(query: $query, query_type: $type, per_page: 20) {
+      query SearchSeries($query: String!, $query_type: String!) {
+        search(query: $query, query_type: $query_type, per_page: 20) {
           results
         }
       }
     `;
 
     try {
-      const data = await this.graphqlQuery<{ search: { results: any } }>(gql, {
+      const data = await this.client.request<{ search: { results: any } }>(gql, {
         query,
-        type: 'Series',
+        query_type: 'Series',
       });
 
-      const searchData = data.search;
-      let resultsObj = searchData?.results;
+      let resultsObj = data.search?.results;
+      // Handle potential double-encoding or stringified results
       if (typeof resultsObj === 'string') {
         try {
           resultsObj = JSON.parse(resultsObj);
@@ -136,7 +92,8 @@ export class HardcoverService implements MediaService<BookFilters> {
         }
       }
 
-      const hits = resultsObj?.hits || [];
+      // Handle nested hits if Typesense structure is present
+      const hits = resultsObj?.hits || (Array.isArray(resultsObj) ? resultsObj : []);
       const results: SeriesItem[] = hits.map((hit: any) => {
         const s = hit.document || hit;
         return {
@@ -144,7 +101,7 @@ export class HardcoverService implements MediaService<BookFilters> {
           mbid: s.slug,
           type: 'series',
           title: s.name,
-          imageUrl: s.image_url || s.image?.url,
+          imageUrl: s.image_url || s.image?.url || s.document?.image_url || s.document?.image?.url || s.author?.image?.url,
           bookCount: s.books_count,
         };
       });
@@ -164,27 +121,40 @@ export class HardcoverService implements MediaService<BookFilters> {
     }
   }
 
-  private async searchBooks(query: string, _options: SearchOptions): Promise<SearchResult> {
-    if (!query.trim()) {
+  private async searchBooks(query: string, options: SearchOptions): Promise<SearchResult> {
+    const bookFilters = options.filters as BookFilters | undefined;
+    const authorSlug = bookFilters?.selectedAuthor;
+
+    if (!query.trim() && !authorSlug) {
       return { results: [], page: 1, totalPages: 0, totalCount: 0 };
     }
 
+    const searchQuery = query.trim() ? query : authorSlug!;
+
     const gql = `
-      query SearchBooks($query: String!, $type: String!) {
-        search(query: $query, query_type: $type, per_page: 20) {
+      query SearchBooks($query: String!, $query_type: String!) {
+        search(
+          query: $query, 
+          query_type: $query_type, 
+          per_page: 20
+        ) {
           results
         }
       }
     `;
 
     try {
-      const data = await this.graphqlQuery<{ search: { results: any } }>(gql, {
-        query,
-        type: 'Book',
-      });
+      const variables = {
+        query: searchQuery,
+        query_type: 'Book',
+      };
+
+      const data = await this.client.request<{ search: { results: any } }>(gql, variables);
 
       const searchData = data.search;
       let resultsObj = searchData?.results;
+      
+      // Handle potential double-encoding or stringified results
       if (typeof resultsObj === 'string') {
         try {
           resultsObj = JSON.parse(resultsObj);
@@ -194,7 +164,54 @@ export class HardcoverService implements MediaService<BookFilters> {
         }
       }
 
-      const hits = resultsObj?.hits || [];
+      // Handle nested hits if Typesense structure is present
+      let hits = resultsObj?.hits || (Array.isArray(resultsObj) ? resultsObj : []);
+
+      // Apply in-memory filtering as the search endpoint has limited filter support
+      // We filter RAW hits before mapping to have access to all original fields (like contributions)
+      if (bookFilters) {
+        if (bookFilters.selectedAuthor) {
+          const authorIdRaw = bookFilters.selectedAuthor.toLowerCase();
+          hits = hits.filter((hit: any) => {
+            const b = hit.document || hit;
+            // Robust match: check contributions, author_id, slugs and URLs in author_url
+            return (
+              b.author_ids?.some((id: any) => id.toString() === authorIdRaw) || 
+              (b.author_id?.toString() === authorIdRaw) ||
+              (b.author_url?.toLowerCase().includes(authorIdRaw)) ||
+              (b.contributions?.some((c: any) => 
+                c.author?.id?.toString() === authorIdRaw || 
+                c.author?.slug?.toLowerCase() === authorIdRaw
+              )) ||
+              (b.author_names?.some((n: string) => n.toLowerCase().includes(authorIdRaw))) ||
+              (b.author?.toLowerCase().includes(authorIdRaw))
+            );
+          });
+        }
+        if (bookFilters.excludeCompilations?.includes('true')) {
+          hits = hits.filter((hit: any) => {
+            const b = hit.document || hit;
+            return b.compilation !== true;
+          });
+        }
+        if (bookFilters.minYear) {
+          const min = parseInt(bookFilters.minYear, 10);
+          hits = hits.filter((hit: any) => {
+            const b = hit.document || hit;
+            const yearNum = b.release_year || b.release_date_i;
+            return yearNum && yearNum >= min;
+          });
+        }
+        if (bookFilters.maxYear) {
+          const max = parseInt(bookFilters.maxYear, 10);
+          hits = hits.filter((hit: any) => {
+            const b = hit.document || hit;
+            const yearNum = b.release_year || b.release_date_i;
+            return yearNum && yearNum <= max;
+          });
+        }
+      }
+
       const results: BookItem[] = hits.map((hit: any) => {
         const b = hit.document || hit;
         return {
@@ -207,7 +224,7 @@ export class HardcoverService implements MediaService<BookFilters> {
           imageUrl: b.image_url || b.image?.url,
           rating: b.rating,
           reviewCount: b.ratings_count,
-        };
+        } as BookItem;
       });
 
       return {
@@ -231,21 +248,21 @@ export class HardcoverService implements MediaService<BookFilters> {
     }
 
     const gql = `
-      query SearchAuthors($query: String!, $type: String!) {
-        search(query: $query, query_type: $type, per_page: 20) {
+      query SearchAuthors($query: String!, $query_type: String!) {
+        search(query: $query, query_type: $query_type, per_page: 20) {
           results
         }
       }
     `;
 
     try {
-      const data = await this.graphqlQuery<{ search: { results: any } }>(gql, {
+      const data = await this.client.request<{ search: { results: any } }>(gql, {
         query,
-        type: 'Author',
+        query_type: 'Author',
       });
 
-      const searchData = data.search;
-      let resultsObj = searchData?.results;
+      let resultsObj = data.search?.results;
+      // Handle potential double-encoding or stringified results
       if (typeof resultsObj === 'string') {
         try {
           resultsObj = JSON.parse(resultsObj);
@@ -255,7 +272,8 @@ export class HardcoverService implements MediaService<BookFilters> {
         }
       }
 
-      const hits = resultsObj?.hits || [];
+      // Handle nested hits if Typesense structure is present
+      const hits = resultsObj?.hits || (Array.isArray(resultsObj) ? resultsObj : []);
       const results: AuthorItem[] = hits.map((hit: any) => {
         const a = hit.document || hit;
         return {
