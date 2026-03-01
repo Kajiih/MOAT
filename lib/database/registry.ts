@@ -41,10 +41,12 @@ export class DatabaseRegistry {
 
   /**
    * Awaits all currently pending provider initializations.
+   * If new registrations start while waiting, it will continue to wait until all are complete.
    */
   public async waitUntilReady(): Promise<void> {
-    if (this.pendingRegistrations.size === 0) return;
-    await Promise.all(Array.from(this.pendingRegistrations));
+    while (this.pendingRegistrations.size > 0) {
+      await Promise.all(Array.from(this.pendingRegistrations));
+    }
   }
 
   /**
@@ -70,8 +72,7 @@ export class DatabaseRegistry {
         provider.status = ProviderStatus.READY;
       } catch (error) {
         provider.status = ProviderStatus.ERROR;
-        // We still set the registry status to ERROR if any provider fails
-        // but the individual provider now tracks its own failure
+        // Mark the whole registry as errored if a provider fails
         this.status = RegistryStatus.ERROR;
         console.error(`Failed to initialize provider "${provider.id}":`, error);
         throw error;
@@ -84,8 +85,10 @@ export class DatabaseRegistry {
       await registration;
     } finally {
       this.pendingRegistrations.delete(registration);
-      // Only set to READY if no other registrations are pending and we aren't in ERROR state
-      if (this.pendingRegistrations.size === 0 && this.status !== RegistryStatus.ERROR as any) {
+      
+      // Only set to READY if no other registrations are pending 
+      // AND we aren't in a persistent ERROR state
+      if (this.pendingRegistrations.size === 0 && (this.status as RegistryStatus) !== RegistryStatus.ERROR) {
         this.status = RegistryStatus.READY;
       }
     }

@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { z } from 'zod';
 import { registry, RegistryStatus } from './registry';
+import { DatabaseErrorCode, DatabaseProvider, ProviderStatus } from './types';
+import { handleDatabaseError } from './utils';
 import { RAWGDatabase } from '../services/v2/rawg';
 import { DatabaseEntity } from './types';
 
@@ -44,6 +47,92 @@ describe('Database V2 Design', () => {
       
       await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: 10 });
       expect(mockFetcher).toHaveBeenCalled();
+    });
+
+    it('should wait for overlapping registrations in waitUntilReady', async () => {
+      let slowDone = false;
+      let fastDone = false;
+
+      const slowProvider: DatabaseProvider = {
+        id: 'slow',
+        label: 'Slow',
+        entities: [],
+        status: ProviderStatus.IDLE,
+        initialize: async () => {
+          await new Promise(r => setTimeout(r, 50));
+          slowDone = true;
+        }
+      };
+
+      const fastProvider: DatabaseProvider = {
+        id: 'fast',
+        label: 'Fast',
+        entities: [],
+        status: ProviderStatus.IDLE,
+        initialize: async () => {
+          await new Promise(r => setTimeout(r, 10));
+          fastDone = true;
+        }
+      };
+
+      // Start slow registration
+      const p1 = registry.register(slowProvider);
+      
+      // Start waiting
+      const waitPromise = registry.waitUntilReady();
+
+      // Start fast registration while waiting
+      const p2 = registry.register(fastProvider);
+
+      await waitPromise;
+
+      expect(slowDone).toBe(true);
+      expect(fastDone).toBe(true);
+      expect(registry.getStatus()).toBe(RegistryStatus.READY);
+      
+      await Promise.all([p1, p2]); // Cleanup
+    });
+  });
+
+  describe('handleDatabaseError', () => {
+    it('should map AbortError to TIMEOUT', () => {
+      const abortError = new Error('The operation was aborted');
+      abortError.name = 'AbortError';
+      
+      const dbError = handleDatabaseError(abortError, 'test');
+      expect(dbError.code).toBe(DatabaseErrorCode.TIMEOUT);
+    });
+
+    it('should map TimeoutError to TIMEOUT', () => {
+      const timeoutError = new Error('The operation timed out');
+      timeoutError.name = 'TimeoutError';
+      
+      const dbError = handleDatabaseError(timeoutError, 'test');
+      expect(dbError.code).toBe(DatabaseErrorCode.TIMEOUT);
+    });
+
+    it('should map 401/403 to AUTH_ERROR', () => {
+      expect(handleDatabaseError({ status: 401 }, 'test').code).toBe(DatabaseErrorCode.AUTH_ERROR);
+      expect(handleDatabaseError({ status: 403 }, 'test').code).toBe(DatabaseErrorCode.AUTH_ERROR);
+    });
+
+    it('should map 500 to SERVICE_UNAVAILABLE', () => {
+      expect(handleDatabaseError({ status: 500 }, 'test').code).toBe(DatabaseErrorCode.SERVICE_UNAVAILABLE);
+    });
+
+    it('should map ZodError to VALIDATION_ERROR', () => {
+      const result = z.string().safeParse(123);
+      if (!result.success) {
+        const error = handleDatabaseError(result.error, 'test');
+        expect(error.code).toBe(DatabaseErrorCode.VALIDATION_ERROR);
+        expect(error.message).toContain('Validation failed');
+      }
+    });
+
+    it('should fallback to INTERNAL_ERROR for unknown objects', () => {
+      const error = handleDatabaseError({ message: 'Boom' }, 'test');
+      expect(error.code).toBe(DatabaseErrorCode.INTERNAL_ERROR);
+      expect(error.message).toBe('Boom');
     });
   });
 

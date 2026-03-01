@@ -15,6 +15,8 @@ export enum DatabaseErrorCode {
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   /** External service is currently down or unreachable */
   SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
+  /** The request timed out or was aborted */
+  TIMEOUT = 'TIMEOUT',
   /** A generic network or internal error */
   INTERNAL_ERROR = 'INTERNAL_ERROR',
 }

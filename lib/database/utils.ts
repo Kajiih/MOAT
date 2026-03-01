@@ -8,11 +8,13 @@ import { DatabaseError, DatabaseErrorCode, FilterDefinition } from './types';
  * @param databaseId - The identifier of the database where the error occurred.
  * @returns A standardized DatabaseError.
  */
+/**
+ * Wraps any error into a standardized DatabaseError.
+ */
 export function handleDatabaseError(error: unknown, databaseId: string): DatabaseError {
-  // If it's already a DatabaseError, just return it
   if (error instanceof DatabaseError) return error;
 
-  // Handle Zod Validation Errors
+  // 1. Handle Zod Validation Errors
   if (error instanceof z.ZodError) {
     const firstIssue = error.issues[0];
     const path = firstIssue?.path.join('.') || 'root';
@@ -24,28 +26,32 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
     );
   }
 
-  // Handle API Errors (assuming they have a status)
-  const err = error as { status?: number; message?: string };
-  if (err.status === 401 || err.status === 403) {
-    return new DatabaseError(DatabaseErrorCode.AUTH_ERROR, 'Authentication failed or API key invalid', error, databaseId);
-  }
-  if (err.status === 404) {
-    return new DatabaseError(DatabaseErrorCode.NOT_FOUND, 'The requested item was not found', error, databaseId);
-  }
-  if (err.status === 429) {
-    return new DatabaseError(DatabaseErrorCode.RATE_LIMIT, 'Rate limit exceeded for this database', error, databaseId);
-  }
-  if (err.status && err.status >= 500) {
-    return new DatabaseError(DatabaseErrorCode.SERVICE_UNAVAILABLE, 'External service is currently unavailable', error, databaseId);
+  // 2. Handle Abort / Timeout errors
+  if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
+    return new DatabaseError(DatabaseErrorCode.TIMEOUT, 'The request timed out or was aborted', error, databaseId);
   }
 
-  // Generic fallback
-  return new DatabaseError(
-    DatabaseErrorCode.INTERNAL_ERROR,
-    err.message || 'An unexpected error occurred in the database layer',
-    error,
-    databaseId
-  );
+  // 3. Handle API Errors via status codes
+  const status = (error as any)?.status;
+  if (typeof status === 'number') {
+    switch (status) {
+      case 401:
+      case 403:
+        return new DatabaseError(DatabaseErrorCode.AUTH_ERROR, 'Authentication failed or API key invalid', error, databaseId);
+      case 404:
+        return new DatabaseError(DatabaseErrorCode.NOT_FOUND, 'The requested item was not found', error, databaseId);
+      case 429:
+        return new DatabaseError(DatabaseErrorCode.RATE_LIMIT, 'Rate limit exceeded for this database', error, databaseId);
+      default:
+        if (status >= 500) {
+          return new DatabaseError(DatabaseErrorCode.SERVICE_UNAVAILABLE, 'External service is currently unavailable', error, databaseId);
+        }
+    }
+  }
+
+  // 4. Generic fallback
+  const message = (error as any)?.message || 'An unexpected error occurred in the database layer';
+  return new DatabaseError(DatabaseErrorCode.INTERNAL_ERROR, message, error, databaseId);
 }
 
 /**
