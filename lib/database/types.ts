@@ -250,6 +250,8 @@ export const FilterInputTypeSchema = z.enum([
   'boolean', 
   'select', 
   'multiselect', 
+  'async-select',
+  'async-multiselect',
   'range', 
   'date'
 ]);
@@ -286,6 +288,12 @@ export interface FilterDefinition<TValue = any, TTransformed = any> {
   placeholder?: string;
   /** Optional helper text shown to the user */
   helperText?: string;
+  /** 
+   * For 'async-select' or 'async-multiselect' filters.
+   * Specifies the ID of the entity within the SAME database provider to search against.
+   * E.g., 'developer' or 'author'.
+   */
+  targetEntityId?: string;
 
   /** 
    * Declarative Mapping (V2 Refinement)
