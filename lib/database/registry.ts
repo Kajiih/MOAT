@@ -112,6 +112,18 @@ export class DatabaseRegistry {
   }
 
   /**
+   * Resolves an image reference key globally via the correct provider.
+   */
+  public async resolveImageReference(providerId: string, key: string): Promise<string | null> {
+    await this.waitUntilReady();
+    const provider = this.getProvider(providerId);
+    if (provider && provider.resolveImage) {
+      return provider.resolveImage(key);
+    }
+    return null;
+  }
+
+  /**
    * Returns all registered providers.
    */
   public getAllProviders(): DatabaseProvider[] {

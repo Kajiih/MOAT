@@ -5,33 +5,19 @@
  */
 import useSWR from 'swr';
 
+import { registry } from './registry';
 import type { ImageSource } from './types';
-
-/**
- * Image reference resolver function type.
- * Given a reference provider and key, returns a URL or null.
- */
-export type ImageReferenceResolver = (
-  provider: string,
-  key: string,
-) => Promise<string | null>;
-
-/** Default no-op resolver — reference sources are skipped */
-const defaultResolver: ImageReferenceResolver = async () => null;
 
 /**
  * Resolves an ordered list of ImageSource entries to the first working image URL.
  *
  * For 'url' sources: attempts to load the image directly.
- * For 'reference' sources: calls the provided resolver to get a URL, then loads it.
- *
+ * For 'reference' sources: calls the registry to resolve the reference before loading.
  * @param sources - Ordered list of image sources to try
- * @param referenceResolver - Optional function to resolve reference sources to URLs
  * @returns The first successfully resolved image URL, or undefined
  */
 export function useResolvedImage(
   sources: ImageSource[],
-  referenceResolver: ImageReferenceResolver = defaultResolver,
 ): string | undefined {
   // SWR automatically hashes the array into a stable string key.
   // We use null to prevent fetching if there are no sources.
@@ -46,7 +32,7 @@ export function useResolvedImage(
         try {
           const targetUrl = source.type === 'url' 
             ? source.url 
-            : await referenceResolver(source.provider, source.key);
+            : await registry.resolveImageReference(source.provider, source.key);
 
           if (targetUrl) {
             const loaded = await loadImage(targetUrl);
@@ -70,6 +56,7 @@ export function useResolvedImage(
 
 /**
  * Attempts to load an image URL and returns whether it succeeded.
+ * @param url
  */
 function loadImage(url: string): Promise<boolean> {
   return new Promise((resolve) => {

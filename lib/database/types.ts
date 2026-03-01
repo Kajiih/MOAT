@@ -417,4 +417,11 @@ export interface DatabaseProvider {
    * Receives a standard fetcher for dependency injection.
    */
   initialize?: (fetcher: Fetcher) => Promise<void>; 
+
+  /**
+   * Optional method to resolve reference image sources.
+   * @param key The provider-specific reference key.
+   * @returns The resolved image URL, or null if unresolvable.
+   */
+  resolveImage?: (key: string) => Promise<string | null>;
 }
