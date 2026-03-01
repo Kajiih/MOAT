@@ -138,11 +138,12 @@ The `StandardDetails` includes an `extendedData` record. This allows providers t
 
 Since providers can be asynchronous (e.g., fetching auth tokens during `initialize`), the `DatabaseRegistry` manages an explicit lifecycle.
 
-### `RegistryStatus`
-- **`IDLE`**: Initial state, no providers registered.
-- **`INITIALIZING`**: One or more providers are currently running their `initialize()` hook.
-- **`READY`**: All providers have successfully initialized.
-- **`ERROR`**: One or more providers failed to initialize.
+### `RegistryStatus` & `ProviderStatus`
+In addition to the global `RegistryStatus`, each provider maintains its own `ProviderStatus`.
+- **`IDLE`**: Registered but not initialized.
+- **`INITIALIZING`**: Setup logic is running.
+- **`READY`**: API is ready for use.
+- **`ERROR`**: Provider-specific failure (e.g., bad API key), isolated from other providers.
 
 ### `waitUntilReady()`
 UI components can await this method to ensure they don't trigger searches before the system is stable.

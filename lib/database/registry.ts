@@ -1,5 +1,5 @@
 import { secureFetch } from '../services/shared/api-client';
-import { DatabaseProvider, Fetcher } from './types';
+import { DatabaseProvider, Fetcher, ProviderStatus } from './types';
 
 /**
  * Possible states for the DatabaseRegistry.
@@ -59,6 +59,7 @@ export class DatabaseRegistry {
    */
   public async register(provider: DatabaseProvider): Promise<void> {
     this.status = RegistryStatus.INITIALIZING;
+    provider.status = ProviderStatus.INITIALIZING;
 
     const registration = (async () => {
       try {
@@ -66,7 +67,11 @@ export class DatabaseRegistry {
           await provider.initialize(this.fetcher);
         }
         this.providers.set(provider.id, provider);
+        provider.status = ProviderStatus.READY;
       } catch (error) {
+        provider.status = ProviderStatus.ERROR;
+        // We still set the registry status to ERROR if any provider fails
+        // but the individual provider now tracks its own failure
         this.status = RegistryStatus.ERROR;
         console.error(`Failed to initialize provider "${provider.id}":`, error);
         throw error;
@@ -80,7 +85,7 @@ export class DatabaseRegistry {
     } finally {
       this.pendingRegistrations.delete(registration);
       // Only set to READY if no other registrations are pending and we aren't in ERROR state
-      if (this.pendingRegistrations.size === 0 && (this.status as string) !== RegistryStatus.ERROR) {
+      if (this.pendingRegistrations.size === 0 && this.status !== RegistryStatus.ERROR as any) {
         this.status = RegistryStatus.READY;
       }
     }

@@ -2,6 +2,8 @@ import { Building2, Gamepad2 } from 'lucide-react';
 import { 
   DatabaseEntity, 
   DatabaseProvider, 
+  FilterDefinition,
+  ProviderStatus,
   SearchParams, 
   SearchResult, 
   SearchResultSchema,
@@ -50,6 +52,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
   public id = 'rawg';
   public label = 'RAWG';
   public icon = Gamepad2;
+  public status: ProviderStatus = ProviderStatus.IDLE;
   private fetcher: Fetcher = secureFetch as unknown as Fetcher;
 
   public initialize = async (fetcher: Fetcher) => {
@@ -90,7 +93,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
             const end = val.max ? `${val.max}-12-31` : '2030-12-31';
             return `${start},${end}`;
           }
-        },
+        } as FilterDefinition<{ min?: string, max?: string }, string | undefined>,
         {
           id: 'platform',
           label: 'Platform',
@@ -103,7 +106,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
             { label: 'Xbox Series S/X', value: '186' },
             { label: 'Nintendo Switch', value: '7' },
           ],
-        }
+        } as FilterDefinition<string, string>
       ],
 
       sortOptions: [

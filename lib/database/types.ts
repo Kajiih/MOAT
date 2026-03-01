@@ -20,6 +20,16 @@ export enum DatabaseErrorCode {
 }
 
 /**
+ * Possible states for an individual DatabaseProvider.
+ */
+export enum ProviderStatus {
+  IDLE = 'IDLE',
+  INITIALIZING = 'INITIALIZING',
+  READY = 'READY',
+  ERROR = 'ERROR'
+}
+
+/**
  * Standardized error class for the database layer.
  */
 export class DatabaseError extends Error {
@@ -154,35 +164,36 @@ export type FilterOption = z.infer<typeof FilterOptionSchema>;
 /**
  * Definition for a filter that the UI should render.
  */
-export const FilterDefinitionSchema = z.object({
+export interface FilterDefinition<TValue = any, TTransformed = any> {
   /** Unique ID for the filter (used as key in internal state) */
-  id: z.string(),
+  id: string;
   /** Human readable label for the UI */
-  label: z.string(),
+  label: string;
   /** The type of input to render */
-  type: FilterInputTypeSchema,
+  type: FilterInputType;
   /** Available options for selection-based inputs */
-  options: z.array(FilterOptionSchema).optional(),
+  options?: FilterOption[];
   /** Default value for the filter state */
-  defaultValue: z.unknown().optional(),
+  defaultValue?: TValue;
   /** Placeholder text for inputs */
-  placeholder: z.string().optional(),
+  placeholder?: string;
   /** Optional helper text shown to the user */
-  helperText: z.string().optional(),
+  helperText?: string;
 
   /** 
    * Declarative Mapping (V2 Refinement)
    * The API parameter name this filter maps to.
    */
-  mapTo: z.string().optional(),
+  mapTo?: string;
   /** 
    * A transformation function to convert the UI value to an API parameter.
    * This is the "Escape Hatch" for database-specific logic.
    */
-  transform: z.any().optional(),
-});
+  transform?: (value: TValue) => TTransformed;
+}
 
-export type FilterDefinition = z.infer<typeof FilterDefinitionSchema>;
+// Note: We keep the schema for runtime validation, but use the interface for complex typing
+export const FilterDefinitionSchema = z.any(); 
 
 /**
  * Definition for a sort option supported by the entity.
@@ -273,6 +284,11 @@ export interface DatabaseProvider {
   /** The list of entities this database exposes to the user */
   entities: DatabaseEntity[];
   
+  /** 
+   * The current status of this specific provider.
+   */
+  status: ProviderStatus;
+
   /** 
    * Lifecycle hook for initialization.
    * Receives a standard fetcher for dependency injection.

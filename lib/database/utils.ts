@@ -58,7 +58,7 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
 export function applyFilters(
   apiParams: Record<string, string>,
   filterValues: Record<string, unknown>,
-  definitions: FilterDefinition[]
+  definitions: FilterDefinition<any, any>[]
 ): void {
   for (const def of definitions) {
     // Skip if there's no mapping defined
