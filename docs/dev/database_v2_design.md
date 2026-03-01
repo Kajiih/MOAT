@@ -89,7 +89,7 @@ The `StandardItem` is the universal value object for the application.
 
 ---
 
-## 3. The Provider Hierarchy
+## 4. The Provider Hierarchy
 
 The architecture follows a two-level hierarchy:
 
@@ -112,7 +112,7 @@ Represents a specific category of data (e.g., "Game", "Developer").
 
 ---
 
-## 4. The `DatabaseRegistry`
+## 5. The DatabaseRegistry
 
 The Registry acts as a **Service Locator** (Singleton).
 
@@ -122,7 +122,7 @@ The Registry acts as a **Service Locator** (Singleton).
 
 ---
 
-## 5. Metadata and Context
+## 6. Metadata and Context
 
 ### Composite IDs
 The use of `databaseId:entityId:dbId` is critical for:
@@ -134,7 +134,7 @@ The `StandardDetails` includes an `extendedData` record. This allows providers t
 
 ---
 
-## 3. Registry Lifecycle & Ready State
+## 7. Registry Lifecycle & Ready State
 
 Since providers can be asynchronous (e.g., fetching auth tokens during `initialize`), the `DatabaseRegistry` manages an explicit lifecycle.
 
@@ -154,7 +154,7 @@ await registry.waitUntilReady();
 
 ---
 
-## 4. Image Waterfall & Healing
+## 8. Image Waterfall & Healing
 
 In V2, we don't assume the first image is always the best or even available. We use a **Waterfall** approach for visual reliability.
 
@@ -171,7 +171,7 @@ The `StandardItem` contains an array of fallback sources.
 
 ---
 
-## 5. Standardized Error Handling
+## 9. Standardized Error Handling
 
 V2 replaces generic `throw new Error()` with a structured `DatabaseError` system. This allows the UI to react specifically to different failure modes.
 
@@ -195,7 +195,7 @@ try {
 
 ---
 
-## 5. Declarative Filter Mapping
+## 10. Declarative Filter Mapping
 
 To remove boilerplate in the `search` method, V2 uses a declarative mapping system. Instead of manual `if` blocks, filters define their own mapping logic.
 
@@ -256,7 +256,7 @@ Not all filters are data filters. Some modify *how the query is interpreted* (e.
 ```
 
 
-## 6. Related Entities Navigation
+## 11. Related Entities Navigation
 
 A key feature of the V2 architecture is the ability for items to link to other entities **within the same database**. 
 
@@ -275,7 +275,7 @@ The `StandardDetails` object can include a list of `relatedEntities`.
 
 ---
 
-## 7. Dependency Injection (Fetcher)
+## 12. Dependency Injection (Fetcher)
 
 In V1, providers imported `secureFetch` directly. In V2, we adopt **Dependency Injection** by passing a `fetcher` to the provider.
 
@@ -286,7 +286,7 @@ In V1, providers imported `secureFetch` directly. In V2, we adopt **Dependency I
 
 ---
 
-## 7. Zod Validation Strategy
+## 13. Zod Validation Strategy
 
 Validation happens at the **Service Boundary**.
 
@@ -296,7 +296,7 @@ Validation happens at the **Service Boundary**.
 
 ---
 
-## 7. The React Integration Layer (Hooks)
+## 14. The React Integration Layer (Hooks)
 
 While the `DatabaseRegistry` handles the core logic, a specialized **Hooks Layer** is used to make this data reactive within React components.
 
@@ -312,10 +312,29 @@ A hook to fetch deep metadata for any item:
 - **Cache Key**: Uses the composite ID (`dbId:entityId:databaseId`) for local storage and SWR caching.
 
 
-## 8. Migration Path
+## 15. Board Integration
+
+The `StandardItem` is designed to be the single source of truth for items stored on a board.
+
+### Storage and Serialization
+When an item is added to a tier, the entire `StandardItem` object is serialized and stored in the `TierListState`. This ensures that the board remains interactive even if the external service is offline.
+
+### Background Enrichment
+The `MediaRegistry` (IndexedDB) acts as a local cache. When a board is loaded, the app can:
+1. Render the stored `StandardItem` immediately.
+2. Trigger an asynchronous `getDetails()` call via the `DatabaseRegistry` to update the local metadata (e.g., fresh ratings, updated tags).
+3. Update the `MediaRegistry` with the latest data.
+
+### Extended Data Usage
+`StandardDetails.extendedData` is a key-value store for database-specific attributes.
+- **Provider Role**: Populate `extendedData` with fields that don't fit the `StandardItem` but are useful for specialized views (e.g., "Developer Notes", "Original Language").
+- **UI Role**: Specialized detail components can check for the presence of specific keys in `extendedData` to render custom UI blocks without bloating the standard model.
+
+---
+
+## 16. Migration Path
 
 - **Hooks Layer**: Create `useDatabaseSearch` to handle SWR/pagination centrally.
-- **Related Entities**: Allow items to link to other entities (e.g., a Game links to its Developer entity) for deep navigation within the app.
 
 # To be processed or decided later
 ## Out of scope for now
@@ -323,23 +342,11 @@ A hook to fetch deep metadata for any item:
 - Discovery mode (no discovery mode for now)
 - Dates of items (no dates for now)
 
-
-## To be discussed
-- Fuzzy/wildcard search modifiers
-  -> Implement them as filters, and add placement?: 'panel' | 'search-bar'; in the filter definition.
-- Filtering by related entities (e.g. find all games by a specific developer)
-- Personal notes
-- Background enrichment?
-
 ## Migration process
 - We acknowledge broken boards and will not try to fix them.
 - We will provide a way to delete all boards.
 
-
 ## Pending tasks
-- Design the board integration layer — how does StandardItem interact with TierListState, undo/redo, and the MediaRegistry?
-- Fix registry clear() to reset status — straightforward bug.
-- Register failed providers — the current behavior hides initialization failures from the UI.
-- Add AbortController and caching to useResolvedImage — performance concern for large boards.
+- Complete the migration of all V1 services to the V2 architecture.
 
 

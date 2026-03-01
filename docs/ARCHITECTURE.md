@@ -70,6 +70,9 @@
 - **Architecture**: Registry-based abstraction.
 - **Registry**: `MediaServiceRegistry` (singleton) for dynamic service discovery and fallback handling.
 - **Registry**: `MediaTypeRegistry` for centralized UI configuration (icons, filters, sorting).
+
+> [!NOTE]
+> **Architecture Transition**: We are transitioning to a **V2 Database-Centric Architecture**. New services should be implemented using the V2 patterns. See [Database V2 Design](file:///Users/paquerot/Perso/dev_projects/tierlist/docs/dev/database_v2_design.md) and the [Guide: Adding a New Service](file:///Users/paquerot/Perso/dev_projects/tierlist/docs/dev/adding_a_new_service.md).
 - **Services**: Pure API adapters for fetching data.
   - **Type Safety**: All services implement `MediaService<F>`, where `F` is a category-specific filter type (e.g., `MusicFilters`, `CinemaFilters`). This ensures end-to-end type safety from the UI filters down to the API query builders.
   - **Music**: `MusicService` (MusicBrainz)
