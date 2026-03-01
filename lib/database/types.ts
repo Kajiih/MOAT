@@ -283,9 +283,6 @@ export interface FilterDefinition<TValue = any, TTransformed = any> {
   transform?: (value: TValue) => TTransformed;
 }
 
-// Note: We keep the schema for runtime validation, but use the interface for complex typing
-export const FilterDefinitionSchema = z.any(); 
-
 /**
  * Definition for a sort option supported by the entity.
  */
