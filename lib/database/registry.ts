@@ -112,15 +112,44 @@ export class DatabaseRegistry {
   }
 
   /**
+   * Retrieves a specific entity from a specific database provider.
+   */
+  public getEntity(databaseId: string, entityId: string): import('./types').DatabaseEntity | undefined {
+    const provider = this.getProvider(databaseId);
+    return provider?.entities.find(e => e.id === entityId);
+  }
+
+  /**
    * Resolves an image reference key globally via the correct provider.
    */
   public async resolveImageReference(providerId: string, key: string): Promise<string | null> {
     await this.waitUntilReady();
     const provider = this.getProvider(providerId);
-    if (provider && provider.resolveImage) {
-      return provider.resolveImage(key);
+
+    // If we get an auth error during resolution, we might want to try to recover
+    try {
+      if (provider && provider.resolveImage) {
+        return await provider.resolveImage(key);
+      }
+    } catch (error) {
+      const dbError = import('./utils').then(m => m.handleDatabaseError(error, providerId));
+      // In a real app, we'd check if this is an AUTH_ERROR and trigger re-init
+      // For now, we just log and return null
+      console.error(`Image resolution failed for ${providerId}:${key}`, error);
     }
     return null;
+  }
+
+  /**
+   * Triggers a manual or automatic re-initialization of a provider.
+   * Useful when a provider's credentials expire at runtime.
+   */
+  public async reinitializeProvider(providerId: string): Promise<void> {
+    const provider = this.getProvider(providerId);
+    if (!provider) return;
+
+    console.log(`Re-initializing provider "${providerId}"...`);
+    await this.register(provider);
   }
 
   /**
