@@ -11,7 +11,8 @@ import {
   StandardDetailsSchema, 
   StandardItem, 
   StandardItemSchema,
-  Fetcher
+  Fetcher,
+  toCompositeId
 } from '@/lib/database/types';
 import { secureFetch } from '../shared/api-client';
 
@@ -74,11 +75,12 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
   public entities: DatabaseEntity[] = [
     {
       id: 'game',
-      // ... (labels and icon)
-      label: 'Video Game',
-      labelPlural: 'Video Games',
-      icon: Gamepad2,
-      colorClass: 'text-purple-400',
+      branding: {
+        label: 'Video Game',
+        labelPlural: 'Video Games',
+        icon: Gamepad2,
+        colorClass: 'text-purple-400',
+      },
 
       filters: [
         { 
@@ -137,11 +139,10 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
           const data = await this.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams);
           
           const items = data.results.map(game => {
+            const identity = { dbId: game.id.toString(), databaseId: 'rawg', entityId: 'game' };
             const standardItem: StandardItem = {
-              id: `rawg:game:${game.id}`,
-              dbId: game.id.toString(),
-              databaseId: 'rawg',
-              entityId: 'game',
+              id: toCompositeId(identity),
+              identity,
               title: game.name,
               imageUrl: game.background_image || '',
               imageFallbacks: game.slug ? [`wikidata:slug:${game.slug}`] : [],
@@ -181,15 +182,13 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
           const relatedEntities = game.developers?.map(dev => ({
             label: 'Developer',
             name: dev.name,
-            entityId: 'developer',
-            dbId: dev.id.toString(),
+            identity: { dbId: dev.id.toString(), databaseId: 'rawg', entityId: 'developer' },
           }));
 
+          const identity = { dbId: game.id.toString(), databaseId: 'rawg', entityId: 'game' };
           const details: StandardDetails = {
-            id: `rawg:game:${game.id}`,
-            dbId: game.id.toString(),
-            databaseId: 'rawg',
-            entityId: 'game',
+            id: toCompositeId(identity),
+            identity,
             title: game.name,
             imageUrl: game.background_image || '',
             subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
@@ -209,10 +208,12 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
     },
     {
       id: 'developer',
-      label: 'Developer',
-      labelPlural: 'Developers',
-      icon: Building2,
-      colorClass: 'text-blue-400',
+      branding: {
+        label: 'Developer',
+        labelPlural: 'Developers',
+        icon: Building2,
+        colorClass: 'text-blue-400',
+      },
       filters: [],
       sortOptions: [],
       search: async (params: SearchParams): Promise<SearchResult> => {

@@ -185,7 +185,7 @@ describe('Database V2 Design', () => {
 
       expect(gameEntity).toBeDefined();
       expect(devEntity).toBeDefined();
-      expect(gameEntity?.label).toBe('Video Game');
+      expect(gameEntity?.branding.label).toBe('Video Game');
     });
 
     it('should have filters and sort options for games', () => {

@@ -49,17 +49,36 @@ export class DatabaseError extends Error {
 // --- Core Schemas ---
 
 /**
- * Standard item schema that the Board and UI components expect.
+ * Identifies an entity within a specific database provider.
+ * This is the routing key used throughout the application.
  */
-export const StandardItemSchema = z.object({
-  /** Globally unique app ID (e.g. `${databaseId}:${entityId}:${dbId}`) */
-  id: z.string(),
+export const EntityIdentitySchema = z.object({
   /** The original ID in the source database */
   dbId: z.string(),
   /** The identifier of the database provider (e.g., 'rawg', 'musicbrainz') */
   databaseId: z.string(),
   /** The identifier of the entity type (e.g., 'game', 'album') */
   entityId: z.string(),
+});
+
+export type EntityIdentity = z.infer<typeof EntityIdentitySchema>;
+
+/**
+ * Derives a globally unique composite ID from an EntityIdentity.
+ * Format: `${databaseId}:${entityId}:${dbId}`
+ */
+export function toCompositeId(identity: EntityIdentity): string {
+  return `${identity.databaseId}:${identity.entityId}:${identity.dbId}`;
+}
+
+/**
+ * Standard item schema that the Board and UI components expect.
+ */
+export const StandardItemSchema = z.object({
+  /** Globally unique app ID (e.g. `${databaseId}:${entityId}:${dbId}`) */
+  id: z.string(),
+  /** Routing identity — where this item comes from */
+  identity: EntityIdentitySchema,
   
   /** Primary display title */
   title: z.string(),
@@ -89,10 +108,8 @@ export const EntityLinkSchema = z.object({
   label: z.string(),
   /** The display name of the target item (e.g., 'FromSoftware') */
   name: z.string(),
-  /** The internal provider ID of the entity type (e.g., 'developer') */
-  entityId: z.string(),
-  /** The ID of the item in the source database */
-  dbId: z.string(),
+  /** Routing identity of the target entity */
+  identity: EntityIdentitySchema,
 });
 
 export type EntityLink = z.infer<typeof EntityLinkSchema>;
@@ -276,20 +293,29 @@ export type SearchParams = z.infer<typeof SearchParamsSchema>;
 // --- Hierarchy Definitions ---
 
 /**
- * Represents a specific type of data inside a database (e.g., "Game" in RAWG).
- * This interface encapsulates everything the UI needs to handle this entity.
+ * Visual branding for a database entity.
+ * Separates "what it looks like" from "what it does."
  */
-export interface DatabaseEntity {
-  /** Unique entity ID (e.g., 'game', 'developer', 'album') */
-  id: string;
+export interface EntityBranding {
   /** Singular name (e.g., 'Game') */
   label: string;
   /** Plural name (e.g., 'Games') */
   labelPlural: string;
   /** Icon component for the search tab and UI indicators */
   icon: LucideIcon;
-  /** Tailwind color class for branding (e.g., 'bg-purple-500') */
+  /** Tailwind color class for branding (e.g., 'text-purple-400') */
   colorClass: string;
+}
+
+/**
+ * Represents a specific type of data inside a database (e.g., "Game" in RAWG).
+ * This interface encapsulates everything the UI needs to handle this entity.
+ */
+export interface DatabaseEntity {
+  /** Unique entity ID (e.g., 'game', 'developer', 'album') */
+  id: string;
+  /** Visual branding for the UI */
+  branding: EntityBranding;
 
   /** Discovery configuration: what filters and sorts are available */
   filters: FilterDefinition[];
