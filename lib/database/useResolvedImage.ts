@@ -1,4 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+/**
+ * @file useResolvedImage.ts
+ * @description Hook and utilities for resolving declarative ImageSource 
+ * references into playable URLs using SWR for caching and deduplication.
+ */
+import useSWR from 'swr';
+
 import type { ImageSource } from './types';
 
 /**
@@ -19,8 +25,6 @@ const defaultResolver: ImageReferenceResolver = async () => null;
  * For 'url' sources: attempts to load the image directly.
  * For 'reference' sources: calls the provided resolver to get a URL, then loads it.
  *
- * Falls back to undefined if no source succeeds.
- *
  * @param sources - Ordered list of image sources to try
  * @param referenceResolver - Optional function to resolve reference sources to URLs
  * @returns The first successfully resolved image URL, or undefined
@@ -29,40 +33,37 @@ export function useResolvedImage(
   sources: ImageSource[],
   referenceResolver: ImageReferenceResolver = defaultResolver,
 ): string | undefined {
-  const [resolvedUrl, setResolvedUrl] = useState<string | undefined>(undefined);
+  // SWR automatically hashes the array into a stable string key.
+  // We use null to prevent fetching if there are no sources.
+  const cacheKey = sources.length > 0 ? JSON.stringify(sources) : null;
 
-  const resolve = useCallback(async () => {
-    for (const source of sources) {
-      try {
-        if (source.type === 'url') {
-          const loaded = await loadImage(source.url);
-          if (loaded) {
-            setResolvedUrl(source.url);
-            return;
+  const { data: resolvedUrl } = useSWR<string | undefined>(
+    cacheKey,
+    async (key: string) => {
+      const activeSources: ImageSource[] = JSON.parse(key);
+
+      for (const source of activeSources) {
+        try {
+          const targetUrl = source.type === 'url' 
+            ? source.url 
+            : await referenceResolver(source.provider, source.key);
+
+          if (targetUrl) {
+            const loaded = await loadImage(targetUrl);
+            if (loaded) return targetUrl;
           }
-        } else {
-          const url = await referenceResolver(source.provider, source.key);
-          if (url) {
-            const loaded = await loadImage(url);
-            if (loaded) {
-              setResolvedUrl(url);
-              return;
-            }
-          }
+        } catch {
+          // Source failed, try the next one
+          continue;
         }
-      } catch {
-        // Source failed, try the next one
-        continue;
       }
+    },
+    {
+      revalidateOnFocus: false, // Don't refetch simply because window gained focus
+      dedupingInterval: 86_400_000, // Keep cached results alive for 24 hours
+      shouldRetryOnError: false // Don't spam retries if all sources genuinely failed
     }
-
-    // All sources exhausted
-    setResolvedUrl(undefined);
-  }, [sources, referenceResolver]);
-
-  useEffect(() => {
-    resolve();
-  }, [resolve]);
+  );
 
   return resolvedUrl;
 }
