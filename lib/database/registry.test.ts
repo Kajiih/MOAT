@@ -25,6 +25,17 @@ describe('Database V2 Design', () => {
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
     });
 
+    it('should clear all state when clear() is called', async () => {
+      await registry.register(RAWGDatabase);
+      expect(registry.getStatus()).toBe(RegistryStatus.READY);
+      
+      registry.clear();
+      
+      expect(registry.getStatus()).toBe(RegistryStatus.IDLE);
+      expect(registry.getAllProviders()).toHaveLength(0);
+      expect(registry.getProvider('rawg')).toBeUndefined();
+    });
+
     it('should register and retrieve a provider', async () => {
       await registry.register(RAWGDatabase);
       const provider = registry.getProvider('rawg');
@@ -49,6 +60,45 @@ describe('Database V2 Design', () => {
       
       await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: 10 });
       expect(mockFetcher).toHaveBeenCalled();
+    });
+
+    it('should track failed providers without completely breaking the registry for others', async () => {
+      // Create a failing provider
+      const failingProvider: DatabaseProvider = {
+        id: 'failing',
+        label: 'Failing Provider',
+        entities: [],
+        status: ProviderStatus.IDLE,
+        initialize: async () => { throw new Error('Auth failed'); }
+      };
+
+      // Create a working provider
+      const workingProvider: DatabaseProvider = {
+        id: 'working',
+        label: 'Working Provider',
+        entities: [],
+        status: ProviderStatus.IDLE,
+        initialize: async () => {} // success
+      };
+
+      await expect(registry.register(failingProvider)).rejects.toThrow('Auth failed');
+
+      // The failing provider SHOULD be retrievable so the UI knows it failed (rather than being undefined)
+      const failed = registry.getProvider('failing');
+      expect(failed).toBeDefined();
+      expect(failed?.status).toBe(ProviderStatus.ERROR);
+
+      // The Registry should show ERROR because ALL providers (1) failed
+      expect(registry.getStatus()).toBe(RegistryStatus.ERROR);
+
+      // But registering a new working provider should work and reset the registry to READY
+      await registry.register(workingProvider);
+      
+      const working = registry.getProvider('working');
+      expect(working?.status).toBe(ProviderStatus.READY);
+      
+      // Registry is READY because at least one provider is READY
+      expect(registry.getStatus()).toBe(RegistryStatus.READY);
     });
 
     it('should wait for overlapping registrations in waitUntilReady', async () => {

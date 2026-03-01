@@ -62,18 +62,18 @@ export class DatabaseRegistry {
   public async register(provider: DatabaseProvider): Promise<void> {
     this.status = RegistryStatus.INITIALIZING;
     provider.status = ProviderStatus.INITIALIZING;
+    
+    // Always add the provider to the map so its status can be tracked by UI
+    this.providers.set(provider.id, provider);
 
     const registration = (async () => {
       try {
         if (provider.initialize) {
           await provider.initialize(this.fetcher);
         }
-        this.providers.set(provider.id, provider);
         provider.status = ProviderStatus.READY;
       } catch (error) {
         provider.status = ProviderStatus.ERROR;
-        // Mark the whole registry as errored if a provider fails
-        this.status = RegistryStatus.ERROR;
         console.error(`Failed to initialize provider "${provider.id}":`, error);
         throw error;
       }
@@ -86,10 +86,20 @@ export class DatabaseRegistry {
     } finally {
       this.pendingRegistrations.delete(registration);
       
-      // Only set to READY if no other registrations are pending 
-      // AND we aren't in a persistent ERROR state
-      if (this.pendingRegistrations.size === 0 && (this.status as RegistryStatus) !== RegistryStatus.ERROR) {
-        this.status = RegistryStatus.READY;
+      // Only finalize status if no other registrations are pending 
+      if (this.pendingRegistrations.size === 0) {
+        const allProviders = Array.from(this.providers.values());
+        const hasReady = allProviders.some(p => p.status === ProviderStatus.READY);
+        const hasProviders = allProviders.length > 0;
+        
+        // Let the registry be READY if at least one provider is functioning,
+        // or if there are no providers (so it's not stuck in ERROR).
+        // Only set ERROR if there are providers and *none* of them are READY.
+        if (hasProviders && !hasReady) {
+          this.status = RegistryStatus.ERROR;
+        } else {
+          this.status = RegistryStatus.READY;
+        }
       }
     }
   }
@@ -113,6 +123,8 @@ export class DatabaseRegistry {
    */
   public clear(): void {
     this.providers.clear();
+    this.status = RegistryStatus.IDLE;
+    this.pendingRegistrations.clear();
   }
 }
 
