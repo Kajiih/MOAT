@@ -193,6 +193,15 @@ export interface CursorPagination extends PaginationInfo {
   previousCursor?: string;
 }
 
+/**
+ * Offset-based pagination for APIs using limit and offset without total counts.
+ */
+export interface OffsetPagination extends PaginationInfo {
+  offset: number;
+  limit: number;
+  totalCount?: number;
+}
+
 // --- Pagination Zod Schemas ---
 
 export const PagePaginationSchema = z.object({
@@ -208,8 +217,15 @@ export const CursorPaginationSchema = z.object({
   previousCursor: z.string().optional(),
 });
 
-/** Runtime schema that accepts either pagination strategy */
-export const PaginationInfoSchema = z.union([PagePaginationSchema, CursorPaginationSchema]);
+export const OffsetPaginationSchema = z.object({
+  hasNextPage: z.boolean(),
+  offset: z.number(),
+  limit: z.number(),
+  totalCount: z.number().optional(),
+});
+
+/** Runtime schema that accepts any pagination strategy */
+export const PaginationInfoSchema = z.union([PagePaginationSchema, CursorPaginationSchema, OffsetPaginationSchema]);
 
 /**
  * Standardized search response from any entity.
@@ -311,6 +327,8 @@ export const SearchParamsSchema = z.object({
   sortDirection: z.enum(['asc', 'desc']).optional(),
   /** The page to fetch (1-indexed, for page-based providers) */
   page: z.number().optional(),
+  /** The offset to fetch from (for offset-based providers) */
+  offset: z.number().optional(),
   /** The number of items to fetch per page */
   limit: z.number(),
   /** Opaque cursor token (for cursor-based providers) */
