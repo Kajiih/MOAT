@@ -84,6 +84,17 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
         colorClass: 'text-purple-400',
       },
 
+      searchOptions: [
+        {
+          id: 'precise',
+          label: 'Precise Search',
+          type: 'boolean',
+          defaultValue: true,
+          mapTo: 'search_precise',
+          helperText: 'Disable fuzzy matching for exact results',
+        } as FilterDefinition<boolean, string>,
+      ],
+
       filters: [
         { 
           id: 'yearRange', 
@@ -121,6 +132,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
 
       search: async (params: SearchParams): Promise<SearchResult> => {
         try {
+          const gameEntity = this.entities.find(e => e.id === 'game')!;
           const apiParams: Record<string, string> = {
             page: (params.page || 1).toString(),
             page_size: params.limit.toString(),
@@ -128,11 +140,12 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
 
           if (params.query) {
             apiParams.search = params.query;
-            apiParams.search_precise = 'true';
           }
 
           // --- Declarative Filter Mapping ---
-          applyFilters(apiParams, params.filters, this.entities[0].filters);
+          // Apply both panel filters and search options
+          applyFilters(apiParams, params.filters, gameEntity.filters);
+          applyFilters(apiParams, params.filters, gameEntity.searchOptions);
 
           if (params.sort && params.sort !== 'relevance') {
             apiParams.ordering = params.sortDirection === 'desc' ? `-${params.sort}` : params.sort;
@@ -219,8 +232,9 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
         icon: Building2,
         colorClass: 'text-blue-400',
       },
+      searchOptions: [],
       filters: [],
-      sortOptions: [],
+      sortOptions: [],      
       search: async (params: SearchParams): Promise<SearchResult> => {
         return { items: [], pagination: { currentPage: params.page || 1, totalPages: 0, totalCount: 0, hasNextPage: false } };
       },

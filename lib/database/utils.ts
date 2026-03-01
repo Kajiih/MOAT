@@ -8,9 +8,6 @@ import { DatabaseError, DatabaseErrorCode, FilterDefinition } from './types';
  * @param databaseId - The identifier of the database where the error occurred.
  * @returns A standardized DatabaseError.
  */
-/**
- * Wraps any error into a standardized DatabaseError.
- */
 export function handleDatabaseError(error: unknown, databaseId: string): DatabaseError {
   if (error instanceof DatabaseError) return error;
 

@@ -346,8 +346,14 @@ export interface DatabaseEntity {
   /** Visual branding for the UI */
   branding: EntityBranding;
 
-  /** Discovery configuration: what filters and sorts are available */
+  /** Data filters for the filter sidebar (e.g. Platform, Year Range, Genre) */
   filters: FilterDefinition[];
+  /**
+   * Query modifiers rendered near the search input (e.g. Fuzzy Search, Precise Match).
+   * These change how the query string is interpreted rather than filtering by a data
+   * dimension. Uses the same FilterDefinition type so `applyFilters()` works on both.
+   */
+  searchOptions: FilterDefinition[];
   sortOptions: SortDefinition[];
   
   /** 

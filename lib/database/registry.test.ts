@@ -1,11 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { registry, RegistryStatus } from './registry';
-import { DatabaseErrorCode, DatabaseProvider, ProviderStatus, SearchParamsSchema, SearchResultSchema, ImageSourceSchema } from './types';
-import { handleDatabaseError } from './utils';
-import { urlImage, referenceImage } from './types';
+
 import { RAWGDatabase } from '../services/v2/rawg';
+import { registry, RegistryStatus } from './registry';
+import { DatabaseErrorCode, DatabaseProvider, ImageSourceSchema,ProviderStatus, SearchParamsSchema, SearchResultSchema } from './types';
+import { referenceImage,urlImage } from './types';
 import { DatabaseEntity } from './types';
+import { handleDatabaseError } from './utils';
 
 describe('Database V2 Design', () => {
   beforeEach(() => {
@@ -218,6 +219,7 @@ describe('Database V2 Design', () => {
     it('should have filters and sort options for games', () => {
       const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
       expect(gameEntity?.filters).toHaveLength(2);
+      expect(gameEntity?.searchOptions).toHaveLength(1);
       expect(gameEntity?.sortOptions).toHaveLength(3);
     });
 
@@ -226,6 +228,18 @@ describe('Database V2 Design', () => {
       // This test actually calls the search method, we might need to mock fetch
       // But for design verification, we just check if the method exists and types match
       expect(gameEntity?.search).toBeDefined();
+    });
+  });
+
+  describe('Search Options', () => {
+    it('should cleanly separate search modifiers from data filters', () => {
+      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game')!;
+      
+      expect(gameEntity.searchOptions).toHaveLength(1);
+      expect(gameEntity.searchOptions[0].id).toBe('precise');
+      
+      expect(gameEntity.filters).toHaveLength(2);
+      expect(gameEntity.filters.map(f => f.id)).toEqual(['yearRange', 'platform']);
     });
   });
 });

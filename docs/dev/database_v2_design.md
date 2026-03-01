@@ -212,7 +212,49 @@ applyFilters(apiParams, params.filters, entity.filters);
 - **Object Merging**: If `transform` returns an object, it is merged into the API parameters.
 - **Default Behavior**: If no `transform` is present, it simply maps the value to the `mapTo` key.
 
----
+### Query Modifiers via `searchOptions`
+
+Not all filters are data filters. Some modify *how the query is interpreted* (e.g., fuzzy matching, precise search). To keep these semantically distinct from standard data filters (like Platform or Year), they are defined in a separate `searchOptions` array on the `DatabaseEntity`.
+
+**How it works:**
+- Standard filters live in `entity.filters` and render in the filter sidebar.
+- Query modifiers live in `entity.searchOptions` and render inline with the search input.
+- Both use the same `FilterDefinition` interface, meaning the `applyFilters()` utility can process both arrays identically.
+- For providers like MusicBrainz where modifiers affect query construction (not API params), the entity's `search()` method reads them directly from `params.filters`.
+
+**RAWG example** (maps directly to an API parameter):
+```typescript
+{
+  filters: [ /* yearRange, platform */ ],
+  searchOptions: [
+    {
+      id: 'precise',
+      label: 'Precise Search',
+      type: 'boolean',
+      defaultValue: true,
+      mapTo: 'search_precise',
+    }
+  ]
+}
+```
+
+**MusicBrainz example** (consumed by the search method, not mapped to API params):
+```typescript
+{
+  filters: [ /* country, type */ ],
+  searchOptions: [
+    {
+      id: 'fuzzy',
+      label: 'Fuzzy Search',
+      type: 'boolean',
+      defaultValue: true,
+      // No mapTo — the search() method reads this from params.filters['fuzzy']
+      // and uses it to construct the Lucene query string.
+    }
+  ]
+}
+```
+
 
 ## 6. Related Entities Navigation
 
@@ -269,9 +311,35 @@ A hook to fetch deep metadata for any item:
 - **Routing**: Uses the `databaseId` and `entityId` to find the correct `getDetails` method.
 - **Cache Key**: Uses the composite ID (`dbId:entityId:databaseId`) for local storage and SWR caching.
 
----
 
 ## 8. Migration Path
 
 - **Hooks Layer**: Create `useDatabaseSearch` to handle SWR/pagination centrally.
 - **Related Entities**: Allow items to link to other entities (e.g., a Game links to its Developer entity) for deep navigation within the app.
+
+# To be processed or decided later
+## Out of scope for now
+- Client sort (no client sort for now)
+- Discovery mode (no discovery mode for now)
+- Dates of items (no dates for now)
+
+
+## To be discussed
+- Fuzzy/wildcard search modifiers
+  -> Implement them as filters, and add placement?: 'panel' | 'search-bar'; in the filter definition.
+- Filtering by related entities (e.g. find all games by a specific developer)
+- Personal notes
+- Background enrichment?
+
+## Migration process
+- We acknowledge broken boards and will not try to fix them.
+- We will provide a way to delete all boards.
+
+
+## Pending tasks
+- Design the board integration layer — how does StandardItem interact with TierListState, undo/redo, and the MediaRegistry?
+- Fix registry clear() to reset status — straightforward bug.
+- Register failed providers — the current behavior hides initialization failures from the UI.
+- Add AbortController and caching to useResolvedImage — performance concern for large boards.
+
+
