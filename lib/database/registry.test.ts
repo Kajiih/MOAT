@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { z } from 'zod';
 import { registry, RegistryStatus } from './registry';
-import { DatabaseErrorCode, DatabaseProvider, ProviderStatus } from './types';
+import { DatabaseErrorCode, DatabaseProvider, ProviderStatus, SearchParamsSchema, SearchResultSchema } from './types';
 import { handleDatabaseError } from './utils';
 import { RAWGDatabase } from '../services/v2/rawg';
 import { DatabaseEntity } from './types';
@@ -133,6 +133,47 @@ describe('Database V2 Design', () => {
       const error = handleDatabaseError({ message: 'Boom' }, 'test');
       expect(error.code).toBe(DatabaseErrorCode.INTERNAL_ERROR);
       expect(error.message).toBe('Boom');
+    });
+  });
+
+  describe('Flexible Pagination', () => {
+    it('should accept page-based pagination', () => {
+      const result = SearchResultSchema.parse({
+        items: [],
+        pagination: {
+          currentPage: 1,
+          totalPages: 5,
+          totalCount: 100,
+          hasNextPage: true,
+        },
+      });
+      
+      expect(result.pagination.hasNextPage).toBe(true);
+      expect('currentPage' in result.pagination && result.pagination.currentPage).toBe(1);
+    });
+
+    it('should accept cursor-based pagination', () => {
+      const result = SearchResultSchema.parse({
+        items: [],
+        pagination: {
+          nextCursor: 'abc-123',
+          hasNextPage: true,
+        },
+      });
+
+      expect(result.pagination.hasNextPage).toBe(true);
+      expect('nextCursor' in result.pagination && result.pagination.nextCursor).toBe('abc-123');
+    });
+
+    it('should allow SearchParams with cursor instead of page', () => {
+      const parsed = SearchParamsSchema.parse({
+        query: 'test',
+        filters: {},
+        limit: 20,
+        cursor: 'start-here',
+      });
+      expect(parsed.cursor).toBe('start-here');
+      expect(parsed.page).toBeUndefined();
     });
   });
 

@@ -117,6 +117,50 @@ export const StandardDetailsSchema = StandardItemSchema.extend({
 });
 
 export type StandardDetails = z.infer<typeof StandardDetailsSchema>;
+// --- Pagination Interfaces ---
+
+/**
+ * Base pagination contract. The UI only needs this to decide
+ * whether to show a "Load More" button or pagination controls.
+ */
+export interface PaginationInfo {
+  hasNextPage: boolean;
+}
+
+/**
+ * Page-based pagination for APIs that return total counts (RAWG, TMDB, etc.).
+ */
+export interface PagePagination extends PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+}
+
+/**
+ * Cursor-based pagination for APIs using opaque tokens (GraphQL, Hardcover, etc.).
+ */
+export interface CursorPagination extends PaginationInfo {
+  nextCursor?: string;
+  previousCursor?: string;
+}
+
+// --- Pagination Zod Schemas ---
+
+export const PagePaginationSchema = z.object({
+  hasNextPage: z.boolean(),
+  currentPage: z.number(),
+  totalPages: z.number(),
+  totalCount: z.number(),
+});
+
+export const CursorPaginationSchema = z.object({
+  hasNextPage: z.boolean(),
+  nextCursor: z.string().optional(),
+  previousCursor: z.string().optional(),
+});
+
+/** Runtime schema that accepts either pagination strategy */
+export const PaginationInfoSchema = z.union([PagePaginationSchema, CursorPaginationSchema]);
 
 /**
  * Standardized search response from any entity.
@@ -124,12 +168,8 @@ export type StandardDetails = z.infer<typeof StandardDetailsSchema>;
 export const SearchResultSchema = z.object({
   /** List of mapped standard items */
   items: z.array(StandardItemSchema),
-  /** Total count of matches in the remote database */
-  totalCount: z.number(),
-  /** Total number of pages available */
-  totalPages: z.number(),
-  /** The current page index returned (1-indexed) */
-  currentPage: z.number(),
+  /** Pagination metadata — either page-based or cursor-based */
+  pagination: PaginationInfoSchema,
 });
 
 export type SearchResult = z.infer<typeof SearchResultSchema>;
@@ -223,10 +263,12 @@ export const SearchParamsSchema = z.object({
   sort: z.string().optional(),
   /** The direction of the sort */
   sortDirection: z.enum(['asc', 'desc']).optional(),
-  /** The page to fetch (1-indexed) */
-  page: z.number(),
+  /** The page to fetch (1-indexed, for page-based providers) */
+  page: z.number().optional(),
   /** The number of items to fetch per page */
   limit: z.number(),
+  /** Opaque cursor token (for cursor-based providers) */
+  cursor: z.string().optional(),
 });
 
 export type SearchParams = z.infer<typeof SearchParamsSchema>;

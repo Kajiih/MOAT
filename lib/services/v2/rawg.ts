@@ -118,7 +118,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
       search: async (params: SearchParams): Promise<SearchResult> => {
         try {
           const apiParams: Record<string, string> = {
-            page: params.page.toString(),
+            page: (params.page || 1).toString(),
             page_size: params.limit.toString(),
           };
 
@@ -152,11 +152,17 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
             return StandardItemSchema.parse(standardItem);
           });
 
+          const currentPage = params.page || 1;
+          const totalPages = Math.ceil(data.count / params.limit);
+
           return SearchResultSchema.parse({
             items,
-            totalCount: data.count,
-            totalPages: Math.ceil(data.count / params.limit),
-            currentPage: params.page,
+            pagination: {
+              currentPage,
+              totalPages,
+              totalCount: data.count,
+              hasNextPage: currentPage < totalPages,
+            },
           });
         } catch (error) {
           throw handleDatabaseError(error, 'rawg');
@@ -210,7 +216,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
       filters: [],
       sortOptions: [],
       search: async (params: SearchParams): Promise<SearchResult> => {
-        return { items: [], totalCount: 0, totalPages: 0, currentPage: params.page };
+        return { items: [], pagination: { currentPage: params.page || 1, totalPages: 0, totalCount: 0, hasNextPage: false } };
       },
       getDetails: async (dbId: string): Promise<StandardDetails> => {
         throw new Error('Not implemented');
