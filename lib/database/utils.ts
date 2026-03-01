@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DatabaseError, DatabaseErrorCode, FilterDefinition } from './types';
+import { BaseFilterDefinition, DatabaseError, DatabaseErrorCode, FilterDefinition } from './types';
 
 /**
  * Wraps any error into a standardized DatabaseError.
@@ -61,7 +61,7 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
 export function applyFilters(
   apiParams: Record<string, string>,
   filterValues: Record<string, unknown>,
-  definitions: FilterDefinition<any, any>[]
+  definitions: BaseFilterDefinition<any, any>[]
 ): void {
   for (const def of definitions) {
     // Skip if there's no mapping defined

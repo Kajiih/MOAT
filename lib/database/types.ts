@@ -273,27 +273,17 @@ export type FilterOption = z.infer<typeof FilterOptionSchema>;
 /**
  * Definition for a filter that the UI should render.
  */
-export interface FilterDefinition<TValue = any, TTransformed = any> {
+export interface BaseFilterDefinition<TValue = any, TTransformed = any> {
   /** Unique ID for the filter (used as key in internal state) */
   id: string;
   /** Human readable label for the UI */
   label: string;
-  /** The type of input to render */
-  type: FilterInputType;
-  /** Available options for selection-based inputs */
-  options?: FilterOption[];
   /** Default value for the filter state */
   defaultValue?: TValue;
   /** Placeholder text for inputs */
   placeholder?: string;
   /** Optional helper text shown to the user */
   helperText?: string;
-  /** 
-   * For 'async-select' or 'async-multiselect' filters.
-   * Specifies the ID of the entity within the SAME database provider to search against.
-   * E.g., 'developer' or 'author'.
-   */
-  targetEntityId?: string;
 
   /** 
    * Declarative Mapping (V2 Refinement)
@@ -306,6 +296,54 @@ export interface FilterDefinition<TValue = any, TTransformed = any> {
    */
   transform?: (value: TValue) => TTransformed;
 }
+
+export interface TextFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
+  type: 'text';
+}
+
+export interface NumberFilterDefinition<TTransformed = any> extends BaseFilterDefinition<number, TTransformed> {
+  type: 'number';
+}
+
+export interface BooleanFilterDefinition<TTransformed = any> extends BaseFilterDefinition<boolean, TTransformed> {
+  type: 'boolean';
+}
+
+export interface SelectFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
+  type: 'select' | 'multiselect';
+  /** Available options for selection-based inputs */
+  options: FilterOption[];
+}
+
+export interface AsyncSelectFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
+  type: 'async-select' | 'async-multiselect';
+  /** 
+   * For 'async-select' or 'async-multiselect' filters.
+   * Specifies the ID of the entity within the SAME database provider to search against.
+   * E.g., 'developer' or 'author'.
+   */
+  targetEntityId: string;
+}
+
+export interface RangeFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
+  type: 'range';
+}
+
+export interface DateFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
+  type: 'date';
+}
+
+/**
+ * Discriminated union of all filter definitions.
+ */
+export type FilterDefinition<TValue = any, TTransformed = any> = 
+  | TextFilterDefinition<TTransformed>
+  | NumberFilterDefinition<TTransformed>
+  | BooleanFilterDefinition<TTransformed>
+  | SelectFilterDefinition<TValue, TTransformed>
+  | AsyncSelectFilterDefinition<TValue, TTransformed>
+  | RangeFilterDefinition<TValue, TTransformed>
+  | DateFilterDefinition<TValue, TTransformed>;
 
 /**
  * Definition for a sort option supported by the entity.
