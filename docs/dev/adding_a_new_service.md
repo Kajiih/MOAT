@@ -61,14 +61,18 @@ const createMovieEntity = (provider: MyServiceDatabaseProvider): DatabaseEntity 
     { id: 'release_date', label: 'Release Date', defaultDirection: 'desc' },
   ],
   search: async (params) => {
-    const apiParams: Record<string, string> = { query: params.query };
-    
-    // Use the captured MOVIE_FILTERS directly
-    applyFilters(apiParams, params.filters, MOVIE_FILTERS);
-    
-    // Call methods on the passed provider instance
-    const data = await provider.fetchApi('/search/movie', apiParams);
-    // ... map results ...
+    try {
+      const apiParams: Record<string, string> = { query: params.query };
+      
+      // Use the captured MOVIE_FILTERS directly
+      applyFilters(apiParams, params.filters, MOVIE_FILTERS);
+      
+      // Call methods on the passed provider instance
+      const data = await provider.fetchApi('/search/movie', apiParams);
+      // ... map results ...
+    } catch (error) {
+      throw handleDatabaseError(error, provider.id);
+    }
   },
   getDetails: (dbId) => provider.fetchApi(`/movie/${dbId}`),
 });
@@ -145,20 +149,24 @@ The `getDetails` method returns deep metadata.
 
 ```typescript
 getDetails: async (dbId: string): Promise<StandardDetails> => {
-  const raw = await this.fetcher<MyApiDetails>(`/movie/${dbId}`);
-  
-  const details = {
-    // StandardItem fields...
-    description: raw.overview,
-    tags: raw.genres.map(g => g.name),
-    externalLinks: [{ label: 'Official', url: raw.homepage }],
-    extendedData: {
-      budget: raw.budget,
-      revenue: raw.revenue,
-    }
-  };
+  try {
+    const raw = await this.fetcher<MyApiDetails>(`/movie/${dbId}`);
+    
+    const details = {
+      // StandardItem fields...
+      description: raw.overview,
+      tags: raw.genres.map(g => g.name),
+      externalLinks: [{ label: 'Official', url: raw.homepage }],
+      extendedData: {
+        budget: raw.budget,
+        revenue: raw.revenue,
+      }
+    };
 
-  return StandardDetailsSchema.parse(details);
+    return StandardDetailsSchema.parse(details);
+  } catch (error) {
+    throw handleDatabaseError(error, this.id);
+  }
 }
 ```
 

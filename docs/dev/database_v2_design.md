@@ -81,7 +81,7 @@ The `StandardItem` is the universal value object for the application.
 
 - **`id`**: A composite string `${databaseId}:${entityId}:${dbId}`. This acts as a "Self-Routing Key" that tells the app exactly which provider/entity to use for further actions (like details).
 - **`title`**: The primary display name.
-- **`imageUrl`**: The primary visual asset.
+- **`images`**: An array of `ImageSource` objects (URLs or References).
 - **`subtitle` & `tertiaryText`**: These are **pre-computed** by the provider. 
   - *Example*: For an Album, the provider might set `subtitle` as "Pink Floyd • 1973". 
   - *Benefit*: The UI doesn't need to know that Albums have artists and years, while Books have authors. It just renders the string.
@@ -105,7 +105,7 @@ Represents a specific category of data (e.g., "Game", "Developer").
 - **`sortOptions`**: List of supported orderings.
 - **`search(params)`**: 
   - Takes `SearchParams` (query, filters, pagination).
-  - Returns a `SearchResult` containing an array of `StandardItem`s.
+  - Returns a `SearchResult` containing an array of `StandardItem`s and `pagination` metadata.
 - **`getDetails(dbId)`**: 
   - Fetches deep metadata.
   - Returns a `StandardDetails` object (which extends `StandardItem` with descriptions, tags, and links).
@@ -158,16 +158,15 @@ await registry.waitUntilReady();
 
 In V2, we don't assume the first image is always the best or even available. We use a **Waterfall** approach for visual reliability.
 
-### `imageFallbacks`
-The `StandardItem` contains an array of fallback sources.
-- **Primary URL**: The first choice (e.g., RAWG screenshot).
-- **Secondary URLs**: Alternative sources (e.g., Fanart.tv posters).
-- **Healing IDs**: Local IDs like `wikidata:slug:elden-ring` that a background service can use to "heal" a missing image on the fly.
+### `images`
+The `StandardItem` contains an array of `ImageSource` objects.
+- **URL Source**: A direct Choice (e.g., RAWG screenshot URL).
+- **Reference Source**: A reference to an external provider (e.g. `wikidata:slug:elden-ring`) that a background service can use to "resolve" or "heal" a missing image on the fly.
 
 ### How it works in the UI:
-1.  **Render**: `MediaCard` tries to load the `imageUrl`.
+1.  **Render**: `MediaCard` tries to load the first source in `images`.
 2.  **Error**: If the image fails to load (443/404), the UI triggers an `onError` event.
-3.  **Healing**: The UI automatically tries the next item in `imageFallbacks`. If it's a "Healing ID", it calls the corresponding database provider to fetch a fresh URL.
+3.  **Resolution**: The UI automatically tries the next item in `images`. If it's a "Reference Source", it calls `registry.resolveImageReference()` to fetch a fresh URL.
 
 ---
 
