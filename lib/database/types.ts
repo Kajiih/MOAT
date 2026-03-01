@@ -71,6 +71,43 @@ export function toCompositeId(identity: EntityIdentity): string {
   return `${identity.databaseId}:${identity.entityId}:${identity.dbId}`;
 }
 
+// --- Image Source Types ---
+
+/** A direct image URL */
+export const UrlImageSourceSchema = z.object({
+  type: z.literal('url'),
+  url: z.string().url(),
+});
+
+/** A reference to an image that needs async resolution via a provider */
+export const ReferenceImageSourceSchema = z.object({
+  type: z.literal('reference'),
+  /** The image provider (e.g. 'wikidata', 'fanart', 'caa') */
+  provider: z.string(),
+  /** Provider-specific lookup key (e.g. 'elden-ring', 'album:123') */
+  key: z.string(),
+});
+
+/** Discriminated union of image source strategies */
+export const ImageSourceSchema = z.discriminatedUnion('type', [
+  UrlImageSourceSchema,
+  ReferenceImageSourceSchema,
+]);
+
+export type UrlImageSource = z.infer<typeof UrlImageSourceSchema>;
+export type ReferenceImageSource = z.infer<typeof ReferenceImageSourceSchema>;
+export type ImageSource = z.infer<typeof ImageSourceSchema>;
+
+/** Helper to create a URL image source */
+export function urlImage(url: string): UrlImageSource {
+  return { type: 'url', url };
+}
+
+/** Helper to create a reference image source */
+export function referenceImage(provider: string, key: string): ReferenceImageSource {
+  return { type: 'reference', provider, key };
+}
+
 /**
  * Standard item schema that the Board and UI components expect.
  */
@@ -82,13 +119,8 @@ export const StandardItemSchema = z.object({
   
   /** Primary display title */
   title: z.string(),
-  /** Optional primary image URL */
-  imageUrl: z.string().url().optional().or(z.literal('')),
-  /** 
-   * Alternative image sources or fallback strategies.
-   * Can be URLs or specialized IDs (e.g. 'fanart:album:123')
-   */
-  imageFallbacks: z.array(z.string()).optional(),
+  /** Ordered list of image sources to try — first working source wins */
+  images: z.array(ImageSourceSchema).default([]),
   
   /** Pre-computed strings for the UI to avoid complex formatting logic in components */
   subtitle: z.string().optional(),

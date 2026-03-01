@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { z } from 'zod';
 import { registry, RegistryStatus } from './registry';
-import { DatabaseErrorCode, DatabaseProvider, ProviderStatus, SearchParamsSchema, SearchResultSchema } from './types';
+import { DatabaseErrorCode, DatabaseProvider, ProviderStatus, SearchParamsSchema, SearchResultSchema, ImageSourceSchema } from './types';
 import { handleDatabaseError } from './utils';
+import { urlImage, referenceImage } from './types';
 import { RAWGDatabase } from '../services/v2/rawg';
 import { DatabaseEntity } from './types';
 
@@ -174,6 +175,32 @@ describe('Database V2 Design', () => {
       });
       expect(parsed.cursor).toBe('start-here');
       expect(parsed.page).toBeUndefined();
+    });
+  });
+
+  describe('ImageSource', () => {
+    it('should accept URL image sources', () => {
+      const source = ImageSourceSchema.parse({ type: 'url', url: 'https://example.com/img.jpg' });
+      expect(source.type).toBe('url');
+      if (source.type === 'url') expect(source.url).toBe('https://example.com/img.jpg');
+    });
+
+    it('should accept reference image sources', () => {
+      const source = ImageSourceSchema.parse({ type: 'reference', provider: 'wikidata', key: 'elden-ring' });
+      expect(source.type).toBe('reference');
+      if (source.type === 'reference') {
+        expect(source.provider).toBe('wikidata');
+        expect(source.key).toBe('elden-ring');
+      }
+    });
+
+    it('should provide helper functions for creating sources', () => {
+      const url = urlImage('https://example.com/img.jpg');
+      expect(url.type).toBe('url');
+
+      const ref = referenceImage('fanart', 'album:123');
+      expect(ref.type).toBe('reference');
+      expect(ref.provider).toBe('fanart');
     });
   });
 

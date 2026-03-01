@@ -12,7 +12,9 @@ import {
   StandardItem, 
   StandardItemSchema,
   Fetcher,
-  toCompositeId
+  toCompositeId,
+  urlImage,
+  referenceImage
 } from '@/lib/database/types';
 import { secureFetch } from '../shared/api-client';
 
@@ -140,12 +142,15 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
           
           const items = data.results.map(game => {
             const identity = { dbId: game.id.toString(), databaseId: 'rawg', entityId: 'game' };
+            const images = [
+              ...(game.background_image ? [urlImage(game.background_image)] : []),
+              ...(game.slug ? [referenceImage('wikidata', `slug:${game.slug}`)] : []),
+            ];
             const standardItem: StandardItem = {
               id: toCompositeId(identity),
               identity,
               title: game.name,
-              imageUrl: game.background_image || '',
-              imageFallbacks: game.slug ? [`wikidata:slug:${game.slug}`] : [],
+              images,
               subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
               tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
               rating: game.rating,
@@ -190,7 +195,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
             id: toCompositeId(identity),
             identity,
             title: game.name,
-            imageUrl: game.background_image || '',
+            images: game.background_image ? [urlImage(game.background_image)] : [],
             subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
             tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
             rating: game.rating,
