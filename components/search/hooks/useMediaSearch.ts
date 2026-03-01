@@ -30,6 +30,7 @@ import {
   MovieItem,
   PersonItem,
   SearchResult,
+  SeriesItem,
   SongItem,
   TVItem,
 } from '@/lib/types';
@@ -49,6 +50,7 @@ type MediaItemMap = {
   author: AuthorItem;
   developer: DeveloperItem;
   franchise: FranchiseItem;
+  series: SeriesItem;
 };
 
 /**

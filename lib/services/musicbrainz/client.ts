@@ -28,5 +28,5 @@ export async function mbFetch<T = unknown>(
     ...options.headers,
   };
 
-  return secureFetch<T>(url, { ...options, headers });
+  return (secureFetch<T>(url, { ...options, headers }) as Promise<T>);
 }

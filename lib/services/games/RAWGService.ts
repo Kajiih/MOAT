@@ -70,7 +70,7 @@ export class RAWGService implements MediaService<GameFilters> {
     const query = new URLSearchParams(params);
     query.append('key', apiKey);
 
-    return secureFetch<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`);
+    return (secureFetch<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`) as Promise<T>);
   }
 
   private buildSearchParams(query: string, options: SearchOptions): Record<string, string> {

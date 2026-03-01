@@ -50,7 +50,7 @@ export class TMDBService implements MediaService<CinemaFilters> {
     const query = new URLSearchParams(params);
     query.append('api_key', apiKey);
 
-    return secureFetch<T>(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`);
+    return (secureFetch<T>(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`) as Promise<T>);
   }
 
   async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
