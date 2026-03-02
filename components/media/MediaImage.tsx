@@ -12,9 +12,10 @@ import { useState } from 'react';
 
 import { failedImages } from '@/lib/image-cache';
 import { MediaItem } from '@/lib/types';
+import { StandardItem } from '@/lib/database/types';
 
 interface MediaImageProps {
-  item: MediaItem;
+  item: MediaItem | StandardItem;
   /** Whether the component is being rendered for a screenshot export. */
   isExport?: boolean;
   /** A pre-resolved Data URL for the image (used in exports). */
@@ -54,8 +55,13 @@ export function MediaImage({
   containerClassName = 'absolute inset-0',
   imageClassName = 'object-cover',
 }: MediaImageProps) {
+  const imageUrl =
+    'images' in item
+      ? (item.images as any[]).find((img) => img.type === 'url')?.url
+      : (item as any).imageUrl;
+
   const [imageError, setImageError] = useState(() => {
-    return item.imageUrl ? failedImages.has(item.imageUrl) : false;
+    return imageUrl ? failedImages.has(imageUrl) : false;
   });
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
@@ -75,11 +81,11 @@ export function MediaImage({
   }
 
   // Standard Image mode
-  if (item.imageUrl && !imageError) {
+  if (imageUrl && !imageError) {
     return (
       <div className={containerClassName}>
         <Image
-          src={item.imageUrl}
+          src={imageUrl}
           alt={item.title}
           fill
           sizes={sizes}
@@ -90,7 +96,7 @@ export function MediaImage({
             if (!retryUnoptimized) {
               setRetryUnoptimized(true);
             } else {
-              if (item.imageUrl) failedImages.add(item.imageUrl);
+              if (imageUrl) failedImages.add(imageUrl);
               setImageError(true);
             }
           }}
@@ -111,7 +117,7 @@ export function MediaImage({
         </span>
       )}
       <span className="mt-1 text-center text-[7px] leading-tight font-bold uppercase opacity-20">
-        {item.type}
+        {'type' in item ? item.type : item.identity.entityId}
       </span>
     </div>
   );

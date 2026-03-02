@@ -19,7 +19,7 @@ import { TierRow } from '@/components/board/TierRow';
 import { DetailsModal } from '@/components/media/DetailsModal';
 import { MediaCard } from '@/components/media/MediaCard';
 import { useTierListContext } from '@/components/providers/TierListContext';
-import { SearchPanel } from '@/components/search/SearchPanel';
+import { SearchPanelV2 as SearchPanel } from '@/components/search/v2/SearchPanelV2';
 import { DebugPanel } from '@/components/ui/DebugPanel';
 import { Footer } from '@/components/ui/Footer';
 import { Header } from '@/components/ui/Header';

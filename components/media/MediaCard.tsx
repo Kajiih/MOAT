@@ -15,8 +15,9 @@ import { Eye, Info, StickyNote, X } from 'lucide-react';
 
 import { useInteraction } from '@/components/ui/InteractionContext';
 import { useMediaResolver } from '@/lib/hooks';
-import { mediaTypeRegistry } from '@/lib/media-types';
+import { mediaTypeRegistry } from '@/v1/lib/media-types';
 import { MediaItem } from '@/lib/types';
+import { StandardItem } from '@/lib/database/types';
 import { toDomId } from '@/lib/utils/ids';
 
 import { MediaImage } from './MediaImage';
@@ -25,8 +26,8 @@ import { MediaImage } from './MediaImage';
  * Props for the visual representation of a media card.
  */
 interface BaseMediaCardProps {
-  /** The media data object (Album, Artist, or Song). */
-  item: MediaItem;
+  /** The media data object (V1 MediaItem or V2 StandardItem). */
+  item: MediaItem | StandardItem;
   /** The ID of the tier this card belongs to, if any. */
   tierId?: string;
   /** Callback to remove this item from its tier. */
@@ -50,7 +51,7 @@ interface BaseMediaCardProps {
   /** Whether to prioritize loading the image (eager load). Defaults to false. */
   priority?: boolean;
   /** Callback to show details modal. */
-  onInfo?: (item: MediaItem) => void;
+  onInfo?: (item: any) => void;
   /** Whether the component is being rendered for a screenshot export. */
   isExport?: boolean;
   /** A pre-resolved Data URL for the image. */
@@ -64,10 +65,10 @@ function MediaCardOverlay({
   line2,
   line3,
 }: {
-  item: MediaItem;
+  item: MediaItem | StandardItem;
   isExport: boolean;
-  line2: string;
-  line3: string;
+  line2: string | undefined;
+  line3: string | undefined;
 }) {
   return (
     <div
@@ -128,28 +129,19 @@ function BaseMediaCard({
   isExport = false,
   resolvedUrl,
 }: BaseMediaCardProps) {
-  const { resolvedItem } = useMediaResolver(initialItem, { enabled: false });
-  const item = resolvedItem || initialItem;
+  // V1 vs V2 differentiation for display logic
+  const isV2 = 'identity' in initialItem;
 
+  const { resolvedItem } = useMediaResolver(!isV2 ? (initialItem as MediaItem) : (null as any), { enabled: false });
+  const item = (resolvedItem || initialItem) as any;
   const interaction = useInteraction();
-  const definition = mediaTypeRegistry.get(item.type);
-  const { icon: TypeIcon, getSubtitle, getTertiaryText } = definition;
-
-  if (isDragging) {
-    return (
-      <div
-        ref={setNodeRef}
-        id={domId || toDomId(item.id)}
-        data-testid={domId || toDomId(item.id)}
-        style={style}
-        className="z-0 h-28 w-28 rounded-md border-2 border-dashed border-blue-500/50 bg-blue-500/10"
-      />
-    );
-  }
+  
+  const definition = !isV2 ? mediaTypeRegistry.get(item.type) : null;
+  const TypeIcon = definition?.icon || item.branding?.icon;
 
   // Construct lines of info
-  const line2 = getSubtitle(item);
-  const line3 = getTertiaryText(item);
+  const line2 = isV2 ? item.subtitle : definition?.getSubtitle(item);
+  const line3 = isV2 ? item.tertiaryText : definition?.getTertiaryText(item);
 
   let interactionClasses = 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400';
   if (isExport) {
@@ -230,7 +222,7 @@ function BaseMediaCard({
       )}
 
       {/* Notes Indicator */}
-      {item.notes && (
+      {(item as any).notes && (
         <div
           data-testid="notes-indicator"
           className="pointer-events-none absolute right-1 bottom-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
@@ -241,7 +233,7 @@ function BaseMediaCard({
       )}
 
       {/* Type Badge (Only if no info button and no image) */}
-      {!item.imageUrl && !onInfo && (
+      {!isAdded && !onInfo && TypeIcon && (
         <div className="absolute top-1 left-1 text-neutral-500 opacity-50">
           <TypeIcon size={10} />
         </div>
@@ -254,8 +246,8 @@ function BaseMediaCard({
  * Public props for the MediaCard and SortableMediaCard components.
  */
 interface MediaCardProps {
-  /** The media data object (Album, Artist, or Song). */
-  item: MediaItem;
+  /** The media data object (V1 MediaItem or V2 StandardItem). */
+  item: MediaItem | StandardItem;
   /** Optional override for the draggable ID. Defaults to item.id. */
   id?: string;
   /** The ID of the tier this card belongs to, if any. */
@@ -269,7 +261,7 @@ interface MediaCardProps {
   /** Whether to prioritize loading the image (eager load). Defaults to false. */
   priority?: boolean;
   /** Callback to show details */
-  onInfo?: (item: MediaItem) => void;
+  onInfo?: (item: any) => void;
   /** Whether the component is being rendered for a screenshot export. */
   isExport?: boolean;
   /** A pre-resolved Data URL for the image. */
@@ -297,7 +289,7 @@ export function MediaCard(props: MediaCardProps) {
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: draggableId,
-    data: { mediaItem: props.item, sourceTier: props.tierId },
+    data: { mediaItem: props.item, sourceTier: props.tierId, isV2: 'identity' in props.item },
     disabled: props.isAdded,
   });
 
@@ -344,7 +336,7 @@ export function SortableMediaCard(props: MediaCardProps) {
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: draggableId,
-    data: { mediaItem: props.item, sourceTier: props.tierId },
+    data: { mediaItem: props.item, sourceTier: props.tierId, isV2: 'identity' in props.item },
     disabled: props.isExport,
   });
 

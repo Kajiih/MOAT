@@ -1,0 +1,215 @@
+/**
+ * @file SearchFilters.tsx
+ * @description Renders a collection of dynamic filter components based on the active media service.
+ * @module SearchFilters
+ */
+
+import { MediaPicker } from '@/components/media/MediaPicker';
+import { SearchParamsState } from '@/components/search/hooks/useMediaSearch';
+import { mediaTypeRegistry } from '@/lib/media-types';
+import { ArtistSelection, MediaSelection, MediaType } from '@/lib/types';
+
+import { AlbumFilters } from './AlbumFilters'; // Keep for now for music
+// Keep for now for music
+import { DateRangeFilter } from './DateRangeFilter';
+import { FILTER_INPUT_STYLES } from './FilterPrimitives';
+import { FilterButton } from '@/components/ui/FilterButton';
+
+/**
+ * Props for the SearchFilters component.
+ */
+interface SearchFiltersProps {
+  /** The current search mode (artist, album, or song). */
+  type: MediaType;
+  /** The active service ID. */
+  serviceId?: string;
+  /** The current state of all search filters. */
+  filters: SearchParamsState;
+  /** Callback to update one or more filter values. */
+  updateFilters: (patch: Partial<SearchParamsState>) => void;
+  /** Whether to render in a compact layout (for pickers). */
+  compact?: boolean;
+}
+
+/**
+ * Renders the full suite of search filters tailored to the active media type.
+ * Combines entity-specific logic with shared filters like date range and tags.
+ * @param props - Component props.
+ * @param props.type - The current search mode (artist, album, or song).
+ * @param props.serviceId - The current active service ID.
+ * @param props.filters - The current state of all search filters.
+ * @param props.updateFilters - Callback to update one or more filter values.
+ * @param props.compact - Whether to render in a compact layout (for pickers).
+ * @returns Filter UI fragment.
+ */
+export function SearchFilters({
+  type,
+  serviceId,
+  filters,
+  updateFilters,
+  compact = false,
+}: SearchFiltersProps) {
+  const dynamicFilters = mediaTypeRegistry.get(type).filters.filter((f) => {
+    if (!serviceId || !f.services) return true;
+    return f.services.includes(serviceId);
+  });
+
+  // Helper wrappers for Album filters (Special handling for MusicBrainz legacy filter components)
+  const togglePrimaryType = (t: string) => {
+    const current = filters.albumPrimaryTypes as string[];
+    const newTypes = current.includes(t) ? current.filter((x: string) => x !== t) : [...current, t];
+    updateFilters({ albumPrimaryTypes: newTypes });
+  };
+
+  const toggleSecondaryType = (t: string) => {
+    const current = filters.albumSecondaryTypes as string[];
+    const newTypes = current.includes(t) ? current.filter((x: string) => x !== t) : [...current, t];
+    updateFilters({ albumSecondaryTypes: newTypes });
+  };
+
+  return (
+    <div className={`space-y-3 ${compact ? 'text-[10px]' : ''}`}>
+      {dynamicFilters
+        .filter((f) => f.id !== 'sort')
+        .map((def) => {
+          // 1. Handle Special Legacy/Custom Components first
+          if (def.id === 'albumPrimaryTypes') {
+            return (
+              <AlbumFilters
+                key={def.id}
+                primaryTypes={(filters.albumPrimaryTypes as string[]) || []}
+                secondaryTypes={(filters.albumSecondaryTypes as string[]) || []}
+                onTogglePrimary={togglePrimaryType}
+                onToggleSecondary={toggleSecondaryType}
+                onResetPrimary={() =>
+                  updateFilters({ albumPrimaryTypes: (def.defaultValue as string[]) || [] })
+                }
+                onResetSecondary={() => updateFilters({ albumSecondaryTypes: [] })}
+                onSelectAllSecondary={() => {}}
+                compact={compact}
+              />
+            );
+          }
+
+          // 2. Generic Rendering by Type
+          switch (def.type) {
+            case 'picker': {
+              return (
+                <MediaPicker
+                  key={def.id}
+                  type={(def.pickerType || 'artist') as 'artist' | 'album' | 'author'}
+                  selectedItem={filters[def.id] as MediaSelection | null}
+                  onSelect={(item) => {
+                    const patch: Partial<SearchParamsState> = { [def.id]: item };
+                    // Special rule: if we pick an artist, reset the album
+                    if (def.id === 'selectedArtist') patch.selectedAlbum = null;
+                    updateFilters(patch);
+                  }}
+                  artistId={
+                    def.id === 'selectedAlbum'
+                      ? (filters.selectedArtist as ArtistSelection | null)?.id
+                      : undefined
+                  }
+                  placeholder={def.label}
+                  context={type}
+                />
+              );
+            }
+
+            case 'range': {
+              const minKey = def.minKey || 'minYear';
+              const maxKey = def.maxKey || 'maxYear';
+
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    {def.label}
+                  </div>
+                  <DateRangeFilter
+                    minYear={filters[minKey] as string}
+                    maxYear={filters[maxKey] as string}
+                    onMinYearChange={(val) => updateFilters({ [minKey]: val })}
+                    onMaxYearChange={(val) => updateFilters({ [maxKey]: val })}
+                    fromLabel={def.placeholder || (minKey === 'minDuration' ? 'Min' : 'From')}
+                    toLabel={def.placeholder || (maxKey === 'maxDuration' ? 'Max' : 'To')}
+                    compact={compact}
+                  />
+                </div>
+              );
+            }
+
+            case 'select': {
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    {def.label}
+                  </div>
+                  <select
+                    className={FILTER_INPUT_STYLES}
+                    value={(filters[def.id] as string) || ''}
+                    onChange={(e) => updateFilters({ [def.id]: e.target.value })}
+                  >
+                    {def.options?.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }
+
+            case 'text': {
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    {def.label}
+                  </div>
+                  <input
+                    placeholder={def.placeholder}
+                    className={FILTER_INPUT_STYLES}
+                    value={(filters[def.id] as string) || ''}
+                    onChange={(e) => updateFilters({ [def.id]: e.target.value })}
+                  />
+                </div>
+              );
+            }
+
+            case 'toggle-group': {
+              const currentValues = (filters[def.id] as string[]) || [];
+              return (
+                <div key={def.id}>
+                  <div className="mb-1 flex items-center justify-between text-[9px] font-bold tracking-wider text-neutral-600 uppercase">
+                    <span>{def.label}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {def.options?.map((opt) => {
+                      const isSelected = currentValues.includes(opt.value);
+                      return (
+                        <FilterButton
+                          key={opt.value}
+                          label={opt.label}
+                          isSelected={isSelected}
+                          onClick={() => {
+                            const newValues = isSelected
+                              ? currentValues.filter((v: string) => v !== opt.value)
+                              : [...currentValues, opt.value];
+                            updateFilters({ [def.id]: newValues });
+                          }}
+                          variant="secondary"
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
+            default: {
+              return null;
+            }
+          }
+        })}
+    </div>
+  );
+}
