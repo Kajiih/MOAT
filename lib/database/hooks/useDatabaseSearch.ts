@@ -1,3 +1,4 @@
+import deepEqual from 'fast-deep-equal';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
@@ -34,7 +35,11 @@ export function useDatabaseSearch(
   const { enabled = true, debounceMs = 300, keepPreviousData = true } = options;
 
   // 1. Debounce params to avoid over-fetching
-  const [debouncedParams] = useDebounce(params, debounceMs);
+  // We use deepEqual to ensure the timer only resets if the CONTENT changes,
+  // not just the object reference.
+  const [debouncedParams] = useDebounce(params, debounceMs, {
+    equalityFn: (a, b) => deepEqual(a, b),
+  });
 
   // 2. Create a stable cache key
   const cacheKey = useMemo(() => {
