@@ -60,7 +60,7 @@ export function useDatabaseSearch(
   }, [enabled, providerId, entityId, debouncedParams]);
 
   // 3. Define the fetcher that talks to the Registry
-  const fetcher = async (): Promise<SearchResult> => {
+  const fetcher = async (_key: any[], { signal }: { signal: AbortSignal }): Promise<SearchResult> => {
     if (!providerId || !entityId) {
       throw new Error('Provider ID and Entity ID are required');
     }
@@ -80,6 +80,7 @@ export function useDatabaseSearch(
       limit: debouncedParams.limit || 20,
       cursor: debouncedParams.cursor,
       offset: debouncedParams.offset,
+      signal, // Pass the signal here
     };
 
     return entity.search(fullParams);

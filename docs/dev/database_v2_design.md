@@ -295,7 +295,32 @@ Validation happens at the **Service Boundary**.
 
 ---
 
-## 14. The React Integration Layer (Hooks)
+## 14. Stability and Debouncing
+
+To ensure a smooth user experience and prevent unnecessary API pressure, the V2 hooks implement a "Stability-First" strategy.
+
+### Deep-Equal Debouncing
+The `useDatabaseSearch` hook uses `use-debounce` with a `deepEqual` equality function. 
+- **The Problem**: React re-renders can create new object references for filters or parameters even if their content hasn't changed. A standard debounce would reset the timer every time, causing a delay in searching.
+- **The Solution**: By using `deepEqual`, the debounce timer only resets when the *values* inside the parameters actually change. This ensures that the search is triggered exactly `debounceMs` after the last meaningful user interaction.
+
+---
+
+## 15. Cancellation and Resource Management
+
+All V2 data fetching methods are designed to be cancellable using the standard `AbortSignal` pattern.
+
+### Why it Matters
+- **Race Conditions**: If a user types quickly and search results arrive out of order, the UI might display stale data.
+- **Resource Usage**: Cancelling pending requests saves bandwidth and server processing power.
+
+### Implementation
+- **Providers**: `search` and `getDetails` methods accept an optional `AbortSignal` and pass it down to the `Fetcher`.
+- **Hooks**: `useSWR` provides a `signal` in its fetcher arguments, which the hooks automatically propagate to the underlying provider.
+
+---
+
+## 16. The React Integration Layer (Hooks)
 
 While the `DatabaseRegistry` handles the core logic, a specialized **Hooks Layer** is used to make this data reactive within React components.
 
@@ -303,15 +328,17 @@ While the `DatabaseRegistry` handles the core logic, a specialized **Hooks Layer
 This hook provides a reactive interface for searching:
 - **Internal SWR**: Handles caching, revalidation, and loading/error states.
 - **Search Logic**: It looks up the entity in the registry and calls its `search` method.
-- **Debouncing**: Automatically debounces query changes to prevent over-fetching.
+- **Debouncing**: Automatically debounces query changes (using deep-comparison) to prevent over-fetching.
+- **Cancellation**: Automatically cancels pending requests when the search parameters change or the component unmounts.
 
 ### `useDatabaseDetails(databaseId, entityId, dbId)`
 A hook to fetch deep metadata for any item:
 - **Routing**: Uses the `databaseId` and `entityId` to find the correct `getDetails` method.
 - **Cache Key**: Uses the composite ID (`dbId:entityId:databaseId`) for local storage and SWR caching.
+- **Cancellation**: Cancels the fetch if the request ID changes or the component unmounts.
 
 
-## 15. Board Integration
+## 17. Board Integration
 
 The `StandardItem` is designed to be the single source of truth for items stored on a board.
 
@@ -331,7 +358,7 @@ The `MediaRegistry` (IndexedDB) acts as a local cache. When a board is loaded, t
 
 ---
 
-## 16. Migration Path
+## 18. Migration Path
 
 - **Hooks Layer**: Create `useDatabaseSearch` to handle SWR/pagination centrally.
 

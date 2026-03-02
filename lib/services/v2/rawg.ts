@@ -129,7 +129,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
         apiParams.ordering = params.sortDirection === 'desc' ? `-${params.sort}` : params.sort;
       }
 
-      const data = await provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams);
+      const data = await provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams, { signal: params.signal });
       
       const items = data.results.map(game => {
         const identity = { dbId: game.id.toString(), databaseId: provider.id, entityId: 'game' };
@@ -165,9 +165,9 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
       throw handleDatabaseError(error, provider.id);
     }
   },
-  getDetails: async (dbId: string): Promise<StandardDetails> => {
+  getDetails: async (dbId: string, options?: { signal?: AbortSignal }): Promise<StandardDetails> => {
     try {
-      const game = await provider.fetchRawg<RAWGGame>(`/games/${dbId}`);
+      const game = await provider.fetchRawg<RAWGGame>(`/games/${dbId}`, {}, { signal: options?.signal });
 
       const tags = [
         ...(game.genres?.map(g => g.name) ?? []),
@@ -218,7 +218,7 @@ const createDeveloperEntity = (_provider: RAWGDatabaseProvider): DatabaseEntity 
   search: async (params: SearchParams): Promise<SearchResult> => {
     return { items: [], pagination: { currentPage: params.page || 1, totalPages: 0, totalCount: 0, hasNextPage: false } };
   },
-  getDetails: async (_dbId: string): Promise<StandardDetails> => {
+  getDetails: async (_dbId: string, _options?: { signal?: AbortSignal }): Promise<StandardDetails> => {
     throw new Error('Not implemented');
   }
 });
@@ -242,15 +242,20 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
    * Made internal to the file but accessible to entities
    * @param endpoint - The API endpoint to fetch from.
    * @param params - The query parameters.
+   * @param options - Optional fetch options (e.g., abort signal).
    * @returns The parsed JSON response.
    */
-  public async fetchRawg<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
+  public async fetchRawg<T>(
+    endpoint: string, 
+    params: Record<string, string> = {}, 
+    options?: { signal?: AbortSignal }
+  ): Promise<T> {
     const apiKey = process.env.RAWG_API_KEY || 'test-key'; // Fallback for tests
 
     const query = new URLSearchParams(params);
     query.append('key', apiKey);
 
-    return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`);
+    return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`, { signal: options?.signal });
   }
 
   public entities: DatabaseEntity[] = [

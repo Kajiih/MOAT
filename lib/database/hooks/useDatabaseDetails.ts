@@ -33,7 +33,7 @@ export function useDatabaseDetails(
     : null;
 
   // 2. Define the fetcher
-  const fetcher = async (): Promise<StandardDetails> => {
+  const fetcher = async (_key: any[], { signal }: { signal: AbortSignal }): Promise<StandardDetails> => {
     if (!providerId || !entityId || !dbId) {
       throw new Error('Provider ID, Entity ID, and Database ID are required');
     }
@@ -43,7 +43,7 @@ export function useDatabaseDetails(
       throw new Error(`Entity "${entityId}" not found in provider "${providerId}"`);
     }
 
-    return entity.getDetails(dbId);
+    return entity.getDetails(dbId, { signal });
   };
 
   // 3. Use SWR for fetching and caching

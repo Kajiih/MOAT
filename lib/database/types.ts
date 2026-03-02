@@ -379,6 +379,8 @@ export const SearchParamsSchema = z.object({
   limit: z.number(),
   /** Opaque cursor token (for cursor-based providers) */
   cursor: z.string().optional(),
+  /** Optional signal for request cancellation */
+  signal: z.instanceof(AbortSignal).optional(),
 });
 
 export type SearchParams = z.infer<typeof SearchParamsSchema>;
@@ -428,7 +430,7 @@ export interface DatabaseEntity {
   /** 
    * Detail method: Fetches and maps deep metadata for a single item.
    */
-  getDetails: (dbId: string) => Promise<StandardDetails>;
+  getDetails: (dbId: string, options?: { signal?: AbortSignal }) => Promise<StandardDetails>;
 }
 
 /**

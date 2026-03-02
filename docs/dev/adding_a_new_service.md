@@ -67,14 +67,14 @@ const createMovieEntity = (provider: MyServiceDatabaseProvider): DatabaseEntity 
       // Use the captured MOVIE_FILTERS directly
       applyFilters(apiParams, params.filters, MOVIE_FILTERS);
       
-      // Call methods on the passed provider instance
-      const data = await provider.fetchApi('/search/movie', apiParams);
+      // Call methods on the passed provider instance, passing the signal
+      const data = await provider.fetchApi('/search/movie', apiParams, { signal: params.signal });
       // ... map results ...
     } catch (error) {
       throw handleDatabaseError(error, provider.id);
     }
   },
-  getDetails: (dbId) => provider.fetchApi(`/movie/${dbId}`),
+  getDetails: (dbId, options) => provider.fetchApi(`/movie/${dbId}`, {}, { signal: options?.signal }),
 });
 
 // 3. In your class, initialize entities using the factories
@@ -104,7 +104,7 @@ const apiParams: Record<string, string> = {
 applyFilters(apiParams, params.filters, entity.filters);
 applyFilters(apiParams, params.filters, entity.searchOptions);
 
-const data = await this.fetcher<MyApiResult>(url, apiParams);
+const data = await this.fetcher<MyApiResult>(url, { signal: params.signal, params: apiParams });
 ```
 
 ### Filter Definitions
