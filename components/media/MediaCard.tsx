@@ -1,362 +1,153 @@
 /**
  * @file MediaCard.tsx
- * @description Provides the visual representation of media items (Album, Artist, Song) in the UI.
- * Exports both a draggable version (MediaCard) for the search panel and a sortable version (SortableMediaCard) for the tier rows.
- * @module MediaCard
+ * @description The primary visual representation for items on the board.
+ * Tailored for the V2 architecture with support for StandardItems.
+ * Handles drag-and-drop integration and rich metadata rendering.
  */
 
 'use client';
 
-import { DraggableAttributes, useDraggable } from '@dnd-kit/core';
-import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Eye, Info, StickyNote, X } from 'lucide-react';
+import { Info, X } from 'lucide-react';
+import React from 'react';
 
-import { useInteraction } from '@/components/ui/InteractionContext';
-import { useMediaResolver } from '@/lib/hooks';
-import { mediaTypeRegistry } from '@/v1/lib/media-types';
-import { MediaItem } from '@/lib/types';
+import { registry } from '@/lib/database/registry';
 import { StandardItem } from '@/lib/database/types';
-import { toDomId } from '@/lib/utils/ids';
 
 import { MediaImage } from './MediaImage';
 
 /**
- * Props for the visual representation of a media card.
+ * Props for the MediaCard component.
  */
-interface BaseMediaCardProps {
-  /** The media data object (V1 MediaItem or V2 StandardItem). */
-  item: MediaItem | StandardItem;
-  /** The ID of the tier this card belongs to, if any. */
+export interface MediaCardProps {
+  /** The item to display. */
+  item: StandardItem;
+  /** The ID of the tier this card belongs to. */
   tierId?: string;
-  /** Callback to remove this item from its tier. */
-  onRemove?: (id: string) => void;
-  /** Ref callback for the draggable/sortable node. */
-  setNodeRef?: (node: HTMLElement | null) => void;
-  /** Inline styles (transform, transition) provided by dnd-kit. */
-  style?: React.CSSProperties;
-  /** Draggable attributes (role, tabindex, etc.) provided by dnd-kit. */
-  attributes?: DraggableAttributes;
-  /** Event listeners (onPointerDown, onKeyDown, etc.) provided by dnd-kit. */
-  listeners?: SyntheticListenerMap;
-  /** Whether the item is currently being dragged. */
+  /** Whether the card is currently being dragged. */
   isDragging?: boolean;
-  /** Whether this item is already present on the board (used in Search results). */
+  /** Whether the item is already added to the board (from search). */
   isAdded?: boolean;
-  /** Callback to locate this item on the board. */
-  onLocate?: () => void;
-  /** Unique DOM ID for scrolling/anchoring. */
-  domId?: string;
-  /** Whether to prioritize loading the image (eager load). Defaults to false. */
-  priority?: boolean;
-  /** Callback to show details modal. */
-  onInfo?: (item: any) => void;
-  /** Whether the component is being rendered for a screenshot export. */
+  /** Whether the component is being rendered for image export. */
   isExport?: boolean;
-  /** A pre-resolved Data URL for the image. */
+  /** A pre-resolved URL for the image. */
   resolvedUrl?: string;
-}
-
-// ... (Overlay component remains similar but could also be simplified if needed)
-function MediaCardOverlay({
-  item,
-  isExport,
-  line2,
-  line3,
-}: {
-  item: MediaItem | StandardItem;
-  isExport: boolean;
-  line2: string | undefined;
-  line3: string | undefined;
-}) {
-  return (
-    <div
-      className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/90 to-transparent px-1.5 pt-8 pb-1 ${isExport ? 'z-10' : ''}`}
-    >
-      <p className="mb-0.5 line-clamp-2 text-[10px] leading-tight font-bold text-white">
-        {item.title}
-      </p>
-
-      {line2 && (
-        <p
-          className={`line-clamp-2 text-[9px] leading-tight ${line3 ? 'mb-0.5 text-neutral-200' : 'text-neutral-400'}`}
-        >
-          {line2}
-        </p>
-      )}
-
-      {line3 && <p className="line-clamp-2 text-[9px] leading-tight text-neutral-400">{line3}</p>}
-    </div>
-  );
-}
-
-/**
- * The pure presentation component for a media item.
- * Handles rendering of the cover art, labels, and interaction buttons (remove, locate).
- * @param props - The props for the component.
- * @param props.item - The media data object (Album, Artist, or Song).
- * @param props.tierId - The ID of the tier this card belongs to, if any.
- * @param props.onRemove - Callback to remove this item from its tier.
- * @param props.setNodeRef - Ref callback for the draggable/sortable node.
- * @param props.style - Inline styles (transform, transition) provided by dnd-kit.
- * @param props.attributes - Draggable attributes (role, tabindex, etc.) provided by dnd-kit.
- * @param props.listeners - Event listeners (onPointerDown, onKeyDown, etc.) provided by dnd-kit.
- * @param props.isDragging - Whether the item is currently being dragged.
- * @param props.isAdded - Whether this item is already present on the board (used in Search results).
- * @param props.onLocate - Callback to locate this item on the board.
- * @param props.domId - Unique DOM ID for scrolling/anchoring.
- * @param props.priority - Whether to prioritize loading the image (eager load).
- * @param props.onInfo - Callback to show details modal.
- * @param props.isExport - Whether the component is being rendered for a screenshot export.
- * @param props.resolvedUrl - A pre-resolved Data URL for the image.
- * @returns The rendered BaseMediaCard component.
- */
-function BaseMediaCard({
-  item: initialItem,
-  tierId,
-  onRemove,
-  setNodeRef,
-  style,
-  attributes,
-  listeners,
-  isDragging,
-  isAdded,
-  onLocate,
-  domId,
-  priority = false,
-  onInfo,
-  isExport = false,
-  resolvedUrl,
-}: BaseMediaCardProps) {
-  // V1 vs V2 differentiation for display logic
-  const isV2 = 'identity' in initialItem;
-
-  const { resolvedItem } = useMediaResolver(!isV2 ? (initialItem as MediaItem) : (null as any), { enabled: false });
-  const item = (resolvedItem || initialItem) as any;
-  const interaction = useInteraction();
-  
-  const definition = !isV2 ? mediaTypeRegistry.get(item.type) : null;
-  const TypeIcon = definition?.icon || item.branding?.icon;
-
-  // Construct lines of info
-  const line2 = isV2 ? item.subtitle : definition?.getSubtitle(item);
-  const line3 = isV2 ? item.tertiaryText : definition?.getTertiaryText(item);
-
-  let interactionClasses = 'cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-neutral-400';
-  if (isExport) {
-    if (onInfo) {
-      interactionClasses = 'cursor-pointer flex-shrink-0 z-0';
-    } else {
-      interactionClasses = 'flex-shrink-0 z-0';
-    }
-  } else if (isAdded) {
-    interactionClasses =
-      'opacity-50 cursor-pointer hover:ring-2 hover:ring-blue-500 hover:opacity-100 grayscale hover:grayscale-0';
-  }
-
-  // When exporting, use a simplified non-interactive container
-  const containerClassName = `
-    relative group/card w-28 h-28 bg-neutral-800 rounded-md overflow-hidden shadow-sm touch-pan-y select-none
-    ${interactionClasses}
-  `;
-
-  return (
-    <div
-      ref={setNodeRef}
-      id={domId || toDomId(item.id)} // DOM ID for scrolling
-      data-testid={domId || toDomId(item.id)} // Specific test ID
-      style={style}
-      {...listeners}
-      {...attributes}
-      onClick={!isExport && isAdded && onLocate ? onLocate : undefined}
-      onMouseEnter={!isExport ? () => interaction?.setHoveredItem({ item, tierId }) : undefined}
-      onMouseLeave={!isExport ? () => interaction?.setHoveredItem(null) : undefined}
-      className={containerClassName}
-    >
-      <MediaImage
-        item={item}
-        isExport={isExport}
-        resolvedUrl={resolvedUrl}
-        priority={priority}
-        TypeIcon={TypeIcon}
-      />
-
-      <MediaCardOverlay item={item} isExport={isExport} line2={line2} line3={line3} />
-
-      {/* Added Indicator / Locate Overlay */}
-      {isAdded && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/card:opacity-100">
-          <Eye className="text-white drop-shadow-md" size={24} />
-        </div>
-      )}
-
-      {/* Delete Button (Only if in a tier) */}
-      {!isExport && tierId && onRemove && (
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove(item.id);
-          }}
-          className="absolute top-1 right-1 rounded-full bg-red-600/80 p-0.5 text-white opacity-0 transition-opacity group-hover/card:opacity-100 hover:bg-red-600"
-          title="Remove item"
-        >
-          <X size={12} />
-        </button>
-      )}
-
-      {/* Info Button */}
-      {onInfo && (
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onInfo(item);
-          }}
-          className="absolute top-1 left-1 rounded-full bg-blue-600/80 p-0.5 text-white opacity-0 transition-opacity group-hover/card:opacity-100 hover:bg-blue-600"
-          title="View details"
-        >
-          <Info size={12} />
-        </button>
-      )}
-
-      {/* Notes Indicator */}
-      {(item as any).notes && (
-        <div
-          data-testid="notes-indicator"
-          className="pointer-events-none absolute right-1 bottom-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
-          title="Contains personal notes"
-        >
-          <StickyNote size={10} strokeWidth={3} />
-        </div>
-      )}
-
-      {/* Type Badge (Only if no info button and no image) */}
-      {!isAdded && !onInfo && TypeIcon && (
-        <div className="absolute top-1 left-1 text-neutral-500 opacity-50">
-          <TypeIcon size={10} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * Public props for the MediaCard and SortableMediaCard components.
- */
-interface MediaCardProps {
-  /** The media data object (V1 MediaItem or V2 StandardItem). */
-  item: MediaItem | StandardItem;
-  /** Optional override for the draggable ID. Defaults to item.id. */
-  id?: string;
-  /** The ID of the tier this card belongs to, if any. */
-  tierId?: string;
-  /** Callback to remove this item from its tier. */
+  /** Whether the image should be loaded with priority. */
+  priority?: boolean;
+  /** Callback to remove the item. */
   onRemove?: (id: string) => void;
-  /** Whether this item is already present on the board (used in Search results). */
-  isAdded?: boolean;
-  /** Callback to locate this item on the board. */
-  onLocate?: (id: string) => void;
-  /** Whether to prioritize loading the image (eager load). Defaults to false. */
-  priority?: boolean;
-  /** Callback to show details */
-  onInfo?: (item: any) => void;
-  /** Whether the component is being rendered for a screenshot export. */
-  isExport?: boolean;
-  /** A pre-resolved Data URL for the image. */
-  resolvedUrl?: string;
+  /** Callback to show item details. */
+  onInfo?: (item: StandardItem) => void;
+  /** Callback to locate the item on the board. */
+  onLocate?: () => void;
 }
 
 /**
- * A Draggable media card component.
- * Used primarily in the Search Panel where items can be dragged FROM but not sorted within.
- * @param props - The props for the component.
- * @param props.item - The media data object (Album, Artist, or Song).
- * @param props.id - Optional override for the draggable ID. Defaults to item.id.
- * @param props.tierId - The ID of the tier this card belongs to, if any.
- * @param props.onRemove - Callback to remove this item from its tier.
- * @param props.isAdded - Whether this item is already present on the board (used in Search results).
- * @param props.onLocate - Callback to locate this item on the board.
- * @param props.priority - Whether to prioritize loading the image (eager load).
- * @param props.onInfo - Callback to show details
- * @param props.isExport - Whether the component is being rendered for a screenshot export.
- * @param props.resolvedUrl - A pre-resolved Data URL for the image.
+ * A standardized card component for displaying and interacting with media items.
+ * @param props - The component props.
  * @returns The rendered MediaCard component.
  */
-export function MediaCard(props: MediaCardProps) {
-  const draggableId = props.id || props.item.id;
+export function MediaCard({
+  item,
+  tierId,
+  isDragging,
+  isAdded,
+  isExport,
+  resolvedUrl,
+  priority,
+  onRemove,
+  onInfo,
+}: MediaCardProps) {
+  // 1. Get configuration from registry
+  const entityDef = registry.getEntity(item.identity.databaseId, item.identity.entityId);
+  const TypeIcon = entityDef?.branding.icon || Info;
 
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: draggableId,
-    data: { mediaItem: props.item, sourceTier: props.tierId, isV2: 'identity' in props.item },
-    disabled: props.isAdded,
+  // 2. Setup DND (Sorting or Draggable)
+  const id = tierId ? `board-${item.id}` : `search-${item.id}`;
+  const dnd = useSortable({
+    id,
+    data: {
+      type: 'item',
+      item,
+      tierId,
+    },
   });
 
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined;
-
-  return (
-    <BaseMediaCard
-      {...props}
-      domId={toDomId(draggableId)}
-      setNodeRef={setNodeRef}
-      style={style}
-      attributes={attributes}
-      listeners={listeners}
-      isDragging={isDragging}
-      onLocate={() => props.onLocate?.(props.item.id)}
-      isExport={props.isExport}
-      resolvedUrl={props.resolvedUrl}
-    />
-  );
-}
-
-/**
- * A Sortable media card component.
- * Used within Tier Rows where items can be reordered (sorted) relative to each other.
- * @param props - The props for the component.
- * @param props.item - The media data object (Album, Artist, or Song).
- * @param props.id - Optional override for the draggable ID. Defaults to item.id.
- * @param props.tierId - The ID of the tier this card belongs to, if any.
- * @param props.onRemove - Callback to remove this item from its tier.
- * @param props.isAdded - Whether this item is already present on the board (used in Search results).
- * @param props.onLocate - Callback to locate this item on the board.
- * @param props.priority - Whether to prioritize loading the image (eager load).
- * @param props.onInfo - Callback to show details
- * @param props.isExport - Whether the component is being rendered for a screenshot export.
- * @param props.resolvedUrl - A pre-resolved Data URL for the image.
- * @returns The rendered SortableMediaCard component.
- */
-export function SortableMediaCard(props: MediaCardProps) {
-  const draggableId = props.id || props.item.id;
-
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: draggableId,
-    data: { mediaItem: props.item, sourceTier: props.tierId, isV2: 'identity' in props.item },
-    disabled: props.isExport,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(dnd.transform),
+    transition: dnd.transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 1000 : 1,
   };
 
   return (
-    <BaseMediaCard
-      {...props}
-      domId={toDomId(draggableId)}
-      setNodeRef={setNodeRef}
+    <div
+      ref={dnd.setNodeRef}
       style={style}
-      attributes={attributes}
-      listeners={listeners}
-      isDragging={isDragging}
-      onLocate={props.onLocate ? () => props.onLocate!(props.item.id) : undefined}
-      isExport={props.isExport}
-      resolvedUrl={props.resolvedUrl}
-    />
+      className={`group relative aspect-square w-full cursor-grab overflow-hidden rounded-md bg-neutral-900 shadow-lg active:cursor-grabbing transition-shadow hover:shadow-xl ${
+        isAdded ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black' : ''
+      }`}
+      {...dnd.attributes}
+      {...dnd.listeners}
+    >
+      {/* 1. The Image */}
+      <MediaImage
+        item={item}
+        TypeIcon={TypeIcon}
+        isExport={isExport}
+        resolvedUrl={resolvedUrl}
+        priority={priority}
+      />
+
+      {/* 2. Overlay / Content */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/80 to-transparent p-2 pt-6">
+        <p className="line-clamp-2 text-[10px] font-bold text-white leading-tight">
+          {item.title}
+        </p>
+        {(item.subtitle || item.tertiaryText) && (
+          <p className="mt-0.5 line-clamp-1 text-[9px] text-neutral-400 leading-tight">
+            {item.subtitle || item.tertiaryText}
+          </p>
+        )}
+      </div>
+
+      {/* 3. Actions (Visible on Hover) */}
+      {!isExport && (
+        <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onRemove && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(item.id);
+              }}
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-red-600/90 text-white hover:bg-red-500"
+              title="Remove"
+            >
+              <X size={12} />
+            </button>
+          )}
+          {onInfo && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onInfo(item);
+              }}
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800/90 text-white hover:bg-neutral-700"
+              title="Details"
+            >
+              <Info size={12} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* 4. Rating Indicator (If exists) */}
+      {item.rating !== undefined && (
+        <div className="absolute top-1 left-1 rounded bg-black/60 px-1 py-0.5 text-[8px] font-black text-white backdrop-blur-sm border border-white/10">
+          {item.rating.toFixed(1)}
+        </div>
+      )}
+    </div>
   );
 }

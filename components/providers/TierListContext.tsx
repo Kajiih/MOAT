@@ -27,8 +27,10 @@ import { syncBoardMetadata } from '@/lib/registry-utils';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
 import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { StandardItem } from '@/lib/database/types';
 
 import { useMediaRegistry } from './MediaRegistryProvider';
+import { useStandardRegistry } from '@/lib/database/hooks/useStandardRegistry';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -45,7 +47,7 @@ interface TierListContextType {
     clear: () => void;
     resetItems: () => void;
     updateTitle: (title: string) => void;
-    updateMediaItem: (itemId: string, updates: Partial<MediaItem>) => void;
+    updateMediaItem: (itemId: string, updates: Partial<MediaItem | StandardItem>) => void;
     removeItemFromTier: (tierId: string, itemId: string) => void;
     locate: (id: string) => void;
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -55,7 +57,7 @@ interface TierListContextType {
   };
   dnd: {
     sensors: SensorDescriptor<SensorOptions>[];
-    activeItem: MediaItem | null;
+    activeItem: MediaItem | StandardItem | null;
     activeTier: TierDefinition | null;
     overId: string | null;
     handleDragStart: (event: DragStartEvent) => void;
@@ -65,13 +67,13 @@ interface TierListContextType {
   };
   ui: {
     headerColors: string[];
-    detailsItem: MediaItem | null;
-    showDetails: (item: MediaItem) => void;
+    detailsItem: MediaItem | StandardItem | null;
+    showDetails: (item: MediaItem | StandardItem) => void;
     closeDetails: () => void;
     showShortcuts: boolean;
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
     addedItemIds: Set<string>;
-    allBoardItems: MediaItem[];
+    allBoardItems: (MediaItem | StandardItem)[];
   };
   history: {
     undo: () => void;
@@ -105,23 +107,38 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   );
 
   const historyRaw = useHistory<TierListState>();
-  const [detailsItem, setDetailsItem] = useState<MediaItem | null>(null);
+  const [detailsItem, setDetailsItem] = useState<MediaItem | StandardItem | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const { registerItem, registerItems } = useMediaRegistry();
+  
+  const { registerItem: registerV1Item, registerItems: registerV1Items } = useMediaRegistry();
+  const { registerItem: registerV2Item, registerItems: registerV2Items } = useStandardRegistry();
+  
   const hasSyncedItems = React.useRef(false);
 
   // --- Hydration Sync ---
-  // When the board hydrates from IndexedDB, push all items to the Global Media Registry.
-  // This ensures they are available for search result enrichment immediately.
+  // When the board hydrates from IndexedDB, push all items to their respective registries.
   React.useEffect(() => {
     if (isHydrated && !hasSyncedItems.current) {
       const allItems = Object.values(state.items).flat();
       if (allItems.length > 0) {
-        registerItems(allItems);
+        const v1Items: MediaItem[] = [];
+        const v2Items: StandardItem[] = [];
+
+        allItems.forEach(item => {
+          if ('identity' in item) {
+            v2Items.push(item);
+          } else {
+            v1Items.push(item);
+          }
+        });
+
+        if (v1Items.length > 0) registerV1Items(v1Items);
+        if (v2Items.length > 0) registerV2Items(v2Items);
+        
         hasSyncedItems.current = true;
       }
     }
-  }, [isHydrated, state.items, registerItems]);
+  }, [isHydrated, state.items, registerV1Items, registerV2Items]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
@@ -150,7 +167,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     state,
     dispatch,
     history: { undo, redo, push, canUndo: historyRaw.canUndo, canRedo: historyRaw.canRedo },
-    dndRaw,
+    dndRaw: dndRaw as any, // Temporary cast while polishing sub-hooks
     structureRaw,
     ioRaw,
     utilsRaw,
@@ -164,14 +181,27 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       actions: {
         ...actions,
         publish: ioRaw.handlePublish,
-        updateMediaItem: (itemId: string, updates: Partial<MediaItem>) =>
-          actions.updateMediaItem(itemId, updates, registerItem),
+        updateMediaItem: (itemId: string, updates: Partial<MediaItem | StandardItem>) => {
+          // 1. Find the item to determine its type
+          const item = Object.values(state.items).flat().find(i => i.id === itemId);
+          if (!item) return;
+
+          // 2. Dispatch to state
+          actions.updateMediaItem(itemId, updates);
+
+          // 3. Register with correct registry
+          if ('identity' in item) {
+            registerV2Item({ ...item, ...updates } as StandardItem);
+          } else {
+            registerV1Item({ ...item, ...updates } as MediaItem);
+          }
+        },
       },
-      dnd,
+      dnd: dnd as any,
       ui,
       history,
     }),
-    [state, isHydrated, actions, dnd, ui, history, registerItem, ioRaw.handlePublish],
+    [state, isHydrated, actions, dnd, ui, history, registerV1Item, registerV2Item, ioRaw.handlePublish],
   );
 
   return <TierListContext.Provider value={value}>{children}</TierListContext.Provider>;

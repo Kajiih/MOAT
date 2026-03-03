@@ -1,32 +1,47 @@
 /**
  * @file TierGrid.tsx
  * @description Renders the grid of items within a tier.
- * Automatically switches between a standard flex layout and a virtualized grid
- * based on the number of items to ensure performance.
- * @module TierGrid
+ * Automatically switches between LegacyMediaCard and the new standard MediaCard.
+ * Handles performance for large tiers via virtualization.
  */
 
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { memo } from 'react';
+import { memo, ReactNode } from 'react';
 
-import { SortableMediaCard } from '@/components/media/MediaCard';
+import { LegacySortableMediaCard } from '@/components/media/legacy/LegacyMediaCard';
+import { MediaCard } from '@/components/media/MediaCard';
+import { StandardItem } from '@/lib/database/types';
 import { MediaItem } from '@/lib/types';
 
 import { VirtualGrid } from './VirtualGrid';
 
+/**
+ * Props for the TierGrid component.
+ */
 interface TierGridProps {
-  items: MediaItem[];
+  /** List of items in this tier. */
+  items: (MediaItem | StandardItem)[];
+  /** The ID of the tier. */
   tierId: string;
+  /** Callback to remove an item. */
   onRemoveItem: (itemId: string) => void;
-  onInfo?: (item: MediaItem) => void;
+  /** Callback to show item details. */
+  onInfo?: (item: MediaItem | StandardItem) => void;
+  /** Whether the board is completely empty. */
   isBoardEmpty?: boolean;
+  /** Whether this is a central/middle tier for empty state display. */
   isMiddleTier?: boolean;
-  /** Whether the component is being rendered for a screenshot export. */
+  /** Whether the component is being rendered for image export. */
   isExport?: boolean;
-  /** A pre-resolved map for images. */
+  /** A pre-resolved map for legacy images. */
   resolvedImages?: Record<string, string>;
 }
 
+/**
+ * A responsive grid component for displaying media items within a tier row.
+ * @param props - The component props.
+ * @returns The rendered TierGrid component.
+ */
 export const TierGrid = memo(function TierGrid({
   items,
   tierId,
@@ -38,38 +53,43 @@ export const TierGrid = memo(function TierGrid({
   resolvedImages = {},
 }: TierGridProps) {
   // Use virtualization for very large tiers (e.g. > 100 items)
-  // Disable virtualization during export to ensure all items are rendered in the DOM for capture
   const isLargeTier = !isExport && items.length > 100;
 
-  const cards = items.map((item) => (
-    <SortableMediaCard
-      key={item.id}
-      item={item}
-      id={item.id}
-      tierId={tierId}
-      onRemove={(itemId) => onRemoveItem(itemId)}
-      onInfo={onInfo}
-      isExport={isExport}
-      resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
-    />
-  ));
+  const renderCard = (item: MediaItem | StandardItem): ReactNode => {
+    if ('identity' in item) {
+      return (
+        <MediaCard
+          key={item.id}
+          item={item}
+          tierId={tierId}
+          onRemove={onRemoveItem}
+          onInfo={onInfo}
+          isExport={isExport}
+        />
+      );
+    }
+
+    return (
+      <LegacySortableMediaCard
+        key={item.id}
+        item={item}
+        id={item.id}
+        tierId={tierId}
+        onRemove={(itemId) => onRemoveItem(itemId)}
+        onInfo={onInfo as (item: MediaItem) => void}
+        isExport={isExport}
+        resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
+      />
+    );
+  };
+
+  const cards = items.map((item) => renderCard(item));
 
   const content = isLargeTier ? (
     <VirtualGrid
       items={items}
       className="max-h-[500px] p-3"
-      renderItem={(item) => (
-        <SortableMediaCard
-          key={item.id}
-          item={item}
-          id={item.id}
-          tierId={tierId}
-          onRemove={(itemId) => onRemoveItem(itemId)}
-          onInfo={onInfo}
-          isExport={isExport}
-          resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
-        />
-      )}
+      renderItem={renderCard}
     />
   ) : (
     cards

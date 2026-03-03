@@ -1,24 +1,28 @@
 /**
  * @file comparisons.ts
- * @description Utility functions for comparing media objects to detect changes.
+ * @description Utility functions for comparing items to detect changes.
  * Used to optimize state updates and prevent unnecessary re-renders.
  * @module Comparisons
  */
 
 import { MediaItem } from '@/lib/types';
+import { StandardItem } from '@/lib/database/types';
 
 /**
- * Checks if a partial update actually changes any values in the current media item.
- * Performs deep comparison for the `details` object using JSON.stringify.
- * @param current - The existing media item.
+ * Checks if a partial update actually changes any values in the current item.
+ * Supports both V1 MediaItem and V2 StandardItem.
+ * @param current - The existing item.
  * @param updates - The partial updates to apply.
  * @returns True if the updates would change the item, false otherwise.
  */
-export function hasMediaItemUpdates(current: MediaItem, updates: Partial<MediaItem>): boolean {
+export function hasItemUpdates(
+  current: MediaItem | StandardItem, 
+  updates: Partial<MediaItem | StandardItem>
+): boolean {
   for (const key of Object.keys(updates)) {
-    const k = key as keyof MediaItem;
-    const newValue = updates[k];
-    const oldValue = current[k];
+    const k = key as keyof (MediaItem & StandardItem);
+    const newValue = (updates as any)[k];
+    const oldValue = (current as any)[k];
 
     // If values are referentially equal, move on
     if (newValue === oldValue) continue;
@@ -27,8 +31,8 @@ export function hasMediaItemUpdates(current: MediaItem, updates: Partial<MediaIt
     // fields they explicitly provide, not unset existing ones.
     if (newValue === undefined) continue;
 
-    // Special handling for the 'details' object (deep compare)
-    if (k === 'details') {
+    // Special handling for nested objects (deep compare)
+    if (k === 'details' || k === 'images' || k === 'identity') {
       // If one is null/undefined and the other isn't, they are different
       if (!newValue || !oldValue) return true;
 
@@ -45,3 +49,6 @@ export function hasMediaItemUpdates(current: MediaItem, updates: Partial<MediaIt
 
   return false;
 }
+
+/** Legacy alias for backward compatibility during migration */
+export const hasMediaItemUpdates = hasItemUpdates as (current: MediaItem, updates: Partial<MediaItem>) => boolean;

@@ -1,3 +1,8 @@
+/**
+ * @file SearchTabV2.tsx
+ * @description A self-contained tab content for a specific V2 search entity.
+ */
+
 'use client';
 
 import { Filter } from 'lucide-react';
@@ -20,13 +25,9 @@ interface SearchTabV2Props {
   onLocate: (id: string) => void;
   isHidden: boolean;
   showAdded: boolean;
-  onInfo: (item: any) => void; // StandardItem but MediaCard expects MediaItem compatibility
+  onInfo: (item: StandardItem) => void;
 }
 
-/**
- * A self-contained tab content for a specific V2 search entity.
- * Preserves its own search state (query, page, filters) even when hidden.
- */
 export function SearchTabV2({
   providerId,
   entityId,
@@ -60,7 +61,7 @@ export function SearchTabV2({
 
   const finalResults = useMemo(() => {
     if (showAdded) return results;
-    return results.filter((item: StandardItem) => !addedItemIds.has(item.id));
+    return (results as StandardItem[]).filter((item: StandardItem) => !addedItemIds.has(item.id));
   }, [results, showAdded, addedItemIds]);
 
   if (isHidden) return null;
@@ -87,10 +88,9 @@ export function SearchTabV2({
               return (
                 <MediaCard
                   key={`${item.id}-${isAdded}`}
-                  item={item as any}
-                  id={item.id}
+                  item={item as StandardItem}
                   isAdded={isAdded}
-                  onLocate={onLocate}
+                  onLocate={() => onLocate(item.id)}
                   onInfo={onInfo}
                 />
               );
@@ -176,16 +176,13 @@ export function SearchTabV2({
         {/* Pagination Footer */}
         {!isLoading && pagination && (
           <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pt-2">
-             {/* We need to adapt Pagination component or create a V2 one if needed, 
-                 for now assuming it takes page and totalPages if available. */}
              {'totalPages' in pagination && (
                 <Pagination 
-                  page={page} 
-                  totalPages={(pagination as any).totalPages} 
-                  onPageChange={setPage} 
+                   page={page} 
+                   totalPages={(pagination as any).totalPages} 
+                   onPageChange={setPage} 
                 />
              )}
-             {/* If it's cursor or offset, we'd need more logic here */}
           </div>
         )}
       </div>

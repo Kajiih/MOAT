@@ -1,7 +1,7 @@
 /**
  * @file MediaImage.tsx
- * @description Centralized component for rendering media images with unified error handling,
- * unoptimized retries, and placeholders.
+ * @description The standard image component for all media items.
+ * Handles the prioritized resolution of multiple image sources (URLs, healing references).
  */
 
 'use client';
@@ -10,68 +10,68 @@ import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { failedImages } from '@/lib/image-cache';
-import { MediaItem } from '@/lib/types';
+import { useResolvedImage } from '@/lib/database/useResolvedImage';
 import { StandardItem } from '@/lib/database/types';
+import { failedImages } from '@/lib/image-cache';
 
-interface MediaImageProps {
-  item: MediaItem | StandardItem;
-  /** Whether the component is being rendered for a screenshot export. */
-  isExport?: boolean;
-  /** A pre-resolved Data URL for the image (used in exports). */
-  resolvedUrl?: string;
-  /** Whether to prioritize loading the image (eager load). */
-  priority?: boolean;
-  /** The icon component for the media type (placeholder fallback). */
+/**
+ * Props for the MediaImage component.
+ */
+export interface MediaImageProps {
+  /** The item whose image is being displayed. */
+  item: StandardItem;
+  /** Placeholder icon to show if no image is found or loading fails. */
   TypeIcon: LucideIcon;
-  /** Image size hint for Next.js Image component. */
-  sizes?: string;
-  /** Classes for the container div. */
+  /** Whether the component is being rendered for image export. */
+  isExport?: boolean;
+  /** A pre-resolved URL for instant rendering in exports. */
+  resolvedUrl?: string;
+  /** Whether the image should be loaded with priority. */
+  priority?: boolean;
+  /** CSS class for the container. */
   containerClassName?: string;
-  /** Classes for the Image component. */
+  /** CSS class for the image element. */
   imageClassName?: string;
+  /** Sizes hint for responsive image loading. */
+  sizes?: string;
 }
 
 /**
- * Renders the image or a placeholder for a media item.
+ * A highly robust image component that resolves sources via a waterfall strategy.
  * @param props - The component props.
- * @param props.item - The media item to render.
- * @param props.isExport - Whether the image is for an export (screenshot).
- * @param props.resolvedUrl - A data URL to use directly if provided (useful for exports).
- * @param props.priority - Whether to load the image with high priority.
- * @param props.TypeIcon - The icon to use as a placeholder if the image fails to load.
- * @param props.sizes - Next.js image sizes attribute.
- * @param props.containerClassName - CSS classes for the image container.
- * @param props.imageClassName - CSS classes for the img element itself.
- * @returns The rendered media image or placeholder.
+ * @param props.item - The item to render.
+ * @param props.TypeIcon - Placeholder icon.
+ * @param props.isExport - Whether in export mode.
+ * @param props.resolvedUrl - Pre-resolved URL for exports.
+ * @param props.priority - Next.js image priority.
+ * @param props.containerClassName - Container class.
+ * @param props.imageClassName - Image tag class.
+ * @param props.sizes - Image sizes attribute.
+ * @returns The rendered MediaImage component.
  */
 export function MediaImage({
   item,
-  isExport = false,
-  resolvedUrl,
-  priority = false,
   TypeIcon,
-  sizes = '112px',
+  isExport = false,
+  resolvedUrl: exportUrl,
+  priority = false,
   containerClassName = 'absolute inset-0',
   imageClassName = 'object-cover',
+  sizes = '112px',
 }: MediaImageProps) {
-  const imageUrl =
-    'images' in item
-      ? (item.images as any[]).find((img) => img.type === 'url')?.url
-      : (item as any).imageUrl;
+  const resolvedUrl = useResolvedImage(item.images);
+  const displayUrl = isExport ? exportUrl : resolvedUrl;
 
-  const [imageError, setImageError] = useState(() => {
-    return imageUrl ? failedImages.has(imageUrl) : false;
-  });
+  const [imageError, setImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);
 
-  // Export mode with resolved URL
-  if (isExport && resolvedUrl) {
+  // Export mode with pre-resolved URL
+  if (isExport === true && displayUrl) {
     return (
       <div className={containerClassName}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={resolvedUrl}
+          src={displayUrl}
           alt={item.title}
           className={`h-full w-full ${imageClassName}`}
           decoding="sync"
@@ -81,22 +81,22 @@ export function MediaImage({
   }
 
   // Standard Image mode
-  if (imageUrl && !imageError) {
+  if (displayUrl && !imageError) {
     return (
       <div className={containerClassName}>
         <Image
-          src={imageUrl}
+          src={displayUrl}
           alt={item.title}
           fill
           sizes={sizes}
           priority={priority}
           unoptimized={retryUnoptimized}
-          className={`${imageClassName} pointer-events-none`}
+          className={`${imageClassName} pointer-events-none transition-opacity duration-300`}
           onError={() => {
             if (!retryUnoptimized) {
               setRetryUnoptimized(true);
             } else {
-              if (imageUrl) failedImages.add(imageUrl);
+              if (displayUrl) failedImages.add(displayUrl);
               setImageError(true);
             }
           }}
@@ -117,7 +117,7 @@ export function MediaImage({
         </span>
       )}
       <span className="mt-1 text-center text-[7px] leading-tight font-bold uppercase opacity-20">
-        {'type' in item ? item.type : item.identity.entityId}
+        {item.identity.entityId}
       </span>
     </div>
   );

@@ -6,7 +6,8 @@
  */
 
 import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
-import { TierListState } from '@/lib/types';
+import { MediaItem, TierListState } from '@/lib/types';
+import { StandardItem } from '@/lib/database/types';
 
 /**
  * Returns a fresh instance of the initial state to avoid shared reference mutations.

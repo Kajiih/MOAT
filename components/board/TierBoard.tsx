@@ -1,7 +1,7 @@
 /**
  * @file TierBoard.tsx
  * @description The main visualization area of the application.
- * Renders the interactive list of tiers using the shared TierList component.
+ * Renders the interactive list of tiers using the TierList component.
  * Responsible for the "Add Tier" action and integrating with the global TierListContext.
  * @module TierBoard
  */

@@ -8,7 +8,8 @@
 import { arrayMove } from '@dnd-kit/sortable';
 
 import { MediaItem, TierListState } from '@/lib/types';
-import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
+import { StandardItem } from '@/lib/database/types';
+import { hasItemUpdates } from '@/lib/utils/comparisons';
 
 import { ActionType, TierListAction } from '../actions';
 
@@ -26,12 +27,6 @@ export type UpdateItemPayload = Extract<TierListAction, { type: 'UPDATE_ITEM' }>
 const findContainer = (id: string, state: TierListState): string | undefined => {
   // Optimization: O(1) Lookup
   if (state.itemLookup && state.itemLookup[id]) {
-    // Verify consistency (optional but good for safety during dev/migrations)
-    // If the lookup points to a tier, but the item isn't actually there, it's stale.
-    // However, for performance we trust the lookup.
-    // If we want to be paranoid:
-    // const claimedTier = state.itemLookup[id];
-    // if (state.items[claimedTier]?.some(i => i.id === id)) return claimedTier;
     return state.itemLookup[id];
   }
 
@@ -46,7 +41,7 @@ function handleMoveFromSearch(
   activeId: string,
   overId: string,
   overContainer: string,
-  draggingItemFromSearch: MediaItem,
+  draggingItemFromSearch: MediaItem | StandardItem,
 ): TierListState {
   const overItems = state.items[overContainer];
   const overIndex = overItems.findIndex((item) => item.id === overId);
@@ -191,11 +186,11 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
       const currentItem = list[index];
 
       // Optimization: Check if updates actually change anything
-      if (!hasMediaItemUpdates(currentItem, updates)) {
+      if (!hasItemUpdates(currentItem, updates as any)) {
         break;
       }
 
-      const newItem = { ...currentItem, ...updates } as MediaItem;
+      const newItem = { ...currentItem, ...updates } as any;
 
       newItems[tierId] = [...list.slice(0, index), newItem, ...list.slice(index + 1)];
       modified = true;
@@ -247,7 +242,7 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
       const allItems = Object.values(state.items).flat();
       if (allItems.length === 0) return state;
 
-      const newItems: Record<string, MediaItem[]> = {};
+      const newItems: Record<string, (MediaItem | StandardItem)[]> = {};
       const newLookup: Record<string, string> = {};
 
       // Initialize all tiers as empty

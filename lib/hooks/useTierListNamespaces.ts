@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { StandardItem } from '@/lib/database/types';
 import { fromSearchId } from '@/lib/utils/ids';
 
 /**
@@ -35,7 +36,7 @@ interface UseTierListNamespacesProps {
   };
   dndRaw: {
     sensors: SensorDescriptor<SensorOptions>[];
-    activeItem: MediaItem | null;
+    activeItem: MediaItem | StandardItem | null;
     activeTier: TierDefinition | null;
     overId: string | null;
     handleDragStart: (event: DragStartEvent) => void;
@@ -60,8 +61,8 @@ interface UseTierListNamespacesProps {
     handleLocate: (id: string) => void;
   };
   uiState: {
-    detailsItem: MediaItem | null;
-    setDetailsItem: (item: MediaItem | null) => void;
+    detailsItem: MediaItem | StandardItem | null;
+    setDetailsItem: (item: MediaItem | StandardItem | null) => void;
     showShortcuts: boolean;
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
   };
@@ -70,15 +71,6 @@ interface UseTierListNamespacesProps {
 /**
  * Aggregates state and logic into logical namespaces (actions, dnd, ui, history).
  * @param props - The props for the hook.
- * @param props.state - The current tier list state.
- * @param props.dispatch - The dispatch function for tier list actions.
- * @param props.history - The history object for undo/redo functionality.
- * @param props.dndRaw - Raw drag and drop handlers and state.
- * @param props.structureRaw - Raw functions for manipulating the tier structure.
- * @param props.ioRaw - Raw functions for import/export.
- * @param props.utilsRaw - Raw utility functions and computed values.
- * @param props.uiState - Raw state and setters for UI elements like modals.
- * @returns An object containing grouped board properties and actions.
  */
 export function useTierListNamespaces({
   state,
@@ -118,17 +110,11 @@ export function useTierListNamespaces({
   );
 
   /**
-   * Updates item attributes and synchronizes with the Global Media Registry.
+   * Updates item attributes.
    */
   const updateMediaItem = useCallback(
-    (itemId: string, updates: Partial<MediaItem>, registerItem: (item: MediaItem) => void) => {
+    (itemId: string, updates: Partial<MediaItem | StandardItem>) => {
       dispatch({ type: ActionType.UPDATE_ITEM, payload: { itemId, updates } });
-      const currentItem = Object.values(itemsRef.current)
-        .flat()
-        .find((i) => i.id === itemId);
-      if (currentItem) {
-        registerItem({ ...currentItem, ...updates } as MediaItem);
-      }
     },
     [dispatch],
   );
@@ -179,8 +165,6 @@ export function useTierListNamespaces({
   // Namespace: ui
   const ui = useMemo(() => {
     // Find the 'live' version of the item on the board if it exists.
-    // This ensure that the details modal always shows up-to-date data (like notes)
-    // even if it was opened from a stale search result or previous state.
     const liveDetailsItem = uiState.detailsItem
       ? allBoardItems.find((i) => i.id === uiState.detailsItem!.id) || uiState.detailsItem
       : null;
@@ -188,7 +172,7 @@ export function useTierListNamespaces({
     return {
       headerColors: utilsRaw.headerColors,
       detailsItem: liveDetailsItem,
-      showDetails: (item: MediaItem) => uiState.setDetailsItem(item),
+      showDetails: (item: MediaItem | StandardItem) => uiState.setDetailsItem(item),
       closeDetails: () => uiState.setDetailsItem(null),
       showShortcuts: uiState.showShortcuts,
       setShowShortcuts: uiState.setShowShortcuts,

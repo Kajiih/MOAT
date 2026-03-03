@@ -23,40 +23,29 @@ import { Dispatch, useCallback, useRef, useState } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
+import { StandardItem } from '@/lib/database/types';
 import { isSearchId } from '@/lib/utils/ids';
 
 /**
  * Manages the Drag and Drop state and event handlers for the Tier List board.
- *
- * Key features:
- * - Handles both Sortable (within tiers) and Draggable (from search) items.
- * - Manages 'active' and 'over' states for visual feedback.
- * - Updates the Tier List state on drag over and drag end events.
- * - Supports reordering of Tiers (vertical lists) and Items (horizontal cards).
- * @param state - The current Tier List state.
- * @param dispatch - Dispatcher for updating state.
- * @param pushHistory - Function to save current state to history.
- * @returns Object containing sensors, active states, and DnD event handlers.
  */
 export function useTierListDnD(
   state: TierListState,
   dispatch: Dispatch<TierListAction>,
   pushHistory: () => void,
 ) {
-  const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
+  const [activeItem, setActiveItem] = useState<MediaItem | StandardItem | null>(null);
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      // Require mouse to move 5px before dragging starts (allows clicks on buttons)
       activationConstraint: {
         distance: 5,
       },
     }),
     useSensor(TouchSensor, {
-      // Require holding for 250ms before dragging starts (allows scrolling)
       activationConstraint: {
         delay: 250,
         tolerance: 5,
@@ -75,20 +64,13 @@ export function useTierListDnD(
       if (active.data.current?.type === 'tier') {
         setActiveTier(active.data.current.tier);
       } else {
-        setActiveItem(active.data.current?.mediaItem);
+        // Support both mediaItem (V1) and standardItem (V2) in data
+        setActiveItem(active.data.current?.mediaItem || active.data.current?.standardItem);
       }
     },
     [pushHistory],
   );
 
-  /**
-   * Handles the DragOver event.
-   * Responsibilities:
-   * 1. Updates the `overId` state for UI highlighting.
-   * 2. Detects if an item is being dragged over a different tier.
-   * 3. Dispatches MOVE_ITEM immediately to allow smooth visual updates (optimistic UI).
-   *    Note: We do NOT reorder tiers here, only items.
-   */
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
       const { active, over } = event;
@@ -102,12 +84,8 @@ export function useTierListDnD(
       const overId = over.id as string;
 
       const activeTierId = active.data.current?.sourceTier;
-      const activeItemData = active.data.current?.mediaItem;
+      const activeItemData = active.data.current?.mediaItem || active.data.current?.standardItem;
 
-      // Wrap state update in setTimeout to break synchronous render loop.
-      // This prevents "Maximum update depth exceeded" when dnd-kit triggers multiple DragOver events
-      // within the same render cycle (due to layout shifts).
-      // See: https://github.com/clauderic/dnd-kit/issues/496
       setTimeout(() => {
         if (!isDraggingRef.current) return;
 
@@ -148,24 +126,30 @@ export function useTierListDnD(
 
       const activeId = active.id as string;
       const overId = over?.id as string;
+      const activeItemData = active.data.current?.mediaItem || active.data.current?.standardItem;
 
       if (activeId && overId && activeId !== overId) {
-        // Final reorder to ensure consistency
         dispatch({
           type: ActionType.MOVE_ITEM,
           payload: {
             activeId,
             overId,
-            activeItem: active.data.current?.mediaItem,
+            activeItem: activeItemData,
           },
         });
       }
 
-      // Finalization: If the item came from search (has search- prefix), normalize its ID to the canonical MBID
-      if (isSearchId(activeId) && active.data.current?.mediaItem) {
-        const item = active.data.current.mediaItem;
-        // Use mbid as canonical if available, otherwise strip prefix from id if it was somehow propagated
-        const canonicalId = item.mbid || item.id.replace(/^search-/, '');
+      // Normalization check for V1 (MBID) and V2 (Identity)
+      if (isSearchId(activeId) && activeItemData) {
+        let canonicalId: string | undefined;
+        
+        if ('identity' in activeItemData) {
+          // V2: item.id is already canonical or derived from identity
+          canonicalId = (activeItemData as StandardItem).id;
+        } else {
+          // V1: Use mbid or strip prefix
+          canonicalId = (activeItemData as MediaItem).mbid || activeItemData.id.replace(/^search-/, '');
+        }
 
         if (canonicalId && canonicalId !== activeId) {
           dispatch({

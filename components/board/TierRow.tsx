@@ -1,9 +1,7 @@
 /**
  * @file TierRow.tsx
  * @description A complex interactive component representing a single tier on the board.
- * It serves as both a draggable item (for reordering tiers) and a droppable container (for media items).
- * Integrates with \@dnd-kit's SortableContext to manage the horizontal list of MediaCards.
- * @module TierRow
+ * Serves as both a draggable row and a droppable container for items.
  */
 
 'use client';
@@ -14,44 +12,46 @@ import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+import { StandardItem } from '@/lib/database/types';
 import { MediaItem, TierDefinition } from '@/lib/types';
 
-import { TierGrid } from './TierGrid';
 import { TierHeader } from './TierHeader';
+import { TierGrid } from './TierGrid';
 
-interface TierRowProps {
+/**
+ * Props for the TierRow component.
+ */
+export interface TierRowProps {
   /** The tier definition (id, label, color). */
   tier: TierDefinition;
-  /** List of media items currently in this tier. */
-  items: MediaItem[];
+  /** List of items currently in this tier. */
+  items: (MediaItem | StandardItem)[];
   /** Callback to remove an item from this tier. */
   onRemoveItem: (itemId: string) => void;
   /** Callback to update tier properties (label, color). */
   onUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
   /** Callback to delete this tier. */
   onDeleteTier: (id: string) => void;
-  /** Whether this tier can be deleted (usually false for the last remaining tier, if enforced). */
+  /** Whether this tier can be deleted. */
   canDelete: boolean;
   /** Whether any drag operation is currently active globally. */
   isAnyDragging?: boolean;
   /** Callback to show details for an item. */
-  onInfo?: (item: MediaItem) => void;
-  /** Whether the entire board is empty (used for empty state placeholder). */
+  onInfo?: (item: MediaItem | StandardItem) => void;
+  /** Whether the entire board is empty. */
   isBoardEmpty?: boolean;
-  /** Whether this is the middle tier (used for empty state placeholder). */
+  /** Whether this is a central/middle tier. */
   isMiddleTier?: boolean;
   /** Whether the component is being rendered for a screenshot export. */
   isExport?: boolean;
-  /** A pre-resolved map for the image. */
+  /** A pre-resolved map for legacy images. */
   resolvedImages?: Record<string, string>;
 }
 
 /**
- * A single row in the tier list.
- * Handles:
- * - Droppable zone for items.
- * - Sortable context for items within.
- * - Tier header (TierHeader component).
+ * An interactive tier row that supports drag-and-drop for items and reordering.
+ * @param props - The component props.
+ * @returns The rendered TierRow component.
  */
 export const TierRow = memo(function TierRow({
   tier,
@@ -67,7 +67,7 @@ export const TierRow = memo(function TierRow({
   isExport = false,
   resolvedImages = {},
 }: TierRowProps) {
-  // Sortable logic for the Tier itself (reordering rows)
+  // 1. Sortable logic for the Tier itself (reordering rows)
   const {
     attributes,
     listeners,
@@ -84,7 +84,7 @@ export const TierRow = memo(function TierRow({
     disabled: isExport,
   });
 
-  // Droppable logic for items being dropped into the tier
+  // 2. Droppable logic for items being dropped into the tier
   const { setNodeRef: setDroppableRef } = useDroppable({
     id: tier.id,
     data: {
@@ -109,7 +109,6 @@ export const TierRow = memo(function TierRow({
 
   const isOverRow = useMemo(() => {
     if (!over) return false;
-    // Don't highlight if we are dragging a tier over another tier (visual preference)
     if (active?.data.current?.type === 'tier') return false;
 
     if (over.id === tier.id) return true;

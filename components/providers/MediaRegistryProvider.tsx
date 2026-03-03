@@ -1,95 +1,69 @@
 /**
  * @file MediaRegistryProvider.tsx
- * @description A persistent global cache for media items.
- * Acts as a "Shared Memory" for the application, ensuring that once an item's details or image
- * are found in one part of the app (e.g. Search), they are available everywhere (e.g. Board).
- * Implements a FIFO pruning mechanism to prevent localStorage bloat.
+ * @description Provides a global, persistent registry for media items (Albums, Artists, Songs).
+ * Acts as a LRU-ish cache in IndexedDB to ensure consistency across the app and sessions.
  * @module MediaRegistryProvider
  */
 
 'use client';
 
-import React, { createContext, ReactNode, useCallback, useContext } from 'react';
+import React, { createContext, useCallback, useContext } from 'react';
 
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { MediaItem } from '@/lib/types';
+import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
 
 /**
- * Interface defining the API for the Media Registry.
+ * Maximum items allowed in the persistent registry before pruning.
  */
-interface MediaRegistryContextValue {
-  /** Register multiple items at once (optimized for batches). */
-  registerItems: (items: MediaItem[]) => void;
-  /** Register a single item. */
-  registerItem: (item: MediaItem) => void;
-  /** Retrieve an item from the registry by its ID. */
-  getItem: <T extends MediaItem>(id: string) => T | undefined;
-  /** Current number of items in the registry. */
-  registrySize: number;
-  /** Clear the entire registry (Debug only). */
-  clearRegistry: () => void;
-}
-
-const MediaRegistryContext = createContext<MediaRegistryContextValue | undefined>(undefined);
-
-/**
- * Custom hook to consume the Media Registry.
- * @returns The MediaRegistryContextValue.
- * @throws {Error} if used outside of a MediaRegistryProvider.
- */
-export function useMediaRegistry() {
-  const context = useContext(MediaRegistryContext);
-  if (!context) {
-    throw new Error('useMediaRegistry must be used within a MediaRegistryProvider');
-  }
-  return context;
-}
-
 const MAX_REGISTRY_SIZE = 2000;
+
+/**
+ * Initial empty state for the registry.
+ */
 const INITIAL_REGISTRY: Record<string, MediaItem> = {};
 
 /**
- * Helper to determine if an item should be updated in the registry.
- * Compares critical fields and avoids unnecessary updates.
- * @param existing - The existing media item in the registry.
- * @param newItem - The new media item to compare.
- * @returns True if the item should be updated, false otherwise.
+ * Shape of the Media Registry Context.
  */
-function shouldUpdateItem(existing: MediaItem, newItem: MediaItem): boolean {
-  // Optimization: Shallow compare critical fields first to avoid deep stringify
-  const isUrlChanged = newItem.imageUrl && newItem.imageUrl !== existing.imageUrl;
-  const isDetailsChanged =
-    newItem.details && JSON.stringify(newItem.details) !== JSON.stringify(existing.details);
-
-  const isMetadataGeneralChanged =
-    newItem.title !== existing.title || newItem.notes !== existing.notes;
-  let isArtistChanged = false;
-
-  // Only compare 'artist' field for types that have it
-  if (
-    (newItem.type === 'album' || newItem.type === 'song') &&
-    (existing.type === 'album' || existing.type === 'song')
-  ) {
-    isArtistChanged = newItem.artist !== existing.artist;
-  }
-
-  return isUrlChanged || isDetailsChanged || isMetadataGeneralChanged || isArtistChanged;
+interface MediaRegistryContextType {
+  /** Batched registration of multiple items. */
+  registerItems: (items: MediaItem[]) => void;
+  /** Registration of a single item. */
+  registerItem: (item: MediaItem) => void;
+  /** Retrieval of an item by its globally unique ID. */
+  getItem: <T extends MediaItem>(id: string) => T | undefined;
+  /** Current number of items in the registry. */
+  registrySize: number;
+  /** Clear all registry data. */
+  clearRegistry: () => void;
 }
 
-/** Props for the MediaRegistryProvider. */
-interface MediaRegistryProviderProps {
-  /** The child components that will have access to the context. */
-  children: ReactNode;
+const MediaRegistryContext = createContext<MediaRegistryContextType | null>(null);
+
+/**
+ * Internal logic to determine if an existing item should be updated with new data.
+ * Prioritizes retaining existing metadata while accepting "upgrades" like deep details or fixed images.
+ * @param existing - The item currently in the registry.
+ * @param newItem - The new data being proposed.
+ * @returns True if the registry should be updated.
+ */
+function shouldUpdateItem(existing: MediaItem, newItem: MediaItem): boolean {
+  // If we have details now but didn't before, definitely update
+  if (newItem.details && !existing.details) return true;
+
+  // Use the standard comparison utility for other fields
+  return hasMediaItemUpdates(existing, newItem);
 }
 
 /**
- * Provider component for the Global Media Registry.
- * Handles persistence to IndexedDB and FIFO pruning.
- * @param props - The props for the component.
- * @param props.children - The child components that will have access to the context.
+ * Provider component for the Media Registry.
+ * Handles persistence to IndexedDB via the usePersistentState hook.
+ * @param props - Component props.
+ * @param props.children - Child components.
  * @returns The provider component for the Media Registry.
  */
-export function MediaRegistryProvider({ children }: MediaRegistryProviderProps) {
+export function MediaRegistryProvider({ children }: { children: React.ReactNode }) {
   const [registry, setRegistry] = usePersistentState<Record<string, MediaItem>>(
     'moat-media-registry',
     INITIAL_REGISTRY,
@@ -127,9 +101,9 @@ export function MediaRegistryProvider({ children }: MediaRegistryProviderProps) 
             next[item.id] = {
               ...existing,
               ...item,
-              // Keep existing assets if new ones are missing
-              imageUrl: item.imageUrl || existing.imageUrl,
+              // Special handling for nested structures
               details: item.details || existing.details,
+              imageUrl: item.imageUrl || existing.imageUrl,
             };
             hasChanges = true;
           }
@@ -198,4 +172,17 @@ export function MediaRegistryProvider({ children }: MediaRegistryProviderProps) 
       {children}
     </MediaRegistryContext.Provider>
   );
+}
+
+/**
+ * Custom hook to consume the Media Registry.
+ * @returns The Media Registry context object.
+ * @throws {Error} if used outside of a MediaRegistryProvider.
+ */
+export function useMediaRegistry() {
+  const context = useContext(MediaRegistryContext);
+  if (!context) {
+    throw new Error('useMediaRegistry must be used within a MediaRegistryProvider');
+  }
+  return context;
 }

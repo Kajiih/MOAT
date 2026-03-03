@@ -72,7 +72,7 @@
 - **Registry**: `MediaTypeRegistry` for centralized UI configuration (icons, filters, sorting).
 
 > [!NOTE]
-> **Architecture Transition**: We are transitioning to a **V2 Database-Centric Architecture**. New services should be implemented using the V2 patterns. See [Database V2 Design](file:///Users/paquerot/Perso/dev_projects/tierlist/docs/dev/database_v2_design.md) and the [Guide: Adding a New Service](file:///Users/paquerot/Perso/dev_projects/tierlist/docs/dev/adding_a_new_service.md).
+> **V2-First Architecture**: The application has transitioned to a **V2 Database-Centric Architecture** as the primary standard. V2 components have been promoted to the root directories with clean, logical names (e.g., `TierList`, `MediaCard`). Legacy V1 components are maintained in `legacy/` subdirectories for backward compatibility.
 - **Services**: Pure API adapters for fetching data.
   - **Type Safety**: All services implement `MediaService<F>`, where `F` is a category-specific filter type (e.g., `MusicFilters`, `CinemaFilters`). This ensures end-to-end type safety from the UI filters down to the API query builders.
   - **Music**: `MusicService` (MusicBrainz)
@@ -365,9 +365,11 @@ Moat supports dynamic Open Graph images for social sharing.
   - `dashboard/`:
     - `Dashboard.tsx`: **[New]** Board management interface (create/delete/navigate).
   - `media/`: Components for media item display and selection.
-    - `MediaCard.tsx`: Draggable/Sortable item visualization.
-    - `DetailsModal.tsx`: Real-time metadata viewer with background revalidation.
+    - `MediaCard.tsx`: Standard V2 item component, supporting legacy V1 via branching.
+    - `MediaImage.tsx`: Unified image component with prioritized resolution strategies.
+    - `DetailsModal.tsx`: Hybrid metadata viewer supporting both Standard and Legacy items.
     - `MediaPicker.tsx`: Unified search-and-select component.
+    - `legacy/`: Dedicated directory for previous V1 media components (`LegacyMediaCard`, `LegacyMediaImage`).
   - `search/`: Components for the search interface.
     - `SearchPanel.tsx`: Sidebar for discovering new media.
   - `ui/`: Shared UI components.

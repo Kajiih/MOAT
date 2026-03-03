@@ -109,9 +109,9 @@ export function referenceImage(provider: string, key: string): ReferenceImageSou
 }
 
 /**
- * Standard item schema that the Board and UI components expect.
+ * Base properties for any item in a V2 database.
  */
-export const StandardItemSchema = z.object({
+export const BaseStandardItemSchema = z.object({
   /** Globally unique app ID (e.g. `${databaseId}:${entityId}:${dbId}`) */
   id: z.string(),
   /** Routing identity — where this item comes from */
@@ -130,8 +130,6 @@ export const StandardItemSchema = z.object({
   rating: z.number().optional(),
 });
 
-export type StandardItem = z.infer<typeof StandardItemSchema>;
-
 /**
  * A link to another entity within the same database.
  */
@@ -147,9 +145,21 @@ export const EntityLinkSchema = z.object({
 export type EntityLink = z.infer<typeof EntityLinkSchema>;
 
 /**
- * Deep metadata fetched on demand for an item.
+ * A section of metadata for a standard item (e.g. "Tracks", "Awards").
  */
-export const StandardDetailsSchema = StandardItemSchema.extend({
+export const StandardSectionSchema = z.object({
+  title: z.string(),
+  type: z.enum(['text', 'list']),
+  content: z.union([z.string(), z.array(z.string())]),
+});
+
+export type StandardSection = z.infer<typeof StandardSectionSchema>;
+
+/**
+ * Deep metadata fetched on demand for an item.
+ * Extends the base item with additional metadata fields.
+ */
+export const StandardDetailsSchema = BaseStandardItemSchema.extend({
   /** A full description or biography */
   description: z.string().optional(),
   /** Descriptive tags or genres */
@@ -157,15 +167,28 @@ export const StandardDetailsSchema = StandardItemSchema.extend({
   /** Links to other entities in the same database (e.g. Developer of a Game) */
   relatedEntities: z.array(EntityLinkSchema).optional(),
   /** External resource links (Wikipedia, Official Site, etc.) */
-  externalLinks: z.array(z.object({
-    label: z.string(),
+  urls: z.array(z.object({
+    type: z.string(),
     url: z.string().url(),
   })).optional(),
+  /** Flexible sections of data (Tracks, Cast, etc.) */
+  sections: z.array(StandardSectionSchema).optional(),
   /** Flexible record for any extra data specific to a database/entity */
   extendedData: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type StandardDetails = z.infer<typeof StandardDetailsSchema>;
+
+/**
+ * Standard item schema that the Board and UI components expect.
+ * This is what gets returned by Search results.
+ */
+export const StandardItemSchema = BaseStandardItemSchema.extend({
+  /** Deep metadata (cached once resolved) */
+  details: StandardDetailsSchema.optional(),
+});
+
+export type StandardItem = z.infer<typeof StandardItemSchema>;
 // --- Pagination Interfaces ---
 
 /**

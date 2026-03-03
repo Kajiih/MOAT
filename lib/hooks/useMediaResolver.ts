@@ -1,8 +1,7 @@
 /**
  * @file useMediaResolver.ts
- * @description Centralized hook for resolving and enriching media items.
- * Orchestrates the lifecycle from Search Result -> Cached Item -> Enriched Item.
- * Ensures metadata consistency between the Board and the Global Media Registry.
+ * @description Central logic for resolving and enriching media items.
+ * Orchestrates interaction between the board state, global media registry, and details API.
  * @module useMediaResolver
  */
 
@@ -18,12 +17,12 @@ import { useMediaDetails } from './useMediaDetails';
  * Options for the useMediaResolver hook.
  */
 interface UseMediaResolverOptions {
-  /** Callback fired when new metadata or images are found. */
-  onUpdate?: (itemId: string, updates: Partial<MediaItem>) => void;
-  /** Whether the resolver is allowed to trigger new network requests. */
+  /** If false, enrichment will not be attempted. Defaults to true. */
   enabled?: boolean;
-  /** Whether to automatically sync resolved data back to the Global Media Registry. */
+  /** Whether to persist resolved metadata back to the global registry. Defaults to true. */
   persist?: boolean;
+  /** Callback fired when a more complete version of the item is found or resolved. */
+  onUpdate?: (id: string, updates: Partial<MediaItem>) => void;
 }
 
 /**
@@ -36,7 +35,7 @@ export function useMediaResolver(item: MediaItem | null, options: UseMediaResolv
   const { enabled = true, persist = true, onUpdate } = options;
   const { getItem, registerItem } = useMediaRegistry();
 
-  // 1. Check Global Registry for a "better" version of this item
+  // 1. Check if we already have a cached version in the local registry
   const cached = item ? getItem(item.id) : undefined;
 
   // 2. Determine if we need to fetch deep metadata
@@ -64,8 +63,7 @@ export function useMediaResolver(item: MediaItem | null, options: UseMediaResolv
   }, [item, cached, onUpdate]);
 
   /**
-   * Effect to handle incoming API details.
-   * Merges fetched details into the registry and the board.
+   * Effect to sync newly resolved details to registry and board.
    */
   useEffect(() => {
     if (!item || !details || isLoading || error || !shouldFetch) return;
@@ -95,10 +93,8 @@ export function useMediaResolver(item: MediaItem | null, options: UseMediaResolv
     /** Whether an enrichment fetch is currently in progress. */
     isLoading: isLoading && shouldFetch,
     /** Whether revalidation is happening in the background. */
-    isFetching: isFetching && shouldFetch,
-    /** Any error encountered during enrichment. */
-    error,
-    /** Whether the item now possesses deep metadata. */
-    isEnriched: !!(cached?.details || details || item?.details),
+    isFetching,
+    /** Error state if the fetch failed. */
+    error: shouldFetch ? error : null,
   };
 }

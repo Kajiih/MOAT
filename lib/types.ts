@@ -7,7 +7,8 @@
 
 import { z } from 'zod';
 
-// --- Domain Types ---
+import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
+import { StandardItem } from '@/lib/database/types';
 
 // --- Branding Helpers ---
 
@@ -285,7 +286,7 @@ export interface TierListState {
   /** Array defining the order and appearance of tiers. */
   tierDefs: TierDefinition[];
   /** Map mapping tier IDs to their list of media items. */
-  items: Record<string, MediaItem[]>;
+  items: Record<string, (MediaItem | StandardItem)[]>;
   /** Broad category for the board. */
   category?: BoardCategory;
   /**
