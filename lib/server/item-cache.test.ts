@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MediaItem } from '@/lib/types';
+import { LegacyItem } from '@/lib/types';
 
 import { serverItemCache } from './item-cache';
 
 describe('MediaItemCache', () => {
-  const mockItem: MediaItem = {
+  const mockItem: LegacyItem = {
     id: 'test-1',
     mbid: 'test-1',
     type: 'song',

@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * Manually load .env.local for integration tests if not already loaded by the environment.

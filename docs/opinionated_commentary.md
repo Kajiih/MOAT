@@ -19,7 +19,7 @@ Using `usePersistentReducer` with `idb-keyval` (IndexedDB) instead of `localStor
 
 ### 4. SWR Integration
 
-The use of `SWR` in `useMediaDetails` allows for "stale-while-revalidate" behavior, which makes the app feel instant even on slow networks.
+The use of `SWR` in `useItemDetails` allows for "stale-while-revalidate" behavior, which makes the app feel instant even on slow networks.
 
 ## The "Interesting" - "clever hooks"
 
@@ -68,16 +68,16 @@ Overall, this is a **very high-quality codebase**. It avoids common pitfalls (li
 
 ## The Good - "Visual Completeness"
 
-### 1. Component Logic in `MediaCard`
+### 1. Component Logic in `ItemCard`
 
-The `MediaCard.tsx` is surprisingly sophisticated. It splits the Drag-and-Drop concerns (`BaseMediaCard` vs `MediaCard` vs `SortableMediaCard`) very cleanly.
+The `ItemCard.tsx` is surprisingly sophisticated. It splits the Drag-and-Drop concerns (`BaseMediaCard` vs `ItemCard` vs `SortableMediaCard`) very cleanly.
 
 - **Highlight**: The error handling for images. It sequentially tries `unoptimized=true` if the optimized image fails. This handles tricky CORS or private network issues that often plague "remote image" features in Next.js.
 - **Locality**: It encapsulates its own hover/interaction state via `useInteraction`, avoiding global state pollution for simple things like "show delete button".
 
 ### 2. Layout & Global Providers
 
-The `app/layout.tsx` is clean and follows best practices. It correctly wraps the application in `ToastProvider` and `MediaRegistryProvider`. Using `suppressHydrationWarning` on `html` is a pragmatic choice for apps that use `localStorage`/`IndexedDB` based theming or hydration, preventing those annoying React mismatch errors.
+The `app/layout.tsx` is clean and follows best practices. It correctly wraps the application in `ToastProvider` and `ItemRegistryProvider`. Using `suppressHydrationWarning` on `html` is a pragmatic choice for apps that use `localStorage`/`IndexedDB` based theming or hydration, preventing those annoying React mismatch errors.
 
 ### 3. Smart Search Panel
 
@@ -102,7 +102,7 @@ In `app/layout.tsx`, you're using `next/font/google` for Geist Sans/Mono. This c
 Your `next.config.ts` allows images from `coverartarchive.org` and others.
 
 - **Risk**: `coverartarchive` can be slow. Next.js Image Optimization puts load on _your_ server to resize these.
-- **Suggestion**: If traffic scales, consider using a dedicated CDN or disabling optimization for certain domains (`unoptimized: true` in config) to save server CPU, although your `MediaCard` handles this fallback dynamically, which is smart.
+- **Suggestion**: If traffic scales, consider using a dedicated CDN or disabling optimization for certain domains (`unoptimized: true` in config) to save server CPU, although your `ItemCard` handles this fallback dynamically, which is smart.
 
 ### 2. `page.tsx` is trivial
 

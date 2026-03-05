@@ -113,9 +113,9 @@ const getDefaultState = (type: MediaType) => {
 };
 ```
 
-#### 3. Update MediaCard Component
+#### 3. Update ItemCard Component
 
-**File:** `components/media/MediaCard.tsx`
+**File:** `components/media/ItemCard.tsx`
 
 **Before:**
 

@@ -6,7 +6,6 @@
  */
 
 import { z } from 'zod';
-
 import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
 import { StandardItem } from '@/lib/database/types';
 
@@ -28,9 +27,9 @@ export type ItemId = Brand<string, 'ItemId'>;
 // --- Domain Types ---
 
 /**
- * Represents the type of media being handled.
+ * Represents the type of item being handled (Legacy V1).
  */
-export type MediaType =
+export type ItemType =
   | 'album'
   | 'artist'
   | 'song'
@@ -50,10 +49,10 @@ export type MediaType =
 export type BoardCategory = 'music' | 'cinema' | 'game' | 'book';
 
 /**
- * Standardized search result wrapper.
+ * Standardized search result wrapper (Legacy V1).
  */
 export interface SearchResult {
-  results: MediaItem[];
+  results: LegacyItem[];
   page: number;
   totalPages: number;
   totalCount: number;
@@ -77,9 +76,9 @@ export type SortOption =
   | 'reviews_asc';
 
 /**
- * Common properties shared by all media entities.
+ * Common properties shared by all legacy item entities.
  */
-export interface BaseMediaItem {
+export interface BaseLegacyItem {
   /** Unique identifier (Application/Board ID) */
   id: string; // Keep as string for dnd-kit compatibility, but internal logic prefers ItemId
   /** MusicBrainz ID (Database ID) */
@@ -93,7 +92,7 @@ export interface BaseMediaItem {
   /** URL to the cover art or artist image. */
   imageUrl?: string;
   /** Deep metadata (stored in state for persistence) */
-  details?: MediaDetails;
+  details?: LegacyItemDetails;
   /** Rating value (0-10 or 0-5 depending on source) */
   rating?: number;
   /** Number of reviews or popularity metric */
@@ -105,9 +104,9 @@ export interface BaseMediaItem {
 }
 
 /**
- * Represents a musical album.
+ * Represents a musical album (Legacy V1).
  */
-export interface AlbumItem extends BaseMediaItem {
+export interface AlbumItem extends BaseLegacyItem {
   type: 'album';
   /** The artist name. */
   artist: string;
@@ -120,7 +119,7 @@ export interface AlbumItem extends BaseMediaItem {
 /**
  * Represents a musical artist or group.
  */
-export interface ArtistItem extends BaseMediaItem {
+export interface ArtistItem extends BaseLegacyItem {
   type: 'artist';
   /** Disambiguation comment (mostly for artists with same names). */
   disambiguation?: string;
@@ -129,7 +128,7 @@ export interface ArtistItem extends BaseMediaItem {
 /**
  * Represents a single musical track.
  */
-export interface SongItem extends BaseMediaItem {
+export interface SongItem extends BaseLegacyItem {
   type: 'song';
   /** The artist name. */
   artist: string;
@@ -144,21 +143,21 @@ export interface SongItem extends BaseMediaItem {
 /**
  * Represents a movie.
  */
-export interface MovieItem extends BaseMediaItem {
+export interface MovieItem extends BaseLegacyItem {
   type: 'movie';
 }
 
 /**
  * Represents a TV show.
  */
-export interface TVItem extends BaseMediaItem {
+export interface TVItem extends BaseLegacyItem {
   type: 'tv';
 }
 
 /**
  * Represents a person (actor/crew).
  */
-export interface PersonItem extends BaseMediaItem {
+export interface PersonItem extends BaseLegacyItem {
   type: 'person';
   knownFor?: string;
 }
@@ -166,7 +165,7 @@ export interface PersonItem extends BaseMediaItem {
 /**
  * Represents a video game.
  */
-export interface GameItem extends BaseMediaItem {
+export interface GameItem extends BaseLegacyItem {
   type: 'game';
   /** The primary developer studio. */
   developer?: string;
@@ -177,7 +176,7 @@ export interface GameItem extends BaseMediaItem {
 /**
  * Represents a book.
  */
-export interface BookItem extends BaseMediaItem {
+export interface BookItem extends BaseLegacyItem {
   type: 'book';
   /** The author(s) of the book. */
   author: string;
@@ -186,21 +185,21 @@ export interface BookItem extends BaseMediaItem {
 /**
  * Represents a book author.
  */
-export interface AuthorItem extends BaseMediaItem {
+export interface AuthorItem extends BaseLegacyItem {
   type: 'author';
 }
 
 /**
  * Represents a video game developer studio.
  */
-export interface DeveloperItem extends BaseMediaItem {
+export interface DeveloperItem extends BaseLegacyItem {
   type: 'developer';
 }
 
 /**
  * Represents a video game franchise or series.
  */
-export interface FranchiseItem extends BaseMediaItem {
+export interface FranchiseItem extends BaseLegacyItem {
   type: 'franchise';
   /** Number of games in the series/franchise. */
   gameCount?: number;
@@ -209,16 +208,16 @@ export interface FranchiseItem extends BaseMediaItem {
 /**
  * Represents a book series.
  */
-export interface SeriesItem extends BaseMediaItem {
+export interface SeriesItem extends BaseLegacyItem {
   type: 'series';
   /** Number of books in the series. */
   bookCount?: number;
 }
 
 /**
- * Represents a single normalized media item in the application.
+ * Represents a single normalized legacy item in the application.
  */
-export type MediaItem =
+export type LegacyItem =
   | AlbumItem
   | ArtistItem
   | SongItem
@@ -231,6 +230,12 @@ export type MediaItem =
   | DeveloperItem
   | FranchiseItem
   | SeriesItem;
+
+/**
+ * The unified Item type used throughout the application.
+ * Can be a new StandardItem (V2) or a LegacyItem (V1).
+ */
+export type Item = StandardItem | LegacyItem;
 
 /**
  * Represents a simplified artist object used for selection state in pickers.
@@ -263,7 +268,7 @@ export interface AlbumSelection {
 /**
  * Unified selection type for generic components (pickers).
  */
-export type MediaSelection = ArtistSelection | AlbumSelection;
+export type ItemSelection = ArtistSelection | AlbumSelection;
 
 /**
  * Defines the metadata for a single tier row.
@@ -285,8 +290,8 @@ export interface TierListState {
   title: string;
   /** Array defining the order and appearance of tiers. */
   tierDefs: TierDefinition[];
-  /** Map mapping tier IDs to their list of media items. */
-  items: Record<string, (MediaItem | StandardItem)[]>;
+  /** Map mapping tier IDs to their list of items. */
+  items: Record<string, Item[]>;
   /** Broad category for the board. */
   category?: BoardCategory;
   /**
@@ -299,7 +304,7 @@ export interface TierListState {
  * Represents a simplified item for the dashboard preview.
  */
 export interface PreviewItem {
-  type: MediaType;
+  type: ItemType;
   title: string;
   imageUrl?: string;
 }
@@ -353,13 +358,13 @@ export interface TrackItem {
 /**
  * Deep metadata for a media item.
  */
-export interface MediaDetails {
+export interface LegacyItemDetails {
   /** Application/Board ID */
   id: string;
   /** MusicBrainz ID */
   mbid: string;
   /** Entity type. */
-  type: MediaType;
+  type: ItemType;
   /** Primary display title. */
   title?: string;
   /** Array of descriptive tags. */
@@ -425,7 +430,7 @@ export const TierDefinitionSchema = z.object({
 /**
  * Standard base schema for all media items.
  */
-const BaseMediaItemSchema = z.object({
+const BaseLegacyItemSchema = z.object({
   id: z.string(),
   mbid: z.string(),
   title: z.string(),
@@ -439,48 +444,48 @@ const BaseMediaItemSchema = z.object({
 });
 
 /**
- * Strictly typed schema for MediaItem union.
+ * Strictly typed schema for LegacyItem union.
  */
-export const MediaItemSchema = z.discriminatedUnion('type', [
-  BaseMediaItemSchema.extend({
+export const LegacyItemSchema = z.discriminatedUnion('type', [
+  BaseLegacyItemSchema.extend({
     type: z.literal('album'),
     artist: z.string(),
     primaryType: z.string().optional(),
     secondaryTypes: z.array(z.string()).optional(),
   }),
-  BaseMediaItemSchema.extend({
+  BaseLegacyItemSchema.extend({
     type: z.literal('artist'),
     disambiguation: z.string().optional(),
   }),
-  BaseMediaItemSchema.extend({
+  BaseLegacyItemSchema.extend({
     type: z.literal('song'),
     artist: z.string(),
     album: z.string().optional(),
     albumId: z.string().optional(),
     duration: z.number().optional(),
   }),
-  BaseMediaItemSchema.extend({ type: z.literal('movie') }),
-  BaseMediaItemSchema.extend({ type: z.literal('tv') }),
-  BaseMediaItemSchema.extend({
+  BaseLegacyItemSchema.extend({ type: z.literal('movie') }),
+  BaseLegacyItemSchema.extend({ type: z.literal('tv') }),
+  BaseLegacyItemSchema.extend({
     type: z.literal('person'),
     knownFor: z.string().optional(),
   }),
-  BaseMediaItemSchema.extend({
+  BaseLegacyItemSchema.extend({
     type: z.literal('game'),
     developer: z.string().optional(),
     platforms: z.array(z.string()).optional(),
   }),
-  BaseMediaItemSchema.extend({
+  BaseLegacyItemSchema.extend({
     type: z.literal('book'),
     author: z.string(),
   }),
-  BaseMediaItemSchema.extend({ type: z.literal('author') }),
-  BaseMediaItemSchema.extend({ type: z.literal('developer') }),
-  BaseMediaItemSchema.extend({
+  BaseLegacyItemSchema.extend({ type: z.literal('author') }),
+  BaseLegacyItemSchema.extend({ type: z.literal('developer') }),
+  BaseLegacyItemSchema.extend({
     type: z.literal('franchise'),
     gameCount: z.number().optional(),
   }),
-  BaseMediaItemSchema.extend({
+  BaseLegacyItemSchema.extend({
     type: z.literal('series'),
     bookCount: z.number().optional(),
   }),
@@ -492,7 +497,7 @@ export const MediaItemSchema = z.discriminatedUnion('type', [
 export const TierListSchema = z.object({
   title: z.string(),
   tierDefs: z.array(TierDefinitionSchema),
-  items: z.record(z.string(), z.array(MediaItemSchema)),
+  items: z.record(z.string(), z.array(LegacyItemSchema)),
   itemLookup: z.record(z.string(), z.string()).optional(),
   category: z.enum(['music', 'cinema', 'game', 'book']).optional(),
 });

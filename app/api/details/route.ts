@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
 import { getMediaService } from '@/lib/services/factory';
-import { BoardCategory, MediaType } from '@/lib/types';
+import { BoardCategory, ItemType } from '@/lib/types';
 
 /**
  * Handles GET requests to fetch detailed metadata for a media item.
@@ -19,7 +19,7 @@ import { BoardCategory, MediaType } from '@/lib/types';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
-  const type = searchParams.get('type') as MediaType;
+  const type = searchParams.get('type') as ItemType;
   const category = (searchParams.get('category') as BoardCategory) || 'music';
   const serviceId = searchParams.get('service');
 

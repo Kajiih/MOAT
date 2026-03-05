@@ -42,7 +42,7 @@ In basic usecases, we should only display the "Main Sorts" because we can't have
 #### [NEW] [ThemeEngine.tsx](file:///Users/paquerot/Perso/dev_projects/tierlist/components/ui/ThemeEngine.tsx)
 
 - Create a theme provider that manages visual "skins" (e.g., **Neo-Brutalism**, **Glassmorphism**, **Vintage Vinyl**).
-- Themes will affect shadows, borders, typography, and even `MediaCard` rendering styles.
+- Themes will affect shadows, borders, typography, and even `ItemCard` rendering styles.
 
 #### [MODIFY] [TierBoard.tsx](file:///Users/paquerot/Perso/dev_projects/tierlist/components/board/TierBoard.tsx)
 
@@ -86,7 +86,7 @@ In basic usecases, we should only display the "Main Sorts" because we can't have
 
 - Concept: It's a music tier list, but you can't hear the music.
 - Implementation:
-  - Add a "Play" button to MediaCard on hover.
+  - Add a "Play" button to ItemCard on hover.
   - Integrate Spotify Widget API or YouTube IFrame API.
 - Search logic: Use the MusicBrainz ID -> ISRC mapping to find the track on streaming services.
 - Ambition Level: Medium (API integration complexity).

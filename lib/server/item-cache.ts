@@ -6,18 +6,18 @@
  * @module ServerItemCache
  */
 
-import { MediaItem } from '@/lib/types';
+import { LegacyItem } from '@/lib/types';
 
 /**
- * A simple in-memory cache for mapped MediaItem objects.
+ * A simple in-memory cache for mapped LegacyItem objects.
  * This prevents redundant image lookups (especially for artists)
  * and mapping logic across different search queries.
  */
 class MediaItemCache {
-  private cache = new Map<string, { item: MediaItem; expiry: number }>();
+  private cache = new Map<string, { item: LegacyItem; expiry: number }>();
   private defaultTTL = 1000 * 60 * 60 * 24; // 24 hours
 
-  get(id: string): MediaItem | null {
+  get(id: string): LegacyItem | null {
     const entry = this.cache.get(id);
     if (!entry) return null;
 
@@ -29,7 +29,7 @@ class MediaItemCache {
     return entry.item;
   }
 
-  set(item: MediaItem, ttl = this.defaultTTL): void {
+  set(item: LegacyItem, ttl = this.defaultTTL): void {
     this.cache.set(item.id, {
       item,
       expiry: Date.now() + ttl,

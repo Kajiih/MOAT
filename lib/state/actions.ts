@@ -5,8 +5,7 @@
  * @module StateActions
  */
 
-import { BoardCategory, MediaItem, TierDefinition, TierId, TierListState } from '@/lib/types';
-import { StandardItem } from '@/lib/database/types';
+import { BoardCategory, TierDefinition, TierId, TierListState } from '@/lib/types';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.
@@ -63,10 +62,10 @@ export type TierListAction =
         overId: string;
         activeTierId?: string | TierId;
         overTierId?: string | TierId;
-        activeItem?: MediaItem | StandardItem;
+        activeItem?: Item;
       };
     }
-  | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: Partial<MediaItem | StandardItem> } }
+  | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: Partial<Item> } }
   | { type: ActionType.REMOVE_ITEM; payload: { tierId: string | TierId; itemId: string } }
   | { type: ActionType.UPDATE_TITLE; payload: { title: string } }
   | { type: ActionType.RANDOMIZE_COLORS }

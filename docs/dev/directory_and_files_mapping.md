@@ -25,11 +25,11 @@ This document categorizes the codebase into V1 (legacy), V2 (new), and Shared co
 | `components/search/hooks/` | V1 | Delete | `useMediaSearch`, `useSearchFilters`. |
 | **`components/search/v2/`** | **V2 Only** | **New** | New Search UI (Coming soon). |
 | **`components/media/`** | **Shared** | **Keep** | Visual presentation. |
-| `components/media/MediaCard.tsx` | Shared | Keep | V2 items are compatible with `MediaItem`. |
+| `components/media/ItemCard.tsx` | Shared | Keep | V2 items are compatible with `MediaItem`. |
 | `components/media/DetailsModal.tsx` | Shared | Keep | Needs minor updates for V2 details. |
 | **`components/providers/`** | **Shared** | **Keep** | Core state management. |
 | `TierListContext.tsx` | Shared | Keep | Stores board items. |
-| `MediaRegistryProvider.tsx` | Shared | Keep | IndexedDB persistence. |
+| `ItemRegistryProvider.tsx` | Shared | Keep | IndexedDB persistence. |
 | **`lib/utils/`** | **Shared/V1** | **Mixed** | Utilities. |
 | `lib/utils/ids.ts` | Shared | Keep | ID normalization logic. |
 | `lib/utils/mappers.ts` | V1 | Delete | Transformation logic for V1 APIs. |

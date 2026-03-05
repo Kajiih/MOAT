@@ -9,11 +9,11 @@ import { z } from 'zod';
 import { logger } from '@/lib/logger';
 import { MusicFilters } from '@/lib/media-types/filters';
 import { serverItemCache } from '@/lib/server/item-cache';
-import { MediaItem, MediaType, MusicBrainzSearchResponseSchema, SearchResult } from '@/lib/types';
+import { ItemType, LegacyItem, MusicBrainzSearchResponseSchema, SearchResult } from '@/lib/types';
 import {
-  mapArtistToMediaItem,
-  mapRecordingToMediaItem,
-  mapReleaseGroupToMediaItem,
+  mapArtistToLegacyItem,
+  mapRecordingToLegacyItem,
+  mapReleaseGroupToLegacyItem,
 } from '@/lib/utils/mappers';
 
 import { SearchOptions } from '../types';
@@ -25,7 +25,7 @@ import { buildMusicBrainzQuery } from './query-builder';
  * Parameters for the MusicBrainz search.
  */
 export interface SearchParams extends Partial<MusicFilters> {
-  type: MediaType;
+  type: ItemType;
   query: string;
   // Config
   page: number;
@@ -88,13 +88,13 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     throw new Error('Invalid data from upstream');
   }
 
-  let results: MediaItem[] = [];
+  let results: LegacyItem[] = [];
 
   if (type === 'album' && parsed.data['release-groups']) {
     results = parsed.data['release-groups'].map((item) => {
       const cached = serverItemCache.get(item.id);
       if (cached) return cached;
-      const mapped = mapReleaseGroupToMediaItem(item);
+      const mapped = mapReleaseGroupToLegacyItem(item);
       serverItemCache.set(mapped);
       return mapped;
     });
@@ -103,7 +103,7 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
       parsed.data.artists.map(async (item) => {
         const cached = serverItemCache.get(item.id);
         if (cached) return cached;
-        const mapped = await mapArtistToMediaItem(item);
+        const mapped = await mapArtistToLegacyItem(item);
         serverItemCache.set(mapped);
         return mapped;
       }),
@@ -112,7 +112,7 @@ export async function searchMusicBrainz(params: SearchParams): Promise<SearchRes
     results = parsed.data.recordings.map((item) => {
       const cached = serverItemCache.get(item.id);
       if (cached) return cached;
-      const mapped = mapRecordingToMediaItem(item);
+      const mapped = mapRecordingToLegacyItem(item);
       serverItemCache.set(mapped);
       return mapped;
     });

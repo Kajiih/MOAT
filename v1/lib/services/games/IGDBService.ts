@@ -10,7 +10,7 @@ import { logger } from '@/lib/logger';
 import { GameFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
-import { FranchiseItem, GameItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
+import { FranchiseItem, GameItem, ItemType, LegacyItemDetails, SearchResult } from '@/lib/types';
 
 const IGDB_BASE_URL = 'https://api.igdb.com/v4';
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2/token';
@@ -116,7 +116,7 @@ export class IGDBService implements MediaService<GameFilters> {
     }
   }
 
-  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
+  async search(query: string, type: ItemType, options: SearchOptions = {}): Promise<SearchResult> {
     const limit = 20;
     const offset = ((options.page || 1) - 1) * limit;
 
@@ -233,7 +233,7 @@ export class IGDBService implements MediaService<GameFilters> {
     };
   }
 
-  async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
+  async getDetails(id: string, type: ItemType): Promise<LegacyItemDetails> {
     if (type === 'franchise') {
       const data = await this.fetch<IGDBFranchise>(
         '/franchises',
@@ -288,7 +288,7 @@ export class IGDBService implements MediaService<GameFilters> {
     };
   }
 
-  getSupportedTypes(): MediaType[] {
+  getSupportedTypes(): ItemType[] {
     return ['game', 'franchise'];
   }
 

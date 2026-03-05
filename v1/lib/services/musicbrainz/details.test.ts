@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { getMediaDetails } from './details';
+import { getLegacyItemDetails } from './details';
 
 const MB_BASE = 'https://musicbrainz.org/ws/2';
 
@@ -112,7 +112,7 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
     it('should fetch and map artist details correctly', async () => {
       // Note: getArtistThumbnail is called inside getArtistDetails
       // We could mock it or let it run (it uses fetch too)
-      const result = await getMediaDetails('artist-1', 'artist');
+      const result = await getLegacyItemDetails('artist-1', 'artist');
 
       expect(result).toMatchObject({
         id: 'artist-1',
@@ -129,7 +129,7 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
 
   describe('getAlbumDetails', () => {
     it('should fetch release-group and then release details', async () => {
-      const result = await getMediaDetails('album-1', 'album');
+      const result = await getLegacyItemDetails('album-1', 'album');
 
       expect(result).toMatchObject({
         id: 'album-1',
@@ -142,14 +142,14 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
     });
 
     it('should return skeletal details if no release is found', async () => {
-      const result = await getMediaDetails('album-empty', 'album');
+      const result = await getLegacyItemDetails('album-empty', 'album');
       expect(result).toEqual({ id: 'album-empty', mbid: 'album-empty', type: 'album' });
     });
   });
 
   describe('getSongDetails', () => {
     it('should fetch and map recording details correctly', async () => {
-      const result = await getMediaDetails('song-1', 'song');
+      const result = await getLegacyItemDetails('song-1', 'song');
 
       expect(result).toMatchObject({
         id: 'song-1',
@@ -169,7 +169,7 @@ describe('MusicBrainz Details Service Integration (Fake Server)', () => {
         return new HttpResponse(null, { status: 500 });
       }),
     );
-    const result = await getMediaDetails('error-id', 'artist');
+    const result = await getLegacyItemDetails('error-id', 'artist');
     expect(result).toEqual({ id: 'error-id', mbid: 'error-id', type: 'artist' });
   });
 });

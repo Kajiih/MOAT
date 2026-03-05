@@ -5,10 +5,10 @@
  * @module GameView
  */
 
-import { MediaDetails } from '@/lib/types';
+import { LegacyItemDetails } from '@/lib/types';
 
 interface GameViewProps {
-  details: MediaDetails;
+  details: LegacyItemDetails;
 }
 
 /**
@@ -81,7 +81,7 @@ export function GameView({ details }: GameViewProps) {
             Platforms
           </h3>
           <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(details.platforms)).map((platform: string) => (
+            {[...new Set(details.platforms)].map((platform: string) => (
               <span
                 key={platform}
                 className="rounded-full border border-neutral-700 bg-neutral-800/50 px-3 py-1 text-xs text-neutral-300"

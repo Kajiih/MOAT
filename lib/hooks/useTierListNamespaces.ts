@@ -16,8 +16,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
-import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
-import { StandardItem } from '@/lib/database/types';
+import { BoardCategory, TierDefinition, TierListState } from '@/lib/types';
 import { fromSearchId } from '@/lib/utils/ids';
 
 /**
@@ -36,7 +35,7 @@ interface UseTierListNamespacesProps {
   };
   dndRaw: {
     sensors: SensorDescriptor<SensorOptions>[];
-    activeItem: MediaItem | StandardItem | null;
+    activeItem: Item | null;
     activeTier: TierDefinition | null;
     overId: string | null;
     handleDragStart: (event: DragStartEvent) => void;
@@ -61,8 +60,8 @@ interface UseTierListNamespacesProps {
     handleLocate: (id: string) => void;
   };
   uiState: {
-    detailsItem: MediaItem | StandardItem | null;
-    setDetailsItem: (item: MediaItem | StandardItem | null) => void;
+    detailsItem: Item | null;
+    setDetailsItem: (item: Item | null) => void;
     showShortcuts: boolean;
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
   };
@@ -71,6 +70,14 @@ interface UseTierListNamespacesProps {
 /**
  * Aggregates state and logic into logical namespaces (actions, dnd, ui, history).
  * @param props - The props for the hook.
+ * @param props.state
+ * @param props.dispatch
+ * @param props.history
+ * @param props.dndRaw
+ * @param props.structureRaw
+ * @param props.ioRaw
+ * @param props.utilsRaw
+ * @param props.uiState
  */
 export function useTierListNamespaces({
   state,
@@ -113,7 +120,7 @@ export function useTierListNamespaces({
    * Updates item attributes.
    */
   const updateMediaItem = useCallback(
-    (itemId: string, updates: Partial<MediaItem | StandardItem>) => {
+    (itemId: string, updates: Partial<Item>) => {
       dispatch({ type: ActionType.UPDATE_ITEM, payload: { itemId, updates } });
     },
     [dispatch],
@@ -172,7 +179,7 @@ export function useTierListNamespaces({
     return {
       headerColors: utilsRaw.headerColors,
       detailsItem: liveDetailsItem,
-      showDetails: (item: MediaItem | StandardItem) => uiState.setDetailsItem(item),
+      showDetails: (item: Item) => uiState.setDetailsItem(item),
       closeDetails: () => uiState.setDetailsItem(null),
       showShortcuts: uiState.showShortcuts,
       setShowShortcuts: uiState.setShowShortcuts,

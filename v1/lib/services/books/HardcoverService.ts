@@ -11,8 +11,8 @@ import { BookFilters } from '@/lib/media-types/filters';
 import {
   AuthorItem,
   BookItem,
-  MediaDetails,
-  MediaType,
+  ItemType,
+  LegacyItemDetails,
   SearchResult,
   SeriesItem,
 } from '@/lib/types';
@@ -48,7 +48,7 @@ export class HardcoverService implements MediaService<BookFilters> {
     });
   }
 
-  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
+  async search(query: string, type: ItemType, options: SearchOptions = {}): Promise<SearchResult> {
     switch (type) {
       case 'series': {
         return this.searchSeries(query, options);
@@ -91,8 +91,8 @@ export class HardcoverService implements MediaService<BookFilters> {
       if (typeof resultsObj === 'string') {
         try {
           resultsObj = JSON.parse(resultsObj);
-        } catch (e) {
-          logger.error({ error: e, results: resultsObj }, 'Failed to parse Hardcover results string');
+        } catch (error) {
+          logger.error({ error: error, results: resultsObj }, 'Failed to parse Hardcover results string');
           resultsObj = { hits: [] };
         }
       }
@@ -115,13 +115,13 @@ export class HardcoverService implements MediaService<BookFilters> {
 
       // Enhance series images if possible
       const seriesIds = seriesItems
-        .map(s => parseInt(s.id, 10))
+        .map(s => Number.parseInt(s.id, 10))
         .filter(id => !isNaN(id));
 
       if (seriesIds.length > 0) {
         const imageMap = await this.fetchSeriesBookImages(seriesIds);
         seriesItems.forEach(item => {
-          const id = parseInt(item.id, 10);
+          const id = Number.parseInt(item.id, 10);
           if (!isNaN(id) && imageMap.has(id)) {
             item.imageUrl = imageMap.get(id);
           }
@@ -184,8 +184,8 @@ export class HardcoverService implements MediaService<BookFilters> {
       if (typeof resultsObj === 'string') {
         try {
           resultsObj = JSON.parse(resultsObj);
-        } catch (e) {
-          logger.error({ error: e, results: resultsObj }, 'Failed to parse Hardcover results string');
+        } catch (error) {
+          logger.error({ error: error, results: resultsObj }, 'Failed to parse Hardcover results string');
           resultsObj = { hits: [] };
         }
       }
@@ -204,7 +204,7 @@ export class HardcoverService implements MediaService<BookFilters> {
           });
         }
         if (bookFilters.minYear) {
-          const min = parseInt(bookFilters.minYear, 10);
+          const min = Number.parseInt(bookFilters.minYear, 10);
           hits = hits.filter((hit: any) => {
             const b = hit.document || hit;
             const yearNum = b.release_year || b.release_date_i;
@@ -212,7 +212,7 @@ export class HardcoverService implements MediaService<BookFilters> {
           });
         }
         if (bookFilters.maxYear) {
-          const max = parseInt(bookFilters.maxYear, 10);
+          const max = Number.parseInt(bookFilters.maxYear, 10);
           hits = hits.filter((hit: any) => {
             const b = hit.document || hit;
             const yearNum = b.release_year || b.release_date_i;
@@ -284,8 +284,8 @@ export class HardcoverService implements MediaService<BookFilters> {
       if (typeof resultsObj === 'string') {
         try {
           resultsObj = JSON.parse(resultsObj);
-        } catch (e) {
-          logger.error({ error: e, results: resultsObj }, 'Failed to parse Hardcover results string');
+        } catch (error) {
+          logger.error({ error: error, results: resultsObj }, 'Failed to parse Hardcover results string');
           resultsObj = { hits: [] };
         }
       }
@@ -322,20 +322,24 @@ export class HardcoverService implements MediaService<BookFilters> {
     }
   }
 
-  async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
+  async getDetails(id: string, type: ItemType): Promise<LegacyItemDetails> {
     try {
-      const numericId = parseInt(id, 10);
+      const numericId = Number.parseInt(id, 10);
       const isNumeric = !isNaN(numericId) && /^\d+$/.test(id);
 
       switch (type) {
-        case 'book':
+        case 'book': {
           return await this.getBookDetails(id, isNumeric ? numericId : undefined);
-        case 'series':
+        }
+        case 'series': {
           return await this.getSeriesDetails(id, isNumeric ? numericId : undefined);
-        case 'author':
+        }
+        case 'author': {
           return await this.getAuthorDetails(id, isNumeric ? numericId : undefined);
-        default:
+        }
+        default: {
           return { id, mbid: id, type };
+        }
       }
     } catch (error) {
       logger.error({ error, id, type }, 'Hardcover getDetails error');
@@ -343,7 +347,7 @@ export class HardcoverService implements MediaService<BookFilters> {
     }
   }
 
-  private async getBookDetails(id: string, numericId?: number): Promise<MediaDetails> {
+  private async getBookDetails(id: string, numericId?: number): Promise<LegacyItemDetails> {
     const query = numericId !== undefined
       ? `query GetBook($id: Int!) {
           books_by_pk(id: $id) {
@@ -374,14 +378,14 @@ export class HardcoverService implements MediaService<BookFilters> {
       imageUrl: b.image?.url,
       description: b.description || undefined,
       date: b.release_date,
-      rating: b.rating != null ? parseFloat(b.rating.toString()) : undefined,
+      rating: b.rating != null ? Number.parseFloat(b.rating.toString()) : undefined,
       reviewCount: b.ratings_count,
       tags: b.taggings?.map((t: any) => t.tag?.tag).filter(Boolean),
       serviceId: this.id,
     };
   }
 
-  private async getSeriesDetails(id: string, numericId?: number): Promise<MediaDetails> {
+  private async getSeriesDetails(id: string, numericId?: number): Promise<LegacyItemDetails> {
     const query = numericId !== undefined
       ? `query GetSeries($id: Int!) {
           series_by_pk(id: $id) {
@@ -418,7 +422,7 @@ export class HardcoverService implements MediaService<BookFilters> {
     };
   }
 
-  private async getAuthorDetails(id: string, numericId?: number): Promise<MediaDetails> {
+  private async getAuthorDetails(id: string, numericId?: number): Promise<LegacyItemDetails> {
     const query = numericId !== undefined
       ? `query GetAuthor($id: Int!) {
           authors_by_pk(id: $id) {
@@ -467,12 +471,13 @@ export class HardcoverService implements MediaService<BookFilters> {
     };
   }
 
-  getSupportedTypes(): MediaType[] {
+  getSupportedTypes(): ItemType[] {
     return ['book', 'series', 'author'];
   }
 
   /**
    * Fetches the first book's cover image for a list of series IDs.
+   * @param seriesIds
    */
   private async fetchSeriesBookImages(seriesIds: number[]): Promise<Map<number, string>> {
     if (seriesIds.length === 0) return new Map();

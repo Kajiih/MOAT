@@ -1,46 +1,50 @@
 /**
  * @file DetailsModal.tsx
  * @description A modal component for displaying detailed information about a media item.
- * Supports both V1 MediaItem (Legacy) and V2 StandardItem (Standard).
+ * Supports both V1 LegacyItem (Legacy) and V2 StandardItem (Standard).
  */
 
 'use client';
 
-import { X, Info, LucideIcon } from 'lucide-react';
+import { Info, LucideIcon,X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { useEscapeKey, useMediaResolver } from '@/lib/hooks';
 import { useStandardResolver } from '@/lib/database/hooks/useStandardResolver';
 import { registry } from '@/lib/database/registry';
-import { StandardItem, StandardDetails, StandardSection } from '@/lib/database/types';
-import { MediaItem } from '@/lib/types';
-import { mediaTypeRegistry } from '@/v1/lib/media-types';
+import { StandardDetails, StandardItem, StandardSection } from '@/lib/database/types';
+import { useEscapeKey, useItemResolver } from '@/lib/hooks';
+import { LegacyItem } from '@/lib/types';
+import { itemTypeRegistry } from '@/v1/lib/item-types';
 
 import { AlbumView } from './details/AlbumView';
 import { ArtistView } from './details/ArtistView';
 import { ExternalLinks } from './details/ExternalLinks';
 import { GameView } from './details/GameView';
 import { SongView } from './details/SongView';
-import { LegacyMediaImage } from './legacy/LegacyMediaImage';
-import { MediaImage } from './MediaImage';
+import { ItemImage } from './ItemImage';
+import { LegacyItemImage } from './legacy/LegacyItemImage';
 
 /**
  * Props for the DetailsModal component.
  */
 interface DetailsModalProps {
   /** The item to display details for, or null if closed. */
-  item: MediaItem | StandardItem | null;
+  item: Item | null;
   /** Whether the modal is currently visible. */
   isOpen: boolean;
   /** Callback fired when the modal should be closed. */
   onClose: () => void;
   /** Optional callback to persist enriched metadata back to the parent state. */
-  onUpdateItem?: (itemId: string, updates: Partial<MediaItem | StandardItem>) => void;
+  onUpdateItem?: (itemId: string, updates: Partial<Item>) => void;
 }
 
 /**
  * A comprehensive details view that branches logic based on the item architecture (Legacy V1 or Standard V2).
  * @param props - The component props.
+ * @param props.item
+ * @param props.isOpen
+ * @param props.onClose
+ * @param props.onUpdateItem
  * @returns The rendered DetailsModal component.
  */
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
@@ -49,9 +53,9 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   const isV2 = !!item && 'identity' in item;
 
   // V1 Resolver (Legacy)
-  const v1Result = useMediaResolver((isOpen && !isV2) ? item as MediaItem : null, {
+  const v1Result = useItemResolver((isOpen && !isV2) ? item as LegacyItem : null, {
     enabled: isOpen && !isV2,
-    onUpdate: onUpdateItem as (id: string, updates: Partial<MediaItem>) => void,
+    onUpdate: onUpdateItem as (id: string, updates: Partial<LegacyItem>) => void,
     persist: true,
   });
 
@@ -80,14 +84,14 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
     colorClass = entityDef?.branding.colorClass || 'text-blue-400';
     subtitle = si.subtitle || '';
   } else {
-    const mi = resolvedItem as MediaItem;
-    const definition = mediaTypeRegistry.get(mi.type);
+    const mi = resolvedItem as LegacyItem;
+    const definition = itemTypeRegistry.get(mi.type);
     PlaceholderIcon = definition.icon;
     colorClass = definition.colorClass;
     subtitle = (('artist' in mi && mi.artist) || ('author' in mi && mi.author) || '') as string;
   }
 
-  const details = resolvedItem.details as (MediaItem['details'] | StandardDetails);
+  const details = resolvedItem.details as (LegacyItem['details'] | StandardDetails);
 
   return (
     <div
@@ -103,7 +107,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
         {/* Header with Cover Art */}
         <div className="relative h-48 shrink-0 overflow-hidden bg-neutral-950 sm:h-64">
           {isV2 ? (
-            <MediaImage
+            <ItemImage
               item={resolvedItem as StandardItem}
               TypeIcon={PlaceholderIcon}
               priority
@@ -112,8 +116,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               sizes="100vw"
             />
           ) : (
-            <LegacyMediaImage
-              item={resolvedItem as MediaItem}
+            <LegacyItemImage
+              item={resolvedItem as LegacyItem}
               priority
               TypeIcon={PlaceholderIcon}
               containerClassName="absolute inset-0"
@@ -125,15 +129,15 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
           <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
             {isV2 ? (
-              <MediaImage
+              <ItemImage
                 item={resolvedItem as StandardItem}
                 TypeIcon={PlaceholderIcon}
                 containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24"
                 sizes="96px"
               />
             ) : (
-              <LegacyMediaImage
-                item={resolvedItem as MediaItem}
+              <LegacyItemImage
+                item={resolvedItem as LegacyItem}
                 TypeIcon={PlaceholderIcon}
                 containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24"
                 sizes="96px"
@@ -146,10 +150,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               <div className="mt-1 flex items-center gap-2 text-neutral-300">
                 <PlaceholderIcon size={16} className={colorClass} />
                 <span className="font-medium">{subtitle}</span>
-                {!isV2 && (resolvedItem as MediaItem).year && (
+                {!isV2 && (resolvedItem as LegacyItem).year && (
                   <>
                     <span className="text-neutral-600">•</span>
-                    <span className="text-neutral-400">{(resolvedItem as MediaItem).year}</span>
+                    <span className="text-neutral-400">{(resolvedItem as LegacyItem).year}</span>
                   </>
                 )}
                 {isV2 && (resolvedItem as StandardItem).tertiaryText && (
@@ -214,7 +218,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                       Subjects / Tags
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {Array.from(new Set(details.tags)).map((tag: string) => (
+                      {[...new Set(details.tags)].map((tag: string) => (
                         <span
                           key={tag}
                           className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs text-neutral-300"
@@ -269,6 +273,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
 /**
  * Internal component to handle notes editing.
+ * @param root0
+ * @param root0.initialNotes
+ * @param root0.itemId
+ * @param root0.onUpdate
  */
 function LocalNotesEditor({
   initialNotes,

@@ -31,8 +31,8 @@ vi.mock('@/lib/hooks/useTierListDnD', () => ({
   }),
 }));
 
-vi.mock('./MediaRegistryProvider', () => ({
-  useMediaRegistry: () => ({
+vi.mock('./ItemRegistryProvider', () => ({
+  useItemRegistry: () => ({
     registerItems: vi.fn(),
     registerItem: vi.fn(),
     getItem: vi.fn(),

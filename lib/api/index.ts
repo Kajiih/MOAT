@@ -5,7 +5,7 @@
  * @module APIUtils
  */
 
-import { BoardCategory, MediaType } from '../types';
+import { BoardCategory, ItemType } from '../types';
 
 /**
  * Generates a normalized URL for search requests.
@@ -17,7 +17,7 @@ import { BoardCategory, MediaType } from '../types';
  */
 export function getSearchUrl(
   category: BoardCategory,
-  type: MediaType,
+  type: ItemType,
   params: Record<string, unknown>,
 ): string {
   const urlParams = new URLSearchParams();

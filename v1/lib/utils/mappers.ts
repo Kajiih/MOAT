@@ -1,6 +1,6 @@
 /**
  * @file mappers.ts
- * @description Utility functions for transforming raw API responses (Zod schemas) into internal domain types (MediaItem).
+ * @description Utility functions for transforming raw API responses (Zod schemas) into internal domain types (LegacyItem).
  * Handles the logic for extracting release years, formatting artist credits, and resolving the best available image URL (Cover Art Archive).
  * @module DataMappers
  */
@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 import { getArtistThumbnail } from '@/lib/server/images';
 import {
-  MediaItem,
+  LegacyItem,
   MusicBrainzArtistCreditSchema,
   MusicBrainzArtistSchema,
   MusicBrainzRecordingSchema,
@@ -40,14 +40,14 @@ export const formatArtistCredit = (credits?: z.infer<typeof MusicBrainzArtistCre
 };
 
 /**
- * Maps a raw MusicBrainz Release Group response to a simplified MediaItem.
+ * Maps a raw MusicBrainz Release Group response to a simplified LegacyItem.
  * Defaults the image to the Cover Art Archive front image.
  * @param item - The raw MusicBrainz Release Group response.
- * @returns A normalized MediaItem object.
+ * @returns A normalized LegacyItem object.
  */
 export function mapReleaseGroupToMediaItem(
   item: z.infer<typeof MusicBrainzReleaseGroupSchema>,
-): MediaItem {
+): LegacyItem {
   return {
     id: item.id,
     mbid: item.id,
@@ -63,14 +63,14 @@ export function mapReleaseGroupToMediaItem(
 }
 
 /**
- * Maps a raw MusicBrainz Artist response to a MediaItem.
+ * Maps a raw MusicBrainz Artist response to a LegacyItem.
  * Asynchronously fetches a thumbnail from Fanart.tv or Wikidata via the image service.
  * @param item - The raw MusicBrainz Artist response.
- * @returns A Promise resolving to a normalized MediaItem object.
+ * @returns A Promise resolving to a normalized LegacyItem object.
  */
 export async function mapArtistToMediaItem(
   item: z.infer<typeof MusicBrainzArtistSchema>,
-): Promise<MediaItem> {
+): Promise<LegacyItem> {
   const thumb = await getArtistThumbnail(item.id);
   return {
     id: item.id,
@@ -85,14 +85,14 @@ export async function mapArtistToMediaItem(
 }
 
 /**
- * Maps a raw MusicBrainz Recording (Song) response to a MediaItem.
+ * Maps a raw MusicBrainz Recording (Song) response to a LegacyItem.
  * Attempts to resolve artwork from the release group or specific release.
  * @param item - The raw MusicBrainz Recording (Song) response.
- * @returns A normalized MediaItem object.
+ * @returns A normalized LegacyItem object.
  */
 export function mapRecordingToMediaItem(
   item: z.infer<typeof MusicBrainzRecordingSchema>,
-): MediaItem {
+): LegacyItem {
   const release = item.releases?.[0];
   const albumId = release?.['release-group']?.id;
   const releaseId = release?.id;

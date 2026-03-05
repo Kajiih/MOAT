@@ -3,7 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ActionType } from '@/lib/state/actions';
-import { MediaItem, TierListState } from '@/lib/types';
+import { LegacyItem, TierListState } from '@/lib/types';
 
 import { useTierListDnD } from './useTierListDnD';
 
@@ -45,14 +45,14 @@ describe('useTierListDnD', () => {
   it('should handle handleDragStart for a media item', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const mediaItem: MediaItem = { id: 'm1', title: 'Song 1', type: 'song' } as MediaItem;
+    const item: LegacyItem = { id: 'm1', title: 'Song 1', type: 'song' } as LegacyItem;
     const event = {
       active: {
         id: 'm1',
         data: {
           current: {
-            type: 'mediaItem',
-            mediaItem,
+            type: 'item',
+            item,
           },
         },
       },
@@ -63,21 +63,21 @@ describe('useTierListDnD', () => {
     });
 
     expect(mockPushHistory).toHaveBeenCalled();
-    expect(result.current.activeItem).toEqual(mediaItem);
+    expect(result.current.activeItem).toEqual(item);
     expect(result.current.activeTier).toBeNull();
   });
 
   it('should handle handleDragOver and dispatch MOVE_ITEM', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const mediaItem: MediaItem = { id: 'm1', title: 'Song 1', type: 'song' } as MediaItem;
+    const item: LegacyItem = { id: 'm1', title: 'Song 1', type: 'song' } as LegacyItem;
     const event = {
       active: {
         id: 'm1',
         data: {
           current: {
-            type: 'mediaItem',
-            mediaItem,
+            type: 'item',
+            item,
             sourceTier: 'tier-1',
           },
         },
@@ -105,7 +105,7 @@ describe('useTierListDnD', () => {
         activeId: 'm1',
         overId: 'tier-2',
         activeTierId: 'tier-1',
-        activeItem: mediaItem,
+        activeItem: item,
       },
     });
   });
@@ -113,14 +113,14 @@ describe('useTierListDnD', () => {
   it('should handle handleDragEnd for item reordering', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const mediaItem: MediaItem = { id: 'm1', title: 'Song 1', type: 'song' } as MediaItem;
+    const item: LegacyItem = { id: 'm1', title: 'Song 1', type: 'song' } as LegacyItem;
     const event = {
       active: {
         id: 'm1',
         data: {
           current: {
-            type: 'mediaItem',
-            mediaItem,
+            type: 'item',
+            item,
           },
         },
       },
@@ -140,7 +140,7 @@ describe('useTierListDnD', () => {
       payload: {
         activeId: 'm1',
         overId: 'm2',
-        activeItem: mediaItem,
+        activeItem: item,
       },
     });
   });
@@ -175,18 +175,18 @@ describe('useTierListDnD', () => {
   it('should normalize ID after dragging an item from search', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const canonicalItem: MediaItem = {
+    const canonicalItem: LegacyItem = {
       id: 'real-id',
       title: 'Real Song',
       type: 'song',
-    } as MediaItem;
+    } as LegacyItem;
     const event = {
       active: {
         id: 'search-123',
         data: {
           current: {
-            type: 'mediaItem',
-            mediaItem: canonicalItem,
+            type: 'item',
+            item: canonicalItem,
           },
         },
       },

@@ -1,7 +1,9 @@
-import { describe, expect, it, beforeAll } from 'vitest';
+import { beforeAll,describe, expect, it } from 'vitest';
+
+import { logger } from '@/lib/logger';
+
 import { HardcoverService } from '../books/HardcoverService';
 import { loadIntegrationEnv } from './setup';
-import { logger } from '@/lib/logger';
 
 describe('HardcoverService Real API Integration', () => {
   const service = new HardcoverService();
@@ -59,7 +61,7 @@ describe('HardcoverService Real API Integration', () => {
     });
     
     expect(result.results.length).toBeGreaterThan(0);
-    const years = result.results.map(r => parseInt(r.year || '0', 10));
+    const years = result.results.map(r => Number.parseInt(r.year || '0', 10));
     // Verify at least some fall in range (Hardcover year data can sometimes be missing)
     const validYears = years.filter(y => y >= 1995 && y <= 2005);
     logger.info({ years, validCount: validYears.length }, 'Hardcover Year Range Result');

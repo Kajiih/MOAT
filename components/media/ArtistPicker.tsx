@@ -1,6 +1,6 @@
 /**
  * @file ArtistPicker.tsx
- * @description Specialized wrapper around MediaPicker for selecting artists.
+ * @description Specialized wrapper around ItemPicker for selecting artists.
  * @module ArtistPicker
  */
 
@@ -8,7 +8,7 @@
 
 import { ArtistSelection } from '@/lib/types';
 
-import { MediaPicker } from './MediaPicker';
+import { ItemPicker } from './ItemPicker';
 
 /**
  * Props for the ArtistPicker component.
@@ -44,7 +44,7 @@ export function ArtistPicker({
   context,
 }: ArtistPickerProps) {
   return (
-    <MediaPicker
+    <ItemPicker
       type="artist"
       selectedItem={selectedArtist}
       onSelect={onSelect}

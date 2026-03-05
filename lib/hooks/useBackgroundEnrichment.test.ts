@@ -1,14 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MediaItem } from '@/lib/types';
+import { LegacyItem } from '@/lib/types';
 
 import { useBackgroundEnrichment } from './useBackgroundEnrichment';
 
-// Mock useMediaResolver
+// Mock useItemResolver
 const mockUseMediaResolver = vi.fn();
-vi.mock('@/lib/hooks/useMediaResolver', () => ({
-  useMediaResolver: (item: unknown, options: unknown) => mockUseMediaResolver(item, options),
+vi.mock('@/lib/hooks/useItemResolver', () => ({
+  useItemResolver: (item: unknown, options: unknown) => mockUseMediaResolver(item, options),
 }));
 
 describe('useBackgroundEnrichment', () => {
@@ -22,14 +22,14 @@ describe('useBackgroundEnrichment', () => {
     });
   });
 
-  const createMockItem = (id: string, hasDetails = false): MediaItem =>
+  const createMockItem = (id: string, hasDetails = false): LegacyItem =>
     ({
       id,
       type: 'album',
       title: `Item ${id}`,
       imageUrl: 'img.jpg',
       details: hasDetails ? { id, type: 'album', title: 'Details', tracks: [] } : undefined,
-    }) as MediaItem;
+    }) as LegacyItem;
 
   it('should only process items that are missing details', () => {
     const items = [
@@ -80,7 +80,7 @@ describe('useBackgroundEnrichment', () => {
     // slot1 = itemsToSync[0]; ...
     // useSingleItemSyncWrapper(slot1, onUpdateItem);
 
-    // So if itemsToSync has 3 items, the first 3 calls to useMediaResolver will have items.
+    // So if itemsToSync has 3 items, the first 3 calls to useItemResolver will have items.
     // The rest will NOT be called because useBackgroundEnrichment only has 3 slots.
 
     expect(mockUseMediaResolver).toHaveBeenCalledTimes(3);

@@ -10,7 +10,7 @@ import {
   AlbumItem,
   ArtistItem,
   BookItem,
-  MediaItem,
+  LegacyItem,
   SongItem,
   TierDefinition,
   TierListState,
@@ -109,7 +109,7 @@ export function createBook(overrides: Partial<BookItem> = {}): BookItem {
  * @param factory - Factory function to use.
  * @returns Array of media items.
  */
-export function createMany<T extends MediaItem>(
+export function createMany<T extends LegacyItem>(
   count: number,
   factory: (overrides?: Partial<T>) => T,
 ): T[] {

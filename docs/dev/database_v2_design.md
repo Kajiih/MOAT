@@ -164,7 +164,7 @@ The `StandardItem` contains an array of `ImageSource` objects.
 - **Reference Source**: A reference to an external provider (e.g. `wikidata:slug:elden-ring`) that a background service can use to "resolve" or "heal" a missing image on the fly.
 
 ### How it works in the UI:
-1.  **Render**: `MediaCard` tries to load the first source in `images`.
+1.  **Render**: `ItemCard` tries to load the first source in `images`.
 2.  **Error**: If the image fails to load (443/404), the UI triggers an `onError` event.
 3.  **Resolution**: The UI automatically tries the next item in `images`. If it's a "Reference Source", it calls `registry.resolveImageReference()` to fetch a fresh URL.
 

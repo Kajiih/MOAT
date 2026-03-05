@@ -23,7 +23,7 @@
   - **Persistent Global Library**: Every item encountered in search is stored in a persistent `MediaRegistry`. Once an image or tracklist is found, it is remembered across sessions.
   - **Self-Healing Images**: If an artist image is missing during search, the app automatically fetches it in the background from **Fanart.tv** or **Wikidata** once the item is added to the board.
 - **Deep Metadata Sync**:
-  - **Unified Media Resolution**: The central `useMediaResolver` hook manages the entire lifecycle of an item (Registry <-> Board <-> API). It ensures that whether an item is being enriched in the background or viewed in a modal, the logic for fetching and synchronization is identical.
+  - **Unified Media Resolution**: The central `useItemResolver` hook manages the entire lifecycle of an item (Registry <-> Board <-> API). It ensures that whether an item is being enriched in the background or viewed in a modal, the logic for fetching and synchronization is identical.
   - **Background Enrichment**: A background hook (`useBackgroundEnrichment`) monitors the board and automatically fetches deep metadata (tracklists, tags, bio) for every item without blocking user interaction.
   - **Zero-Latency Details**: Pre-fetched metadata is stored directly in the board state. Modals open instantly with full content, even while offline or after a fresh import.
 - **Image Reuse & Consistency**:
@@ -72,7 +72,7 @@
 - **Registry**: `MediaTypeRegistry` for centralized UI configuration (icons, filters, sorting).
 
 > [!NOTE]
-> **V2-First Architecture**: The application has transitioned to a **V2 Database-Centric Architecture** as the primary standard. V2 components have been promoted to the root directories with clean, logical names (e.g., `TierList`, `MediaCard`). Legacy V1 components are maintained in `legacy/` subdirectories for backward compatibility.
+> **V2-First Architecture**: The application has transitioned to a **V2 Database-Centric Architecture** as the primary standard. V2 components have been promoted to the root directories with clean, logical names (e.g., `TierList`, `ItemCard`). Legacy V1 components are maintained in `legacy/` subdirectories for backward compatibility.
 - **Services**: Pure API adapters for fetching data.
   - **Type Safety**: All services implement `MediaService<F>`, where `F` is a category-specific filter type (e.g., `MusicFilters`, `CinemaFilters`). This ensures end-to-end type safety from the UI filters down to the API query builders.
   - **Music**: `MusicService` (MusicBrainz)
@@ -91,7 +91,7 @@
      - It uses `usePersistentReducer` (a custom hook combining `useReducer` with asynchronous IndexedDB persistence) for centralized state logic and persistence.
      - **Slice Reducer Pattern**: The core logic in `reducer.ts` is divided into specialized "slices" (`tier-reducer.ts`, `item-reducer.ts`, `global-reducer.ts`) for better maintainability and testability.
      - This architecture decouples state transitions from UI components, using a standard `dispatch(Action)` pattern.
-  2. **Global Media Registry**: A persistent `IndexedDB` cache (`MediaRegistryProvider`) that acts as a "Shared Memory" for the whole app.
+  2. **Global Media Registry**: A persistent `IndexedDB` cache (`ItemRegistryProvider`) that acts as a "Shared Memory" for the whole app.
   3. **Registry Pruning**: Implements a simple FIFO pruning mechanism (2000-item limit) to prevent storage bloat.
   4. **Optimized Merging**: The registry uses shallow diffing of critical metadata (title, artist, primary images, and notes) before falling back to deep object comparison, minimizing unnecessary state updates and disk writes.
   5. **Batch Processing**: The `registerItems` API allows processing hundreds of items in a single React render cycle and a single IndexedDB transaction, critical for imports and search result delivery.
@@ -164,7 +164,7 @@ Pure **API Adapters** responsible for "How to fetch data".
 The application uses a unified **Media Resolver** pattern to ensure consistency and prevent redundant network requests:
 
 1. **Discovery**: Search results return "Minimal" items.
-2. **Resolution**: `useMediaResolver` checks the **Global Media Registry** (IndexedDB). If a more complete version is found in the cache, it is propagated instantly to the UI.
+2. **Resolution**: `useItemResolver` checks the **Global Media Registry** (IndexedDB). If a more complete version is found in the cache, it is propagated instantly to the UI.
 3. **Enrichment**: If metadata or high-res images are missing, it triggers an on-demand fetch from `/api/details`.
 4. **Synchronization**: New data is committed to both the **Board State** and the **Global Registry** in a single cycle. Because all cards (both on the board and in search results) consume the resolver, they update their visual state (e.g., healing a broken image or updating a subtitle) simultaneously.
 
@@ -178,7 +178,7 @@ The application uses a unified **Media Resolver** pattern to ensure consistency 
 
 #### Prefetching Mechanisms
 
-- **Conditional Pagination Prefetch**: When searching, the app can pre-fetch the _next_ page of results, but this is now controlled by a `prefetchEnabled` flag. Prefetching is **disabled** while the user is interacting with the search/filter zone (e.g., typing in the search box, adjusting filters) to prioritize user-initiated requests. It is **enabled** when the user moves focus to the results grid. `MediaPicker` components explicitly disable prefetching as they don't support pagination.
+- **Conditional Pagination Prefetch**: When searching, the app can pre-fetch the _next_ page of results, but this is now controlled by a `prefetchEnabled` flag. Prefetching is **disabled** while the user is interacting with the search/filter zone (e.g., typing in the search box, adjusting filters) to prioritize user-initiated requests. It is **enabled** when the user moves focus to the results grid. `ItemPicker` components explicitly disable prefetching as they don't support pagination.
 - **Background Enrichment**: The `useBackgroundEnrichment` hook fetches deep metadata for items added to the board without blocking user interaction. It processes up to 3 items concurrently.
 
 #### Persistence Logic
@@ -250,8 +250,8 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
 
 #### C. UI Component Testing
 
-- **Focus**: Critical interactive components like `MediaCard`, `MediaPicker`, and `DetailsModal`.
-- **Methodology**: Uses `@testing-library/react` and `jsdom`. Mocks complex hooks (`useMediaSearch`, `useMediaDetails`) to test component logic in isolation from the network.
+- **Focus**: Critical interactive components like `ItemCard`, `ItemPicker`, and `DetailsModal`.
+- **Methodology**: Uses `@testing-library/react` and `jsdom`. Mocks complex hooks (`useMediaSearch`, `useItemDetails`) to test component logic in isolation from the network.
 - **Coverage**: Verifies rendering accuracy, user interactions (selection, deletion, hovering), and error states (image fallbacks).
 
 #### D. API Route Testing
@@ -316,7 +316,7 @@ We use high-fidelity integration tests with MSW to verify our sorting and discov
 
 To ensure that distributed hooks correctly synchronize with the global application state, we maintain integration tests in `lib/test/integration/`.
 
-- **Propagation Tests**: `propagation.test.tsx` verifies the end-to-end flow between `useMediaResolver` and `TierListProvider`. It ensures that as soon as a resolver discovers enriched metadata (background or on-demand), it triggers the appropriate global actions to update the board state.
+- **Propagation Tests**: `propagation.test.tsx` verifies the end-to-end flow between `useItemResolver` and `TierListProvider`. It ensures that as soon as a resolver discovers enriched metadata (background or on-demand), it triggers the appropriate global actions to update the board state.
 - **Background Synchronization**: Validates that `useBackgroundEnrichment` correctly identifies items needing metadata and orchestrates their resolution without user intervention.
 
 ### 9. Screenshot Engine & Export Architecture
@@ -352,7 +352,7 @@ Moat supports dynamic Open Graph images for social sharing.
 - `components/`:
   - `TierListApp.tsx`: Main layout component (Layout only, logic moved to Context).
   - `TierListContext.tsx`: Core state provider and logic controller (persistence, hydration, DnD, IO).
-  - `MediaRegistryProvider.tsx`: The persistent global item cache.
+  - `ItemRegistryProvider.tsx`: The persistent global item cache.
   - `board/`: Components related to the tier board visualization.
     - `TierBoard.tsx`: Main visualization board managing tier rows and screenshot view.
     - `OGBoard.tsx`: **[New]** Satori-compatible board for OG images.
@@ -365,10 +365,10 @@ Moat supports dynamic Open Graph images for social sharing.
   - `dashboard/`:
     - `Dashboard.tsx`: **[New]** Board management interface (create/delete/navigate).
   - `media/`: Components for media item display and selection.
-    - `MediaCard.tsx`: Standard V2 item component, supporting legacy V1 via branching.
-    - `MediaImage.tsx`: Unified image component with prioritized resolution strategies.
+    - `ItemCard.tsx`: Standard V2 item component, supporting legacy V1 via branching.
+    - `ItemImage.tsx`: Unified image component with prioritized resolution strategies.
     - `DetailsModal.tsx`: Hybrid metadata viewer supporting both Standard and Legacy items.
-    - `MediaPicker.tsx`: Unified search-and-select component.
+    - `ItemPicker.tsx`: Unified search-and-select component.
     - `legacy/`: Dedicated directory for previous V1 media components (`LegacyMediaCard`, `LegacyMediaImage`).
   - `search/`: Components for the search interface.
     - `SearchPanel.tsx`: Sidebar for discovering new media.
@@ -392,7 +392,7 @@ Moat supports dynamic Open Graph images for social sharing.
   - `useTierListDnD.ts`: Encapsulates Drag and Drop sensors, collisions, and state updates.
   - `useTierListNamespaces.ts`: Aggregates state and sub-hook logic into namespaced API objects.
   - `useMediaSearch.ts`: SWR-based search logic with debouncing and pagination.
-  - `useMediaDetails.ts`: Hook for fetching/caching deep metadata.
+  - `useItemDetails.ts`: Hook for fetching/caching deep metadata.
   - `useStorageSync.ts`: **[New]** Primitive hook for syncing state with async storage (Hydration/Debounce/Flush).
   - `usePersistentState.ts`: Generic debounced `IndexedDB` synchronization.
   - `usePersistentReducer.ts`: Combines `useReducer` with async persistence.

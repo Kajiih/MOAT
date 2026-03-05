@@ -7,7 +7,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { StandardItem, StandardDetails } from '../types';
+
+import {StandardItem } from '../types';
 import { useDatabaseDetails } from './useDatabaseDetails';
 import { useStandardRegistry } from './useStandardRegistry';
 
@@ -22,6 +23,8 @@ interface UseStandardResolverOptions {
 
 /**
  * Custom hook to resolve and enrich a V2 StandardItem.
+ * @param item
+ * @param options
  */
 export function useStandardResolver(
   item: StandardItem | null,

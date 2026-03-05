@@ -45,12 +45,13 @@ export class DatabaseRegistry {
    */
   public async waitUntilReady(): Promise<void> {
     while (this.pendingRegistrations.size > 0) {
-      await Promise.all(Array.from(this.pendingRegistrations));
+      await Promise.all(this.pendingRegistrations);
     }
   }
 
   /**
    * Sets a custom fetcher for all providers (useful for testing).
+   * @param fetcher
    */
   public setFetcher(fetcher: Fetcher): void {
     this.fetcher = fetcher;
@@ -58,6 +59,7 @@ export class DatabaseRegistry {
 
   /**
    * Registers and initializes a new database provider.
+   * @param provider
    */
   public async register(provider: DatabaseProvider): Promise<void> {
     this.status = RegistryStatus.INITIALIZING;
@@ -88,7 +90,7 @@ export class DatabaseRegistry {
       
       // Only finalize status if no other registrations are pending 
       if (this.pendingRegistrations.size === 0) {
-        const allProviders = Array.from(this.providers.values());
+        const allProviders = [...this.providers.values()];
         const hasReady = allProviders.some(p => p.status === ProviderStatus.READY);
         const hasProviders = allProviders.length > 0;
         
@@ -106,6 +108,7 @@ export class DatabaseRegistry {
 
   /**
    * Retrieves a provider by id.
+   * @param id
    */
   public getProvider(id: string): DatabaseProvider | undefined {
     return this.providers.get(id);
@@ -113,6 +116,8 @@ export class DatabaseRegistry {
 
   /**
    * Retrieves a specific entity from a specific database provider.
+   * @param databaseId
+   * @param entityId
    */
   public getEntity(databaseId: string, entityId: string): import('./types').DatabaseEntity | undefined {
     const provider = this.getProvider(databaseId);
@@ -121,6 +126,8 @@ export class DatabaseRegistry {
 
   /**
    * Resolves an image reference key globally via the correct provider.
+   * @param providerId
+   * @param key
    */
   public async resolveImageReference(providerId: string, key: string): Promise<string | null> {
     await this.waitUntilReady();
@@ -143,6 +150,7 @@ export class DatabaseRegistry {
   /**
    * Triggers a manual or automatic re-initialization of a provider.
    * Useful when a provider's credentials expire at runtime.
+   * @param providerId
    */
   public async reinitializeProvider(providerId: string): Promise<void> {
     const provider = this.getProvider(providerId);
@@ -156,7 +164,7 @@ export class DatabaseRegistry {
    * Returns all registered providers.
    */
   public getAllProviders(): DatabaseProvider[] {
-    return Array.from(this.providers.values());
+    return [...this.providers.values()];
   }
 
   /**

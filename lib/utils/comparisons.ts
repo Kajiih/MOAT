@@ -5,22 +5,22 @@
  * @module Comparisons
  */
 
-import { MediaItem } from '@/lib/types';
 import { StandardItem } from '@/lib/database/types';
+import { LegacyItem } from '@/lib/types';
 
 /**
  * Checks if a partial update actually changes any values in the current item.
- * Supports both V1 MediaItem and V2 StandardItem.
+ * Supports both V1 LegacyItem and V2 StandardItem.
  * @param current - The existing item.
  * @param updates - The partial updates to apply.
  * @returns True if the updates would change the item, false otherwise.
  */
 export function hasItemUpdates(
-  current: MediaItem | StandardItem, 
-  updates: Partial<MediaItem | StandardItem>
+  current: Item, 
+  updates: Partial<Item>
 ): boolean {
   for (const key of Object.keys(updates)) {
-    const k = key as keyof (MediaItem & StandardItem);
+    const k = key as keyof (LegacyItem & StandardItem);
     const newValue = (updates as any)[k];
     const oldValue = (current as any)[k];
 
@@ -51,4 +51,4 @@ export function hasItemUpdates(
 }
 
 /** Legacy alias for backward compatibility during migration */
-export const hasMediaItemUpdates = hasItemUpdates as (current: MediaItem, updates: Partial<MediaItem>) => boolean;
+export const hasMediaItemUpdates = hasItemUpdates as (current: LegacyItem, updates: Partial<LegacyItem>) => boolean;

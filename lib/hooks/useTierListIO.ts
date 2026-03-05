@@ -7,7 +7,7 @@
 
 import { Dispatch, useCallback } from 'react';
 
-import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
+import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
 import { useToast } from '@/components/ui/ToastProvider';
 import { logger } from '@/lib/logger';
 import { ActionType, TierListAction } from '@/lib/state/actions';
@@ -27,7 +27,7 @@ export function useTierListIO(
   pushHistory?: () => void,
 ) {
   const { showToast } = useToast();
-  const { registerItems } = useMediaRegistry();
+  const { registerItems } = useItemRegistry();
 
   /**
    * Generates a JSON export of the current tier list state and triggers a browser download.

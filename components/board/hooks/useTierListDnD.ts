@@ -21,20 +21,23 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Dispatch, useCallback, useRef, useState } from 'react';
 
-import { ActionType, TierListAction } from '@/lib/state/actions';
-import { MediaItem, TierDefinition, TierListState } from '@/lib/types';
 import { StandardItem } from '@/lib/database/types';
+import { ActionType, TierListAction } from '@/lib/state/actions';
+import { LegacyItem, TierDefinition, TierListState } from '@/lib/types';
 import { isSearchId } from '@/lib/utils/ids';
 
 /**
  * Manages the Drag and Drop state and event handlers for the Tier List board.
+ * @param state
+ * @param dispatch
+ * @param pushHistory
  */
 export function useTierListDnD(
   state: TierListState,
   dispatch: Dispatch<TierListAction>,
   pushHistory: () => void,
 ) {
-  const [activeItem, setActiveItem] = useState<MediaItem | StandardItem | null>(null);
+  const [activeItem, setActiveItem] = useState<Item | null>(null);
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
@@ -64,8 +67,8 @@ export function useTierListDnD(
       if (active.data.current?.type === 'tier') {
         setActiveTier(active.data.current.tier);
       } else {
-        // Support both mediaItem (V1) and standardItem (V2) in data
-        setActiveItem(active.data.current?.mediaItem || active.data.current?.standardItem);
+        // Support both item (V1) and standardItem (V2) in data
+        setActiveItem(active.data.current?.item || active.data.current?.standardItem);
       }
     },
     [pushHistory],
@@ -84,7 +87,7 @@ export function useTierListDnD(
       const overId = over.id as string;
 
       const activeTierId = active.data.current?.sourceTier;
-      const activeItemData = active.data.current?.mediaItem || active.data.current?.standardItem;
+      const activeItemData = active.data.current?.item || active.data.current?.standardItem;
 
       setTimeout(() => {
         if (!isDraggingRef.current) return;
@@ -126,7 +129,7 @@ export function useTierListDnD(
 
       const activeId = active.id as string;
       const overId = over?.id as string;
-      const activeItemData = active.data.current?.mediaItem || active.data.current?.standardItem;
+      const activeItemData = active.data.current?.item || active.data.current?.standardItem;
 
       if (activeId && overId && activeId !== overId) {
         dispatch({
@@ -148,7 +151,7 @@ export function useTierListDnD(
           canonicalId = (activeItemData as StandardItem).id;
         } else {
           // V1: Use mbid or strip prefix
-          canonicalId = (activeItemData as MediaItem).mbid || activeItemData.id.replace(/^search-/, '');
+          canonicalId = (activeItemData as LegacyItem).mbid || activeItemData.id.replace(/^search-/, '');
         }
 
         if (canonicalId && canonicalId !== activeId) {

@@ -1,6 +1,6 @@
 /**
  * @file AlbumPicker.tsx
- * @description Specialized wrapper around MediaPicker for selecting albums.
+ * @description Specialized wrapper around ItemPicker for selecting albums.
  * @module AlbumPicker
  */
 
@@ -8,7 +8,7 @@
 
 import { AlbumSelection } from '@/lib/types';
 
-import { MediaPicker } from './MediaPicker';
+import { ItemPicker } from './ItemPicker';
 
 /**
  * Props for the AlbumPicker component.
@@ -48,7 +48,7 @@ export function AlbumPicker({
   context,
 }: AlbumPickerProps) {
   return (
-    <MediaPicker
+    <ItemPicker
       type="album"
       selectedItem={selectedAlbum}
       onSelect={onSelect}

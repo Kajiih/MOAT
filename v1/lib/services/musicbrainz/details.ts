@@ -6,7 +6,7 @@
 
 import { logger } from '@/lib/logger';
 import { getArtistThumbnail } from '@/lib/server/images';
-import { MediaDetails, MediaType } from '@/lib/types';
+import { ItemType,LegacyItemDetails } from '@/lib/types';
 
 import { mbFetch } from './client';
 import { DETAILS_CACHE_TTL } from './config';
@@ -62,7 +62,7 @@ interface MBRecordingResponse {
 
 async function getAlbumDetails(
   id: string,
-): Promise<MediaDetails | { id: string; mbid: string; type: MediaType }> {
+): Promise<LegacyItemDetails | { id: string; mbid: string; type: ItemType }> {
   // 1. Find the "best" release for this release group (Official, earliest)
   const query = `rgid:${id} AND status:official`;
   const searchData = await mbFetch<MBSearchResponse>(
@@ -115,7 +115,7 @@ async function getAlbumDetails(
   };
 }
 
-async function getArtistDetails(id: string): Promise<MediaDetails> {
+async function getArtistDetails(id: string): Promise<LegacyItemDetails> {
   const data = await mbFetch<MBArtistResponse>(`artist/${id}`, 'inc=url-rels+tags', {
     next: { revalidate: DETAILS_CACHE_TTL },
   });
@@ -155,7 +155,7 @@ async function getArtistDetails(id: string): Promise<MediaDetails> {
   };
 }
 
-async function getSongDetails(id: string): Promise<MediaDetails> {
+async function getSongDetails(id: string): Promise<LegacyItemDetails> {
   const data = await mbFetch<MBRecordingResponse>(
     `recording/${id}`,
     'inc=releases+release-groups+artist-credits+tags',
@@ -181,10 +181,10 @@ async function getSongDetails(id: string): Promise<MediaDetails> {
  * @param type - The type of the media item.
  * @returns A promise that resolves to the detailed media information.
  */
-export async function getMediaDetails(
+export async function getLegacyItemDetails(
   id: string,
-  type: MediaType,
-): Promise<MediaDetails | { id: string; mbid: string; type: MediaType }> {
+  type: ItemType,
+): Promise<LegacyItemDetails | { id: string; mbid: string; type: ItemType }> {
   try {
     switch (type) {
       case 'album': {

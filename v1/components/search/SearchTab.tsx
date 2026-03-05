@@ -11,28 +11,28 @@
 import { Filter } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { MediaCard } from '@/components/media/MediaCard';
+import { ItemCard } from '@/components/media/ItemCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
-import { mediaTypeRegistry } from '@/lib/media-types';
-import { BaseMediaItem, MediaItem, MediaType, SongItem, SortOption } from '@/lib/types';
+import { itemTypeRegistry } from '@/lib/media-types';
+import { BaseLegacyItem, ItemType, LegacyItem, SongItem, SortOption } from '@/lib/types';
 import { toSearchId } from '@/lib/utils/ids';
 
 import { SearchFilters } from './filters/SearchFilters';
-import { useMediaSearch } from './hooks/useMediaSearch';
+import { useItemSearch } from './hooks/useItemSearch';
 import { useSearchFilters } from './hooks/useSearchFilters';
 
 interface SearchTabProps {
-  type: MediaType;
+  type: ItemType;
   addedItemIds: Set<string>;
   onLocate: (id: string) => void;
   isHidden: boolean;
   showAdded: boolean;
   globalFuzzy: boolean;
   globalWildcard: boolean;
-  onInfo: (item: MediaItem) => void;
+  onInfo: (item: LegacyItem) => void;
   serviceId?: string;
 }
 
@@ -78,7 +78,7 @@ export function SearchTab({
     error,
     isLoading: isSearching,
     searchNow,
-  } = useMediaSearch(type, {
+  } = useItemSearch(type, {
     fuzzy: globalFuzzy,
     wildcard: globalWildcard,
     enabled: !isHidden,
@@ -104,7 +104,7 @@ export function SearchTab({
       return searchResults;
     }
 
-    return (searchResults as MediaItem[]).toSorted((a, b) => {
+    return (searchResults as LegacyItem[]).toSorted((a, b) => {
       switch (sortOption) {
         case 'date_desc': {
           return (b.date || b.year || '').localeCompare(a.date || a.year || '');
@@ -125,23 +125,23 @@ export function SearchTab({
           return ((a as SongItem).duration || 0) - ((b as SongItem).duration || 0);
         }
         case 'rating_desc': {
-          const aVal = (a as BaseMediaItem).rating ?? -1;
-          const bVal = (b as BaseMediaItem).rating ?? -1;
+          const aVal = (a as BaseLegacyItem).rating ?? -1;
+          const bVal = (b as BaseLegacyItem).rating ?? -1;
           return bVal - aVal;
         }
         case 'rating_asc': {
-          const aVal = (a as BaseMediaItem).rating ?? 999;
-          const bVal = (b as BaseMediaItem).rating ?? 999;
+          const aVal = (a as BaseLegacyItem).rating ?? 999;
+          const bVal = (b as BaseLegacyItem).rating ?? 999;
           return aVal - bVal;
         }
         case 'reviews_desc': {
-          const aVal = (a as BaseMediaItem).reviewCount ?? -1;
-          const bVal = (b as BaseMediaItem).reviewCount ?? -1;
+          const aVal = (a as BaseLegacyItem).reviewCount ?? -1;
+          const bVal = (b as BaseLegacyItem).reviewCount ?? -1;
           return bVal - aVal;
         }
         case 'reviews_asc': {
-          const aVal = (a as BaseMediaItem).reviewCount ?? 999_999_999;
-          const bVal = (b as BaseMediaItem).reviewCount ?? 999_999_999;
+          const aVal = (a as BaseLegacyItem).reviewCount ?? 999_999_999;
+          const bVal = (b as BaseLegacyItem).reviewCount ?? 999_999_999;
           return aVal - bVal;
         }
         default: {
@@ -152,9 +152,9 @@ export function SearchTab({
   }, [searchResults, filters.sort, isServerSorted]);
 
   const finalResults = useMemo(() => {
-    const results = sortedResults as MediaItem[];
+    const results = sortedResults as LegacyItem[];
     if (showAdded) return results;
-    return results.filter((item: MediaItem) => !addedItemIds.has(item.id));
+    return results.filter((item: LegacyItem) => !addedItemIds.has(item.id));
   }, [sortedResults, showAdded, addedItemIds]);
 
   // Check if any filter is active to show results or "No results found"
@@ -191,7 +191,7 @@ export function SearchTab({
             {finalResults.map((item) => {
               const isAdded = addedItemIds.has(item.id);
               return (
-                <MediaCard
+                <ItemCard
                   key={`${item.id}-${isAdded}`}
                   item={item}
                   id={toSearchId(item.id)}
@@ -245,7 +245,7 @@ export function SearchTab({
             sortOption={(filters.sort as string) || 'relevance'}
             onSortChange={(val) => updateFilters({ sort: val })}
             type={type}
-            options={mediaTypeRegistry.getSortOptions(type).map((opt) => ({
+            options={itemTypeRegistry.getSortOptions(type).map((opt) => ({
               label: opt.label,
               value: opt.value,
             }))}

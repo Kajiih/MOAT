@@ -7,14 +7,14 @@
 
 import { Clock, Disc, ExternalLink } from 'lucide-react';
 
-import { MediaDetails } from '@/lib/types';
+import { LegacyItemDetails } from '@/lib/types';
 
 /**
  * Props for the SongView component.
  */
 interface SongViewProps {
   /** The detailed metadata for the song. */
-  details: MediaDetails;
+  details: LegacyItemDetails;
 }
 
 /**
@@ -68,7 +68,7 @@ export function SongView({ details }: SongViewProps) {
         <div>
           <h3 className="mb-2 text-sm font-bold text-neutral-500 uppercase">Tags</h3>
           <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(details.tags)).map((tag) => (
+            {[...new Set(details.tags)].map((tag) => (
               <span
                 key={tag}
                 className="rounded border border-blue-900/30 bg-blue-900/20 px-2 py-1 text-xs text-blue-300"

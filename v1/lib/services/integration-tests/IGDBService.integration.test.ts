@@ -1,7 +1,9 @@
-import { describe, expect, it, beforeAll } from 'vitest';
+import { beforeAll,describe, expect, it } from 'vitest';
+
+import { logger } from '@/lib/logger';
+
 import { IGDBService } from '../games/IGDBService';
 import { loadIntegrationEnv } from './setup';
-import { logger } from '@/lib/logger';
 
 describe('IGDBService Real API Integration', () => {
   const service = new IGDBService();

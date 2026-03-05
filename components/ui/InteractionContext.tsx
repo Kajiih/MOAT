@@ -9,14 +9,14 @@
 
 import { createContext, useContext } from 'react';
 
-import { MediaItem } from '@/lib/types';
+import { LegacyItem } from '@/lib/types';
 
 /**
  * Metadata for an item currently being hovered in the UI.
  */
 export interface HoveredItemInfo {
   /** The media item object. */
-  item: MediaItem;
+  item: LegacyItem;
   /** Optional ID of the tier where the item is located. */
   tierId?: string;
 }

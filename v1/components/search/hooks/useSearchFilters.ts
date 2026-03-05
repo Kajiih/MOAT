@@ -8,14 +8,14 @@
 import { useCallback } from 'react';
 
 import { usePersistentState } from '@/lib/hooks';
-import { MediaType } from '@/lib/types';
+import { ItemType } from '@/lib/types';
 
 /**
  * Custom hook to manage the UI state of search filters.
  * @param type - The type of media being searched.
  * @returns An object containing the visibility state and toggle function for the filters.
  */
-export function useSearchFilters(type: MediaType) {
+export function useSearchFilters(type: ItemType) {
   const [showFilters, setShowFilters] = usePersistentState<boolean>(
     `moat-search-ui-${type}-showFilters`,
     false,

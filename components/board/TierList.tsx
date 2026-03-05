@@ -10,8 +10,7 @@
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import React from 'react';
 
-import { StandardItem } from '@/lib/database/types';
-import { MediaItem, TierDefinition } from '@/lib/types';
+import { TierDefinition } from '@/lib/types';
 
 import { TierRow } from './TierRow';
 
@@ -22,7 +21,7 @@ export interface TierListProps {
   /** Array of tier definitions to render. */
   tiers: TierDefinition[];
   /** Map of items indexed by tier ID. */
-  items: Record<string, (MediaItem | StandardItem)[]>;
+  items: Record<string, (Item)[]>;
   /** Whether the board is being rendered for image export. */
   isExport?: boolean;
   /** Pre-resolved base64 images for clean room export. */
@@ -36,12 +35,21 @@ export interface TierListProps {
   /** Callback to delete an entire tier. */
   onDeleteTier: (id: string) => void;
   /** Callback to show detailed information for an item. */
-  onInfo?: (item: MediaItem | StandardItem) => void;
+  onInfo?: (item: Item) => void;
 }
 
 /**
  * Renders a list of TierRows and manages the SortableContext for tier reordering.
  * @param props - The component props.
+ * @param props.tiers
+ * @param props.items
+ * @param props.isExport
+ * @param props.resolvedImages
+ * @param props.isAnyDragging
+ * @param props.onRemoveItem
+ * @param props.onUpdateTier
+ * @param props.onDeleteTier
+ * @param props.onInfo
  * @returns The rendered TierList component.
  */
 export function TierList({

@@ -18,6 +18,8 @@ import {
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { useTierListDnD } from '@/components/board/hooks/useTierListDnD';
+import { useStandardRegistry } from '@/lib/database/hooks/useStandardRegistry';
+import { StandardItem } from '@/lib/database/types';
 import { useTierListIO, useTierListUtils, useTierStructure } from '@/lib/hooks';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
@@ -26,11 +28,9 @@ import { INITIAL_STATE } from '@/lib/initial-state';
 import { syncBoardMetadata } from '@/lib/registry-utils';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
-import { BoardCategory, MediaItem, TierDefinition, TierListState } from '@/lib/types';
-import { StandardItem } from '@/lib/database/types';
+import { BoardCategory, LegacyItem, TierDefinition, TierListState } from '@/lib/types';
 
-import { useMediaRegistry } from './MediaRegistryProvider';
-import { useStandardRegistry } from '@/lib/database/hooks/useStandardRegistry';
+import { useItemRegistry } from './ItemRegistryProvider';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -47,7 +47,7 @@ interface TierListContextType {
     clear: () => void;
     resetItems: () => void;
     updateTitle: (title: string) => void;
-    updateMediaItem: (itemId: string, updates: Partial<MediaItem | StandardItem>) => void;
+    updateMediaItem: (itemId: string, updates: Partial<Item>) => void;
     removeItemFromTier: (tierId: string, itemId: string) => void;
     locate: (id: string) => void;
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -57,7 +57,7 @@ interface TierListContextType {
   };
   dnd: {
     sensors: SensorDescriptor<SensorOptions>[];
-    activeItem: MediaItem | StandardItem | null;
+    activeItem: Item | null;
     activeTier: TierDefinition | null;
     overId: string | null;
     handleDragStart: (event: DragStartEvent) => void;
@@ -67,13 +67,13 @@ interface TierListContextType {
   };
   ui: {
     headerColors: string[];
-    detailsItem: MediaItem | StandardItem | null;
-    showDetails: (item: MediaItem | StandardItem) => void;
+    detailsItem: Item | null;
+    showDetails: (item: Item) => void;
     closeDetails: () => void;
     showShortcuts: boolean;
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
     addedItemIds: Set<string>;
-    allBoardItems: (MediaItem | StandardItem)[];
+    allBoardItems: (Item)[];
   };
   history: {
     undo: () => void;
@@ -107,10 +107,10 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   );
 
   const historyRaw = useHistory<TierListState>();
-  const [detailsItem, setDetailsItem] = useState<MediaItem | StandardItem | null>(null);
+  const [detailsItem, setDetailsItem] = useState<Item | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   
-  const { registerItem: registerV1Item, registerItems: registerV1Items } = useMediaRegistry();
+  const { registerItem: registerV1Item, registerItems: registerV1Items } = useItemRegistry();
   const { registerItem: registerV2Item, registerItems: registerV2Items } = useStandardRegistry();
   
   const hasSyncedItems = React.useRef(false);
@@ -121,7 +121,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     if (isHydrated && !hasSyncedItems.current) {
       const allItems = Object.values(state.items).flat();
       if (allItems.length > 0) {
-        const v1Items: MediaItem[] = [];
+        const v1Items: LegacyItem[] = [];
         const v2Items: StandardItem[] = [];
 
         allItems.forEach(item => {
@@ -181,7 +181,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       actions: {
         ...actions,
         publish: ioRaw.handlePublish,
-        updateMediaItem: (itemId: string, updates: Partial<MediaItem | StandardItem>) => {
+        updateMediaItem: (itemId: string, updates: Partial<Item>) => {
           // 1. Find the item to determine its type
           const item = Object.values(state.items).flat().find(i => i.id === itemId);
           if (!item) return;
@@ -193,7 +193,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
           if ('identity' in item) {
             registerV2Item({ ...item, ...updates } as StandardItem);
           } else {
-            registerV1Item({ ...item, ...updates } as MediaItem);
+            registerV1Item({ ...item, ...updates } as LegacyItem);
           }
         },
       },

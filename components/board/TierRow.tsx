@@ -12,11 +12,10 @@ import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { StandardItem } from '@/lib/database/types';
-import { MediaItem, TierDefinition } from '@/lib/types';
+import { TierDefinition } from '@/lib/types';
 
-import { TierHeader } from './TierHeader';
 import { TierGrid } from './TierGrid';
+import { TierHeader } from './TierHeader';
 
 /**
  * Props for the TierRow component.
@@ -25,7 +24,7 @@ export interface TierRowProps {
   /** The tier definition (id, label, color). */
   tier: TierDefinition;
   /** List of items currently in this tier. */
-  items: (MediaItem | StandardItem)[];
+  items: (Item)[];
   /** Callback to remove an item from this tier. */
   onRemoveItem: (itemId: string) => void;
   /** Callback to update tier properties (label, color). */
@@ -37,7 +36,7 @@ export interface TierRowProps {
   /** Whether any drag operation is currently active globally. */
   isAnyDragging?: boolean;
   /** Callback to show details for an item. */
-  onInfo?: (item: MediaItem | StandardItem) => void;
+  onInfo?: (item: Item) => void;
   /** Whether the entire board is empty. */
   isBoardEmpty?: boolean;
   /** Whether this is a central/middle tier. */

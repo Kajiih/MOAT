@@ -6,7 +6,7 @@
  * @module MusicBrainzQueryBuilder
  */
 
-import { MediaType, SECONDARY_TYPES } from '@/lib/types';
+import { ItemType, SECONDARY_TYPES } from '@/lib/types';
 import { constructLuceneQuery, escapeLucene, SearchOptions } from '@/lib/utils/search';
 
 /** Media types supported by the MusicBrainz provider. */
@@ -17,7 +17,7 @@ type MusicMediaType = 'artist' | 'album' | 'song';
  */
 export interface QueryBuilderParams {
   /** The type of media entity being queried. */
-  type: MediaType;
+  type: ItemType;
   /** The primary search query (e.g., entity name). */
   query: string;
   /** Optional literal artist name for filtering. */

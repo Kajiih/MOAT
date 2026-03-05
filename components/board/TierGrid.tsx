@@ -1,17 +1,16 @@
 /**
  * @file TierGrid.tsx
  * @description Renders the grid of items within a tier.
- * Automatically switches between LegacyMediaCard and the new standard MediaCard.
+ * Automatically switches between LegacyItemCard and the new standard ItemCard.
  * Handles performance for large tiers via virtualization.
  */
 
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { memo, ReactNode } from 'react';
 
-import { LegacySortableMediaCard } from '@/components/media/legacy/LegacyMediaCard';
-import { MediaCard } from '@/components/media/MediaCard';
-import { StandardItem } from '@/lib/database/types';
-import { MediaItem } from '@/lib/types';
+import { ItemCard } from '@/components/media/ItemCard';
+import { LegacySortableItemCard } from '@/components/media/legacy/LegacyItemCard';
+import { Item, LegacyItem } from '@/lib/types';
 
 import { VirtualGrid } from './VirtualGrid';
 
@@ -20,13 +19,13 @@ import { VirtualGrid } from './VirtualGrid';
  */
 interface TierGridProps {
   /** List of items in this tier. */
-  items: (MediaItem | StandardItem)[];
+  items: (Item)[];
   /** The ID of the tier. */
   tierId: string;
   /** Callback to remove an item. */
   onRemoveItem: (itemId: string) => void;
   /** Callback to show item details. */
-  onInfo?: (item: MediaItem | StandardItem) => void;
+  onInfo?: (item: Item) => void;
   /** Whether the board is completely empty. */
   isBoardEmpty?: boolean;
   /** Whether this is a central/middle tier for empty state display. */
@@ -55,10 +54,10 @@ export const TierGrid = memo(function TierGrid({
   // Use virtualization for very large tiers (e.g. > 100 items)
   const isLargeTier = !isExport && items.length > 100;
 
-  const renderCard = (item: MediaItem | StandardItem): ReactNode => {
+  const renderCard = (item: Item): ReactNode => {
     if ('identity' in item) {
       return (
-        <MediaCard
+        <ItemCard
           key={item.id}
           item={item}
           tierId={tierId}
@@ -70,13 +69,13 @@ export const TierGrid = memo(function TierGrid({
     }
 
     return (
-      <LegacySortableMediaCard
+      <LegacySortableItemCard
         key={item.id}
         item={item}
         id={item.id}
         tierId={tierId}
-        onRemove={(itemId) => onRemoveItem(itemId)}
-        onInfo={onInfo as (item: MediaItem) => void}
+        onRemove={(itemId: string) => onRemoveItem(itemId)}
+        onInfo={onInfo as (item: LegacyItem) => void}
         isExport={isExport}
         resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
       />

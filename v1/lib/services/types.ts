@@ -7,9 +7,9 @@ import { LucideIcon } from 'lucide-react';
 
 import {
   BoardCategory,
-  MediaDetails,
-  MediaItem,
-  MediaType,
+  ItemType,
+  LegacyItem,
+  LegacyItemDetails,
   SearchResult,
   SortOption,
 } from '@/lib/types';
@@ -45,7 +45,7 @@ export interface FilterDefinition<F extends string = string> {
   type: FilterType;
   placeholder?: string;
   options?: { label: string; value: string; icon?: LucideIcon }[];
-  pickerType?: MediaType; // for 'picker' type
+  pickerType?: ItemType; // for 'picker' type
   default?: unknown;
 }
 
@@ -56,8 +56,8 @@ export interface MediaUIConfig {
   label: string;
   Icon: LucideIcon;
   colorClass: string;
-  getSubtitle: (item: MediaItem) => string;
-  getTertiaryText: (item: MediaItem) => string;
+  getSubtitle: (item: LegacyItem) => string;
+  getTertiaryText: (item: LegacyItem) => string;
 }
 
 /**
@@ -83,18 +83,18 @@ export interface MediaService<F = Record<string, unknown>> {
   /**
    * Searches for items in the provider's database.
    */
-  search(query: string, type: MediaType, options?: SearchOptions<F>): Promise<SearchResult>;
+  search(query: string, type: ItemType, options?: SearchOptions<F>): Promise<SearchResult>;
 
   /**
    * Retrieves detailed metadata for a specific item.
    */
-  getDetails(id: string, type: MediaType): Promise<MediaDetails>;
+  getDetails(id: string, type: ItemType): Promise<LegacyItemDetails>;
 
   /**
    * Returns the list of media types supported by this service.
    * Used to populate the SearchPanel tabs.
    */
-  getSupportedTypes(): MediaType[];
+  getSupportedTypes(): ItemType[];
 }
 
 /**

@@ -7,9 +7,9 @@
 import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
-import { FilterConfig, mediaTypeRegistry } from '@/lib/media-types';
+import { FilterConfig, itemTypeRegistry } from '@/lib/media-types';
 import { getMediaService } from '@/lib/services/factory';
-import { BoardCategory, MediaType, SortOption } from '@/lib/types';
+import { BoardCategory, ItemType, SortOption } from '@/lib/types';
 
 /**
  * Helper to parse range filters (years, duration).
@@ -73,16 +73,16 @@ function parseFilter(
  * @param type - Media type to parse filters for
  * @returns Parsed search options including page, fuzzy, wildcard, and filters
  */
-function parseSearchParams(searchParams: URLSearchParams, type: MediaType) {
+function parseSearchParams(searchParams: URLSearchParams, type: ItemType) {
   const page = Number.parseInt(searchParams.get('page') || '1', 10);
   const fuzzy = searchParams.get('fuzzy') !== 'false';
   const wildcard = searchParams.get('wildcard') !== 'false';
 
   // Get all filters from the type definition
-  if (!mediaTypeRegistry.has(type)) {
+  if (!itemTypeRegistry.has(type)) {
     throw new Error(`Media type "${type}" is not registered`);
   }
-  const typeDefinition = mediaTypeRegistry.get(type);
+  const typeDefinition = itemTypeRegistry.get(type);
   const filters: Record<string, unknown> = {};
 
   // Parse each filter based on its definition
@@ -104,7 +104,7 @@ function parseSearchParams(searchParams: URLSearchParams, type: MediaType) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = (searchParams.get('category') as BoardCategory) || 'music';
-  const type = (searchParams.get('type') as MediaType) || 'album';
+  const type = (searchParams.get('type') as ItemType) || 'album';
   const query = searchParams.get('query') || '';
   const serviceId = searchParams.get('service') || undefined;
 

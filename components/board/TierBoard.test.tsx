@@ -2,7 +2,7 @@ import { DndContext } from '@dnd-kit/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
+import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
 import { TierListProvider } from '@/components/providers/TierListContext';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 
@@ -33,11 +33,11 @@ describe('TierBoard', () => {
   const renderWithProviders = (ui: React.ReactElement) => {
     return render(
       <ToastProvider>
-        <MediaRegistryProvider>
+        <ItemRegistryProvider>
           <TierListProvider boardId="test-board">
             <DndContext>{ui}</DndContext>
           </TierListProvider>
-        </MediaRegistryProvider>
+        </ItemRegistryProvider>
       </ToastProvider>,
     );
   };

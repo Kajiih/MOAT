@@ -3,9 +3,9 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MediaItem } from '@/lib/types';
+import { LegacyItem } from '@/lib/types';
 
-import { useMediaSearch } from './useMediaSearch';
+import { useItemSearch } from './useItemSearch';
 
 // Mock SWR - we need this to track calls
 vi.mock('swr', () => ({
@@ -35,8 +35,8 @@ vi.mock('@/lib/hooks', async (importOriginal) => {
 });
 
 // Mock Media Registry
-vi.mock('@/components/providers/MediaRegistryProvider', () => ({
-  useMediaRegistry: vi.fn(() => ({
+vi.mock('@/components/providers/ItemRegistryProvider', () => ({
+  useItemRegistry: vi.fn(() => ({
     registerItems: vi.fn(),
     getItem: vi.fn(),
     registerItem: vi.fn(),
@@ -52,7 +52,7 @@ vi.mock('@/components/providers/TierListContext', () => ({
   })),
 }));
 
-describe('useMediaSearch', () => {
+describe('useItemSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
@@ -71,7 +71,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should initialize with default active search due to default types', () => {
-    const { result } = renderHook(() => useMediaSearch('artist'));
+    const { result } = renderHook(() => useItemSearch('artist'));
     expect(result.current.filters.query).toBe('');
     // By default it searches for Album/EP types even without query
     expect(useSWR).toHaveBeenCalledWith(
@@ -82,7 +82,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should debounce typing and only trigger search after it timeout', () => {
-    const { result } = renderHook(() => useMediaSearch('album'));
+    const { result } = renderHook(() => useItemSearch('album'));
 
     // Clear initial call
     vi.mocked(useSWR).mockClear();
@@ -119,7 +119,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should debounce deleting and only trigger search after it timeout', () => {
-    const { result } = renderHook(() => useMediaSearch('album'));
+    const { result } = renderHook(() => useItemSearch('album'));
 
     // 1. Set initial query and wait for it to settle
     act(() => {
@@ -161,7 +161,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should trigger search IMMEDIATELY when searchNow is called', () => {
-    const { result } = renderHook(() => useMediaSearch('album'));
+    const { result } = renderHook(() => useItemSearch('album'));
     vi.mocked(useSWR).mockClear();
 
     act(() => {
@@ -182,7 +182,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should reset debounce timer if user continues typing', () => {
-    const { result } = renderHook(() => useMediaSearch('album'));
+    const { result } = renderHook(() => useItemSearch('album'));
     vi.mocked(useSWR).mockClear();
 
     act(() => {
@@ -228,14 +228,14 @@ describe('useMediaSearch', () => {
       isValidating: false,
     });
 
-    const { result } = renderHook(() => useMediaSearch('album'));
+    const { result } = renderHook(() => useItemSearch('album'));
     expect(result.current.error?.status).toBe(503);
   });
 
   it('should register items in the Media Registry when data is received', async () => {
-    const { useMediaRegistry } = await import('@/components/providers/MediaRegistryProvider');
+    const { useItemRegistry } = await import('@/components/providers/ItemRegistryProvider');
     const mockRegisterItems = vi.fn();
-    vi.mocked(useMediaRegistry).mockReturnValue({
+    vi.mocked(useItemRegistry).mockReturnValue({
       registerItems: mockRegisterItems,
       getItem: vi.fn(),
       registerItem: vi.fn(),
@@ -243,7 +243,7 @@ describe('useMediaSearch', () => {
       clearRegistry: vi.fn(),
     });
 
-    const mockResults: MediaItem[] = [
+    const mockResults: LegacyItem[] = [
       { id: '1', title: 'Test Item', type: 'album', artist: 'Test Artist', mbid: '123' },
     ];
 
@@ -254,28 +254,28 @@ describe('useMediaSearch', () => {
       isValidating: false,
     });
 
-    renderHook(() => useMediaSearch('album'));
+    renderHook(() => useItemSearch('album'));
 
     expect(mockRegisterItems).toHaveBeenCalledWith(mockResults);
   });
 
   it('should enrich search results with data from the global registry', async () => {
-    const { useMediaRegistry } = await import('@/components/providers/MediaRegistryProvider');
-    const mockItem1: MediaItem = {
+    const { useItemRegistry } = await import('@/components/providers/ItemRegistryProvider');
+    const mockItem1: LegacyItem = {
       id: '1',
       title: 'Search Result',
       type: 'artist',
       mbid: 'mbid-1',
     };
-    const mockItem1Enriched: MediaItem = { ...mockItem1, imageUrl: 'http://cached.com/image.jpg' };
+    const mockItem1Enriched: LegacyItem = { ...mockItem1, imageUrl: 'http://cached.com/image.jpg' };
 
-    vi.mocked(useMediaRegistry).mockReturnValue({
+    vi.mocked(useItemRegistry).mockReturnValue({
       registerItems: vi.fn(),
       registerItem: vi.fn(),
       registrySize: 0,
       clearRegistry: vi.fn(),
       getItem: vi.fn((id: string) => (id === '1' ? mockItem1Enriched : undefined)) as unknown as <
-        T extends MediaItem,
+        T extends LegacyItem,
       >(
         id: string,
       ) => T | undefined,
@@ -288,7 +288,7 @@ describe('useMediaSearch', () => {
       isValidating: false,
     });
 
-    const { result } = renderHook(() => useMediaSearch('artist'));
+    const { result } = renderHook(() => useItemSearch('artist'));
 
     // Result should be enriched with the cached image URL
     expect(result.current.results[0].imageUrl).toBe('http://cached.com/image.jpg');
@@ -296,7 +296,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should trigger search with new filters like artistId and albumId', () => {
-    const { result } = renderHook(() => useMediaSearch('song'));
+    const { result } = renderHook(() => useItemSearch('song'));
     vi.mocked(useSWR).mockClear();
 
     act(() => {
@@ -328,7 +328,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should respect artistId and albumId configuration overrides', () => {
-    renderHook(() => useMediaSearch('album', { artistId: 'forced-artist' }));
+    renderHook(() => useItemSearch('album', { artistId: 'forced-artist' }));
 
     expect(useSWR).toHaveBeenCalledWith(
       expect.stringContaining('artistId=forced-artist'),
@@ -338,7 +338,7 @@ describe('useMediaSearch', () => {
   });
 
   it('should trigger search with minDuration and maxDuration filters', () => {
-    const { result } = renderHook(() => useMediaSearch('song'));
+    const { result } = renderHook(() => useItemSearch('song'));
     vi.mocked(useSWR).mockClear();
 
     act(() => {

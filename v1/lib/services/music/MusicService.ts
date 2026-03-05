@@ -4,9 +4,9 @@
  */
 
 import { MusicFilters } from '@/lib/media-types/filters';
-import { getMediaDetails } from '@/lib/services/musicbrainz/details';
+import { getLegacyItemDetails } from '@/lib/services/musicbrainz/details';
 import { searchMusicBrainz } from '@/lib/services/musicbrainz/search';
-import { MediaDetails, MediaType, SearchResult } from '@/lib/types';
+import { ItemType, LegacyItemDetails, SearchResult } from '@/lib/types';
 
 import { MediaService, SearchOptions } from '../types';
 
@@ -21,7 +21,7 @@ export class MusicService implements MediaService<MusicFilters> {
 
   async search(
     query: string,
-    type: MediaType,
+    type: ItemType,
     options: SearchOptions<MusicFilters> = {},
   ): Promise<SearchResult> {
     const result = await searchMusicBrainz({
@@ -47,15 +47,15 @@ export class MusicService implements MediaService<MusicFilters> {
     return result;
   }
 
-  async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
-    const result = (await getMediaDetails(id, type)) as MediaDetails;
+  async getDetails(id: string, type: ItemType): Promise<LegacyItemDetails> {
+    const result = (await getLegacyItemDetails(id, type)) as LegacyItemDetails;
     return {
       ...result,
       serviceId: this.id
     };
   }
 
-  getSupportedTypes(): MediaType[] {
+  getSupportedTypes(): ItemType[] {
     return ['song', 'album', 'artist'];
   }
 }

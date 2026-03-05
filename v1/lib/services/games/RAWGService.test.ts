@@ -98,16 +98,16 @@ describe('RAWGService Integration (Fake Server)', () => {
     it('should fetch developer details', async () => {
       const details = await service.getDetails('1', 'developer');
       expect(details.id).toBe('1');
-      // Wait, MediaDetails doesn't have a title field, it's inherited from BaseMediaItem but MediaDetails interface in lib/types.ts:
+      // Wait, LegacyItemDetails doesn't have a title field, it's inherited from BaseLegacyItem but LegacyItemDetails interface in lib/types.ts:
       /*
-      export interface MediaDetails {
+      export interface LegacyItemDetails {
         id: string;
         mbid: string;
-        type: MediaType;
+        type: ItemType;
         ...
       }
       */
-      // MediaDetails does NOT have a title.
+      // LegacyItemDetails does NOT have a title.
       expect(details.id).toBe('1');
       expect(details.type).toBe('developer');
       expect(details.description).toContain('Makers of Portal');

@@ -7,14 +7,14 @@
 
 import { Calendar, Disc, ExternalLink } from 'lucide-react';
 
-import { MediaDetails } from '@/lib/types';
+import { LegacyItemDetails } from '@/lib/types';
 
 /**
  * Props for the AlbumView component.
  */
 interface AlbumViewProps {
   /** The detailed metadata for the album. */
-  details: MediaDetails;
+  details: LegacyItemDetails;
 }
 
 /**

@@ -7,8 +7,7 @@
 
 import { arrayMove } from '@dnd-kit/sortable';
 
-import { MediaItem, TierListState } from '@/lib/types';
-import { StandardItem } from '@/lib/database/types';
+import { TierListState } from '@/lib/types';
 import { hasItemUpdates } from '@/lib/utils/comparisons';
 
 import { ActionType, TierListAction } from '../actions';
@@ -41,7 +40,7 @@ function handleMoveFromSearch(
   activeId: string,
   overId: string,
   overContainer: string,
-  draggingItemFromSearch: MediaItem | StandardItem,
+  draggingItemFromSearch: Item,
 ): TierListState {
   const overItems = state.items[overContainer];
   const overIndex = overItems.findIndex((item) => item.id === overId);
@@ -242,7 +241,7 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
       const allItems = Object.values(state.items).flat();
       if (allItems.length === 0) return state;
 
-      const newItems: Record<string, (MediaItem | StandardItem)[]> = {};
+      const newItems: Record<string, (Item)[]> = {};
       const newLookup: Record<string, string> = {};
 
       // Initialize all tiers as empty

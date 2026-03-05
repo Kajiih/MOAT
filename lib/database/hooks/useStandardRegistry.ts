@@ -5,8 +5,9 @@
  * @module useStandardRegistry
  */
 
-import { useCallback } from 'react';
 import { update } from 'idb-keyval';
+import { useCallback } from 'react';
+
 import { StandardItem } from '../types';
 
 const REGISTRY_STORAGE_KEY = 'moat-standard-registry';

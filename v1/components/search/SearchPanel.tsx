@@ -14,8 +14,8 @@ import React, { useMemo } from 'react';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { useUserPreferences } from '@/components/providers/UserPreferencesProvider';
 import { usePersistentState } from '@/lib/hooks';
-import { mediaTypeRegistry } from '@/lib/media-types';
-import { MediaType } from '@/lib/types';
+import { itemTypeRegistry } from '@/lib/media-types';
+import { ItemType } from '@/lib/types';
 
 import { SearchSettings } from './SearchSettings';
 import { SearchTab } from './SearchTab';
@@ -35,7 +35,7 @@ export function SearchPanel() {
   const { showAdvanced } = useUserPreferences();
 
   const currentCategory = category || 'music';
-  const categoryConfig = mediaTypeRegistry.getCategory(currentCategory);
+  const categoryConfig = itemTypeRegistry.getCategory(currentCategory);
   const hasMultipleServices = (categoryConfig?.services?.length ?? 0) > 1;
 
   // Service selection (only meaningful when multiple services exist)
@@ -52,10 +52,10 @@ export function SearchPanel() {
       // Fallback to first service if saved serviceId is invalid
       return categoryConfig.services[0].types;
     }
-    return mediaTypeRegistry.getByCategory(currentCategory).map((def) => def.id);
+    return itemTypeRegistry.getByCategory(currentCategory).map((def) => def.id);
   }, [currentCategory, hasMultipleServices, categoryConfig, serviceId]);
 
-  const [activeType, setActiveType] = usePersistentState<MediaType>(
+  const [activeType, setActiveType] = usePersistentState<ItemType>(
     `moat-search-active-type-${currentCategory}-${serviceId}`, // Namespace by category AND service
     supportedTypes[0],
   );
@@ -127,8 +127,8 @@ export function SearchPanel() {
 
       {/* Media Type Tabs (driven by selected service) */}
       <div className="mb-4 flex shrink-0 gap-1 rounded-lg border border-neutral-800 bg-black p-1">
-        {supportedTypes.map((type: MediaType) => {
-          const config = mediaTypeRegistry.get(type);
+        {supportedTypes.map((type: ItemType) => {
+          const config = itemTypeRegistry.get(type);
           const Icon = config.icon;
           const isActive = activeType === type;
 
@@ -147,7 +147,7 @@ export function SearchPanel() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        {supportedTypes.map((type: MediaType) => (
+        {supportedTypes.map((type: ItemType) => (
           <SearchTab
             key={`${serviceId}-${type}`}
             type={type}

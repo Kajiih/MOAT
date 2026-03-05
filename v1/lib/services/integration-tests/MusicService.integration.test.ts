@@ -1,7 +1,9 @@
-import { describe, expect, it, beforeAll } from 'vitest';
+import { beforeAll,describe, expect, it } from 'vitest';
+
+import { logger } from '@/lib/logger';
+
 import { MusicService } from '../music/MusicService';
 import { loadIntegrationEnv } from './setup';
-import { logger } from '@/lib/logger';
 
 describe('MusicService Real API Integration', () => {
   const service = new MusicService();

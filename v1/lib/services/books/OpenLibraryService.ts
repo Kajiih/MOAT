@@ -6,7 +6,7 @@
 
 import { logger } from '@/lib/logger';
 import { BookFilters } from '@/lib/media-types/filters';
-import { AuthorItem, BookItem, MediaDetails, MediaType, SearchResult } from '@/lib/types';
+import { AuthorItem, BookItem, ItemType, LegacyItemDetails, SearchResult } from '@/lib/types';
 import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
 
 import { secureFetch } from '../shared/api-client';
@@ -52,7 +52,7 @@ export class OpenLibraryService implements MediaService<BookFilters> {
   readonly id = 'openlibrary';
   readonly label = 'Open Library';
 
-  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
+  async search(query: string, type: ItemType, options: SearchOptions = {}): Promise<SearchResult> {
     if (type === 'author') {
       return this.searchAuthors(query);
     }
@@ -187,7 +187,7 @@ export class OpenLibraryService implements MediaService<BookFilters> {
     };
   }
 
-  async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
+  async getDetails(id: string, type: ItemType): Promise<LegacyItemDetails> {
     if (type === 'author') {
       return this.getAuthorDetails(id);
     }
@@ -244,7 +244,7 @@ export class OpenLibraryService implements MediaService<BookFilters> {
     }
   }
 
-  private async getAuthorDetails(id: string): Promise<MediaDetails> {
+  private async getAuthorDetails(id: string): Promise<LegacyItemDetails> {
     try {
       // id might be "/authors/OL..." or just "OL..."
       const authorPath = id.startsWith('/') ? id : `/authors/${id}`;
@@ -290,7 +290,7 @@ export class OpenLibraryService implements MediaService<BookFilters> {
     }
   }
 
-  getSupportedTypes(): MediaType[] {
+  getSupportedTypes(): ItemType[] {
     return ['book', 'author'];
   }
 

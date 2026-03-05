@@ -4,7 +4,7 @@
  */
 
 import { Dashboard } from '@/components/dashboard/Dashboard';
-import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
+import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
 
 /**
  * Renders the application dashboard.
@@ -12,8 +12,8 @@ import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvi
  */
 export default function Page() {
   return (
-    <MediaRegistryProvider>
+    <ItemRegistryProvider>
       <Dashboard />
-    </MediaRegistryProvider>
+    </ItemRegistryProvider>
   );
 }

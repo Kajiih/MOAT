@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MediaType } from '@/lib/types';
+import { ItemType } from '@/lib/types';
 
 import { buildMusicBrainzQuery, QueryBuilderParams } from './query-builder';
 
@@ -13,7 +13,7 @@ const defaultOptions = { fuzzy: false, wildcard: false };
  */
 function createParams(overrides: Partial<QueryBuilderParams> = {}): QueryBuilderParams {
   return {
-    type: 'album' as MediaType,
+    type: 'album' as ItemType,
     query: '',
     artist: null,
     artistId: null,

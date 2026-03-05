@@ -1,7 +1,9 @@
-import { describe, expect, it, beforeAll } from 'vitest';
+import { beforeAll,describe, expect, it } from 'vitest';
+
+import { logger } from '@/lib/logger';
+
 import { TMDBService } from '../cinema/TMDBService';
 import { loadIntegrationEnv } from './setup';
-import { logger } from '@/lib/logger';
 
 describe('TMDBService Real API Integration', () => {
   const service = new TMDBService();

@@ -243,6 +243,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
    * @param endpoint - The API endpoint to fetch from.
    * @param params - The query parameters.
    * @param options - Optional fetch options (e.g., abort signal).
+   * @param options.signal
    * @returns The parsed JSON response.
    */
   public async fetchRawg<T>(

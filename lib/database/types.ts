@@ -66,6 +66,7 @@ export type EntityIdentity = z.infer<typeof EntityIdentitySchema>;
 /**
  * Derives a globally unique composite ID from an EntityIdentity.
  * Format: `${databaseId}:${entityId}:${dbId}`
+ * @param identity
  */
 export function toCompositeId(identity: EntityIdentity): string {
   return `${identity.databaseId}:${identity.entityId}:${identity.dbId}`;
@@ -98,12 +99,19 @@ export type UrlImageSource = z.infer<typeof UrlImageSourceSchema>;
 export type ReferenceImageSource = z.infer<typeof ReferenceImageSourceSchema>;
 export type ImageSource = z.infer<typeof ImageSourceSchema>;
 
-/** Helper to create a URL image source */
+/**
+ * Helper to create a URL image source
+ * @param url
+ */
 export function urlImage(url: string): UrlImageSource {
   return { type: 'url', url };
 }
 
-/** Helper to create a reference image source */
+/**
+ * Helper to create a reference image source
+ * @param provider
+ * @param key
+ */
 export function referenceImage(provider: string, key: string): ReferenceImageSource {
   return { type: 'reference', provider, key };
 }

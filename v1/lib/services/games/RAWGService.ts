@@ -10,7 +10,7 @@ import { logger } from '@/lib/logger';
 import { GameFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
-import { GameItem, MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
+import { GameItem, ItemType, LegacyItem, LegacyItemDetails, SearchResult } from '@/lib/types';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
@@ -112,7 +112,7 @@ export class RAWGService implements MediaService<GameFilters> {
     }
   }
 
-  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
+  async search(query: string, type: ItemType, options: SearchOptions = {}): Promise<SearchResult> {
     if (!this.getApiKey()) {
       throw new Error('RAWG_API_KEY is missing');
     }
@@ -146,7 +146,7 @@ export class RAWGService implements MediaService<GameFilters> {
     };
   }
 
-  async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
+  async getDetails(id: string, type: ItemType): Promise<LegacyItemDetails> {
     if (!this.getApiKey()) {
       throw new Error('RAWG_API_KEY is missing');
     }
@@ -198,7 +198,7 @@ export class RAWGService implements MediaService<GameFilters> {
     };
   }
 
-  getSupportedTypes(): MediaType[] {
+  getSupportedTypes(): ItemType[] {
     return ['game', 'developer'];
   }
 
@@ -234,7 +234,7 @@ export class RAWGService implements MediaService<GameFilters> {
     }
   }
 
-  private mapToMediaItem(game: RAWGGame): MediaItem {
+  private mapToMediaItem(game: RAWGGame): LegacyItem {
     const platforms = game.parent_platforms?.map((p) => p.platform.name);
 
     return {
@@ -252,7 +252,7 @@ export class RAWGService implements MediaService<GameFilters> {
     } as GameItem;
   }
 
-  private mapToDeveloperItem(dev: RAWGDeveloper): MediaItem {
+  private mapToDeveloperItem(dev: RAWGDeveloper): LegacyItem {
     return {
       id: dev.id.toString(),
       mbid: dev.id.toString(),

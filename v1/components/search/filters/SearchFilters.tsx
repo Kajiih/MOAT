@@ -4,23 +4,23 @@
  * @module SearchFilters
  */
 
-import { MediaPicker } from '@/components/media/MediaPicker';
-import { SearchParamsState } from '@/components/search/hooks/useMediaSearch';
-import { mediaTypeRegistry } from '@/lib/media-types';
-import { ArtistSelection, MediaSelection, MediaType } from '@/lib/types';
+import { ItemPicker } from '@/components/media/ItemPicker';
+import { SearchParamsState } from '@/components/search/hooks/useItemSearch';
+import { FilterButton } from '@/components/ui/FilterButton';
+import { itemTypeRegistry } from '@/lib/media-types';
+import { ArtistSelection, ItemSelection, ItemType } from '@/lib/types';
 
 import { AlbumFilters } from './AlbumFilters'; // Keep for now for music
 // Keep for now for music
 import { DateRangeFilter } from './DateRangeFilter';
 import { FILTER_INPUT_STYLES } from './FilterPrimitives';
-import { FilterButton } from '@/components/ui/FilterButton';
 
 /**
  * Props for the SearchFilters component.
  */
 interface SearchFiltersProps {
   /** The current search mode (artist, album, or song). */
-  type: MediaType;
+  type: ItemType;
   /** The active service ID. */
   serviceId?: string;
   /** The current state of all search filters. */
@@ -49,7 +49,7 @@ export function SearchFilters({
   updateFilters,
   compact = false,
 }: SearchFiltersProps) {
-  const dynamicFilters = mediaTypeRegistry.get(type).filters.filter((f) => {
+  const dynamicFilters = itemTypeRegistry.get(type).filters.filter((f) => {
     if (!serviceId || !f.services) return true;
     return f.services.includes(serviceId);
   });
@@ -95,10 +95,10 @@ export function SearchFilters({
           switch (def.type) {
             case 'picker': {
               return (
-                <MediaPicker
+                <ItemPicker
                   key={def.id}
                   type={(def.pickerType || 'artist') as 'artist' | 'album' | 'author'}
-                  selectedItem={filters[def.id] as MediaSelection | null}
+                  selectedItem={filters[def.id] as ItemSelection | null}
                   onSelect={(item) => {
                     const patch: Partial<SearchParamsState> = { [def.id]: item };
                     // Special rule: if we pick an artist, reset the album

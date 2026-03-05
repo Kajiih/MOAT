@@ -4,7 +4,7 @@
  */
 
 import { getColorTheme } from '@/lib/colors';
-import { MediaItem, TierDefinition } from '@/lib/types';
+import { LegacyItem, TierDefinition } from '@/lib/types';
 
 /**
  * Props for the OGBoard component.
@@ -15,7 +15,7 @@ interface OGBoardProps {
   /** Array of tier definitions (labels, colors). */
   tiers: TierDefinition[];
   /** Map of media items organized by tier ID. */
-  items: Record<string, MediaItem[]>;
+  items: Record<string, LegacyItem[]>;
   /** Array of hex color strings for the header gradient/branding. */
   headerColors: string[];
 }

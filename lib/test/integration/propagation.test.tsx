@@ -8,15 +8,15 @@ import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
+import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
 import { TierListProvider, useTierListContext } from '@/components/providers/TierListContext';
-import { useBackgroundEnrichment, useMediaDetails, useMediaResolver } from '@/lib/hooks';
+import { useBackgroundEnrichment, useItemDetails, useItemResolver } from '@/lib/hooks';
 import { createSong, createTierListState } from '@/lib/test/factories';
-import { MediaItem } from '@/lib/types';
+import { LegacyItem } from '@/lib/types';
 
 // Mock dependencies
-vi.mock('@/lib/hooks/useMediaDetails', () => ({
-  useMediaDetails: vi.fn(),
+vi.mock('@/lib/hooks/useItemDetails', () => ({
+  useItemDetails: vi.fn(),
 }));
 
 vi.mock('@/lib/storage', () => ({
@@ -46,7 +46,7 @@ vi.mock('@/components/board/hooks/useTierListDnD', () => ({
 }));
 
 describe('State Propagation Integration', () => {
-  const mockUseMediaDetails = vi.mocked(useMediaDetails);
+  const mockUseMediaDetails = vi.mocked(useItemDetails);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -59,12 +59,12 @@ describe('State Propagation Integration', () => {
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <MediaRegistryProvider>
+    <ItemRegistryProvider>
       <TierListProvider boardId="test-board">{children}</TierListProvider>
-    </MediaRegistryProvider>
+    </ItemRegistryProvider>
   );
 
-  it('should propagate enriched metadata from useMediaResolver to TierListProvider state via actions', async () => {
+  it('should propagate enriched metadata from useItemResolver to TierListProvider state via actions', async () => {
     const itemId = 'item-1';
     // Start with a basic item
     const initialItem = createSong({ id: itemId, details: undefined, title: 'Old Title' });
@@ -84,7 +84,7 @@ describe('State Propagation Integration', () => {
     };
 
     // 1. Render a hook that simulates a component (like DetailsModal)
-    // using useMediaResolver within the TierListProvider
+    // using useItemResolver within the TierListProvider
     const { result, rerender } = renderHook(
       () => {
         const context = useTierListContext();
@@ -92,7 +92,7 @@ describe('State Propagation Integration', () => {
         // Pull the item directly from the context state to ensure we are testing propagation
         const itemOnBoard = context.state.items['tier-1']?.[0];
 
-        const resolver = useMediaResolver(itemOnBoard || null, {
+        const resolver = useItemResolver(itemOnBoard || null, {
           enabled: context.isHydrated,
           onUpdate: (id, updates) => context.actions.updateMediaItem(id, updates),
         });
@@ -110,7 +110,7 @@ describe('State Propagation Integration', () => {
 
     // 2. Simulate the async arrival of enrichment data (e.g. SWR resolves)
     mockUseMediaDetails.mockReturnValue({
-      details: mockDetails as unknown as NonNullable<MediaItem['details']>,
+      details: mockDetails as unknown as NonNullable<LegacyItem['details']>,
       isLoading: false,
       isFetching: false,
       error: null,
@@ -153,14 +153,14 @@ describe('State Propagation Integration', () => {
     mockUseMediaDetails.mockImplementation((id) => {
       if (id === 'song-1')
         return {
-          details: { type: 'song', genres: ['S1'] } as unknown as NonNullable<MediaItem['details']>,
+          details: { type: 'song', genres: ['S1'] } as unknown as NonNullable<LegacyItem['details']>,
           isLoading: false,
           isFetching: false,
           error: null,
         };
       if (id === 'song-2')
         return {
-          details: { type: 'song', genres: ['S2'] } as unknown as NonNullable<MediaItem['details']>,
+          details: { type: 'song', genres: ['S2'] } as unknown as NonNullable<LegacyItem['details']>,
           isLoading: false,
           isFetching: false,
           error: null,

@@ -17,19 +17,21 @@ import { ExportBoard } from '@/components/board/ExportBoard';
 import { TierBoard } from '@/components/board/TierBoard';
 import { TierRow } from '@/components/board/TierRow';
 import { DetailsModal } from '@/components/media/DetailsModal';
-import { MediaCard } from '@/components/media/MediaCard';
+import { ItemCard } from '@/components/media/ItemCard';
+import { BaseLegacyItemCard } from '@/components/media/legacy/LegacyItemCard';
 import { useTierListContext } from '@/components/providers/TierListContext';
-import { SearchPanelV2 as SearchPanel } from '@/components/search/v2/SearchPanelV2';
+import { SearchPanel } from '@/components/search/SearchPanel';
 import { DebugPanel } from '@/components/ui/DebugPanel';
 import { Footer } from '@/components/ui/Footer';
 import { Header } from '@/components/ui/Header';
 import { HoveredItemInfo, InteractionContext } from '@/components/ui/InteractionContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
+import { StandardItem } from '@/lib/database/types';
 import { useDynamicFavicon, useScreenshot } from '@/lib/hooks';
 import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
-import { MediaItem } from '@/lib/types';
+import { LegacyItem } from '@/lib/types';
 
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
@@ -65,7 +67,7 @@ interface UseAppShortcutsProps {
   hoveredItem: HoveredItemInfo | null;
   setHoveredItem: (item: HoveredItemInfo | null) => void;
   removeItemFromTier: (tierId: string, itemId: string) => void;
-  showDetails: (item: MediaItem) => void;
+  showDetails: (item: LegacyItem) => void;
   closeDetails: () => void;
   setShowShortcuts: (show: boolean | ((prev: boolean) => boolean)) => void;
   setShowExportPreview: (show: boolean | ((prev: boolean) => boolean)) => void;
@@ -252,7 +254,15 @@ export default function TierListApp() {
       </div>
     );
   } else if (activeItem) {
-    dragOverlayContent = <MediaCard item={activeItem} />;
+    if ('identity' in activeItem) {
+      dragOverlayContent = <ItemCard item={activeItem as StandardItem} />;
+    } else {
+      dragOverlayContent = (
+        <div className="opacity-80">
+          <BaseLegacyItemCard item={activeItem as LegacyItem} isDragging />
+        </div>
+      );
+    }
   }
 
   return (

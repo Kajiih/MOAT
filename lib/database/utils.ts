@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { BaseFilterDefinition, DatabaseError, DatabaseErrorCode, FilterDefinition } from './types';
+
+import { BaseFilterDefinition, DatabaseError, DatabaseErrorCode } from './types';
 
 /**
  * Wraps any error into a standardized DatabaseError.
- * 
  * @param error - The original error object.
  * @param databaseId - The identifier of the database where the error occurred.
  * @returns A standardized DatabaseError.
@@ -33,16 +33,20 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
   if (typeof status === 'number') {
     switch (status) {
       case 401:
-      case 403:
+      case 403: {
         return new DatabaseError(DatabaseErrorCode.AUTH_ERROR, 'Authentication failed or API key invalid', error, databaseId);
-      case 404:
+      }
+      case 404: {
         return new DatabaseError(DatabaseErrorCode.NOT_FOUND, 'The requested item was not found', error, databaseId);
-      case 429:
+      }
+      case 429: {
         return new DatabaseError(DatabaseErrorCode.RATE_LIMIT, 'Rate limit exceeded for this database', error, databaseId);
-      default:
+      }
+      default: {
         if (status >= 500) {
           return new DatabaseError(DatabaseErrorCode.SERVICE_UNAVAILABLE, 'External service is currently unavailable', error, databaseId);
         }
+      }
     }
   }
 
@@ -53,7 +57,6 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
 
 /**
  * Automates the mapping of UI filter values to API parameters based on FilterDefinitions.
- * 
  * @param apiParams - The object to populate with API parameters.
  * @param filterValues - The current filter values from SearchParams.
  * @param definitions - The list of FilterDefinitions for the entity.

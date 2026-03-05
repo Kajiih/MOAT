@@ -5,7 +5,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { MediaItem, TierListState } from '@/lib/types';
+import { LegacyItem, TierListState } from '@/lib/types';
 
 /**
  * Validates if an image URL is reachable and returns an image content-type.
@@ -64,7 +64,7 @@ export async function scrubBoardImages(
   state: TierListState,
   itemsPerTier = 10,
 ): Promise<TierListState> {
-  const newItems: Record<string, MediaItem[]> = {};
+  const newItems: Record<string, LegacyItem[]> = {};
 
   // Collect all images to validate (unique URLs only to optimize)
   const imageUrlsToValidate = new Set<string>();

@@ -8,7 +8,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { MediaRegistryProvider } from '@/components/providers/MediaRegistryProvider';
+import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
 import { UserPreferencesProvider } from '@/components/providers/UserPreferencesProvider';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 
@@ -79,7 +79,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ToastProvider>
           <UserPreferencesProvider>
-            <MediaRegistryProvider>{children}</MediaRegistryProvider>
+            <ItemRegistryProvider>{children}</ItemRegistryProvider>
           </UserPreferencesProvider>
         </ToastProvider>
       </body>

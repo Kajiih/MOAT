@@ -6,7 +6,7 @@
 import { button, folder, monitor, useControls } from 'leva';
 import { useEffect } from 'react';
 
-import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
+import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
 import { useTierListContext } from '@/components/providers/TierListContext';
 
 interface DebugPanelProps {
@@ -21,7 +21,7 @@ interface DebugPanelProps {
  */
 export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
   const { state, isHydrated } = useTierListContext();
-  const { registrySize, clearRegistry } = useMediaRegistry();
+  const { registrySize, clearRegistry } = useItemRegistry();
 
   // General Board State
   const [, setBoardState] = useControls(

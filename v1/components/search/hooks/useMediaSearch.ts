@@ -1,7 +1,7 @@
 /**
- * @file useMediaSearch.ts
+ * @file useItemSearch.ts
  * @description Custom hook for handling media searches against various backend providers via MediaService.
- * @module useMediaSearch
+ * @module useItemSearch
  */
 
 'use client';
@@ -11,12 +11,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR, { preload } from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import { useMediaRegistry } from '@/components/providers/MediaRegistryProvider';
+import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { getSearchUrl } from '@/lib/api';
 import { swrFetcher } from '@/lib/api/fetcher';
 import { usePersistentState } from '@/lib/hooks';
-import { mediaTypeRegistry } from '@/lib/media-types';
+import { itemTypeRegistry } from '@/lib/media-types';
 import {
   AlbumItem,
   ArtistItem,
@@ -25,8 +25,8 @@ import {
   DeveloperItem,
   FranchiseItem,
   GameItem,
-  MediaItem,
-  MediaType,
+  ItemType,
+  LegacyItem,
   MovieItem,
   PersonItem,
   SearchResult,
@@ -36,7 +36,7 @@ import {
 } from '@/lib/types';
 
 /**
- * Maps each MediaType to its specific item type definition for inference.
+ * Maps each ItemType to its specific item type definition for inference.
  */
 type MediaItemMap = {
   artist: ArtistItem;
@@ -63,7 +63,7 @@ export interface SearchParamsState {
 }
 
 /**
- * Configuration options for the useMediaSearch hook.
+ * Configuration options for the useItemSearch hook.
  */
 interface UseMediaSearchConfig {
   fuzzy?: boolean;
@@ -78,9 +78,9 @@ interface UseMediaSearchConfig {
 }
 
 /**
- * Return type for the useMediaSearch hook.
+ * Return type for the useItemSearch hook.
  */
-interface UseMediaSearchResult<T extends MediaItem> {
+interface UseMediaSearchResult<T extends LegacyItem> {
   filters: SearchParamsState;
   updateFilters: (patch: Partial<SearchParamsState>) => void;
   page: number;
@@ -105,7 +105,7 @@ interface UseMediaSearchResult<T extends MediaItem> {
  * @param config - Configuration options for the search hook.
  * @returns An object containing search filters, results, and state.
  */
-export function useMediaSearch<T extends MediaType>(
+export function useItemSearch<T extends ItemType>(
   type: T,
   config?: UseMediaSearchConfig,
 ): UseMediaSearchResult<MediaItemMap[T]> {
@@ -117,7 +117,7 @@ export function useMediaSearch<T extends MediaType>(
     return {
       query: '',
       page: 1,
-      ...mediaTypeRegistry.getDefaultFilters(type),
+      ...itemTypeRegistry.getDefaultFilters(type),
     } as SearchParamsState;
   }, [type]);
 
@@ -164,7 +164,7 @@ export function useMediaSearch<T extends MediaType>(
     };
 
     if (!ignoreFilters) {
-      const serialized = mediaTypeRegistry.serializeFilters(type, rest);
+      const serialized = itemTypeRegistry.serializeFilters(type, rest);
       Object.assign(filters, serialized);
     }
 
@@ -181,14 +181,14 @@ export function useMediaSearch<T extends MediaType>(
     Error & { status?: number }
   >(searchUrl, swrFetcher, { keepPreviousData: true });
 
-  const { registerItems, getItem } = useMediaRegistry();
+  const { registerItems, getItem } = useItemRegistry();
 
   useEffect(() => {
     if (data?.results) registerItems(data.results);
   }, [data?.results, registerItems]);
 
   const enrichedResults = useMemo(() => {
-    return (data?.results || []).map((item: MediaItem) => getItem(item.id) || item);
+    return (data?.results || []).map((item: LegacyItem) => getItem(item.id) || item);
   }, [data?.results, getItem]);
 
   // Prefetching

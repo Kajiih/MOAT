@@ -1,7 +1,9 @@
-import { describe, expect, it, beforeAll } from 'vitest';
+import { beforeAll,describe, expect, it } from 'vitest';
+
+import { logger } from '@/lib/logger';
+
 import { OpenLibraryService } from '../books/OpenLibraryService';
 import { loadIntegrationEnv } from './setup';
-import { logger } from '@/lib/logger';
 
 describe('OpenLibraryService Real API Integration', () => {
   const service = new OpenLibraryService();
@@ -73,7 +75,7 @@ describe('OpenLibraryService Real API Integration', () => {
     });
     
     expect(result.results.length).toBeGreaterThan(0);
-    const years = result.results.map(r => parseInt(r.year || '0', 10));
+    const years = result.results.map(r => Number.parseInt(r.year || '0', 10));
     const validYears = years.filter(y => y >= 1960 && y <= 1970);
     // API might return some outliers if year mapping is fuzzy, but first one should be good
     expect(validYears.length).toBeGreaterThan(0);

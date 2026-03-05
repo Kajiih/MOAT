@@ -8,7 +8,7 @@ import { logger } from '@/lib/logger';
 import { CinemaFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
-import { MediaDetails, MediaItem, MediaType, SearchResult } from '@/lib/types';
+import { ItemType, LegacyItem, LegacyItemDetails, SearchResult } from '@/lib/types';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
@@ -53,7 +53,7 @@ export class TMDBService implements MediaService<CinemaFilters> {
     return (secureFetch<T>(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`) as Promise<T>);
   }
 
-  async search(query: string, type: MediaType, options: SearchOptions = {}): Promise<SearchResult> {
+  async search(query: string, type: ItemType, options: SearchOptions = {}): Promise<SearchResult> {
     const page = options.page || 1;
     const filters = options.filters || {};
     const sort = (options.sort as string) || 'relevance';
@@ -92,7 +92,7 @@ export class TMDBService implements MediaService<CinemaFilters> {
   }
 
   private prepareSearchRequest(
-    type: MediaType,
+    type: ItemType,
     query: string,
     filters: Record<string, unknown>,
     params: Record<string, string>,
@@ -119,7 +119,7 @@ export class TMDBService implements MediaService<CinemaFilters> {
   }
 
   private prepareDiscoverRequest(
-    type: MediaType,
+    type: ItemType,
     sort: string,
     filters: Record<string, unknown>,
     params: Record<string, string>,
@@ -217,7 +217,7 @@ export class TMDBService implements MediaService<CinemaFilters> {
     }
   }
 
-  async getDetails(id: string, type: MediaType): Promise<MediaDetails> {
+  async getDetails(id: string, type: ItemType): Promise<LegacyItemDetails> {
     if (!this.getApiKey()) {
       throw new Error('TMDB_API_KEY is missing');
     }
@@ -271,11 +271,11 @@ export class TMDBService implements MediaService<CinemaFilters> {
     };
   }
 
-  getSupportedTypes(): MediaType[] {
+  getSupportedTypes(): ItemType[] {
     return ['movie', 'tv', 'person'];
   }
 
-  private mapToMediaItem(item: TMDBResult, type: MediaType): MediaItem {
+  private mapToMediaItem(item: TMDBResult, type: ItemType): LegacyItem {
     const rawImageUrl = item.poster_path || item.profile_path;
     const base = {
       id: item.id.toString(),
