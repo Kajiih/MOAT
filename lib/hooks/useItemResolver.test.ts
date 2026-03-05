@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
-import { useItemDetails } from '@/lib/hooks/useItemDetails';
+import { useLegacyItemDetails } from '@/v1/lib/hooks/useLegacyItemDetails';
 import { LegacyItem } from '@/lib/types';
 
 import { useItemResolver } from './useItemResolver';
@@ -12,14 +12,14 @@ vi.mock('@/components/providers/ItemRegistryProvider', () => ({
   useItemRegistry: vi.fn(),
 }));
 
-vi.mock('@/lib/hooks/useItemDetails', () => ({
-  useItemDetails: vi.fn(),
+vi.mock('@/v1/lib/hooks/useLegacyItemDetails', () => ({
+  useLegacyItemDetails: vi.fn(),
 }));
 
 describe('useItemResolver', () => {
   const mockGetItem = vi.fn();
   const mockRegisterItem = vi.fn();
-  const mockUseMediaDetails = vi.mocked(useItemDetails);
+  const mockUseMediaDetails = vi.mocked(useLegacyItemDetails);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,7 +36,7 @@ describe('useItemResolver', () => {
       isLoading: false,
       isFetching: false,
       error: null,
-    } as unknown as ReturnType<typeof useItemDetails>);
+    } as unknown as ReturnType<typeof useLegacyItemDetails>);
   });
 
   const mockItem: LegacyItem = {
@@ -82,7 +82,7 @@ describe('useItemResolver', () => {
       isLoading: true,
       isFetching: true,
       error: null,
-    } as unknown as ReturnType<typeof useItemDetails>);
+    } as unknown as ReturnType<typeof useLegacyItemDetails>);
 
     const onUpdate = vi.fn();
     const { rerender } = renderHook(() => useItemResolver(mockItem, { onUpdate, persist: true }));
@@ -93,7 +93,7 @@ describe('useItemResolver', () => {
       isLoading: false,
       isFetching: false,
       error: null,
-    } as unknown as ReturnType<typeof useItemDetails>);
+    } as unknown as ReturnType<typeof useLegacyItemDetails>);
 
     rerender();
 

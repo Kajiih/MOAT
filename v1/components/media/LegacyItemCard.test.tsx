@@ -6,7 +6,7 @@ import { InteractionContext } from '@/components/ui/InteractionContext';
 import { useItemResolver } from '@/lib/hooks';
 import { LegacyItem } from '@/lib/types';
 
-import { ItemCard } from './ItemCard';
+import { LegacyItemCard, LegacySortableItemCard } from './LegacyItemCard';
 
 // Mock dnd-kit hooks
 vi.mock('@dnd-kit/core', () => ({
@@ -21,7 +21,7 @@ vi.mock('@dnd-kit/core', () => ({
 
 // Mock hooks
 vi.mock('@/lib/hooks', () => ({
-  useItemDetails: vi.fn(),
+  useLegacyItemDetails: vi.fn(),
   useEscapeKey: vi.fn(),
   useItemResolver: vi.fn(),
 }));
@@ -62,7 +62,7 @@ describe('ItemCard', () => {
     });
 
     // Default implementation for useItemResolver in tests
-    vi.mocked(useItemResolver).mockImplementation((item) => ({
+    vi.mocked(useItemResolver).mockImplementation((item: any) => ({
       resolvedItem: item,
       isLoading: false,
       isFetching: false,
@@ -72,7 +72,7 @@ describe('ItemCard', () => {
   });
 
   it('renders item title and artist', () => {
-    renderWithProviders(<ItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem} />);
 
     expect(screen.getByText('Test Song Title')).toBeDefined();
     expect(screen.getByText(/Test Artist Name/)).toBeDefined();
@@ -80,14 +80,14 @@ describe('ItemCard', () => {
   });
 
   it('renders the image with correct src', () => {
-    renderWithProviders(<ItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem} />);
 
     const img = screen.getByRole('img');
     expect(img.getAttribute('src')).toBe(mockItem.imageUrl);
   });
 
   it('calls setHoveredItem on mouse enter and leave', () => {
-    renderWithProviders(<ItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem} />);
 
     const card = screen.getByText('Test Song Title').closest('div');
     if (!card) throw new Error('Card container not found');
@@ -106,13 +106,13 @@ describe('ItemCard', () => {
     const onRemove = vi.fn();
 
     // Without tierId/onRemove
-    const { rerender } = renderWithProviders(<ItemCard item={mockItem} />);
+    const { rerender } = renderWithProviders(<LegacyItemCard item={mockItem} />);
     expect(screen.queryByTitle('Remove item')).toBeNull();
 
     // With tierId and onRemove
     rerender(
       <InteractionContext.Provider value={mockInteraction}>
-        <ItemCard item={mockItem} tierId="tier-1" onRemove={onRemove} />
+        <LegacyItemCard item={mockItem} tierId="tier-1" onRemove={onRemove} />
       </InteractionContext.Provider>,
     );
 
@@ -125,7 +125,7 @@ describe('ItemCard', () => {
 
   it('renders the info button when onInfo is provided', () => {
     const onInfo = vi.fn();
-    renderWithProviders(<ItemCard item={mockItem} onInfo={onInfo} />);
+    renderWithProviders(<LegacyItemCard item={mockItem} onInfo={onInfo} />);
 
     const infoBtn = screen.getByTitle('View details');
     expect(infoBtn).toBeDefined();
@@ -135,7 +135,7 @@ describe('ItemCard', () => {
   });
 
   it('displays placeholder when image fails to load', () => {
-    renderWithProviders(<ItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem} />);
 
     const img = screen.getByRole('img');
     fireEvent.error(img); // First error triggers retry unoptimized
@@ -146,7 +146,7 @@ describe('ItemCard', () => {
   });
 
   it('shows locate icon when isAdded is true', () => {
-    renderWithProviders(<ItemCard item={mockItem} isAdded={true} />);
+    renderWithProviders(<LegacyItemCard item={mockItem} isAdded={true} />);
 
     // The link/Eye icon might be subtle, but we can check for classes or specific elements
     // The Eye icon is rendered inside a div with absolute inset-0
@@ -156,10 +156,7 @@ describe('ItemCard', () => {
     expect(locateOverlay).toBeDefined();
   });
 });
-
-import { SortableMediaCard } from './ItemCard';
-
-describe('SortableMediaCard', () => {
+describe('LegacySortableItemCard', () => {
   const mockItem: LegacyItem = {
     id: 'test-item-1',
     mbid: 'mbid-1',
@@ -193,7 +190,7 @@ describe('SortableMediaCard', () => {
     });
 
     // Default implementation for useItemResolver in tests
-    vi.mocked(useItemResolver).mockImplementation((item) => ({
+    vi.mocked(useItemResolver).mockImplementation((item: any) => ({
       resolvedItem: item,
       isLoading: false,
       isFetching: false,
@@ -205,7 +202,7 @@ describe('SortableMediaCard', () => {
   it('renders correctly', () => {
     render(
       <InteractionContext.Provider value={{ setHoveredItem: vi.fn() }}>
-        <SortableMediaCard item={mockItem} />
+        <LegacySortableItemCard item={mockItem} />
       </InteractionContext.Provider>,
     );
     expect(screen.getByText('Test Song Title')).toBeDefined();

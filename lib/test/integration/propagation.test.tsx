@@ -10,13 +10,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
 import { TierListProvider, useTierListContext } from '@/components/providers/TierListContext';
-import { useBackgroundEnrichment, useItemDetails, useItemResolver } from '@/lib/hooks';
+import { useLegacyBackgroundEnrichment, useLegacyItemDetails, useItemResolver } from '@/lib/hooks';
 import { createSong, createTierListState } from '@/lib/test/factories';
 import { LegacyItem } from '@/lib/types';
 
 // Mock dependencies
-vi.mock('@/lib/hooks/useItemDetails', () => ({
-  useItemDetails: vi.fn(),
+vi.mock('@/v1/lib/hooks/useLegacyItemDetails', () => ({
+  useLegacyItemDetails: vi.fn(),
 }));
 
 vi.mock('@/lib/storage', () => ({
@@ -46,7 +46,7 @@ vi.mock('@/components/board/hooks/useTierListDnD', () => ({
 }));
 
 describe('State Propagation Integration', () => {
-  const mockUseMediaDetails = vi.mocked(useItemDetails);
+  const mockUseMediaDetails = vi.mocked(useLegacyItemDetails);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -173,7 +173,7 @@ describe('State Propagation Integration', () => {
         const { state, actions, isHydrated } = useTierListContext();
         const allItems = Object.values(state.items).flat();
 
-        const enrichment = useBackgroundEnrichment(allItems, actions.updateMediaItem);
+        const enrichment = useLegacyBackgroundEnrichment(allItems, actions.updateMediaItem);
 
         return { state, isHydrated, enrichment };
       },
@@ -186,7 +186,7 @@ describe('State Propagation Integration', () => {
       expect(itemsOnBoard).toHaveLength(2);
     });
 
-    // Re-render to ensure useBackgroundEnrichment sees the populated items
+    // Re-render to ensure useLegacyBackgroundEnrichment sees the populated items
     rerender();
 
     // 2. Verify both items eventually get their details via background propagation

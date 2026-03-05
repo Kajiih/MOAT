@@ -9,7 +9,7 @@ import { DetailsModal } from './DetailsModal';
 
 // Mock hooks
 vi.mock('@/lib/hooks', () => ({
-  useItemDetails: vi.fn(),
+  useLegacyItemDetails: vi.fn(),
   useEscapeKey: vi.fn(),
   useItemResolver: vi.fn(),
 }));

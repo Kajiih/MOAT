@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LegacyItem } from '@/lib/types';
 
-import { useBackgroundEnrichment } from './useBackgroundEnrichment';
+import { useLegacyBackgroundEnrichment } from './useLegacyBackgroundEnrichment';
 
 // Mock useItemResolver
 const mockUseMediaResolver = vi.fn();
@@ -11,7 +11,7 @@ vi.mock('@/lib/hooks/useItemResolver', () => ({
   useItemResolver: (item: unknown, options: unknown) => mockUseMediaResolver(item, options),
 }));
 
-describe('useBackgroundEnrichment', () => {
+describe('useLegacyBackgroundEnrichment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default mock implementation: not enriched
@@ -38,7 +38,7 @@ describe('useBackgroundEnrichment', () => {
     ];
     const onUpdate = vi.fn();
 
-    renderHook(() => useBackgroundEnrichment(items, onUpdate));
+    renderHook(() => useLegacyBackgroundEnrichment(items, onUpdate));
 
     // Item 1 has details, so it should NOT be passed to the resolver
     expect(mockUseMediaResolver).not.toHaveBeenCalledWith(
@@ -57,7 +57,7 @@ describe('useBackgroundEnrichment', () => {
     const items = Array.from({ length: 5 }, (_, i) => createMockItem(`${i}`, false));
     const onUpdate = vi.fn();
 
-    renderHook(() => useBackgroundEnrichment(items, onUpdate));
+    renderHook(() => useLegacyBackgroundEnrichment(items, onUpdate));
 
     // First 3 should be enabled
     expect(mockUseMediaResolver).toHaveBeenCalledWith(
@@ -76,12 +76,12 @@ describe('useBackgroundEnrichment', () => {
     // 4th and 5th should be called with null or excluded (wait, the hook renders 3 slots)
     // Actually the hook takes itemsToSync which is sliced at 3.
     // So the mock should have 3 enabled calls and many potentially null calls?
-    // Wait, the current implementation of useBackgroundEnrichment:
+    // Wait, the current implementation of useLegacyBackgroundEnrichment:
     // slot1 = itemsToSync[0]; ...
     // useSingleItemSyncWrapper(slot1, onUpdateItem);
 
     // So if itemsToSync has 3 items, the first 3 calls to useItemResolver will have items.
-    // The rest will NOT be called because useBackgroundEnrichment only has 3 slots.
+    // The rest will NOT be called because useLegacyBackgroundEnrichment only has 3 slots.
 
     expect(mockUseMediaResolver).toHaveBeenCalledTimes(3);
   });
@@ -90,7 +90,7 @@ describe('useBackgroundEnrichment', () => {
     const item = createMockItem('1', false);
     const onUpdate = vi.fn();
 
-    renderHook(() => useBackgroundEnrichment([item], onUpdate));
+    renderHook(() => useLegacyBackgroundEnrichment([item], onUpdate));
 
     expect(mockUseMediaResolver).toHaveBeenCalledWith(
       expect.objectContaining({ id: '1' }),

@@ -9,7 +9,7 @@ import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { memo, ReactNode } from 'react';
 
 import { ItemCard } from '@/components/media/ItemCard';
-import { LegacySortableItemCard } from '@/components/media/legacy/LegacyItemCard';
+import { LegacySortableItemCard } from '@/v1/components/media/LegacyItemCard';
 import { Item, LegacyItem } from '@/lib/types';
 
 import { VirtualGrid } from './VirtualGrid';

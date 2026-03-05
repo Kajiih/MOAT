@@ -57,7 +57,7 @@ export async function validateImageUrl(url: string, timeoutMs = 1500): Promise<b
  * Scrubs broken image URLs from a board state.
  * Only validates the images that will actually be displayed in the OG board (top N per tier).
  * @param state - The board state to scrub.
- * @param itemsPerTier - Number of items per tier to validate (matches OGBoard limit).
+ * @param itemsPerTier - Number of items per tier to validate (matches LegacyOGBoard limit).
  * @returns A new board state with broken images set to undefined.
  */
 export async function scrubBoardImages(

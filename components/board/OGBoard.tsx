@@ -1,5 +1,5 @@
 /**
- * @file OGBoard.tsx
+ * @file LegacyOGBoard.tsx
  * @description A simplified, Satori-compatible board component for Open Graph image generation.
  */
 
@@ -7,7 +7,7 @@ import { getColorTheme } from '@/lib/colors';
 import { LegacyItem, TierDefinition } from '@/lib/types';
 
 /**
- * Props for the OGBoard component.
+ * Props for the LegacyOGBoard component.
  */
 interface OGBoardProps {
   /** The title of the tier list to display. */
@@ -31,9 +31,9 @@ interface OGBoardProps {
  * @param props.tiers - Array of tier definitions (labels, colors).
  * @param props.items - Map of media items organized by tier ID.
  * @param props.headerColors - Array of hex color strings for the header gradient/branding.
- * @returns The rendered OGBoard component.
+ * @returns The rendered LegacyOGBoard component.
  */
-export function OGBoard({ title, tiers, items, headerColors }: OGBoardProps) {
+export function LegacyOGBoard({ title, tiers, items, headerColors }: OGBoardProps) {
   // Use the primary brand color or fallback
   const primaryColor = headerColors[0] || '#3b82f6';
 

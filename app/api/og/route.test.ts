@@ -31,9 +31,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
-// Mock the OGBoard component to avoid rendering issues
-vi.mock('@/components/board/OGBoard', () => ({
-  OGBoard: vi.fn(() => 'OGBoardComponent'),
+// Mock the LegacyOGBoard component to avoid rendering issues
+vi.mock('@/v1/components/board/LegacyOGBoard', () => ({
+  LegacyOGBoard: vi.fn(() => 'OGBoardComponent'),
 }));
 
 import { kv } from '@vercel/kv';

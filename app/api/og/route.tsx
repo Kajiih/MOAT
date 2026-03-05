@@ -1,7 +1,7 @@
 /**
  * @file route.tsx
  * @description Dynamic Open Graph image generator for the Moat Tier List.
- * Uses Satori (@vercel/og) to render the OGBoard component to a PNG.
+ * Uses Satori (@vercel/og) to render the LegacyOGBoard component to a PNG.
  * @module OGAPI
  */
 
@@ -9,7 +9,7 @@ import { kv } from '@vercel/kv';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-import { OGBoard } from '@/components/board/OGBoard';
+import { LegacyOGBoard } from '@/v1/components/board/LegacyOGBoard';
 import { logger } from '@/lib/logger';
 import { scrubBoardImages } from '@/lib/server/image-logic';
 import { LegacyItem, TierListState } from '@/lib/types';
@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
     const headerColors = ['#3b82f6'];
 
     return new ImageResponse(
-      <OGBoard title={title} tiers={tiers} items={items} headerColors={headerColors} />,
+      <LegacyOGBoard title={title} tiers={tiers} items={items} headerColors={headerColors} />,
       {
         width: 1200,
         height: 630,

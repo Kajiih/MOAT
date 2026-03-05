@@ -1,15 +1,16 @@
 /**
- * @file useItemDetails.ts
- * @description Hook for fetching detailed metadata for a specific media item.
+ * @file useLegacyItemDetails.ts
+ * @description [LEGACY V1] Hook for fetching detailed metadata for a specific media item.
  * Uses SWR for caching and automatic revalidation.
- * @module useItemDetails
  */
+
+'use client';
 
 import useSWR from 'swr';
 
 import { swrFetcher } from '@/lib/api/fetcher';
-import { itemTypeRegistry } from '@/lib/media-types';
-import { ItemType,LegacyItemDetails } from '@/lib/types';
+import { itemTypeRegistry } from '@/v1/lib/item-types';
+import { ItemType, LegacyItemDetails } from '@/lib/types';
 
 /**
  * Custom hook to fetch detailed information for a specific media item.
@@ -20,7 +21,7 @@ import { ItemType,LegacyItemDetails } from '@/lib/types';
  * @param fallbackData - Optional fallback data.
  * @returns An object containing the fetched media details, loading state, and error.
  */
-export function useItemDetails(
+export function useLegacyItemDetails(
   id: string | null,
   type: ItemType | null,
   serviceId?: string | null,
@@ -38,7 +39,7 @@ export function useItemDetails(
     {
       fallbackData,
       revalidateOnFocus: false,
-      revalidateIfStale: true, // We want to refresh if the user viewing it
+      revalidateIfStale: true,
     },
   );
 

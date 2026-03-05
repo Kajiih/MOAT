@@ -58,7 +58,7 @@ test.describe('Resilience and Failure Modes', () => {
     await expect(resultCard).toBeVisible();
 
     // Mock the details route to fail with 404 BEFORE dragging
-    // Otherwise `useBackgroundEnrichment` will attempt to fetch the real API immediately on drop
+    // Otherwise `useLegacyBackgroundEnrichment` will attempt to fetch the real API immediately on drop
     await page.route('**/api/details*', async (route) => {
       await route.fulfill({ status: 404, body: 'Not found' });
     });

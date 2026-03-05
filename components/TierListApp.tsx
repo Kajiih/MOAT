@@ -18,7 +18,7 @@ import { TierBoard } from '@/components/board/TierBoard';
 import { TierRow } from '@/components/board/TierRow';
 import { DetailsModal } from '@/components/media/DetailsModal';
 import { ItemCard } from '@/components/media/ItemCard';
-import { BaseLegacyItemCard } from '@/components/media/legacy/LegacyItemCard';
+import { BaseLegacyItemCard } from '@/v1/components/media/LegacyItemCard';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { SearchPanel } from '@/components/search/SearchPanel';
 import { DebugPanel } from '@/components/ui/DebugPanel';
@@ -29,7 +29,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
 import { StandardItem } from '@/lib/database/types';
 import { useDynamicFavicon, useScreenshot } from '@/lib/hooks';
-import { useBackgroundEnrichment } from '@/lib/hooks/useBackgroundEnrichment';
+import { useLegacyBackgroundEnrichment } from '@/v1/lib/hooks/useLegacyBackgroundEnrichment';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
 import { LegacyItem } from '@/lib/types';
 
@@ -203,7 +203,7 @@ export default function TierListApp() {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   // Background Bundler: Automatically syncs deep metadata for items on the board
-  const { pendingCount } = useBackgroundEnrichment(allBoardItems, updateMediaItem);
+  const { pendingCount } = useLegacyBackgroundEnrichment(allBoardItems, updateMediaItem);
 
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);

@@ -22,7 +22,7 @@ import { ExternalLinks } from './details/ExternalLinks';
 import { GameView } from './details/GameView';
 import { SongView } from './details/SongView';
 import { ItemImage } from './ItemImage';
-import { LegacyItemImage } from './legacy/LegacyItemImage';
+import { LegacyItemImage } from '@/v1/components/media/LegacyItemImage';
 
 /**
  * Props for the DetailsModal component.
