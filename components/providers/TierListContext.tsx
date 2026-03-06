@@ -28,7 +28,7 @@ import { INITIAL_STATE } from '@/lib/initial-state';
 import { syncBoardMetadata } from '@/lib/registry-utils';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
-import { BoardCategory, Item, TierDefinition, TierListState } from '@/lib/types';
+import { BoardCategory, TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Interface defining the shape of the Tier List Context.

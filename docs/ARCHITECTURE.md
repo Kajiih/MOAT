@@ -72,7 +72,7 @@
 - **Registry**: `MediaTypeRegistry` for centralized UI configuration (icons, filters, sorting).
 
 > [!NOTE]
-> **V2-First Architecture**: The application has transitioned to a **V2 Database-Centric Architecture** as the primary standard. V2 components have been promoted to the root directories with clean, logical names (e.g., `TierList`, `ItemCard`). Legacy V1 components are maintained in `legacy/` subdirectories for backward compatibility.
+> **Unified Architecture**: The application uses a robust, database-centric architecture centered around the `Item` type and pluggable services. Legacy V1 components are isolated in the `v1/` directory.
 - **Services**: Pure API adapters for fetching data.
   - **Type Safety**: All services implement `MediaService<F>`, where `F` is a category-specific filter type (e.g., `MusicFilters`, `CinemaFilters`). This ensures end-to-end type safety from the UI filters down to the API query builders.
   - **Music**: `MusicService` (MusicBrainz)
@@ -369,7 +369,7 @@ Moat supports dynamic Open Graph images for social sharing.
     - `ItemImage.tsx`: Unified image component with prioritized resolution strategies.
     - `DetailsModal.tsx`: Hybrid metadata viewer supporting both Standard and Legacy items.
     - `ItemPicker.tsx`: Unified search-and-select component.
-    - `legacy/`: Dedicated directory for previous V1 media components (`LegacyMediaCard`, `LegacyMediaImage`).
+    - `v1/`: Dedicated directory for previous V1 media components and services.
   - `search/`: Components for the search interface.
     - `SearchPanel.tsx`: Sidebar for discovering new media.
   - `ui/`: Shared UI components.

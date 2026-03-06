@@ -24,7 +24,7 @@ import {
 } from '@/lib/database/types';
 import { applyFilters, handleDatabaseError } from '@/lib/database/utils';
 
-import { secureFetch } from '../shared/api-client';
+import { secureFetch } from './shared/api-client';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
@@ -137,7 +137,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
           ...(game.background_image ? [urlImage(game.background_image)] : []),
           ...(game.slug ? [referenceImage('wikidata', `slug:${game.slug}`)] : []),
         ];
-        const standardItem: Item = {
+        const item: Item = {
           id: toCompositeId(identity),
           identity,
           title: game.name,
@@ -146,7 +146,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
           tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
           rating: game.rating,
         };
-        return ItemSchema.parse(standardItem);
+        return ItemSchema.parse(item);
       });
 
       const currentPage = params.page || 1;
@@ -192,7 +192,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
         description: game.description_raw,
         tags: tags.length > 0 ? tags : undefined,
         relatedEntities: relatedEntities && relatedEntities.length > 0 ? relatedEntities : undefined,
-        externalLinks: [{ label: 'RAWG', url: `https://rawg.io/games/${game.slug}` }],
+        urls: [{ type: 'rawg', url: `https://rawg.io/games/${game.slug}` }],
       };
 
       return ItemDetailsSchema.parse(details);

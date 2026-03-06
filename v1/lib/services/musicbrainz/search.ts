@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 import { logger } from '@/lib/logger';
 import { MusicFilters } from '@/lib/media-types/filters';
-import { serverItemCache } from '@/lib/server/item-cache';
+import { serverItemCache } from '@/v1/lib/server/item-cache';
 import {
   mapArtistToLegacyItem,
   mapRecordingToLegacyItem,

@@ -12,13 +12,12 @@ import { useState } from 'react';
 import { BoardTitle } from '@/components/board/BoardTitle';
 import { TierList } from '@/components/board/TierList';
 import { DetailsModal } from '@/components/media/DetailsModal';
-import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Footer } from '@/components/ui/Footer';
 import { InteractionContext } from '@/components/ui/InteractionContext';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
-import { LegacyItem, TierListState } from '@/lib/types';
+import { Item, TierListState } from '@/lib/types';
 
 interface SharedBoardViewProps {
   board: TierListState;
@@ -35,15 +34,15 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
   // Use local state for the board to allow metadata enrichment (e.g. background image fetching)
   // to reflect in the UI without modifying the source data.
   const [board, setBoard] = useState(initialBoard);
-  const [detailsItem, setDetailsItem] = useState<LegacyItem | null>(null);
+  const [detailsItem, setDetailsItem] = useState<Item | null>(null);
 
-  const handleUpdateMediaItem = (itemId: string, updates: Partial<LegacyItem>) => {
+  const handleUpdateMediaItem = (itemId: string, updates: Partial<Item>) => {
     setBoard((prev) => {
-      const updatedItems: Record<string, LegacyItem[]> = {};
+      const updatedItems: Record<string, Item[]> = {};
 
       for (const [tierId, items] of Object.entries(prev.items)) {
         updatedItems[tierId] = items.map((item) =>
-          item.id === itemId ? ({ ...item, ...updates } as LegacyItem) : item,
+          item.id === itemId ? ({ ...item, ...updates } as Item) : item,
         );
       }
 
@@ -60,8 +59,7 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
 
   return (
     <ToastProvider>
-      <ItemRegistryProvider>
-        <InteractionContext.Provider value={{ setHoveredItem: () => {} }}>
+        <InteractionContext.Provider value={{ hoveredItem: null, setHoveredItem: () => {} }}>
           <div className="relative flex min-h-screen flex-col items-center bg-neutral-950 pt-8 pb-8 font-sans text-neutral-200 antialiased">
             <div className="relative flex w-full max-w-[1200px] flex-col items-center px-4 md:px-8">
               {/* Header Section */}
@@ -120,7 +118,6 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
             />
           </div>
         </InteractionContext.Provider>
-      </ItemRegistryProvider>
     </ToastProvider>
   );
 }

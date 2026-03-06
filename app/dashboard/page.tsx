@@ -4,7 +4,7 @@
  */
 
 import { Dashboard } from '@/components/dashboard/Dashboard';
-import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
+
 
 /**
  * Renders the application dashboard.
@@ -12,8 +12,8 @@ import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvide
  */
 export default function Page() {
   return (
-    <ItemRegistryProvider>
+    <div className="flex h-screen w-full items-center justify-center p-4 xl:p-8">
       <Dashboard />
-    </ItemRegistryProvider>
+    </div>
   );
 }

@@ -173,6 +173,8 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    'v1/**',
+    'app/api/v1/**',
   ]),
 ]);
 

@@ -6,7 +6,7 @@
 import { button, folder, monitor, useControls } from 'leva';
 import { useEffect } from 'react';
 
-import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
+import { useItemRegistry } from '@/lib/database/hooks/useItemRegistry';
 import { useTierListContext } from '@/components/providers/TierListContext';
 
 interface DebugPanelProps {
@@ -21,7 +21,7 @@ interface DebugPanelProps {
  */
 export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
   const { state, isHydrated } = useTierListContext();
-  const { registrySize, clearRegistry } = useItemRegistry();
+  const registryContext = useItemRegistry();
 
   // General Board State
   const [, setBoardState] = useControls(
@@ -49,32 +49,6 @@ export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
       'Total Items': Object.values(state.items).flat().length,
     });
   }, [setBoardState, state, isHydrated]);
-
-  // Registry Stats
-  const [, setRegistryStats] = useControls(
-    'Debug',
-    () => ({
-      'Media Registry': folder(
-        {
-          'Registry Size': { value: registrySize, disabled: true },
-          'Clear Registry': button(() => {
-            if (confirm('Are you sure? This will clear all cached images.')) {
-              clearRegistry();
-            }
-          }),
-          monitorSize: monitor(() => registrySize, { graph: true, interval: 30 }),
-        },
-        { collapsed: true },
-      ),
-    }),
-    [],
-  );
-
-  useEffect(() => {
-    setRegistryStats({
-      'Registry Size': registrySize,
-    });
-  }, [setRegistryStats, registrySize]);
 
   // Background Workers / Prefetch
   const [, setBackgroundStats] = useControls(

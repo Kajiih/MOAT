@@ -1,11 +1,11 @@
 /**
  * @file comparisons.ts
- * @description Utility functions for comparing items to detect changes.
+ * @description [LEGACY V1] Utility functions for comparing items to detect changes.
  * Used to optimize state updates and prevent unnecessary re-renders.
  * @module Comparisons
  */
 
-import { Item } from '@/lib/database/types';
+import { LegacyItem } from '@/v1/lib/types';
 
 /**
  * Checks if a partial update actually changes any values in the current item.
@@ -13,12 +13,12 @@ import { Item } from '@/lib/database/types';
  * @param updates - The partial updates to apply.
  * @returns True if the updates would change the item, false otherwise.
  */
-export function hasItemUpdates(
-  current: Item, 
-  updates: Partial<Item>
+export function hasMediaItemUpdates(
+  current: LegacyItem, 
+  updates: Partial<LegacyItem>
 ): boolean {
   for (const key of Object.keys(updates)) {
-    const k = key as keyof Item;
+    const k = key as keyof LegacyItem;
     const newValue = (updates as any)[k];
     const oldValue = (current as any)[k];
 
@@ -30,7 +30,7 @@ export function hasItemUpdates(
     if (newValue === undefined) continue;
 
     // Special handling for nested objects (deep compare)
-    if (k === 'details' || k === 'images' || k === 'identity') {
+    if (k === 'details') {
       // If one is null/undefined and the other isn't, they are different
       if (!newValue || !oldValue) return true;
 

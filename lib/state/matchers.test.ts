@@ -11,7 +11,7 @@ describe('TierList custom matchers', () => {
     ],
     items: {
       'tier-s': [
-        { id: 'item-1', mbid: 'mb-1', title: 'Top Song', type: 'song', artist: 'Artist 1' },
+        { id: 'item-1', identity: { dbId: 'item-1', databaseId: 'mock', entityId: 'item-1' }, title: 'Top Song', images: [] },
       ],
       'tier-a': [],
     },

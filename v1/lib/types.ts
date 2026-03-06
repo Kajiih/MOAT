@@ -134,6 +134,7 @@ const BaseLegacyItemSchema = z.object({
   reviewCount: z.number().optional(),
   notes: z.string().optional(),
   serviceId: z.string().optional(),
+  details: z.any().optional(), // Metadata placeholder
 });
 
 export const LegacyItemSchema = z.discriminatedUnion('type', [

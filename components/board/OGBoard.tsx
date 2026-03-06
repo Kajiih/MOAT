@@ -4,7 +4,7 @@
  */
 
 import { getColorTheme } from '@/lib/colors';
-import { LegacyItem, TierDefinition } from '@/lib/types';
+import { Item, TierDefinition } from '@/lib/types';
 
 /**
  * Props for the LegacyOGBoard component.
@@ -15,7 +15,7 @@ interface OGBoardProps {
   /** Array of tier definitions (labels, colors). */
   tiers: TierDefinition[];
   /** Map of media items organized by tier ID. */
-  items: Record<string, LegacyItem[]>;
+  items: Record<string, Item[]>;
   /** Array of hex color strings for the header gradient/branding. */
   headerColors: string[];
 }
@@ -33,7 +33,7 @@ interface OGBoardProps {
  * @param props.headerColors - Array of hex color strings for the header gradient/branding.
  * @returns The rendered LegacyOGBoard component.
  */
-export function LegacyOGBoard({ title, tiers, items, headerColors }: OGBoardProps) {
+export function OGBoard({ title, tiers, items, headerColors }: OGBoardProps) {
   // Use the primary brand color or fallback
   const primaryColor = headerColors[0] || '#3b82f6';
 
@@ -155,10 +155,10 @@ export function LegacyOGBoard({ title, tiers, items, headerColors }: OGBoardProp
                       backgroundColor: '#262626',
                     }}
                   >
-                    {item.imageUrl ? (
+                    {item.images && item.images.length > 0 && item.images[0].type === 'url' ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
-                        src={item.imageUrl}
+                        src={item.images[0].url}
                         alt=""
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />

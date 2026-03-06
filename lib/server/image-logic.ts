@@ -5,7 +5,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { LegacyItem, TierListState } from '@/lib/types';
+import { BoardCategory, Item, TierListState } from '@/lib/types';
 
 /**
  * Validates if an image URL is reachable and returns an image content-type.
@@ -64,17 +64,27 @@ export async function scrubBoardImages(
   state: TierListState,
   itemsPerTier = 10,
 ): Promise<TierListState> {
-  const newItems: Record<string, LegacyItem[]> = {};
+  const newItems: Record<string, Item[]> = {};
 
   // Collect all images to validate (unique URLs only to optimize)
-  const imageUrlsToValidate = new Set<string>();
+  const uniqueImageUrls = new Set<string>();
+  const maxImagesPerTier = 10; // Limit to 10 images per tier for OG image generation
 
   for (const tier of state.tierDefs) {
     const tierItems = state.items[tier.id] || [];
     const displayedItems = tierItems.slice(0, itemsPerTier);
+    let imageCount = 0;
     for (const item of displayedItems) {
-      if (item.imageUrl) {
-        imageUrlsToValidate.add(item.imageUrl);
+      if (imageCount >= maxImagesPerTier) break;
+
+      const imageUrl =
+        item.images && item.images.length > 0 && item.images[0].type === 'url'
+          ? item.images[0].url
+          : null;
+
+      if (imageUrl) {
+        uniqueImageUrls.add(imageUrl);
+        imageCount++;
       }
     }
   }
@@ -82,7 +92,7 @@ export async function scrubBoardImages(
   // Validate all unique URLs in parallel
   const validationResults = new Map<string, boolean>();
   await Promise.all(
-    [...imageUrlsToValidate].map(async (url) => {
+    [...uniqueImageUrls].map(async (url) => {
       const isValid = await validateImageUrl(url);
       validationResults.set(url, isValid);
     }),
@@ -91,12 +101,15 @@ export async function scrubBoardImages(
   // Reconstruct items with scrubbed images
   for (const tierId in state.items) {
     newItems[tierId] = state.items[tierId].map((item) => {
+      const img = item.images?.[0];
+      const url = img?.type === 'url' ? img.url : null;
       if (
-        item.imageUrl &&
-        validationResults.has(item.imageUrl) &&
-        !validationResults.get(item.imageUrl)
+        url &&
+        validationResults.has(url) &&
+        !validationResults.get(url)
       ) {
-        return { ...item, imageUrl: undefined };
+        // Find existing image array and remove/replace the broken one, or simply clear the image array
+        return { ...item, images: [] };
       }
       return item;
     });

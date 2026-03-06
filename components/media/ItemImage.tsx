@@ -80,7 +80,7 @@ export function ItemImage({
     );
   }
 
-  // Standard Image mode
+  // Local Image mode
   if (displayUrl && !imageError) {
     return (
       <div className={containerClassName}>

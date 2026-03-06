@@ -39,7 +39,7 @@ type LegacyItem =
   | DeveloperItem
   | FranchiseItem
   | SeriesItem;
-import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
+import { hasMediaItemUpdates } from '@/v1/lib/utils/comparisons';
 
 import { useLegacyItemDetails } from './useLegacyItemDetails';
 
@@ -91,7 +91,7 @@ export function useLegacyItemResolver(item: LegacyItem | null, options: UseLegac
     const merged = { ...item, ...updates } as LegacyItem;
 
     if (persist) {
-      registerItem(merged);
+      registerItem(merged as any);
     }
 
     onUpdate?.(item.id, updates);

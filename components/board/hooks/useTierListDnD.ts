@@ -23,7 +23,7 @@ import { Dispatch, useCallback, useRef, useState } from 'react';
 
 import { Item } from '@/lib/database/types';
 import { ActionType, TierListAction } from '@/lib/state/actions';
-import { LegacyItem, TierDefinition, TierListState } from '@/lib/types';
+import { TierDefinition, TierListState } from '@/lib/types';
 import { isSearchId } from '@/lib/utils/ids';
 
 /**
@@ -151,7 +151,7 @@ export function useTierListDnD(
           canonicalId = (activeItemData as Item).id;
         } else {
           // V1: Use mbid or strip prefix
-          canonicalId = (activeItemData as LegacyItem).mbid || activeItemData.id.replace(/^search-/, '');
+          canonicalId = (activeItemData as any).mbid || activeItemData.id.replace(/^search-/, '');
         }
 
         if (canonicalId && canonicalId !== activeId) {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { RAWGDatabase } from '../services/v2/rawg';
+import { RAWGDatabase } from '../services/rawg';
 import { registry, RegistryStatus } from './registry';
 import { DatabaseErrorCode, DatabaseProvider, ImageSourceSchema,ProviderStatus, SearchParamsSchema, SearchResultSchema } from './types';
 import { referenceImage,urlImage } from './types';
@@ -289,7 +289,7 @@ describe('Database V2 Design', () => {
       expect(gameEntity.searchOptions[0].id).toBe('precise');
       
       expect(gameEntity.filters).toHaveLength(2);
-      expect(gameEntity.filters.map(f => f.id)).toEqual(['yearRange', 'platform']);
+      expect(gameEntity.filters.map((f: any) => f.id)).toEqual(['yearRange', 'platform']);
     });
   });
 });

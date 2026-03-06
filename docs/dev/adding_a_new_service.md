@@ -176,7 +176,7 @@ Add your provider to the global `DatabaseRegistry` (usually in `lib/database/reg
 
 ```typescript
 import { registry } from '@/lib/database/registry';
-import { MyServiceDatabase } from '@/lib/services/v2/myservice';
+import { MyServiceDatabase } from '@/lib/services/myservice';
 
 registry.register(MyServiceDatabase);
 ```

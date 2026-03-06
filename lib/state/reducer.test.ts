@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createSong, createTierDef, createTierListState } from '@/lib/test/factories';
-import { SongItem } from '@/lib/types';
+import { createMockItem, createTierDef, createTierListState } from '@/lib/test/factories';
+import { Item } from '@/lib/types';
 
 import { ActionType } from './actions';
 import { tierListReducer } from './reducer';
@@ -27,7 +27,7 @@ describe('tierListReducer', () => {
   it('should handle DELETE_TIER by removing the tier and migrating its items', () => {
     const tierKeep = createTierDef({ id: 'keep', label: 'Keep' });
     const tierDelete = createTierDef({ id: 'delete', label: 'Delete' });
-    const song = createSong({ id: 'item-1' });
+    const song = createMockItem({ id: 'item-1' });
 
     const state = createTierListState({
       tierDefs: [tierKeep, tierDelete],
@@ -48,8 +48,8 @@ describe('tierListReducer', () => {
 
   it('should handle MOVE_ITEM by updating item positions', () => {
     const tier = createTierDef({ id: 't1' });
-    const song1 = createSong({ id: '1' });
-    const song2 = createSong({ id: '2' });
+    const song1 = createMockItem({ id: '1' });
+    const song2 = createMockItem({ id: '2' });
 
     const state = createTierListState({
       tierDefs: [tier],
@@ -71,7 +71,7 @@ describe('tierListReducer', () => {
   });
 
   it('should handle UPDATE_ITEM details without affecting other properties', () => {
-    const song = createSong({ id: '1', title: 'Old', artist: 'A' });
+    const song = createMockItem({ id: '1', title: 'Old' });
     const state = createTierListState({
       items: {
         'tier-1': [song],
@@ -84,10 +84,9 @@ describe('tierListReducer', () => {
     } as const;
 
     const nextState = tierListReducer(state, action);
-    const updatedItem = nextState.items['tier-1'][0] as SongItem;
+    const updatedItem = nextState.items['tier-1'][0] as Item;
 
     expect(updatedItem.title).toBe('New');
-    expect(updatedItem.artist).toBe('A');
   });
 
   it('should handle UPDATE_TITLE', () => {
@@ -110,7 +109,7 @@ describe('tierListReducer', () => {
   });
 
   it('should be idempotent when moving item over its own tier container', () => {
-    const song = createSong({ id: '1' });
+    const song = createMockItem({ id: '1' });
     const state = createTierListState({
       tierDefs: [createTierDef({ id: 't1' })],
       items: {

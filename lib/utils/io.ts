@@ -5,7 +5,7 @@
  * @module IO
  */
 
-import { LegacyItem, TierDefinition, TierListState } from '@/lib/types';
+import { TierDefinition, TierListState, Item } from '@/lib/types';
 
 const CURRENT_VERSION = 1;
 
@@ -24,7 +24,7 @@ interface ExportData {
   tiers: {
     label: string;
     color: string;
-    items: LegacyItem[];
+    items: Item[];
   }[];
 }
 
@@ -73,9 +73,9 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
   // 1. Handle ExportData Format
   if (data.tiers && Array.isArray(data.tiers)) {
     const newTierDefs: TierDefinition[] = [];
-    const newItems: Record<string, LegacyItem[]> = {};
+    const newItems: Record<string, Item[]> = {};
 
-    data.tiers.forEach((tier: { label: string; color: string; items: LegacyItem[] }) => {
+    data.tiers.forEach((tier: { label: string; color: string; items: Item[] }) => {
       const id = crypto.randomUUID();
       newTierDefs.push({
         id,

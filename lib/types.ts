@@ -1,7 +1,7 @@
 /**
  * @file types.ts
  * @description Central definition of all domain types and Zod schemas used across the application.
- * Focuses on V2-native types and shared primitives.
+ * Focuses on native types and shared primitives.
  * @module Types
  */
 

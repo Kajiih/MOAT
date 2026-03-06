@@ -10,15 +10,16 @@
 import { Filter, X } from 'lucide-react';
 import { useState } from 'react';
 
-import { itemTypeRegistry } from '@/lib/media-types';
+import { itemTypeRegistry } from '@/v1/lib/item-types';
 import { SearchFilters } from '@/v1/components/search/filters/SearchFilters';
-import { useItemSearch } from '@/v1/components/search/hooks/useItemSearch';
+import { useItemSearch } from '@/v1/components/search/hooks/useMediaSearch';
 import {
-  Item,
+  AuthorItem,
+  LegacyItem,
   ItemSelection,
 } from '@/v1/lib/types';
 
-import { ItemImage } from './ItemImage';
+import { LegacyItemImage as ItemImage } from './LegacyItemImage';
 
 /**
  * Props for the ItemPicker component.
@@ -84,22 +85,22 @@ export function ItemPicker<T extends ItemSelection>({
   const TypeIcon = definition.icon;
   const SelectedIcon = definition.icon;
 
-  const handleSelect = (item: Item) => {
+  const handleSelect = (item: LegacyItem) => {
     let selection: ItemSelection;
 
     if (type === 'artist' || type === 'author') {
       selection = {
         id: item.id,
         name: item.title,
-        imageUrl: item.images.find(img => img.type === 'url')?.url,
+        imageUrl: item.imageUrl,
         disambiguation: item.id,
       } as ItemSelection;
     } else {
       selection = {
         id: item.id,
         name: item.title,
-        imageUrl: item.images.find(img => img.type === 'url')?.url,
-        artist: item.subtitle,
+        imageUrl: item.imageUrl,
+        artist: (item as any).artist || (item as any).author,
       } as ItemSelection;
     }
 
@@ -196,7 +197,7 @@ export function ItemPicker<T extends ItemSelection>({
 
       {isOpen && results.length > 0 && (
         <div className="custom-scrollbar absolute right-0 left-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl">
-          {results.map((item) => (
+          {results.map((item: LegacyItem) => (
             <button
               key={item.id}
               className="group flex w-full items-center gap-3 border-b border-neutral-800 px-3 py-2 text-left text-sm text-neutral-200 last:border-0 hover:bg-neutral-800"

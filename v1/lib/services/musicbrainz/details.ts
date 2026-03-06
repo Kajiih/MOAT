@@ -5,7 +5,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { getArtistThumbnail } from '@/lib/server/images';
+import { getArtistThumbnail } from '@/v1/lib/server/images';
 import { ItemType,LegacyItemDetails } from '@/v1/lib/types';
 
 import { mbFetch } from './client';

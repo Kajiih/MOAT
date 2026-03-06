@@ -230,8 +230,9 @@ describe('LegacySortableItemCard', () => {
   });
 
   it('renders correctly', () => {
+    const mockSetHoveredItem = vi.fn();
     render(
-      <InteractionContext.Provider value={{ setHoveredItem: vi.fn() }}>
+      <InteractionContext.Provider value={{ hoveredItem: null, setHoveredItem: mockSetHoveredItem }}>
         <LegacySortableItemCard item={mockItem as any} />
       </InteractionContext.Provider>,
     );

@@ -9,20 +9,11 @@
 
 import { createContext, useContext } from 'react';
 
-import { LegacyItem } from '@/lib/types';
-
-/**
- * Metadata for an item currently being hovered in the UI.
- */
-export interface HoveredItemInfo {
-  /** The media item object. */
-  item: LegacyItem;
-  /** Optional ID of the tier where the item is located. */
-  tierId?: string;
-}
+import { Item } from '@/lib/types';
 
 interface InteractionContextType {
-  setHoveredItem: (info: HoveredItemInfo | null) => void;
+  hoveredItem: Item | null;
+  setHoveredItem: (item: Item | null) => void;
 }
 
 export const InteractionContext = createContext<InteractionContextType | null>(null);

@@ -13,7 +13,7 @@ import {
 type MusicBrainzRecording = z.infer<typeof MusicBrainzRecordingSchema>;
 
 // Mock getArtistThumbnail since it makes fetch calls
-vi.mock('@/lib/server/images', () => ({
+vi.mock('@/v1/lib/server/images', () => ({
   getArtistThumbnail: vi.fn().mockResolvedValue('mock-url'),
 }));
 

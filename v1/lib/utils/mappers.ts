@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 
-import { getArtistThumbnail } from '@/lib/server/images';
+import { getArtistThumbnail } from '@/v1/lib/server/images';
 import {
   LegacyItem,
   MusicBrainzArtistCreditSchema,

@@ -7,7 +7,6 @@
 
 import { Dispatch, useCallback } from 'react';
 
-import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
 import { useToast } from '@/components/ui/ToastProvider';
 import { logger } from '@/lib/logger';
 import { ActionType, TierListAction } from '@/lib/state/actions';
@@ -27,7 +26,6 @@ export function useTierListIO(
   pushHistory?: () => void,
 ) {
   const { showToast } = useToast();
-  const { registerItems } = useItemRegistry();
 
   /**
    * Generates a JSON export of the current tier list state and triggers a browser download.
@@ -65,11 +63,6 @@ export function useTierListIO(
           if (pushHistory) pushHistory();
           dispatch({ type: ActionType.IMPORT_STATE, payload: { state: newState } });
 
-          // Register all imported items in the global registry
-          const allItems = Object.values(newState.items).flat();
-          if (allItems.length > 0) {
-            registerItems(allItems);
-          }
 
           showToast('Tier list imported successfully!', 'success');
         } catch (error) {
@@ -81,7 +74,7 @@ export function useTierListIO(
       // Reset input so same file can be selected again if needed
       e.target.value = '';
     },
-    [dispatch, showToast, pushHistory, registerItems],
+    [dispatch, showToast, pushHistory],
   );
 
   /**

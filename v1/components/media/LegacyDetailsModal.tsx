@@ -1,7 +1,6 @@
 /**
- * @file DetailsModal.tsx
- * @description A modal component for displaying detailed information about a media item.
- * Supports both V1 LegacyItem (Legacy) and V2 Item (Standard).
+ * @file LegacyDetailsModal.tsx
+ * @description [LEGACY V1] A modal component for displaying detailed information about a legacy media item.
  */
 
 'use client';
@@ -9,40 +8,29 @@
 import { Info, LucideIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { useItemResolver, useEscapeKey } from '@/lib/hooks';
-import { registry } from '@/lib/database/registry';
-import { Item, ItemDetails, ItemSection } from '@/lib/database/types';
+import { useLegacyItemResolver } from '@/v1/lib/hooks/useLegacyItemResolver';
+import { LegacyItem } from '@/v1/lib/types';
+import { useEscapeKey } from '@/lib/hooks';
+import { LegacyItemImage } from '@/v1/components/media/LegacyItemImage';
+import { itemTypeRegistry } from '@/v1/lib/item-types';
 
-import { ItemImage } from './ItemImage';
-import { ExternalLinks } from '@/v1/components/media/details/ExternalLinks';
+import { AlbumView } from '@/components/media/details/AlbumView';
+import { ArtistView } from '@/components/media/details/ArtistView';
+import { ExternalLinks } from '@/components/media/details/ExternalLinks';
+import { GameView } from '@/components/media/details/GameView';
+import { SongView } from '@/components/media/details/SongView';
 
-/**
- * Props for the DetailsModal component.
- */
-interface DetailsModalProps {
-  /** The item to display details for, or null if closed. */
-  item: Item | null;
-  /** Whether the modal is currently visible. */
+interface LegacyDetailsModalProps {
+  item: LegacyItem | null;
   isOpen: boolean;
-  /** Callback fired when the modal should be closed. */
   onClose: () => void;
-  /** Optional callback to persist enriched metadata back to the parent state. */
-  onUpdateItem?: (itemId: string, updates: Partial<Item>) => void;
+  onUpdateItem?: (itemId: string, updates: Partial<LegacyItem>) => void;
 }
 
-/**
- * A comprehensive details view for native Items.
- * @param props - The component props.
- * @param props.item
- * @param props.isOpen
- * @param props.onClose
- * @param props.onUpdateItem
- * @returns The rendered DetailsModal component.
- */
-export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
+export function LegacyDetailsModal({ item, isOpen, onClose, onUpdateItem }: LegacyDetailsModalProps) {
   useEscapeKey(onClose, isOpen);
 
-  const { resolvedItem, isLoading, error } = useItemResolver(isOpen ? item : null, {
+  const { resolvedItem, isLoading, error } = useLegacyItemResolver(isOpen ? item : null, {
     enabled: isOpen,
     onUpdate: onUpdateItem,
     persist: true,
@@ -50,12 +38,12 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
   if (!isOpen || !resolvedItem) return null;
 
-  const entityDef = registry.getEntity(resolvedItem.identity.databaseId, resolvedItem.identity.entityId);
-  const PlaceholderIcon = (entityDef?.branding.icon as LucideIcon) || Info;
-  const colorClass = entityDef?.branding.colorClass || 'text-blue-400';
-  const subtitle = resolvedItem.subtitle || '';
+  const definition = itemTypeRegistry.get(resolvedItem.type);
+  const PlaceholderIcon = definition.icon;
+  const colorClass = definition.colorClass;
+  const subtitle = (('artist' in resolvedItem && resolvedItem.artist) || ('author' in resolvedItem && resolvedItem.author) || '') as string;
 
-  const details = resolvedItem.details;
+  const details = resolvedItem.details as any;
 
   return (
     <div
@@ -68,12 +56,11 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
         className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-neutral-700 bg-neutral-900 shadow-2xl duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Cover Art */}
         <div className="relative h-48 shrink-0 overflow-hidden bg-neutral-950 sm:h-64">
-          <ItemImage
+          <LegacyItemImage
             item={resolvedItem}
-            TypeIcon={PlaceholderIcon}
             priority
+            TypeIcon={PlaceholderIcon}
             containerClassName="absolute inset-0"
             imageClassName="object-cover opacity-60 blur-sm"
             sizes="100vw"
@@ -81,7 +68,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
 
           <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
-            <ItemImage
+            <LegacyItemImage
               item={resolvedItem}
               TypeIcon={PlaceholderIcon}
               containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24"
@@ -94,10 +81,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               <div className="mt-1 flex items-center gap-2 text-neutral-300">
                 <PlaceholderIcon size={16} className={colorClass} />
                 <span className="font-medium">{subtitle}</span>
-                {resolvedItem.tertiaryText && (
+                {resolvedItem.year && (
                   <>
                     <span className="text-neutral-600">•</span>
-                    <span className="text-neutral-400">{resolvedItem.tertiaryText}</span>
+                    <span className="text-neutral-400">{resolvedItem.year}</span>
                   </>
                 )}
               </div>
@@ -112,7 +99,6 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
           </button>
         </div>
 
-        {/* Content Section */}
         <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto p-6">
           {isLoading && (
             <div className="animate-pulse space-y-4">
@@ -133,7 +119,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
           {details && !isLoading && (
             <>
-
+              {details.type === 'album' && <AlbumView details={details} />}
+              {details.type === 'artist' && <ArtistView details={details} />}
+              {details.type === 'song' && <SongView details={details} />}
+              {details.type === 'game' && <GameView details={details} />}
               
               <div className="space-y-6">
                 {details.description && (
@@ -164,24 +153,6 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                     </div>
                   </div>
                 )}
-
-                {details.sections?.map((section: ItemSection, idx: number) => (
-                  <div key={idx} className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
-                      {section.title}
-                    </h3>
-                    <div className="text-sm text-neutral-300">
-                      {section.type === 'text' && <p className="leading-relaxed">{section.content as string}</p>}
-                      {section.type === 'list' && (
-                        <ul className="list-disc list-inside space-y-1">
-                          {(section.content as string[]).map((li, i) => (
-                            <li key={i}>{li}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                ))}
               </div>
 
               {details.urls && details.urls.length > 0 && (
@@ -206,13 +177,6 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   );
 }
 
-/**
- * Internal component to handle notes editing.
- * @param root0
- * @param root0.initialNotes
- * @param root0.itemId
- * @param root0.onUpdate
- */
 function LocalNotesEditor({
   initialNotes,
   itemId,

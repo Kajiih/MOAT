@@ -119,7 +119,10 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         ...new Set(
           Object.values(state.items)
             .flat()
-            .flatMap((item) => (item.imageUrl ? [item.imageUrl] : [])),
+            .flatMap((item) => {
+              if (!item.images) return [];
+              return item.images.filter((img) => img.type === 'url').map((img) => img.url);
+            }),
         ),
       ];
 
@@ -159,7 +162,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       try {
         // 3. Render with resolved images
         root.render(
-          <ExportBoard state={state} brandColors={headerColors} resolvedImages={resolvedMap} />,
+          <ExportBoard state={state} brandColors={headerColors} />,
         );
 
         // 4. Wait for React and styles to stabilize

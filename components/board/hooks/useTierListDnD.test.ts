@@ -3,7 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ActionType } from '@/lib/state/actions';
-import { LegacyItem, TierListState } from '@/lib/types';
+import { TierListState, Item } from '@/lib/types';
 
 import { useTierListDnD } from './useTierListDnD';
 
@@ -45,7 +45,7 @@ describe('useTierListDnD', () => {
   it('should handle handleDragStart for a media item', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const item: LegacyItem = { id: 'm1', title: 'Song 1', type: 'song' } as LegacyItem;
+    const item: Item = { id: 'm1', identity: { dbId: 'm1', databaseId: 'mock', entityId: 'm1' }, title: 'Song 1', images: [] };
     const event = {
       active: {
         id: 'm1',
@@ -70,7 +70,7 @@ describe('useTierListDnD', () => {
   it('should handle handleDragOver and dispatch MOVE_ITEM', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const item: LegacyItem = { id: 'm1', title: 'Song 1', type: 'song' } as LegacyItem;
+    const item: Item = { id: 'm1', identity: { dbId: 'm1', databaseId: 'mock', entityId: 'm1' }, title: 'Song 1', images: [] };
     const event = {
       active: {
         id: 'm1',
@@ -113,7 +113,7 @@ describe('useTierListDnD', () => {
   it('should handle handleDragEnd for item reordering', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const item: LegacyItem = { id: 'm1', title: 'Song 1', type: 'song' } as LegacyItem;
+    const item: Item = { id: 'm1', identity: { dbId: 'm1', databaseId: 'mock', entityId: 'm1' }, title: 'Song 1', images: [] };
     const event = {
       active: {
         id: 'm1',
@@ -175,11 +175,12 @@ describe('useTierListDnD', () => {
   it('should normalize ID after dragging an item from search', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
-    const canonicalItem: LegacyItem = {
+    const canonicalItem: Item = {
       id: 'real-id',
+      identity: { dbId: 'real-id', databaseId: 'mock', entityId: 'real-id' },
       title: 'Real Song',
-      type: 'song',
-    } as LegacyItem;
+      images: [],
+    };
     const event = {
       active: {
         id: 'search-123',

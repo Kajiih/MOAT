@@ -7,11 +7,7 @@
 import { faker } from '@faker-js/faker';
 
 import {
-  AlbumItem,
-  ArtistItem,
-  BookItem,
-  LegacyItem,
-  SongItem,
+  Item,
   TierDefinition,
   TierListState,
 } from '@/lib/types';
@@ -31,74 +27,21 @@ export function createTierDef(overrides: Partial<TierDefinition> = {}): TierDefi
 }
 
 /**
- * Creates a mock AlbumItem.
- * @param overrides - Optional overrides for the album item.
- * @returns An album item object.
+ * Creates a mock Item.
+ * @param overrides - Optional overrides for the item.
+ * @returns An Item object.
  */
-export function createAlbum(overrides: Partial<AlbumItem> = {}): AlbumItem {
+export function createMockItem(overrides: Partial<Item> = {}): Item {
   const id = overrides.id || faker.string.uuid();
   return {
     id,
-    mbid: overrides.mbid || id,
-    type: 'album',
-    title: faker.music.album(),
-    artist: faker.person.fullName(),
-    year: faker.date.past().getFullYear().toString(),
-    imageUrl: faker.image.url(),
-    ...overrides,
-  };
-}
-
-/**
- * Creates a mock SongItem.
- * @param overrides - Optional overrides for the song item.
- * @returns A song item object.
- */
-export function createSong(overrides: Partial<SongItem> = {}): SongItem {
-  const id = overrides.id || faker.string.uuid();
-  return {
-    id,
-    mbid: overrides.mbid || id,
-    type: 'song',
-    title: faker.music.songName(),
-    artist: faker.person.fullName(),
-    album: faker.music.album(),
-    imageUrl: faker.image.url(),
-    ...overrides,
-  };
-}
-
-/**
- * Creates a mock ArtistItem.
- * @param overrides - Optional overrides for the artist item.
- * @returns An artist item object.
- */
-export function createArtist(overrides: Partial<ArtistItem> = {}): ArtistItem {
-  const id = overrides.id || faker.string.uuid();
-  return {
-    id,
-    mbid: overrides.mbid || id,
-    type: 'artist',
-    title: faker.person.fullName(),
-    imageUrl: faker.image.url(),
-    ...overrides,
-  };
-}
-
-/**
- * Creates a mock BookItem.
- * @param overrides - Optional overrides for the book item.
- * @returns A book item object.
- */
-export function createBook(overrides: Partial<BookItem> = {}): BookItem {
-  const id = overrides.id || faker.string.uuid();
-  return {
-    id,
-    mbid: overrides.mbid || id,
-    type: 'book',
     title: faker.commerce.productName(),
-    author: faker.person.fullName(),
-    imageUrl: faker.image.url(),
+    identity: {
+      dbId: id,
+      databaseId: 'mock-db',
+      entityId: id,
+    },
+    images: [{ type: 'url', url: faker.image.url() }],
     ...overrides,
   };
 }
@@ -109,7 +52,7 @@ export function createBook(overrides: Partial<BookItem> = {}): BookItem {
  * @param factory - Factory function to use.
  * @returns Array of media items.
  */
-export function createMany<T extends LegacyItem>(
+export function createMany<T extends Item>(
   count: number,
   factory: (overrides?: Partial<T>) => T,
 ): T[] {

@@ -23,12 +23,12 @@ import { SearchPanel } from '@/components/search/SearchPanel';
 import { DebugPanel } from '@/components/ui/DebugPanel';
 import { Footer } from '@/components/ui/Footer';
 import { Header } from '@/components/ui/Header';
-import { HoveredItemInfo, InteractionContext } from '@/components/ui/InteractionContext';
+import { InteractionContext } from '@/components/ui/InteractionContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
 import { useDynamicFavicon, useScreenshot } from '@/lib/hooks';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
-import { Item } from '@/lib/types';
+import { Item, TierListState } from '@/lib/types';
 
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
@@ -61,14 +61,15 @@ interface UseAppShortcutsProps {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
-  hoveredItem: HoveredItemInfo | null;
-  setHoveredItem: (item: HoveredItemInfo | null) => void;
+  hoveredItem: Item | null;
+  setHoveredItem: (item: Item | null) => void;
   removeItemFromTier: (tierId: string, itemId: string) => void;
   showDetails: (item: Item) => void;
   closeDetails: () => void;
   setShowShortcuts: (show: boolean | ((prev: boolean) => boolean)) => void;
   setShowExportPreview: (show: boolean | ((prev: boolean) => boolean)) => void;
   setShowDebugPanel: (show: boolean | ((prev: boolean) => boolean)) => void;
+  state: TierListState;
 }
 
 function handleUndoRedo(
@@ -89,19 +90,28 @@ function handleUndoRedo(
 
 function handleHoverShortcuts(
   event: KeyboardEvent,
-  { hoveredItem, removeItemFromTier, setHoveredItem, showDetails }: UseAppShortcutsProps,
+  { hoveredItem, removeItemFromTier, setHoveredItem, showDetails, state }: UseAppShortcutsProps,
 ) {
   if (hoveredItem) {
     // 'x' to remove item (only if in a tier)
-    if (event.key === 'x' && hoveredItem.tierId) {
-      event.preventDefault();
-      removeItemFromTier(hoveredItem.tierId, hoveredItem.item.id);
-      setHoveredItem(null);
+    if (event.key === 'x') {
+      let foundTierId: string | null = null;
+      for (const [tierId, items] of Object.entries(state.items) as [string, Item[]][]) {
+        if (items.some((i) => i.id === hoveredItem.id)) {
+          foundTierId = tierId;
+          break;
+        }
+      }
+      if (foundTierId) {
+        event.preventDefault();
+        removeItemFromTier(foundTierId, hoveredItem.id);
+        setHoveredItem(null);
+      }
     }
     // 'i' to show details
     if (event.key === 'i') {
       event.preventDefault();
-      showDetails(hoveredItem.item);
+      showDetails(hoveredItem);
     }
   }
 }
@@ -195,7 +205,7 @@ export default function TierListApp() {
   const handleScreenshot = () => capture(state, headerColors);
 
   // UI Interaction State (Hover)
-  const [hoveredItem, setHoveredItem] = useState<HoveredItemInfo | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<Item | null>(null);
   const [showExportPreview, setShowExportPreview] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
@@ -226,6 +236,7 @@ export default function TierListApp() {
     setShowShortcuts,
     setShowExportPreview,
     setShowDebugPanel,
+    state,
   });
 
   if (!isHydrated) {
@@ -253,7 +264,7 @@ export default function TierListApp() {
 
   return (
     <div className="relative flex min-h-screen flex-col font-sans text-neutral-200">
-      <InteractionContext.Provider value={{ setHoveredItem }}>
+      <InteractionContext.Provider value={{ hoveredItem: null, setHoveredItem }}>
         <main className="flex-1 p-8 pb-0">
           <div className="mx-auto max-w-[1600px]">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
