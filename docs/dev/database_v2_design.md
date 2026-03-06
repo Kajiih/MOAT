@@ -12,7 +12,7 @@ In V1, adding a database required touching multiple layers of the application (E
 - UI branding (icons, colors).
 
 ### Decoupling via Standardization
-The Board UI and Search Panel are completely decoupled from external API schemas. They only interact with the `StandardItem` and `DatabaseProvider` interfaces. This "Thin Interface" allows the core application to remain stable even as external APIs evolve or new databases are added.
+The Board UI and Search Panel are completely decoupled from external API schemas. They only interact with the `Item` and `DatabaseProvider` interfaces. This "Thin Interface" allows the core application to remain stable even as external APIs evolve or new databases are added.
 
 ### Type-Safe Boundaries (Zod)
 Every piece of data entering the system is validated via Zod. This prevents "silent data corruption" where malformed API responses cause crashes in distant UI components.
@@ -23,8 +23,8 @@ graph TD
     Registry --> P2["MusicBrainz (Provider)"]
     P1 --> E1["Game (Entity)"]
     P1 --> E2["Developer (Entity)"]
-    E1 -- search() --> Results["SearchResult (StandardItems)"]
-    E1 -- getDetails() --> Details["StandardDetails"]
+    E1 -- search() --> Results["SearchResult (Items)"]
+    E1 -- getDetails() --> Details["ItemDetails"]
 ```
 
 ---
@@ -51,8 +51,8 @@ flowchart TD
     end
 
     subgraph Validation ["Data & Validation"]
-        ZodStandard["Zod (StandardItemSchema)"]
-        ZodDetails["Zod (StandardDetailsSchema)"]
+        ZodStandard["Zod (ItemSchema)"]
+        ZodDetails["Zod (ItemDetailsSchema)"]
     end
 
     %% Discovery Flow
@@ -62,22 +62,22 @@ flowchart TD
 
     %% Search Flow
     SearchPanel -- "entity.search(SearchParams)" --> DBE
-    DBE -- "map API response" --> StandardItem["Standard Item"]
-    StandardItem -- "validate" --> ZodStandard
+    DBE -- "map API response" --> Item["Standard Item"]
+    Item -- "validate" --> ZodStandard
     ZodStandard -- "result" --> SearchPanel
 
     %% Details Flow
     Board -- "id: databaseId:entityId:dbId" --> DetailsModal
     DetailsModal -- "registry.getProvider(databaseId)" --> DatabaseRegistry
     DetailsModal -- "entity.getDetails(dbId)" --> DBE
-    DBE -- "map API details" --> StandardDetails["Standard Details"]
-    StandardDetails -- "validate" --> ZodDetails
+    DBE -- "map API details" --> ItemDetails["Standard Details"]
+    ItemDetails -- "validate" --> ZodDetails
     ZodDetails -- "result" --> DetailsModal
 ```
 
-## 3. The Data Model: `StandardItem`
+## 3. The Data Model: `Item`
 
-The `StandardItem` is the universal value object for the application.
+The `Item` is the universal value object for the application.
 
 - **`id`**: A composite string `${databaseId}:${entityId}:${dbId}`. This acts as a "Self-Routing Key" that tells the app exactly which provider/entity to use for further actions (like details).
 - **`title`**: The primary display name.
@@ -105,10 +105,10 @@ Represents a specific category of data (e.g., "Game", "Developer").
 - **`sortOptions`**: List of supported orderings.
 - **`search(params)`**: 
   - Takes `SearchParams` (query, filters, pagination).
-  - Returns a `SearchResult` containing an array of `StandardItem`s and `pagination` metadata.
+  - Returns a `SearchResult` containing an array of `Item`s and `pagination` metadata.
 - **`getDetails(dbId)`**: 
   - Fetches deep metadata.
-  - Returns a `StandardDetails` object (which extends `StandardItem` with descriptions, tags, and links).
+  - Returns a `ItemDetails` object (which extends `Item` with descriptions, tags, and links).
 
 ---
 
@@ -130,7 +130,7 @@ The use of `databaseId:entityId:dbId` is critical for:
 - **Context Preservation**: An item on the board always "remembers" where it came from.
 
 ### Extended Data
-The `StandardDetails` includes an `extendedData` record. This allows providers to pass arbitrary, specific metadata (e.g., "Metacritic Score" for games, "Tracklist" for albums) that specialized UI components can selectively render.
+The `ItemDetails` includes an `extendedData` record. This allows providers to pass arbitrary, specific metadata (e.g., "Metacritic Score" for games, "Tracklist" for albums) that specialized UI components can selectively render.
 
 ---
 
@@ -159,7 +159,7 @@ await registry.waitUntilReady();
 In V2, we don't assume the first image is always the best or even available. We use a **Waterfall** approach for visual reliability.
 
 ### `images`
-The `StandardItem` contains an array of `ImageSource` objects.
+The `Item` contains an array of `ImageSource` objects.
 - **URL Source**: A direct Choice (e.g., RAWG screenshot URL).
 - **Reference Source**: A reference to an external provider (e.g. `wikidata:slug:elden-ring`) that a background service can use to "resolve" or "heal" a missing image on the fly.
 
@@ -260,7 +260,7 @@ Not all filters are data filters. Some modify *how the query is interpreted* (e.
 A key feature of the V2 architecture is the ability for items to link to other entities **within the same database**. 
 
 ### `EntityLink`
-The `StandardDetails` object can include a list of `relatedEntities`.
+The `ItemDetails` object can include a list of `relatedEntities`.
 - **`label`**: The type of the link (e.g., "Developer", "Author", "Studio").
 - **`name`**: The display name of the target (e.g., "FromSoftware").
 - **`entityId` & `dbId`**: The routing information needed to navigate.
@@ -289,8 +289,8 @@ In V1, providers imported `secureFetch` directly. In V2, we adopt **Dependency I
 
 Validation happens at the **Service Boundary**.
 
-1. **Mapping**: The provider maps raw JSON to a `StandardItem` object.
-2. **Validation**: The provider calls `StandardItemSchema.parse(item)`.
+1. **Mapping**: The provider maps raw JSON to a `Item` object.
+2. **Validation**: The provider calls `ItemSchema.parse(item)`.
 3. **Safety**: If validation fails, an error is thrown early, preventing invalid state from being saved to the Board or Registry (IndexedDB).
 
 ---
@@ -340,20 +340,20 @@ A hook to fetch deep metadata for any item:
 
 ## 17. Board Integration
 
-The `StandardItem` is designed to be the single source of truth for items stored on a board.
+The `Item` is designed to be the single source of truth for items stored on a board.
 
 ### Storage and Serialization
-When an item is added to a tier, the entire `StandardItem` object is serialized and stored in the `TierListState`. This ensures that the board remains interactive even if the external service is offline.
+When an item is added to a tier, the entire `Item` object is serialized and stored in the `TierListState`. This ensures that the board remains interactive even if the external service is offline.
 
 ### Background Enrichment
 The `MediaRegistry` (IndexedDB) acts as a local cache. When a board is loaded, the app can:
-1. Render the stored `StandardItem` immediately.
+1. Render the stored `Item` immediately.
 2. Trigger an asynchronous `getDetails()` call via the `DatabaseRegistry` to update the local metadata (e.g., fresh ratings, updated tags).
 3. Update the `MediaRegistry` with the latest data.
 
 ### Extended Data Usage
-`StandardDetails.extendedData` is a key-value store for database-specific attributes.
-- **Provider Role**: Populate `extendedData` with fields that don't fit the `StandardItem` but are useful for specialized views (e.g., "Developer Notes", "Original Language").
+`ItemDetails.extendedData` is a key-value store for database-specific attributes.
+- **Provider Role**: Populate `extendedData` with fields that don't fit the `Item` but are useful for specialized views (e.g., "Developer Notes", "Original Language").
 - **UI Role**: Specialized detail components can check for the presence of specific keys in `extendedData` to render custom UI blocks without bloating the standard model.
 
 ---

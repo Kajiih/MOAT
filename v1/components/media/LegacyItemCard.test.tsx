@@ -4,7 +4,37 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
 import { InteractionContext } from '@/components/ui/InteractionContext';
 import { useItemResolver } from '@/lib/hooks';
-import { LegacyItem } from '@/lib/types';
+import {
+  AlbumItem,
+  ArtistItem,
+  AuthorItem,
+  BookItem,
+  DeveloperItem,
+  FranchiseItem,
+  GameItem,
+  MovieItem,
+  PersonItem,
+  SeriesItem,
+  SongItem,
+  TVItem,
+} from '@/lib/types';
+
+/**
+ * Represents a single normalized legacy item in the application.
+ */
+type LegacyItem =
+  | AlbumItem
+  | ArtistItem
+  | SongItem
+  | MovieItem
+  | TVItem
+  | PersonItem
+  | GameItem
+  | BookItem
+  | AuthorItem
+  | DeveloperItem
+  | FranchiseItem
+  | SeriesItem;
 
 import { LegacyItemCard, LegacySortableItemCard } from './LegacyItemCard';
 
@@ -72,7 +102,7 @@ describe('ItemCard', () => {
   });
 
   it('renders item title and artist', () => {
-    renderWithProviders(<LegacyItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem as any} />);
 
     expect(screen.getByText('Test Song Title')).toBeDefined();
     expect(screen.getByText(/Test Artist Name/)).toBeDefined();
@@ -80,14 +110,14 @@ describe('ItemCard', () => {
   });
 
   it('renders the image with correct src', () => {
-    renderWithProviders(<LegacyItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem as any} />);
 
     const img = screen.getByRole('img');
     expect(img.getAttribute('src')).toBe(mockItem.imageUrl);
   });
 
   it('calls setHoveredItem on mouse enter and leave', () => {
-    renderWithProviders(<LegacyItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem as any} />);
 
     const card = screen.getByText('Test Song Title').closest('div');
     if (!card) throw new Error('Card container not found');
@@ -106,13 +136,13 @@ describe('ItemCard', () => {
     const onRemove = vi.fn();
 
     // Without tierId/onRemove
-    const { rerender } = renderWithProviders(<LegacyItemCard item={mockItem} />);
+    const { rerender } = renderWithProviders(<LegacyItemCard item={mockItem as any} />);
     expect(screen.queryByTitle('Remove item')).toBeNull();
 
     // With tierId and onRemove
     rerender(
       <InteractionContext.Provider value={mockInteraction}>
-        <LegacyItemCard item={mockItem} tierId="tier-1" onRemove={onRemove} />
+        <LegacyItemCard item={mockItem as any} tierId="tier-1" onRemove={onRemove} />
       </InteractionContext.Provider>,
     );
 
@@ -125,7 +155,7 @@ describe('ItemCard', () => {
 
   it('renders the info button when onInfo is provided', () => {
     const onInfo = vi.fn();
-    renderWithProviders(<LegacyItemCard item={mockItem} onInfo={onInfo} />);
+    renderWithProviders(<LegacyItemCard item={mockItem as any} onInfo={onInfo} />);
 
     const infoBtn = screen.getByTitle('View details');
     expect(infoBtn).toBeDefined();
@@ -135,7 +165,7 @@ describe('ItemCard', () => {
   });
 
   it('displays placeholder when image fails to load', () => {
-    renderWithProviders(<LegacyItemCard item={mockItem} />);
+    renderWithProviders(<LegacyItemCard item={mockItem as any} />);
 
     const img = screen.getByRole('img');
     fireEvent.error(img); // First error triggers retry unoptimized
@@ -146,7 +176,7 @@ describe('ItemCard', () => {
   });
 
   it('shows locate icon when isAdded is true', () => {
-    renderWithProviders(<LegacyItemCard item={mockItem} isAdded={true} />);
+    renderWithProviders(<LegacyItemCard item={mockItem as any} isAdded={true} />);
 
     // The link/Eye icon might be subtle, but we can check for classes or specific elements
     // The Eye icon is rendered inside a div with absolute inset-0
@@ -202,7 +232,7 @@ describe('LegacySortableItemCard', () => {
   it('renders correctly', () => {
     render(
       <InteractionContext.Provider value={{ setHoveredItem: vi.fn() }}>
-        <LegacySortableItemCard item={mockItem} />
+        <LegacySortableItemCard item={mockItem as any} />
       </InteractionContext.Provider>,
     );
     expect(screen.getByText('Test Song Title')).toBeDefined();

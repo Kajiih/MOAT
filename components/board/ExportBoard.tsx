@@ -21,7 +21,6 @@ import { TierList } from './TierList';
 interface ExportBoardProps {
   state: TierListState;
   brandColors: string[];
-  resolvedImages?: Record<string, string>;
 }
 
 /**
@@ -34,7 +33,7 @@ interface ExportBoardProps {
  * @param props.resolvedImages - Pre-resolved base64 images for clean room export.
  * @returns The rendered ExportBoard component.
  */
-export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportBoardProps) {
+export function ExportBoard({ state, brandColors }: ExportBoardProps) {
   const logoHexColors = useBrandColors(brandColors);
 
   return (
@@ -72,7 +71,6 @@ export function ExportBoard({ state, brandColors, resolvedImages = {} }: ExportB
           tiers={state.tierDefs}
           items={state.items}
           isExport={true}
-          resolvedImages={resolvedImages}
           onRemoveItem={() => {}}
           onUpdateTier={() => {}}
           onDeleteTier={() => {}}

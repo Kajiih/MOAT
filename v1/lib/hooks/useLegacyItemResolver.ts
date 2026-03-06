@@ -8,7 +8,37 @@
 import { useEffect } from 'react';
 
 import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
-import { LegacyItem } from '@/lib/types';
+import {
+  AlbumItem,
+  ArtistItem,
+  AuthorItem,
+  BookItem,
+  DeveloperItem,
+  FranchiseItem,
+  GameItem,
+  MovieItem,
+  PersonItem,
+  SeriesItem,
+  SongItem,
+  TVItem,
+} from '@/lib/types';
+
+/**
+ * Represents a single normalized legacy item in the application.
+ */
+type LegacyItem =
+  | AlbumItem
+  | ArtistItem
+  | SongItem
+  | MovieItem
+  | TVItem
+  | PersonItem
+  | GameItem
+  | BookItem
+  | AuthorItem
+  | DeveloperItem
+  | FranchiseItem
+  | SeriesItem;
 import { hasMediaItemUpdates } from '@/lib/utils/comparisons';
 
 import { useLegacyItemDetails } from './useLegacyItemDetails';

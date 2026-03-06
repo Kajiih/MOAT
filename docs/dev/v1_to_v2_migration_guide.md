@@ -4,7 +4,7 @@ This document outlines the patterns and steps for porting legacy services from `
 
 ## Why Migrate?
 
-- **Unified Data Model**: All services now return `StandardItem`, eliminating the need for complex type branching in the UI.
+- **Unified Data Model**: All services now return `Item`, eliminating the need for complex type branching in the UI.
 - **Native Context**: V2 providers encapsulate their own branding, filters, and detail resolution logic.
 - **Improved Performance**: Direct resolution and standardized caching/cancellation.
 
@@ -23,7 +23,7 @@ Map V1 `SearchOptions` to V2 `SearchParams`.
 | `sort` | `sort` | Map to V2 `SortOption` |
 
 ### 3. Response Mapping
-Convert V1 `BaseMediaItem` to V2 `StandardItem`.
+Convert V1 `BaseMediaItem` to V2 `Item`.
 
 | V1 Field | V2 Field | Notes |
 |----------|----------|-------|
@@ -41,7 +41,7 @@ Legacy services often fetched details during search. V2 separates these into `se
 
 1. [ ] Create `lib/services/v2/<service>.ts`.
 2. [ ] Define entities using `createEntity` factory pattern.
-3. [ ] Implement `search()` method and map results to `StandardItemSchema`.
-4. [ ] Implement `getDetails()` method and map results to `StandardDetailsSchema`.
+3. [ ] Implement `search()` method and map results to `ItemSchema`.
+4. [ ] Implement `getDetails()` method and map results to `ItemDetailsSchema`.
 5. [ ] Register the provider in `lib/database/registry.ts`.
 6. [ ] Verify results in `SearchPanelV2`.

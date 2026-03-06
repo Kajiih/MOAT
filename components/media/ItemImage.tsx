@@ -10,7 +10,7 @@ import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { StandardItem } from '@/lib/database/types';
+import { Item } from '@/lib/database/types';
 import { useResolvedImage } from '@/lib/database/useResolvedImage';
 import { failedImages } from '@/lib/image-cache';
 
@@ -19,7 +19,7 @@ import { failedImages } from '@/lib/image-cache';
  */
 export interface ItemImageProps {
   /** The item whose image is being displayed. */
-  item: StandardItem;
+  item: Item;
   /** Placeholder icon to show if no image is found or loading fails. */
   TypeIcon: LucideIcon;
   /** Whether the component is being rendered for image export. */

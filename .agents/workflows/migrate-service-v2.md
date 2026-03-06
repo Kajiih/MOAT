@@ -9,7 +9,7 @@ description: How to migrate a legacy V1 service to the V2 architecture
 5. **Port Logic**:
     - Move API call logic to the `search()` method.
     - Implement the `getDetails()` method.
-    - Use `StandardItemSchema.parse()` for validation.
+    - Use `ItemSchema.parse()` for validation.
 6. **Apply Branding**: Select appropriate icons and color classes.
 7. **Register**: Add the provider to `lib/database/registry.ts`.
 8. **Test**: Use the `SearchPanelV2` to verify the service is functional.

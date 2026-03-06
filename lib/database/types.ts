@@ -117,9 +117,9 @@ export function referenceImage(provider: string, key: string): ReferenceImageSou
 }
 
 /**
- * Base properties for any item in a V2 database.
+ * Base properties for any item.
  */
-export const BaseStandardItemSchema = z.object({
+export const BaseItemSchema = z.object({
   /** Globally unique app ID (e.g. `${databaseId}:${entityId}:${dbId}`) */
   id: z.string(),
   /** Routing identity — where this item comes from */
@@ -153,21 +153,21 @@ export const EntityLinkSchema = z.object({
 export type EntityLink = z.infer<typeof EntityLinkSchema>;
 
 /**
- * A section of metadata for a standard item (e.g. "Tracks", "Awards").
+ * A section of metadata for an item (e.g. "Tracks", "Awards").
  */
-export const StandardSectionSchema = z.object({
+export const ItemSectionSchema = z.object({
   title: z.string(),
   type: z.enum(['text', 'list']),
   content: z.union([z.string(), z.array(z.string())]),
 });
 
-export type StandardSection = z.infer<typeof StandardSectionSchema>;
+export type ItemSection = z.infer<typeof ItemSectionSchema>;
 
 /**
  * Deep metadata fetched on demand for an item.
  * Extends the base item with additional metadata fields.
  */
-export const StandardDetailsSchema = BaseStandardItemSchema.extend({
+export const ItemDetailsSchema = BaseItemSchema.extend({
   /** A full description or biography */
   description: z.string().optional(),
   /** Descriptive tags or genres */
@@ -180,23 +180,23 @@ export const StandardDetailsSchema = BaseStandardItemSchema.extend({
     url: z.string().url(),
   })).optional(),
   /** Flexible sections of data (Tracks, Cast, etc.) */
-  sections: z.array(StandardSectionSchema).optional(),
+  sections: z.array(ItemSectionSchema).optional(),
   /** Flexible record for any extra data specific to a database/entity */
   extendedData: z.record(z.string(), z.unknown()).optional(),
 });
 
-export type StandardDetails = z.infer<typeof StandardDetailsSchema>;
+export type ItemDetails = z.infer<typeof ItemDetailsSchema>;
 
 /**
- * Standard item schema that the Board and UI components expect.
+ * Item schema that the Board and UI components expect.
  * This is what gets returned by Search results.
  */
-export const StandardItemSchema = BaseStandardItemSchema.extend({
+export const ItemSchema = BaseItemSchema.extend({
   /** Deep metadata (cached once resolved) */
-  details: StandardDetailsSchema.optional(),
+  details: ItemDetailsSchema.optional(),
 });
 
-export type StandardItem = z.infer<typeof StandardItemSchema>;
+export type Item = z.infer<typeof ItemSchema>;
 // --- Pagination Interfaces ---
 
 /**
@@ -262,8 +262,8 @@ export const PaginationInfoSchema = z.union([PagePaginationSchema, CursorPaginat
  * Standardized search response from any entity.
  */
 export const SearchResultSchema = z.object({
-  /** List of mapped standard items */
-  items: z.array(StandardItemSchema),
+  /** List of mapped items */
+  items: z.array(ItemSchema),
   /** Pagination metadata — either page-based or cursor-based */
   pagination: PaginationInfoSchema,
 });
@@ -454,14 +454,14 @@ export interface DatabaseEntity {
   sortOptions: SortDefinition[];
   
   /** 
-   * Search method: Fetches and maps raw API data directly into StandardItems.
+   * Search method: Fetches and maps raw API data directly into Items.
    */
   search: (params: SearchParams) => Promise<SearchResult>;
   
   /** 
    * Detail method: Fetches and maps deep metadata for a single item.
    */
-  getDetails: (dbId: string, options?: { signal?: AbortSignal }) => Promise<StandardDetails>;
+  getDetails: (dbId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
 }
 
 /**

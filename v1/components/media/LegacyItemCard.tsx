@@ -2,7 +2,7 @@
  * @file LegacyItemCard.tsx
  * @description [LEGACY V1] Visual representation of media items in the previous architecture.
  * Exports both a draggable version (LegacyItemCard) and a sortable version (LegacySortableItemCard).
- * @deprecated Use the new ItemCard component for V2 StandardItems.
+ * @deprecated Use the new ItemCard component for V2 Items.
  */
 
 'use client';
@@ -25,7 +25,7 @@ import { LegacyItemImage } from './LegacyItemImage';
  * Props for the visual representation of a legacy media card.
  */
 interface LegacyMediaCardProps {
-  /** The media data object (V1 LegacyItem or V2 StandardItem). */
+  /** The media data object (V1 LegacyItem or V2 Item). */
   item: Item;
   /** The ID of the tier this card belongs to, if any. */
   tierId?: string;

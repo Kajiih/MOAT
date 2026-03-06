@@ -18,7 +18,6 @@ import { TierBoard } from '@/components/board/TierBoard';
 import { TierRow } from '@/components/board/TierRow';
 import { DetailsModal } from '@/components/media/DetailsModal';
 import { ItemCard } from '@/components/media/ItemCard';
-import { BaseLegacyItemCard } from '@/v1/components/media/LegacyItemCard';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import { SearchPanel } from '@/components/search/SearchPanel';
 import { DebugPanel } from '@/components/ui/DebugPanel';
@@ -27,11 +26,9 @@ import { Header } from '@/components/ui/Header';
 import { HoveredItemInfo, InteractionContext } from '@/components/ui/InteractionContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { getColorTheme } from '@/lib/colors';
-import { StandardItem } from '@/lib/database/types';
 import { useDynamicFavicon, useScreenshot } from '@/lib/hooks';
-import { useLegacyBackgroundEnrichment } from '@/v1/lib/hooks/useLegacyBackgroundEnrichment';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
-import { LegacyItem } from '@/lib/types';
+import { Item } from '@/lib/types';
 
 /**
  * Simple loading screen displayed while persisted state is being hydrated.
@@ -67,7 +64,7 @@ interface UseAppShortcutsProps {
   hoveredItem: HoveredItemInfo | null;
   setHoveredItem: (item: HoveredItemInfo | null) => void;
   removeItemFromTier: (tierId: string, itemId: string) => void;
-  showDetails: (item: LegacyItem) => void;
+  showDetails: (item: Item) => void;
   closeDetails: () => void;
   setShowShortcuts: (show: boolean | ((prev: boolean) => boolean)) => void;
   setShowExportPreview: (show: boolean | ((prev: boolean) => boolean)) => void;
@@ -202,9 +199,6 @@ export default function TierListApp() {
   const [showExportPreview, setShowExportPreview] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
-  // Background Bundler: Automatically syncs deep metadata for items on the board
-  const { pendingCount } = useLegacyBackgroundEnrichment(allBoardItems, updateMediaItem);
-
   // Dynamically update favicon based on current board colors
   useDynamicFavicon(headerColors);
 
@@ -254,15 +248,7 @@ export default function TierListApp() {
       </div>
     );
   } else if (activeItem) {
-    if ('identity' in activeItem) {
-      dragOverlayContent = <ItemCard item={activeItem as StandardItem} />;
-    } else {
-      dragOverlayContent = (
-        <div className="opacity-80">
-          <BaseLegacyItemCard item={activeItem as LegacyItem} isDragging />
-        </div>
-      );
-    }
+    dragOverlayContent = <ItemCard item={activeItem} />;
   }
 
   return (
@@ -356,7 +342,7 @@ export default function TierListApp() {
         {/* Page Footer */}
         <Footer colors={footerBrandColors} className="pt-4 pb-6 opacity-60" />
       </InteractionContext.Provider>
-      <DebugPanel pendingEnrichmentCount={pendingCount} />
+      <DebugPanel pendingEnrichmentCount={0} />
       <Leva hidden={!showDebugPanel} />
     </div>
   );

@@ -45,7 +45,7 @@ This document categorizes the codebase into V1 (legacy), V2 (new), and Shared co
 | **Registry** | `mediaTypeRegistry` (Static) | `DatabaseRegistry` (Dynamic) |
 | **Discovery** | Hardcoded in `definitions/` | Provider-driven (`entities`) |
 | **Logic** | Scattered (Registry, UI, Service) | Centralized in `DatabaseProvider` |
-| **Item Schema** | `MediaItem` (Loose) | `StandardItem` (Strict/Zod) |
+| **Item Schema** | `MediaItem` (Loose) | `Item` (Strict/Zod) |
 | **Filtering** | UI-driven components | Declarative (`FilterDefinition`) |
 | **Images** | `imageUrl` (Single) | `images` (Waterfall/Healing) |
 | **Errors** | `throw new Error()` | `DatabaseError` (Typed) |

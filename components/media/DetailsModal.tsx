@@ -1,7 +1,7 @@
 /**
  * @file DetailsModal.tsx
  * @description A modal component for displaying detailed information about a media item.
- * Supports both V1 LegacyItem (Legacy) and V2 StandardItem (Standard).
+ * Supports both V1 LegacyItem (Legacy) and V2 Item (Standard).
  */
 
 'use client';
@@ -9,9 +9,9 @@
 import { Info, LucideIcon,X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { useStandardResolver } from '@/lib/database/hooks/useStandardResolver';
+import { useItemResolver } from '@/lib/database/hooks/useItemResolver';
 import { registry } from '@/lib/database/registry';
-import { StandardDetails, StandardItem, StandardSection } from '@/lib/database/types';
+import { ItemDetails, Item, ItemSection } from '@/lib/database/types';
 import { useEscapeKey, useItemResolver } from '@/lib/hooks';
 import { LegacyItem } from '@/lib/types';
 import { itemTypeRegistry } from '@/v1/lib/item-types';
@@ -60,9 +60,9 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   });
 
   // V2 Resolver (Standard)
-  const v2Result = useStandardResolver((isOpen && isV2) ? item as StandardItem : null, {
+  const v2Result = useItemResolver((isOpen && isV2) ? item as Item : null, {
     enabled: isOpen && isV2,
-    onUpdate: onUpdateItem as (id: string, updates: Partial<StandardItem>) => void,
+    onUpdate: onUpdateItem as (id: string, updates: Partial<Item>) => void,
     persist: true,
   });
 
@@ -78,7 +78,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   let subtitle = '';
 
   if (isV2) {
-    const si = resolvedItem as StandardItem;
+    const si = resolvedItem as Item;
     const entityDef = registry.getEntity(si.identity.databaseId, si.identity.entityId);
     PlaceholderIcon = (entityDef?.branding.icon as LucideIcon) || Info;
     colorClass = entityDef?.branding.colorClass || 'text-blue-400';
@@ -91,7 +91,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
     subtitle = (('artist' in mi && mi.artist) || ('author' in mi && mi.author) || '') as string;
   }
 
-  const details = resolvedItem.details as (LegacyItem['details'] | StandardDetails);
+  const details = resolvedItem.details as (LegacyItem['details'] | ItemDetails);
 
   return (
     <div
@@ -108,7 +108,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
         <div className="relative h-48 shrink-0 overflow-hidden bg-neutral-950 sm:h-64">
           {isV2 ? (
             <ItemImage
-              item={resolvedItem as StandardItem}
+              item={resolvedItem as Item}
               TypeIcon={PlaceholderIcon}
               priority
               containerClassName="absolute inset-0"
@@ -130,7 +130,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
           <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
             {isV2 ? (
               <ItemImage
-                item={resolvedItem as StandardItem}
+                item={resolvedItem as Item}
                 TypeIcon={PlaceholderIcon}
                 containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24"
                 sizes="96px"
@@ -156,10 +156,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                     <span className="text-neutral-400">{(resolvedItem as LegacyItem).year}</span>
                   </>
                 )}
-                {isV2 && (resolvedItem as StandardItem).tertiaryText && (
+                {isV2 && (resolvedItem as Item).tertiaryText && (
                   <>
                     <span className="text-neutral-600">•</span>
-                    <span className="text-neutral-400">{(resolvedItem as StandardItem).tertiaryText}</span>
+                    <span className="text-neutral-400">{(resolvedItem as Item).tertiaryText}</span>
                   </>
                 )}
               </div>
@@ -230,7 +230,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                   </div>
                 )}
 
-                {isV2 && (details as StandardDetails).sections?.map((section: StandardSection, idx: number) => (
+                {isV2 && (details as ItemDetails).sections?.map((section: ItemSection, idx: number) => (
                   <div key={idx} className="space-y-2">
                     <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
                       {section.title}

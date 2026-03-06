@@ -7,7 +7,9 @@
 
 import { z } from 'zod';
 import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
-import { StandardItem } from '@/lib/database/types';
+import { Item as DbItem, ItemDetails as DbItemDetails } from '@/lib/database/types';
+export type Item = DbItem;
+export type ItemDetails = DbItemDetails;
 
 // --- Branding Helpers ---
 
@@ -49,10 +51,10 @@ export type ItemType =
 export type BoardCategory = 'music' | 'cinema' | 'game' | 'book';
 
 /**
- * Standardized search result wrapper (Legacy V1).
+ * Standardized search result wrapper.
  */
 export interface SearchResult {
-  results: LegacyItem[];
+  results: Item[];
   page: number;
   totalPages: number;
   totalCount: number;
@@ -213,29 +215,6 @@ export interface SeriesItem extends BaseLegacyItem {
   /** Number of books in the series. */
   bookCount?: number;
 }
-
-/**
- * Represents a single normalized legacy item in the application.
- */
-export type LegacyItem =
-  | AlbumItem
-  | ArtistItem
-  | SongItem
-  | MovieItem
-  | TVItem
-  | PersonItem
-  | GameItem
-  | BookItem
-  | AuthorItem
-  | DeveloperItem
-  | FranchiseItem
-  | SeriesItem;
-
-/**
- * The unified Item type used throughout the application.
- * Can be a new StandardItem (V2) or a LegacyItem (V1).
- */
-export type Item = StandardItem | LegacyItem;
 
 /**
  * Represents a simplified artist object used for selection state in pickers.

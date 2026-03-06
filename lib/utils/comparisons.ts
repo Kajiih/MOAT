@@ -5,12 +5,12 @@
  * @module Comparisons
  */
 
-import { StandardItem } from '@/lib/database/types';
+import { Item } from '@/lib/database/types';
 import { LegacyItem } from '@/lib/types';
 
 /**
  * Checks if a partial update actually changes any values in the current item.
- * Supports both V1 LegacyItem and V2 StandardItem.
+ * Supports both V1 LegacyItem and V2 Item.
  * @param current - The existing item.
  * @param updates - The partial updates to apply.
  * @returns True if the updates would change the item, false otherwise.
@@ -20,7 +20,7 @@ export function hasItemUpdates(
   updates: Partial<Item>
 ): boolean {
   for (const key of Object.keys(updates)) {
-    const k = key as keyof (LegacyItem & StandardItem);
+    const k = key as keyof (LegacyItem & Item);
     const newValue = (updates as any)[k];
     const oldValue = (current as any)[k];
 

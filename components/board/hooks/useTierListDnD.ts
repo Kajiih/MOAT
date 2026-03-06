@@ -21,7 +21,7 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Dispatch, useCallback, useRef, useState } from 'react';
 
-import { StandardItem } from '@/lib/database/types';
+import { Item } from '@/lib/database/types';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { LegacyItem, TierDefinition, TierListState } from '@/lib/types';
 import { isSearchId } from '@/lib/utils/ids';
@@ -148,7 +148,7 @@ export function useTierListDnD(
         
         if ('identity' in activeItemData) {
           // V2: item.id is already canonical or derived from identity
-          canonicalId = (activeItemData as StandardItem).id;
+          canonicalId = (activeItemData as Item).id;
         } else {
           // V1: Use mbid or strip prefix
           canonicalId = (activeItemData as LegacyItem).mbid || activeItemData.id.replace(/^search-/, '');

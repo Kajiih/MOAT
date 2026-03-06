@@ -10,7 +10,7 @@
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import React from 'react';
 
-import { TierDefinition } from '@/lib/types';
+import { TierDefinition, Item } from '@/lib/types';
 
 import { TierRow } from './TierRow';
 
@@ -21,11 +21,9 @@ export interface TierListProps {
   /** Array of tier definitions to render. */
   tiers: TierDefinition[];
   /** Map of items indexed by tier ID. */
-  items: Record<string, (Item)[]>;
+  items: Record<string, Item[]>;
   /** Whether the board is being rendered for image export. */
   isExport?: boolean;
-  /** Pre-resolved base64 images for clean room export. */
-  resolvedImages?: Record<string, string>;
   /** Global dragging state to manage interactions. */
   isAnyDragging?: boolean;
   /** Callback to remove an item from a specific tier. */
@@ -56,7 +54,6 @@ export function TierList({
   tiers,
   items,
   isExport = false,
-  resolvedImages,
   isAnyDragging,
   onRemoveItem,
   onUpdateTier,
@@ -75,7 +72,6 @@ export function TierList({
       isAnyDragging={isAnyDragging}
       onInfo={onInfo}
       isExport={isExport}
-      resolvedImages={resolvedImages}
     />
   ));
 

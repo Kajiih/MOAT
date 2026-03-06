@@ -2,7 +2,7 @@
  * @file LegacyItemImage.tsx
  * @description [LEGACY V1] Image component for the previous media architecture.
  * Supports the old LegacyItem format and direct image URLs.
- * @deprecated Use the new ItemImage component for V2 StandardItems.
+ * @deprecated Use the new ItemImage component for V2 Items.
  */
 
 'use client';

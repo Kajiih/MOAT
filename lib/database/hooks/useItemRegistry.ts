@@ -1,28 +1,28 @@
 /**
- * @file useStandardRegistry.ts
- * @description Lightweight persistence hook for V2 StandardItems.
+ * @file useItemRegistry.ts
+ * @description Lightweight persistence hook for V2 Items.
  * Uses idb-keyval directly for a fast, async cache of V2 content.
- * @module useStandardRegistry
+ * @module useItemRegistry
  */
 
 import { update } from 'idb-keyval';
 import { useCallback } from 'react';
 
-import { StandardItem } from '../types';
+import { Item } from '../types';
 
-const REGISTRY_STORAGE_KEY = 'moat-standard-registry';
+const REGISTRY_STORAGE_KEY = 'moat-item-registry';
 
 /**
- * Hook for interacting with the persistent V2 item registry.
+ * Hook for interacting with the persistent item registry.
  */
-export function useStandardRegistry() {
+export function useItemRegistry() {
   /**
    * Register or update an item in the registry.
    */
-  const registerItem = useCallback(async (item: StandardItem) => {
+  const registerItem = useCallback(async (item: Item) => {
     if (!item.id) return;
     
-    await update(REGISTRY_STORAGE_KEY, (val: Record<string, StandardItem> = {}) => {
+    await update(REGISTRY_STORAGE_KEY, (val: Record<string, Item> = {}) => {
       const existing = val[item.id];
       if (existing) {
         // Simple merge: prefer new details and images
@@ -43,10 +43,10 @@ export function useStandardRegistry() {
   /**
    * Batched version of registerItem.
    */
-  const registerItems = useCallback(async (items: StandardItem[]) => {
+  const registerItems = useCallback(async (items: Item[]) => {
     if (items.length === 0) return;
     
-    await update(REGISTRY_STORAGE_KEY, (val: Record<string, StandardItem> = {}) => {
+    await update(REGISTRY_STORAGE_KEY, (val: Record<string, Item> = {}) => {
       const next = { ...val };
       for (const item of items) {
         if (!item.id) continue;

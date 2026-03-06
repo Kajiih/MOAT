@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 
 import { registry } from '../registry';
-import { StandardDetails } from '../types';
+import { ItemDetails } from '../types';
 
 /**
  * Hook configuration options.
@@ -32,7 +32,7 @@ export function useDatabaseDetails(
     : null;
 
   // 2. Define the fetcher
-  const fetcher = async (_key: any[], { signal }: { signal: AbortSignal }): Promise<StandardDetails> => {
+  const fetcher = async (_key: any[], { signal }: { signal: AbortSignal }): Promise<ItemDetails> => {
     if (!providerId || !entityId || !dbId) {
       throw new Error('Provider ID, Entity ID, and Database ID are required');
     }
@@ -46,7 +46,7 @@ export function useDatabaseDetails(
   };
 
   // 3. Use SWR for fetching and caching
-  const { data, error, isLoading, isValidating, mutate } = useSWR<StandardDetails>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ItemDetails>(
     cacheKey,
     fetcher,
     {

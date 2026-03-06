@@ -12,6 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+import { Item } from '@/lib/database/types';
 import { TierDefinition } from '@/lib/types';
 
 import { TierGrid } from './TierGrid';
@@ -24,7 +25,7 @@ export interface TierRowProps {
   /** The tier definition (id, label, color). */
   tier: TierDefinition;
   /** List of items currently in this tier. */
-  items: (Item)[];
+  items: Item[];
   /** Callback to remove an item from this tier. */
   onRemoveItem: (itemId: string) => void;
   /** Callback to update tier properties (label, color). */
@@ -43,8 +44,6 @@ export interface TierRowProps {
   isMiddleTier?: boolean;
   /** Whether the component is being rendered for a screenshot export. */
   isExport?: boolean;
-  /** A pre-resolved map for legacy images. */
-  resolvedImages?: Record<string, string>;
 }
 
 /**
@@ -64,7 +63,6 @@ export const TierRow = memo(function TierRow({
   isBoardEmpty,
   isMiddleTier,
   isExport = false,
-  resolvedImages = {},
 }: TierRowProps) {
   // 1. Sortable logic for the Tier itself (reordering rows)
   const {
@@ -159,7 +157,6 @@ export const TierRow = memo(function TierRow({
           isBoardEmpty={isBoardEmpty}
           isMiddleTier={isMiddleTier}
           isExport={isExport}
-          resolvedImages={resolvedImages}
         />
       </div>
     </div>

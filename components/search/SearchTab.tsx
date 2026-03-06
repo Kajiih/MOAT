@@ -14,7 +14,7 @@ import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useItemSearch } from '@/lib/database/hooks/useItemSearch';
 import { registry } from '@/lib/database/registry';
-import { StandardItem } from '@/lib/database/types';
+import { Item } from '@/lib/database/types';
 
 import { FilterPanel } from './FilterPanel';
 
@@ -25,7 +25,7 @@ interface SearchTabProps {
   onLocate: (id: string) => void;
   isHidden: boolean;
   showAdded: boolean;
-  onInfo: (item: StandardItem) => void;
+  onInfo: (item: Item) => void;
 }
 
 export function SearchTab({
@@ -61,7 +61,7 @@ export function SearchTab({
 
   const finalResults = useMemo(() => {
     if (showAdded) return results;
-    return (results as StandardItem[]).filter((item: StandardItem) => !addedItemIds.has(item.id));
+    return (results as Item[]).filter((item: Item) => !addedItemIds.has(item.id));
   }, [results, showAdded, addedItemIds]);
 
   if (isHidden) return null;
@@ -88,7 +88,7 @@ export function SearchTab({
               return (
                 <ItemCard
                   key={`${item.id}-${isAdded}`}
-                  item={item as StandardItem}
+                  item={item as Item}
                   isAdded={isAdded}
                   onLocate={() => onLocate(item.id)}
                   onInfo={onInfo}

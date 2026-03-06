@@ -18,8 +18,8 @@ import {
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { useTierListDnD } from '@/components/board/hooks/useTierListDnD';
-import { useStandardRegistry } from '@/lib/database/hooks/useStandardRegistry';
-import { StandardItem } from '@/lib/database/types';
+import { useItemRegistry } from '@/lib/database/hooks/useItemRegistry';
+import { Item } from '@/lib/database/types';
 import { useTierListIO, useTierListUtils, useTierStructure } from '@/lib/hooks';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';
@@ -28,9 +28,7 @@ import { INITIAL_STATE } from '@/lib/initial-state';
 import { syncBoardMetadata } from '@/lib/registry-utils';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
-import { BoardCategory, LegacyItem, TierDefinition, TierListState } from '@/lib/types';
-
-import { useItemRegistry } from './ItemRegistryProvider';
+import { BoardCategory, Item, TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -110,35 +108,21 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   const [detailsItem, setDetailsItem] = useState<Item | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   
-  const { registerItem: registerV1Item, registerItems: registerV1Items } = useItemRegistry();
-  const { registerItem: registerV2Item, registerItems: registerV2Items } = useStandardRegistry();
+  const { registerItem, registerItems } = useItemRegistry();
   
   const hasSyncedItems = React.useRef(false);
 
   // --- Hydration Sync ---
-  // When the board hydrates from IndexedDB, push all items to their respective registries.
+  // When the board hydrates from IndexedDB, push all items to the standard registry.
   React.useEffect(() => {
     if (isHydrated && !hasSyncedItems.current) {
       const allItems = Object.values(state.items).flat();
       if (allItems.length > 0) {
-        const v1Items: LegacyItem[] = [];
-        const v2Items: StandardItem[] = [];
-
-        allItems.forEach(item => {
-          if ('identity' in item) {
-            v2Items.push(item);
-          } else {
-            v1Items.push(item);
-          }
-        });
-
-        if (v1Items.length > 0) registerV1Items(v1Items);
-        if (v2Items.length > 0) registerV2Items(v2Items);
-        
+        registerItems(allItems);
         hasSyncedItems.current = true;
       }
     }
-  }, [isHydrated, state.items, registerV1Items, registerV2Items]);
+  }, [isHydrated, state.items, registerItems]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
@@ -182,26 +166,22 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
         ...actions,
         publish: ioRaw.handlePublish,
         updateMediaItem: (itemId: string, updates: Partial<Item>) => {
-          // 1. Find the item to determine its type
+          // 1. Find the item
           const item = Object.values(state.items).flat().find(i => i.id === itemId);
           if (!item) return;
 
           // 2. Dispatch to state
           actions.updateMediaItem(itemId, updates);
 
-          // 3. Register with correct registry
-          if ('identity' in item) {
-            registerV2Item({ ...item, ...updates } as StandardItem);
-          } else {
-            registerV1Item({ ...item, ...updates } as LegacyItem);
-          }
+          // 3. Register with standard registry
+          registerItem({ ...item, ...updates } as Item);
         },
       },
       dnd: dnd as any,
       ui,
       history,
     }),
-    [state, isHydrated, actions, dnd, ui, history, registerV1Item, registerV2Item, ioRaw.handlePublish],
+    [state, isHydrated, actions, dnd, ui, history, registerItem, ioRaw.handlePublish],
   );
 
   return <TierListContext.Provider value={value}>{children}</TierListContext.Provider>;

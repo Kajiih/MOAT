@@ -9,8 +9,7 @@ import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { memo, ReactNode } from 'react';
 
 import { ItemCard } from '@/components/media/ItemCard';
-import { LegacySortableItemCard } from '@/v1/components/media/LegacyItemCard';
-import { Item, LegacyItem } from '@/lib/types';
+import { Item } from '@/lib/database/types';
 
 import { VirtualGrid } from './VirtualGrid';
 
@@ -19,7 +18,7 @@ import { VirtualGrid } from './VirtualGrid';
  */
 interface TierGridProps {
   /** List of items in this tier. */
-  items: (Item)[];
+  items: Item[];
   /** The ID of the tier. */
   tierId: string;
   /** Callback to remove an item. */
@@ -32,8 +31,6 @@ interface TierGridProps {
   isMiddleTier?: boolean;
   /** Whether the component is being rendered for image export. */
   isExport?: boolean;
-  /** A pre-resolved map for legacy images. */
-  resolvedImages?: Record<string, string>;
 }
 
 /**
@@ -49,35 +46,19 @@ export const TierGrid = memo(function TierGrid({
   isBoardEmpty,
   isMiddleTier,
   isExport = false,
-  resolvedImages = {},
 }: TierGridProps) {
   // Use virtualization for very large tiers (e.g. > 100 items)
   const isLargeTier = !isExport && items.length > 100;
 
   const renderCard = (item: Item): ReactNode => {
-    if ('identity' in item) {
-      return (
-        <ItemCard
-          key={item.id}
-          item={item}
-          tierId={tierId}
-          onRemove={onRemoveItem}
-          onInfo={onInfo}
-          isExport={isExport}
-        />
-      );
-    }
-
     return (
-      <LegacySortableItemCard
+      <ItemCard
         key={item.id}
         item={item}
-        id={item.id}
         tierId={tierId}
-        onRemove={(itemId: string) => onRemoveItem(itemId)}
-        onInfo={onInfo as (item: LegacyItem) => void}
+        onRemove={onRemoveItem}
+        onInfo={onInfo}
         isExport={isExport}
-        resolvedUrl={item.imageUrl ? resolvedImages[item.imageUrl] : undefined}
       />
     );
   };

@@ -120,12 +120,12 @@ Each filter can have a `mapTo` key and an optional `transform` function.
 }
 ```
 
-## 4. Map to `StandardItem`
+## 4. Map to `Item`
 
-The `search` method must return `StandardItem` objects validated by Zod.
+The `search` method must return `Item` objects validated by Zod.
 
 ```typescript
-import { StandardItemSchema, toCompositeId, urlImage } from '@/lib/database/types';
+import { ItemSchema, toCompositeId, urlImage } from '@/lib/database/types';
 
 const items = data.results.map(raw => {
   const identity = { dbId: raw.id.toString(), databaseId: 'myservice', entityId: 'movie' };
@@ -139,7 +139,7 @@ const items = data.results.map(raw => {
     rating: raw.vote_average * 10, // Normalize to 0-100
   };
 
-  return StandardItemSchema.parse(item);
+  return ItemSchema.parse(item);
 });
 ```
 
@@ -148,12 +148,12 @@ const items = data.results.map(raw => {
 The `getDetails` method returns deep metadata.
 
 ```typescript
-getDetails: async (dbId: string): Promise<StandardDetails> => {
+getDetails: async (dbId: string): Promise<ItemDetails> => {
   try {
     const raw = await this.fetcher<MyApiDetails>(`/movie/${dbId}`);
     
     const details = {
-      // StandardItem fields...
+      // Item fields...
       description: raw.overview,
       tags: raw.genres.map(g => g.name),
       externalLinks: [{ label: 'Official', url: raw.homepage }],
@@ -163,7 +163,7 @@ getDetails: async (dbId: string): Promise<StandardDetails> => {
       }
     };
 
-    return StandardDetailsSchema.parse(details);
+    return ItemDetailsSchema.parse(details);
   } catch (error) {
     throw handleDatabaseError(error, this.id);
   }

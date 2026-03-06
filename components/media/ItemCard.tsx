@@ -1,7 +1,7 @@
 /**
  * @file ItemCard.tsx
  * @description The primary visual representation for items on the board.
- * Tailored for the V2 architecture with support for StandardItems.
+ * Tailored for the V2 architecture with support for Items.
  * Handles drag-and-drop integration and rich metadata rendering.
  */
 
@@ -13,7 +13,7 @@ import { Info, X } from 'lucide-react';
 import React from 'react';
 
 import { registry } from '@/lib/database/registry';
-import { StandardItem } from '@/lib/database/types';
+import { Item } from '@/lib/database/types';
 
 import { ItemImage } from './ItemImage';
 
@@ -22,7 +22,7 @@ import { ItemImage } from './ItemImage';
  */
 export interface ItemCardProps {
   /** The item to display. */
-  item: StandardItem;
+  item: Item;
   /** The ID of the tier this card belongs to. */
   tierId?: string;
   /** Whether the card is currently being dragged. */
@@ -38,7 +38,7 @@ export interface ItemCardProps {
   /** Callback to remove the item. */
   onRemove?: (id: string) => void;
   /** Callback to show item details. */
-  onInfo?: (item: StandardItem) => void;
+  onInfo?: (item: Item) => void;
   /** Callback to locate the item on the board. */
   onLocate?: () => void;
 }

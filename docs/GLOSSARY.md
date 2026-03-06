@@ -12,8 +12,8 @@ A horizontal categorization row on the **Board**. Each tier is defined by a labe
 
 ### 3. Item
 The fundamental unit of content on a **Board**. An **Item** represents a specific piece of media (a Game, an Album, a Book, etc.).
-- **Standard Item (V2)**: The new universal format that supports diverse data sources and rich metadata.
-- **Legacy Item (V1)**: The previous MusicBrainz-specific format (Album, Artist, Song).
+- **Item**: The universal format that supports diverse data sources and rich metadata.
+- **Legacy Item (V1)**: The previous format (Album, Artist, Song), now isolated in the `v1/` namespace.
 
 ### 4. Entity
 A classification of **Items** within a **Provider**. For example, the "RAWG" Provider exposes entities like "Game", "Developer", and "Franchise". Each entity defines its own unique filters, sorting options, and UI branding.

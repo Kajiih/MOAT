@@ -14,13 +14,9 @@ import { SearchFilters } from '@/components/search/filters/SearchFilters';
 import { useItemSearch } from '@/components/search/hooks/useItemSearch';
 import { itemTypeRegistry } from '@/lib/media-types';
 import {
-  AlbumItem,
-  AlbumSelection,
-  ArtistItem,
-  ArtistSelection,
   AuthorItem,
+  Item,
   ItemSelection,
-  LegacyItem,
 } from '@/lib/types';
 
 import { ItemImage } from './ItemImage';
@@ -89,24 +85,23 @@ export function ItemPicker<T extends ItemSelection>({
   const TypeIcon = definition.icon;
   const SelectedIcon = definition.icon;
 
-  const handleSelect = (item: LegacyItem) => {
+  const handleSelect = (item: Item) => {
     let selection: ItemSelection;
 
-    // Music Specific logic (keeping legacy support for now)
     if (type === 'artist' || type === 'author') {
       selection = {
         id: item.id,
         name: item.title,
-        imageUrl: item.imageUrl,
-        disambiguation: (item as ArtistItem | AuthorItem).id, // Using ID or disambiguation if available
-      } as ArtistSelection;
+        imageUrl: item.images.find(img => img.type === 'url')?.url,
+        disambiguation: item.id,
+      } as ItemSelection;
     } else {
       selection = {
         id: item.id,
         name: item.title,
-        imageUrl: item.imageUrl,
-        artist: (item as AlbumItem).artist,
-      } as AlbumSelection;
+        imageUrl: item.images.find(img => img.type === 'url')?.url,
+        artist: item.subtitle,
+      } as ItemSelection;
     }
 
     onSelect(selection as T);
@@ -119,24 +114,22 @@ export function ItemPicker<T extends ItemSelection>({
   };
 
   if (selectedItem) {
-    // Map selected item to a pseudo LegacyItem for unified component usage
-    const pseudoItem: LegacyItem = {
-      id: selectedItem.id,
-      mbid: selectedItem.id,
-      type: type === 'artist' || type === 'author' ? type : 'album',
-      title: selectedItem.name,
-      imageUrl: selectedItem.imageUrl,
-    } as LegacyItem;
-
     return (
       <div className="flex items-center justify-between rounded border border-neutral-700 bg-neutral-800 p-1 pr-2 text-sm text-neutral-200">
         <div className="flex items-center gap-2 overflow-hidden">
-          <ItemImage
-            item={pseudoItem as any} // Cast to any because pseudoItem is V1 but ItemImage expects V2 StandardItem
-            TypeIcon={SelectedIcon}
-            containerClassName="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-neutral-700"
-            sizes="32px"
-          />
+          <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-neutral-700">
+            {selectedItem.imageUrl ? (
+              <img
+                src={selectedItem.imageUrl}
+                alt={selectedItem.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-neutral-500">
+                <SelectedIcon size={16} />
+              </div>
+            )}
+          </div>
           <div className="flex min-w-0 flex-col">
             <span className="truncate text-[11px] leading-tight font-medium text-white">
               {selectedItem.name}
@@ -214,7 +207,7 @@ export function ItemPicker<T extends ItemSelection>({
               }}
             >
               <ItemImage
-                item={item as any}
+                item={item}
                 TypeIcon={SelectedIcon}
                 containerClassName="relative h-8 w-8 shrink-0 overflow-hidden rounded border border-neutral-700 bg-neutral-800"
                 sizes="32px"

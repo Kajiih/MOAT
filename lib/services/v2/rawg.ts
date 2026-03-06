@@ -15,10 +15,10 @@ import {
   SearchParams, 
   SearchResult, 
   SearchResultSchema,
-  StandardDetails, 
-  StandardDetailsSchema, 
-  StandardItem, 
-  StandardItemSchema,
+  ItemDetails, 
+  ItemDetailsSchema, 
+  Item, 
+  ItemSchema,
   toCompositeId,
   urlImage
 } from '@/lib/database/types';
@@ -137,7 +137,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
           ...(game.background_image ? [urlImage(game.background_image)] : []),
           ...(game.slug ? [referenceImage('wikidata', `slug:${game.slug}`)] : []),
         ];
-        const standardItem: StandardItem = {
+        const standardItem: Item = {
           id: toCompositeId(identity),
           identity,
           title: game.name,
@@ -146,7 +146,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
           tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
           rating: game.rating,
         };
-        return StandardItemSchema.parse(standardItem);
+        return ItemSchema.parse(standardItem);
       });
 
       const currentPage = params.page || 1;
@@ -165,7 +165,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
       throw handleDatabaseError(error, provider.id);
     }
   },
-  getDetails: async (dbId: string, options?: { signal?: AbortSignal }): Promise<StandardDetails> => {
+  getDetails: async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
     try {
       const game = await provider.fetchRawg<RAWGGame>(`/games/${dbId}`, {}, { signal: options?.signal });
 
@@ -181,7 +181,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
       }));
 
       const identity = { dbId: game.id.toString(), databaseId: provider.id, entityId: 'game' };
-      const details: StandardDetails = {
+      const details: ItemDetails = {
         id: toCompositeId(identity),
         identity,
         title: game.name,
@@ -195,7 +195,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
         externalLinks: [{ label: 'RAWG', url: `https://rawg.io/games/${game.slug}` }],
       };
 
-      return StandardDetailsSchema.parse(details);
+      return ItemDetailsSchema.parse(details);
     } catch (error) {
       throw handleDatabaseError(error, provider.id);
     }
@@ -218,7 +218,7 @@ const createDeveloperEntity = (_provider: RAWGDatabaseProvider): DatabaseEntity 
   search: async (params: SearchParams): Promise<SearchResult> => {
     return { items: [], pagination: { currentPage: params.page || 1, totalPages: 0, totalCount: 0, hasNextPage: false } };
   },
-  getDetails: async (_dbId: string, _options?: { signal?: AbortSignal }): Promise<StandardDetails> => {
+  getDetails: async (_dbId: string, _options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
     throw new Error('Not implemented');
   }
 });
