@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ItemRegistryProvider } from '@/components/providers/ItemRegistryProvider';
 import { TierListProvider, useTierListContext } from '@/components/providers/TierListContext';
-import { useLegacyBackgroundEnrichment, useLegacyItemDetails, useItemResolver } from '@/lib/hooks';
+import { useItemResolver,useLegacyBackgroundEnrichment, useLegacyItemDetails } from '@/lib/hooks';
 import { createSong, createTierListState } from '@/lib/test/factories';
 import { LegacyItem } from '@/lib/types';
 

@@ -8,9 +8,9 @@
 
 import useSWR from 'swr';
 
-import { swrFetcher } from '@/lib/api/fetcher';
+import { swrFetcher } from '@/v1/lib/api/fetcher';
 import { itemTypeRegistry } from '@/v1/lib/item-types';
-import { ItemType, LegacyItemDetails } from '@/lib/types';
+import { ItemType, LegacyItemDetails } from '@/v1/lib/types';
 
 /**
  * Custom hook to fetch detailed information for a specific media item.

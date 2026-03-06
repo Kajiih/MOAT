@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
 import { InteractionContext } from '@/components/ui/InteractionContext';
+import { useItemRegistry } from '@/lib/database/hooks/useItemRegistry';
 import { useItemResolver } from '@/lib/hooks';
 import {
   AlbumItem,
@@ -17,7 +17,7 @@ import {
   SeriesItem,
   SongItem,
   TVItem,
-} from '@/lib/types';
+} from '@/v1/lib/types';
 
 /**
  * Represents a single normalized legacy item in the application.
@@ -56,7 +56,7 @@ vi.mock('@/lib/hooks', () => ({
   useItemResolver: vi.fn(),
 }));
 
-vi.mock('@/components/providers/ItemRegistryProvider', () => ({
+vi.mock('@/lib/database/hooks/useItemRegistry', () => ({
   useItemRegistry: vi.fn(),
 }));
 

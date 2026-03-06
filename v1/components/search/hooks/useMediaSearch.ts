@@ -11,12 +11,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR, { preload } from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
 import { useTierListContext } from '@/components/providers/TierListContext';
-import { getSearchUrl } from '@/lib/api';
-import { swrFetcher } from '@/lib/api/fetcher';
+import { useItemRegistry } from '@/lib/database/hooks/useItemRegistry';
 import { usePersistentState } from '@/lib/hooks';
 import { itemTypeRegistry } from '@/lib/media-types';
+import { getSearchUrl } from '@/v1/lib/api';
+import { swrFetcher } from '@/v1/lib/api/fetcher';
 import {
   AlbumItem,
   ArtistItem,
@@ -33,7 +33,7 @@ import {
   SeriesItem,
   SongItem,
   TVItem,
-} from '@/lib/types';
+} from '@/v1/lib/types';
 
 /**
  * Maps each ItemType to its specific item type definition for inference.

@@ -10,7 +10,7 @@ import { logger } from '@/lib/logger';
 import { GameFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
-import { GameItem, ItemType, LegacyItem, LegacyItemDetails, SearchResult } from '@/lib/types';
+import { GameItem, ItemType, LegacyItem, LegacyItemDetails, SearchResult } from '@/v1/lib/types';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 

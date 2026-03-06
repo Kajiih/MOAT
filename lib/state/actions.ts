@@ -5,7 +5,7 @@
  * @module StateActions
  */
 
-import { BoardCategory, TierDefinition, TierId, TierListState } from '@/lib/types';
+import { BoardCategory, Item, TierDefinition, TierId, TierListState } from '@/lib/types';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.

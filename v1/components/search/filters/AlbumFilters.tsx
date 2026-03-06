@@ -9,7 +9,7 @@
 import { Info } from 'lucide-react';
 
 import { FilterButton } from '@/components/ui/FilterButton';
-import { PRIMARY_TYPES, SECONDARY_TYPES } from '@/lib/types';
+import { PRIMARY_TYPES, SECONDARY_TYPES } from '@/v1/lib/types';
 
 /**
  * Props for the AlbumFilters component.

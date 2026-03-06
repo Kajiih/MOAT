@@ -7,7 +7,7 @@
 
 import { arrayMove } from '@dnd-kit/sortable';
 
-import { TierListState } from '@/lib/types';
+import { Item, TierListState } from '@/lib/types';
 import { hasItemUpdates } from '@/lib/utils/comparisons';
 
 import { ActionType, TierListAction } from '../actions';

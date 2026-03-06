@@ -3,7 +3,7 @@
  * @description Registry to manage global MediaService instances.
  * Supports multiple services per category (e.g., RAWG and IGDB for games).
  */
-import { BoardCategory } from '@/lib/types';
+import { BoardCategory } from '@/v1/lib/types';
 
 import { HardcoverService } from './books/HardcoverService';
 import { OpenLibraryService } from './books/OpenLibraryService';

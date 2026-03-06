@@ -5,7 +5,7 @@
 
 import { Disc, Music, User } from 'lucide-react';
 
-import { AlbumItem, ARTIST_TYPES, ArtistItem, PRIMARY_TYPES, SongItem } from '@/lib/types';
+import { AlbumItem, ARTIST_TYPES, ArtistItem, PRIMARY_TYPES, SongItem } from '@/v1/lib/types';
 
 import { MusicFilters } from '../filters';
 import { ItemTypeDefinition } from '../types';

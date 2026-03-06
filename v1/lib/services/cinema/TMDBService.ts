@@ -8,7 +8,7 @@ import { logger } from '@/lib/logger';
 import { CinemaFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
-import { ItemType, LegacyItem, LegacyItemDetails, SearchResult } from '@/lib/types';
+import { ItemType, LegacyItem, LegacyItemDetails, SearchResult } from '@/v1/lib/types';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';

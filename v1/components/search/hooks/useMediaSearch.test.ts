@@ -3,7 +3,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { LegacyItem } from '@/lib/types';
+import { LegacyItem } from '@/v1/lib/types';
 
 import { useItemSearch } from './useItemSearch';
 
@@ -35,7 +35,7 @@ vi.mock('@/lib/hooks', async (importOriginal) => {
 });
 
 // Mock Media Registry
-vi.mock('@/components/providers/ItemRegistryProvider', () => ({
+vi.mock('@/lib/database/hooks/useItemRegistry', () => ({
   useItemRegistry: vi.fn(() => ({
     registerItems: vi.fn(),
     getItem: vi.fn(),
@@ -233,7 +233,7 @@ describe('useItemSearch', () => {
   });
 
   it('should register items in the Media Registry when data is received', async () => {
-    const { useItemRegistry } = await import('@/components/providers/ItemRegistryProvider');
+    const { useItemRegistry } = await import('@/lib/database/hooks/useItemRegistry');
     const mockRegisterItems = vi.fn();
     vi.mocked(useItemRegistry).mockReturnValue({
       registerItems: mockRegisterItems,
@@ -260,7 +260,7 @@ describe('useItemSearch', () => {
   });
 
   it('should enrich search results with data from the global registry', async () => {
-    const { useItemRegistry } = await import('@/components/providers/ItemRegistryProvider');
+    const { useItemRegistry } = await import('@/lib/database/hooks/useItemRegistry');
     const mockItem1: LegacyItem = {
       id: '1',
       title: 'Search Result',

@@ -7,7 +7,7 @@
 
 import { useEffect } from 'react';
 
-import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
+import { useItemRegistry } from '@/lib/database/hooks/useItemRegistry';
 import {
   AlbumItem,
   ArtistItem,
@@ -21,7 +21,7 @@ import {
   SeriesItem,
   SongItem,
   TVItem,
-} from '@/lib/types';
+} from '@/v1/lib/types';
 
 /**
  * Represents a single normalized legacy item in the application.

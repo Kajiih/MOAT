@@ -1,13 +1,14 @@
 /**
  * @file types.ts
  * @description Central definition of all domain types and Zod schemas used across the application.
- * Includes definitions for MediaItems (Album, Artist, Song), Tier definitions, and MusicBrainz API response schemas.
+ * Focuses on V2-native types and shared primitives.
  * @module Types
  */
 
 import { z } from 'zod';
-import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
-import { Item as DbItem, ItemDetails as DbItemDetails } from '@/lib/database/types';
+
+import { Item as DbItem, ItemDetails as DbItemDetails, ItemSchema as DbItemSchema } from '@/lib/database/types';
+
 export type Item = DbItem;
 export type ItemDetails = DbItemDetails;
 
@@ -23,13 +24,13 @@ type Brand<T, TBrand> = T & { readonly [__brand]: TBrand };
 export type BoardId = Brand<string, 'BoardId'>;
 /** Branded identifier for a Tier */
 export type TierId = Brand<string, 'TierId'>;
-/** Branded identifier for an Item (usually an MBID or standard UUID) */
+/** Branded identifier for an Item (usually a database identity or standard UUID) */
 export type ItemId = Brand<string, 'ItemId'>;
 
 // --- Domain Types ---
 
 /**
- * Represents the type of item being handled (Legacy V1).
+ * Common entity categories for V2.
  */
 export type ItemType =
   | 'album'
@@ -46,7 +47,7 @@ export type ItemType =
   | 'series';
 
 /**
- * Broad category for a board, determining which service and UI to use.
+ * Broad category for a board, determining which database/registry to use.
  */
 export type BoardCategory = 'music' | 'cinema' | 'game' | 'book';
 
@@ -76,178 +77,6 @@ export type SortOption =
   | 'rating_asc'
   | 'reviews_desc'
   | 'reviews_asc';
-
-/**
- * Common properties shared by all legacy item entities.
- */
-export interface BaseLegacyItem {
-  /** Unique identifier (Application/Board ID) */
-  id: string; // Keep as string for dnd-kit compatibility, but internal logic prefers ItemId
-  /** MusicBrainz ID (Database ID) */
-  mbid: string;
-  /** The primary title (Album name, Artist name, or Song title) */
-  title: string;
-  /** The release year or formation year. */
-  year?: string;
-  /** The full release date (YYYY-MM-DD) or formation date. */
-  date?: string;
-  /** URL to the cover art or artist image. */
-  imageUrl?: string;
-  /** Deep metadata (stored in state for persistence) */
-  details?: LegacyItemDetails;
-  /** Rating value (0-10 or 0-5 depending on source) */
-  rating?: number;
-  /** Number of reviews or popularity metric */
-  reviewCount?: number;
-  /** Personal notes about the item. */
-  notes?: string;
-  /** The ID of the service that provided this item. */
-  serviceId?: string;
-}
-
-/**
- * Represents a musical album (Legacy V1).
- */
-export interface AlbumItem extends BaseLegacyItem {
-  type: 'album';
-  /** The artist name. */
-  artist: string;
-  /** Primary type (e.g., Album, Single, EP) */
-  primaryType?: string;
-  /** Secondary types (e.g., Live, Compilation, Remix) */
-  secondaryTypes?: string[];
-}
-
-/**
- * Represents a musical artist or group.
- */
-export interface ArtistItem extends BaseLegacyItem {
-  type: 'artist';
-  /** Disambiguation comment (mostly for artists with same names). */
-  disambiguation?: string;
-}
-
-/**
- * Represents a single musical track.
- */
-export interface SongItem extends BaseLegacyItem {
-  type: 'song';
-  /** The artist name. */
-  artist: string;
-  /** The album name. */
-  album?: string;
-  /** The parent album (release-group) ID. */
-  albumId?: string;
-  /** Duration in milliseconds */
-  duration?: number;
-}
-
-/**
- * Represents a movie.
- */
-export interface MovieItem extends BaseLegacyItem {
-  type: 'movie';
-}
-
-/**
- * Represents a TV show.
- */
-export interface TVItem extends BaseLegacyItem {
-  type: 'tv';
-}
-
-/**
- * Represents a person (actor/crew).
- */
-export interface PersonItem extends BaseLegacyItem {
-  type: 'person';
-  knownFor?: string;
-}
-
-/**
- * Represents a video game.
- */
-export interface GameItem extends BaseLegacyItem {
-  type: 'game';
-  /** The primary developer studio. */
-  developer?: string;
-  /** Platforms the game is available on (e.g., ['PC', 'PlayStation 5']). */
-  platforms?: string[];
-}
-
-/**
- * Represents a book.
- */
-export interface BookItem extends BaseLegacyItem {
-  type: 'book';
-  /** The author(s) of the book. */
-  author: string;
-}
-
-/**
- * Represents a book author.
- */
-export interface AuthorItem extends BaseLegacyItem {
-  type: 'author';
-}
-
-/**
- * Represents a video game developer studio.
- */
-export interface DeveloperItem extends BaseLegacyItem {
-  type: 'developer';
-}
-
-/**
- * Represents a video game franchise or series.
- */
-export interface FranchiseItem extends BaseLegacyItem {
-  type: 'franchise';
-  /** Number of games in the series/franchise. */
-  gameCount?: number;
-}
-
-/**
- * Represents a book series.
- */
-export interface SeriesItem extends BaseLegacyItem {
-  type: 'series';
-  /** Number of books in the series. */
-  bookCount?: number;
-}
-
-/**
- * Represents a simplified artist object used for selection state in pickers.
- */
-export interface ArtistSelection {
-  /** MusicBrainz ID. */
-  id: string;
-  /** Artist name. */
-  name: string;
-  /** Image URL. */
-  imageUrl?: string;
-  /** Optional disambiguation string. */
-  disambiguation?: string;
-}
-
-/**
- * Represents a simplified album object used for selection state in pickers.
- */
-export interface AlbumSelection {
-  /** MusicBrainz ID. */
-  id: string;
-  /** Album title. */
-  name: string;
-  /** Artist name. */
-  artist: string;
-  /** Image URL. */
-  imageUrl?: string;
-}
-
-/**
- * Unified selection type for generic components (pickers).
- */
-export type ItemSelection = ArtistSelection | AlbumSelection;
 
 /**
  * Defines the metadata for a single tier row.
@@ -283,7 +112,7 @@ export interface TierListState {
  * Represents a simplified item for the dashboard preview.
  */
 export interface PreviewItem {
-  type: ItemType;
+  type: string;
   title: string;
   imageUrl?: string;
 }
@@ -310,7 +139,7 @@ export interface BoardMetadata {
   createdAt: number;
   /** Last modification timestamp. */
   lastModified: number;
-  /** Optional preview image URL (legacy). */
+  /** Optional preview image URL. */
   thumbnail?: string;
   /** Structure for rendering a miniature tier list. */
   previewData?: TierPreview[];
@@ -318,84 +147,6 @@ export interface BoardMetadata {
   itemCount: number;
   /** Broad category. */
   category?: BoardCategory;
-}
-
-/**
- * Represents a single track in an album tracklist.
- */
-export interface TrackItem {
-  /** Recording ID. */
-  id: string;
-  /** Disc/Track position string (e.g., '1-1'). */
-  position: string;
-  /** Track title. */
-  title: string;
-  /** Formatted duration string (e.g., '03:45'). */
-  length: string;
-}
-
-/**
- * Deep metadata for a media item.
- */
-export interface LegacyItemDetails {
-  /** Application/Board ID */
-  id: string;
-  /** MusicBrainz ID */
-  mbid: string;
-  /** Entity type. */
-  type: ItemType;
-  /** Primary display title. */
-  title?: string;
-  /** Array of descriptive tags. */
-  tags?: string[];
-  /** External resource links. */
-  urls?: { type: string; url: string }[];
-  /** Formatted release date. */
-  date?: string;
-  /** Formatted duration. */
-  length?: string;
-  /** High-res image URL. */
-  imageUrl?: string;
-
-  /** Album specific: full tracklist. */
-  tracks?: TrackItem[];
-  /** Album specific: record label. */
-  label?: string;
-  /** Album specific: specific release ID. */
-  releaseId?: string;
-
-  /** Artist specific: geographic area. */
-  area?: string;
-  /** Artist specific: life span dates. */
-  lifeSpan?: { begin?: string; end?: string; ended?: boolean };
-
-  /** Song specific: parent album title. */
-  album?: string;
-  /** Song specific: parent album ID. */
-  albumId?: string;
-
-  /** Book specific: first sentence of the book. */
-  firstSentence?: string;
-  /** Book specific: settings/places. */
-  places?: string[];
-
-  /** Game specific: primary developer studio. */
-  developer?: string;
-  /** Game specific: publishing company. */
-  publisher?: string;
-  /** Game specific: platforms (e.g. ['PC', 'PlayStation 5']). */
-  platforms?: string[];
-  /** Game specific: Metacritic score (0-100). */
-  metacritic?: number;
-  /** Rating value (0-10 or 0-5 depending on source) */
-  rating?: number;
-  /** Number of reviews or popularity metric */
-  reviewCount?: number;
-
-  /** General description or bio. */
-  description?: string;
-  /** The ID of the service that provided these details. */
-  serviceId?: string;
 }
 
 // --- Zod Schemas for State Validation ---
@@ -407,134 +158,14 @@ export const TierDefinitionSchema = z.object({
 });
 
 /**
- * Standard base schema for all media items.
- */
-const BaseLegacyItemSchema = z.object({
-  id: z.string(),
-  mbid: z.string(),
-  title: z.string(),
-  year: z.string().optional(),
-  date: z.string().optional(),
-  imageUrl: z.string().optional(),
-  rating: z.number().optional(),
-  reviewCount: z.number().optional(),
-  notes: z.string().optional(),
-  serviceId: z.string().optional(),
-});
-
-/**
- * Strictly typed schema for LegacyItem union.
- */
-export const LegacyItemSchema = z.discriminatedUnion('type', [
-  BaseLegacyItemSchema.extend({
-    type: z.literal('album'),
-    artist: z.string(),
-    primaryType: z.string().optional(),
-    secondaryTypes: z.array(z.string()).optional(),
-  }),
-  BaseLegacyItemSchema.extend({
-    type: z.literal('artist'),
-    disambiguation: z.string().optional(),
-  }),
-  BaseLegacyItemSchema.extend({
-    type: z.literal('song'),
-    artist: z.string(),
-    album: z.string().optional(),
-    albumId: z.string().optional(),
-    duration: z.number().optional(),
-  }),
-  BaseLegacyItemSchema.extend({ type: z.literal('movie') }),
-  BaseLegacyItemSchema.extend({ type: z.literal('tv') }),
-  BaseLegacyItemSchema.extend({
-    type: z.literal('person'),
-    knownFor: z.string().optional(),
-  }),
-  BaseLegacyItemSchema.extend({
-    type: z.literal('game'),
-    developer: z.string().optional(),
-    platforms: z.array(z.string()).optional(),
-  }),
-  BaseLegacyItemSchema.extend({
-    type: z.literal('book'),
-    author: z.string(),
-  }),
-  BaseLegacyItemSchema.extend({ type: z.literal('author') }),
-  BaseLegacyItemSchema.extend({ type: z.literal('developer') }),
-  BaseLegacyItemSchema.extend({
-    type: z.literal('franchise'),
-    gameCount: z.number().optional(),
-  }),
-  BaseLegacyItemSchema.extend({
-    type: z.literal('series'),
-    bookCount: z.number().optional(),
-  }),
-]);
-
-/**
  * Strictly validated TierList schema for persistence and sharing.
  */
 export const TierListSchema = z.object({
   title: z.string(),
   tierDefs: z.array(TierDefinitionSchema),
-  items: z.record(z.string(), z.array(LegacyItemSchema)),
+  items: z.record(z.string(), z.array(DbItemSchema)),
   itemLookup: z.record(z.string(), z.string()).optional(),
   category: z.enum(['music', 'cinema', 'game', 'book']).optional(),
-});
-
-// --- Zod Schemas for MusicBrainz API ---
-
-// Common
-export const MusicBrainzArtistCreditSchema = z.object({
-  name: z.string(),
-  joinphrase: z.string().optional(),
-});
-
-// 1. Release Group (Album)
-export const MusicBrainzReleaseGroupSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  'first-release-date': z.string().optional(),
-  'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
-  'primary-type': z.string().optional(),
-  'secondary-types': z.array(z.string()).optional(),
-});
-
-// 2. Artist
-export const MusicBrainzArtistSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  'life-span': z.object({ begin: z.string().optional() }).optional(),
-  country: z.string().optional(),
-  disambiguation: z.string().optional(),
-});
-
-// 3. Recording (Song)
-export const MusicBrainzRecordingSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  length: z.number().optional(),
-  'first-release-date': z.string().optional(),
-  'artist-credit': z.array(MusicBrainzArtistCreditSchema).optional(),
-  releases: z
-    .array(
-      z.object({
-        id: z.string(),
-        title: z.string(),
-        'release-group': z
-          .object({
-            id: z.string(),
-          })
-          .optional(),
-      }),
-    )
-    .optional(),
-});
-
-export const MusicBrainzSearchResponseSchema = z.object({
-  'release-groups': z.array(MusicBrainzReleaseGroupSchema).optional(),
-  artists: z.array(MusicBrainzArtistSchema).optional(),
-  recordings: z.array(MusicBrainzRecordingSchema).optional(),
-  count: z.number().optional(),
 });
 
 // --- Utilities ---
@@ -546,31 +177,3 @@ export const MusicBrainzSearchResponseSchema = z.object({
 export function assertNever(x: never): never {
   throw new Error(`Unexpected object: ${x}`);
 }
-
-// --- MusicBrainz Constants ---
-
-export const PRIMARY_TYPES = ['Album', 'EP', 'Single', 'Broadcast', 'Other'] as const;
-
-export const SECONDARY_TYPES = [
-  'Compilation',
-  'Soundtrack',
-  'Spokenword',
-  'Interview',
-  'Audiobook',
-  'Audio drama',
-  'Live',
-  'Remix',
-  'DJ-mix',
-  'Mixtape/Street',
-  'Demo',
-  'Field recording',
-] as const;
-
-export const ARTIST_TYPES = [
-  'Person',
-  'Group',
-  'Orchestra',
-  'Choir',
-  'Character',
-  'Other',
-] as const;

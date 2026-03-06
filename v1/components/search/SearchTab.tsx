@@ -17,8 +17,8 @@ import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
 import { itemTypeRegistry } from '@/lib/media-types';
-import { BaseLegacyItem, ItemType, LegacyItem, SongItem, SortOption } from '@/lib/types';
 import { toSearchId } from '@/lib/utils/ids';
+import { BaseLegacyItem, ItemType, LegacyItem, SongItem, SortOption } from '@/v1/lib/types';
 
 import { SearchFilters } from './filters/SearchFilters';
 import { useItemSearch } from './hooks/useItemSearch';

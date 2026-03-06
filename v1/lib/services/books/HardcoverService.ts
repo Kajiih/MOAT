@@ -15,7 +15,7 @@ import {
   LegacyItemDetails,
   SearchResult,
   SeriesItem,
-} from '@/lib/types';
+} from '@/v1/lib/types';
 
 import { secureFetch } from '../shared/api-client';
 import { MediaService, SearchOptions } from '../types';

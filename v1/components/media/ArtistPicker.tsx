@@ -6,7 +6,7 @@
 
 'use client';
 
-import { ArtistSelection } from '@/lib/types';
+import { ArtistSelection } from '@/v1/lib/types';
 
 import { ItemPicker } from './ItemPicker';
 

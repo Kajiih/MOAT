@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ItemType } from '@/lib/types';
+import { ItemType } from '@/v1/lib/types';
 
 import { buildMusicBrainzQuery, QueryBuilderParams } from './query-builder';
 

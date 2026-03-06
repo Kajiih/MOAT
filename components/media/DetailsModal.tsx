@@ -11,9 +11,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useItemResolver } from '@/lib/database/hooks/useItemResolver';
 import { registry } from '@/lib/database/registry';
-import { ItemDetails, Item, ItemSection } from '@/lib/database/types';
+import { Item, ItemDetails, ItemSection } from '@/lib/database/types';
 import { useEscapeKey, useItemResolver } from '@/lib/hooks';
 import { LegacyItem } from '@/lib/types';
+import { LegacyItemImage } from '@/v1/components/media/LegacyItemImage';
 import { itemTypeRegistry } from '@/v1/lib/item-types';
 
 import { AlbumView } from './details/AlbumView';
@@ -22,7 +23,6 @@ import { ExternalLinks } from './details/ExternalLinks';
 import { GameView } from './details/GameView';
 import { SongView } from './details/SongView';
 import { ItemImage } from './ItemImage';
-import { LegacyItemImage } from '@/v1/components/media/LegacyItemImage';
 
 /**
  * Props for the DetailsModal component.

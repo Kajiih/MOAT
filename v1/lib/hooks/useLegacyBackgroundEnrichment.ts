@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react';
 
-import { Item } from '@/lib/types';
+import { Item } from '@/v1/lib/types';
 
 import { useLegacyItemResolver } from './useLegacyItemResolver';
 

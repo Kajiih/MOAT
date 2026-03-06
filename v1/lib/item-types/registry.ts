@@ -4,7 +4,7 @@
  * Provides a single point of access for all media type configuration.
  */
 
-import { BoardCategory, ItemType } from '@/lib/types';
+import { BoardCategory, ItemType } from '@/v1/lib/types';
 
 import { CategoryConfig, FilterConfig, ItemTypeDefinition, SortOptionConfig } from './types';
 

@@ -5,7 +5,7 @@
  * @module ArtistFilters
  */
 
-import { ARTIST_TYPES } from '@/lib/types';
+import { ARTIST_TYPES } from '@/v1/lib/types';
 
 import { FILTER_INPUT_STYLES, FilterCol, FilterRow } from './FilterPrimitives';
 

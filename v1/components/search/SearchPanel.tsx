@@ -15,7 +15,7 @@ import { useTierListContext } from '@/components/providers/TierListContext';
 import { useUserPreferences } from '@/components/providers/UserPreferencesProvider';
 import { usePersistentState } from '@/lib/hooks';
 import { itemTypeRegistry } from '@/lib/media-types';
-import { ItemType } from '@/lib/types';
+import { ItemType } from '@/v1/lib/types';
 
 import { SearchSettings } from './SearchSettings';
 import { SearchTab } from './SearchTab';

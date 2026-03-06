@@ -12,7 +12,7 @@ import {
   LegacyItemDetails,
   SearchResult,
   SortOption,
-} from '@/lib/types';
+} from '@/v1/lib/types';
 
 import { CategoryFilters } from '../media-types/filters';
 

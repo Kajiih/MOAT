@@ -5,7 +5,7 @@
 
 import { Book, Library, User } from 'lucide-react';
 
-import { BookItem, SeriesItem } from '@/lib/types';
+import { BookItem, SeriesItem } from '@/v1/lib/types';
 
 import { BookFilters } from '../filters';
 import { ItemTypeDefinition } from '../types';

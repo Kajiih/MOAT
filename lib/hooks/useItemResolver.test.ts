@@ -2,8 +2,8 @@ import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useItemRegistry } from '@/components/providers/ItemRegistryProvider';
-import { useLegacyItemDetails } from '@/v1/lib/hooks/useLegacyItemDetails';
 import { LegacyItem } from '@/lib/types';
+import { useLegacyItemDetails } from '@/v1/lib/hooks/useLegacyItemDetails';
 
 import { useItemResolver } from './useItemResolver';
 

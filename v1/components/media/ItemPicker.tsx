@@ -10,14 +10,13 @@
 import { Filter, X } from 'lucide-react';
 import { useState } from 'react';
 
-import { SearchFilters } from '@/components/search/filters/SearchFilters';
-import { useItemSearch } from '@/components/search/hooks/useItemSearch';
 import { itemTypeRegistry } from '@/lib/media-types';
+import { SearchFilters } from '@/v1/components/search/filters/SearchFilters';
+import { useItemSearch } from '@/v1/components/search/hooks/useItemSearch';
 import {
-  AuthorItem,
   Item,
   ItemSelection,
-} from '@/lib/types';
+} from '@/v1/lib/types';
 
 import { ItemImage } from './ItemImage';
 

@@ -12,7 +12,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 import { failedImages } from '@/lib/image-cache';
-import { Item } from '@/lib/types';
+import { Item } from '@/v1/lib/types';
 
 /**
  * Props for the LegacyItemImage component.

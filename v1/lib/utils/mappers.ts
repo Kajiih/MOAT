@@ -14,7 +14,7 @@ import {
   MusicBrainzArtistSchema,
   MusicBrainzRecordingSchema,
   MusicBrainzReleaseGroupSchema,
-} from '@/lib/types';
+} from '@/v1/lib/types';
 
 const COVER_ART_ARCHIVE_BASE_URL = 'https://coverartarchive.org';
 

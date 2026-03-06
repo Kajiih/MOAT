@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
 import { getMediaService } from '@/lib/services/factory';
-import { BoardCategory, ItemType } from '@/lib/types';
+import { BoardCategory, ItemType } from '@/v1/lib/types';
 
 /**
  * Handles GET requests to fetch detailed metadata for a media item.

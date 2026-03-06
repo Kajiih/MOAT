@@ -10,7 +10,7 @@ import { logger } from '@/lib/logger';
 import { GameFilters } from '@/lib/media-types/filters';
 import { secureFetch } from '@/lib/services/shared/api-client';
 import { MediaService, SearchOptions } from '@/lib/services/types';
-import { FranchiseItem, GameItem, ItemType, LegacyItemDetails, SearchResult } from '@/lib/types';
+import { FranchiseItem, GameItem, ItemType, LegacyItemDetails, SearchResult } from '@/v1/lib/types';
 
 const IGDB_BASE_URL = 'https://api.igdb.com/v4';
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2/token';

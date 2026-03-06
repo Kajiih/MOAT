@@ -6,7 +6,7 @@
 import { MusicFilters } from '@/lib/media-types/filters';
 import { getLegacyItemDetails } from '@/lib/services/musicbrainz/details';
 import { searchMusicBrainz } from '@/lib/services/musicbrainz/search';
-import { ItemType, LegacyItemDetails, SearchResult } from '@/lib/types';
+import { ItemType, LegacyItemDetails, SearchResult } from '@/v1/lib/types';
 
 import { MediaService, SearchOptions } from '../types';
 

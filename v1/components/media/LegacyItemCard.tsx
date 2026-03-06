@@ -15,9 +15,9 @@ import { Eye, Info, StickyNote, X } from 'lucide-react';
 
 import { useInteraction } from '@/components/ui/InteractionContext';
 import { useItemResolver } from '@/lib/hooks';
-import { Item, LegacyItem } from '@/lib/types';
 import { toDomId } from '@/lib/utils/ids';
 import { itemTypeRegistry } from '@/v1/lib/item-types';
+import { Item, LegacyItem } from '@/v1/lib/types';
 
 import { LegacyItemImage } from './LegacyItemImage';
 
@@ -120,6 +120,22 @@ function LegacyMediaCardOverlay({
 /**
  * The pure presentation component for a legacy item.
  * Useful for DragOverlays or non-interactive previews.
+ * @param root0
+ * @param root0.item
+ * @param root0.tierId
+ * @param root0.onRemove
+ * @param root0.setNodeRef
+ * @param root0.style
+ * @param root0.attributes
+ * @param root0.listeners
+ * @param root0.isDragging
+ * @param root0.isAdded
+ * @param root0.onLocate
+ * @param root0.domId
+ * @param root0.priority
+ * @param root0.onInfo
+ * @param root0.isExport
+ * @param root0.resolvedUrl
  */
 export function BaseLegacyItemCard({
   item: initialItem,

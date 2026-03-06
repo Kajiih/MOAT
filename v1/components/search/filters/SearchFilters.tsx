@@ -5,10 +5,10 @@
  */
 
 import { ItemPicker } from '@/components/media/ItemPicker';
-import { SearchParamsState } from '@/components/search/hooks/useItemSearch';
 import { FilterButton } from '@/components/ui/FilterButton';
 import { itemTypeRegistry } from '@/lib/media-types';
-import { ArtistSelection, ItemSelection, ItemType } from '@/lib/types';
+import { SearchParamsState } from '@/v1/components/search/hooks/useItemSearch';
+import { ArtistSelection, ItemSelection, ItemType } from '@/v1/lib/types';
 
 import { AlbumFilters } from './AlbumFilters'; // Keep for now for music
 // Keep for now for music

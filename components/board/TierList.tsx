@@ -10,7 +10,7 @@
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import React from 'react';
 
-import { TierDefinition, Item } from '@/lib/types';
+import { Item,TierDefinition } from '@/lib/types';
 
 import { TierRow } from './TierRow';
 

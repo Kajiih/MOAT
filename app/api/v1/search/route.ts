@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { FilterConfig, itemTypeRegistry } from '@/lib/media-types';
 import { getMediaService } from '@/lib/services/factory';
-import { BoardCategory, ItemType, SortOption } from '@/lib/types';
+import { BoardCategory, ItemType, SortOption } from '@/v1/lib/types';
 
 /**
  * Helper to parse range filters (years, duration).

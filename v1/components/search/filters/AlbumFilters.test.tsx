@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SECONDARY_TYPES } from '@/lib/types';
+import { SECONDARY_TYPES } from '@/v1/lib/types';
 
 import { AlbumFilters } from './AlbumFilters';
 

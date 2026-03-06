@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { setupMSW } from '@/lib/test/msw-test-utils';
-import { SeriesItem } from '@/lib/types';
+import { SeriesItem } from '@/v1/lib/types';
 
 import { HardcoverService } from './HardcoverService';
 import { hardcoverHandlers } from './mocks/hardcover-handlers';

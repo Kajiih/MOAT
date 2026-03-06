@@ -8,7 +8,7 @@
 import { useCallback } from 'react';
 
 import { usePersistentState } from '@/lib/hooks';
-import { ItemType } from '@/lib/types';
+import { ItemType } from '@/v1/lib/types';
 
 /**
  * Custom hook to manage the UI state of search filters.

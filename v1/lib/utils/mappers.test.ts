@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { MusicBrainzRecordingSchema, SongItem } from '@/lib/types';
+import { MusicBrainzRecordingSchema, SongItem } from '@/v1/lib/types';
 
 import {
   formatArtistCredit,

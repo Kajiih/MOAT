@@ -6,8 +6,8 @@
  * @module MusicBrainzQueryBuilder
  */
 
-import { ItemType, SECONDARY_TYPES } from '@/lib/types';
-import { constructLuceneQuery, escapeLucene, SearchOptions } from '@/lib/utils/search';
+import { ItemType, SECONDARY_TYPES } from '@/v1/lib/types';
+import { constructLuceneQuery, escapeLucene, SearchOptions } from '@/v1/lib/utils/search';
 
 /** Media types supported by the MusicBrainz provider. */
 type MusicMediaType = 'artist' | 'album' | 'song';

@@ -9,12 +9,12 @@ import { z } from 'zod';
 import { logger } from '@/lib/logger';
 import { MusicFilters } from '@/lib/media-types/filters';
 import { serverItemCache } from '@/lib/server/item-cache';
-import { ItemType, LegacyItem, MusicBrainzSearchResponseSchema, SearchResult } from '@/lib/types';
 import {
   mapArtistToLegacyItem,
   mapRecordingToLegacyItem,
   mapReleaseGroupToLegacyItem,
 } from '@/lib/utils/mappers';
+import { ItemType, LegacyItem, MusicBrainzSearchResponseSchema, SearchResult } from '@/v1/lib/types';
 
 import { SearchOptions } from '../types';
 import { mbFetch } from './client';

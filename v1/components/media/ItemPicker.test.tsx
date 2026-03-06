@@ -1,12 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { useItemSearch } from '@/components/search/hooks/useItemSearch';
+import { useItemSearch } from '@/v1/components/search/hooks/useItemSearch';
 
 import { ItemPicker } from './ItemPicker';
 
 // Mock useItemSearch
-vi.mock('@/components/search/hooks/useItemSearch', () => ({
+vi.mock('@/v1/components/search/hooks/useItemSearch', () => ({
   useItemSearch: vi.fn(),
 }));
 

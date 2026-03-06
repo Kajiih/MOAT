@@ -24,11 +24,14 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
       id: tier.id,
       label: tier.label,
       color: tier.color,
-      items: (state.items[tier.id] || []).slice(0, 10).map((item) => ({
-        type: item.type,
-        title: item.title,
-        imageUrl: item.imageUrl,
-      })),
+      items: (state.items[tier.id] || []).slice(0, 10).map((item) => {
+        const firstUrlImage = item.images.find((img) => img.type === 'url');
+        return {
+          type: item.identity.entityId,
+          title: item.title,
+          imageUrl: firstUrlImage?.url,
+        };
+      }),
     }));
 
     const metadata: BoardMetadata = {

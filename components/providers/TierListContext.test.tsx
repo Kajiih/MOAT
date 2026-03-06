@@ -31,7 +31,7 @@ vi.mock('@/lib/hooks/useTierListDnD', () => ({
   }),
 }));
 
-vi.mock('./ItemRegistryProvider', () => ({
+vi.mock('@/lib/database/hooks/useItemRegistry', () => ({
   useItemRegistry: () => ({
     registerItems: vi.fn(),
     registerItem: vi.fn(),

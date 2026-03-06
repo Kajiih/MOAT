@@ -6,7 +6,7 @@
 
 import { LucideIcon } from 'lucide-react';
 
-import { BoardCategory, ItemType, LegacyItem, SortOption } from '@/lib/types';
+import { BoardCategory, ItemType, LegacyItem, SortOption } from '@/v1/lib/types';
 
 /**
  * Filter configuration with clear separation of concerns.

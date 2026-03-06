@@ -6,8 +6,8 @@
 
 import { logger } from '@/lib/logger';
 import { BookFilters } from '@/lib/media-types/filters';
-import { AuthorItem, BookItem, ItemType, LegacyItemDetails, SearchResult } from '@/lib/types';
-import { constructLuceneQueryBasis, escapeLucene } from '@/lib/utils/search';
+import { AuthorItem, BookItem, ItemType, LegacyItemDetails, SearchResult } from '@/v1/lib/types';
+import { constructLuceneQueryBasis, escapeLucene } from '@/v1/lib/utils/search';
 
 import { secureFetch } from '../shared/api-client';
 import { MediaService, SearchOptions } from '../types';
