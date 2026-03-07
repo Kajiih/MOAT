@@ -178,7 +178,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
         label: 'Developer',
         name: dev.name,
         identity: { dbId: dev.id.toString(), databaseId: provider.id, entityId: 'developer' },
-      }));
+      })) ?? [];
 
       const identity = { dbId: game.id.toString(), databaseId: provider.id, entityId: 'game' };
       const details: ItemDetails = {
@@ -190,8 +190,8 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
         tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
         rating: game.rating,
         description: game.description_raw,
-        tags: tags.length > 0 ? tags : undefined,
-        relatedEntities: relatedEntities && relatedEntities.length > 0 ? relatedEntities : undefined,
+        tags,
+        relatedEntities,
         urls: [{ type: 'rawg', url: `https://rawg.io/games/${game.slug}` }],
       };
 

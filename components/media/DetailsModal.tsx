@@ -164,6 +164,26 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                   </div>
                 )}
 
+                {details.relatedEntities && details.relatedEntities.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                      Related
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {details.relatedEntities.map((entity, idx) => (
+                        <div key={idx} className="flex flex-col">
+                          <span className="text-[10px] font-bold tracking-tight text-neutral-500 uppercase">
+                            {entity.label}
+                          </span>
+                          <span className="text-sm text-neutral-200">
+                            {entity.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {details.sections?.map((section: ItemSection, idx: number) => (
                   <div key={idx} className="space-y-2">
                     <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
