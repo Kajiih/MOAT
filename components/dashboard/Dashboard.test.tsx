@@ -1,7 +1,7 @@
 /**
  * @file Dashboard.test.tsx
  * @description Tests for the Dashboard component, focusing on user interactions
- * including creating and deleting boards, and keyboard shortcuts.
+ * including creating boards and keyboard shortcuts.
  * @module Dashboard.test
  */
 
@@ -12,20 +12,22 @@ import { describe, expect, it, vi } from 'vitest';
 import { Dashboard } from './Dashboard';
 
 // Mock Next.js router
+const mockPush = vi.fn();
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: vi.fn(),
+    push: mockPush,
     replace: vi.fn(),
     prefetch: vi.fn(),
   }),
 }));
 
 // Mock the hooks and dependencies
+const mockCreateBoard = vi.fn(() => 'new-id');
 vi.mock('@/lib/hooks/useBoardRegistry', () => ({
   useBoardRegistry: () => ({
     boards: [],
     isLoading: false,
-    createBoard: vi.fn((_title: string, _category: string) => 'new-id'),
+    createBoard: mockCreateBoard,
     deleteBoard: vi.fn(),
   }),
 }));
@@ -50,73 +52,22 @@ vi.mock('@/components/ui/Footer', () => ({
 }));
 
 describe('Dashboard - Create Board Card', () => {
-  it('should display the create button initially', () => {
+  it('should display the create button', () => {
     render(<Dashboard />);
 
     const createButton = screen.getByTitle('New Tier List');
     expect(createButton).toBeDefined();
   });
 
-  it('should show category selection when create button is clicked', async () => {
+  it('should create a board immediately when the create button is clicked', async () => {
     const user = userEvent.setup();
     render(<Dashboard />);
 
     const createButton = screen.getByTitle('New Tier List');
     await user.click(createButton);
 
-    // Should show the category selection UI
-    expect(screen.getByText('Select Type')).toBeDefined();
-    expect(screen.getByText('Music')).toBeDefined();
-    expect(screen.getByText('Cinema')).toBeDefined();
-    expect(screen.getByText('Books')).toBeDefined();
-  });
-
-  it('should close category selection when Cancel button is clicked', async () => {
-    const user = userEvent.setup();
-    render(<Dashboard />);
-
-    // Open the creation form
-    const createButton = screen.getByTitle('New Tier List');
-    await user.click(createButton);
-    expect(screen.getByText('Select Type')).toBeDefined();
-
-    // Click cancel
-    const cancelButton = screen.getByText('Cancel');
-    await user.click(cancelButton);
-
-    // Should return to the create button state
-    expect(screen.getByTitle('New Tier List')).toBeDefined();
-    expect(screen.queryByText('Select Type')).toBeNull();
-  });
-
-  it('should close category selection when Escape key is pressed', async () => {
-    const user = userEvent.setup();
-    render(<Dashboard />);
-
-    // Open the creation form
-    const createButton = screen.getByTitle('New Tier List');
-    await user.click(createButton);
-    expect(screen.getByText('Select Type')).toBeDefined();
-
-    // Press Escape
-    await user.keyboard('{Escape}');
-
-    // Should return to the create button state
-    expect(screen.getByTitle('New Tier List')).toBeDefined();
-    expect(screen.queryByText('Select Type')).toBeNull();
-  });
-
-  it('should not respond to Escape when creation form is not open', async () => {
-    const user = userEvent.setup();
-    render(<Dashboard />);
-
-    // Verify initial state
-    expect(screen.getByTitle('New Tier List')).toBeDefined();
-
-    // Press Escape (should do nothing)
-    await user.keyboard('{Escape}');
-
-    // Should still show the create button
-    expect(screen.getByTitle('New Tier List')).toBeDefined();
+    // Should immediately create a board and navigate
+    expect(mockCreateBoard).toHaveBeenCalledWith('Untitled Board');
+    expect(mockPush).toHaveBeenCalledWith('/board/new-id');
   });
 });

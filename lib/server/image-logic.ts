@@ -5,7 +5,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { BoardCategory, Item, TierListState } from '@/lib/types';
+import { Item, TierListState } from '@/lib/types';
 
 /**
  * Validates if an image URL is reachable and returns an image content-type.

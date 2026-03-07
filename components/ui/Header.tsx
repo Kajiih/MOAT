@@ -50,7 +50,6 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
       clear: handleClear,
       resetItems: handleResetItems,
       updateTitle,
-      updateCategory,
     },
     ui: { headerColors, showShortcuts, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo, push: pushHistory },
@@ -145,8 +144,6 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
             onShowShortcuts={() => setShowShortcuts(true)}
             showAdvanced={showAdvanced}
             onToggleAdvanced={setShowAdvanced}
-            currentCategory={state.category}
-            onUpdateCategory={updateCategory}
           />
         </div>
 

@@ -8,8 +8,6 @@
 import { ArrowUpDown } from 'lucide-react';
 import { useState } from 'react';
 
-import { ItemType } from '@/lib/types';
-
 import { Popover } from './Popover';
 
 interface SortOptionItem {
@@ -26,7 +24,7 @@ interface SortDropdownProps {
   /** Callback fired when a new sort option is selected. */
   onSortChange: (option: string) => void;
   /** The type of media being sorted, which affects available options. */
-  type?: ItemType;
+  type?: string;
   /** Dynamic sort options from the media service. */
   options?: SortOptionItem[];
 }

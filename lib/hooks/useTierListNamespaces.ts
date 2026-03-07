@@ -16,7 +16,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/lib/state/actions';
-import { BoardCategory, TierDefinition, TierListState } from '@/lib/types';
+import { TierDefinition, TierListState } from '@/lib/types';
 import { Item } from '@/lib/database/types';
 import { fromSearchId } from '@/lib/utils/ids';
 
@@ -142,8 +142,6 @@ export function useTierListNamespaces({
       import: ioRaw.handleImport,
       export: ioRaw.handleExport,
       resetItems: structureRaw.handleResetItems,
-      updateCategory: (category: BoardCategory) =>
-        dispatch({ type: ActionType.UPDATE_CATEGORY, payload: { category } }),
     }),
     [
       structureRaw,

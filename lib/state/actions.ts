@@ -5,7 +5,7 @@
  * @module StateActions
  */
 
-import { BoardCategory, Item, TierDefinition, TierId, TierListState } from '@/lib/types';
+import { Item, TierDefinition, TierId, TierListState } from '@/lib/types';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.
@@ -37,8 +37,6 @@ export enum ActionType {
   IMPORT_STATE = 'IMPORT_STATE',
   /** Replaces state during Undo/Redo operations. */
   SET_STATE = 'SET_STATE',
-  /** Updates the category of the board. */
-  UPDATE_CATEGORY = 'UPDATE_CATEGORY',
   /** Moves all items from ranked tiers back to the unranked section. */
   MOVE_ALL_TO_UNRANKED = 'MOVE_ALL_TO_UNRANKED',
 }
@@ -72,5 +70,4 @@ export type TierListAction =
   | { type: ActionType.CLEAR_BOARD }
   | { type: ActionType.IMPORT_STATE; payload: { state: TierListState } }
   | { type: ActionType.SET_STATE; payload: { state: TierListState } }
-  | { type: ActionType.UPDATE_CATEGORY; payload: { category: BoardCategory } }
   | { type: ActionType.MOVE_ALL_TO_UNRANKED };

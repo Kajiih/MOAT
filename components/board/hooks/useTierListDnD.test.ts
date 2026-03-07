@@ -23,7 +23,6 @@ vi.mock('@dnd-kit/core', async () => {
 describe('useTierListDnD', () => {
   const mockState: TierListState = {
     title: 'Test Board',
-    category: 'music',
     tierDefs: [
       { id: 'tier-1', label: 'S', color: 'red' },
       { id: 'tier-2', label: 'A', color: 'blue' },

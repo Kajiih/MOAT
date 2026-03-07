@@ -6,13 +6,9 @@
 'use client';
 
 import {
-  Book,
   Download,
-  Gamepad2,
   Keyboard,
-  Layout,
   MoreVertical,
-  Music,
   RotateCcw,
   Settings2,
   Trash2,
@@ -32,8 +28,6 @@ interface BoardOptionsMenuProps {
   onShowShortcuts: () => void;
   showAdvanced: boolean;
   onToggleAdvanced: (value: boolean) => void;
-  currentCategory?: string;
-  onUpdateCategory?: (category: 'music' | 'cinema' | 'book' | 'game') => void;
 }
 
 /**
@@ -46,8 +40,6 @@ interface BoardOptionsMenuProps {
  * @param props.onShowShortcuts - Callback fired when the user clicks the shortcuts button.
  * @param props.showAdvanced - Whether advanced mode is currently enabled.
  * @param props.onToggleAdvanced - Callback fired when the user toggles advanced mode.
- * @param props.currentCategory - The currently active board category (music, cinema, book).
- * @param props.onUpdateCategory - Callback fired when the user changes the board category.
  * @returns The rendered dropdown menu.
  */
 export function BoardOptionsMenu({
@@ -58,8 +50,6 @@ export function BoardOptionsMenu({
   onShowShortcuts,
   showAdvanced,
   onToggleAdvanced,
-  currentCategory,
-  onUpdateCategory,
 }: BoardOptionsMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -161,39 +151,6 @@ export function BoardOptionsMenu({
             <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500">
               Enables technical configuration like fuzzy search and wildcard matching.
             </p>
-          </div>
-
-          <div className="my-2 h-px bg-neutral-800" />
-
-          <div className="px-3 py-2">
-            <h4 className="mb-2 text-[10px] font-bold tracking-wider text-neutral-600 uppercase">
-              Board Category
-            </h4>
-            <div className="grid grid-cols-4 gap-1">
-              {(['music', 'cinema', 'book', 'game'] as const).map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    onUpdateCategory?.(cat);
-                    setIsOpen(false);
-                  }}
-                  className={twMerge(
-                    'flex flex-col items-center justify-center gap-1.5 rounded-lg border border-neutral-800 py-2.5 transition-all hover:bg-neutral-800',
-                    currentCategory === cat
-                      ? 'border-blue-600 bg-blue-600/10 text-blue-400'
-                      : 'text-neutral-500 hover:text-neutral-300',
-                  )}
-                >
-                  {cat === 'music' && <Music size={14} />}
-                  {cat === 'cinema' && <Layout size={14} />}
-                  {cat === 'book' && <Book size={14} />}
-                  {cat === 'game' && <Gamepad2 size={14} />}
-                  <span className="text-[10px] font-bold capitalize">
-                    {cat === 'game' ? 'Games' : cat}
-                  </span>
-                </button>
-              ))}
-            </div>
           </div>
 
           <div className="my-2 h-px bg-neutral-800" />

@@ -14,7 +14,6 @@ import { TierListState } from '@/lib/types';
  */
 export const getInitialState = (): TierListState => ({
   title: 'Untitled Tier List',
-  category: 'music',
   tierDefs: [
     { id: 'tier-1', label: 'S', color: DEFAULT_BRAND_COLORS[0] },
     { id: 'tier-2', label: 'A', color: DEFAULT_BRAND_COLORS[1] },

@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { INITIAL_STATE } from '@/lib/initial-state';
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/storage';
-import { BoardCategory, BoardMetadata } from '@/lib/types';
+import { BoardMetadata } from '@/lib/types';
 
 /**
  * Hook for managing the application's board registry.
@@ -58,23 +58,14 @@ export function useBoardRegistry() {
    * Creates a new board with the given title.
    * Generates a unique ID and initializes metadata.
    * @param title - The title of the new board.
-   * @param category - The category of the board (defaults to 'music').
-   * @returns The UUID of the newly created board.
-   */
-  /**
-   * Creates a new board with the given title.
-   * Generates a unique ID and initializes metadata.
-   * @param title - The title of the new board.
-   * @param category - The category of the board (defaults to 'music').
    * @returns The UUID of the newly created board.
    */
   const createBoard = useCallback(
-    async (title: string = 'Untitled Board', category: BoardCategory = 'music') => {
+    async (title: string = 'Untitled Board') => {
       const newId = uuidv4();
       const newMeta: BoardMetadata = {
         id: newId,
         title,
-        category,
         createdAt: Date.now(),
         lastModified: Date.now(),
         itemCount: 0,
@@ -95,7 +86,6 @@ export function useBoardRegistry() {
       const newBoardState = {
         ...INITIAL_STATE,
         title,
-        category,
       };
 
       await Promise.all([

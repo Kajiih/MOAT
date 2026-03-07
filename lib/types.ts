@@ -30,55 +30,6 @@ export type ItemId = Brand<string, 'ItemId'>;
 // --- Domain Types ---
 
 /**
- * Common entity categories for V2.
- */
-export type ItemType =
-  | 'album'
-  | 'artist'
-  | 'song'
-  | 'movie'
-  | 'tv'
-  | 'person'
-  | 'game'
-  | 'book'
-  | 'author'
-  | 'developer'
-  | 'franchise'
-  | 'series';
-
-/**
- * Broad category for a board, determining which database/registry to use.
- */
-export type BoardCategory = 'music' | 'cinema' | 'game' | 'book';
-
-/**
- * Standardized search result wrapper.
- */
-export interface SearchResult {
-  results: Item[];
-  page: number;
-  totalPages: number;
-  totalCount: number;
-  isServerSorted?: boolean;
-}
-
-/**
- * Available sorting options for search results.
- */
-export type SortOption =
-  | 'relevance'
-  | 'date_desc'
-  | 'date_asc'
-  | 'title_asc'
-  | 'title_desc'
-  | 'duration_desc'
-  | 'duration_asc'
-  | 'rating_desc'
-  | 'rating_asc'
-  | 'reviews_desc'
-  | 'reviews_asc';
-
-/**
  * Defines the metadata for a single tier row.
  */
 export interface TierDefinition {
@@ -100,8 +51,6 @@ export interface TierListState {
   tierDefs: TierDefinition[];
   /** Map mapping tier IDs to their list of items. */
   items: Record<string, Item[]>;
-  /** Broad category for the board. */
-  category?: BoardCategory;
   /**
    * Optimized lookup map for item locations (itemId -> tierId).
    */
@@ -145,8 +94,6 @@ export interface BoardMetadata {
   previewData?: TierPreview[];
   /** Total number of items on the board. */
   itemCount: number;
-  /** Broad category. */
-  category?: BoardCategory;
 }
 
 // --- Zod Schemas for State Validation ---
@@ -165,7 +112,6 @@ export const TierListSchema = z.object({
   tierDefs: z.array(TierDefinitionSchema),
   items: z.record(z.string(), z.array(DbItemSchema)),
   itemLookup: z.record(z.string(), z.string()).optional(),
-  category: z.enum(['music', 'cinema', 'game', 'book']).optional(),
 });
 
 // --- Utilities ---

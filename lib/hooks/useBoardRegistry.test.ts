@@ -36,7 +36,6 @@ describe('useBoardRegistry', () => {
     const mockMeta = {
       id: 'board-1',
       title: 'Board 1',
-      category: 'music',
       createdAt: 1000,
       lastModified: 2000,
       itemCount: 5,
@@ -76,22 +75,21 @@ describe('useBoardRegistry', () => {
 
     let newId: string;
     await act(async () => {
-      newId = await result.current.createBoard('New Test Board', 'cinema');
+      newId = await result.current.createBoard('New Test Board');
     });
 
     expect(result.current.boards).toHaveLength(1);
     expect(result.current.boards[0].title).toBe('New Test Board');
-    expect(result.current.boards[0].category).toBe('cinema');
     expect(result.current.boards[0].id).toBe(newId!);
 
     // Check persistence using new batch methods
     expect(storage.set).toHaveBeenCalledWith(
       `moat-meta-${newId!}`,
-      expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
+      expect.objectContaining({ title: 'New Test Board' }),
     );
     expect(storage.set).toHaveBeenCalledWith(
       `moat-board-${newId!}`,
-      expect.objectContaining({ title: 'New Test Board', category: 'cinema' }),
+      expect.objectContaining({ title: 'New Test Board' }),
     );
     // Index update via update()
     expect(storage.update).toHaveBeenCalledWith('moat-boards-index', expect.any(Function));
@@ -101,7 +99,6 @@ describe('useBoardRegistry', () => {
     const mockMeta = {
       id: 'board-1',
       title: 'Board 1',
-      category: 'music',
       createdAt: 1000,
       lastModified: 2000,
       itemCount: 5,
@@ -136,7 +133,6 @@ describe('useBoardRegistry', () => {
     const mockMeta = {
       id: 'board-1',
       title: 'Board 1',
-      category: 'music',
       createdAt: 1000,
       lastModified: 2000,
       itemCount: 5,

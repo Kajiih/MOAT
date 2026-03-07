@@ -16,12 +16,9 @@ import { SearchTab } from './SearchTab';
  */
 export function SearchPanel() {
   const {
-    state: { category },
     ui: { addedItemIds, showDetails: onInfo },
     actions: { locate: handleLocate },
   } = useTierListContext();
-
-  const currentCategory = category || 'music';
 
   // 1. Discover all providers from the registry
   const allProviders = registry.getAllProviders();
@@ -35,7 +32,7 @@ export function SearchPanel() {
 
   // 3. Provider selection
   const [providerId, setProviderId] = usePersistentState<string>(
-    `moat-v2-search-provider-${currentCategory}`,
+    `moat-v2-search-provider`,
     availableProviders[0]?.id ?? '',
   );
 
@@ -45,7 +42,7 @@ export function SearchPanel() {
 
   // 4. Entity selection (Tabs)
   const [activeEntityId, setActiveEntityId] = usePersistentState<string>(
-    `moat-v2-search-entity-${currentCategory}-${providerId}`,
+    `moat-v2-search-entity-${providerId}`,
     selectedProvider?.entities[0]?.id ?? '',
   );
 
@@ -71,7 +68,7 @@ export function SearchPanel() {
       <div className="mb-4 flex shrink-0 flex-wrap items-center gap-4 text-white">
         <div className="flex items-center gap-2">
           <Search size={20} />
-          <h2 className="text-xl font-bold">Search (V2)</h2>
+          <h2 className="text-xl font-bold">Search</h2>
         </div>
 
         <div className="ml-auto flex items-center gap-2">

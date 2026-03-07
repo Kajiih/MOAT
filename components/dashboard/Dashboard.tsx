@@ -9,13 +9,8 @@
 'use client';
 
 import {
-  Book,
-  Clapperboard,
-  Disc,
-  Gamepad2,
+  ImageOff,
   Layout,
-  Mic2,
-  Music,
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -30,92 +25,30 @@ import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
 import { useDynamicFavicon } from '@/lib/hooks';
 import { useBoardRegistry } from '@/lib/hooks/useBoardRegistry';
 import { useBrandColors } from '@/lib/hooks/useBrandColors';
-import { useEscapeKey } from '@/lib/hooks/useEscapeKey';
 import { failedImages } from '@/lib/image-cache';
 import { logger } from '@/lib/logger';
-import { BoardCategory, BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
+import { BoardMetadata, PreviewItem, TierPreview } from '@/lib/types';
 
 // --- Sub-components for Dashboard ---
 
 const CreateBoardCard = ({
   onCreate,
 }: {
-  onCreate: (title: string, category: BoardCategory) => void;
+  onCreate: (title: string) => void;
 }) => {
-  const [isCreating, setIsCreating] = React.useState(false);
-
-  // Close the creation form when Escape is pressed
-  useEscapeKey(() => setIsCreating(false), isCreating);
-
-  if (!isCreating) {
-    return (
-      <button
-        onClick={() => setIsCreating(true)}
-        className="group flex h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 transition-all hover:border-blue-500/50 hover:bg-neutral-900"
-        title="New Tier List"
-      >
-        <div className="rounded-full bg-neutral-800 p-3 text-neutral-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-          <Plus size={32} />
-        </div>
-        <span className="mt-2 text-sm font-medium text-neutral-500 group-hover:text-neutral-300">
-          Create Board
-        </span>
-      </button>
-    );
-  }
-
-  const categories: { id: BoardCategory; label: string; icon: React.ReactNode; color: string }[] = [
-    {
-      id: 'music',
-      label: 'Music',
-      icon: <Music size={20} />,
-      color: 'hover:bg-pink-500/10 hover:border-pink-500/50 hover:text-pink-400',
-    },
-    {
-      id: 'cinema',
-      label: 'Cinema',
-      icon: <Clapperboard size={20} />,
-      color: 'hover:bg-blue-500/10 hover:border-blue-500/50 hover:text-blue-400',
-    },
-    {
-      id: 'game',
-      label: 'Games',
-      icon: <Gamepad2 size={20} />,
-      color: 'hover:bg-purple-500/10 hover:border-purple-500/50 hover:text-purple-400',
-    },
-    {
-      id: 'book',
-      label: 'Books',
-      icon: <Book size={20} />,
-      color: 'hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400',
-    },
-  ];
-
   return (
-    <div className="flex h-48 flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-4 ring-2 ring-blue-500/50 transition-all">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-bold tracking-tight text-neutral-300 uppercase">Select Type</h3>
-        <button
-          onClick={() => setIsCreating(false)}
-          className="text-[10px] font-bold text-neutral-600 transition-colors hover:text-neutral-400"
-        >
-          Cancel
-        </button>
+    <button
+      onClick={() => onCreate('')}
+      className="group flex h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-800 bg-neutral-900/50 transition-all hover:border-blue-500/50 hover:bg-neutral-900"
+      title="New Tier List"
+    >
+      <div className="rounded-full bg-neutral-800 p-3 text-neutral-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+        <Plus size={32} />
       </div>
-
-      <div className="grid flex-1 grid-cols-2 gap-2">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => onCreate('', cat.id)}
-            className={`group flex flex-col items-center justify-center gap-2 rounded-lg border border-neutral-800 bg-neutral-950/50 p-2 text-xs font-bold text-neutral-400 transition-all ${cat.color}`}
-          >
-            <div className="transition-transform group-hover:scale-110">{cat.icon}</div>
-            {cat.label}
-          </button>
-        ))}
-      </div>
-    </div>
+      <span className="mt-2 text-sm font-medium text-neutral-500 group-hover:text-neutral-300">
+        Create Board
+      </span>
+    </button>
   );
 };
 
@@ -142,9 +75,7 @@ const DashboardItem = ({ item }: { item: PreviewItem }) => {
         />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 text-neutral-600">
-          {item.type === 'album' && <Disc size={10} className="mb-0.5 opacity-50" />}
-          {item.type === 'artist' && <Mic2 size={10} className="mb-0.5 opacity-50" />}
-          {item.type === 'song' && <Music size={10} className="mb-0.5 opacity-50" />}
+          <ImageOff size={10} className="mb-0.5 opacity-50" />
           <span className="w-full truncate text-center text-[4px] leading-none font-bold uppercase opacity-20">
             {item.type}
           </span>
@@ -210,9 +141,9 @@ export function Dashboard() {
   // Ensure dashboard has the default favicon
   useDynamicFavicon([...DEFAULT_BRAND_COLORS]);
 
-  const handleCreate = async (title: string, category: BoardCategory) => {
+  const handleCreate = async (title: string) => {
     try {
-      const id = await createBoard(title || 'Untitled Board', category);
+      const id = await createBoard(title || 'Untitled Board');
       router.push(`/board/${id}`);
     } catch (error) {
       logger.error({ error }, 'Failed to create board');

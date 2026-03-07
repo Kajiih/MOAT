@@ -24,7 +24,7 @@ export function globalReducer(state: TierListState, action: TierListAction): Tie
     }
 
     case ActionType.CLEAR_BOARD: {
-      return { ...getInitialState(), category: state.category || 'music' };
+      return { ...getInitialState() };
     }
 
     case ActionType.IMPORT_STATE:
@@ -40,10 +40,6 @@ export function globalReducer(state: TierListState, action: TierListAction): Tie
         });
       }
       return newState;
-    }
-
-    case ActionType.UPDATE_CATEGORY: {
-      return { ...state, category: action.payload.category };
     }
 
     default: {

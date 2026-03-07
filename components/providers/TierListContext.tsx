@@ -28,7 +28,7 @@ import { INITIAL_STATE } from '@/lib/initial-state';
 import { syncBoardMetadata } from '@/lib/registry-utils';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { tierListReducer } from '@/lib/state/reducer';
-import { BoardCategory, TierDefinition, TierListState } from '@/lib/types';
+import { TierDefinition, TierListState } from '@/lib/types';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -51,7 +51,6 @@ interface TierListContextType {
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
     export: () => void;
     publish: () => Promise<string | null>;
-    updateCategory: (category: BoardCategory) => void;
   };
   dnd: {
     sensors: SensorDescriptor<SensorOptions>[];
