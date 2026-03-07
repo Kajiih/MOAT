@@ -17,7 +17,7 @@ import { FilterControlProps } from './types';
  */
 export const FilterUIComponents: Record<
   FilterDefinition['type'],
-  React.FC<FilterControlProps<any, any>>
+  React.FC<FilterControlProps<any>>
 > = {
   text: TextFilterInput,
   select: SelectFilterInput,

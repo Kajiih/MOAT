@@ -52,37 +52,37 @@ interface RAWGListResponse<T> {
   results: T[];
 }
 
+import { createBooleanFilter, createRangeFilter, createSelectFilter } from '@/lib/database/filters';
+
 // --- Game Entity Configuration ---
 
 const GAME_SEARCH_OPTIONS: FilterDefinition[] = [
-  {
+  createBooleanFilter({
     id: 'precise',
     label: 'Precise Search',
-    type: 'boolean',
     defaultValue: true,
     mapTo: 'search_precise',
     helperText: 'Disable fuzzy matching for exact results',
-  } as FilterDefinition<boolean, string>,
+  }),
 ];
 
 const GAME_FILTERS: FilterDefinition[] = [
-  {
+  createRangeFilter({
     id: 'yearRange',
     label: 'Release Year',
-    type: 'range',
-    placeholder: 'YYYY',
+    minPlaceholder: 'From YYYY',
+    maxPlaceholder: 'To YYYY',
     mapTo: 'dates',
-    transform: (val: { min?: string, max?: string }) => {
+    transform: (val) => {
       if (!val.min && !val.max) return;
       const start = val.min ? `${val.min}-01-01` : '1970-01-01';
       const end = val.max ? `${val.max}-12-31` : '2030-12-31';
       return `${start},${end}`;
     }
-  } as FilterDefinition<{ min?: string, max?: string }, string | undefined>,
-  {
+  }),
+  createSelectFilter({
     id: 'platform',
     label: 'Platform',
-    type: 'select',
     mapTo: 'platforms',
     options: [
       { label: 'All Platforms', value: '' },
@@ -91,7 +91,7 @@ const GAME_FILTERS: FilterDefinition[] = [
       { label: 'Xbox Series S/X', value: '186' },
       { label: 'Nintendo Switch', value: '7' },
     ],
-  } as FilterDefinition<string, string>
+  })
 ];
 
 const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({

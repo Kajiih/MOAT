@@ -31,18 +31,25 @@ export function useDatabaseDetails(
     ? ['db-details', providerId, entityId, dbId] 
     : null;
 
-  // 2. Define the fetcher
+  // 2. Define the fetcher that correctly delegates to our V2 API Proxy
   const fetcher = async (_key: any[], { signal }: { signal: AbortSignal }): Promise<ItemDetails> => {
     if (!providerId || !entityId || !dbId) {
       throw new Error('Provider ID, Entity ID, and Database ID are required');
     }
 
-    const entity = registry.getEntity(providerId, entityId);
-    if (!entity) {
-      throw new Error(`Entity "${entityId}" not found in provider "${providerId}"`);
+    const searchParams = new URLSearchParams({
+      providerId,
+      entityId,
+      dbId
+    });
+
+    const res = await fetch(`/api/v2/details?${searchParams.toString()}`, { signal });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to fetch item details');
     }
 
-    return entity.getDetails(dbId, { signal });
+    return res.json();
   };
 
   // 3. Use SWR for fetching and caching

@@ -58,31 +58,34 @@ export function useItemSearch(
     ];
   }, [enabled, providerId, entityId, debouncedParams]);
 
-  // 3. Define the fetcher that talks to the Registry
+  // 3. Define the fetcher that correctly delegates to our V2 API Proxy
   const fetcher = async (_key: any[], opts?: { signal?: AbortSignal }): Promise<SearchResult> => {
     if (!providerId || !entityId) {
       throw new Error('Provider ID and Entity ID are required');
     }
 
-    const entity = registry.getEntity(providerId, entityId);
-    if (!entity) {
-      throw new Error(`Entity "${entityId}" not found in provider "${providerId}"`);
+    const searchParams = new URLSearchParams();
+    searchParams.set('providerId', providerId);
+    searchParams.set('entityId', entityId);
+    
+    if (debouncedParams.query) searchParams.set('query', debouncedParams.query);
+    if (debouncedParams.page) searchParams.set('page', debouncedParams.page.toString());
+    if (debouncedParams.cursor) searchParams.set('cursor', debouncedParams.cursor);
+    if (debouncedParams.sort) searchParams.set('sort', debouncedParams.sort);
+    if (debouncedParams.sortDirection) searchParams.set('sortDirection', debouncedParams.sortDirection);
+    
+    // Deeply stringify the filters to pass over URL params
+    if (debouncedParams.filters && Object.keys(debouncedParams.filters).length > 0) {
+      searchParams.set('filters', JSON.stringify(debouncedParams.filters));
     }
 
-    // Construct full SearchParams with defaults
-    const fullParams: SearchParams = {
-      query: debouncedParams.query || '',
-      filters: debouncedParams.filters || {},
-      sort: debouncedParams.sort,
-      sortDirection: debouncedParams.sortDirection,
-      page: debouncedParams.page,
-      limit: debouncedParams.limit || 20,
-      cursor: debouncedParams.cursor,
-      offset: debouncedParams.offset,
-      signal: opts?.signal,
-    };
+    const res = await fetch(`/api/v2/search?${searchParams.toString()}`, { signal: opts?.signal });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to fetch search results');
+    }
 
-    return entity.search(fullParams);
+    return res.json();
   };
 
   // 4. Use SWR for fetching and caching

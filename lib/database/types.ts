@@ -322,8 +322,6 @@ export interface BaseFilterDefinition<TValue = any, TTransformed = any> {
   label: string;
   /** Default value for the filter state */
   defaultValue?: TValue;
-  /** Placeholder text for inputs */
-  placeholder?: string;
   /** Optional helper text shown to the user */
   helperText?: string;
 
@@ -341,51 +339,79 @@ export interface BaseFilterDefinition<TValue = any, TTransformed = any> {
 
 export interface TextFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
   type: 'text';
+  /** Placeholder text for the input */
+  placeholder?: string;
 }
 
 export interface NumberFilterDefinition<TTransformed = any> extends BaseFilterDefinition<number, TTransformed> {
   type: 'number';
+  /** Placeholder text for the input */
+  placeholder?: string;
 }
 
 export interface BooleanFilterDefinition<TTransformed = any> extends BaseFilterDefinition<boolean, TTransformed> {
   type: 'boolean';
 }
 
-export interface SelectFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
-  type: 'select' | 'multiselect';
+export interface SelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
+  type: 'select';
   /** Available options for selection-based inputs */
   options: FilterOption[];
 }
 
-export interface AsyncSelectFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
-  type: 'async-select' | 'async-multiselect';
+export interface MultiSelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string[], TTransformed> {
+  type: 'multiselect';
+  /** Available options for selection-based inputs */
+  options: FilterOption[];
+}
+
+export interface AsyncSelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
+  type: 'async-select';
   /** 
-   * For 'async-select' or 'async-multiselect' filters.
    * Specifies the ID of the entity within the SAME database provider to search against.
    * E.g., 'developer' or 'author'.
    */
   targetEntityId: string;
 }
 
-export interface RangeFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
-  type: 'range';
+export interface AsyncMultiSelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string[], TTransformed> {
+  type: 'async-multiselect';
+  /** 
+   * Specifies the ID of the entity within the SAME database provider to search against.
+   * E.g., 'developer' or 'author'.
+   */
+  targetEntityId: string;
 }
 
-export interface DateFilterDefinition<TValue = any, TTransformed = any> extends BaseFilterDefinition<TValue, TTransformed> {
+export interface RangeFilterDefinition<TTransformed = any> extends BaseFilterDefinition<{ min?: string; max?: string }, TTransformed> {
+  type: 'range';
+  /** Optional placeholder for the minimum input field */
+  minPlaceholder?: string;
+  /** Optional placeholder for the maximum input field */
+  maxPlaceholder?: string;
+}
+
+export interface DateFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
   type: 'date';
+  /** Placeholder text for the input */
+  placeholder?: string;
 }
 
 /**
  * Discriminated union of all filter definitions.
+ * By removing `TValue = any` here, consumers are forced to match the intrinsic
+ * payload type (`string`, `string[]`, or `{min, max}`) based purely on the `type` tag.
  */
-export type FilterDefinition<TValue = any, TTransformed = any> = 
+export type FilterDefinition<TTransformed = any> = 
   | TextFilterDefinition<TTransformed>
   | NumberFilterDefinition<TTransformed>
   | BooleanFilterDefinition<TTransformed>
-  | SelectFilterDefinition<TValue, TTransformed>
-  | AsyncSelectFilterDefinition<TValue, TTransformed>
-  | RangeFilterDefinition<TValue, TTransformed>
-  | DateFilterDefinition<TValue, TTransformed>;
+  | SelectFilterDefinition<TTransformed>
+  | MultiSelectFilterDefinition<TTransformed>
+  | AsyncSelectFilterDefinition<TTransformed>
+  | AsyncMultiSelectFilterDefinition<TTransformed>
+  | RangeFilterDefinition<TTransformed>
+  | DateFilterDefinition<TTransformed>;
 
 /**
  * Definition for a sort option supported by the entity.

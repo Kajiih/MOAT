@@ -38,7 +38,7 @@ export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
             <Component 
               filter={filter} 
               value={value} 
-              onChange={(val) => handleFilterChange(filter.id, val)} 
+              onChange={(val: unknown) => handleFilterChange(filter.id, val)} 
             />
             
             {filter.helperText && (

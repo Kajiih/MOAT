@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   BooleanFilterDefinition,
+  MultiSelectFilterDefinition,
   RangeFilterDefinition,
   SelectFilterDefinition,
   TextFilterDefinition,
@@ -13,7 +14,7 @@ export function TextFilterInput({
   filter,
   value,
   onChange,
-}: FilterControlProps<TextFilterDefinition, string>) {
+}: FilterControlProps<TextFilterDefinition>) {
   return (
     <input
       type="text"
@@ -29,7 +30,7 @@ export function SelectFilterInput({
   filter,
   value,
   onChange,
-}: FilterControlProps<SelectFilterDefinition, string>) {
+}: FilterControlProps<SelectFilterDefinition>) {
   return (
     <select
       className="w-full rounded border border-neutral-700 bg-black px-2 py-1.5 text-xs text-white outline-none focus:border-red-600"
@@ -49,7 +50,7 @@ export function SelectFilterInput({
 export function BooleanFilterInput({
   value,
   onChange,
-}: FilterControlProps<BooleanFilterDefinition, boolean>) {
+}: FilterControlProps<BooleanFilterDefinition>) {
   return (
     <div className="flex items-center gap-2">
       <input
@@ -67,7 +68,7 @@ export function MultiSelectFilterInput({
   filter,
   value,
   onChange,
-}: FilterControlProps<SelectFilterDefinition, string[]>) {
+}: FilterControlProps<MultiSelectFilterDefinition>) {
   return (
     <div className="flex flex-wrap gap-2">
       {filter.options?.map((opt) => {
@@ -98,9 +99,10 @@ export function MultiSelectFilterInput({
 }
 
 export function RangeFilterInput({
+  filter,
   value,
   onChange,
-}: FilterControlProps<RangeFilterDefinition, { min?: string; max?: string }>) {
+}: FilterControlProps<RangeFilterDefinition>) {
   const minVal = value?.min || '';
   const maxVal = value?.max || '';
 
@@ -108,7 +110,7 @@ export function RangeFilterInput({
     <div className="flex items-center gap-2">
       <input
         type="text"
-        placeholder="Min"
+        placeholder={filter.minPlaceholder || 'Min'}
         className="w-full rounded border border-neutral-700 bg-black px-2 py-1.5 text-xs text-white outline-none focus:border-red-600"
         value={minVal}
         onChange={(e) => onChange({ ...value, min: e.target.value })}
@@ -116,7 +118,7 @@ export function RangeFilterInput({
       <span className="text-neutral-500">-</span>
       <input
         type="text"
-        placeholder="Max"
+        placeholder={filter.maxPlaceholder || 'Max'}
         className="w-full rounded border border-neutral-700 bg-black px-2 py-1.5 text-xs text-white outline-none focus:border-red-600"
         value={maxVal}
         onChange={(e) => onChange({ ...value, max: e.target.value })}
