@@ -414,6 +414,14 @@ export type FilterDefinition<TTransformed = any> =
   | DateFilterDefinition<TTransformed>;
 
 /**
+ * Supported sort directions.
+ */
+export enum SortDirection {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+/**
  * Definition for a sort option supported by the entity.
  */
 export const SortDefinitionSchema = z.object({
@@ -421,8 +429,10 @@ export const SortDefinitionSchema = z.object({
   id: z.string(),
   /** Human readable label for the UI (e.g. "Release Date") */
   label: z.string(),
-  /** Default direction if this sort is selected */
-  defaultDirection: z.enum(['asc', 'desc']).optional(),
+  /** Default direction if this sort is selected. If omitted, the sort is considered non-directional (e.g. Relevance). */
+  defaultDirection: z.enum(SortDirection).optional(),
+  /** If true, the sort direction cannot be reversed (default: false). Only applies if defaultDirection is present. */
+  isDirectionFixed: z.boolean().optional(),
 });
 
 export type SortDefinition = z.infer<typeof SortDefinitionSchema>;
@@ -438,7 +448,7 @@ export const SearchParamsSchema = z.object({
   /** The ID of the selected sort option */
   sort: z.string().optional(),
   /** The direction of the sort */
-  sortDirection: z.enum(['asc', 'desc']).optional(),
+  sortDirection: z.enum(SortDirection).optional(),
   /** The page to fetch (1-indexed, for page-based providers) */
   page: z.number().optional(),
   /** The offset to fetch from (for offset-based providers) */

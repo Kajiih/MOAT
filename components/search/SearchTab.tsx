@@ -14,7 +14,9 @@ import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useItemSearch } from '@/lib/database/hooks/useItemSearch';
 import { registry } from '@/lib/database/registry';
-import { Item } from '@/lib/database/types';
+import { Item, SortDirection } from '@/lib/database/types';
+
+import { isSortReversible } from '@/lib/database/sorts';
 
 import { FilterPanel } from './FilterPanel';
 
@@ -43,6 +45,7 @@ export function SearchTab({
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [sort, setSort] = useState<string | undefined>(entity?.sortOptions[0]?.id);
+  const [sortDirection, setSortDirection] = useState<SortDirection | undefined>(entity?.sortOptions[0]?.defaultDirection);
   const [showFilters, setShowFilters] = useState(false);
 
   const {
@@ -55,6 +58,7 @@ export function SearchTab({
     page,
     filters,
     sort,
+    sortDirection,
   }, {
     enabled: !isHidden,
   });
@@ -109,6 +113,20 @@ export function SearchTab({
     );
   };
 
+  const handleSortChange = (newSort: string) => {
+    const option = entity?.sortOptions.find((opt) => opt.id === newSort);
+    setSort(newSort);
+    setSortDirection(option?.defaultDirection || SortDirection.ASC);
+    setPage(1);
+  }
+
+  const toggleSortDirection = () => {
+    setSortDirection(prev => prev === SortDirection.ASC ? SortDirection.DESC : SortDirection.ASC);
+    setPage(1);
+  }
+
+  const currentSortOption = entity?.sortOptions.find(opt => opt.id === sort);
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="mb-4 grid shrink-0 grid-cols-1 gap-2">
@@ -124,17 +142,30 @@ export function SearchTab({
           />
 
           {entity && entity.sortOptions.length > 0 && (
-            <SortDropdown
-              sortOption={sort || ''}
-              onSortChange={(val) => {
-                setSort(val);
-                setPage(1);
-              }}
-              options={entity.sortOptions.map((opt) => ({
-                label: opt.label,
-                value: opt.id,
-              }))}
-            />
+            <div className="flex shrink-0 gap-1 rounded border border-neutral-700 bg-black p-1">
+              <SortDropdown
+                sortOption={sort || ''}
+                onSortChange={handleSortChange}
+                options={entity.sortOptions.map((opt) => ({
+                  label: opt.label,
+                  value: opt.id,
+                  defaultDirection: opt.defaultDirection,
+                }))}
+              />
+              {currentSortOption && isSortReversible(currentSortOption) && (
+                <button
+                  onClick={toggleSortDirection}
+                  className="flex h-8 w-8 items-center justify-center rounded bg-neutral-800 text-neutral-400 transition-colors hover:text-white"
+                  title={`Sort ${sortDirection === SortDirection.ASC ? 'Ascending' : 'Descending'} (Click to reverse)`}
+                >
+                  {sortDirection === SortDirection.ASC ? (
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                  )}
+                </button>
+              )}
+            </div>
           )}
 
           {entity && (entity.filters.length > 0 || entity.searchOptions.length > 0) && (

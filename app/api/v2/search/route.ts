@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { registry } from '@/lib/database/registry';
+import { SortDirection } from '@/lib/database/types';
 import '@/lib/database/providers'; // Ensure providers are registered in the Node environment
 import { logger } from '@/lib/logger';
 
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
   const page = Number(searchParams.get('page')) || 1;
   const cursor = searchParams.get('cursor') || undefined;
   const sort = searchParams.get('sort') || undefined;
-  const sortDirection = (searchParams.get('sortDirection') as 'asc' | 'desc') || undefined;
+  const sortDirection = (searchParams.get('sortDirection') as SortDirection) || undefined;
   
   const filtersData = searchParams.get('filters');
   const filters = filtersData ? JSON.parse(filtersData) : {};

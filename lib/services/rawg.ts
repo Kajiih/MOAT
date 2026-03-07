@@ -19,9 +19,11 @@ import {
   SearchParams,
   SearchResult,
   SearchResultSchema,
+  SortDirection,
   toCompositeId,
   urlImage
 } from '@/lib/database/types';
+import { createSort } from '@/lib/database/sorts';
 import { applyFilters, handleDatabaseError } from '@/lib/database/utils';
 
 import { secureFetch } from './shared/api-client';
@@ -105,9 +107,9 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
   searchOptions: GAME_SEARCH_OPTIONS,
   filters: GAME_FILTERS,
   sortOptions: [
-    { id: 'relevance', label: 'Relevance' },
-    { id: 'rating', label: 'Rating (Highest)', defaultDirection: 'desc' },
-    { id: 'released', label: 'Release Date', defaultDirection: 'desc' },
+    createSort({ id: 'relevance', label: 'Relevance' }),
+    createSort({ id: 'rating', label: 'Rating (Highest)', defaultDirection: SortDirection.DESC }),
+    createSort({ id: 'released', label: 'Release Date', defaultDirection: SortDirection.DESC }),
   ],
   search: async (params: SearchParams): Promise<SearchResult> => {
     try {
@@ -126,7 +128,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
       applyFilters(apiParams, params.filters, GAME_SEARCH_OPTIONS);
 
       if (params.sort && params.sort !== 'relevance') {
-        apiParams.ordering = params.sortDirection === 'desc' ? `-${params.sort}` : params.sort;
+        apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
       }
 
       const data = await provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams, { signal: params.signal });
