@@ -73,7 +73,7 @@ export function ItemCard({
 }: ItemCardProps) {
   // 1. Get configuration from registry
   const entityDef = registry.getEntity(item.identity.databaseId, item.identity.entityId);
-  const TypeIcon = entityDef?.branding.icon || Info;
+  const TypeIcon = entityDef.branding.icon || Info;
 
   // 2. Setup DND (Sorting or Draggable)
   const id = tierId ? `board-${item.id}` : `search-${item.id}`;

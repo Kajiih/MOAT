@@ -94,17 +94,17 @@ const GAME_FILTERS: FilterDefinition[] = [
   })
 ];
 
-const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGGame> => ({
-  id: 'game',
-  branding: {
+export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
+  public readonly id = 'game';
+  public readonly branding = {
     label: 'Video Game',
     labelPlural: 'Video Games',
     icon: Gamepad2,
     colorClass: 'text-purple-400',
-  },
-  searchOptions: GAME_SEARCH_OPTIONS,
-  filters: GAME_FILTERS,
-  sortOptions: [
+  };
+  public readonly searchOptions = GAME_SEARCH_OPTIONS;
+  public readonly filters = GAME_FILTERS;
+  public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
     createSort({ 
       id: 'rating', 
@@ -118,8 +118,11 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGGa
       defaultDirection: SortDirection.DESC,
       getTestValue: (raw: RAWGGame) => raw.released ?? ''
     }),
-  ],
-  search: async (params: SearchParams): Promise<SearchResult> => {
+  ];
+
+  public constructor(private provider: RAWGDatabaseProvider) {}
+
+  public async search(params: SearchParams): Promise<SearchResult> {
     try {
       const apiParams: Record<string, string> = {
         page: (params.page || 1).toString(),
@@ -139,8 +142,8 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGGa
         apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
       }
 
-      const data = await provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams, { signal: params.signal });
-      const items = data.results.map(game => mapGameToItem(game, provider.id));
+      const data = await this.provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams, { signal: params.signal });
+      const items = data.results.map(game => mapGameToItem(game, this.provider.id));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
@@ -156,12 +159,13 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGGa
         },
       };
     } catch (error) {
-      throw handleDatabaseError(error, provider.id);
+      throw handleDatabaseError(error, this.provider.id);
     }
-  },
-  getDetails: async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
+  }
+
+  public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {
     try {
-      const game = await provider.fetchRawg<RAWGGame>(`/games/${dbId}`, {}, { signal: options?.signal });
+      const game = await this.provider.fetchRawg<RAWGGame>(`/games/${dbId}`, {}, { signal: options?.signal });
 
       const tags = [
         ...(game.genres?.map(g => g.name) ?? []),
@@ -171,10 +175,10 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGGa
       const relatedEntities = game.developers?.map(dev => ({
         label: 'Developer',
         name: dev.name,
-        identity: { dbId: dev.id.toString(), databaseId: provider.id, entityId: 'developer' },
+        identity: { dbId: dev.id.toString(), databaseId: this.provider.id, entityId: 'developer' },
       })) ?? [];
 
-      const item = mapGameToItem(game, provider.id);
+      const item = mapGameToItem(game, this.provider.id);
       const details: ItemDetails = {
         ...item,
         description: game.description_raw,
@@ -185,10 +189,10 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGGa
 
       return ItemDetailsSchema.parse(details);
     } catch (error) {
-      throw handleDatabaseError(error, provider.id);
+      throw handleDatabaseError(error, this.provider.id);
     }
   }
-});
+}
 
 /**
  * Maps a RAWG Game API response to our internal Item model.
@@ -245,15 +249,15 @@ function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
 
 // --- Developer Entity Configuration ---
 
-const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGDeveloper> => ({
-  id: 'developer',
-  branding: {
+export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
+  public readonly id = 'developer';
+  public readonly branding = {
     label: 'Developer',
     labelPlural: 'Developers',
     icon: Building2,
     colorClass: 'text-blue-400',
-  },
-  searchOptions: [
+  };
+  public readonly searchOptions = [
     createBooleanFilter({
       id: 'precise',
       label: 'Precise Search',
@@ -261,9 +265,9 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<R
       mapTo: 'search_precise',
       helperText: 'Disable fuzzy matching for exact results',
     }),
-  ],
-  filters: [],
-  sortOptions: [
+  ];
+  public readonly filters = [];
+  public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
     createSort({ 
       id: 'name', 
@@ -277,8 +281,11 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<R
       defaultDirection: SortDirection.DESC,
       getTestValue: (raw: RAWGDeveloper) => raw.games_count
     }),
-  ],
-  search: async (params: SearchParams): Promise<SearchResult> => {
+  ];
+
+  public constructor(private provider: RAWGDatabaseProvider) {}
+
+  public async search(params: SearchParams): Promise<SearchResult> {
     try {
       const apiParams: Record<string, string> = {
         page: (params.page || 1).toString(),
@@ -297,8 +304,8 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<R
         apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
       }
 
-      const data = await provider.fetchRawg<RAWGListResponse<RAWGDeveloper>>('/developers', apiParams, { signal: params.signal });
-      const items = data.results.map(dev => mapDeveloperToItem(dev, provider.id));
+      const data = await this.provider.fetchRawg<RAWGListResponse<RAWGDeveloper>>('/developers', apiParams, { signal: params.signal });
+      const items = data.results.map(dev => mapDeveloperToItem(dev, this.provider.id));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
@@ -314,13 +321,14 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<R
         },
       };
     } catch (error) {
-      throw handleDatabaseError(error, provider.id);
+      throw handleDatabaseError(error, this.provider.id);
     }
-  },
-  getDetails: async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
+  }
+
+  public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {
     try {
-      const dev = await provider.fetchRawg<RAWGDeveloper>(`/developers/${dbId}`, {}, { signal: options?.signal });
-      const item = mapDeveloperToItem(dev, provider.id);
+      const dev = await this.provider.fetchRawg<RAWGDeveloper>(`/developers/${dbId}`, {}, { signal: options?.signal });
+      const item = mapDeveloperToItem(dev, this.provider.id);
 
       const details: ItemDetails = {
         ...item,
@@ -332,15 +340,15 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<R
 
       return ItemDetailsSchema.parse(details);
     } catch (error) {
-      throw handleDatabaseError(error, provider.id);
+      throw handleDatabaseError(error, this.provider.id);
     }
   }
-});
+}
 
 /**
  * RAWG Database Provider Implementation
  */
-export class RAWGDatabaseProvider implements DatabaseProvider<[DatabaseEntity<RAWGGame>, DatabaseEntity<RAWGDeveloper>]> {
+export class RAWGDatabaseProvider implements DatabaseProvider<[RAWGGameEntity, RAWGDeveloperEntity]> {
   public id = 'rawg';
   public label = 'RAWG';
   public icon = Gamepad2;
@@ -373,9 +381,9 @@ export class RAWGDatabaseProvider implements DatabaseProvider<[DatabaseEntity<RA
     return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`, { signal: options?.signal });
   }
 
-  public entities: [DatabaseEntity<RAWGGame>, DatabaseEntity<RAWGDeveloper>] = [
-    createGameEntity(this),
-    createDeveloperEntity(this)
+  public entities: [RAWGGameEntity, RAWGDeveloperEntity] = [
+    new RAWGGameEntity(this),
+    new RAWGDeveloperEntity(this)
   ];
 }
 

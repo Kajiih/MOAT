@@ -119,9 +119,12 @@ export class DatabaseRegistry {
    * @param databaseId
    * @param entityId
    */
-  public getEntity(databaseId: string, entityId: string): import('@/providers/types').DatabaseEntity | undefined {
-    const provider = this.getProvider(databaseId);
-    return provider?.entities.find(e => e.id === entityId);
+  public getEntity<
+    TProvider extends DatabaseProvider = DatabaseProvider,
+    TEntityId extends TProvider['entities'][number]['id'] = TProvider['entities'][number]['id']
+  >(databaseId: string, entityId: TEntityId): Extract<TProvider['entities'][number], { id: TEntityId }> {
+    const provider = this.getProvider<TProvider>(databaseId);
+    return provider.entities.find(e => e.id === entityId) as Extract<TProvider['entities'][number], { id: TEntityId }>;
   }
 
   /**
@@ -135,7 +138,7 @@ export class DatabaseRegistry {
 
     // If we get an auth error during resolution, we might want to try to recover
     try {
-      if (provider && provider.resolveImage) {
+      if (provider.resolveImage) {
         return await provider.resolveImage(key);
       }
     } catch (error) {
@@ -154,8 +157,6 @@ export class DatabaseRegistry {
    */
   public async reinitializeProvider(providerId: string): Promise<void> {
     const provider = this.getProvider(providerId);
-    if (!provider) return;
-
     console.log(`Re-initializing provider "${providerId}"...`);
     await this.register(provider);
   }
