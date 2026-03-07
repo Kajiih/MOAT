@@ -59,6 +59,11 @@ export function useItemResolver(
         : item.images,
     };
 
+    if (details) {
+      const { id, identity, title, images, subtitle, tertiaryText, rating, ...coreDetails } = details;
+      updates.details = coreDetails;
+    }
+
     // Propagate to Board
     onUpdate?.(item.id, updates);
 

@@ -134,30 +134,37 @@
 - **Synergy Pattern**:
   - Updates flow bidirectionally: If the background hook finds a new image for a board item, it updates the board state **and** the Global Registry. Conversely, search results are "enriched" by checking the registry first, ensuring discovered images appear everywhere instantly.
 
-### 3. Media Architecture (Registry & Services)
+### 3. Media Architecture (Registry & Database Providers)
 
-The application uses a **Registry-based Architecture** to manage diverse media types.
+The application uses a **Registry-based Architecture** to manage diverse media types and their external data sources.
 
-#### A. Media Type Registry (`lib/media-types/`)
+#### A. Database Provider Layer (`lib/database/`)
 
-The central authority for "What a media type is".
+The core abstraction for external API integration.
 
-- **Definitions**: JSON-like configuration files defining:
-  - Identity (ID, label, icon)
-  - UI Config (colors, subtitle formatters)
-  - Filters (definitions for text, select, range, etc.)
-  - Sort Options
-- **Multi-Service Category**: For **Games**, the registry supports multiple concurrent services (RAWG, IGDB). The `CategoryConfig.services` array declares which types each service provides, and the `SearchPanel` derives available tabs from the selected service.
-- **Registry**: Exposes a unified API (`get(type)`, `getByCategory(cat)`, `get(category, serviceId)`) for consumers.
+- **Responsibility**: Fetching data from external APIs and mapping it to the internal `Item` and `ItemDetails` schema.
+- **Interface**: All external APIs are implemented as a `DatabaseProvider` class.
+  - Providers expose metadata (id, label, icon) and manage their own initialization state (`INITIALIZING`, `READY`, `ERROR`).
+  - Providers contain an array of **`DatabaseEntity`** definitions.
+- **Isolation**: Providers contain NO UI logic; they only consume the typed filters provided by the UI layer.
 
-#### B. Service Layer (`lib/services/`)
+#### B. Database Entities
 
-Pure **API Adapters** responsible for "How to fetch data".
+A specific type of item that can be searched for within a Provider (e.g., "Game" and "Developer" within the RAWG provider).
 
-- **Responsibility**: Fetching data from external APIs and mapping it to the internal `MediaItem` schema.
-- **Interface**: All services implement `MediaService<F>` (search, getDetails, category).
-- **Type Safety**: Use of generics for `SearchOptions<F>` ensures that filter persistence and application are strictly validated against the category's requirements.
-- **Isolation**: Services contain NO UI logic; they only consume the typed filters provided by the UI layer.
+- **Definitions**: Each entity defines:
+  - **Identity**: ID, plural label, icon, and dynamic color classes.
+  - **Search Configuration**: A declarative array of `FilterDefinition` and `SortOption` objects to automatically generate the appropriate `SearchFilters` UI panel.
+  - **Data Fetching**: Resolvers for `search()` and `getDetails()` that return strongly-typed `Item` payloads.
+  - Generics ensure that filter persistence and application are strictly validated against the entity's requirements.
+
+#### C. Database Registry
+
+A singleton `DatabaseRegistry` manages the lifecycle of all providers.
+
+- **Centralized Initialization**: Manages asynchronous initialization of providers and exposes a unified registry status to the UI (so the app can show a global loading state while services boot up).
+- **Service Discovery**: Exposes APIs for consumers to discover available generic providers and entities, enabling a truly pluggable multi-service system.
+- **Image Resolution**: Provides global image reference resolution (e.g. converting a Wikidata slug into an actual thumbnail URL).
 
 #### C. Media Enrichment Lifecycle
 

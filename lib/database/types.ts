@@ -167,7 +167,10 @@ export type ItemSection = z.infer<typeof ItemSectionSchema>;
  * Deep metadata fetched on demand for an item.
  * Extends the base item with additional metadata fields.
  */
-export const ItemDetailsSchema = BaseItemSchema.extend({
+/**
+ * Core detailed metadata fields specific to the details payload.
+ */
+export const ItemDetailsCoreSchema = z.object({
   /** A full description or biography */
   description: z.string().optional(),
   /** Descriptive tags or genres */
@@ -185,6 +188,14 @@ export const ItemDetailsSchema = BaseItemSchema.extend({
   extendedData: z.record(z.string(), z.unknown()).optional(),
 });
 
+export type ItemDetailsCore = z.infer<typeof ItemDetailsCoreSchema>;
+
+/**
+ * Deep metadata fetched on demand for an item.
+ * Extends the base item with additional metadata fields returned by provider.
+ */
+export const ItemDetailsSchema = BaseItemSchema.extend(ItemDetailsCoreSchema.shape);
+
 export type ItemDetails = z.infer<typeof ItemDetailsSchema>;
 
 /**
@@ -193,7 +204,7 @@ export type ItemDetails = z.infer<typeof ItemDetailsSchema>;
  */
 export const ItemSchema = BaseItemSchema.extend({
   /** Deep metadata (cached once resolved) */
-  details: ItemDetailsSchema.optional(),
+  details: ItemDetailsCoreSchema.optional(),
 });
 
 export type Item = z.infer<typeof ItemSchema>;
