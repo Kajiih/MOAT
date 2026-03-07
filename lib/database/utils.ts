@@ -1,3 +1,8 @@
+/**
+ * @file utils.ts
+ * @description Utility functions for the database layer, including error handling and filter applying.
+ */
+
 import { z } from 'zod';
 
 import { BaseFilterDefinition, DatabaseError, DatabaseErrorCode } from './types';
@@ -29,7 +34,10 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
   }
 
   // 3. Handle API Errors via status codes
-  const status = (error as any)?.status;
+  const status = typeof error === 'object' && error !== null && 'status' in error 
+    ? (error as { status: unknown }).status 
+    : undefined;
+  
   if (typeof status === 'number') {
     switch (status) {
       case 401:
@@ -51,7 +59,9 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
   }
 
   // 4. Generic fallback
-  const message = (error as any)?.message || 'An unexpected error occurred in the database layer';
+  const message = (error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string') 
+    ? (error as { message: string }).message 
+    : 'An unexpected error occurred in the database layer';
   return new DatabaseError(DatabaseErrorCode.INTERNAL_ERROR, message, error, databaseId);
 }
 

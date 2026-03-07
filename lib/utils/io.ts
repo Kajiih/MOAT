@@ -5,7 +5,7 @@
  * @module IO
  */
 
-import { TierDefinition, TierListState, Item } from '@/lib/types';
+import { Item,TierDefinition, TierListState } from '@/lib/types';
 
 const CURRENT_VERSION = 1;
 

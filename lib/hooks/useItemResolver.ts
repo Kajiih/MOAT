@@ -60,6 +60,7 @@ export function useItemResolver(
     };
 
     if (details) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, identity, title, images, subtitle, tertiaryText, rating, ...coreDetails } = details;
       updates.details = coreDetails;
     }

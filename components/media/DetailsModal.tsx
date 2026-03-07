@@ -1,7 +1,6 @@
 /**
  * @file DetailsModal.tsx
  * @description A modal component for displaying detailed information about a media item.
- * Supports both V1 LegacyItem (Legacy) and V2 Item (Standard).
  */
 
 'use client';
@@ -14,7 +13,7 @@ import { registry } from '@/lib/database/registry';
 import { Item, ItemDetails, ItemSection } from '@/lib/database/types';
 
 import { ItemImage } from './ItemImage';
-import { ExternalLinks } from '@/v1/components/media/details/ExternalLinks';
+import { ExternalLinks } from './ExternalLinks';
 
 /**
  * Props for the DetailsModal component.

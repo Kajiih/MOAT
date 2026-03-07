@@ -1,7 +1,6 @@
 /**
  * @file TierGrid.tsx
  * @description Renders the grid of items within a tier.
- * Automatically switches between LegacyItemCard and the new standard ItemCard.
  * Handles performance for large tiers via virtualization.
  */
 
