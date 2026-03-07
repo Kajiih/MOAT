@@ -43,7 +43,7 @@ export interface BaseFilterDefinition<TValue = any, TTransformed = any> {
   helperText?: string;
 
   /** 
-   * Declarative Mapping (V2 Refinement)
+   * Declarative Mapping
    * The API parameter name this filter maps to.
    */
   mapTo?: string;
@@ -52,6 +52,19 @@ export interface BaseFilterDefinition<TValue = any, TTransformed = any> {
    * This is the "Escape Hatch" for database-specific logic.
    */
   transform?: (value: TValue) => TTransformed;
+  /**
+   * Defines test cases to verify this filter correctly narrows results.
+   */
+  testCases: { 
+    /** The value to apply to the filter in the UI/search state */
+    value: TValue; 
+    /** 
+     * Verification function.
+     * Receives the raw item returned by the database (Provider specific).
+     * Must return true if the item honors the filter value.
+     */
+    match: (item: any) => boolean 
+  }[];
 }
 
 export interface TextFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {

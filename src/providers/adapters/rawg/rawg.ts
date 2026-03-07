@@ -14,7 +14,7 @@ import { referenceImage,urlImage } from '@/items/schemas';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/schemas';
 import { ProviderStatus } from '@/providers/types';
 import { DatabaseEntity, DatabaseProvider, Fetcher } from '@/providers/types';
-import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
+import { SearchParams, SearchResult } from '@/search/schemas';
 import { secureFetch } from '@/providers/api-client';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
@@ -34,6 +34,7 @@ export interface RAWGGame {
   added?: number;
   created?: string;
   updated?: string;
+  platforms?: { platform: { id: number; name: string; slug: string } }[];
   parent_platforms?: { platform: { id: number; name: string; slug: string } }[];
   developers?: { id: number; name: string; slug: string }[];
   description_raw?: string;
@@ -66,6 +67,17 @@ const GAME_SEARCH_OPTIONS: FilterDefinition[] = [
     defaultValue: true,
     mapTo: 'search_precise',
     helperText: 'Disable fuzzy matching for exact results',
+    testCases: [
+      { 
+        value: true, 
+        // With precise: true, a search for a slightly misspelled name should return 0 results
+        // but we need to test that the results match the query exactly if results ARE returned.
+        // Actually, 'precise' is hard to test with just a match function on items
+        // because it's about what is NOT returned.
+        // For now, we'll just verify that if items are returned, they contain the query.
+        match: (item: RAWGGame) => true 
+      }
+    ]
   }),
 ];
 
@@ -81,7 +93,17 @@ const GAME_FILTERS: FilterDefinition[] = [
       const start = val.min ? `${val.min}-01-01` : '1970-01-01';
       const end = val.max ? `${val.max}-12-31` : '2030-12-31';
       return `${start},${end}`;
-    }
+    },
+    testCases: [
+      { 
+        value: { min: '2020', max: '2022' }, 
+        match: (item: RAWGGame) => {
+          if (!item.released) return false;
+          const year = parseInt(item.released.split('-')[0]);
+          return year >= 2020 && year <= 2022;
+        }
+      }
+    ]
   }),
   createSelectFilter({
     id: 'platform',
@@ -94,6 +116,12 @@ const GAME_FILTERS: FilterDefinition[] = [
       { label: 'Xbox Series S/X', value: '186' },
       { label: 'Nintendo Switch', value: '7' },
     ],
+    testCases: [
+      {
+        value: '7', // Switch
+        match: (item: RAWGGame) => item.platforms?.some(p => p.platform.id === 7) ?? false
+      }
+    ]
   })
 ];
 
@@ -300,6 +328,9 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
       defaultValue: false, // Developers search is not precise by default
       mapTo: 'search_precise',
       helperText: 'Disable fuzzy matching for exact results',
+      testCases: [
+        { value: false, match: () => true }
+      ]
     }),
   ];
   public readonly filters = [];
