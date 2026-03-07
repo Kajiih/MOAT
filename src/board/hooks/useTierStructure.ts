@@ -1,0 +1,76 @@
+/**
+ * @file useTierStructure.ts
+ * @description Hook responsible for the structural manipulation of the tier board.
+ * Contains logic for Adding, Deleting, Updating, and Clearing tiers.
+ * Also handles the "Randomize Colors" feature.
+ * @module useTierStructure
+ */
+
+import { Dispatch, useCallback } from 'react';
+
+import { ActionType, TierListAction } from '@/board/state/actions';
+import { TierDefinition } from '@/board/types';
+import { useToast } from '@/lib/ui/ToastProvider';
+
+/**
+ * Hook to manage the structure of the tier list board (rows/tiers) and global board actions.
+ * @param dispatch - The dispatcher function from the TierList context.
+ * @param pushHistory - Callback to capture a history snapshot before mutation.
+ * @returns Object containing event handlers for structural changes.
+ */
+export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory: () => void) {
+  const { showToast } = useToast();
+
+  const handleAddTier = useCallback(() => {
+    pushHistory();
+    dispatch({ type: ActionType.ADD_TIER });
+  }, [dispatch, pushHistory]);
+
+  const handleRandomizeColors = useCallback(() => {
+    pushHistory();
+    dispatch({ type: ActionType.RANDOMIZE_COLORS });
+    showToast('Colors randomized!', 'success');
+  }, [dispatch, showToast, pushHistory]);
+
+  const handleUpdateTier = useCallback(
+    (id: string, updates: Partial<TierDefinition>) => {
+      // Only push history for significant updates (e.g. not every keystroke if this is debounced elsewhere)
+      pushHistory();
+      dispatch({
+        type: ActionType.UPDATE_TIER,
+        payload: { id, updates },
+      });
+    },
+    [dispatch, pushHistory],
+  );
+
+  const handleDeleteTier = useCallback(
+    (id: string) => {
+      pushHistory();
+      dispatch({
+        type: ActionType.DELETE_TIER,
+        payload: { id },
+      });
+    },
+    [dispatch, pushHistory],
+  );
+
+  const handleClear = useCallback(() => {
+    pushHistory();
+    dispatch({ type: ActionType.CLEAR_BOARD });
+  }, [dispatch, pushHistory]);
+
+  const handleResetItems = useCallback(() => {
+    pushHistory();
+    dispatch({ type: ActionType.MOVE_ALL_TO_UNRANKED });
+  }, [dispatch, pushHistory]);
+
+  return {
+    handleAddTier,
+    handleUpdateTier,
+    handleDeleteTier,
+    handleRandomizeColors,
+    handleClear,
+    handleResetItems,
+  };
+}

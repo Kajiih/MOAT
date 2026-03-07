@@ -55,10 +55,22 @@ export async function mockSearchResults(
   const { page: pageNum = 1, totalPages = 1, totalCount = items.length } = options;
 
   await page.route('**/api/search*', async (route) => {
-    const normalised = items.map((item) => ({
-      mbid: item.id,
-      ...item,
-    }));
+    const normalised = items.map((item) => {
+      const databaseId = 'rawg';
+      const entityId = 'game';
+      const dbId = item.id;
+      const identity = { dbId, databaseId, entityId };
+      const compositeId = `${databaseId}:${entityId}:${dbId}`;
+
+      return {
+        mbid: dbId,
+        subtitle: item.artist || 'Test Artist',
+        images: [],
+        ...item,
+        id: compositeId,
+        identity,
+      };
+    });
 
     await route.fulfill({
       status: 200,
@@ -80,7 +92,20 @@ export async function mockSearchResults(
  * @param detail - The detail object to return.
  */
 export async function mockItemDetails(page: Page, detail: MockItemDetail) {
-  const normalised = { mbid: detail.id, ...detail };
+  const databaseId = 'rawg';
+  const entityId = 'game';
+  const dbId = detail.id;
+  const identity = { dbId, databaseId, entityId };
+  const compositeId = `${databaseId}:${entityId}:${dbId}`;
+
+  const normalised = {
+    mbid: dbId,
+    subtitle: detail.artist || 'Test Artist',
+    images: [],
+    ...detail,
+    id: compositeId,
+    identity,
+  };
 
   await page.route('**/api/details*', async (route) => {
     await route.fulfill({

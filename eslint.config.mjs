@@ -75,7 +75,7 @@ const eslintConfig = defineConfig([
       '**/*.test.{ts,tsx}',
       '**/*.spec.{ts,tsx}',
       'e2e/**',
-      'lib/test/**',
+      'src/test/**',
       '**/mocks/**',
       'vitest.config.mts',
       'playwright.config.ts',

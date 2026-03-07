@@ -20,7 +20,7 @@ test.describe('Visual Regression', () => {
 
   test('search panel snapshot', async ({ page }) => {
     // Open search panel by ensuring it's visible (it is persistent on desktop)
-    await expect(page.getByPlaceholder('Search songs...')).toBeVisible();
+    await expect(page.getByPlaceholder('Search Video Games...')).toBeVisible();
 
     // Snapshot of the search panel only
     const searchPanel = page.locator('.sticky'); // The search panel container

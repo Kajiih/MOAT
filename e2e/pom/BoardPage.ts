@@ -144,7 +144,8 @@ export class BoardPage {
    * @returns The media card locator.
    */
   getMediaCard(id: string) {
-    return this.page.getByTestId(`media-card-${id}`);
+    const fullId = id.includes(':') ? id : `rawg:game:${id}`;
+    return this.page.getByTestId(`media-card-${fullId}`);
   }
 
   /**
@@ -203,7 +204,8 @@ export class BoardPage {
     await manualDragAndDrop(this.page, card.first(), dropZone);
 
     // After manual drag, wait for the clone overlay to vanish
-    await expect(this.page.getByTestId(`media-card-${itemId}`)).toHaveCount(1, { timeout: 5000 });
+    const fullId = itemId.includes(':') ? itemId : `rawg:game:${itemId}`;
+    await expect(this.page.getByTestId(`media-card-${fullId}`)).toHaveCount(1, { timeout: 5000 });
   }
 
   /**

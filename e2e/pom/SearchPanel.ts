@@ -24,27 +24,11 @@ export class SearchPanel {
   }
 
   async switchTab(
-    type:
-      | 'song'
-      | 'album'
-      | 'artist'
-      | 'book'
-      | 'movie'
-      | 'tv'
-      | 'game'
-      | 'developer'
-      | 'franchise',
+    type: 'game' | 'developer',
   ) {
     const titleMap = {
-      song: 'Search Songs',
-      album: 'Search Albums',
-      artist: 'Search Artists',
-      book: 'Search Books',
-      movie: 'Search Movies',
-      tv: 'Search TV Shows',
       game: 'Search Video Games',
       developer: 'Search Developers',
-      franchise: 'Search Franchises',
     };
     await this.page.getByTitle(titleMap[type], { exact: false }).click();
   }
@@ -64,7 +48,8 @@ export class SearchPanel {
   }
 
   async getResultCard(id: string) {
-    return this.page.getByTestId(`media-card-search-${id}`);
+    const fullId = id.includes(':') ? id : `rawg:game:${id}`;
+    return this.page.getByTestId(`media-card-search-${fullId}`);
   }
 
   async dragToTier(itemId: string, tierLabel: string) {

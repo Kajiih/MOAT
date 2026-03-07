@@ -19,10 +19,10 @@ test.describe('Item Management', () => {
     await expect(await searchPanel.getResultCard('item-2')).toBeVisible();
 
     await searchPanel.dragToTier('item-1', 'S');
-    await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('media-card-rawg:game:item-1')).toBeVisible({ timeout: 15_000 });
 
     await searchPanel.dragToTier('item-2', 'S');
-    await expect(page.getByTestId('media-card-item-2')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('media-card-rawg:game:item-2')).toBeVisible({ timeout: 15_000 });
   });
 
   test('should manage items: details, move, reorder, remove', async ({ page, boardPage }) => {
@@ -40,7 +40,7 @@ test.describe('Item Management', () => {
       description: 'A very detailed description',
     });
 
-    const card1 = page.getByTestId('media-card-item-1');
+    const card1 = page.getByTestId('media-card-rawg:game:item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
     // Open details via button (more reliable than shortcut in tests)
@@ -71,7 +71,7 @@ test.describe('Item Management', () => {
   });
 
   test('should handle personal notes', async ({ page }) => {
-    const card1 = page.getByTestId('media-card-item-1');
+    const card1 = page.getByTestId('media-card-rawg:game:item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
     // Route API before opening the modal

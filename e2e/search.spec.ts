@@ -11,11 +11,11 @@ test.describe('Search Functionality', () => {
       { id: 'item-1', title: 'Search Result', type: 'song', artist: 'Artist' },
     ]);
 
-    await searchPanel.switchTab('song');
+    await searchPanel.switchTab('game');
     await searchPanel.search('Test');
     await searchPanel.dragToTier('item-1', 'S');
 
-    await expect(page.getByTestId('media-card-item-1')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('media-card-rawg:game:item-1')).toBeVisible({ timeout: 10_000 });
   });
 
   test('should navigate through different pages of results', async ({
@@ -62,7 +62,7 @@ test.describe('Search Functionality', () => {
     await searchPanel.dragToTier('duplicate-1', 'S');
 
     // We expect the item to exist on the board now.
-    const boardCard = page.locator('[data-tier-label="S"]').getByTestId('media-card-duplicate-1');
+    const boardCard = page.locator('[data-tier-label="S"]').getByTestId('media-card-rawg:game:duplicate-1');
     await expect(boardCard).toBeVisible({ timeout: 10_000 });
     // Verify it's actually in the tier, not just testing the drag overlay
     await expect(page.locator('[data-tier-label="S"]').getByTestId(/^media-card-/)).toHaveCount(1);
@@ -77,11 +77,11 @@ test.describe('Search Functionality', () => {
     }).toPass();
 
     // 4. Verify it's hidden in search results
-    await expect(page.getByTestId('media-card-search-duplicate-1')).toBeHidden();
+    await expect(page.getByTestId('media-card-search-rawg:game:duplicate-1')).toBeHidden();
 
     // 5. Toggle "Show Added" (Show it)
     await searchPanel.setShowAdded(true);
-    await expect(page.getByTestId('media-card-search-duplicate-1')).toBeVisible();
+    await expect(page.getByTestId('media-card-search-rawg:game:duplicate-1')).toBeVisible();
   });
 
   test('should use specific filters for a tab', async ({ page, boardPage, searchPanel }) => {
@@ -93,7 +93,7 @@ test.describe('Search Functionality', () => {
       await route.fulfill({ status: 200, body: JSON.stringify({ results: [], page: 1 }) });
     });
 
-    await searchPanel.switchTab('artist');
+    await searchPanel.switchTab('developer');
     await searchPanel.toggleFilters();
 
     // Use the Country filter which is a text input with a specific placeholder

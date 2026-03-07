@@ -47,9 +47,9 @@ test.describe('Board Reset and Clear Actions', () => {
     await expect(boardPage.getTierRow('Unranked').getByTestId(/^media-card-item-/)).toHaveCount(3);
 
     // Verify items still exist in lookup/UI
-    await expect(page.getByTestId('media-card-item-1')).toBeVisible();
-    await expect(page.getByTestId('media-card-item-2')).toBeVisible();
-    await expect(page.getByTestId('media-card-item-3')).toBeVisible();
+    await expect(page.getByTestId('media-card-rawg:game:item-1')).toBeVisible();
+    await expect(page.getByTestId('media-card-rawg:game:item-2')).toBeVisible();
+    await expect(page.getByTestId('media-card-rawg:game:item-3')).toBeVisible();
   });
 
   test('should clear the entire board (all items gone)', async ({ page, boardPage }) => {
