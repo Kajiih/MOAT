@@ -94,7 +94,7 @@ const GAME_FILTERS: FilterDefinition[] = [
   })
 ];
 
-const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
+const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGGame> => ({
   id: 'game',
   branding: {
     label: 'Video Game',
@@ -245,7 +245,7 @@ function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
 
 // --- Developer Entity Configuration ---
 
-const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
+const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity<RAWGDeveloper> => ({
   id: 'developer',
   branding: {
     label: 'Developer',
@@ -340,7 +340,7 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity =
 /**
  * RAWG Database Provider Implementation
  */
-export class RAWGDatabaseProvider implements DatabaseProvider {
+export class RAWGDatabaseProvider implements DatabaseProvider<[DatabaseEntity<RAWGGame>, DatabaseEntity<RAWGDeveloper>]> {
   public id = 'rawg';
   public label = 'RAWG';
   public icon = Gamepad2;
@@ -373,7 +373,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
     return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`, { signal: options?.signal });
   }
 
-  public entities: DatabaseEntity[] = [
+  public entities: [DatabaseEntity<RAWGGame>, DatabaseEntity<RAWGDeveloper>] = [
     createGameEntity(this),
     createDeveloperEntity(this)
   ];

@@ -110,8 +110,8 @@ export class DatabaseRegistry {
    * Retrieves a provider by id.
    * @param id
    */
-  public getProvider(id: string): DatabaseProvider | undefined {
-    return this.providers.get(id);
+  public getProvider<T extends DatabaseProvider = DatabaseProvider>(id: string): T {
+    return this.providers.get(id) as T;
   }
 
   /**

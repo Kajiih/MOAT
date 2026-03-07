@@ -66,7 +66,7 @@ export type Fetcher = <T>(url: string, options?: RequestInit) => Promise<T>;
  * Represents an independent external database service provider.
  * This is the top-level object registered in the application.
  */
-export interface DatabaseProvider {
+export interface DatabaseProvider<TEntities extends readonly DatabaseEntity<any>[] = DatabaseEntity<any>[]> {
   /** Unique provider ID (e.g., 'rawg', 'igdb', 'musicbrainz') */
   id: string;
   /** Human readable name (e.g., 'RAWG Database') */
@@ -77,7 +77,7 @@ export interface DatabaseProvider {
   icon?: LucideIcon;
 
   /** The list of entities this database exposes to the user */
-  entities: DatabaseEntity[];
+  entities: TEntities;
   
   /** 
    * The current status of this specific provider.
