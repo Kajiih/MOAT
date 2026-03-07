@@ -57,6 +57,9 @@ export interface ItemCardProps {
  * @param props.onInfo
  * @returns The rendered ItemCard component.
  */
+
+export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-neutral-900 shadow-lg";
+
 export function ItemCard({
   item,
   tierId,
@@ -94,7 +97,7 @@ export function ItemCard({
     <div
       ref={dnd.setNodeRef}
       style={style}
-      className={`group relative aspect-square w-full cursor-grab overflow-hidden rounded-md bg-neutral-900 shadow-lg active:cursor-grabbing transition-shadow hover:shadow-xl ${
+      className={`group relative cursor-grab active:cursor-grabbing transition-shadow hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
         isAdded ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black' : ''
       }`}
       {...dnd.attributes}

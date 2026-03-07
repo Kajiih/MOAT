@@ -5,6 +5,8 @@
  * @module SkeletonCard
  */
 
+import { ITEM_CARD_BASE_CLASSES } from '@/components/media/ItemCard';
+
 /**
  * Renders a rectangular loading skeleton with a pulse animation.
  * Used as a placeholder for MediaCards during asynchronous loading.
@@ -12,7 +14,7 @@
  */
 export function SkeletonCard() {
   return (
-    <div className="h-24 w-24 animate-pulse overflow-hidden rounded-md bg-neutral-800/50">
+    <div className={`animate-pulse bg-neutral-800/50 ${ITEM_CARD_BASE_CLASSES}`}>
       <div className="h-full w-full bg-neutral-800"></div>
     </div>
   );
