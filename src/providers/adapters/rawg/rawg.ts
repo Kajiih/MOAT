@@ -31,6 +31,9 @@ export interface RAWGGame {
   rating?: number;
   ratings_count?: number;
   metacritic?: number;
+  added?: number;
+  created?: string;
+  updated?: string;
   parent_platforms?: { platform: { id: number; name: string; slug: string } }[];
   developers?: { id: number; name: string; slug: string }[];
   description_raw?: string;
@@ -107,6 +110,13 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
   public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
     createSort({ 
+      id: 'name', 
+      label: 'Name', 
+      defaultDirection: SortDirection.ASC,
+      // Name sorting is functional but we don't test it the RAWG API uses a custom collation (dealing with symbols and non-latin scripts) that doesn't match standard JS string comparison.
+      // extractValue: (raw: RAWGGame) => raw.name ?? '' // 
+    }),
+    createSort({ 
       id: 'rating', 
       label: 'Rating (Highest)', 
       defaultDirection: SortDirection.DESC,
@@ -117,6 +127,30 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
       label: 'Release Date', 
       defaultDirection: SortDirection.DESC,
       extractValue: (raw: RAWGGame) => raw.released ?? ''
+    }),
+    createSort({ 
+      id: 'added', 
+      label: 'Popularity (Added count)', 
+      defaultDirection: SortDirection.DESC,
+      extractValue: (raw: RAWGGame) => raw.added ?? 0
+    }),
+    createSort({ 
+      id: 'created', 
+      label: 'Creation Date', 
+      defaultDirection: SortDirection.DESC,
+      extractValue: (raw: RAWGGame) => raw.created ?? ''
+    }),
+    createSort({ 
+      id: 'updated', 
+      label: 'Update Date', 
+      defaultDirection: SortDirection.DESC,
+      extractValue: (raw: RAWGGame) => raw.updated ?? ''
+    }),
+    createSort({ 
+      id: 'metacritic', 
+      label: 'Metacritic Score', 
+      defaultDirection: SortDirection.DESC,
+      extractValue: (raw: RAWGGame) => raw.metacritic ?? 0
     }),
   ];
 
