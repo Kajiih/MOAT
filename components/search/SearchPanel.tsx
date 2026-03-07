@@ -1,9 +1,10 @@
 'use client';
 
 import { Eye, EyeOff, Search } from 'lucide-react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { useTierListContext } from '@/components/providers/TierListContext';
+import '@/lib/database/providers'; // Bootstrap all database providers on first import
 import { registry } from '@/lib/database/registry';
 import { ProviderStatus } from '@/lib/database/types';
 import { usePersistentState } from '@/lib/hooks';
@@ -20,15 +21,21 @@ export function SearchPanel() {
     actions: { locate: handleLocate },
   } = useTierListContext();
 
+  // Wait for the registry to finish bootstrapping before reading providers.
+  // This ensures we re-render once async provider registration completes.
+  const [isRegistryReady, setIsRegistryReady] = useState(false);
+  useEffect(() => {
+    registry.waitUntilReady().then(() => setIsRegistryReady(true));
+  }, []);
+
   // 1. Discover all providers from the registry
   const allProviders = registry.getAllProviders();
   
-  // 2. Filter providers by category (v2 providers don't have explicit category yet, 
-  // but we can assume they define entities that might match). 
-  // For now, let's just show all available providers if they are READY.
+  // 2. Show all available providers that are READY.
   const availableProviders = useMemo(() => {
     return allProviders.filter(p => p.status === ProviderStatus.READY);
-  }, [allProviders]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-compute when registry becomes ready
+  }, [allProviders, isRegistryReady]);
 
   // 3. Provider selection
   const [providerId, setProviderId] = usePersistentState<string>(

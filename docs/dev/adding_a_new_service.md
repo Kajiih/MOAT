@@ -8,7 +8,7 @@ In V2, a "Service" is a `DatabaseProvider` that contains one or more `DatabaseEn
 
 ## 1. Create the Provider File
 
-Create a new file in `lib/services/v2/`. Use the service name (e.g., `tmdb.ts`, `musicbrainz.ts`).
+Create a new file in `lib/services/`. Use the service name (e.g., `tmdb.ts`, `musicbrainz.ts`).
 
 ### Boilerplate
 
@@ -172,14 +172,19 @@ getDetails: async (dbId: string): Promise<ItemDetails> => {
 
 ## 6. Register the Provider
 
-Add your provider to the global `DatabaseRegistry` (usually in `lib/database/registry.ts` or a dedicated initialization file).
+Add your provider to the `providers` array in `lib/database/providers.ts` — this is the single manifest of all database providers:
 
 ```typescript
-import { registry } from '@/lib/database/registry';
-import { MyServiceDatabase } from '@/lib/services/myservice';
+// lib/database/providers.ts
+import { MyServiceDatabase } from '../services/myservice';
 
-registry.register(MyServiceDatabase);
+const providers: DatabaseProvider[] = [
+  RAWGDatabase,
+  MyServiceDatabase, // ← add your provider here
+];
 ```
+
+The registry will automatically bootstrap all listed providers when the module is first imported.
 
 ## Best Practices
 
