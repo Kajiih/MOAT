@@ -110,15 +110,17 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
       id: 'rating', 
       label: 'Rating (Highest)', 
       defaultDirection: SortDirection.DESC,
-      getTestValue: (raw: RAWGGame) => raw.rating ?? 0
+      extractValue: (raw: RAWGGame) => raw.rating ?? 0
     }),
     createSort({ 
       id: 'released', 
       label: 'Release Date', 
       defaultDirection: SortDirection.DESC,
-      getTestValue: (raw: RAWGGame) => raw.released ?? ''
+      extractValue: (raw: RAWGGame) => raw.released ?? ''
     }),
   ];
+
+  public readonly testQueries = ["Baldur's Gate", 'Clair Obscur'];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -269,19 +271,9 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
   public readonly filters = [];
   public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
-    createSort({ 
-      id: 'name', 
-      label: 'Name', 
-      defaultDirection: SortDirection.ASC,
-      getTestValue: (raw: RAWGDeveloper) => raw.name
-    }),
-    createSort({ 
-      id: 'games_count', 
-      label: 'Games Count', 
-      defaultDirection: SortDirection.DESC,
-      getTestValue: (raw: RAWGDeveloper) => raw.games_count
-    }),
   ];
+
+  public readonly testQueries = ['Larian Studio', 'Sandfall Interactive'];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 

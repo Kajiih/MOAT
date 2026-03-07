@@ -27,7 +27,7 @@ export interface SortDefinition<TRaw = any> extends z.infer<typeof SortDefinitio
    * Extract the raw value for comparison in integration tests.
    * If not provided, the sort will not be tested.
    */
-  getTestValue?: (raw: TRaw) => string | number;
+  extractValue?: (raw: TRaw) => string | number;
 }
 
 /**

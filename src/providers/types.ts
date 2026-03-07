@@ -46,6 +46,9 @@ export interface DatabaseEntity<TRaw = any> {
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
 
+  /** Optional general queries that return multiple results for sorting tests */
+  readonly testQueries?: string[];
+
   /**
    * Search for items within the entity.
    */

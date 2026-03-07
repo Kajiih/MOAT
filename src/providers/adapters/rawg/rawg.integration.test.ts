@@ -16,7 +16,7 @@ import {
  * These tests verify the contract between our provider and the real RAWG API.
  * They are gated by the presence of RAWG_API_KEY in the environment.
  */
-describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integration', () => {
+describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integration', { timeout: 15000 }, () => {
   const gameEntity = RAWGDatabase.entities.find(e => e.id === 'game')! as DatabaseEntity<RAWGGame>;
   const devEntity = RAWGDatabase.entities.find(e => e.id === 'developer')! as DatabaseEntity<RAWGDeveloper>;
 
@@ -193,34 +193,6 @@ describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integr
     });
   });
 
-  describe('Game Entity: Sorting', () => {
-    const sortQueries = ['Baldur\'s Gate', 'RPG'];
-
-    it.each(sortQueries)('should sort by Release Date bidirectionally for query "%s"', async (query) => {
-      const descRes = await gameEntity.search({
-        query,
-        filters: {},
-        sort: 'released',
-        sortDirection: SortDirection.DESC,
-        limit: 10
-      });
-      const ascRes = await gameEntity.search({
-        query,
-        filters: {},
-        sort: 'released',
-        sortDirection: SortDirection.ASC,
-        limit: 10
-      });
-
-      const sortDef = gameEntity.sortOptions.find(opt => opt.id === 'released')!;
-      expect(sortDef.getTestValue).toBeDefined();
-
-      const extractValue = sortDef.getTestValue!;
-
-      expectSorted(descRes.raw!, extractValue, SortDirection.DESC, 'released date');
-      expectSorted(ascRes.raw!, extractValue, SortDirection.ASC, 'released date');
-    });
-  });
 
   describe('Game Entity: Pagination', () => {
     it.each(['Action', 'Adventure'])('should verify pagination for query "%s"', async (query) => {
