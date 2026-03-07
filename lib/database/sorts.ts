@@ -1,4 +1,28 @@
-import { SortDefinition } from './types';
+import { z } from 'zod';
+
+/**
+ * Supported sort directions.
+ */
+export enum SortDirection {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+/**
+ * Definition for a sort option supported by the entity.
+ */
+export const SortDefinitionSchema = z.object({
+  /** Unique ID for the sort option */
+  id: z.string(),
+  /** Human readable label for the UI (e.g. "Release Date") */
+  label: z.string(),
+  /** Default direction if this sort is selected. If omitted, the sort is considered non-directional (e.g. Relevance). */
+  defaultDirection: z.enum(SortDirection).optional(),
+  /** If true, the sort direction cannot be reversed (default: false). Only applies if defaultDirection is present. */
+  isDirectionFixed: z.boolean().optional(),
+});
+
+export type SortDefinition = z.infer<typeof SortDefinitionSchema>;
 
 /**
  * Helper to create a SortDefinition with correct types and defaults.

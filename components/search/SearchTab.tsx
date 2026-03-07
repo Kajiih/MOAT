@@ -14,9 +14,8 @@ import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { SortDropdown } from '@/components/ui/SortDropdown';
 import { useItemSearch } from '@/lib/database/hooks/useItemSearch';
 import { registry } from '@/lib/database/registry';
-import { Item, SortDirection } from '@/lib/database/types';
-
-import { isSortReversible } from '@/lib/database/sorts';
+import { Item } from '@/lib/database/items';
+import { SortDirection, isSortReversible } from '@/lib/database/sorts';
 
 import { FilterPanel } from './FilterPanel';
 

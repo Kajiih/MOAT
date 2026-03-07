@@ -1,0 +1,94 @@
+import { z } from 'zod';
+import { EntityIdentitySchema } from './identity';
+import { ImageSourceSchema } from './images';
+
+/**
+ * Base properties for any item.
+ */
+export const BaseItemSchema = z.object({
+  /** Globally unique app ID (e.g. `${databaseId}:${entityId}:${dbId}`) */
+  id: z.string(),
+  /** Routing identity — where this item comes from */
+  identity: EntityIdentitySchema,
+  
+  /** Primary display title */
+  title: z.string(),
+  /** Ordered list of image sources to try — first working source wins */
+  images: z.array(ImageSourceSchema).default([]),
+  
+  /** Pre-computed strings for the UI to avoid complex formatting logic in components */
+  subtitle: z.string().optional(),
+  tertiaryText: z.string().optional(),
+  
+  /** Normalized rating (usually 0-10 or 0-100) */
+  rating: z.number().optional(),
+});
+
+export type BaseItem = z.infer<typeof BaseItemSchema>;
+
+/**
+ * A link to another entity within the same database.
+ */
+export const EntityLinkSchema = z.object({
+  /** Singular label for the entity type (e.g., 'Developer') */
+  label: z.string(),
+  /** The display name of the target item (e.g., 'FromSoftware') */
+  name: z.string(),
+  /** Routing identity of the target entity */
+  identity: EntityIdentitySchema,
+});
+
+export type EntityLink = z.infer<typeof EntityLinkSchema>;
+
+/**
+ * A section of metadata for an item (e.g. "Tracks", "Awards").
+ */
+export const ItemSectionSchema = z.object({
+  title: z.string(),
+  type: z.enum(['text', 'list']),
+  content: z.union([z.string(), z.array(z.string())]),
+});
+
+export type ItemSection = z.infer<typeof ItemSectionSchema>;
+
+/**
+ * Core detailed metadata fields specific to the details payload.
+ */
+export const ItemDetailsCoreSchema = z.object({
+  /** A full description or biography */
+  description: z.string().optional(),
+  /** Descriptive tags or genres */
+  tags: z.array(z.string()).optional(),
+  /** Links to other entities in the same database (e.g. Developer of a Game) */
+  relatedEntities: z.array(EntityLinkSchema).optional(),
+  /** External resource links (Wikipedia, Official Site, etc.) */
+  urls: z.array(z.object({
+    type: z.string(),
+    url: z.string().url(),
+  })).optional(),
+  /** Flexible sections of data (Tracks, Cast, etc.) */
+  sections: z.array(ItemSectionSchema).optional(),
+  /** Flexible record for any extra data specific to a database/entity */
+  extendedData: z.record(z.string(), z.unknown()).optional(),
+});
+
+export type ItemDetailsCore = z.infer<typeof ItemDetailsCoreSchema>;
+
+/**
+ * Deep metadata fetched on demand for an item.
+ * Extends the base item with additional metadata fields returned by provider.
+ */
+export const ItemDetailsSchema = BaseItemSchema.extend(ItemDetailsCoreSchema.shape);
+
+export type ItemDetails = z.infer<typeof ItemDetailsSchema>;
+
+/**
+ * Item schema that the Board and UI components expect.
+ * This is what gets returned by Search results.
+ */
+export const ItemSchema = BaseItemSchema.extend({
+  /** Deep metadata (cached once resolved) */
+  details: ItemDetailsCoreSchema.optional(),
+});
+
+export type Item = z.infer<typeof ItemSchema>;

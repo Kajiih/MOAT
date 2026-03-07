@@ -3,9 +3,10 @@ import { z } from 'zod';
 
 import { RAWGDatabase } from '../services/rawg';
 import { registry, RegistryStatus } from './registry';
-import { DatabaseErrorCode, DatabaseProvider, ImageSourceSchema,ProviderStatus, SearchParamsSchema, SearchResultSchema } from './types';
-import { referenceImage,urlImage } from './types';
-import { DatabaseEntity } from './types';
+import { DatabaseErrorCode, DatabaseError } from './errors';
+import { DatabaseProvider, ProviderStatus, DatabaseEntity } from './providers';
+import { ImageSourceSchema, urlImage, referenceImage } from './images';
+import { SearchParamsSchema, SearchResultSchema } from './search';
 import { handleDatabaseError } from './utils';
 
 describe('Database V2 Design', () => {

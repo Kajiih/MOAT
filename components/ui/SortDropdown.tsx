@@ -8,7 +8,7 @@
 import { ArrowUpDown } from 'lucide-react';
 import { useState } from 'react';
 
-import { SortDirection } from '@/lib/database/types';
+import { SortDirection } from '@/lib/database/sorts';
 import { Popover } from './Popover';
 
 interface SortOptionItem {

@@ -1,5 +1,5 @@
 import { secureFetch } from '../services/shared/api-client';
-import { DatabaseProvider, Fetcher, ProviderStatus } from './types';
+import { DatabaseProvider, Fetcher, ProviderStatus } from './providers';
 
 /**
  * Possible states for the DatabaseRegistry.
@@ -119,7 +119,7 @@ export class DatabaseRegistry {
    * @param databaseId
    * @param entityId
    */
-  public getEntity(databaseId: string, entityId: string): import('./types').DatabaseEntity | undefined {
+  public getEntity(databaseId: string, entityId: string): import('./providers').DatabaseEntity | undefined {
     const provider = this.getProvider(databaseId);
     return provider?.entities.find(e => e.id === entityId);
   }

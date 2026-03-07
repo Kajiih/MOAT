@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { registry } from '@/lib/database/registry';
-import { SortDirection } from '@/lib/database/types';
+import { SortDirection } from '@/lib/database/sorts';
 import '@/lib/database/providers'; // Ensure providers are registered in the Node environment
 import { logger } from '@/lib/logger';
 

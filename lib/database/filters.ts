@@ -1,14 +1,134 @@
-import {
-  AsyncMultiSelectFilterDefinition,
-  AsyncSelectFilterDefinition,
-  BooleanFilterDefinition,
-  DateFilterDefinition,
-  MultiSelectFilterDefinition,
-  NumberFilterDefinition,
-  RangeFilterDefinition,
-  SelectFilterDefinition,
-  TextFilterDefinition,
-} from './types';
+import { z } from 'zod';
+
+/**
+ * The types of UI inputs supported for filters.
+ */
+export const FilterInputTypeSchema = z.enum([
+  'text', 
+  'number', 
+  'boolean', 
+  'select', 
+  'multiselect', 
+  'async-select',
+  'async-multiselect',
+  'range', 
+  'date'
+]);
+
+export type FilterInputType = z.infer<typeof FilterInputTypeSchema>;
+
+/**
+ * Represents a single option for select/multiselect filters.
+ */
+export const FilterOptionSchema = z.object({
+  label: z.string(),
+  value: z.union([z.string(), z.number()]),
+  // LucideIcon cannot be easily validated with Zod as it's a component
+  icon: z.any().optional(), 
+});
+
+export type FilterOption = z.infer<typeof FilterOptionSchema>;
+
+/**
+ * Definition for a filter that the UI should render.
+ */
+export interface BaseFilterDefinition<TValue = any, TTransformed = any> {
+  /** Unique ID for the filter (used as key in internal state) */
+  id: string;
+  /** Human readable label for the UI */
+  label: string;
+  /** Default value for the filter state */
+  defaultValue?: TValue;
+  /** Optional helper text shown to the user */
+  helperText?: string;
+
+  /** 
+   * Declarative Mapping (V2 Refinement)
+   * The API parameter name this filter maps to.
+   */
+  mapTo?: string;
+  /** 
+   * A transformation function to convert the UI value to an API parameter.
+   * This is the "Escape Hatch" for database-specific logic.
+   */
+  transform?: (value: TValue) => TTransformed;
+}
+
+export interface TextFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
+  type: 'text';
+  /** Placeholder text for the input */
+  placeholder?: string;
+}
+
+export interface NumberFilterDefinition<TTransformed = any> extends BaseFilterDefinition<number, TTransformed> {
+  type: 'number';
+  /** Placeholder text for the input */
+  placeholder?: string;
+}
+
+export interface BooleanFilterDefinition<TTransformed = any> extends BaseFilterDefinition<boolean, TTransformed> {
+  type: 'boolean';
+}
+
+export interface SelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
+  type: 'select';
+  /** Available options for selection-based inputs */
+  options: FilterOption[];
+}
+
+export interface MultiSelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string[], TTransformed> {
+  type: 'multiselect';
+  /** Available options for selection-based inputs */
+  options: FilterOption[];
+}
+
+export interface AsyncSelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
+  type: 'async-select';
+  /** 
+   * Specifies the ID of the entity within the SAME database provider to search against.
+   * E.g., 'developer' or 'author'.
+   */
+  targetEntityId: string;
+}
+
+export interface AsyncMultiSelectFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string[], TTransformed> {
+  type: 'async-multiselect';
+  /** 
+   * Specifies the ID of the entity within the SAME database provider to search against.
+   * E.g., 'developer' or 'author'.
+   */
+  targetEntityId: string;
+}
+
+export interface RangeFilterDefinition<TTransformed = any> extends BaseFilterDefinition<{ min?: string; max?: string }, TTransformed> {
+  type: 'range';
+  /** Optional placeholder for the minimum input field */
+  minPlaceholder?: string;
+  /** Optional placeholder for the maximum input field */
+  maxPlaceholder?: string;
+}
+
+export interface DateFilterDefinition<TTransformed = any> extends BaseFilterDefinition<string, TTransformed> {
+  type: 'date';
+  /** Placeholder text for the input */
+  placeholder?: string;
+}
+
+/**
+ * Discriminated union of all filter definitions.
+ * By removing `TValue = any` here, consumers are forced to match the intrinsic
+ * payload type (`string`, `string[]`, or `{min, max}`) based purely on the `type` tag.
+ */
+export type FilterDefinition<TTransformed = any> = 
+  | TextFilterDefinition<TTransformed>
+  | NumberFilterDefinition<TTransformed>
+  | BooleanFilterDefinition<TTransformed>
+  | SelectFilterDefinition<TTransformed>
+  | MultiSelectFilterDefinition<TTransformed>
+  | AsyncSelectFilterDefinition<TTransformed>
+  | AsyncMultiSelectFilterDefinition<TTransformed>
+  | RangeFilterDefinition<TTransformed>
+  | DateFilterDefinition<TTransformed>;
 
 export function createTextFilter<TTransformed = any>(
   config: Omit<TextFilterDefinition<TTransformed>, 'type'>

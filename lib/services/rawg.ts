@@ -6,24 +6,25 @@
 import { Building2, Gamepad2 } from 'lucide-react';
 
 import {
-  DatabaseEntity,
-  DatabaseProvider,
-  Fetcher,
-  FilterDefinition,
+  DatabaseErrorCode,
+  DatabaseError,
+  toCompositeId,
+  urlImage,
+  referenceImage,
   Item,
   ItemDetails,
   ItemDetailsSchema,
   ItemSchema,
   ProviderStatus,
-  referenceImage,
   SearchParams,
   SearchResult,
   SearchResultSchema,
-  SortDirection,
-  toCompositeId,
-  urlImage
+  DatabaseEntity,
+  DatabaseProvider,
+  Fetcher,
 } from '@/lib/database/types';
-import { createSort } from '@/lib/database/sorts';
+import { SortDirection, createSort } from '@/lib/database/sorts';
+import { FilterDefinition } from '@/lib/database/filters';
 import { applyFilters, handleDatabaseError } from '@/lib/database/utils';
 
 import { secureFetch } from './shared/api-client';
