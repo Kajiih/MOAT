@@ -167,7 +167,7 @@ export function SearchTab({
             </div>
           )}
 
-          {entity && (entity.filters.length > 0 || entity.searchOptions.length > 0) && (
+          {entity && (entity.filters.length > 0 || (entity.searchOptions?.length ?? 0) > 0) && (
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`rounded border p-2 transition-colors ${showFilters ? 'border-red-900/50 bg-red-900/20 text-red-400' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
@@ -211,7 +211,7 @@ export function SearchTab({
              {'totalPages' in pagination && (
                 <Pagination 
                    page={page} 
-                   totalPages={(pagination as any).totalPages} 
+                   totalPages={pagination.totalPages} 
                    onPageChange={setPage} 
                 />
              )}

@@ -199,6 +199,7 @@ describe('Database V2 Design', () => {
           totalCount: 100,
           hasNextPage: true,
         },
+        raw: [],
       });
       
       expect(result.pagination.hasNextPage).toBe(true);
@@ -212,6 +213,7 @@ describe('Database V2 Design', () => {
           nextCursor: 'abc-123',
           hasNextPage: true,
         },
+        raw: [],
       });
 
       expect(result.pagination.hasNextPage).toBe(true);
@@ -287,7 +289,7 @@ describe('Database V2 Design', () => {
       const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game')!;
       
       expect(gameEntity.searchOptions).toHaveLength(1);
-      expect(gameEntity.searchOptions[0].id).toBe('precise');
+      expect(gameEntity.searchOptions?.[0].id).toBe('precise');
       
       expect(gameEntity.filters).toHaveLength(2);
       expect(gameEntity.filters.map((f: any) => f.id)).toEqual(['yearRange', 'platform']);

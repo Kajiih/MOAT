@@ -1,7 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { BaseItem } from '@/items/items';
-import { RAWGDatabaseProvider } from './rawg';
+import { RAWGDatabase, RAWGGame, RAWGDeveloper } from './rawg';
 import { SortDirection } from '@/search/schemas';
+import { DatabaseEntity } from '@/providers/types';
 import { 
   expectContainsCanonical, 
   expectExcludesAnchors, 
@@ -16,9 +17,8 @@ import {
  * They are gated by the presence of RAWG_API_KEY in the environment.
  */
 describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integration', () => {
-  const provider = new RAWGDatabaseProvider();
-  const gameEntity = provider.entities.find(e => e.id === 'game')!;
-  const devEntity = provider.entities.find(e => e.id === 'developer')!;
+  const gameEntity = RAWGDatabase.entities.find(e => e.id === 'game')! as DatabaseEntity<RAWGGame>;
+  const devEntity = RAWGDatabase.entities.find(e => e.id === 'developer')! as DatabaseEntity<RAWGDeveloper>;
 
   interface AnchorGame {
     query: string;
@@ -212,13 +212,13 @@ describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integr
         limit: 10
       });
 
-      const extractYear = (item: BaseItem) => {
-        const match = item.subtitle?.match(/\d{4}/);
-        return match ? parseInt(match[0]) : '';
-      };
+      const sortDef = gameEntity.sortOptions.find(opt => opt.id === 'released')!;
+      expect(sortDef.getTestValue).toBeDefined();
 
-      expectSorted(descRes.items, extractYear, SortDirection.DESC, 'subtitle year');
-      expectSorted(ascRes.items, extractYear, SortDirection.ASC, 'subtitle year');
+      const extractValue = sortDef.getTestValue!;
+
+      expectSorted(descRes.raw!, extractValue, SortDirection.DESC, 'released date');
+      expectSorted(ascRes.raw!, extractValue, SortDirection.ASC, 'released date');
     });
   });
 

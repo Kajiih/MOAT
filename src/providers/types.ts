@@ -31,34 +31,30 @@ export interface EntityBranding {
 }
 
 /**
- * Represents a specific type of data inside a database (e.g., "Game" in RAWG).
- * This interface encapsulates everything the UI needs to handle this entity.
+ * Represents an entity within a database (e.g., "Game", "Developer").
+ * Generic TRaw allows integration tests to access provider-specific raw results safely.
  */
-export interface DatabaseEntity {
-  /** Unique entity ID (e.g., 'game', 'developer', 'album') */
-  id: string;
-  /** Visual branding for the UI */
-  branding: EntityBranding;
+export interface DatabaseEntity<TRaw = any> {
+  /** Unique ID for the entity within the provider */
+  readonly id: string;
+  /** UI branding for the entity */
+  readonly branding: EntityBranding;
+  /** Filters available for searching this entity */
+  readonly filters: FilterDefinition[];
+  /** Search-specific options (e.g. "Precise Search") */
+  readonly searchOptions?: FilterDefinition[];
+  /** Sort options available for this entity */
+  readonly sortOptions: SortDefinition<TRaw>[];
 
-  /** Data filters for the filter sidebar (e.g. Platform, Year Range, Genre) */
-  filters: FilterDefinition[];
   /**
-   * Query modifiers rendered near the search input (e.g. Fuzzy Search, Precise Match).
-   * These change how the query string is interpreted rather than filtering by a data
-   * dimension. Uses the same FilterDefinition type so `applyFilters()` works on both.
+   * Search for items within the entity.
    */
-  searchOptions: FilterDefinition[];
-  sortOptions: SortDefinition[];
-  
-  /** 
-   * Search method: Fetches and maps raw API data directly into Items.
-   */
-  search: (params: SearchParams) => Promise<SearchResult>;
+  readonly search: (params: SearchParams) => Promise<SearchResult<TRaw>>;
   
   /** 
    * Detail method: Fetches and maps deep metadata for a single item.
    */
-  getDetails: (dbId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
+  readonly getDetails: (dbId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
 }
 
 /**

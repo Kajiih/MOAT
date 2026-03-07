@@ -11,9 +11,15 @@ export const SearchResultSchema = z.object({
   items: z.array(ItemSchema),
   /** Pagination metadata — either page-based or cursor-based */
   pagination: PaginationInfoSchema,
+  /** Original API objects for testing/specialized verification */
+  raw: z.array(z.any()),
 });
 
-export type SearchResult = z.infer<typeof SearchResultSchema>;
+export interface SearchResult<TRaw = any> extends z.infer<typeof SearchResultSchema> {
+  /** Original API objects for testing/specialized verification */
+  raw: TRaw[];
+}
+
 
 /**
  * Parameters passed to the search function of an entity.

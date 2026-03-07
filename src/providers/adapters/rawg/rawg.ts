@@ -22,7 +22,7 @@ const RAWG_BASE_URL = 'https://api.rawg.io/api';
 /**
  * RAWG API Types (Internal to the provider)
  */
-interface RAWGGame {
+export interface RAWGGame {
   id: number;
   slug: string;
   name: string;
@@ -38,7 +38,7 @@ interface RAWGGame {
   tags?: { name: string; language: string }[];
 }
 
-interface RAWGDeveloper {
+export interface RAWGDeveloper {
   id: number;
   name: string;
   slug: string;
@@ -106,8 +106,18 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
   filters: GAME_FILTERS,
   sortOptions: [
     createSort({ id: 'relevance', label: 'Relevance' }),
-    createSort({ id: 'rating', label: 'Rating (Highest)', defaultDirection: SortDirection.DESC }),
-    createSort({ id: 'released', label: 'Release Date', defaultDirection: SortDirection.DESC }),
+    createSort({ 
+      id: 'rating', 
+      label: 'Rating (Highest)', 
+      defaultDirection: SortDirection.DESC,
+      getTestValue: (raw: RAWGGame) => raw.rating ?? 0
+    }),
+    createSort({ 
+      id: 'released', 
+      label: 'Release Date', 
+      defaultDirection: SortDirection.DESC,
+      getTestValue: (raw: RAWGGame) => raw.released ?? ''
+    }),
   ],
   search: async (params: SearchParams): Promise<SearchResult> => {
     try {
@@ -135,15 +145,16 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
 
-      return SearchResultSchema.parse({
+      return {
         items,
+        raw: data.results,
         pagination: {
           currentPage,
           totalPages,
           totalCount: data.count,
           hasNextPage: currentPage < totalPages,
         },
-      });
+      };
     } catch (error) {
       throw handleDatabaseError(error, provider.id);
     }
@@ -254,8 +265,18 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity =
   filters: [],
   sortOptions: [
     createSort({ id: 'relevance', label: 'Relevance' }),
-    createSort({ id: 'name', label: 'Name', defaultDirection: SortDirection.ASC }),
-    createSort({ id: 'games_count', label: 'Games Count', defaultDirection: SortDirection.DESC }),
+    createSort({ 
+      id: 'name', 
+      label: 'Name', 
+      defaultDirection: SortDirection.ASC,
+      getTestValue: (raw: RAWGDeveloper) => raw.name
+    }),
+    createSort({ 
+      id: 'games_count', 
+      label: 'Games Count', 
+      defaultDirection: SortDirection.DESC,
+      getTestValue: (raw: RAWGDeveloper) => raw.games_count
+    }),
   ],
   search: async (params: SearchParams): Promise<SearchResult> => {
     try {
@@ -282,15 +303,16 @@ const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity =
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
 
-      return SearchResultSchema.parse({
+      return {
         items,
+        raw: data.results,
         pagination: {
           currentPage,
           totalPages,
           totalCount: data.count,
           hasNextPage: currentPage < totalPages,
         },
-      });
+      };
     } catch (error) {
       throw handleDatabaseError(error, provider.id);
     }
