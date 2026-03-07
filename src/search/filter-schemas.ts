@@ -56,14 +56,24 @@ export interface BaseFilterDefinition<TValue = any, TTransformed = any> {
    * Defines test cases to verify this filter correctly narrows results.
    */
   testCases: { 
+    /** Optional query to use with this filter test case */
+    query?: string;
     /** The value to apply to the filter in the UI/search state */
     value: TValue; 
     /** 
-     * Verification function.
+     * Optional per-item verification function.
      * Receives the raw item returned by the database (Provider specific).
      * Must return true if the item honors the filter value.
      */
-    match: (item: any) => boolean 
+    match?: (item: any) => boolean;
+    /**
+     * Optional verification function for the entire result set.
+     * Use this for aggregate assertions like "verify ID X is not in results".
+     * Receives the full array of raw items.
+     * 
+     * @important Every test case is expected to return at least one result.
+     */
+    verifyResults?: (items: any[]) => void;
   }[];
 }
 

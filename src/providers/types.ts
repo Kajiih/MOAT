@@ -46,8 +46,13 @@ export interface DatabaseEntity<TRaw = any> {
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
 
-  /** Optional general queries that return multiple results for sorting tests */
-  readonly testQueries?: string[];
+  /**
+   * Queries used to verify sorting algorithms in integration tests.
+   * If provided, integration tests will run sorting checks for both an empty query and each of these queries.
+   * 
+   * @important This should only be populated if the entity supports at least one sortable option.
+   */
+  readonly defaultSortingTestQueries?: string[];
 
   /**
    * Search for items within the entity.

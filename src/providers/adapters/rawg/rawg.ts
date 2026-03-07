@@ -59,6 +59,8 @@ interface RAWGListResponse<T> {
 import { createBooleanFilter, createRangeFilter, createSelectFilter } from '@/search/schemas';
 
 // --- Game Entity Configuration ---
+const THE_WITCHER_3_ID = '3328';
+const ELDEN_RING_ID = '326243';
 
 const GAME_SEARCH_OPTIONS: FilterDefinition[] = [
   createBooleanFilter({
@@ -70,12 +72,46 @@ const GAME_SEARCH_OPTIONS: FilterDefinition[] = [
     testCases: [
       { 
         value: true, 
-        // With precise: true, a search for a slightly misspelled name should return 0 results
-        // but we need to test that the results match the query exactly if results ARE returned.
-        // Actually, 'precise' is hard to test with just a match function on items
-        // because it's about what is NOT returned.
-        // For now, we'll just verify that if items are returned, they contain the query.
-        match: (item: RAWGGame) => true 
+        query: 'The Watcher 3',
+        verifyResults: (items) => {
+          const ids = items.map(i => i.id.toString());
+          // Precise: true should NOT return Witcher 3 for typo "The Watcher 3"
+          if (ids.includes(THE_WITCHER_3_ID)) {
+            throw new Error(`Found Witcher 3 (${THE_WITCHER_3_ID}) in precise results for typo "The Watcher 3"`);
+          }
+        },
+      },
+      { 
+        value: false,
+        query: 'The Watcher 3',
+        verifyResults: (items) => {
+          const ids = items.map(i => i.id.toString());
+          // Precise: false SHOULD return Witcher 3
+          if (!ids.includes(THE_WITCHER_3_ID)) {
+            throw new Error(`Did NOT find Witcher 3 (${THE_WITCHER_3_ID}) in fuzzy results for typo "The Watcher 3"`);
+          }
+        },
+      },
+      {
+        value: true,
+        query: 'Elder Ring',
+        verifyResults: (items) => {
+          const ids = items.map(i => i.id.toString());
+          // Elden Ring
+          if (ids.includes(ELDEN_RING_ID)) {
+            throw new Error(`Found Elden Ring (${ELDEN_RING_ID}) in precise results for typo "Elder Ring"`);
+          }
+        },
+      },
+      {
+        value: false,
+        query: 'Elder Ring',
+        verifyResults: (items) => {
+          const ids = items.map(i => i.id.toString());
+          if (!ids.includes(ELDEN_RING_ID)) {
+            throw new Error(`Did NOT find Elden Ring (${ELDEN_RING_ID}) in fuzzy results for typo "Elder Ring"`);
+          }
+        },
       }
     ]
   }),
@@ -182,7 +218,7 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
     }),
   ];
 
-  public readonly testQueries = ["Baldur's Gate", 'Clair Obscur'];
+  public readonly defaultSortingTestQueries = ["Baldur's Gate", 'Clair Obscur'];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -321,24 +357,12 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
     icon: Building2,
     colorClass: 'text-blue-400',
   };
-  public readonly searchOptions = [
-    createBooleanFilter({
-      id: 'precise',
-      label: 'Precise Search',
-      defaultValue: false, // Developers search is not precise by default
-      mapTo: 'search_precise',
-      helperText: 'Disable fuzzy matching for exact results',
-      testCases: [
-        { value: false, match: () => true }
-      ]
-    }),
-  ];
+  public readonly searchOptions = [];
   public readonly filters = [];
   public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
   ];
 
-  public readonly testQueries = ['Larian Studio', 'Sandfall Interactive'];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -353,9 +377,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
         apiParams.search = params.query;
       }
 
-      applyFilters(apiParams, params.filters, [
-        { id: 'precise', label: 'Precise', mapTo: 'search_precise' } as any
-      ]);
+      applyFilters(apiParams, params.filters, this.searchOptions);
 
       if (params.sort && params.sort !== 'relevance') {
         apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
