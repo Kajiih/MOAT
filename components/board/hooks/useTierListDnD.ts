@@ -21,7 +21,7 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Dispatch, useCallback, useRef, useState } from 'react';
 
-import { Item } from '@/lib/database/types';
+import { Item } from '@/lib/database/items';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { TierDefinition, TierListState } from '@/lib/types';
 import { isSearchId } from '@/lib/utils/ids';

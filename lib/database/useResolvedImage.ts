@@ -6,7 +6,7 @@
 import useSWR from 'swr';
 
 import { registry } from './registry';
-import type { ImageSource } from './types';
+import type { ImageSource } from './images';
 
 /**
  * Resolves an ordered list of ImageSource entries to the first working image URL.

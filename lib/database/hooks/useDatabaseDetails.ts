@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 
 import { registry } from '../registry';
-import { ItemDetails } from '../types';
+import { ItemDetails } from '../items';
 
 /**
  * Hook configuration options.

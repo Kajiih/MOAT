@@ -8,7 +8,8 @@
 import { update } from 'idb-keyval';
 import { useCallback } from 'react';
 
-import { Item } from '../types';
+import { Item } from '../items';
+
 
 const REGISTRY_STORAGE_KEY = 'moat-item-registry';
 

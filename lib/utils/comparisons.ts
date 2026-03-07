@@ -5,7 +5,7 @@
  * @module Comparisons
  */
 
-import { Item } from '@/lib/database/types';
+import { Item } from '@/lib/database/items';
 
 /**
  * Checks if a partial update actually changes any values in the current item.

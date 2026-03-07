@@ -5,7 +5,8 @@
 
 import { z } from 'zod';
 
-import { BaseFilterDefinition, DatabaseError, DatabaseErrorCode } from './types';
+import { DatabaseError, DatabaseErrorCode } from './errors';
+import { BaseFilterDefinition } from './filters';
 
 /**
  * Wraps any error into a standardized DatabaseError.

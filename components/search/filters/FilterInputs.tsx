@@ -6,7 +6,7 @@ import {
   RangeFilterDefinition,
   SelectFilterDefinition,
   TextFilterDefinition,
-} from '@/lib/database/types';
+} from '@/lib/database/filters';
 
 import { FilterControlProps } from './types';
 

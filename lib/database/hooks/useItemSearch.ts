@@ -4,7 +4,7 @@ import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
 import { registry } from '../registry';
-import { SearchParams, SearchResult } from '../types';
+import { SearchParams, SearchResult } from '../search';
 
 /**
  * Hook configuration options.

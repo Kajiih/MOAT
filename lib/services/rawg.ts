@@ -5,24 +5,13 @@
 
 import { Building2, Gamepad2 } from 'lucide-react';
 
-import {
-  DatabaseErrorCode,
-  DatabaseError,
-  toCompositeId,
-  urlImage,
-  referenceImage,
-  Item,
-  ItemDetails,
-  ItemDetailsSchema,
-  ItemSchema,
-  ProviderStatus,
-  SearchParams,
-  SearchResult,
-  SearchResultSchema,
-  DatabaseEntity,
-  DatabaseProvider,
-  Fetcher,
-} from '@/lib/database/types';
+import { DatabaseErrorCode, DatabaseError } from '../database/errors';
+import { toCompositeId } from '../database/identity';
+import { urlImage, referenceImage } from '../database/images';
+import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '../database/items';
+import { ProviderStatus } from '../database/providers';
+import { SearchParams, SearchResult, SearchResultSchema } from '../database/search';
+import { DatabaseEntity, DatabaseProvider, Fetcher } from '../database/providers';
 import { SortDirection, createSort } from '@/lib/database/sorts';
 import { FilterDefinition } from '@/lib/database/filters';
 import { applyFilters, handleDatabaseError } from '@/lib/database/utils';

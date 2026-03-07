@@ -15,7 +15,7 @@ import {
 } from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { Item } from '@/lib/database/types';
+import { Item } from '@/lib/database/items';
 import { ActionType, TierListAction } from '@/lib/state/actions';
 import { TierDefinition, TierListState } from '@/lib/types';
 import { fromSearchId } from '@/lib/utils/ids';

@@ -19,7 +19,7 @@ import React, { createContext, ReactNode, useContext, useMemo, useState } from '
 
 import { useTierListDnD } from '@/components/board/hooks/useTierListDnD';
 import { useItemRegistry } from '@/lib/database/hooks/useItemRegistry';
-import { Item } from '@/lib/database/types';
+import { Item } from '@/lib/database/items';
 import { useTierListIO, useTierListUtils, useTierStructure } from '@/lib/hooks';
 import { useHistory } from '@/lib/hooks/useHistory';
 import { usePersistentReducer } from '@/lib/hooks/usePersistentReducer';

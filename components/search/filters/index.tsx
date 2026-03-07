@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FilterDefinition } from '@/lib/database/types';
+import { FilterDefinition } from '@/lib/database/filters';
 
 import {
   BooleanFilterInput,

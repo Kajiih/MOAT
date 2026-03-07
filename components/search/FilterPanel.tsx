@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DatabaseEntity } from '@/lib/database/types';
+import { DatabaseEntity } from '@/lib/database/providers';
 import { FallbackFilterInput, FilterUIComponents } from './filters';
 
 interface FilterPanelProps {

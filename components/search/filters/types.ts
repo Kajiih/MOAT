@@ -1,4 +1,4 @@
-import { BaseFilterDefinition, FilterDefinition } from '@/lib/database/types';
+import { BaseFilterDefinition, FilterDefinition } from '@/lib/database/filters';
 
 /**
  * Standardized props for all filter input components.

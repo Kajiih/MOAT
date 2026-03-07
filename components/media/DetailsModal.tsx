@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useItemResolver, useEscapeKey } from '@/lib/hooks';
 import { registry } from '@/lib/database/registry';
-import { Item, ItemDetails, ItemSection } from '@/lib/database/types';
+import { Item, ItemDetails, ItemSection } from '@/lib/database/items';
 
 import { ItemImage } from './ItemImage';
 import { ExternalLinks } from './ExternalLinks';

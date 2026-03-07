@@ -10,7 +10,7 @@ import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { Item } from '@/lib/database/types';
+import { Item } from '@/lib/database/items';
 import { useResolvedImage } from '@/lib/database/useResolvedImage';
 import { failedImages } from '@/lib/image-cache';
 

@@ -13,7 +13,7 @@ import { Info, X } from 'lucide-react';
 import React from 'react';
 
 import { registry } from '@/lib/database/registry';
-import { Item } from '@/lib/database/types';
+import { Item } from '@/lib/database/items';
 
 import { ItemImage } from './ItemImage';
 

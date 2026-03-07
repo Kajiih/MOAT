@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { Item } from '@/lib/database/types';
+import { Item } from '@/lib/database/items';
 import { TierDefinition } from '@/lib/types';
 
 import { TierGrid } from './TierGrid';

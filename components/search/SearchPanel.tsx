@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTierListContext } from '@/components/providers/TierListContext';
 import '@/lib/database/providers'; // Bootstrap all database providers on first import
 import { registry } from '@/lib/database/registry';
-import { ProviderStatus } from '@/lib/database/types';
+import { ProviderStatus } from '@/lib/database/providers';
 import { usePersistentState } from '@/lib/hooks';
 
 import { SearchTab } from './SearchTab';
