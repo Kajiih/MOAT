@@ -55,7 +55,7 @@ A persistent, service-wide cache (stored in IndexedDB) that remembers every **It
 
 ### 2. Identity
 A composite identifier that uniquely routes an **Item** to its source.
-Format: `${databaseId}:${entityId}:${dbId}`.
+For example: `${databaseId}:${entityId}:${dbId}`.
 
 ### 3. Resolver
 A hook or service that takes an **Identity** or **Image Reference** and asynchronously retrieves the corresponding data or URL.
