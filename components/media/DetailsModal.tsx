@@ -184,6 +184,26 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                   </div>
                 )}
 
+                {details.extendedData && Object.keys(details.extendedData).length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                      Additional Info
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 rounded-lg bg-neutral-950/50 p-4 border border-neutral-800/50">
+                      {Object.entries(details.extendedData).map(([key, value]) => (
+                        <div key={key} className="flex flex-col">
+                          <span className="text-[10px] font-bold tracking-tight text-neutral-500 uppercase">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </span>
+                          <span className="text-sm text-neutral-200">
+                            {String(value)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {details.sections?.map((section: ItemSection, idx: number) => (
                   <div key={idx} className="space-y-2">
                     <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">

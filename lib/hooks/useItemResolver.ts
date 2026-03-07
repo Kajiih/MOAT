@@ -51,12 +51,23 @@ export function useItemResolver(
   useEffect(() => {
     if (!item || !details || isLoading || error || !shouldFetch) return;
 
+    const mergedImages = [...item.images];
+    if (details.images) {
+      for (const newImg of details.images) {
+        const exists = mergedImages.some(existing => {
+          if (existing.type !== newImg.type) return false;
+          if (existing.type === 'url' && newImg.type === 'url') return existing.url === newImg.url;
+          if (existing.type === 'reference' && newImg.type === 'reference') {
+            return existing.provider === newImg.provider && existing.key === newImg.key;
+          }
+          return false;
+        });
+        if (!exists) mergedImages.push(newImg);
+      }
+    }
+
     const updates: Partial<Item> = {
-      details,
-      // If details contains more images, merge them
-      images: details.images && details.images.length > item.images.length 
-        ? details.images 
-        : item.images,
+      images: mergedImages,
     };
 
     if (details) {

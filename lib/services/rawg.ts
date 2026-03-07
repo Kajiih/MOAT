@@ -130,24 +130,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
       }
 
       const data = await provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams, { signal: params.signal });
-
-      const items = data.results.map(game => {
-        const identity = { dbId: game.id.toString(), databaseId: provider.id, entityId: 'game' };
-        const images = [
-          ...(game.background_image ? [urlImage(game.background_image)] : []),
-          ...(game.slug ? [referenceImage('wikidata', `slug:${game.slug}`)] : []),
-        ];
-        const item: Item = {
-          id: toCompositeId(identity),
-          identity,
-          title: game.name,
-          images,
-          subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
-          tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
-          rating: game.rating,
-        };
-        return ItemSchema.parse(item);
-      });
+      const items = data.results.map(game => mapGameToItem(game, provider.id));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
@@ -180,15 +163,9 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
         identity: { dbId: dev.id.toString(), databaseId: provider.id, entityId: 'developer' },
       })) ?? [];
 
-      const identity = { dbId: game.id.toString(), databaseId: provider.id, entityId: 'game' };
+      const item = mapGameToItem(game, provider.id);
       const details: ItemDetails = {
-        id: toCompositeId(identity),
-        identity,
-        title: game.name,
-        images: game.background_image ? [urlImage(game.background_image)] : [],
-        subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
-        tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
-        rating: game.rating,
+        ...item,
         description: game.description_raw,
         tags,
         relatedEntities,
@@ -201,6 +178,38 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
     }
   }
 });
+
+/**
+ * Maps a RAWG Game API response to our internal Item model.
+ */
+function mapGameToItem(game: RAWGGame, databaseId: string): Item {
+  const identity = { dbId: game.id.toString(), databaseId, entityId: 'game' };
+  
+  const images = [
+    ...(game.background_image ? [urlImage(game.background_image)] : []),
+    ...(game.slug ? [referenceImage('wikidata', `slug:${game.slug}`)] : []),
+  ];
+
+  const item: Item = {
+    id: toCompositeId(identity),
+    identity,
+    title: game.name,
+    images,
+    subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
+    tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
+    rating: game.rating,
+  };
+
+  if (game.metacritic) {
+    item.details = {
+      extendedData: {
+        metacritic: game.metacritic.toString(),
+      }
+    };
+  }
+
+  return ItemSchema.parse(item);
+}
 
 // --- Developer Entity Configuration ---
 
