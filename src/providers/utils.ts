@@ -74,14 +74,15 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
  */
 export function applyFilters(
   apiParams: Record<string, string>,
-  filterValues: Record<string, unknown>,
+  filterValues: Record<string, unknown> | undefined,
   definitions: BaseFilterDefinition<any, any>[]
 ): void {
+  const values = filterValues || {};
   for (const def of definitions) {
     // Skip if there's no mapping defined
     if (!def.mapTo && !def.transform) continue;
 
-    const value = filterValues[def.id];
+    const value = values[def.id];
     
     // Skip if value is "empty" (null, undefined, or empty string)
     if (value === undefined || value === null || value === '') continue;

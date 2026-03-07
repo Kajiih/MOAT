@@ -38,6 +38,15 @@ interface RAWGGame {
   tags?: { name: string; language: string }[];
 }
 
+interface RAWGDeveloper {
+  id: number;
+  name: string;
+  slug: string;
+  games_count: number;
+  image_background: string;
+  description?: string;
+}
+
 interface RAWGListResponse<T> {
   count: number;
   results: T[];
@@ -204,9 +213,28 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
   return ItemSchema.parse(item);
 }
 
+/**
+ * Maps a RAWG Developer API object to our internal Item format.
+ */
+function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
+  const item: Item = {
+    id: `${databaseId}:developer:${dev.id}`,
+    identity: {
+      databaseId,
+      entityId: 'developer',
+      dbId: dev.id.toString(),
+    },
+    title: dev.name,
+    images: dev.image_background ? [urlImage(dev.image_background)] : [],
+    subtitle: `${dev.games_count} games`,
+  };
+
+  return ItemSchema.parse(item);
+}
+
 // --- Developer Entity Configuration ---
 
-const createDeveloperEntity = (_provider: RAWGDatabaseProvider): DatabaseEntity => ({
+const createDeveloperEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
   id: 'developer',
   branding: {
     label: 'Developer',
@@ -214,14 +242,76 @@ const createDeveloperEntity = (_provider: RAWGDatabaseProvider): DatabaseEntity 
     icon: Building2,
     colorClass: 'text-blue-400',
   },
-  searchOptions: [],
+  searchOptions: [
+    createBooleanFilter({
+      id: 'precise',
+      label: 'Precise Search',
+      defaultValue: false, // Developers search is not precise by default
+      mapTo: 'search_precise',
+      helperText: 'Disable fuzzy matching for exact results',
+    }),
+  ],
   filters: [],
-  sortOptions: [],
+  sortOptions: [
+    createSort({ id: 'relevance', label: 'Relevance' }),
+    createSort({ id: 'name', label: 'Name', defaultDirection: SortDirection.ASC }),
+    createSort({ id: 'games_count', label: 'Games Count', defaultDirection: SortDirection.DESC }),
+  ],
   search: async (params: SearchParams): Promise<SearchResult> => {
-    return { items: [], pagination: { currentPage: params.page || 1, totalPages: 0, totalCount: 0, hasNextPage: false } };
+    try {
+      const apiParams: Record<string, string> = {
+        page: (params.page || 1).toString(),
+        page_size: params.limit.toString(),
+      };
+
+      if (params.query) {
+        apiParams.search = params.query;
+      }
+
+      applyFilters(apiParams, params.filters, [
+        { id: 'precise', label: 'Precise', mapTo: 'search_precise' } as any
+      ]);
+
+      if (params.sort && params.sort !== 'relevance') {
+        apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
+      }
+
+      const data = await provider.fetchRawg<RAWGListResponse<RAWGDeveloper>>('/developers', apiParams, { signal: params.signal });
+      const items = data.results.map(dev => mapDeveloperToItem(dev, provider.id));
+
+      const currentPage = params.page || 1;
+      const totalPages = Math.ceil(data.count / params.limit);
+
+      return SearchResultSchema.parse({
+        items,
+        pagination: {
+          currentPage,
+          totalPages,
+          totalCount: data.count,
+          hasNextPage: currentPage < totalPages,
+        },
+      });
+    } catch (error) {
+      throw handleDatabaseError(error, provider.id);
+    }
   },
-  getDetails: async (_dbId: string, _options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
-    throw new Error('Not implemented');
+  getDetails: async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
+    try {
+      const dev = await provider.fetchRawg<RAWGDeveloper>(`/developers/${dbId}`, {}, { signal: options?.signal });
+      const item = mapDeveloperToItem(dev, provider.id);
+
+      const details: ItemDetails = {
+        ...item,
+        description: dev.description,
+        tags: [], // RAWG Developer API does not provide tags directly
+        relatedEntities: [], // RAWG Developer API does not provide related entities directly
+        urls: [{ type: 'rawg', url: `https://rawg.io/developers/${dev.slug}` }],
+      };
+
+      return ItemDetailsSchema.parse(details);
+    } catch (error) {
+      throw handleDatabaseError(error, provider.id);
+    }
   }
 });
 

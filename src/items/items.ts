@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { EntityIdentitySchema } from './identity';
-import { ImageSourceSchema } from '@/items/schemas';
+import { ImageSourceSchema } from './images';
 
 /**
  * Base properties for any item.
