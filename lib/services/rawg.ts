@@ -5,19 +5,19 @@
 
 import { Building2, Gamepad2 } from 'lucide-react';
 
-import { 
-  DatabaseEntity, 
-  DatabaseProvider, 
+import {
+  DatabaseEntity,
+  DatabaseProvider,
   Fetcher,
   FilterDefinition,
-  Item, 
-  ItemDetails, 
-  ItemDetailsSchema, 
+  Item,
+  ItemDetails,
+  ItemDetailsSchema,
   ItemSchema,
   ProviderStatus,
-  referenceImage, 
-  SearchParams, 
-  SearchResult, 
+  referenceImage,
+  SearchParams,
+  SearchResult,
   SearchResultSchema,
   toCompositeId,
   urlImage
@@ -66,10 +66,10 @@ const GAME_SEARCH_OPTIONS: FilterDefinition[] = [
 ];
 
 const GAME_FILTERS: FilterDefinition[] = [
-  { 
-    id: 'yearRange', 
-    label: 'Release Year', 
-    type: 'range', 
+  {
+    id: 'yearRange',
+    label: 'Release Year',
+    type: 'range',
     placeholder: 'YYYY',
     mapTo: 'dates',
     transform: (val: { min?: string, max?: string }) => {
@@ -130,7 +130,7 @@ const createGameEntity = (provider: RAWGDatabaseProvider): DatabaseEntity => ({
       }
 
       const data = await provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams, { signal: params.signal });
-      
+
       const items = data.results.map(game => {
         const identity = { dbId: game.id.toString(), databaseId: provider.id, entityId: 'game' };
         const images = [
@@ -214,7 +214,7 @@ const createDeveloperEntity = (_provider: RAWGDatabaseProvider): DatabaseEntity 
   },
   searchOptions: [],
   filters: [],
-  sortOptions: [],      
+  sortOptions: [],
   search: async (params: SearchParams): Promise<SearchResult> => {
     return { items: [], pagination: { currentPage: params.page || 1, totalPages: 0, totalCount: 0, hasNextPage: false } };
   },
@@ -247,8 +247,8 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
    * @returns The parsed JSON response.
    */
   public async fetchRawg<T>(
-    endpoint: string, 
-    params: Record<string, string> = {}, 
+    endpoint: string,
+    params: Record<string, string> = {},
     options?: { signal?: AbortSignal }
   ): Promise<T> {
     const apiKey = process.env.RAWG_API_KEY || 'test-key'; // Fallback for tests

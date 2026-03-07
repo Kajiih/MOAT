@@ -59,7 +59,7 @@ export function useItemSearch(
   }, [enabled, providerId, entityId, debouncedParams]);
 
   // 3. Define the fetcher that talks to the Registry
-  const fetcher = async (_key: any[], { signal }: { signal: AbortSignal }): Promise<SearchResult> => {
+  const fetcher = async (_key: any[], opts?: { signal?: AbortSignal }): Promise<SearchResult> => {
     if (!providerId || !entityId) {
       throw new Error('Provider ID and Entity ID are required');
     }
@@ -79,7 +79,7 @@ export function useItemSearch(
       limit: debouncedParams.limit || 20,
       cursor: debouncedParams.cursor,
       offset: debouncedParams.offset,
-      signal, // Pass the signal here
+      signal: opts?.signal,
     };
 
     return entity.search(fullParams);
