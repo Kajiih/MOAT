@@ -137,13 +137,15 @@ export function SearchTab({
             />
           )}
 
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`rounded border p-2 transition-colors ${showFilters ? 'border-red-900/50 bg-red-900/20 text-red-400' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
-            title="Toggle Filters"
-          >
-            <Filter size={18} />
-          </button>
+          {entity && (entity.filters.length > 0 || entity.searchOptions.length > 0) && (
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`rounded border p-2 transition-colors ${showFilters ? 'border-red-900/50 bg-red-900/20 text-red-400' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
+              title="Toggle Filters"
+            >
+              <Filter size={18} />
+            </button>
+          )}
         </div>
 
         {/* Advanced Filters Panel */}
