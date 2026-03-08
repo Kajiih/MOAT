@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { RAWGDatabase } from '@/providers/adapters/rawg/rawg';
+import { RAWGDatabase } from '@/providers/adapters/rawg';
 import { ProviderErrorCode } from './errors';
 import { Gamepad2, Building2 } from 'lucide-react';
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/schemas';

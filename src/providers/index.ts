@@ -1,5 +1,5 @@
 import { registry } from './registry';
-import { RAWGDatabase } from './adapters/rawg/rawg';
+import { RAWGDatabase } from './adapters/rawg';
 
 // Register all external data providers to the central registry
 // This file should be imported once at the entry point of the server to ensure
