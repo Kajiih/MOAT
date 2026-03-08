@@ -224,7 +224,7 @@ describe('Database V2 Design', () => {
       if (!result.success) {
         const error = handleDatabaseError(result.error, 'test');
         expect(error.code).toBe(DatabaseErrorCode.VALIDATION_ERROR);
-        expect(error.message).toContain('Validation failed');
+        expect(error.message).toContain('Validation error:');
       }
     });
 

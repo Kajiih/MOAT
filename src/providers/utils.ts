@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod';
+import { fromZodError } from 'zod-validation-error';
 
 import { DatabaseError, DatabaseErrorCode } from './errors';
 import { BaseFilterDefinition } from '@/search/schemas';
@@ -19,11 +20,10 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
 
   // 1. Handle Zod Validation Errors
   if (error instanceof z.ZodError) {
-    const firstIssue = error.issues[0];
-    const path = firstIssue?.path.join('.') || 'root';
+    const validationError = fromZodError(error);
     return new DatabaseError(
       DatabaseErrorCode.VALIDATION_ERROR,
-      `Validation failed at ${path}: ${firstIssue?.message}`,
+      validationError.message,
       error,
       databaseId
     );
