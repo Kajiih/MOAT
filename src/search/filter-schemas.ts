@@ -159,56 +159,68 @@ export type FilterDefinition<TTransformed = any, TRaw = any> =
   | RangeFilterDefinition<TTransformed, TRaw>
   | DateFilterDefinition<TTransformed, TRaw>;
 
-export function createTextFilter<TTransformed = any, TRaw = any>(
-  config: Omit<TextFilterDefinition<TTransformed, TRaw>, 'type'>
-): TextFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'text' };
+/**
+ * Creates a suite of filter building functions that are statically bound
+ * to the generic type `TRaw` of the expected Database Provider responses.
+ * 
+ * This prevents repetitive `<any, RAWGGame>` boilerplate on every individual filter definition.
+ */
+export function createFilterSuite<TRaw>() {
+  return {
+    text: <TTransformed = any>(
+      config: Omit<TextFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): TextFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'text' };
+    },
+
+    number: <TTransformed = any>(
+      config: Omit<NumberFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): NumberFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'number' };
+    },
+
+    boolean: <TTransformed = any>(
+      config: Omit<BooleanFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): BooleanFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'boolean' };
+    },
+
+    select: <TTransformed = any>(
+      config: Omit<SelectFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): SelectFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'select' };
+    },
+
+    multiselect: <TTransformed = any>(
+      config: Omit<MultiSelectFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): MultiSelectFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'multiselect' };
+    },
+
+    asyncSelect: <TTransformed = any>(
+      config: Omit<AsyncSelectFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): AsyncSelectFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'async-select' };
+    },
+
+    asyncMultiselect: <TTransformed = any>(
+      config: Omit<AsyncMultiSelectFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): AsyncMultiSelectFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'async-multiselect' };
+    },
+
+    range: <TTransformed = any>(
+      config: Omit<RangeFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): RangeFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'range' };
+    },
+
+    date: <TTransformed = any>(
+      config: Omit<DateFilterDefinition<TTransformed, TRaw>, 'type'>
+    ): DateFilterDefinition<TTransformed, TRaw> => {
+      return { ...config, type: 'date' };
+    }
+  };
 }
 
-export function createNumberFilter<TTransformed = any, TRaw = any>(
-  config: Omit<NumberFilterDefinition<TTransformed, TRaw>, 'type'>
-): NumberFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'number' };
-}
 
-export function createBooleanFilter<TTransformed = any, TRaw = any>(
-  config: Omit<BooleanFilterDefinition<TTransformed, TRaw>, 'type'>
-): BooleanFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'boolean' };
-}
-
-export function createSelectFilter<TTransformed = any, TRaw = any>(
-  config: Omit<SelectFilterDefinition<TTransformed, TRaw>, 'type'>
-): SelectFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'select' };
-}
-
-export function createMultiSelectFilter<TTransformed = any, TRaw = any>(
-  config: Omit<MultiSelectFilterDefinition<TTransformed, TRaw>, 'type'>
-): MultiSelectFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'multiselect' };
-}
-
-export function createAsyncSelectFilter<TTransformed = any, TRaw = any>(
-  config: Omit<AsyncSelectFilterDefinition<TTransformed, TRaw>, 'type'>
-): AsyncSelectFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'async-select' };
-}
-
-export function createAsyncMultiSelectFilter<TTransformed = any, TRaw = any>(
-  config: Omit<AsyncMultiSelectFilterDefinition<TTransformed, TRaw>, 'type'>
-): AsyncMultiSelectFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'async-multiselect' };
-}
-
-export function createRangeFilter<TTransformed = any, TRaw = any>(
-  config: Omit<RangeFilterDefinition<TTransformed, TRaw>, 'type'>
-): RangeFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'range' };
-}
-
-export function createDateFilter<TTransformed = any, TRaw = any>(
-  config: Omit<DateFilterDefinition<TTransformed, TRaw>, 'type'>
-): DateFilterDefinition<TTransformed, TRaw> {
-  return { ...config, type: 'date' };
-}

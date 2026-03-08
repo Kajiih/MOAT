@@ -6,7 +6,7 @@
 import { Building2, Gamepad2 } from 'lucide-react';
 
 import { applyFilters, handleDatabaseError } from '@/providers/utils';
-import { createSort, SortDirection } from '@/search/schemas';
+import { createSortSuite, SortDirection } from '@/search/schemas';
 import { FilterDefinition } from '@/search/schemas';
 
 import { toCompositeId } from '@/items/schemas';
@@ -56,14 +56,17 @@ interface RAWGListResponse<T> {
   results: T[];
 }
 
-import { createBooleanFilter, createRangeFilter, createSelectFilter } from '@/search/schemas';
+import { createFilterSuite } from '@/search/schemas';
+
+const rawgGameFilters = createFilterSuite<RAWGGame>();
+const rawgGameSorts = createSortSuite<RAWGGame>();
 
 // --- Game Entity Configuration ---
 const THE_WITCHER_3_ID = '3328';
 const ELDEN_RING_ID = '326243';
 
 const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
-  createBooleanFilter({
+  rawgGameFilters.boolean({
     id: 'precise',
     label: 'Precise Search',
     defaultValue: true,
@@ -118,7 +121,7 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
 ];
 
 const GAME_FILTERS: FilterDefinition<any, RAWGGame>[] = [
-  createRangeFilter({
+  rawgGameFilters.range({
     id: 'yearRange',
     label: 'Release Year',
     minPlaceholder: 'From YYYY',
@@ -141,7 +144,7 @@ const GAME_FILTERS: FilterDefinition<any, RAWGGame>[] = [
       }
     ]
   }),
-  createSelectFilter({
+  rawgGameFilters.select({
     id: 'platform',
     label: 'Platform',
     mapTo: 'platforms',
@@ -172,49 +175,49 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
   public readonly searchOptions = GAME_SEARCH_OPTIONS;
   public readonly filters = GAME_FILTERS;
   public readonly sortOptions = [
-    createSort({ id: 'relevance', label: 'Relevance' }),
-    createSort({ 
+    rawgGameSorts.create({ id: 'relevance', label: 'Relevance' }),
+    rawgGameSorts.create({ 
       id: 'name', 
       label: 'Name', 
       defaultDirection: SortDirection.ASC,
       // Name sorting is functional but we don't test it the RAWG API uses a custom collation (dealing with symbols and non-latin scripts) that doesn't match standard JS string comparison.
-      // extractValue: (raw: RAWGGame) => raw.name ?? '' // 
+      // extractValue: (raw) => raw.name ?? '' // 
     }),
-    createSort({ 
+    rawgGameSorts.create({ 
       id: 'rating', 
       label: 'Rating (Highest)', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.rating ?? 0
+      extractValue: (raw) => raw.rating ?? 0
     }),
-    createSort({ 
+    rawgGameSorts.create({ 
       id: 'released', 
       label: 'Release Date', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.released ?? ''
+      extractValue: (raw) => raw.released ?? ''
     }),
-    createSort({ 
+    rawgGameSorts.create({ 
       id: 'added', 
       label: 'Popularity (Added count)', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.added ?? 0
+      extractValue: (raw) => raw.added ?? 0
     }),
-    createSort({ 
+    rawgGameSorts.create({ 
       id: 'created', 
       label: 'Creation Date', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.created ?? ''
+      extractValue: (raw) => raw.created ?? ''
     }),
-    createSort({ 
+    rawgGameSorts.create({ 
       id: 'updated', 
       label: 'Update Date', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.updated ?? ''
+      extractValue: (raw) => raw.updated ?? ''
     }),
-    createSort({ 
+    rawgGameSorts.create({ 
       id: 'metacritic', 
       label: 'Metacritic Score', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.metacritic ?? 0
+      extractValue: (raw) => raw.metacritic ?? 0
     }),
   ];
 
@@ -335,6 +338,8 @@ function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
 const UBISOFT_ID = '405';
 const NINTENDO_ID = '11';
 
+const rawgDevSorts = createSortSuite<RAWGDeveloper>();
+
 export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
   public readonly id = 'developer';
   public readonly branding = {
@@ -346,7 +351,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
   public readonly searchOptions: FilterDefinition<any, RAWGDeveloper>[] = [];
   public readonly filters: FilterDefinition<any, RAWGDeveloper>[] = [];
   public readonly sortOptions = [
-    createSort({ id: 'relevance', label: 'Relevance' }),
+    rawgDevSorts.create({ id: 'relevance', label: 'Relevance' }),
   ];
 
   public readonly defaultTestQueries = ['Ubisoft', 'Nintendo'];

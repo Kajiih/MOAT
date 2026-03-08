@@ -31,10 +31,15 @@ export interface SortDefinition<TRaw = any> extends z.infer<typeof SortDefinitio
 }
 
 /**
- * Helper to create a SortDefinition with correct types and defaults.
+ * Creates a suite of sort building functions that are statically bound
+ * to the generic type `TRaw` of the expected Database Provider responses.
+ * 
+ * This enables robust IDE autocompletion when defining `extractValue`.
  */
-export function createSort(config: SortDefinition): SortDefinition {
-  return config;
+export function createSortSuite<TRaw>() {
+  return {
+    create: (config: SortDefinition<TRaw>): SortDefinition<TRaw> => config
+  };
 }
 
 /**
