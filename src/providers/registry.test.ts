@@ -72,15 +72,15 @@ describe('Database V2 Design', () => {
       
       expect(registry.getStatus()).toBe(RegistryStatus.IDLE);
       expect(registry.getAllProviders()).toHaveLength(0);
-      expect(registry.getProvider('rawg')).toBeUndefined();
+      expect(() => registry.getProvider('rawg')).toThrow('Provider "rawg" not found');
     });
 
     it('should register and retrieve a provider', async () => {
       await registry.register(RAWGDatabase);
       const provider = registry.getProvider('rawg');
       expect(provider).toBeDefined();
-      expect(provider?.id).toBe('rawg');
-      expect(provider?.label).toBe('RAWG');
+      expect(provider.id).toBe('rawg');
+      expect(provider.label).toBe('RAWG');
     });
 
     it('should list all providers', async () => {

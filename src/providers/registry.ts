@@ -1,5 +1,5 @@
 import { secureFetch } from '@/providers/api-client';
-import { DatabaseProvider, Fetcher, ProviderStatus } from '@/providers/types';
+import { DatabaseEntity, DatabaseProvider, Fetcher, ProviderStatus } from '@/providers/types';
 
 /**
  * Possible states for the DatabaseRegistry.
@@ -108,23 +108,26 @@ export class DatabaseRegistry {
 
   /**
    * Retrieves a provider by id.
-   * @param id
+   * @param id - The provider's unique identifier.
+   * @throws If provider is not found.
    */
-  public getProvider<T extends DatabaseProvider = DatabaseProvider>(id: string): T {
-    return this.providers.get(id) as T;
+  public getProvider(id: string): DatabaseProvider {
+    const provider = this.providers.get(id);
+    if (!provider) throw new Error(`Provider "${id}" not found`);
+    return provider;
   }
 
   /**
    * Retrieves a specific entity from a specific database provider.
-   * @param databaseId
-   * @param entityId
+   * @param databaseId - The provider's unique identifier.
+   * @param entityId - The entity's unique identifier within the provider.
+   * @throws If provider or entity is not found.
    */
-  public getEntity<
-    TProvider extends DatabaseProvider = DatabaseProvider,
-    TEntityId extends TProvider['entities'][number]['id'] = TProvider['entities'][number]['id']
-  >(databaseId: string, entityId: TEntityId): Extract<TProvider['entities'][number], { id: TEntityId }> {
-    const provider = this.getProvider<TProvider>(databaseId);
-    return provider.entities.find(e => e.id === entityId) as Extract<TProvider['entities'][number], { id: TEntityId }>;
+  public getEntity(databaseId: string, entityId: string): DatabaseEntity {
+    const provider = this.getProvider(databaseId);
+    const entity = provider.entities.find(e => e.id === entityId);
+    if (!entity) throw new Error(`Entity "${entityId}" not found in provider "${databaseId}"`);
+    return entity;
   }
 
   /**

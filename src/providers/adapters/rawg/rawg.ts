@@ -401,10 +401,10 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
 /**
  * RAWG Database Provider Implementation
  */
-export class RAWGDatabaseProvider implements DatabaseProvider<[RAWGGameEntity, RAWGDeveloperEntity]> {
-  public id = 'rawg';
-  public label = 'RAWG';
-  public icon = Gamepad2;
+export class RAWGDatabaseProvider implements DatabaseProvider {
+  public readonly id = 'rawg';
+  public readonly label = 'RAWG';
+  public readonly icon = Gamepad2;
   public status: ProviderStatus = ProviderStatus.IDLE;
   private fetcher: Fetcher = secureFetch as unknown as Fetcher;
 
@@ -482,10 +482,10 @@ export class RAWGDatabaseProvider implements DatabaseProvider<[RAWGGameEntity, R
     return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`, { signal: options?.signal });
   }
 
-  public entities: [RAWGGameEntity, RAWGDeveloperEntity] = [
+  public readonly entities = [
     new RAWGGameEntity(this),
     new RAWGDeveloperEntity(this)
-  ];
+  ] as const;
 }
 
 // Export a singleton instance

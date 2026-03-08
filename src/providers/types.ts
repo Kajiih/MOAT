@@ -79,19 +79,23 @@ export type Fetcher = <T>(url: string, options?: RequestInit) => Promise<T>;
 /**
  * Represents an independent external database service provider.
  * This is the top-level object registered in the application.
+  *
+ * Concrete classes narrow the `entities` type via their own annotations
+ * (e.g. `readonly entities = [...] as const`), which TypeScript's structural
+ * typing matches against this interface.
  */
-export interface DatabaseProvider<TEntities extends readonly DatabaseEntity[] = DatabaseEntity[]> {
+export interface DatabaseProvider {
   /** Unique provider ID (e.g., 'rawg', 'igdb', 'musicbrainz') */
-  id: string;
+  readonly id: string;
   /** Human readable name (e.g., 'RAWG Database') */
-  label: string;
+  readonly label: string;
   /** Optional description of what this database provides */
-  description?: string;
+  readonly description?: string;
   /** Optional icon representing the service provider */
-  icon?: LucideIcon;
+  readonly icon?: LucideIcon;
 
   /** The list of entities this database exposes to the user */
-  entities: TEntities;
+  readonly entities: readonly DatabaseEntity[];
   
   /** 
    * The current status of this specific provider.
