@@ -115,29 +115,4 @@ describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integr
       expectExcludesAnchors(result.items, otherAnchorIds);
     });
   });
-
-  describe('Game Entity: Pagination', () => {
-    it.each(['Action', 'Adventure'])('should verify pagination for query "%s"', async (query) => {
-      const p1 = await gameEntity.search({ query, filters: {}, limit: 5, page: 1 });
-      const p2 = await gameEntity.search({ query, filters: {}, limit: 5, page: 2 });
-      
-      expectDistinctPages(p1.items, p2.items);
-    });
-  });
-
-  describe('Developer Entity', () => {
-    it('should correctly find "FromSoftware"', async () => {
-      const result = await devEntity.search({
-        query: 'FromSoftware',
-        filters: {},
-        limit: 5
-      });
-      expect(result.items.some(i => i.title === 'FromSoftware')).toBe(true);
-    });
-
-    it('should fetch developer details for FromSoftware (ID 6763)', async () => {
-      const details = await devEntity.getDetails('6763');
-      expect(details.title).toBe('FromSoftware');
-    });
-  });
 });

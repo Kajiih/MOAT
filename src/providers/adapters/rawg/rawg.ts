@@ -14,7 +14,7 @@ import { referenceImage,urlImage } from '@/items/schemas';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/schemas';
 import { ProviderStatus } from '@/providers/types';
 import { DatabaseEntity, DatabaseProvider, Fetcher } from '@/providers/types';
-import { SearchParams, SearchResult } from '@/search/schemas';
+import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
 import { secureFetch } from '@/providers/api-client';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
@@ -218,7 +218,8 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
     }),
   ];
 
-  public readonly defaultSortingTestQueries = ["Baldur's Gate", 'Clair Obscur'];
+  public readonly defaultTestQueries = ["Baldur's Gate", 'Clair Obscur'];
+  public readonly testDetailsIds = [THE_WITCHER_3_ID, ELDEN_RING_ID];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -248,7 +249,7 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
 
-      return {
+      return SearchResultSchema.parse({
         items,
         raw: data.results,
         pagination: {
@@ -257,7 +258,7 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
           totalCount: data.count,
           hasNextPage: currentPage < totalPages,
         },
-      };
+      });
     } catch (error) {
       throw handleDatabaseError(error, this.provider.id);
     }
@@ -348,6 +349,8 @@ function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
 }
 
 // --- Developer Entity Configuration ---
+const UBISOFT_ID = '405';
+const NINTENDO_ID = '11';
 
 export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
   public readonly id = 'developer';
@@ -363,6 +366,8 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
     createSort({ id: 'relevance', label: 'Relevance' }),
   ];
 
+  public readonly defaultTestQueries = ['Ubisoft', 'Nintendo'];
+  public readonly testDetailsIds = [UBISOFT_ID, NINTENDO_ID];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -389,7 +394,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
 
-      return {
+      return SearchResultSchema.parse({
         items,
         raw: data.results,
         pagination: {
@@ -398,7 +403,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
           totalCount: data.count,
           hasNextPage: currentPage < totalPages,
         },
-      };
+      });
     } catch (error) {
       throw handleDatabaseError(error, this.provider.id);
     }

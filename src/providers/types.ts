@@ -47,12 +47,14 @@ export interface DatabaseEntity<TRaw = any> {
   readonly sortOptions: SortDefinition<TRaw>[];
 
   /**
-   * Queries used to verify sorting algorithms in integration tests.
-   * If provided, integration tests will run sorting checks for both an empty query and each of these queries.
-   * 
-   * @important This should only be populated if the entity supports at least one sortable option.
+   * Queries used to verify search, pagination, and sorting in integration tests.
    */
-  readonly defaultSortingTestQueries?: string[];
+  readonly defaultTestQueries: string[];
+
+  /**
+   * IDs of items used to verify the getDetails implementation.
+   */
+  readonly testDetailsIds: string[];
 
   /**
    * Search for items within the entity.

@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { registry } from '@/providers';
 import { SortDirection } from '@/search/schemas';
-import { expectSorted } from './test-utils';
+import { 
+  expectSorted, 
+  expectDistinctPages 
+} from './test-utils';
 
 /**
  * Generic Database Provider Integration Tests (Live API)
  * 
- * Automatically tests common functionality (like sorting) for all 
- * registered entities that provide `defaultSortingTestQueries` or filters.
+ * Automatically tests common functionality for all registered entities 
+ * that provide configuration for sorting, filters, pagination, or details.
  */
 describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { timeout: 15000 }, () => {
   const providers = registry.getAllProviders();
@@ -19,11 +22,11 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
           const sortableOptions = entity.sortOptions.filter(opt => !!opt.extractValue && opt.id !== 'relevance');
           const searchOptions = entity.searchOptions || [];
           const filters = entity.filters || [];
+          const allFilters = [...searchOptions, ...filters];
 
           it('should have a valid configuration', () => {
-            if (entity.defaultSortingTestQueries && entity.defaultSortingTestQueries.length > 0) {
-              expect(sortableOptions.length, `Entity "${entity.id}" provides defaultSortingTestQueries but has no sortable options.`).toBeGreaterThan(0);
-            }
+            expect(entity.defaultTestQueries.length, `Entity "${entity.id}" must provide at least one defaultTestQuery.`).toBeGreaterThan(0);
+            expect(entity.testDetailsIds.length, `Entity "${entity.id}" must provide at least one testDetailsId.`).toBeGreaterThan(0);
           });
 
           describe.runIf(sortableOptions.length > 0)('Sorting', () => {
@@ -31,7 +34,7 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
               describe(`Sort Option: ${sortOpt.label} (${sortOpt.id})`, () => {
                 const isReversible = !!sortOpt.defaultDirection && !sortOpt.isDirectionFixed;
                 const defaultDir = sortOpt.defaultDirection ?? SortDirection.DESC;
-                const queries = ['', ...(entity.defaultSortingTestQueries || [])];
+                const queries = ['', ...entity.defaultTestQueries];
 
                 it.each(queries)('should sort correctly for query "%s"', async (query) => {
                   const res = await entity.search({
@@ -65,12 +68,11 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
             }
           });
 
-          const allFilters = [...searchOptions, ...filters];
           describe.runIf(allFilters.length > 0)('Filters', () => {
             allFilters.forEach(filter => {
               describe(`Filter: ${filter.label} (${filter.id})`, () => {
                 filter.testCases.forEach((testCase: any) => {
-                  const { value, query, match } = testCase;
+                  const { value, query } = testCase;
                   it(`should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`, async () => {
                     const res = await entity.search({
                       query,
@@ -93,6 +95,51 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
                   });
                 });
               });
+            });
+          });
+
+          describe('Pagination', () => {
+            const max_nb_queries = 5;
+            const queries = ['', ...entity.defaultTestQueries];
+            
+            it.each(queries)('should verify pagination for query "%s"', async (query) => {
+              const p1 = await entity.search({ query, filters: {}, limit: max_nb_queries, page: 1 });
+              const p2 = await entity.search({ query, filters: {}, limit: max_nb_queries, page: 2 });
+              
+              const hasTwoPages = p1.raw?.length === max_nb_queries && (p2.raw?.length ?? 0) > 0;
+              
+              expect(hasTwoPages, `Pagination test for query "${query}" failed: must return at least 2 pages (limit: ${max_nb_queries})`).toBe(true);
+              expectDistinctPages(p1.raw!, p2.raw!);
+            });
+          });
+
+          describe('Details Fetching', () => {
+            it.each(entity.testDetailsIds)(`should fetch valid transformed details for ID %s`, async (testId) => {
+              const details = await entity.getDetails(testId);
+
+              // Basic Identity
+              expect(details).toBeDefined();
+              expect(details.identity.dbId).toBe(testId);
+              expect(details.identity.databaseId).toBe(provider.id);
+              expect(details.identity.entityId).toBe(entity.id);
+              expect(details.title, 'Details missing title').toBeTruthy();
+              
+              // Transformation Quality
+              if (details.description) {
+                expect(details.description.length, 'Description is too short').toBeGreaterThan(20);
+              }
+              
+              // Metadata presence (either tags or related entities)
+              const hasTags = !!details.tags && details.tags.length > 0;
+              const hasRelated = !!details.relatedEntities && details.relatedEntities.length > 0;
+              const hasUrls = !!details.urls && details.urls.length > 0;
+              
+              expect(hasTags || hasRelated || hasUrls, 'Details yielded zero enrichment data (tags, relatedEntities, or urls)').toBe(true);
+
+              // Image resolution (if applicable)
+              if (details.images && details.images.length > 0) {
+                expect(details.images[0].type).toBeTruthy();
+              }
             });
           });
         });

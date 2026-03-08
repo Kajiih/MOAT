@@ -70,8 +70,10 @@ describe('Database V2 Design', () => {
         label: 'Failing Provider',
         entities: [],
         status: ProviderStatus.IDLE,
-        initialize: async () => { throw new Error('Auth failed'); }
-      };
+        initialize: async () => { throw new Error('Auth failed'); },
+        defaultTestQueries: [], // Added to satisfy interface
+        testDetailsIds: []      // Added to satisfy interface
+      } as any;
 
       // Create a working provider
       const workingProvider: DatabaseProvider = {
@@ -79,8 +81,10 @@ describe('Database V2 Design', () => {
         label: 'Working Provider',
         entities: [],
         status: ProviderStatus.IDLE,
-        initialize: async () => {} // success
-      };
+        initialize: async () => {}, // success
+        defaultTestQueries: [], // Added to satisfy interface
+        testDetailsIds: []      // Added to satisfy interface
+      } as any;
 
       await expect(registry.register(failingProvider)).rejects.toThrow('Auth failed');
 
@@ -114,8 +118,10 @@ describe('Database V2 Design', () => {
         initialize: async () => {
           await new Promise(r => setTimeout(r, 50));
           slowDone = true;
-        }
-      };
+        },
+        defaultTestQueries: [],
+        testDetailsIds: []
+      } as any;
 
       const fastProvider: DatabaseProvider = {
         id: 'fast',
@@ -125,8 +131,10 @@ describe('Database V2 Design', () => {
         initialize: async () => {
           await new Promise(r => setTimeout(r, 10));
           fastDone = true;
-        }
-      };
+        },
+        defaultTestQueries: [],
+        testDetailsIds: []
+      } as any;
 
       // Start slow registration
       const p1 = registry.register(slowProvider);
