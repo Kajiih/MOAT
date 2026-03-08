@@ -263,8 +263,9 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
 
   public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
     try {
-      const game = await this.provider.fetchRawg<RAWGGame>(`/games/${dbId}`, {}, { signal: options?.signal });
-
+      const rawData = await this.provider.fetchRawg<unknown>(`/games/${dbId}`, {}, { signal: options?.signal });
+      const game = RAWGGameSchema.parse(rawData);
+      
       const tags = [
         ...(game.genres?.map(g => g.name) ?? []),
         ...(game.tags?.filter(t => t.language === 'eng').map(t => t.name) ?? []).slice(0, 10),
@@ -397,7 +398,9 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
 
   public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
     try {
-      const dev = await this.provider.fetchRawg<RAWGDeveloper>(`/developers/${dbId}`, {}, { signal: options?.signal });
+      const rawData = await this.provider.fetchRawg<unknown>(`/developers/${dbId}`, {}, { signal: options?.signal });
+      const dev = RAWGDeveloperSchema.parse(rawData);
+      
       const item = mapDeveloperToItem(dev, this.provider.id);
 
       const details: ItemDetails = {
