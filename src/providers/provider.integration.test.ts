@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { registry } from '@/providers';
+import { ProviderStatus } from '@/providers/types';
 import {
   SortDirection,
   FilterTestCase,
@@ -20,6 +21,30 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
 
   for (const provider of providers) {
     describe(`Provider: ${provider.label} (${provider.id})`, () => {
+      
+      describe('Lifecycle & Capabilities', () => {
+        it('should have successfully initialized', () => {
+          expect(provider.status, `Provider ${provider.id} failed to initialize.`).toBe(ProviderStatus.READY);
+        });
+
+        describe('Image Resolution', () => {
+          it('should expose the mandatory resolveImage method and testImageKeys array', () => {
+            expect(typeof provider.resolveImage, `Provider ${provider.id} must implement resolveImage.`).toBe('function');
+            expect(Array.isArray(provider.testImageKeys), `Provider ${provider.id} must define a testImageKeys array.`).toBe(true);
+          });
+
+          const keys = provider.testImageKeys || [];
+          if (keys.length > 0) {
+            it.each(keys)('should resolve test image key "%s" to a valid URL', async (key) => {
+              const url = await provider.resolveImage(key);
+              expect(typeof url, `Resolving image key "${key}" should yield a URL string.`).toBe('string');
+              expect(url!.length, `Resolved URL for "${key}" is empty.`).toBeGreaterThan(10);
+              expect(url!.startsWith('http'), `Resolved URL for "${key}" must be an absolute internet address.`).toBe(true);
+            });
+          }
+        });
+      });
+
       for (const entity of provider.entities) {
         describe(`Entity: ${entity.branding.label} (${entity.id})`, () => {
           const sortableOptions = entity.sortOptions.filter(opt => !!opt.extractValue && opt.id !== 'relevance');

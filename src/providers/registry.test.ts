@@ -5,7 +5,7 @@ import { RAWGDatabase } from '@/providers/adapters/rawg/rawg';
 import { DatabaseErrorCode } from './errors';
 import { Gamepad2, Building2 } from 'lucide-react';
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/schemas';
-import { DatabaseEntity, DatabaseProvider, ProviderStatus } from '@/providers/types';
+import { DatabaseEntity, DatabaseProvider, ProviderStatus, nonEmpty } from '@/providers/types';
 import { registry, RegistryStatus } from './registry';
 import { SearchParamsSchema, SearchResult, SearchResultSchema, SortDirection } from '@/search/schemas';
 import { handleDatabaseError } from './utils';
@@ -25,8 +25,8 @@ const createMockEntity = (overrides: Partial<DatabaseEntity> = {}): DatabaseEnti
     { id: 'name', label: 'Name', defaultDirection: SortDirection.ASC, extractValue: (r: any) => r.name },
     { id: 'released', label: 'Released', defaultDirection: SortDirection.DESC, extractValue: (r: any) => r.released },
   ],
-  defaultTestQueries: ['query'],
-  testDetailsIds: [],
+  defaultTestQueries: nonEmpty('query'),
+  testDetailsIds: nonEmpty('test-id'),
   getInitialParams: (config: { limit: number }) => ({
     query: '',
     filters: {},
@@ -109,8 +109,8 @@ describe('Database V2 Design', () => {
         entities: [],
         status: ProviderStatus.IDLE,
         initialize: async () => { throw new Error('Auth failed'); },
-        defaultTestQueries: [],
-        testDetailsIds: []
+        testImageKeys: nonEmpty('test-key'),
+        resolveImage: async () => null,
       } as any;
 
       // Create a working provider
@@ -120,8 +120,8 @@ describe('Database V2 Design', () => {
         entities: [],
         status: ProviderStatus.IDLE,
         initialize: async () => {}, // success
-        defaultTestQueries: [],
-        testDetailsIds: []
+        testImageKeys: nonEmpty('test-key'),
+        resolveImage: async () => null,
       } as any;
 
       await expect(registry.register(failingProvider)).rejects.toThrow('Auth failed');
@@ -157,8 +157,8 @@ describe('Database V2 Design', () => {
           await new Promise(r => setTimeout(r, 50));
           slowDone = true;
         },
-        defaultTestQueries: [],
-        testDetailsIds: []
+        testImageKeys: nonEmpty('test-key'),
+        resolveImage: async () => null,
       } as any;
 
       const fastProvider: DatabaseProvider = {
@@ -170,8 +170,8 @@ describe('Database V2 Design', () => {
           await new Promise(r => setTimeout(r, 10));
           fastDone = true;
         },
-        defaultTestQueries: [],
-        testDetailsIds: []
+        testImageKeys: nonEmpty('test-key'),
+        resolveImage: async () => null,
       } as any;
 
       // Start slow registration

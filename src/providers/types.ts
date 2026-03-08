@@ -6,6 +6,19 @@ import { SearchParams, SearchResult } from '@/search/schemas';
 import { SortDefinition } from '@/search/schemas';
 
 /**
+ * A utility type for arrays that must contain at least one element.
+ */
+export type NonEmptyArray<T> = readonly [T, ...T[]];
+
+/**
+ * A type-inference utility that statically guarantees an array is not empty
+ * and satisfies the NonEmptyArray<T> contract without requiring explicit type annotations.
+ */
+export function nonEmpty<T>(first: T, ...rest: T[]): NonEmptyArray<T> {
+  return [first, ...rest];
+}
+
+/**
  * Possible states for an individual DatabaseProvider.
  */
 export enum ProviderStatus {
@@ -51,13 +64,15 @@ export interface DatabaseEntity<TRaw = any> {
 
   /**
    * Queries used to verify search, pagination, and sorting in integration tests.
+   * Statically enforced to contain at least one query.
    */
-  readonly defaultTestQueries: string[];
+  readonly defaultTestQueries: NonEmptyArray<string>;
 
   /**
    * IDs of items used to verify the getDetails implementation.
+   * Statically enforced to contain at least one ID.
    */
-  readonly testDetailsIds: string[];
+  readonly testDetailsIds: NonEmptyArray<string>;
 
   /** Returns the starting parameters for this entity's search. */
   readonly getInitialParams: (config: { limit: number }) => SearchParams;
@@ -109,9 +124,18 @@ export interface DatabaseProvider {
   initialize?: (fetcher: Fetcher) => Promise<void>; 
 
   /**
-   * Optional method to resolve reference image sources.
+   * Keys used to verify the resolveImage implementation in integration tests.
+   * If the provider supports image resolution, it must provide at least one valid key to test.
+   * Statically enforced to be non-empty.
+   */
+  readonly testImageKeys: NonEmptyArray<string>;
+
+  /**
+   * Method to resolve reference image sources.
+   * Must be implemented by all providers. If a provider does not support resolving images, 
+   * it should return `null`.
    * @param key The provider-specific reference key.
    * @returns The resolved image URL, or null if unresolvable.
    */
-  resolveImage?: (key: string) => Promise<string | null>;
+  resolveImage: (key: string) => Promise<string | null>;
 }

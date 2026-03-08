@@ -13,7 +13,7 @@ import { toCompositeId } from '@/items/schemas';
 import { referenceImage, urlImage } from '@/items/schemas';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/schemas';
 import { ProviderStatus } from '@/providers/types';
-import { DatabaseEntity, DatabaseProvider, Fetcher } from '@/providers/types';
+import { DatabaseEntity, DatabaseProvider, Fetcher, NonEmptyArray, nonEmpty } from '@/providers/types';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
 import { secureFetch } from '@/providers/api-client';
 
@@ -221,8 +221,8 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
     }),
   ];
 
-  public readonly defaultTestQueries = ["Baldur's Gate", 'Clair Obscur'];
-  public readonly testDetailsIds = [THE_WITCHER_3_ID, ELDEN_RING_ID];
+  public readonly defaultTestQueries = nonEmpty("Baldur's Gate", 'Clair Obscur');
+  public readonly testDetailsIds = nonEmpty(THE_WITCHER_3_ID, ELDEN_RING_ID);
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -354,8 +354,8 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
     rawgDevSorts.create({ id: 'relevance', label: 'Relevance' }),
   ];
 
-  public readonly defaultTestQueries = ['Ubisoft', 'Nintendo'];
-  public readonly testDetailsIds = [UBISOFT_ID, NINTENDO_ID];
+  public readonly defaultTestQueries = nonEmpty('Ubisoft', 'Nintendo');
+  public readonly testDetailsIds = nonEmpty(UBISOFT_ID, NINTENDO_ID);
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -415,6 +415,19 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
 
   public initialize = async (fetcher: Fetcher) => {
     this.fetcher = fetcher;
+  };
+
+  public readonly testImageKeys = nonEmpty('3328'); // The Witcher 3 ID
+
+  public resolveImage = async (key: string): Promise<string | null> => {
+    try {
+      // While RAWG provides absolute URLs immediately in search results,
+      // we can implement resolveImage to fetch a game's main image by its ID or slug.
+      const game = await this.fetchRawg<{ background_image: string | null }>(`/games/${key}`);
+      return game.background_image || null;
+    } catch (e) {
+      return null;
+    }
   };
 
   /**
