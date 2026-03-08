@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { vi, describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { registry } from '@/providers';
 import { ProviderStatus } from '@/providers/types';
 import {
@@ -18,10 +18,39 @@ import {
  */
 describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { timeout: 15000 }, () => {
   const providers = registry.getAllProviders();
+  const globalMetrics: Record<string, number> = {};
+
+  afterAll(() => {
+    console.log('\n======================================');
+    console.log('📡  INTEGRATION API METRICS (QUOTA) 📡');
+    console.log('======================================');
+    let total = 0;
+    Object.entries(globalMetrics).forEach(([providerId, calls]) => {
+      console.log(`- ${providerId.padEnd(15)}: ${calls} requests`);
+      total += calls;
+    });
+    console.log('--------------------------------------');
+    console.log(`- TOTAL          : ${total} requests`);
+    console.log('======================================\n');
+  });
 
   for (const provider of providers) {
     describe(`Provider: ${provider.label} (${provider.id})`, () => {
-      
+      let fetchSpy: ReturnType<typeof vi.spyOn>;
+
+      beforeAll(() => {
+        fetchSpy = vi.spyOn(global, 'fetch');
+        fetchSpy.mockClear();
+      });
+
+      afterAll(() => {
+        const fetchCalls = fetchSpy.mock.calls.length;
+        globalMetrics[provider.label] = fetchCalls;
+        // Hard limit to prevent Github Actions API billing exhaust loops
+        expect(fetchCalls, `Provider ${provider.id} exceeded the absolute integration test limit of 120 API calls per run.`).toBeLessThan(120);
+        fetchSpy.mockRestore();
+      });
+
       describe('Lifecycle & Capabilities', () => {
         it('should have successfully initialized', () => {
           expect(provider.status, `Provider ${provider.id} failed to initialize.`).toBe(ProviderStatus.READY);
