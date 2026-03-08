@@ -428,6 +428,7 @@ export class RAWGDatabaseProvider implements Provider {
   public readonly label = 'RAWG';
   public readonly icon = Gamepad2;
   public status: ProviderStatus = ProviderStatus.IDLE;
+  
   private fetcher: Fetcher = secureFetch as unknown as Fetcher;
 
   public initialize = async (fetcher: Fetcher) => {

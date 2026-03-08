@@ -16,7 +16,7 @@ import {
  * Automatically tests common functionality for all registered entities 
  * that provide configuration for sorting, filters, pagination, or details.
  */
-describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { timeout: 15000 }, () => {
+describe('Generic Provider Integration', { timeout: 15000 }, () => {
   const providers = registry.getAllProviders();
   const globalMetrics: Record<string, number> = {};
 

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest --exclude '**/*.integration.test.ts'",
-    "test:integration": "vitest '**/*.integration.test.ts'",
+    "test:integration": "vitest integration.test.ts",
     "test:all": "vitest"
   },
   "dependencies": {
