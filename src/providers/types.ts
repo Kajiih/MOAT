@@ -45,7 +45,7 @@ export interface DatabaseEntity<TRaw = any> {
   /** Filters available for searching this entity */
   readonly filters: FilterDefinition[];
   /** Search-specific options (e.g. "Precise Search") */
-  readonly searchOptions?: FilterDefinition[];
+  readonly searchOptions: FilterDefinition[];
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
 

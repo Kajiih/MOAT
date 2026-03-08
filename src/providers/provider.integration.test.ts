@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { registry } from '@/providers';
 import {
   SortDirection,
+  FilterTestCase,
 } from '@/search/schemas';
 import {
   expectSorted,
@@ -22,9 +23,7 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
       for (const entity of provider.entities) {
         describe(`Entity: ${entity.branding.label} (${entity.id})`, () => {
           const sortableOptions = entity.sortOptions.filter(opt => !!opt.extractValue && opt.id !== 'relevance');
-          const searchOptions = entity.searchOptions || [];
-          const filters = entity.filters || [];
-          const allFilters = [...searchOptions, ...filters];
+          const allFilters = [...entity.searchOptions, ...entity.filters];
 
           it('should have a valid configuration', () => {
             expect(entity.defaultTestQueries.length, `Entity "${entity.id}" must provide at least one defaultTestQuery.`).toBeGreaterThan(0);
@@ -73,8 +72,8 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
           describe.runIf(allFilters.length > 0)('Filters', () => {
             allFilters.forEach(filter => {
               describe(`Filter: ${filter.label} (${filter.id})`, () => {
-                filter.testCases.forEach((testCase: any) => {
-                  const { value, query } = testCase;
+                filter.testCases.forEach((testCase: FilterTestCase) => {
+                  const { value, query = '' } = testCase;
                   it(`should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`, async () => {
                     const res = await entity.search({
                       query,
