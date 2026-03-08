@@ -22,34 +22,44 @@ const RAWG_BASE_URL = 'https://api.rawg.io/api';
 /**
  * RAWG API Types (Internal to the provider)
  */
-export interface RAWGGame {
-  id: number;
-  slug: string;
-  name: string;
-  released?: string;
-  background_image?: string;
-  rating?: number;
-  ratings_count?: number;
-  metacritic?: number;
-  added?: number;
-  created?: string;
-  updated?: string;
-  platforms?: { platform: { id: number; name: string; slug: string } }[];
-  parent_platforms?: { platform: { id: number; name: string; slug: string } }[];
-  developers?: { id: number; name: string; slug: string }[];
-  description_raw?: string;
-  genres?: { name: string }[];
-  tags?: { name: string; language: string }[];
-}
+import { z } from 'zod';
 
-export interface RAWGDeveloper {
-  id: number;
-  name: string;
-  slug: string;
-  games_count: number;
-  image_background: string;
-  description?: string;
-}
+const RAWGPlatformSchema = z.object({ id: z.number(), name: z.string(), slug: z.string() });
+const RAWGNamedEntitySchema = z.object({ name: z.string() });
+const RAWGTaggableEntitySchema = z.object({ name: z.string(), language: z.string() });
+
+export const RAWGGameSchema = z.object({
+  id: z.number(),
+  slug: z.string(),
+  name: z.string(),
+  released: z.string().nullish(),
+  background_image: z.string().nullish(),
+  rating: z.number().nullish(),
+  ratings_count: z.number().nullish(),
+  metacritic: z.number().nullish(),
+  added: z.number().nullish(),
+  created: z.string().nullish(),
+  updated: z.string().nullish(),
+  platforms: z.array(z.object({ platform: RAWGPlatformSchema })).nullish(),
+  parent_platforms: z.array(z.object({ platform: RAWGPlatformSchema })).nullish(),
+  developers: z.array(RAWGPlatformSchema).nullish(),
+  description_raw: z.string().nullish(),
+  genres: z.array(RAWGNamedEntitySchema).nullish(),
+  tags: z.array(RAWGTaggableEntitySchema).nullish(),
+});
+
+export type RAWGGame = z.infer<typeof RAWGGameSchema>;
+
+export const RAWGDeveloperSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  games_count: z.number(),
+  image_background: z.string().nullish(),
+  description: z.string().nullish(),
+});
+
+export type RAWGDeveloper = z.infer<typeof RAWGDeveloperSchema>;
 
 interface RAWGListResponse<T> {
   count: number;
@@ -236,7 +246,7 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
   });
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<RAWGGame>> => {
-    return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', (game) => mapGameToItem(game, this.provider.id));
+    return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', RAWGGameSchema, (game) => mapGameToItem(game, this.provider.id));
   };
 
   public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
@@ -268,7 +278,7 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
       const item = mapGameToItem(game, this.provider.id);
       const details: ItemDetails = {
         ...item,
-        description: game.description_raw,
+        description: game.description_raw || undefined,
         tags,
         relatedEntities,
         urls: [{ type: 'rawg', url: `https://rawg.io/games/${game.slug}` }],
@@ -301,7 +311,7 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
     images,
     subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
     tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
-    rating: game.rating,
+    rating: game.rating || undefined,
   };
 
   if (game.metacritic) {
@@ -369,7 +379,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
   });
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<RAWGDeveloper>> => {
-    return this.provider.searchEntities<RAWGDeveloper>(params, this.searchOptions, '/developers', (dev) => mapDeveloperToItem(dev, this.provider.id));
+    return this.provider.searchEntities<RAWGDeveloper>(params, this.searchOptions, '/developers', RAWGDeveloperSchema, (dev) => mapDeveloperToItem(dev, this.provider.id));
   };
 
   public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
@@ -390,7 +400,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
 
       const details: ItemDetails = {
         ...item,
-        description: dev.description,
+        description: dev.description || undefined,
         tags: [], // RAWG Developer API does not provide tags directly
         relatedEntities: [], // RAWG Developer API does not provide related entities directly
         urls: [{ type: 'rawg', url: `https://rawg.io/developers/${dev.slug}` }],
@@ -437,6 +447,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
     params: SearchParams,
     searchOptions: FilterDefinition<any, T>[],
     endpoint: string,
+    schema: z.ZodType<T>,
     mapper: (raw: T) => Item
   ): Promise<SearchResult<T>> {
     try {
@@ -455,15 +466,16 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
         apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
       }
 
-      const data = await this.fetchRawg<RAWGListResponse<T>>(endpoint, apiParams, { signal: params.signal });
-      const items = data.results.map(mapper);
+      const data = await this.fetchRawg<RAWGListResponse<unknown>>(endpoint, apiParams, { signal: params.signal });
+      const parsedResults = z.array(schema).parse(data.results);
+      const items = parsedResults.map(mapper);
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
 
       const result = SearchResultSchema.parse({
         items,
-        raw: data.results,
+        raw: parsedResults,
         pagination: {
           currentPage,
           totalPages,
