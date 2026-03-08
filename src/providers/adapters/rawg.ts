@@ -5,17 +5,16 @@
 
 import { Building2, Gamepad2 } from 'lucide-react';
 
-import { applyFilters, handleProviderError } from '@/providers/utils';
-import { createSortSuite, SortDirection } from '@/search/schemas';
-import { FilterDefinition } from '@/search/schemas';
-
 import { toCompositeId } from '@/items/schemas';
 import { referenceImage, urlImage } from '@/items/schemas';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/schemas';
-import { ProviderStatus } from '@/providers/types';
-import { Entity, Provider, Fetcher, NonEmptyArray, nonEmpty } from '@/providers/types';
-import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
 import { secureFetch } from '@/providers/api-client';
+import { ProviderStatus } from '@/providers/types';
+import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
+import { applyFilters, handleProviderError } from '@/providers/utils';
+import { createSortSuite, SortDirection } from '@/search/schemas';
+import { AnyFilterDefinition } from '@/search/schemas';
+import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
@@ -75,7 +74,7 @@ const rawgGameSorts = createSortSuite<RAWGGame>();
 const THE_WITCHER_3_ID = '3328';
 const ELDEN_RING_ID = '326243';
 
-const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
+const GAME_SEARCH_OPTIONS: AnyFilterDefinition<RAWGGame>[] = [
   rawgGameFilters.boolean({
     id: 'precise',
     label: 'Precise Search',
@@ -86,7 +85,7 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
       { 
         value: true, 
         query: 'The Watcher 3',
-        verifyResults: (items) => {
+        verifyResults: (items: RAWGGame[]) => {
           const ids = items.map(i => i.id.toString());
           // Precise: true should NOT return Witcher 3 for typo "The Watcher 3"
           if (ids.includes(THE_WITCHER_3_ID)) {
@@ -97,7 +96,7 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
       { 
         value: false,
         query: 'The Watcher 3',
-        verifyResults: (items) => {
+        verifyResults: (items: RAWGGame[]) => {
           const ids = items.map(i => i.id.toString());
           // Precise: false SHOULD return Witcher 3
           if (!ids.includes(THE_WITCHER_3_ID)) {
@@ -108,7 +107,7 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
       {
         value: true,
         query: 'Elder Ring',
-        verifyResults: (items) => {
+        verifyResults: (items: RAWGGame[]) => {
           const ids = items.map(i => i.id.toString());
           // Elden Ring
           if (ids.includes(ELDEN_RING_ID)) {
@@ -119,7 +118,7 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
       {
         value: false,
         query: 'Elder Ring',
-        verifyResults: (items) => {
+        verifyResults: (items: RAWGGame[]) => {
           const ids = items.map(i => i.id.toString());
           if (!ids.includes(ELDEN_RING_ID)) {
             throw new Error(`Did NOT find Elden Ring (${ELDEN_RING_ID}) in fuzzy results for typo "Elder Ring"`);
@@ -130,14 +129,14 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
   }),
 ];
 
-const GAME_FILTERS: FilterDefinition<any, RAWGGame>[] = [
+const GAME_FILTERS: AnyFilterDefinition<RAWGGame>[] = [
   rawgGameFilters.range({
     id: 'yearRange',
     label: 'Release Year',
     minPlaceholder: 'From YYYY',
     maxPlaceholder: 'To YYYY',
     mapTo: 'dates',
-    transform: (val) => {
+    transform: (val: { min?: string; max?: string }) => {
       if (!val.min && !val.max) return;
       const start = val.min ? `${val.min}-01-01` : '1970-01-01';
       const end = val.max ? `${val.max}-12-31` : '2030-12-31';
@@ -146,9 +145,9 @@ const GAME_FILTERS: FilterDefinition<any, RAWGGame>[] = [
     testCases: [
       { 
         value: { min: '2020', max: '2022' }, 
-        match: (item) => {
+        match: (item: RAWGGame) => {
           if (!item.released) return false;
-          const year = parseInt(item.released.split('-')[0]);
+          const year = Number.parseInt(item.released.split('-')[0]);
           return year >= 2020 && year <= 2022;
         }
       }
@@ -168,7 +167,7 @@ const GAME_FILTERS: FilterDefinition<any, RAWGGame>[] = [
     testCases: [
       {
         value: '7', // Switch
-        match: (item) => item.platforms?.some(p => p.platform.id === 7) ?? false
+        match: (item: RAWGGame) => item.platforms?.some((p: { platform: { id: number } }) => p.platform.id === 7) ?? false
       }
     ]
   })
@@ -197,37 +196,37 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
       id: 'rating', 
       label: 'Rating (Highest)', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw) => raw.rating ?? 0
+      extractValue: (raw: RAWGGame) => raw.rating ?? 0
     }),
     rawgGameSorts.create({ 
       id: 'released', 
       label: 'Release Date', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw) => raw.released ?? ''
+      extractValue: (raw: RAWGGame) => raw.released ?? ''
     }),
     rawgGameSorts.create({ 
       id: 'added', 
       label: 'Popularity (Added count)', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw) => raw.added ?? 0
+      extractValue: (raw: RAWGGame) => raw.added ?? 0
     }),
     rawgGameSorts.create({ 
       id: 'created', 
       label: 'Creation Date', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw) => raw.created ?? ''
+      extractValue: (raw: RAWGGame) => raw.created ?? ''
     }),
     rawgGameSorts.create({ 
       id: 'updated', 
       label: 'Update Date', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw) => raw.updated ?? ''
+      extractValue: (raw: RAWGGame) => raw.updated ?? ''
     }),
     rawgGameSorts.create({ 
       id: 'metacritic', 
       label: 'Metacritic Score', 
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw) => raw.metacritic ?? 0
+      extractValue: (raw: RAWGGame) => raw.metacritic ?? 0
     }),
   ];
 
@@ -247,7 +246,7 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
   });
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<RAWGGame>> => {
-    return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', RAWGGameSchema, (game) => mapGameToItem(game, this.provider.id));
+    return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', RAWGGameSchema, (game: RAWGGame) => mapGameToItem(game, this.provider.id));
   };
 
   public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
@@ -295,8 +294,9 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
 
 /**
  * Maps a RAWG Game API response to our internal Item model.
- * @param game
- * @param databaseId
+ * @param game - The raw game object from the RAWG API.
+ * @param databaseId - The provider ID this item belongs to.
+ * @returns The standardized application Item representation.
  */
 function mapGameToItem(game: RAWGGame, databaseId: string): Item {
   const identity = { dbId: game.id.toString(), databaseId, entityId: 'game' };
@@ -329,6 +329,9 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
 
 /**
  * Maps a RAWG Developer API object to our internal Item format.
+ * @param dev - The raw developer object from the RAWG API.
+ * @param databaseId - The provider ID this item belongs to.
+ * @returns The standardized application Item representation.
  */
 function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
   const item: Item = {
@@ -360,8 +363,8 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     icon: Building2,
     colorClass: 'text-blue-400',
   };
-  public readonly searchOptions: FilterDefinition<any, RAWGDeveloper>[] = [];
-  public readonly filters: FilterDefinition<any, RAWGDeveloper>[] = [];
+  public readonly searchOptions: AnyFilterDefinition<RAWGDeveloper>[] = [];
+  public readonly filters: AnyFilterDefinition<RAWGDeveloper>[] = [];
   public readonly sortOptions = [
     rawgDevSorts.create({ id: 'relevance', label: 'Relevance' }),
   ];
@@ -440,17 +443,23 @@ export class RAWGDatabaseProvider implements Provider {
       // we can implement resolveImage to fetch a game's main image by its ID or slug.
       const game = await this.fetchRawg<{ background_image: string | null }>(`/games/${key}`);
       return game.background_image || null;
-    } catch (e) {
+    } catch {
       return null;
     }
   };
 
   /**
    * Generic helper to search for entities of any type
+   * @param params - The unified SearchParams from the client.
+   * @param searchOptions - The list of AnyFilterDefinition available for the query build.
+   * @param endpoint - The specific relative RAWG endpoint (e.g. '/games').
+   * @param schema - The Zod schema to strictly parse the incoming RAWG array payload.
+   * @param mapper - The function that maps RAWG entity types into our internal Item representation.
+   * @returns A Promise resolving to the generic SearchResult matching the internal application contract.
    */
   public async searchEntities<T extends { id: number | string }>(
     params: SearchParams,
-    searchOptions: FilterDefinition<any, T>[],
+    searchOptions: AnyFilterDefinition<T>[],
     endpoint: string,
     schema: z.ZodType<T>,
     mapper: (raw: T) => Item
@@ -473,7 +482,7 @@ export class RAWGDatabaseProvider implements Provider {
 
       const data = await this.fetchRawg<RAWGListResponse<unknown>>(endpoint, apiParams, { signal: params.signal });
       const parsedResults = z.array(schema).parse(data.results);
-      const items = parsedResults.map(mapper);
+      const items = parsedResults.map(item => mapper(item));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
@@ -501,7 +510,7 @@ export class RAWGDatabaseProvider implements Provider {
    * @param endpoint - The API endpoint to fetch from.
    * @param params - The query parameters.
    * @param options - Optional fetch options (e.g., abort signal).
-   * @param options.signal
+   * @param options.signal - The abort signal for cancellation.
    * @returns The parsed JSON response.
    */
   public async fetchRawg<T>(

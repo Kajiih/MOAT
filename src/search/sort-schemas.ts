@@ -22,7 +22,7 @@ export const SortDefinitionSchema = z.object({
   isDirectionFixed: z.boolean().optional(),
 });
 
-export interface SortDefinition<TRaw = any> extends z.infer<typeof SortDefinitionSchema> {
+export interface SortDefinition<TRaw = unknown> extends z.infer<typeof SortDefinitionSchema> {
   /** 
    * Extract the raw value for comparison in integration tests.
    * If not provided, the sort will not be tested.

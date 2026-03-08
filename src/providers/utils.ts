@@ -6,8 +6,9 @@
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
+import { type AnyFilterDefinition } from '@/search/schemas';
+
 import { ProviderError, ProviderErrorCode } from './errors';
-import { BaseFilterDefinition } from '@/search/schemas';
 
 /**
  * Wraps any error into a standardized ProviderError.
@@ -16,7 +17,9 @@ import { BaseFilterDefinition } from '@/search/schemas';
  * @returns A standardized ProviderError.
  */
 export function handleProviderError(error: unknown, databaseId: string): ProviderError {
-  if (error instanceof ProviderError) return error;
+  if (error instanceof ProviderError) {
+    return error;
+  }
 
   // 1. Handle Zod Validation Errors
   if (error instanceof z.ZodError) {
@@ -29,18 +32,17 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
     );
   }
 
-  // 2. Handle Abort / Timeout errors
+  // 2. Handle Abort / Timeout errors natively
   if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
     return new ProviderError(ProviderErrorCode.TIMEOUT, 'The request timed out or was aborted', error, databaseId);
   }
 
+  // Helper to safely extract properties from unknown errors without messy casting
+  const isObject = (e: unknown): e is Record<string, unknown> => typeof e === 'object' && e !== null;
+
   // 3. Handle API Errors via status codes
-  const status = typeof error === 'object' && error !== null && 'status' in error 
-    ? (error as { status: unknown }).status 
-    : undefined;
-  
-  if (typeof status === 'number') {
-    switch (status) {
+  if (isObject(error) && typeof error.status === 'number') {
+    switch (error.status) {
       case 401:
       case 403: {
         return new ProviderError(ProviderErrorCode.AUTH_ERROR, 'Authentication failed or API key invalid', error, databaseId);
@@ -52,7 +54,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
         return new ProviderError(ProviderErrorCode.RATE_LIMIT, 'Rate limit exceeded for this provider', error, databaseId);
       }
       default: {
-        if (status >= 500) {
+        if (error.status >= 500) {
           return new ProviderError(ProviderErrorCode.SERVICE_UNAVAILABLE, 'External service is currently unavailable', error, databaseId);
         }
       }
@@ -60,9 +62,12 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
   }
 
   // 4. Generic fallback
-  const message = (error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string') 
-    ? (error as { message: string }).message 
-    : 'An unexpected error occurred in the provider layer';
+  const message = error instanceof Error 
+    ? error.message 
+    : isObject(error) && typeof error.message === 'string'
+      ? error.message
+      : 'An unexpected error occurred in the provider layer';
+
   return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, databaseId);
 }
 
@@ -72,10 +77,10 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
  * @param filterValues - The current filter values from SearchParams.
  * @param definitions - The list of FilterDefinitions for the entity.
  */
-export function applyFilters(
+export function applyFilters<TRaw>(
   apiParams: Record<string, string>,
   filterValues: Record<string, unknown> | undefined,
-  definitions: BaseFilterDefinition<any, any>[]
+  definitions: AnyFilterDefinition<TRaw>[]
 ): void {
   const values = filterValues || {};
   for (const def of definitions) {
@@ -88,7 +93,7 @@ export function applyFilters(
     if (value === undefined || value === null || value === '') continue;
 
     if (def.transform) {
-      const transformed = def.transform(value);
+      const transformed = (def.transform as (v: unknown) => unknown)(value);
       
       // If transform returns an object, we merge it into apiParams (for complex mappings)
       if (typeof transformed === 'object' && transformed !== null) {

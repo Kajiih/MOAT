@@ -24,7 +24,7 @@ export const FilterOptionSchema = z.object({
   label: z.string(),
   value: z.union([z.string(), z.number()]),
   // LucideIcon cannot be easily validated with Zod as it's a component
-  icon: z.any().optional(), 
+  icon: z.unknown().optional(), 
 });
 
 export type FilterOption = z.infer<typeof FilterOptionSchema>;
@@ -33,7 +33,7 @@ export type FilterOption = z.infer<typeof FilterOptionSchema>;
  * A single test case for verifying a filter's behavior in integration tests.
  * Each test case specifies a filter value and optionally a query and verification logic.
  */
-export interface FilterTestCase<TValue = any, TRaw = any> {
+export interface FilterTestCase<TValue = unknown, TRaw = unknown> {
   /** Optional query to use with this filter test case */
   query?: string;
   /** The value to apply to the filter in the UI/search state */
@@ -57,7 +57,7 @@ export interface FilterTestCase<TValue = any, TRaw = any> {
 /**
  * Definition for a filter that the UI should render.
  */
-export interface BaseFilterDefinition<TValue = any, TTransformed = any, TRaw = any> {
+export interface BaseFilterDefinition<TValue = unknown, TTransformed = unknown, TRaw = unknown> {
   /** Unique ID for the filter (used as key in internal state) */
   id: string;
   /** Human readable label for the UI */
@@ -83,35 +83,35 @@ export interface BaseFilterDefinition<TValue = any, TTransformed = any, TRaw = a
   testCases: FilterTestCase<TValue, TRaw>[];
 }
 
-export interface TextFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string, TTransformed, TRaw> {
+export interface TextFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<string, TTransformed, TRaw> {
   type: 'text';
   /** Placeholder text for the input */
   placeholder?: string;
 }
 
-export interface NumberFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<number, TTransformed, TRaw> {
+export interface NumberFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<number, TTransformed, TRaw> {
   type: 'number';
   /** Placeholder text for the input */
   placeholder?: string;
 }
 
-export interface BooleanFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<boolean, TTransformed, TRaw> {
+export interface BooleanFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<boolean, TTransformed, TRaw> {
   type: 'boolean';
 }
 
-export interface SelectFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string, TTransformed, TRaw> {
+export interface SelectFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<string, TTransformed, TRaw> {
   type: 'select';
   /** Available options for selection-based inputs */
   options: FilterOption[];
 }
 
-export interface MultiSelectFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string[], TTransformed, TRaw> {
+export interface MultiSelectFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<string[], TTransformed, TRaw> {
   type: 'multiselect';
   /** Available options for selection-based inputs */
   options: FilterOption[];
 }
 
-export interface AsyncSelectFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string, TTransformed, TRaw> {
+export interface AsyncSelectFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<string, TTransformed, TRaw> {
   type: 'async-select';
   /** 
    * Specifies the ID of the entity within the SAME provider to search against.
@@ -120,7 +120,7 @@ export interface AsyncSelectFilterDefinition<TTransformed = any, TRaw = any> ext
   targetEntityId: string;
 }
 
-export interface AsyncMultiSelectFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string[], TTransformed, TRaw> {
+export interface AsyncMultiSelectFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<string[], TTransformed, TRaw> {
   type: 'async-multiselect';
   /** 
    * Specifies the ID of the entity within the SAME provider to search against.
@@ -129,7 +129,7 @@ export interface AsyncMultiSelectFilterDefinition<TTransformed = any, TRaw = any
   targetEntityId: string;
 }
 
-export interface RangeFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<{ min?: string; max?: string }, TTransformed, TRaw> {
+export interface RangeFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<{ min?: string; max?: string }, TTransformed, TRaw> {
   type: 'range';
   /** Optional placeholder for the minimum input field */
   minPlaceholder?: string;
@@ -137,7 +137,7 @@ export interface RangeFilterDefinition<TTransformed = any, TRaw = any> extends B
   maxPlaceholder?: string;
 }
 
-export interface DateFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string, TTransformed, TRaw> {
+export interface DateFilterDefinition<TTransformed = unknown, TRaw = unknown> extends BaseFilterDefinition<string, TTransformed, TRaw> {
   type: 'date';
   /** Placeholder text for the input */
   placeholder?: string;
@@ -148,7 +148,7 @@ export interface DateFilterDefinition<TTransformed = any, TRaw = any> extends Ba
  * By removing `TValue = any` here, consumers are forced to match the intrinsic
  * payload type (`string`, `string[]`, or `{min, max}`) based purely on the `type` tag.
  */
-export type FilterDefinition<TTransformed = any, TRaw = any> = 
+export type FilterDefinition<TTransformed = unknown, TRaw = unknown> = 
   | TextFilterDefinition<TTransformed, TRaw>
   | NumberFilterDefinition<TTransformed, TRaw>
   | BooleanFilterDefinition<TTransformed, TRaw>
@@ -160,6 +160,13 @@ export type FilterDefinition<TTransformed = any, TRaw = any> =
   | DateFilterDefinition<TTransformed, TRaw>;
 
 /**
+ * An array of filter definitions that abstracts away the specific transformation types,
+ * used when collecting heterogenous filters (e.g. text, range, boolean) into a single API options list.
+ */
+
+export type AnyFilterDefinition<TRaw = unknown> = FilterDefinition<unknown, TRaw>;
+
+/**
  * Creates a suite of filter building functions that are statically bound
  * to the generic type `TRaw` of the expected Provider responses.
  * 
@@ -167,55 +174,55 @@ export type FilterDefinition<TTransformed = any, TRaw = any> =
  */
 export function createFilterSuite<TRaw>() {
   return {
-    text: <TTransformed = any>(
+    text: <TTransformed = unknown>(
       config: Omit<TextFilterDefinition<TTransformed, TRaw>, 'type'>
     ): TextFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'text' };
     },
 
-    number: <TTransformed = any>(
+    number: <TTransformed = unknown>(
       config: Omit<NumberFilterDefinition<TTransformed, TRaw>, 'type'>
     ): NumberFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'number' };
     },
 
-    boolean: <TTransformed = any>(
+    boolean: <TTransformed = unknown>(
       config: Omit<BooleanFilterDefinition<TTransformed, TRaw>, 'type'>
     ): BooleanFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'boolean' };
     },
 
-    select: <TTransformed = any>(
+    select: <TTransformed = unknown>(
       config: Omit<SelectFilterDefinition<TTransformed, TRaw>, 'type'>
     ): SelectFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'select' };
     },
 
-    multiselect: <TTransformed = any>(
+    multiselect: <TTransformed = unknown>(
       config: Omit<MultiSelectFilterDefinition<TTransformed, TRaw>, 'type'>
     ): MultiSelectFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'multiselect' };
     },
 
-    asyncSelect: <TTransformed = any>(
+    asyncSelect: <TTransformed = unknown>(
       config: Omit<AsyncSelectFilterDefinition<TTransformed, TRaw>, 'type'>
     ): AsyncSelectFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'async-select' };
     },
 
-    asyncMultiselect: <TTransformed = any>(
+    asyncMultiselect: <TTransformed = unknown>(
       config: Omit<AsyncMultiSelectFilterDefinition<TTransformed, TRaw>, 'type'>
     ): AsyncMultiSelectFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'async-multiselect' };
     },
 
-    range: <TTransformed = any>(
+    range: <TTransformed = unknown>(
       config: Omit<RangeFilterDefinition<TTransformed, TRaw>, 'type'>
     ): RangeFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'range' };
     },
 
-    date: <TTransformed = any>(
+    date: <TTransformed = unknown>(
       config: Omit<DateFilterDefinition<TTransformed, TRaw>, 'type'>
     ): DateFilterDefinition<TTransformed, TRaw> => {
       return { ...config, type: 'date' };
