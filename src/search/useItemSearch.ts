@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import { PaginationStrategy, SearchParams, SearchResult } from '@/search/schemas';
+import { SearchParams, SearchResult } from '@/search/schemas';
 
 /**
  * Hook configuration options.
@@ -29,10 +29,10 @@ interface UseDatabaseSearchOptions {
  * @param options - Additional hook settings.
  * @returns An object containing search results, pagination info, and status flags.
  */
-export function useItemSearch<S extends PaginationStrategy>(
+export function useItemSearch(
   providerId: string | undefined,
   entityId: string | undefined,
-  params: SearchParams<S>,
+  params: SearchParams,
   options: UseDatabaseSearchOptions = {}
 ) {
   const { enabled = true, debounceMs = 300, keepPreviousData = true } = options;
@@ -58,7 +58,7 @@ export function useItemSearch<S extends PaginationStrategy>(
   }, [enabled, providerId, entityId, debouncedParams]);
 
   // 3. Define the fetcher that correctly delegates to our V2 API Proxy
-  const fetcher = async (key: string[], opts?: { signal?: AbortSignal }): Promise<SearchResult<unknown, S>> => {
+  const fetcher = async (key: string[], opts?: { signal?: AbortSignal }): Promise<SearchResult> => {
     if (!providerId || !entityId) {
       throw new Error('Provider ID and Entity ID are required');
     }
@@ -98,7 +98,7 @@ export function useItemSearch<S extends PaginationStrategy>(
   };
 
   // 4. Use SWR for fetching and caching
-  const { data, error, isLoading, isValidating, mutate } = useSWR<SearchResult<any, S>>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<SearchResult>(
     cacheKey,
     fetcher,
     {

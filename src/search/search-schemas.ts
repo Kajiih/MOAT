@@ -3,11 +3,6 @@ import { ItemSchema } from '@/items/schemas';
 import { SortDirection } from './sort-schemas';
 
 /**
- * Pagination Strategies
- */
-export type PaginationStrategy = 'page' | 'cursor' | 'offset';
-
-/**
  * Base pagination contract. The UI only needs this to decide
  * whether to show a "Load More" button or pagination controls.
  */
@@ -67,15 +62,6 @@ export const OffsetPaginationSchema = z.object({
 export const PaginationInfoSchema = z.union([PagePaginationSchema, CursorPaginationSchema, OffsetPaginationSchema]);
 
 /**
- * Mapping between strategy identifier and its specific pagination metadata type.
- */
-export type PaginationType<S extends PaginationStrategy> = 
-  S extends 'page' ? PagePagination :
-  S extends 'cursor' ? CursorPagination :
-  S extends 'offset' ? OffsetPagination :
-  PaginationInfo;
-
-/**
  * Standardized search response from any entity.
  */
 export const SearchResultSchema = z.object({
@@ -90,13 +76,12 @@ export const SearchResultSchema = z.object({
 /**
  * Interface representing a search result.
  * @template TRaw - The type of the raw API objects.
- * @template S - The pagination strategy.
  */
-export interface SearchResult<TRaw = unknown, S extends PaginationStrategy = PaginationStrategy> {
+export interface SearchResult<TRaw = unknown> {
   /** List of mapped items */
   items: z.infer<typeof ItemSchema>[];
-  /** Pagination metadata specific to the strategy */
-  pagination: PaginationType<S>;
+  /** Pagination metadata */
+  pagination: PagePagination | CursorPagination | OffsetPagination | PaginationInfo;
   /** Original API objects for testing/specialized verification */
   raw: TRaw[];
 }
@@ -126,19 +111,17 @@ export const SearchParamsSchema = z.object({
 });
 
 /**
- * Generic SearchParams allows static enforcement of pagination fields (page, cursor, offset).
+ * Unified SearchParams for all entities.
+ * Specific entities will use the subset of fields relevant to them.
  */
-export type SearchParams<S extends PaginationStrategy = PaginationStrategy> = {
+export interface SearchParams {
   query: string;
   filters: Record<string, unknown>;
   sort?: string;
   sortDirection?: SortDirection;
   limit: number;
+  page?: number;
+  offset?: number;
+  cursor?: string;
   signal?: AbortSignal;
-} & (
-  S extends 'page' ? { page?: number } :
-  S extends 'cursor' ? { cursor?: string } :
-  S extends 'offset' ? { offset?: number } :
-  { page?: number; cursor?: string; offset?: number } // Default/Mixed fallback
-);
-
+}

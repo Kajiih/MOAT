@@ -6,11 +6,11 @@
 import { Building2, Gamepad2 } from 'lucide-react';
 
 import { applyFilters, handleDatabaseError } from '@/providers/utils';
-import { createSort,SortDirection } from '@/search/schemas';
+import { createSort, SortDirection } from '@/search/schemas';
 import { FilterDefinition } from '@/search/schemas';
 
 import { toCompositeId } from '@/items/schemas';
-import { referenceImage,urlImage } from '@/items/schemas';
+import { referenceImage, urlImage } from '@/items/schemas';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/schemas';
 import { ProviderStatus } from '@/providers/types';
 import { DatabaseEntity, DatabaseProvider, Fetcher } from '@/providers/types';
@@ -161,9 +161,8 @@ const GAME_FILTERS: FilterDefinition[] = [
   })
 ];
 
-export class RAWGGameEntity implements DatabaseEntity<RAWGGame, 'page'> {
+export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
   public readonly id = 'game';
-  public readonly paginationStrategy = 'page' as const;
   public readonly branding = {
     label: 'Video Game',
     labelPlural: 'Video Games',
@@ -224,33 +223,31 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame, 'page'> {
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
-  public getInitialParams(config: { limit: number }): SearchParams<'page'> {
-    return {
-      query: '',
-      filters: {},
-      sort: this.sortOptions[0]?.id,
-      sortDirection: this.sortOptions[0]?.defaultDirection,
-      limit: config.limit,
-      page: 1,
-    };
-  }
+  public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
+    query: '',
+    filters: {},
+    sort: this.sortOptions[0]?.id,
+    sortDirection: this.sortOptions[0]?.defaultDirection,
+    limit: config.limit,
+    page: 1,
+  });
 
-  public async search(params: SearchParams<'page'>): Promise<SearchResult<RAWGGame, 'page'>> {
+  public readonly search = async (params: SearchParams): Promise<SearchResult<RAWGGame>> => {
     return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', (game) => mapGameToItem(game, this.provider.id));
-  }
+  };
 
-  public getNextParams(params: SearchParams<'page'>, result: SearchResult<unknown, 'page'>): SearchParams<'page'> | null {
+  public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
     if (!result.pagination.hasNextPage) return null;
     return { ...params, page: (params.page || 1) + 1 };
-  }
+  };
 
-  public getPreviousParams(params: SearchParams<'page'>): SearchParams<'page'> | null {
+  public readonly getPreviousParams = (params: SearchParams): SearchParams | null => {
     const currentPage = params.page || 1;
     if (currentPage <= 1) return null;
     return { ...params, page: currentPage - 1 };
-  }
+  };
 
-  public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {
+  public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
     try {
       const game = await this.provider.fetchRawg<RAWGGame>(`/games/${dbId}`, {}, { signal: options?.signal });
 
@@ -278,7 +275,7 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame, 'page'> {
     } catch (error) {
       throw handleDatabaseError(error, this.provider.id);
     }
-  }
+  };
 }
 
 /**
@@ -338,7 +335,7 @@ function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
 const UBISOFT_ID = '405';
 const NINTENDO_ID = '11';
 
-export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper, 'page'> {
+export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
   public readonly id = 'developer';
   public readonly branding = {
     label: 'Developer',
@@ -346,45 +343,42 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper, 'page'
     icon: Building2,
     colorClass: 'text-blue-400',
   };
-  public readonly searchOptions = [];
-  public readonly filters = [];
+  public readonly searchOptions: FilterDefinition[] = [];
+  public readonly filters: FilterDefinition[] = [];
   public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
   ];
-  public readonly paginationStrategy = 'page';
 
   public readonly defaultTestQueries = ['Ubisoft', 'Nintendo'];
   public readonly testDetailsIds = [UBISOFT_ID, NINTENDO_ID];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
-  public getInitialParams(config: { limit: number }): SearchParams<'page'> {
-    return {
-      query: '',
-      filters: {},
-      sort: this.sortOptions[0]?.id,
-      sortDirection: this.sortOptions[0]?.defaultDirection,
-      limit: config.limit,
-      page: 1,
-    };
-  }
+  public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
+    query: '',
+    filters: {},
+    sort: this.sortOptions[0]?.id,
+    sortDirection: this.sortOptions[0]?.defaultDirection,
+    limit: config.limit,
+    page: 1,
+  });
 
-  public async search(params: SearchParams<'page'>): Promise<SearchResult<RAWGDeveloper, 'page'>> {
+  public readonly search = async (params: SearchParams): Promise<SearchResult<RAWGDeveloper>> => {
     return this.provider.searchEntities<RAWGDeveloper>(params, this.searchOptions, '/developers', (dev) => mapDeveloperToItem(dev, this.provider.id));
-  }
+  };
 
-  public getNextParams(params: SearchParams<'page'>, result: SearchResult<unknown, 'page'>): SearchParams<'page'> | null {
+  public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
     if (!result.pagination.hasNextPage) return null;
     return { ...params, page: (params.page || 1) + 1 };
-  }
+  };
 
-  public getPreviousParams(params: SearchParams<'page'>): SearchParams<'page'> | null {
+  public readonly getPreviousParams = (params: SearchParams): SearchParams | null => {
     const currentPage = params.page || 1;
     if (currentPage <= 1) return null;
     return { ...params, page: currentPage - 1 };
-  }
+  };
 
-  public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {
+  public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
     try {
       const dev = await this.provider.fetchRawg<RAWGDeveloper>(`/developers/${dbId}`, {}, { signal: options?.signal });
       const item = mapDeveloperToItem(dev, this.provider.id);
@@ -401,7 +395,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper, 'page'
     } catch (error) {
       throw handleDatabaseError(error, this.provider.id);
     }
-  }
+  };
 }
 
 /**
@@ -422,11 +416,11 @@ export class RAWGDatabaseProvider implements DatabaseProvider<[RAWGGameEntity, R
    * Generic helper to search for entities of any type
    */
   public async searchEntities<T extends { id: number | string }>(
-    params: SearchParams<'page'>,
+    params: SearchParams,
     searchOptions: FilterDefinition[],
     endpoint: string,
     mapper: (raw: T) => Item
-  ): Promise<SearchResult<T, 'page'>> {
+  ): Promise<SearchResult<T>> {
     try {
       const apiParams: Record<string, string> = {
         page: (params.page || 1).toString(),
@@ -460,7 +454,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider<[RAWGGameEntity, R
         },
       });
 
-      return result as SearchResult<T, 'page'>;
+      return result as SearchResult<T>;
     } catch (error) {
       throw handleDatabaseError(error, this.id);
     }

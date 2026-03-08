@@ -17,8 +17,8 @@ import {
  * They are gated by the presence of RAWG_API_KEY in the environment.
  */
 describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integration', { timeout: 15000 }, () => {
-  const gameEntity = RAWGDatabase.entities.find(e => e.id === 'game')! as DatabaseEntity<RAWGGame, 'page'>;
-  const devEntity = RAWGDatabase.entities.find(e => e.id === 'developer')! as DatabaseEntity<RAWGDeveloper, 'page'>;
+  const gameEntity = RAWGDatabase.entities.find(e => e.id === 'game')! as DatabaseEntity<RAWGGame>;
+  const devEntity = RAWGDatabase.entities.find(e => e.id === 'developer')! as DatabaseEntity<RAWGDeveloper>;
 
   interface AnchorGame {
     query: string;
