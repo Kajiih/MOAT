@@ -29,16 +29,19 @@ When actively developing a new provider or fixing a broken cursor lock, target t
 npm run test
 
 # Run ALL Integration Tests (Consumes API Quotas)
-npm run test -- --run src/providers/provider.integration.test.ts
+npm run test:integration -- --run
+
+# Run BOTH Unit and Integration Tests
+npm run test:all
 
 # Target ONLY the RAWG provider integration
-npm run test -- -t "(rawg)"
+npm run test:integration -- -t "(rawg)"
 
 # Target ONLY the Release Year filter on RAWG
-npm run test -- -t "rawg.*yearRange"
+npm run test:integration -- -t "rawg.*yearRange"
 
 # Target ONLY Edge Cases for the rawg provider
-npm run test -- -t "rawg.*Edge Cases"
+npm run test:integration -- -t "rawg.*Edge Cases"
 ```
 
 ## 4. API Metric Quotas (CI Protection)

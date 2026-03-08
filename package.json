@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest",
-    "test:integration": "vitest lib/services/integration-tests --run"
+    "test": "vitest --exclude '**/*.integration.test.ts'",
+    "test:integration": "vitest '**/*.integration.test.ts'",
+    "test:all": "vitest"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
