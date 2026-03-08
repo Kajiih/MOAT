@@ -10,6 +10,7 @@ import { usePersistentState } from '@/storage/usePersistentState';
 import { registry } from '@/providers/registry';
 import { ProviderStatus } from '@/providers/types';
 
+import { useRegistry } from '@/providers/hooks/useRegistry';
 import { SearchTab } from './SearchTab';
 
 /**
@@ -22,21 +23,7 @@ export function SearchPanel() {
     actions: { locate: handleLocate },
   } = useTierListContext();
 
-  // Wait for the registry to finish bootstrapping before reading providers.
-  // This ensures we re-render once async provider registration completes.
-  const [isRegistryReady, setIsRegistryReady] = useState(false);
-  useEffect(() => {
-    registry.waitUntilReady().then(() => setIsRegistryReady(true));
-  }, []);
-
-  // 1. Discover all providers from the registry
-  const allProviders = registry.getAllProviders();
-  
-  // 2. Show all available providers that are READY.
-  const availableProviders = useMemo(() => {
-    return allProviders.filter(p => p.status === ProviderStatus.READY);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-compute when registry becomes ready
-  }, [allProviders, isRegistryReady]);
+  const { availableProviders } = useRegistry();
 
   // 3. Provider selection
   const [providerId, setProviderId] = usePersistentState<string>(

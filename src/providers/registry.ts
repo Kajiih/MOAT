@@ -22,6 +22,7 @@ export class DatabaseRegistry {
   
   private status: RegistryStatus = RegistryStatus.IDLE;
   private pendingRegistrations: Set<Promise<void>> = new Set();
+  private listeners: Set<() => void> = new Set();
 
   private constructor() {}
 
@@ -30,6 +31,23 @@ export class DatabaseRegistry {
       DatabaseRegistry.instance = new DatabaseRegistry();
     }
     return DatabaseRegistry.instance;
+  }
+
+  /**
+   * Subscribes a listener to global registry state changes (e.g., status updates, new providers).
+   * @param listener - Callback function invoked on change.
+   * @returns Unsubscribe function.
+   */
+  public subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /**
+   * Notifies all listener callbacks that the registry state has mutated.
+   */
+  private notify(): void {
+    this.listeners.forEach(listener => listener());
   }
 
   /**
@@ -67,6 +85,7 @@ export class DatabaseRegistry {
     
     // Always add the provider to the map so its status can be tracked by UI
     this.providers.set(provider.id, provider);
+    this.notify();
 
     const registration = (async () => {
       try {
@@ -74,8 +93,10 @@ export class DatabaseRegistry {
           await provider.initialize(this.fetcher);
         }
         provider.status = ProviderStatus.READY;
+        this.notify();
       } catch (error) {
         provider.status = ProviderStatus.ERROR;
+        this.notify();
         console.error(`Failed to initialize provider "${provider.id}":`, error);
         throw error;
       }
@@ -102,6 +123,7 @@ export class DatabaseRegistry {
         } else {
           this.status = RegistryStatus.READY;
         }
+        this.notify();
       }
     }
   }
@@ -178,6 +200,7 @@ export class DatabaseRegistry {
     this.providers.clear();
     this.status = RegistryStatus.IDLE;
     this.pendingRegistrations.clear();
+    this.notify();
   }
 }
 
