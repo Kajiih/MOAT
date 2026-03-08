@@ -56,9 +56,9 @@ export interface Entity<TRaw = any> {
   /** UI branding for the entity */
   readonly branding: EntityBranding;
   /** Filters available for searching this entity */
-  readonly filters: FilterDefinition<any, TRaw>[];
+  readonly filters: FilterDefinition<TRaw>[];
   /** Search-specific options (e.g. "Precise Search") */
-  readonly searchOptions: FilterDefinition<any, TRaw>[];
+  readonly searchOptions: FilterDefinition<TRaw>[];
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
 

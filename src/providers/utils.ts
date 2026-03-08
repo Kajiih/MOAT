@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
-import { type AnyFilterDefinition } from '@/search/schemas';
+import { FilterDefinition } from '@/search/schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
 
@@ -80,7 +80,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
 export function applyFilters<TRaw>(
   apiParams: Record<string, string>,
   filterValues: Record<string, unknown> | undefined,
-  definitions: AnyFilterDefinition<TRaw>[]
+  definitions: FilterDefinition<TRaw>[]
 ): void {
   const values = filterValues || {};
   for (const def of definitions) {

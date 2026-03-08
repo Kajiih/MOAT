@@ -12,8 +12,7 @@ import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
-import { createSortSuite, SortDirection } from '@/search/schemas';
-import { AnyFilterDefinition } from '@/search/schemas';
+import { createSortSuite, SortDirection, FilterDefinition } from '@/search/schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
@@ -74,7 +73,7 @@ const rawgGameSorts = createSortSuite<RAWGGame>();
 const THE_WITCHER_3_ID = '3328';
 const ELDEN_RING_ID = '326243';
 
-const GAME_SEARCH_OPTIONS: AnyFilterDefinition<RAWGGame>[] = [
+const GAME_SEARCH_OPTIONS: FilterDefinition<RAWGGame>[] = [
   rawgGameFilters.boolean({
     id: 'precise',
     label: 'Precise Search',
@@ -129,7 +128,7 @@ const GAME_SEARCH_OPTIONS: AnyFilterDefinition<RAWGGame>[] = [
   }),
 ];
 
-const GAME_FILTERS: AnyFilterDefinition<RAWGGame>[] = [
+const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
   rawgGameFilters.range({
     id: 'yearRange',
     label: 'Release Year',
@@ -363,8 +362,8 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     icon: Building2,
     colorClass: 'text-blue-400',
   };
-  public readonly searchOptions: AnyFilterDefinition<RAWGDeveloper>[] = [];
-  public readonly filters: AnyFilterDefinition<RAWGDeveloper>[] = [];
+  public readonly searchOptions: FilterDefinition<RAWGDeveloper>[] = [];
+  public readonly filters: FilterDefinition<RAWGDeveloper>[] = [];
   public readonly sortOptions = [
     rawgDevSorts.create({ id: 'relevance', label: 'Relevance' }),
   ];
@@ -451,7 +450,7 @@ export class RAWGDatabaseProvider implements Provider {
   /**
    * Generic helper to search for entities of any type
    * @param params - The unified SearchParams from the client.
-   * @param searchOptions - The list of AnyFilterDefinition available for the query build.
+   * @param searchOptions - The list of FilterDefinition available for the query build.
    * @param endpoint - The specific relative RAWG endpoint (e.g. '/games').
    * @param schema - The Zod schema to strictly parse the incoming RAWG array payload.
    * @param mapper - The function that maps RAWG entity types into our internal Item representation.
@@ -459,7 +458,7 @@ export class RAWGDatabaseProvider implements Provider {
    */
   public async searchEntities<T extends { id: number | string }>(
     params: SearchParams,
-    searchOptions: AnyFilterDefinition<T>[],
+    searchOptions: FilterDefinition<T>[],
     endpoint: string,
     schema: z.ZodType<T>,
     mapper: (raw: T) => Item
