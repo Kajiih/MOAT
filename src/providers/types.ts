@@ -43,9 +43,9 @@ export interface DatabaseEntity<TRaw = any> {
   /** UI branding for the entity */
   readonly branding: EntityBranding;
   /** Filters available for searching this entity */
-  readonly filters: FilterDefinition[];
+  readonly filters: FilterDefinition<any, TRaw>[];
   /** Search-specific options (e.g. "Precise Search") */
-  readonly searchOptions: FilterDefinition[];
+  readonly searchOptions: FilterDefinition<any, TRaw>[];
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
 

@@ -62,7 +62,7 @@ import { createBooleanFilter, createRangeFilter, createSelectFilter } from '@/se
 const THE_WITCHER_3_ID = '3328';
 const ELDEN_RING_ID = '326243';
 
-const GAME_SEARCH_OPTIONS: FilterDefinition[] = [
+const GAME_SEARCH_OPTIONS: FilterDefinition<any, RAWGGame>[] = [
   createBooleanFilter({
     id: 'precise',
     label: 'Precise Search',
@@ -117,7 +117,7 @@ const GAME_SEARCH_OPTIONS: FilterDefinition[] = [
   }),
 ];
 
-const GAME_FILTERS: FilterDefinition[] = [
+const GAME_FILTERS: FilterDefinition<any, RAWGGame>[] = [
   createRangeFilter({
     id: 'yearRange',
     label: 'Release Year',
@@ -133,7 +133,7 @@ const GAME_FILTERS: FilterDefinition[] = [
     testCases: [
       { 
         value: { min: '2020', max: '2022' }, 
-        match: (item: RAWGGame) => {
+        match: (item) => {
           if (!item.released) return false;
           const year = parseInt(item.released.split('-')[0]);
           return year >= 2020 && year <= 2022;
@@ -155,7 +155,7 @@ const GAME_FILTERS: FilterDefinition[] = [
     testCases: [
       {
         value: '7', // Switch
-        match: (item: RAWGGame) => item.platforms?.some(p => p.platform.id === 7) ?? false
+        match: (item) => item.platforms?.some(p => p.platform.id === 7) ?? false
       }
     ]
   })
@@ -343,8 +343,8 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
     icon: Building2,
     colorClass: 'text-blue-400',
   };
-  public readonly searchOptions: FilterDefinition[] = [];
-  public readonly filters: FilterDefinition[] = [];
+  public readonly searchOptions: FilterDefinition<any, RAWGDeveloper>[] = [];
+  public readonly filters: FilterDefinition<any, RAWGDeveloper>[] = [];
   public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
   ];
@@ -417,7 +417,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
    */
   public async searchEntities<T extends { id: number | string }>(
     params: SearchParams,
-    searchOptions: FilterDefinition[],
+    searchOptions: FilterDefinition<any, T>[],
     endpoint: string,
     mapper: (raw: T) => Item
   ): Promise<SearchResult<T>> {

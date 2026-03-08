@@ -72,7 +72,7 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
           describe.runIf(allFilters.length > 0)('Filters', () => {
             allFilters.forEach(filter => {
               describe(`Filter: ${filter.label} (${filter.id})`, () => {
-                filter.testCases.forEach((testCase: FilterTestCase) => {
+                filter.testCases.forEach((testCase: FilterTestCase<any, any>) => {
                   const { value, query = '' } = testCase;
                   it(`should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`, async () => {
                     const res = await entity.search({
