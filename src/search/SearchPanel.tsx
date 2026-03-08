@@ -2,12 +2,12 @@
 
 import '@/providers'; // Bootstrap all providers on first import
 
-import { Eye, EyeOff, Search } from 'lucide-react';
+import { Eye, EyeOff, Search, Loader2 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { useTierListContext } from '@/board/context';
 import { usePersistentState } from '@/storage/usePersistentState';
-import { registry } from '@/providers/registry';
+import { RegistryStatus, registry } from '@/providers/registry';
 import { ProviderStatus } from '@/providers/types';
 
 import { useRegistry } from '@/providers/hooks/useRegistry';
@@ -23,7 +23,7 @@ export function SearchPanel() {
     actions: { locate: handleLocate },
   } = useTierListContext();
 
-  const { availableProviders } = useRegistry();
+  const { availableProviders, status } = useRegistry();
 
   // 3. Provider selection
   const [providerId, setProviderId] = usePersistentState<string>(
@@ -51,6 +51,15 @@ export function SearchPanel() {
   }, [selectedProvider, activeEntityId, setActiveEntityId]);
 
   if (availableProviders.length === 0) {
+    if (status === RegistryStatus.INITIALIZING || status === RegistryStatus.IDLE) {
+      return (
+        <div className="sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-500 shadow-2xl">
+          <Loader2 className="animate-spin text-neutral-600" size={24} />
+          <span className="text-sm font-medium">Booting providers...</span>
+        </div>
+      );
+    }
+    
     return (
       <div className="sticky top-4 flex h-64 flex-col items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-500 italic shadow-2xl">
         No providers available.

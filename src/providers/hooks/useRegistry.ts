@@ -1,19 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-import { RegistryStatus, registry } from '../registry';
-import { Provider } from '../types';
-
-/**
- * A reactive snapshot of the database registry state.
- */
-export interface RegistrySnapshot {
-  /** The overall status of the registry (e.g., INITIALIZING, READY) */
-  status: RegistryStatus;
-  /** All currently registered providers */
-  providers: Provider[];
-  /** Only providers that have successfully completed initialization */
-  availableProviders: Provider[];
-}
+import { RegistrySnapshot, RegistryStatus, registry } from '../registry';
 
 /**
  * Custom React hook that connects components reactively to the DatabaseRegistry singleton.
@@ -27,14 +14,8 @@ export function useRegistry(): RegistrySnapshot {
     (onChange) => registry.subscribe(onChange),
     
     // 2. Snapshot: React calls this to get the current state and detect changes
-    () => {
-      const providers = registry.getAllProviders();
-      return {
-        status: registry.getStatus(),
-        providers,
-        availableProviders: providers.filter(p => p.status === 'READY'),
-      };
-    },
+    // Referentially stable (memoized) to prevent continuous re-renders
+    () => registry.getSnapshot(),
     
     // 3. SSR Fallback (optional, but good practice for Next.js)
     () => ({

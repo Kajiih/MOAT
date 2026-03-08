@@ -12,6 +12,15 @@ export enum RegistryStatus {
 }
 
 /**
+ * A reactive snapshot of the database registry state.
+ */
+export interface RegistrySnapshot {
+  status: RegistryStatus;
+  providers: Provider[];
+  availableProviders: Provider[];
+}
+
+/**
  * Registry for managing external providers.
  * Singleton pattern.
  */
@@ -23,6 +32,7 @@ export class DatabaseRegistry {
   private status: RegistryStatus = RegistryStatus.IDLE;
   private pendingRegistrations: Set<Promise<void>> = new Set();
   private listeners: Set<() => void> = new Set();
+  private snapshot: RegistrySnapshot | null = null;
 
   private constructor() {}
 
@@ -47,7 +57,23 @@ export class DatabaseRegistry {
    * Notifies all listener callbacks that the registry state has mutated.
    */
   private notify(): void {
+    this.snapshot = null;
     this.listeners.forEach(listener => listener());
+  }
+
+  /**
+   * Generates or retrieves a referentially stable snapshot of the registry's state.
+   */
+  public getSnapshot(): RegistrySnapshot {
+    if (!this.snapshot) {
+      const providers = this.getAllProviders();
+      this.snapshot = {
+        status: this.status,
+        providers,
+        availableProviders: providers.filter(p => p.status === ProviderStatus.READY),
+      };
+    }
+    return this.snapshot;
   }
 
   /**
