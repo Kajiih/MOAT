@@ -24,7 +24,7 @@ type Brand<T, TBrand> = T & { readonly [__brand]: TBrand };
 export type BoardId = Brand<string, 'BoardId'>;
 /** Branded identifier for a Tier */
 export type TierId = Brand<string, 'TierId'>;
-/** Branded identifier for an Item (usually a database identity or standard UUID) */
+/** Branded identifier for an Item (usually a provider identity or standard UUID) */
 export type ItemId = Brand<string, 'ItemId'>;
 
 // --- Domain Types ---

@@ -12,7 +12,7 @@ export enum RegistryStatus {
 }
 
 /**
- * Registry for managing external database providers.
+ * Registry for managing external providers.
  * Singleton pattern.
  */
 export class DatabaseRegistry {
@@ -58,7 +58,7 @@ export class DatabaseRegistry {
   }
 
   /**
-   * Registers and initializes a new database provider.
+   * Registers and initializes a new provider.
    * @param provider
    */
   public async register(provider: Provider): Promise<void> {
@@ -118,7 +118,7 @@ export class DatabaseRegistry {
   }
 
   /**
-   * Retrieves a specific entity from a specific database provider.
+   * Retrieves a specific entity from a specific provider.
    * @param databaseId - The provider's unique identifier.
    * @param entityId - The entity's unique identifier within the provider.
    * @throws If provider or entity is not found.

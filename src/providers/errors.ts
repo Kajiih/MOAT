@@ -1,8 +1,8 @@
 /**
- * Standardized error codes for the database layer.
+ * Standardized error codes for the provider layer.
  */
 export enum ProviderErrorCode {
-  /** The item was not found in the database */
+  /** The item was not found in the provider */
   NOT_FOUND = 'NOT_FOUND',
   /** API key is missing or invalid */
   AUTH_ERROR = 'AUTH_ERROR',
@@ -19,7 +19,7 @@ export enum ProviderErrorCode {
 }
 
 /**
- * Standardized error class for the database layer.
+ * Standardized error class for the provider layer.
  */
 export class ProviderError extends Error {
   constructor(

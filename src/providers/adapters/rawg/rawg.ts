@@ -1,5 +1,5 @@
 /**
- * @file RAWG Database Provider Implementation
+ * @file RAWG Provider Implementation
  * @description Provides support for Video Games and Developers via the RAWG API.
  */
 
@@ -414,7 +414,7 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
 }
 
 /**
- * RAWG Database Provider Implementation
+ * RAWG Provider Implementation
  */
 export class RAWGDatabaseProvider implements Provider {
   public readonly id = 'rawg';

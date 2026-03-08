@@ -32,7 +32,7 @@ export interface SortDefinition<TRaw = any> extends z.infer<typeof SortDefinitio
 
 /**
  * Creates a suite of sort building functions that are statically bound
- * to the generic type `TRaw` of the expected Database Provider responses.
+ * to the generic type `TRaw` of the expected Provider responses.
  * 
  * This enables robust IDE autocompletion when defining `extractValue`.
  */

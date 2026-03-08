@@ -1,6 +1,6 @@
 /**
  * @file utils.ts
- * @description Utility functions for the database layer, including error handling and filter applying.
+ * @description Utility functions for the provider layer, including error handling and filter applying.
  */
 
 import { z } from 'zod';
@@ -12,7 +12,7 @@ import { BaseFilterDefinition } from '@/search/schemas';
 /**
  * Wraps any error into a standardized ProviderError.
  * @param error - The original error object.
- * @param databaseId - The identifier of the database where the error occurred.
+ * @param databaseId - The identifier of the provider where the error occurred.
  * @returns A standardized ProviderError.
  */
 export function handleProviderError(error: unknown, databaseId: string): ProviderError {
@@ -49,7 +49,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
         return new ProviderError(ProviderErrorCode.NOT_FOUND, 'The requested item was not found', error, databaseId);
       }
       case 429: {
-        return new ProviderError(ProviderErrorCode.RATE_LIMIT, 'Rate limit exceeded for this database', error, databaseId);
+        return new ProviderError(ProviderErrorCode.RATE_LIMIT, 'Rate limit exceeded for this provider', error, databaseId);
       }
       default: {
         if (status >= 500) {
@@ -62,7 +62,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
   // 4. Generic fallback
   const message = (error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string') 
     ? (error as { message: string }).message 
-    : 'An unexpected error occurred in the database layer';
+    : 'An unexpected error occurred in the provider layer';
   return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, databaseId);
 }
 

@@ -12,7 +12,7 @@ interface UseDatabaseDetailsOptions {
 
 /**
  * Custom hook for fetching full details for a V2 Database Item.
- * @param providerId - The ID of the database provider.
+ * @param providerId - The ID of the provider.
  * @param entityId - The ID of the entity within the provider.
  * @param dbId - The unique ID of the item within that database.
  * @param options - Additional hook settings.

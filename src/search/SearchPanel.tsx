@@ -1,6 +1,6 @@
 'use client';
 
-import '@/providers'; // Bootstrap all database providers on first import
+import '@/providers'; // Bootstrap all providers on first import
 
 import { Eye, EyeOff, Search } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -66,7 +66,7 @@ export function SearchPanel() {
   if (availableProviders.length === 0) {
     return (
       <div className="sticky top-4 flex h-64 flex-col items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-500 italic shadow-2xl">
-        No database providers available.
+        No providers available.
       </div>
     );
   }
@@ -93,10 +93,10 @@ export function SearchPanel() {
         </div>
       </div>
 
-      {/* Provider Toggle (Database selection) */}
+      {/* Provider Toggle (Provider selection) */}
       {availableProviders.length > 1 && (
         <div className="mb-3 flex shrink-0 items-center gap-2">
-          <span className="text-[10px] font-medium text-neutral-500">Database:</span>
+          <span className="text-[10px] font-medium text-neutral-500">Provider:</span>
           <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-black p-0.5">
             {availableProviders.map((p) => (
               <button

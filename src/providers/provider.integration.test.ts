@@ -11,7 +11,7 @@ import {
 } from './test-utils';
 
 /**
- * Generic Database Provider Integration Tests (Live API)
+ * Generic Provider Integration Tests (Live API)
  * 
  * Automatically tests common functionality for all registered entities 
  * that provide configuration for sorting, filters, pagination, or details.

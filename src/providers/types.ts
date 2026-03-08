@@ -29,7 +29,7 @@ export enum ProviderStatus {
 }
 
 /**
- * Visual branding for a database entity.
+ * Visual branding for a entity.
  * Separates "what it looks like" from "what it does."
  */
 export interface EntityBranding {

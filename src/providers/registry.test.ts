@@ -47,7 +47,7 @@ const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
   ...overrides,
 });
 
-describe('Database V2 Design', () => {
+describe('Provider V2 Design', () => {
   beforeEach(() => {
     registry.clear();
   });

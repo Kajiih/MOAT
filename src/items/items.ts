@@ -59,7 +59,7 @@ export const ItemDetailsCoreSchema = z.object({
   description: z.string().optional(),
   /** Descriptive tags or genres */
   tags: z.array(z.string()).optional(),
-  /** Links to other entities in the same database (e.g. Developer of a Game) */
+  /** Links to other entities in the same provider (e.g. Developer of a Game) */
   relatedEntities: z.array(EntityLinkSchema).optional(),
   /** External resource links (Wikipedia, Official Site, etc.) */
   urls: z.array(z.object({

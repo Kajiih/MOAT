@@ -11,7 +11,7 @@ import {
 } from '../../test-utils';
 
 /**
- * RAWG Database Provider Integration Tests (Live API)
+ * RAWG Provider Integration Tests (Live API)
  * 
  * These tests verify the contract between our provider and the real RAWG API.
  * They are gated by the presence of RAWG_API_KEY in the environment.

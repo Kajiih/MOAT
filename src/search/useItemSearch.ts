@@ -22,8 +22,8 @@ interface UseDatabaseSearchOptions {
 }
 
 /**
- * Custom hook for searching against a V2 Database Entity.
- * @param providerId - The ID of the database provider.
+ * Custom hook for searching against a V2 Entity.
+ * @param providerId - The ID of the provider.
  * @param entityId - The ID of the entity within the provider.
  * @param params - The search parameters (query, filters, sort, etc.).
  * @param options - Additional hook settings.

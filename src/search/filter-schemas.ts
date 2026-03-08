@@ -114,7 +114,7 @@ export interface MultiSelectFilterDefinition<TTransformed = any, TRaw = any> ext
 export interface AsyncSelectFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string, TTransformed, TRaw> {
   type: 'async-select';
   /** 
-   * Specifies the ID of the entity within the SAME database provider to search against.
+   * Specifies the ID of the entity within the SAME provider to search against.
    * E.g., 'developer' or 'author'.
    */
   targetEntityId: string;
@@ -123,7 +123,7 @@ export interface AsyncSelectFilterDefinition<TTransformed = any, TRaw = any> ext
 export interface AsyncMultiSelectFilterDefinition<TTransformed = any, TRaw = any> extends BaseFilterDefinition<string[], TTransformed, TRaw> {
   type: 'async-multiselect';
   /** 
-   * Specifies the ID of the entity within the SAME database provider to search against.
+   * Specifies the ID of the entity within the SAME provider to search against.
    * E.g., 'developer' or 'author'.
    */
   targetEntityId: string;
@@ -161,7 +161,7 @@ export type FilterDefinition<TTransformed = any, TRaw = any> =
 
 /**
  * Creates a suite of filter building functions that are statically bound
- * to the generic type `TRaw` of the expected Database Provider responses.
+ * to the generic type `TRaw` of the expected Provider responses.
  * 
  * This prevents repetitive `<any, RAWGGame>` boilerplate on every individual filter definition.
  */

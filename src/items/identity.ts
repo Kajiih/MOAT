@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 /**
- * Identifies an entity within a specific database provider.
+ * Identifies an entity within a specific provider.
  * This is the routing key used throughout the application.
  */
 export const EntityIdentitySchema = z.object({
-  /** The original ID in the source database */
+  /** The original ID in the source provider */
   dbId: z.string(),
-  /** The identifier of the database provider (e.g., 'rawg', 'musicbrainz') */
+  /** The identifier of the provider (e.g., 'rawg', 'musicbrainz') */
   databaseId: z.string(),
   /** The identifier of the entity type (e.g., 'game', 'album') */
   entityId: z.string(),

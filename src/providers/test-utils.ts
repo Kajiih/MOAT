@@ -3,7 +3,7 @@ import { BaseItem } from '@/items/items';
 import { SortDirection } from '@/search/schemas';
 
 /**
- * Shared test utilities for database provider integration tests.
+ * Shared test utilities for provider integration tests.
  */
 
 /**
