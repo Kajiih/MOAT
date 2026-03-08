@@ -33,7 +33,7 @@ interface TierGridProps {
 }
 
 /**
- * A responsive grid component for displaying media items within a tier row.
+ * A responsive grid component for displaying items within a tier row.
  * @param props - The component props.
  * @returns The rendered TierGrid component.
  */

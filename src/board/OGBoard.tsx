@@ -14,7 +14,7 @@ interface OGBoardProps {
   title: string;
   /** Array of tier definitions (labels, colors). */
   tiers: TierDefinition[];
-  /** Map of media items organized by tier ID. */
+  /** Map of items organized by tier ID. */
   items: Record<string, Item[]>;
   /** Array of hex color strings for the header gradient/branding. */
   headerColors: string[];
@@ -29,7 +29,7 @@ interface OGBoardProps {
  * @param props - The props for the component.
  * @param props.title - The title of the tier list to display.
  * @param props.tiers - Array of tier definitions (labels, colors).
- * @param props.items - Map of media items organized by tier ID.
+ * @param props.items - Map of items organized by tier ID.
  * @param props.headerColors - Array of hex color strings for the header gradient/branding.
  * @returns The rendered LegacyOGBoard component.
  */

@@ -1,6 +1,6 @@
 /**
  * @file api-client.ts
- * @description Generic HTTP client for external media APIs with retry logic and standard logging.
+ * @description Generic HTTP client for external provider APIs with retry logic and standard logging.
  */
 
 import { logger } from '@/lib/logger';

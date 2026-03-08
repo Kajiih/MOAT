@@ -36,10 +36,10 @@ export function isSearchId(id: string): boolean {
 }
 
 /**
- * Generates a consistent DOM ID for a media card.
+ * Generates a consistent DOM ID for a item card.
  * @param id - The draggable/sortable ID of the item.
  * @returns The DOM element ID.
  */
 export function toDomId(id: string): string {
-  return `media-card-${id}`;
+  return `item-card-${id}`;
 }

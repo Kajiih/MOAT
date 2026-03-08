@@ -47,12 +47,12 @@ export function useTierListUtils(
   }, [state.tierDefs, activeTierId, overId]);
 
   /**
-   * Locates a media item on the board, scrolls it into view, and highlights it.
+   * Locates a item on the board, scrolls it into view, and highlights it.
    * @param id - The ID of the item to locate.
    */
   const handleLocate = useCallback(
     (id: string) => {
-      const el = document.getElementById(`media-card-${id}`);
+      const el = document.getElementById(`item-card-${id}`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         el.style.transition = 'box-shadow 0.3s';

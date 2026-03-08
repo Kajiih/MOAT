@@ -41,7 +41,7 @@ describe('useTierListDnD', () => {
     vi.useFakeTimers();
   });
 
-  it('should handle handleDragStart for a media item', () => {
+  it('should handle handleDragStart for a item', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
     const item: Item = { id: 'm1', identity: { dbId: 'm1', databaseId: 'mock', entityId: 'm1' }, title: 'Song 1', images: [] };

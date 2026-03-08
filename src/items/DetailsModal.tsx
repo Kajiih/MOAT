@@ -1,6 +1,6 @@
 /**
  * @file DetailsModal.tsx
- * @description A modal component for displaying detailed information about a media item.
+ * @description A modal component for displaying detailed information about a item.
  */
 
 'use client';

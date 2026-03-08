@@ -1,7 +1,7 @@
 /**
  * @file SortDropdown.tsx
  * @description A dropdown component for selecting the sort order of search results.
- * Adapts available sort options based on the media type (e.g., Duration sorting only for songs).
+ * Adapts available sort options based on the entity type (e.g., Duration sorting only for songs).
  * @module SortDropdown
  */
 
@@ -28,7 +28,7 @@ interface SortDropdownProps {
   onSortChange: (option: string) => void;
   /** The type of media being sorted, which affects available options. */
   type?: string;
-  /** Dynamic sort options from the media service. */
+  /** Dynamic sort options from the provider. */
   options?: SortOptionItem[];
 }
 
@@ -38,7 +38,7 @@ interface SortDropdownProps {
  * @param props.sortOption - The current active sort option.
  * @param props.onSortChange - Callback fired when a new sort option is selected.
  * @param props.type - The type of media being sorted, which affects available options.
- * @param props.options - Dynamic sort options from the media service.
+ * @param props.options - Dynamic sort options from the provider.
  * @returns The rendered SortDropdown component.
  */
 export function SortDropdown({ sortOption, onSortChange, type, options }: SortDropdownProps) {

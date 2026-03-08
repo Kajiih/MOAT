@@ -1,6 +1,6 @@
 /**
  * @file SkeletonCard.tsx
- * @description A placeholder component displayed while media items are loading in the search results.
+ * @description A placeholder component displayed while items are loading in the search results.
  * Uses a pulse animation to indicate activity.
  * @module SkeletonCard
  */

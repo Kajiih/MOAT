@@ -1,6 +1,6 @@
 /**
  * @file item-reducer.ts
- * @description specialized slice reducer for managing media items on the board.
+ * @description specialized slice reducer for managing items on the board.
  * Handles item movements (reordering and cross-tier), deletions, and attribute updates.
  * @module ItemSliceReducer
  */
@@ -209,7 +209,7 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
 /**
  * Slice reducer for item-related actions.
  * @param state - Current tier list state.
- * @param action - TierListAction related to media items.
+ * @param action - TierListAction related to items.
  * @returns New state if handled, otherwise original state.
  */
 export function itemReducer(state: TierListState, action: TierListAction): TierListState {
