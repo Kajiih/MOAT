@@ -171,6 +171,58 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
               }
             });
           });
+
+          describe('Edge Cases (Resilience)', () => {
+             it('Empty States: should yield zero results gracefully without failing', async () => {
+               const res = await entity.search({
+                 query: '____NON_EXISTENT_GIBBERISH_123456789____',
+                 filters: {}, // Required by SearchParams typing
+                 limit: 10
+               });
+               
+               expect(Array.isArray(res.raw), 'Provider must return an array for raw data').toBe(true);
+               expect(res.raw.length, 'Gibberish query should yield 0 results').toBe(0);
+               expect(res.pagination.hasNextPage, 'Empty queries cannot have a next page').toBe(false);
+             });
+             
+             it('Character Encoding: should safely transport symbols and non-latin scripts', async () => {
+                const res = await entity.search({
+                  query: 'Pokémon & Zelda: éà!@#$%^ *()_+',
+                  filters: {}, // Required by SearchParams typing
+                  limit: 10
+                });
+                
+                // Assert that the request does NOT throw a ProviderError (e.g. 400 Bad Request)
+                // Returning 0 results is fine, as long as it handles the encoding properly.
+                expect(Array.isArray(res.raw)).toBe(true);
+             });
+             
+             describe('Boundary Pagination', () => {
+               it('should safely exhaust a short query until reaching the absolute API boundary limit', async () => {
+                 const initialParams = entity.getInitialParams({ limit: 10 });
+                 let currentParams = { ...initialParams, query: entity.edgeShortQuery };
+                 
+                 let pageCount = 0;
+                 let hasNext = true;
+                 
+                 // Failsafe: prevent truly infinite loops if pagination is broken
+                 while (hasNext && pageCount < 20) {
+                   const res = await entity.search(currentParams);
+                   pageCount++;
+                   
+                   hasNext = res.pagination.hasNextPage;
+                   if (hasNext) {
+                     const nextParams = entity.getNextParams(currentParams, res);
+                     expect(nextParams, 'Provider claims hasNextPage but returned null nextParams').not.toBeNull();
+                     currentParams = nextParams!;
+                   }
+                 }
+                 
+                 expect(pageCount, 'Infinite loop detected or query was too broad (> 20 pages)').toBeLessThan(20);
+                 expect(hasNext, 'Provider failed to reach a termination boundary for extreme pagination').toBe(false);
+               }, 20000); // Give boundary extraction 20 seconds.
+             });
+          });
         });
       }
     });

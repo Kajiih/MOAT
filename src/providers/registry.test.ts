@@ -27,6 +27,7 @@ const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
   ],
   defaultTestQueries: nonEmpty('query'),
   testDetailsIds: nonEmpty('test-id'),
+  edgeShortQuery: 'short',
   getInitialParams: (config: { limit: number }) => ({
     query: '',
     filters: {},

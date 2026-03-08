@@ -233,6 +233,7 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
 
   public readonly defaultTestQueries = nonEmpty("Baldur's Gate", 'Clair Obscur');
   public readonly testDetailsIds = nonEmpty(THE_WITCHER_3_ID, ELDEN_RING_ID);
+  public readonly edgeShortQuery = 'zzzzzzzzz';
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
@@ -366,6 +367,7 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
 
   public readonly defaultTestQueries = nonEmpty('Ubisoft', 'Nintendo');
   public readonly testDetailsIds = nonEmpty(UBISOFT_ID, NINTENDO_ID);
+  public readonly edgeShortQuery = 'zzzzzzzzz';
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 

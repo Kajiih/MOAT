@@ -62,6 +62,9 @@ export interface Entity<TRaw = any> {
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
 
+  /** String guaranteed to return 1-3 pages of results. Mandatory for boundary pagination integration testing. */
+  readonly edgeShortQuery: string;
+
   /**
    * Queries used to verify search, pagination, and sorting in integration tests.
    * Statically enforced to contain at least one query.
