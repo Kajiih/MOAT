@@ -57,4 +57,8 @@ npx playwright test --update-snapshots
 
 ## 📐 Documentation
 
-Detailed engineering documentation is available in the [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) file.
+Detailed engineering documentation is available in the `docs/` directory:
+- [Testing & Diagnostics](docs/TESTING.md)
+- [Provider Data Architecture](docs/PROVIDERS.md)
+- [Directory Structure](docs/DIRECTORY_STRUCTURE.md)
+- [Glossary](docs/GLOSSARY.md)
