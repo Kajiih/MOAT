@@ -1,9 +1,13 @@
+/**
+ * @file useItemSearch.ts
+ * @description Hook for executing generic searches against Database Entities.
+ */
 import deepEqual from 'fast-deep-equal';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import { SearchParams, SearchResult } from '@/search/schemas';
+import { PaginationStrategy, SearchParams, SearchResult } from '@/search/schemas';
 
 /**
  * Hook configuration options.
@@ -23,18 +27,17 @@ interface UseDatabaseSearchOptions {
  * @param entityId - The ID of the entity within the provider.
  * @param params - The search parameters (query, filters, sort, etc.).
  * @param options - Additional hook settings.
+ * @returns An object containing search results, pagination info, and status flags.
  */
-export function useItemSearch(
+export function useItemSearch<S extends PaginationStrategy>(
   providerId: string | undefined,
   entityId: string | undefined,
-  params: Partial<SearchParams>,
+  params: SearchParams<S>,
   options: UseDatabaseSearchOptions = {}
 ) {
   const { enabled = true, debounceMs = 300, keepPreviousData = true } = options;
 
   // 1. Debounce params to avoid over-fetching
-  // We use deepEqual to ensure the timer only resets if the CONTENT changes,
-  // not just the object reference.
   const [debouncedParams] = useDebounce(params, debounceMs, {
     equalityFn: (a, b) => deepEqual(a, b),
   });
@@ -44,21 +47,18 @@ export function useItemSearch(
     if (!enabled || !providerId || !entityId) return null;
     
     // We include all relevant params in the key for SWR
+    // Strategy-blind: we just stringify the relevant parts of debouncedParams
+    const { signal: _signal, ...serializableParams } = debouncedParams;
     return [
       'db-search',
       providerId,
       entityId,
-      debouncedParams.query || '',
-      JSON.stringify(debouncedParams.filters || {}),
-      debouncedParams.sort || '',
-      debouncedParams.sortDirection || '',
-      debouncedParams.page || 1,
-      debouncedParams.cursor || '',
+      JSON.stringify(serializableParams)
     ];
   }, [enabled, providerId, entityId, debouncedParams]);
 
   // 3. Define the fetcher that correctly delegates to our V2 API Proxy
-  const fetcher = async (_key: any[], opts?: { signal?: AbortSignal }): Promise<SearchResult> => {
+  const fetcher = async (key: string[], opts?: { signal?: AbortSignal }): Promise<SearchResult<unknown, S>> => {
     if (!providerId || !entityId) {
       throw new Error('Provider ID and Entity ID are required');
     }
@@ -68,10 +68,20 @@ export function useItemSearch(
     searchParams.set('entityId', entityId);
     
     if (debouncedParams.query) searchParams.set('query', debouncedParams.query);
-    if (debouncedParams.page) searchParams.set('page', debouncedParams.page.toString());
-    if (debouncedParams.cursor) searchParams.set('cursor', debouncedParams.cursor);
     if (debouncedParams.sort) searchParams.set('sort', debouncedParams.sort);
     if (debouncedParams.sortDirection) searchParams.set('sortDirection', debouncedParams.sortDirection);
+    if (debouncedParams.limit) searchParams.set('limit', debouncedParams.limit.toString());
+    
+    // Strategy-specific pagination params
+    if ('page' in debouncedParams && debouncedParams.page) {
+      searchParams.set('page', debouncedParams.page.toString());
+    }
+    if ('cursor' in debouncedParams && debouncedParams.cursor) {
+      searchParams.set('cursor', debouncedParams.cursor);
+    }
+    if ('offset' in debouncedParams && debouncedParams.offset !== undefined) {
+      searchParams.set('offset', debouncedParams.offset.toString());
+    }
     
     // Deeply stringify the filters to pass over URL params
     if (debouncedParams.filters && Object.keys(debouncedParams.filters).length > 0) {
@@ -88,7 +98,7 @@ export function useItemSearch(
   };
 
   // 4. Use SWR for fetching and caching
-  const { data, error, isLoading, isValidating, mutate } = useSWR<SearchResult>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<SearchResult<any, S>>(
     cacheKey,
     fetcher,
     {

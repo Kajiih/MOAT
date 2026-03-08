@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { registry } from '@/providers';
-import { SortDirection } from '@/search/schemas';
-import { 
-  expectSorted, 
-  expectDistinctPages 
+import {
+  SortDirection,
+  PagePagination,
+  CursorPagination,
+  OffsetPagination,
+} from '@/search/schemas';
+import {
+  expectSorted,
+  expectDistinctPages
 } from './test-utils';
 
 /**
@@ -102,14 +107,44 @@ describe.runIf(!!process.env.RAWG_API_KEY)('Generic Provider Integration', { tim
             const max_nb_queries = 5;
             const queries = ['', ...entity.defaultTestQueries];
             
-            it.each(queries)('should verify pagination for query "%s"', async (query) => {
-              const p1 = await entity.search({ query, filters: {}, limit: max_nb_queries, page: 1 });
-              const p2 = await entity.search({ query, filters: {}, limit: max_nb_queries, page: 2 });
+            it.each(queries)('should verify pagination strategy for query "%s"', async (query) => {
+              const strategy = entity.paginationStrategy;
               
-              const hasTwoPages = p1.raw?.length === max_nb_queries && (p2.raw?.length ?? 0) > 0;
-              
-              expect(hasTwoPages, `Pagination test for query "${query}" failed: must return at least 2 pages (limit: ${max_nb_queries})`).toBe(true);
-              expectDistinctPages(p1.raw!, p2.raw!);
+              if (strategy === 'page') {
+                const p1 = await entity.search({ query, filters: {}, limit: max_nb_queries, page: 1 });
+                const p2 = await entity.search({ query, filters: {}, limit: max_nb_queries, page: 2 });
+                
+                expect(p1.pagination.hasNextPage, 'Page 1 should have next page').toBe(true);
+                const pageInfo = p1.pagination as PagePagination;
+                expect(pageInfo.currentPage).toBe(1);
+                
+                const pageInfo2 = p2.pagination as PagePagination;
+                expect(pageInfo2.currentPage).toBe(2);
+                
+                expectDistinctPages(p1.raw, p2.raw);
+              } else if (strategy === 'cursor') {
+                const p1 = await entity.search({ query, filters: {}, limit: max_nb_queries });
+                expect(p1.pagination.hasNextPage, 'Page 1 should have next page').toBe(true);
+                
+                const cursorInfo = p1.pagination as CursorPagination;
+                const nextCursor = cursorInfo.nextCursor;
+                expect(nextCursor, 'Cursor strategy must return a nextCursor').toBeTruthy();
+                
+                const p2 = await entity.search({ query, filters: {}, limit: max_nb_queries, cursor: nextCursor });
+                expectDistinctPages(p1.raw, p2.raw);
+              } else if (strategy === 'offset') {
+                const p1 = await entity.search({ query, filters: {}, limit: max_nb_queries, offset: 0 });
+                const p2 = await entity.search({ query, filters: {}, limit: max_nb_queries, offset: max_nb_queries });
+                
+                expect(p1.pagination.hasNextPage, 'Offset 0 should have next page').toBe(true);
+                const offsetInfo = p1.pagination as OffsetPagination;
+                expect(offsetInfo.offset).toBe(0);
+                
+                const offsetInfo2 = p2.pagination as OffsetPagination;
+                expect(offsetInfo2.offset).toBe(max_nb_queries);
+                
+                expectDistinctPages(p1.raw, p2.raw);
+              }
             });
           });
 

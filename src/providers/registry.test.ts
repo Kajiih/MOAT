@@ -2,12 +2,42 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { RAWGDatabase } from '@/providers/adapters/rawg/rawg';
-import {DatabaseErrorCode } from './errors';
-import { ImageSourceSchema, referenceImage,urlImage } from '@/items/schemas';
-import { DatabaseEntity,DatabaseProvider, ProviderStatus } from '@/providers/types';
+import { DatabaseErrorCode } from './errors';
+import { Gamepad2, Building2 } from 'lucide-react';
+import { ImageSourceSchema, referenceImage, urlImage } from '@/items/schemas';
+import { DatabaseEntity, DatabaseProvider, ProviderStatus } from '@/providers/types';
 import { registry, RegistryStatus } from './registry';
-import { SearchParamsSchema, SearchResultSchema } from '@/search/schemas';
+import { SearchParamsSchema, SearchResult, SearchResultSchema, SortDirection } from '@/search/schemas';
 import { handleDatabaseError } from './utils';
+
+const createMockEntity = (overrides: Partial<DatabaseEntity<any, any>> = {}): DatabaseEntity<any, 'page'> => ({
+  id: 'mock-entity',
+  branding: { label: 'Video Game', labelPlural: 'Video Games', icon: Gamepad2, colorClass: 'text-purple-400' },
+  filters: [
+    { id: 'yearRange', label: 'Year Range', type: 'range', testCases: [] },
+    { id: 'platform', label: 'Platform', type: 'select', options: [], testCases: [] },
+  ],
+  searchOptions: [
+    { id: 'precise', label: 'Precise', type: 'boolean', testCases: [] }
+  ],
+  sortOptions: [
+    { id: 'relevance', label: 'Relevance', defaultDirection: SortDirection.DESC, extractValue: (r) => r.id },
+    { id: 'name', label: 'Name', defaultDirection: SortDirection.ASC, extractValue: (r) => r.name },
+    { id: 'released', label: 'Released', defaultDirection: SortDirection.DESC, extractValue: (r) => r.released },
+  ],
+  paginationStrategy: 'page' as const,
+  defaultTestQueries: ['query'],
+  testDetailsIds: [],
+  getInitialParams: (config) => ({
+    query: '',
+    filters: {},
+    limit: config.limit,
+    page: 1,
+  }),
+  search: vi.fn(),
+  getDetails: vi.fn(),
+  ...overrides,
+});
 
 describe('Database V2 Design', () => {
   beforeEach(() => {
@@ -57,7 +87,7 @@ describe('Database V2 Design', () => {
       registry.setFetcher(mockFetcher);
       
       await registry.register(RAWGDatabase);
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
+      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity<any, any>) => e.id === 'game');
       
       await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: 10 });
       expect(mockFetcher).toHaveBeenCalled();
@@ -71,8 +101,8 @@ describe('Database V2 Design', () => {
         entities: [],
         status: ProviderStatus.IDLE,
         initialize: async () => { throw new Error('Auth failed'); },
-        defaultTestQueries: [], // Added to satisfy interface
-        testDetailsIds: []      // Added to satisfy interface
+        defaultTestQueries: [],
+        testDetailsIds: []
       } as any;
 
       // Create a working provider
@@ -82,8 +112,8 @@ describe('Database V2 Design', () => {
         entities: [],
         status: ProviderStatus.IDLE,
         initialize: async () => {}, // success
-        defaultTestQueries: [], // Added to satisfy interface
-        testDetailsIds: []      // Added to satisfy interface
+        defaultTestQueries: [],
+        testDetailsIds: []
       } as any;
 
       await expect(registry.register(failingProvider)).rejects.toThrow('Auth failed');
@@ -113,7 +143,7 @@ describe('Database V2 Design', () => {
       const slowProvider: DatabaseProvider = {
         id: 'slow',
         label: 'Slow',
-        entities: [],
+        entities: [createMockEntity({ id: 'game' }), createMockEntity({ id: 'developer', branding: { ...createMockEntity().branding, icon: Building2 } })],
         status: ProviderStatus.IDLE,
         initialize: async () => {
           await new Promise(r => setTimeout(r, 50));
@@ -126,7 +156,7 @@ describe('Database V2 Design', () => {
       const fastProvider: DatabaseProvider = {
         id: 'fast',
         label: 'Fast',
-        entities: [],
+        entities: [createMockEntity({ id: 'game' }), createMockEntity({ id: 'developer', branding: { ...createMockEntity().branding, icon: Building2 } })],
         status: ProviderStatus.IDLE,
         initialize: async () => {
           await new Promise(r => setTimeout(r, 10));
@@ -269,8 +299,8 @@ describe('Database V2 Design', () => {
   describe('RAWGDatabase Prototype', () => {
     it('should have the correct entities', () => {
       expect(RAWGDatabase.entities).toHaveLength(2);
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
-      const devEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'developer');
+      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity<any, any>) => e.id === 'game');
+      const devEntity = RAWGDatabase.entities.find((e: DatabaseEntity<any, any>) => e.id === 'developer');
 
       expect(gameEntity).toBeDefined();
       expect(devEntity).toBeDefined();
@@ -278,14 +308,14 @@ describe('Database V2 Design', () => {
     });
 
     it('should have filters and sort options for games', () => {
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
+      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity<any, any>) => e.id === 'game');
       expect(gameEntity?.filters).toHaveLength(2);
       expect(gameEntity?.searchOptions).toHaveLength(1);
-      expect(gameEntity?.sortOptions).toHaveLength(3);
+      expect(gameEntity?.sortOptions).toHaveLength(8);
     });
 
     it('should validate search results using Zod', async () => {
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
+      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity<any, any>) => e.id === 'game');
       // This test actually calls the search method, we might need to mock fetch
       // But for design verification, we just check if the method exists and types match
       expect(gameEntity?.search).toBeDefined();
@@ -294,7 +324,7 @@ describe('Database V2 Design', () => {
 
   describe('Search Options', () => {
     it('should cleanly separate search modifiers from data filters', () => {
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game')!;
+      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity<any, any>) => e.id === 'game')!;
       
       expect(gameEntity.searchOptions).toHaveLength(1);
       expect(gameEntity.searchOptions?.[0].id).toBe('precise');

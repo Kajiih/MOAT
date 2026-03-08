@@ -1,7 +1,79 @@
 import { z } from 'zod';
 import { ItemSchema } from '@/items/schemas';
-import { PaginationInfoSchema } from './pagination-schemas';
 import { SortDirection } from './sort-schemas';
+
+/**
+ * Pagination Strategies
+ */
+export type PaginationStrategy = 'page' | 'cursor' | 'offset';
+
+/**
+ * Base pagination contract. The UI only needs this to decide
+ * whether to show a "Load More" button or pagination controls.
+ */
+export interface PaginationInfo {
+  hasNextPage: boolean;
+}
+
+/**
+ * Page-based pagination for APIs that return total counts (RAWG, TMDB, etc.).
+ */
+export interface PagePagination extends PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+}
+
+/**
+ * Cursor-based pagination for APIs using opaque tokens (GraphQL, Hardcover, etc.).
+ */
+export interface CursorPagination extends PaginationInfo {
+  nextCursor?: string;
+  previousCursor?: string;
+}
+
+/**
+ * Offset-based pagination for APIs using limit and offset without total counts.
+ */
+export interface OffsetPagination extends PaginationInfo {
+  offset: number;
+  limit: number;
+  totalCount?: number;
+}
+
+// --- Pagination Zod Schemas ---
+
+export const PagePaginationSchema = z.object({
+  hasNextPage: z.boolean(),
+  currentPage: z.number(),
+  totalPages: z.number(),
+  totalCount: z.number(),
+});
+
+export const CursorPaginationSchema = z.object({
+  hasNextPage: z.boolean(),
+  nextCursor: z.string().optional(),
+  previousCursor: z.string().optional(),
+});
+
+export const OffsetPaginationSchema = z.object({
+  hasNextPage: z.boolean(),
+  offset: z.number(),
+  limit: z.number(),
+  totalCount: z.number().optional(),
+});
+
+/** Runtime schema that accepts any pagination strategy */
+export const PaginationInfoSchema = z.union([PagePaginationSchema, CursorPaginationSchema, OffsetPaginationSchema]);
+
+/**
+ * Mapping between strategy identifier and its specific pagination metadata type.
+ */
+export type PaginationType<S extends PaginationStrategy> = 
+  S extends 'page' ? PagePagination :
+  S extends 'cursor' ? CursorPagination :
+  S extends 'offset' ? OffsetPagination :
+  PaginationInfo;
 
 /**
  * Standardized search response from any entity.
@@ -15,11 +87,19 @@ export const SearchResultSchema = z.object({
   raw: z.array(z.any()),
 });
 
-export interface SearchResult<TRaw = any> extends z.infer<typeof SearchResultSchema> {
+/**
+ * Interface representing a search result.
+ * @template TRaw - The type of the raw API objects.
+ * @template S - The pagination strategy.
+ */
+export interface SearchResult<TRaw = unknown, S extends PaginationStrategy = PaginationStrategy> {
+  /** List of mapped items */
+  items: z.infer<typeof ItemSchema>[];
+  /** Pagination metadata specific to the strategy */
+  pagination: PaginationType<S>;
   /** Original API objects for testing/specialized verification */
   raw: TRaw[];
 }
-
 
 /**
  * Parameters passed to the search function of an entity.
@@ -45,4 +125,98 @@ export const SearchParamsSchema = z.object({
   signal: z.instanceof(AbortSignal).optional(),
 });
 
-export type SearchParams = z.infer<typeof SearchParamsSchema>;
+/**
+ * Generic SearchParams allows static enforcement of pagination fields (page, cursor, offset).
+ */
+export type SearchParams<S extends PaginationStrategy = PaginationStrategy> = {
+  query: string;
+  filters: Record<string, unknown>;
+  sort?: string;
+  sortDirection?: SortDirection;
+  limit: number;
+  signal?: AbortSignal;
+} & (
+  S extends 'page' ? { page?: number } :
+  S extends 'cursor' ? { cursor?: string } :
+  S extends 'offset' ? { offset?: number } :
+  { page?: number; cursor?: string; offset?: number } // Default/Mixed fallback
+);
+
+/**
+ * Programmatically calculates the parameters for the next page based on the current results and strategy.
+ * This removes the need for hardcoded logic in the UI/Consumer layer.
+ * @param params - Current search parameters.
+ * @param result - Previous search result.
+ * @returns Updated search parameters for the next page or null if no next page exists.
+ */
+export function getNextSearchParams<S extends PaginationStrategy>(
+  params: SearchParams<S>,
+  result: SearchResult<unknown, S>
+): SearchParams<S> | null {
+  if (!result.pagination.hasNextPage) return null;
+
+  const nextParams = { ...params };
+  const pagination = result.pagination;
+
+  if ('currentPage' in pagination) {
+    (nextParams as any).page = (pagination.currentPage || 1) + 1;
+  } else if ('nextCursor' in pagination && pagination.nextCursor) {
+    (nextParams as any).cursor = pagination.nextCursor;
+  } else if ('offset' in pagination) {
+    (nextParams as any).offset = pagination.offset + pagination.limit;
+  } else {
+    return null;
+  }
+
+  return nextParams;
+}
+
+/**
+ * Programmatically calculates the parameters for the previous page.
+ * Note: Some strategies (like cursor) might not support this easily.
+ * @param params - Current search parameters.
+ * @param result - Current search result.
+ * @returns Updated search parameters for the previous page or null if not applicable.
+ */
+export function getPreviousSearchParams<S extends PaginationStrategy>(
+  params: SearchParams<S>,
+  result: SearchResult<unknown, S>
+): SearchParams<S> | null {
+  const nextParams = { ...params };
+  const pagination = result.pagination;
+
+  if ('currentPage' in pagination) {
+    if (pagination.currentPage <= 1) return null;
+    (nextParams as any).page = pagination.currentPage - 1;
+  } else if ('previousCursor' in pagination && pagination.previousCursor) {
+    (nextParams as any).cursor = pagination.previousCursor;
+  } else if ('offset' in pagination) {
+    const newOffset = pagination.offset - pagination.limit;
+    if (newOffset < 0) return null;
+    (nextParams as any).offset = newOffset;
+  } else {
+    return null;
+  }
+
+  return nextParams;
+}
+
+/**
+ * Type-safe way to jump to a specific page if the strategy supports it.
+ * @param params - Current search parameters.
+ * @param page - Target page number.
+ * @returns Updated search parameters for the target page or null if page-based pagination is not supported.
+ */
+export function getPageSearchParams<S extends PaginationStrategy>(
+  params: SearchParams<S>,
+  page: number
+): SearchParams<S> | null {
+  // We can't strictly enforce S === 'page' at the type level here easily without casting,
+  // so we check at runtime and return null if not applicable.
+  if (!('page' in params)) return null;
+
+  return {
+    ...params,
+    page,
+  } as SearchParams<S>;
+}

@@ -13,7 +13,7 @@ import { Item } from '@/items/schemas';
 import { SkeletonCard } from '@/items/SkeletonCard';
 import { registry } from '@/providers/registry';
 import { Pagination } from './Pagination';
-import { isSortReversible,SortDirection } from '@/search/schemas';
+import { isSortReversible, SortDirection, SearchParams, PaginationStrategy } from '@/search/schemas';
 import { SortDropdown } from '@/search/SortDropdown';
 import { useItemSearch } from '@/search/useItemSearch';
 
@@ -29,6 +29,9 @@ interface SearchTabProps {
   onInfo: (item: Item) => void;
 }
 
+/**
+ * SearchTab component for a specific entity.
+ */
 export function SearchTab({
   providerId,
   entityId,
@@ -40,11 +43,12 @@ export function SearchTab({
 }: SearchTabProps) {
   const entity = useMemo(() => registry.getEntity(providerId, entityId), [providerId, entityId]);
   
-  const [query, setQuery] = useState('');
-  const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState<Record<string, unknown>>({});
-  const [sort, setSort] = useState<string | undefined>(entity?.sortOptions[0]?.id);
-  const [sortDirection, setSortDirection] = useState<SortDirection | undefined>(entity?.sortOptions[0]?.defaultDirection);
+  // Use a unified params state initialized by the entity
+  // We use PaginationStrategy union here because we don't know the specific one until the entity is resolved.
+  const [params, setParams] = useState<SearchParams<PaginationStrategy>>(() => 
+    entity?.getInitialParams({ limit: 20 }) || { query: '', filters: {}, limit: 20 }
+  );
+  
   const [showFilters, setShowFilters] = useState(false);
 
   const {
@@ -52,13 +56,7 @@ export function SearchTab({
     pagination,
     isLoading,
     error,
-  } = useItemSearch(providerId, entityId, {
-    query,
-    page,
-    filters,
-    sort,
-    sortDirection,
-  }, {
+  } = useItemSearch(providerId, entityId, params, {
     enabled: !isHidden,
   });
 
@@ -105,7 +103,7 @@ export function SearchTab({
 
     return (
       <div className="custom-scrollbar flex-1 overflow-y-auto">
-        {(query || Object.keys(filters).length > 0) && (
+        {(params.query || Object.keys(params.filters).length > 0) && (
           <div className="mt-8 text-center text-sm text-neutral-600 italic">No results found.</div>
         )}
       </div>
@@ -114,17 +112,26 @@ export function SearchTab({
 
   const handleSortChange = (newSort: string) => {
     const option = entity?.sortOptions.find((opt) => opt.id === newSort);
-    setSort(newSort);
-    setSortDirection(option?.defaultDirection || SortDirection.ASC);
-    setPage(1);
+    setParams(prev => ({
+      ...prev,
+      sort: newSort,
+      sortDirection: option?.defaultDirection || SortDirection.ASC,
+      // Reset pagination when sort changes
+      ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {})
+    }));
   }
 
   const toggleSortDirection = () => {
-    setSortDirection(prev => prev === SortDirection.ASC ? SortDirection.DESC : SortDirection.ASC);
-    setPage(1);
+    const newDir = params.sortDirection === SortDirection.ASC ? SortDirection.DESC : SortDirection.ASC;
+    setParams(prev => ({
+      ...prev,
+      sortDirection: newDir,
+      // Reset pagination when direction changes
+      ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {})
+    }));
   }
 
-  const currentSortOption = entity?.sortOptions.find(opt => opt.id === sort);
+  const currentSortOption = entity?.sortOptions.find(opt => opt.id === params.sort);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -133,17 +140,22 @@ export function SearchTab({
           <input
             placeholder={`Search ${entity?.branding.labelPlural}...`}
             className="w-full rounded border border-neutral-700 bg-black px-3 py-2 text-sm outline-none focus:border-red-600"
-            value={query}
+            value={params.query}
             onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
+              const query = e.target.value;
+              setParams(prev => ({
+                ...prev,
+                // Reset pagination on new search
+                ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {}),
+                query,
+              }));
             }}
           />
 
           {entity && entity.sortOptions.length > 0 && (
             <div className="flex shrink-0 gap-1 rounded border border-neutral-700 bg-black p-1">
               <SortDropdown
-                sortOption={sort || ''}
+                sortOption={params.sort || ''}
                 onSortChange={handleSortChange}
                 options={entity.sortOptions.map((opt) => ({
                   label: opt.label,
@@ -155,9 +167,9 @@ export function SearchTab({
                 <button
                   onClick={toggleSortDirection}
                   className="flex h-8 w-8 items-center justify-center rounded bg-neutral-800 text-neutral-400 transition-colors hover:text-white"
-                  title={`Sort ${sortDirection === SortDirection.ASC ? 'Ascending' : 'Descending'} (Click to reverse)`}
+                  title={`Sort ${params.sortDirection === SortDirection.ASC ? 'Ascending' : 'Descending'} (Click to reverse)`}
                 >
-                  {sortDirection === SortDirection.ASC ? (
+                  {params.sortDirection === SortDirection.ASC ? (
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                   ) : (
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
@@ -183,10 +195,14 @@ export function SearchTab({
           <div className="rounded border border-neutral-800 bg-neutral-900/50 p-2">
             <FilterPanel
               entity={entity}
-              values={filters}
+              values={params.filters}
               onChange={(newFilters) => {
-                setFilters(newFilters);
-                setPage(1);
+                setParams(prev => ({
+                  ...prev,
+                  // Reset pagination on filter change
+                  ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {}),
+                  filters: newFilters,
+                }));
               }}
             />
           </div>
@@ -208,11 +224,11 @@ export function SearchTab({
         {/* Pagination Footer */}
         {!isLoading && pagination && (
           <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pt-2">
-             {'totalPages' in pagination && (
+             {'totalPages' in pagination && 'page' in params && (
                 <Pagination 
-                   page={page} 
+                   page={params.page || 1} 
                    totalPages={pagination.totalPages} 
-                   onPageChange={setPage} 
+                   onPageChange={(p) => setParams(prev => ({ ...prev, page: p }))} 
                 />
              )}
           </div>

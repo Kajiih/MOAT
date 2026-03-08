@@ -161,8 +161,9 @@ const GAME_FILTERS: FilterDefinition[] = [
   })
 ];
 
-export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
+export class RAWGGameEntity implements DatabaseEntity<RAWGGame, 'page'> {
   public readonly id = 'game';
+  public readonly paginationStrategy = 'page' as const;
   public readonly branding = {
     label: 'Video Game',
     labelPlural: 'Video Games',
@@ -223,45 +224,19 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
-  public async search(params: SearchParams): Promise<SearchResult> {
-    try {
-      const apiParams: Record<string, string> = {
-        page: (params.page || 1).toString(),
-        page_size: params.limit.toString(),
-      };
+  public getInitialParams(config: { limit: number }): SearchParams<'page'> {
+    return {
+      query: '',
+      filters: {},
+      sort: this.sortOptions[0]?.id,
+      sortDirection: this.sortOptions[0]?.defaultDirection,
+      limit: config.limit,
+      page: 1,
+    };
+  }
 
-      if (params.query) {
-        apiParams.search = params.query;
-      }
-
-      // --- Declarative Filter Mapping ---
-      // Apply both panel filters and search options using constants directly
-      applyFilters(apiParams, params.filters, GAME_FILTERS);
-      applyFilters(apiParams, params.filters, GAME_SEARCH_OPTIONS);
-
-      if (params.sort && params.sort !== 'relevance') {
-        apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
-      }
-
-      const data = await this.provider.fetchRawg<RAWGListResponse<RAWGGame>>('/games', apiParams, { signal: params.signal });
-      const items = data.results.map(game => mapGameToItem(game, this.provider.id));
-
-      const currentPage = params.page || 1;
-      const totalPages = Math.ceil(data.count / params.limit);
-
-      return SearchResultSchema.parse({
-        items,
-        raw: data.results,
-        pagination: {
-          currentPage,
-          totalPages,
-          totalCount: data.count,
-          hasNextPage: currentPage < totalPages,
-        },
-      });
-    } catch (error) {
-      throw handleDatabaseError(error, this.provider.id);
-    }
+  public async search(params: SearchParams<'page'>): Promise<SearchResult<RAWGGame, 'page'>> {
+    return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', (game) => mapGameToItem(game, this.provider.id));
   }
 
   public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {
@@ -352,7 +327,7 @@ function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
 const UBISOFT_ID = '405';
 const NINTENDO_ID = '11';
 
-export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
+export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper, 'page'> {
   public readonly id = 'developer';
   public readonly branding = {
     label: 'Developer',
@@ -365,48 +340,26 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
   public readonly sortOptions = [
     createSort({ id: 'relevance', label: 'Relevance' }),
   ];
+  public readonly paginationStrategy = 'page';
 
   public readonly defaultTestQueries = ['Ubisoft', 'Nintendo'];
   public readonly testDetailsIds = [UBISOFT_ID, NINTENDO_ID];
 
   public constructor(private provider: RAWGDatabaseProvider) {}
 
-  public async search(params: SearchParams): Promise<SearchResult> {
-    try {
-      const apiParams: Record<string, string> = {
-        page: (params.page || 1).toString(),
-        page_size: params.limit.toString(),
-      };
+  public getInitialParams(config: { limit: number }): SearchParams<'page'> {
+    return {
+      query: '',
+      filters: {},
+      sort: this.sortOptions[0]?.id,
+      sortDirection: this.sortOptions[0]?.defaultDirection,
+      limit: config.limit,
+      page: 1,
+    };
+  }
 
-      if (params.query) {
-        apiParams.search = params.query;
-      }
-
-      applyFilters(apiParams, params.filters, this.searchOptions);
-
-      if (params.sort && params.sort !== 'relevance') {
-        apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
-      }
-
-      const data = await this.provider.fetchRawg<RAWGListResponse<RAWGDeveloper>>('/developers', apiParams, { signal: params.signal });
-      const items = data.results.map(dev => mapDeveloperToItem(dev, this.provider.id));
-
-      const currentPage = params.page || 1;
-      const totalPages = Math.ceil(data.count / params.limit);
-
-      return SearchResultSchema.parse({
-        items,
-        raw: data.results,
-        pagination: {
-          currentPage,
-          totalPages,
-          totalCount: data.count,
-          hasNextPage: currentPage < totalPages,
-        },
-      });
-    } catch (error) {
-      throw handleDatabaseError(error, this.provider.id);
-    }
+  public async search(params: SearchParams<'page'>): Promise<SearchResult<RAWGDeveloper, 'page'>> {
+    return this.provider.searchEntities<RAWGDeveloper>(params, this.searchOptions, '/developers', (dev) => mapDeveloperToItem(dev, this.provider.id));
   }
 
   public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {
@@ -442,6 +395,54 @@ export class RAWGDatabaseProvider implements DatabaseProvider<[RAWGGameEntity, R
   public initialize = async (fetcher: Fetcher) => {
     this.fetcher = fetcher;
   };
+
+  /**
+   * Generic helper to search for entities of any type
+   */
+  public async searchEntities<T extends { id: number | string }>(
+    params: SearchParams<'page'>,
+    searchOptions: FilterDefinition[],
+    endpoint: string,
+    mapper: (raw: T) => Item
+  ): Promise<SearchResult<T, 'page'>> {
+    try {
+      const apiParams: Record<string, string> = {
+        page: (params.page || 1).toString(),
+        page_size: params.limit.toString(),
+      };
+
+      if (params.query) {
+        apiParams.search = params.query;
+      }
+
+      applyFilters(apiParams, params.filters, searchOptions);
+
+      if (params.sort && params.sort !== 'relevance') {
+        apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
+      }
+
+      const data = await this.fetchRawg<RAWGListResponse<T>>(endpoint, apiParams, { signal: params.signal });
+      const items = data.results.map(mapper);
+
+      const currentPage = params.page || 1;
+      const totalPages = Math.ceil(data.count / params.limit);
+
+      const result = SearchResultSchema.parse({
+        items,
+        raw: data.results,
+        pagination: {
+          currentPage,
+          totalPages,
+          totalCount: data.count,
+          hasNextPage: currentPage < totalPages,
+        },
+      });
+
+      return result as SearchResult<T, 'page'>;
+    } catch (error) {
+      throw handleDatabaseError(error, this.id);
+    }
+  }
 
   /**
    * Helper to fetch from RAWG using the injected fetcher

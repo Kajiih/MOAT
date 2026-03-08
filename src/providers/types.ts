@@ -2,7 +2,7 @@ import { LucideIcon } from 'lucide-react';
 
 import { FilterDefinition } from '@/search/schemas';
 import { ItemDetails } from '@/items/schemas';
-import { SearchParams, SearchResult } from '@/search/schemas';
+import { SearchParams, SearchResult, PaginationStrategy } from '@/search/schemas';
 import { SortDefinition } from '@/search/schemas';
 
 /**
@@ -33,8 +33,9 @@ export interface EntityBranding {
 /**
  * Represents an entity within a database (e.g., "Game", "Developer").
  * Generic TRaw allows integration tests to access provider-specific raw results safely.
+ * Generic S defines the pagination strategy used by this entity.
  */
-export interface DatabaseEntity<TRaw = any> {
+export interface DatabaseEntity<TRaw = any, S extends PaginationStrategy = PaginationStrategy> {
   /** Unique ID for the entity within the provider */
   readonly id: string;
   /** UI branding for the entity */
@@ -45,6 +46,8 @@ export interface DatabaseEntity<TRaw = any> {
   readonly searchOptions?: FilterDefinition[];
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
+  /** Pagination strategy used by this entity */
+  readonly paginationStrategy: S;
 
   /**
    * Queries used to verify search, pagination, and sorting in integration tests.
@@ -57,9 +60,15 @@ export interface DatabaseEntity<TRaw = any> {
   readonly testDetailsIds: string[];
 
   /**
+   * Returns the starting parameters for this entity's search.
+   * This is used by the UI to initialize state in a strategy-blind way.
+   */
+  readonly getInitialParams: (config: { limit: number }) => SearchParams<S>;
+
+  /**
    * Search for items within the entity.
    */
-  readonly search: (params: SearchParams) => Promise<SearchResult<TRaw>>;
+  readonly search: (params: SearchParams<S>) => Promise<SearchResult<TRaw, S>>;
   
   /** 
    * Detail method: Fetches and maps deep metadata for a single item.
@@ -76,7 +85,7 @@ export type Fetcher = <T>(url: string, options?: RequestInit) => Promise<T>;
  * Represents an independent external database service provider.
  * This is the top-level object registered in the application.
  */
-export interface DatabaseProvider<TEntities extends readonly DatabaseEntity<any>[] = DatabaseEntity<any>[]> {
+export interface DatabaseProvider<TEntities extends readonly DatabaseEntity<any, any>[] = DatabaseEntity<any, any>[]> {
   /** Unique provider ID (e.g., 'rawg', 'igdb', 'musicbrainz') */
   id: string;
   /** Human readable name (e.g., 'RAWG Database') */
