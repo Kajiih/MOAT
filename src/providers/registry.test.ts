@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { RAWGDatabase } from '@/providers/adapters/rawg/rawg';
-import { DatabaseErrorCode } from './errors';
+import { ProviderErrorCode } from './errors';
 import { Gamepad2, Building2 } from 'lucide-react';
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/schemas';
-import { DatabaseEntity, DatabaseProvider, ProviderStatus, nonEmpty } from '@/providers/types';
+import { Entity, Provider, ProviderStatus, nonEmpty } from '@/providers/types';
 import { registry, RegistryStatus } from './registry';
 import { SearchParamsSchema, SearchResult, SearchResultSchema, SortDirection } from '@/search/schemas';
-import { handleDatabaseError } from './utils';
+import { handleProviderError } from './utils';
 
-const createMockEntity = (overrides: Partial<DatabaseEntity> = {}): DatabaseEntity => ({
+const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
   id: 'mock-entity',
   branding: { label: 'Video Game', labelPlural: 'Video Games', icon: Gamepad2, colorClass: 'text-purple-400' },
   filters: [
@@ -95,7 +95,7 @@ describe('Database V2 Design', () => {
       registry.setFetcher(mockFetcher);
       
       await registry.register(RAWGDatabase);
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
+      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
       
       await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: 10 });
       expect(mockFetcher).toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe('Database V2 Design', () => {
 
     it('should track failed providers without completely breaking the registry for others', async () => {
       // Create a failing provider
-      const failingProvider: DatabaseProvider = {
+      const failingProvider: Provider = {
         id: 'failing',
         label: 'Failing Provider',
         entities: [],
@@ -114,7 +114,7 @@ describe('Database V2 Design', () => {
       } as any;
 
       // Create a working provider
-      const workingProvider: DatabaseProvider = {
+      const workingProvider: Provider = {
         id: 'working',
         label: 'Working Provider',
         entities: [],
@@ -148,7 +148,7 @@ describe('Database V2 Design', () => {
       let slowDone = false;
       let fastDone = false;
 
-      const slowProvider: DatabaseProvider = {
+      const slowProvider: Provider = {
         id: 'slow',
         label: 'Slow',
         entities: [createMockEntity({ id: 'game' }), createMockEntity({ id: 'developer', branding: { ...createMockEntity().branding, icon: Building2 } })],
@@ -161,7 +161,7 @@ describe('Database V2 Design', () => {
         resolveImage: async () => null,
       } as any;
 
-      const fastProvider: DatabaseProvider = {
+      const fastProvider: Provider = {
         id: 'fast',
         label: 'Fast',
         entities: [createMockEntity({ id: 'game' }), createMockEntity({ id: 'developer', branding: { ...createMockEntity().branding, icon: Building2 } })],
@@ -193,44 +193,44 @@ describe('Database V2 Design', () => {
     });
   });
 
-  describe('handleDatabaseError', () => {
+  describe('handleProviderError', () => {
     it('should map AbortError to TIMEOUT', () => {
       const abortError = new Error('The operation was aborted');
       abortError.name = 'AbortError';
       
-      const dbError = handleDatabaseError(abortError, 'test');
-      expect(dbError.code).toBe(DatabaseErrorCode.TIMEOUT);
+      const dbError = handleProviderError(abortError, 'test');
+      expect(dbError.code).toBe(ProviderErrorCode.TIMEOUT);
     });
 
     it('should map TimeoutError to TIMEOUT', () => {
       const timeoutError = new Error('The operation timed out');
       timeoutError.name = 'TimeoutError';
       
-      const dbError = handleDatabaseError(timeoutError, 'test');
-      expect(dbError.code).toBe(DatabaseErrorCode.TIMEOUT);
+      const dbError = handleProviderError(timeoutError, 'test');
+      expect(dbError.code).toBe(ProviderErrorCode.TIMEOUT);
     });
 
     it('should map 401/403 to AUTH_ERROR', () => {
-      expect(handleDatabaseError({ status: 401 }, 'test').code).toBe(DatabaseErrorCode.AUTH_ERROR);
-      expect(handleDatabaseError({ status: 403 }, 'test').code).toBe(DatabaseErrorCode.AUTH_ERROR);
+      expect(handleProviderError({ status: 401 }, 'test').code).toBe(ProviderErrorCode.AUTH_ERROR);
+      expect(handleProviderError({ status: 403 }, 'test').code).toBe(ProviderErrorCode.AUTH_ERROR);
     });
 
     it('should map 500 to SERVICE_UNAVAILABLE', () => {
-      expect(handleDatabaseError({ status: 500 }, 'test').code).toBe(DatabaseErrorCode.SERVICE_UNAVAILABLE);
+      expect(handleProviderError({ status: 500 }, 'test').code).toBe(ProviderErrorCode.SERVICE_UNAVAILABLE);
     });
 
     it('should map ZodError to VALIDATION_ERROR', () => {
       const result = z.string().safeParse(123);
       if (!result.success) {
-        const error = handleDatabaseError(result.error, 'test');
-        expect(error.code).toBe(DatabaseErrorCode.VALIDATION_ERROR);
+        const error = handleProviderError(result.error, 'test');
+        expect(error.code).toBe(ProviderErrorCode.VALIDATION_ERROR);
         expect(error.message).toContain('Validation error:');
       }
     });
 
     it('should fallback to INTERNAL_ERROR for unknown objects', () => {
-      const error = handleDatabaseError({ message: 'Boom' }, 'test');
-      expect(error.code).toBe(DatabaseErrorCode.INTERNAL_ERROR);
+      const error = handleProviderError({ message: 'Boom' }, 'test');
+      expect(error.code).toBe(ProviderErrorCode.INTERNAL_ERROR);
       expect(error.message).toBe('Boom');
     });
   });
@@ -307,8 +307,8 @@ describe('Database V2 Design', () => {
   describe('RAWGDatabase Prototype', () => {
     it('should have the correct entities', () => {
       expect(RAWGDatabase.entities).toHaveLength(2);
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
-      const devEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'developer');
+      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
+      const devEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'developer');
 
       expect(gameEntity).toBeDefined();
       expect(devEntity).toBeDefined();
@@ -316,14 +316,14 @@ describe('Database V2 Design', () => {
     });
 
     it('should have filters and sort options for games', () => {
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
+      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
       expect(gameEntity?.filters).toHaveLength(2);
       expect(gameEntity?.searchOptions).toHaveLength(1);
       expect(gameEntity?.sortOptions).toHaveLength(8);
     });
 
     it('should validate search results using Zod', async () => {
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game');
+      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
       // This test actually calls the search method, we might need to mock fetch
       // But for design verification, we just check if the method exists and types match
       expect(gameEntity?.search).toBeDefined();
@@ -332,7 +332,7 @@ describe('Database V2 Design', () => {
 
   describe('Search Options', () => {
     it('should cleanly separate search modifiers from data filters', () => {
-      const gameEntity = RAWGDatabase.entities.find((e: DatabaseEntity) => e.id === 'game')!;
+      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game')!;
       
       expect(gameEntity.searchOptions).toHaveLength(1);
       expect(gameEntity.searchOptions?.[0].id).toBe('precise');

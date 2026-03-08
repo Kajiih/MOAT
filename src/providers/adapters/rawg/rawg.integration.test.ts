@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { BaseItem } from '@/items/items';
 import { RAWGDatabase, RAWGGame, RAWGDeveloper } from './rawg';
 import { SortDirection } from '@/search/schemas';
-import { DatabaseEntity } from '@/providers/types';
+import { Entity } from '@/providers/types';
 import { 
   expectContainsCanonical, 
   expectExcludesAnchors, 
@@ -17,8 +17,8 @@ import {
  * They are gated by the presence of RAWG_API_KEY in the environment.
  */
 describe.runIf(!!process.env.RAWG_API_KEY)('RAWGDatabaseProvider Live API Integration', { timeout: 15000 }, () => {
-  const gameEntity = RAWGDatabase.entities.find(e => e.id === 'game')! as DatabaseEntity<RAWGGame>;
-  const devEntity = RAWGDatabase.entities.find(e => e.id === 'developer')! as DatabaseEntity<RAWGDeveloper>;
+  const gameEntity = RAWGDatabase.entities.find(e => e.id === 'game')! as Entity<RAWGGame>;
+  const devEntity = RAWGDatabase.entities.find(e => e.id === 'developer')! as Entity<RAWGDeveloper>;
 
   interface AnchorGame {
     query: string;

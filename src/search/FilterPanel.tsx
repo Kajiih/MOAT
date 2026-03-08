@@ -1,18 +1,18 @@
 import React from 'react';
 
-import { DatabaseEntity } from '@/providers/types';
+import { Entity } from '@/providers/types';
 
 import { FallbackFilterInput, FilterUIComponents } from './filters/index';
 
 interface FilterPanelProps {
-  entity: DatabaseEntity;
+  entity: Entity;
   values: Record<string, unknown>;
   onChange: (values: Record<string, unknown>) => void;
 }
 
 /**
  * A purely declarative filter panel that renders UI controls based on 
- * the FilterDefinitions provided by a DatabaseEntity.
+ * the FilterDefinitions provided by a Entity.
  * @param root0
  * @param root0.entity
  * @param root0.values

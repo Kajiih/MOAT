@@ -1,7 +1,7 @@
 /**
  * Standardized error codes for the database layer.
  */
-export enum DatabaseErrorCode {
+export enum ProviderErrorCode {
   /** The item was not found in the database */
   NOT_FOUND = 'NOT_FOUND',
   /** API key is missing or invalid */
@@ -21,14 +21,14 @@ export enum DatabaseErrorCode {
 /**
  * Standardized error class for the database layer.
  */
-export class DatabaseError extends Error {
+export class ProviderError extends Error {
   constructor(
-    public readonly code: DatabaseErrorCode,
+    public readonly code: ProviderErrorCode,
     public readonly message: string,
     public readonly originalError?: unknown,
     public readonly databaseId?: string,
   ) {
     super(message);
-    this.name = 'DatabaseError';
+    this.name = 'ProviderError';
   }
 }

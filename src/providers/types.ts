@@ -19,7 +19,7 @@ export function nonEmpty<T>(first: T, ...rest: T[]): NonEmptyArray<T> {
 }
 
 /**
- * Possible states for an individual DatabaseProvider.
+ * Possible states for an individual Provider.
  */
 export enum ProviderStatus {
   IDLE = 'IDLE',
@@ -50,7 +50,7 @@ export interface EntityBranding {
  * Navigation is fully entity-driven: the UI treats SearchParams as an opaque blob
  * and delegates all pagination logic to the entity via getNextParams / getPreviousParams.
  */
-export interface DatabaseEntity<TRaw = any> {
+export interface Entity<TRaw = any> {
   /** Unique ID for the entity within the provider */
   readonly id: string;
   /** UI branding for the entity */
@@ -99,7 +99,7 @@ export type Fetcher = <T>(url: string, options?: RequestInit) => Promise<T>;
  * (e.g. `readonly entities = [...] as const`), which TypeScript's structural
  * typing matches against this interface.
  */
-export interface DatabaseProvider {
+export interface Provider {
   /** Unique provider ID (e.g., 'rawg', 'igdb', 'musicbrainz') */
   readonly id: string;
   /** Human readable name (e.g., 'RAWG Database') */
@@ -110,7 +110,7 @@ export interface DatabaseProvider {
   readonly icon?: LucideIcon;
 
   /** The list of entities this database exposes to the user */
-  readonly entities: readonly DatabaseEntity[];
+  readonly entities: readonly Entity[];
   
   /** 
    * The current status of this specific provider.

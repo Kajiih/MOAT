@@ -1,5 +1,5 @@
 import { secureFetch } from '@/providers/api-client';
-import { DatabaseEntity, DatabaseProvider, Fetcher, ProviderStatus } from '@/providers/types';
+import { Entity, Provider, Fetcher, ProviderStatus } from '@/providers/types';
 
 /**
  * Possible states for the DatabaseRegistry.
@@ -17,7 +17,7 @@ export enum RegistryStatus {
  */
 export class DatabaseRegistry {
   private static instance: DatabaseRegistry;
-  private providers: Map<string, DatabaseProvider> = new Map();
+  private providers: Map<string, Provider> = new Map();
   private fetcher: Fetcher = secureFetch as unknown as Fetcher;
   
   private status: RegistryStatus = RegistryStatus.IDLE;
@@ -61,7 +61,7 @@ export class DatabaseRegistry {
    * Registers and initializes a new database provider.
    * @param provider
    */
-  public async register(provider: DatabaseProvider): Promise<void> {
+  public async register(provider: Provider): Promise<void> {
     this.status = RegistryStatus.INITIALIZING;
     provider.status = ProviderStatus.INITIALIZING;
     
@@ -111,7 +111,7 @@ export class DatabaseRegistry {
    * @param id - The provider's unique identifier.
    * @throws If provider is not found.
    */
-  public getProvider(id: string): DatabaseProvider {
+  public getProvider(id: string): Provider {
     const provider = this.providers.get(id);
     if (!provider) throw new Error(`Provider "${id}" not found`);
     return provider;
@@ -123,7 +123,7 @@ export class DatabaseRegistry {
    * @param entityId - The entity's unique identifier within the provider.
    * @throws If provider or entity is not found.
    */
-  public getEntity(databaseId: string, entityId: string): DatabaseEntity {
+  public getEntity(databaseId: string, entityId: string): Entity {
     const provider = this.getProvider(databaseId);
     const entity = provider.entities.find(e => e.id === entityId);
     if (!entity) throw new Error(`Entity "${entityId}" not found in provider "${databaseId}"`);
@@ -145,7 +145,7 @@ export class DatabaseRegistry {
         return await provider.resolveImage(key);
       }
     } catch (error) {
-      const dbError = import('./utils').then(m => m.handleDatabaseError(error, providerId));
+      const dbError = import('./utils').then(m => m.handleProviderError(error, providerId));
       // In a real app, we'd check if this is an AUTH_ERROR and trigger re-init
       // For now, we just log and return null
       console.error(`Image resolution failed for ${providerId}:${key}`, error);
@@ -167,7 +167,7 @@ export class DatabaseRegistry {
   /**
    * Returns all registered providers.
    */
-  public getAllProviders(): DatabaseProvider[] {
+  public getAllProviders(): Provider[] {
     return [...this.providers.values()];
   }
 

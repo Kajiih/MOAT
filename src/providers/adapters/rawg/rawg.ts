@@ -5,7 +5,7 @@
 
 import { Building2, Gamepad2 } from 'lucide-react';
 
-import { applyFilters, handleDatabaseError } from '@/providers/utils';
+import { applyFilters, handleProviderError } from '@/providers/utils';
 import { createSortSuite, SortDirection } from '@/search/schemas';
 import { FilterDefinition } from '@/search/schemas';
 
@@ -13,7 +13,7 @@ import { toCompositeId } from '@/items/schemas';
 import { referenceImage, urlImage } from '@/items/schemas';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/schemas';
 import { ProviderStatus } from '@/providers/types';
-import { DatabaseEntity, DatabaseProvider, Fetcher, NonEmptyArray, nonEmpty } from '@/providers/types';
+import { Entity, Provider, Fetcher, NonEmptyArray, nonEmpty } from '@/providers/types';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
 import { secureFetch } from '@/providers/api-client';
 
@@ -174,7 +174,7 @@ const GAME_FILTERS: FilterDefinition<any, RAWGGame>[] = [
   })
 ];
 
-export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
+export class RAWGGameEntity implements Entity<RAWGGame> {
   public readonly id = 'game';
   public readonly branding = {
     label: 'Video Game',
@@ -286,7 +286,7 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame> {
 
       return ItemDetailsSchema.parse(details);
     } catch (error) {
-      throw handleDatabaseError(error, this.provider.id);
+      throw handleProviderError(error, this.provider.id);
     }
   };
 }
@@ -350,7 +350,7 @@ const NINTENDO_ID = '11';
 
 const rawgDevSorts = createSortSuite<RAWGDeveloper>();
 
-export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
+export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   public readonly id = 'developer';
   public readonly branding = {
     label: 'Developer',
@@ -408,7 +408,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
 
       return ItemDetailsSchema.parse(details);
     } catch (error) {
-      throw handleDatabaseError(error, this.provider.id);
+      throw handleProviderError(error, this.provider.id);
     }
   };
 }
@@ -416,7 +416,7 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper> {
 /**
  * RAWG Database Provider Implementation
  */
-export class RAWGDatabaseProvider implements DatabaseProvider {
+export class RAWGDatabaseProvider implements Provider {
   public readonly id = 'rawg';
   public readonly label = 'RAWG';
   public readonly icon = Gamepad2;
@@ -486,7 +486,7 @@ export class RAWGDatabaseProvider implements DatabaseProvider {
 
       return result as SearchResult<T>;
     } catch (error) {
-      throw handleDatabaseError(error, this.id);
+      throw handleProviderError(error, this.id);
     }
   }
 

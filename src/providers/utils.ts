@@ -6,23 +6,23 @@
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
-import { DatabaseError, DatabaseErrorCode } from './errors';
+import { ProviderError, ProviderErrorCode } from './errors';
 import { BaseFilterDefinition } from '@/search/schemas';
 
 /**
- * Wraps any error into a standardized DatabaseError.
+ * Wraps any error into a standardized ProviderError.
  * @param error - The original error object.
  * @param databaseId - The identifier of the database where the error occurred.
- * @returns A standardized DatabaseError.
+ * @returns A standardized ProviderError.
  */
-export function handleDatabaseError(error: unknown, databaseId: string): DatabaseError {
-  if (error instanceof DatabaseError) return error;
+export function handleProviderError(error: unknown, databaseId: string): ProviderError {
+  if (error instanceof ProviderError) return error;
 
   // 1. Handle Zod Validation Errors
   if (error instanceof z.ZodError) {
     const validationError = fromZodError(error);
-    return new DatabaseError(
-      DatabaseErrorCode.VALIDATION_ERROR,
+    return new ProviderError(
+      ProviderErrorCode.VALIDATION_ERROR,
       validationError.message,
       error,
       databaseId
@@ -31,7 +31,7 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
 
   // 2. Handle Abort / Timeout errors
   if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
-    return new DatabaseError(DatabaseErrorCode.TIMEOUT, 'The request timed out or was aborted', error, databaseId);
+    return new ProviderError(ProviderErrorCode.TIMEOUT, 'The request timed out or was aborted', error, databaseId);
   }
 
   // 3. Handle API Errors via status codes
@@ -43,17 +43,17 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
     switch (status) {
       case 401:
       case 403: {
-        return new DatabaseError(DatabaseErrorCode.AUTH_ERROR, 'Authentication failed or API key invalid', error, databaseId);
+        return new ProviderError(ProviderErrorCode.AUTH_ERROR, 'Authentication failed or API key invalid', error, databaseId);
       }
       case 404: {
-        return new DatabaseError(DatabaseErrorCode.NOT_FOUND, 'The requested item was not found', error, databaseId);
+        return new ProviderError(ProviderErrorCode.NOT_FOUND, 'The requested item was not found', error, databaseId);
       }
       case 429: {
-        return new DatabaseError(DatabaseErrorCode.RATE_LIMIT, 'Rate limit exceeded for this database', error, databaseId);
+        return new ProviderError(ProviderErrorCode.RATE_LIMIT, 'Rate limit exceeded for this database', error, databaseId);
       }
       default: {
         if (status >= 500) {
-          return new DatabaseError(DatabaseErrorCode.SERVICE_UNAVAILABLE, 'External service is currently unavailable', error, databaseId);
+          return new ProviderError(ProviderErrorCode.SERVICE_UNAVAILABLE, 'External service is currently unavailable', error, databaseId);
         }
       }
     }
@@ -63,7 +63,7 @@ export function handleDatabaseError(error: unknown, databaseId: string): Databas
   const message = (error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string') 
     ? (error as { message: string }).message 
     : 'An unexpected error occurred in the database layer';
-  return new DatabaseError(DatabaseErrorCode.INTERNAL_ERROR, message, error, databaseId);
+  return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, databaseId);
 }
 
 /**
