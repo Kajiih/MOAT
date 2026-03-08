@@ -34,6 +34,15 @@ const createMockEntity = (overrides: Partial<DatabaseEntity<any, any>> = {}): Da
     limit: config.limit,
     page: 1,
   }),
+  getNextParams: (params, result) => {
+    if (!result.pagination.hasNextPage) return null;
+    return { ...params, page: (params.page || 1) + 1 };
+  },
+  getPreviousParams: (params) => {
+    const currentPage = params.page || 1;
+    if (currentPage <= 1) return null;
+    return { ...params, page: currentPage - 1 };
+  },
   search: vi.fn(),
   getDetails: vi.fn(),
   ...overrides,

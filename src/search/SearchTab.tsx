@@ -5,14 +5,13 @@
 
 'use client';
 
-import { Filter } from 'lucide-react';
+import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
 import { ItemCard } from '@/items/ItemCard';
 import { Item } from '@/items/schemas';
 import { SkeletonCard } from '@/items/SkeletonCard';
 import { registry } from '@/providers/registry';
-import { Pagination } from './Pagination';
 import { isSortReversible, SortDirection, SearchParams, PaginationStrategy } from '@/search/schemas';
 import { SortDropdown } from '@/search/SortDropdown';
 import { useItemSearch } from '@/search/useItemSearch';
@@ -222,15 +221,37 @@ export function SearchTab({
         </div>
 
         {/* Pagination Footer */}
-        {!isLoading && pagination && (
-          <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pt-2">
-             {'totalPages' in pagination && 'page' in params && (
-                <Pagination 
-                   page={params.page || 1} 
-                   totalPages={pagination.totalPages} 
-                   onPageChange={(p) => setParams(prev => ({ ...prev, page: p }))} 
-                />
-             )}
+        {!isLoading && results.length > 0 && pagination && (
+          <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pb-2 pt-2">
+            <button
+              disabled={!entity?.getPreviousParams(params, { items: results, pagination, raw: [] })}
+              onClick={() => {
+                const prev = entity?.getPreviousParams(params, { items: results, pagination, raw: [] });
+                if (prev) setParams(prev);
+              }}
+              className="rounded bg-neutral-800 p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
+              title="Previous Page"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {'totalPages' in pagination && (
+              <span className="text-xs text-neutral-400">
+                Page {'page' in params ? params.page : 1} of {pagination.totalPages}
+              </span>
+            )}
+
+            <button
+              disabled={!entity?.getNextParams(params, { items: results, pagination, raw: [] })}
+              onClick={() => {
+                const next = entity?.getNextParams(params, { items: results, pagination, raw: [] });
+                if (next) setParams(next);
+              }}
+              className="rounded bg-neutral-800 p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
+              title="Next Page"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
         )}
       </div>

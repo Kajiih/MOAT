@@ -239,6 +239,17 @@ export class RAWGGameEntity implements DatabaseEntity<RAWGGame, 'page'> {
     return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', (game) => mapGameToItem(game, this.provider.id));
   }
 
+  public getNextParams(params: SearchParams<'page'>, result: SearchResult<unknown, 'page'>): SearchParams<'page'> | null {
+    if (!result.pagination.hasNextPage) return null;
+    return { ...params, page: (params.page || 1) + 1 };
+  }
+
+  public getPreviousParams(params: SearchParams<'page'>): SearchParams<'page'> | null {
+    const currentPage = params.page || 1;
+    if (currentPage <= 1) return null;
+    return { ...params, page: currentPage - 1 };
+  }
+
   public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {
     try {
       const game = await this.provider.fetchRawg<RAWGGame>(`/games/${dbId}`, {}, { signal: options?.signal });
@@ -360,6 +371,17 @@ export class RAWGDeveloperEntity implements DatabaseEntity<RAWGDeveloper, 'page'
 
   public async search(params: SearchParams<'page'>): Promise<SearchResult<RAWGDeveloper, 'page'>> {
     return this.provider.searchEntities<RAWGDeveloper>(params, this.searchOptions, '/developers', (dev) => mapDeveloperToItem(dev, this.provider.id));
+  }
+
+  public getNextParams(params: SearchParams<'page'>, result: SearchResult<unknown, 'page'>): SearchParams<'page'> | null {
+    if (!result.pagination.hasNextPage) return null;
+    return { ...params, page: (params.page || 1) + 1 };
+  }
+
+  public getPreviousParams(params: SearchParams<'page'>): SearchParams<'page'> | null {
+    const currentPage = params.page || 1;
+    if (currentPage <= 1) return null;
+    return { ...params, page: currentPage - 1 };
   }
 
   public async getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> {

@@ -63,17 +63,29 @@ export interface DatabaseEntity<TRaw = any, S extends PaginationStrategy = Pagin
    * Returns the starting parameters for this entity's search.
    * This is used by the UI to initialize state in a strategy-blind way.
    */
-  readonly getInitialParams: (config: { limit: number }) => SearchParams<S>;
+  getInitialParams(config: { limit: number }): SearchParams<S>;
+
+  /**
+   * Calculates the parameters for the next page of results.
+   * Returns null if no next page exists or navigation is not possible.
+   */
+  getNextParams(params: SearchParams<S>, result: SearchResult<unknown, S>): SearchParams<S> | null;
+
+  /**
+   * Calculates the parameters for the previous page of results.
+   * Returns null if no previous page exists or navigation is not possible.
+   */
+  getPreviousParams(params: SearchParams<S>, result: SearchResult<unknown, S>): SearchParams<S> | null;
 
   /**
    * Search for items within the entity.
    */
-  readonly search: (params: SearchParams<S>) => Promise<SearchResult<TRaw, S>>;
+  search(params: SearchParams<S>): Promise<SearchResult<TRaw, S>>;
   
   /** 
    * Detail method: Fetches and maps deep metadata for a single item.
    */
-  readonly getDetails: (dbId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
+  getDetails(dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails>;
 }
 
 /**
