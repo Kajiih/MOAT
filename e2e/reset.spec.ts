@@ -25,7 +25,13 @@ test.describe('Board Reset and Clear Actions', () => {
       await expect(card).toBeVisible();
       await searchPanel.dragToTier(id, 'S');
       await expect(boardPage.getMediaCard(id)).toBeVisible({ timeout: 15_000 });
+      // eslint-disable-next-line playwright/no-wait-for-timeout
+      await page.waitForTimeout(500); // Settle
     }
+
+    // Wait for full board layout hydration
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(1000);
   });
 
   test('should reset all items to unranked', async ({ boardPage }) => {
@@ -51,9 +57,8 @@ test.describe('Board Reset and Clear Actions', () => {
     await expect(boardPage.getMediaCard('item-3')).toBeVisible();
   });
 
-  test('should clear the entire board (all items gone)', async ({ boardPage }) => {
-    test.skip(true, 'Skipping flaky Radix Dropdown + window.confirm() modal interaction bug in Playwright.');
-    
+  // Marked as skip because Playwright natively deadlocks on Radix Dropdowns + window.confirm() modals in certain headless configurations.
+  test.skip('should clear the entire board (all items gone)', async ({ boardPage }) => {
     // Initial state: items present
     await expect(boardPage.tierRows.getByTestId(/media-card-/)).toHaveCount(3);
 
@@ -68,9 +73,8 @@ test.describe('Board Reset and Clear Actions', () => {
     await expect(boardPage.tierLabels.first()).toHaveText('S');
   });
 
-  test('should support undo for reset items', async ({ boardPage }) => {
-    test.skip(true, 'Skipping flaky Radix Dropdown + window.confirm() modal interaction bug in Playwright.');
-    
+  // Marked as skip because Playwright natively deadlocks on Radix Dropdowns + window.confirm() modals in certain headless configurations.
+  test.skip('should support undo for reset items', async ({ boardPage }) => {
     // Initial state
     await boardPage.resetItems();
     await expect(boardPage.getTierRow('Unranked').getByTestId(/media-card-/)).toHaveCount(3);

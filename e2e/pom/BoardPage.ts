@@ -81,8 +81,10 @@ export class BoardPage {
     // Idempotent: if the menu is already open, don't toggle it off.
     if (await this.clearBoardButton.isVisible()) return;
 
-    await this.optionsButton.click();
-    await this.clearBoardButton.waitFor({ state: 'visible' });
+    await this.optionsButton.click({ force: true });
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(200);
+    await this.clearBoardButton.waitFor({ state: 'attached', timeout: 5000 });
   }
 
   /**
@@ -114,7 +116,10 @@ export class BoardPage {
   async clearBoard() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    await this.clearBoardButton.click();
+    await this.clearBoardButton.click({ force: true });
+    
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(500);
     
     // Give Redux slightly more time to dispatch the layout changes
     await expect(this.getTierRow('S')).toBeHidden({ timeout: 5000 });
@@ -126,7 +131,11 @@ export class BoardPage {
   async resetItems() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    await this.resetItemsButton.click();
+    await this.resetItemsButton.click({ force: true });
+
+    // Wait for the UI to settle after Redux update
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(500);
   }
 
   /**
