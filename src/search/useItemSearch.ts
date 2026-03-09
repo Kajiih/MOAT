@@ -22,7 +22,7 @@ interface UseDatabaseSearchOptions {
 }
 
 /**
- * Custom hook for searching against a V2 Entity.
+ * Custom hook for searching against an Entity.
  * @param providerId - The ID of the provider.
  * @param entityId - The ID of the entity within the provider.
  * @param params - The search parameters (query, filters, sort, etc.).
@@ -57,7 +57,7 @@ export function useItemSearch(
     ];
   }, [enabled, providerId, entityId, debouncedParams]);
 
-  // 3. Define the fetcher that correctly delegates to our V2 API Proxy
+  // 3. Define the fetcher that correctly delegates to our API Proxy
   const fetcher = async (key: string[], opts?: { signal?: AbortSignal }): Promise<SearchResult> => {
     if (!providerId || !entityId) {
       throw new Error('Provider ID and Entity ID are required');

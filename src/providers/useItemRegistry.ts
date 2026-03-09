@@ -1,7 +1,7 @@
 /**
  * @file useItemRegistry.ts
- * @description Lightweight persistence hook for V2 Items.
- * Uses idb-keyval directly for a fast, async cache of V2 content.
+ * @description Lightweight persistence hook for Items.
+ * Uses idb-keyval directly for a fast, async cache of content.
  * @module useItemRegistry
  */
 

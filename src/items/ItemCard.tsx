@@ -1,7 +1,7 @@
 /**
  * @file ItemCard.tsx
  * @description The primary visual representation for items on the board.
- * Tailored for the V2 architecture with support for Items.
+ * Tailored architecture with support for Items.
  * Handles drag-and-drop integration and rich metadata rendering.
  */
 
@@ -44,25 +44,24 @@ export interface ItemCardProps {
 }
 
 /**
- * A standardized card component for displaying and interacting with items.
- * @param props - The component props.
- * @param props.item
- * @param props.tierId
- * @param props.isDragging
- * @param props.isAdded
- * @param props.isExport
- * @param props.resolvedUrl
- * @param props.priority
- * @param props.onRemove
- * @param props.onInfo
- * @returns The rendered ItemCard component.
- */
-
-/**
  * Shared base classes for rendering item cards uniformly.
  */
 export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-neutral-900 shadow-lg";
 
+/**
+ * A standardized card component for displaying and interacting with items.
+ * @param props - The component props.
+ * @param props.item - The item to display.
+ * @param props.tierId - The ID of the tier this card belongs to.
+ * @param props.isDragging - Whether the card is currently being dragged.
+ * @param props.isAdded - Whether the item is already added to the board (from search).
+ * @param props.isExport - Whether the component is being rendered for image export.
+ * @param props.resolvedUrl - A pre-resolved URL for the image.
+ * @param props.priority - Whether the image should be loaded with priority.
+ * @param props.onRemove - Callback to remove the item.
+ * @param props.onInfo - Callback to show item details.
+ * @returns The rendered ItemCard component.
+ */
 export function ItemCard({
   item,
   tierId,

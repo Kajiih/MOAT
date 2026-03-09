@@ -1,6 +1,6 @@
 /**
  * @file SearchTab.tsx
- * @description A self-contained tab content for a specific V2 search entity.
+ * @description A self-contained tab content for a specific search entity.
  */
 
 'use client';

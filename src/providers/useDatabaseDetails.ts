@@ -16,7 +16,7 @@ interface UseDatabaseDetailsOptions {
 }
 
 /**
- * Custom hook for fetching full details for a V2 Database Item.
+ * Custom hook for fetching full details for a Database Item.
  * @param providerId - The ID of the provider.
  * @param entityId - The ID of the entity within the provider.
  * @param dbId - The unique ID of the item within that database.
@@ -36,7 +36,7 @@ export function useDatabaseDetails(
     ? ['db-details', providerId, entityId, dbId] 
     : null;
 
-  // 2. Define the fetcher that correctly delegates to our V2 API Proxy
+  // 2. Define the fetcher that correctly delegates to our API Proxy
   const fetcher = async (_key: unknown[], { signal }: { signal: AbortSignal }): Promise<ItemDetails> => {
     if (!providerId || !entityId || !dbId) {
       throw new Error('Provider ID, Entity ID, and Database ID are required');

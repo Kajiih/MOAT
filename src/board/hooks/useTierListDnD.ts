@@ -23,14 +23,15 @@ import { Dispatch, useCallback, useRef, useState } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { TierDefinition, TierListState } from '@/board/types';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 import { isSearchId } from '@/lib/ids';
 
 /**
  * Manages the Drag and Drop state and event handlers for the Tier List board.
- * @param state
- * @param dispatch
- * @param pushHistory
+ * @param state - The current tier list state.
+ * @param dispatch - The dispatch function for tier list actions.
+ * @param pushHistory - Callback to push the current state to the history stack.
+ * @returns The Drag and Drop event handlers and sensors.
  */
 export function useTierListDnD(
   state: TierListState,
@@ -67,8 +68,7 @@ export function useTierListDnD(
       if (active.data.current?.type === 'tier') {
         setActiveTier(active.data.current.tier);
       } else {
-        // Support both item (V1) and standardItem (V2) in data
-        setActiveItem(active.data.current?.item || active.data.current?.standardItem);
+        setActiveItem(active.data.current?.item);
       }
     },
     [pushHistory],
@@ -87,7 +87,7 @@ export function useTierListDnD(
       const overId = over.id as string;
 
       const activeTierId = active.data.current?.sourceTier;
-      const activeItemData = active.data.current?.item || active.data.current?.standardItem;
+      const activeItemData = active.data.current?.item;
 
       setTimeout(() => {
         if (!isDraggingRef.current) return;
@@ -129,7 +129,7 @@ export function useTierListDnD(
 
       const activeId = active.id as string;
       const overId = over?.id as string;
-      const activeItemData = active.data.current?.item || active.data.current?.standardItem;
+      const activeItemData = active.data.current?.item;
 
       if (activeId && overId && activeId !== overId) {
         dispatch({
@@ -142,17 +142,9 @@ export function useTierListDnD(
         });
       }
 
-      // Normalization check for V1 (MBID) and V2 (Identity)
+      // Normalization check for canonical identity
       if (isSearchId(activeId) && activeItemData) {
-        let canonicalId: string | undefined;
-        
-        if ('identity' in activeItemData) {
-          // V2: item.id is already canonical or derived from identity
-          canonicalId = (activeItemData as Item).id;
-        } else {
-          // V1: Use mbid or strip prefix
-          canonicalId = (activeItemData as any).mbid || activeItemData.id.replace(/^search-/, '');
-        }
+        const canonicalId = (activeItemData as Item).id;
 
         if (canonicalId && canonicalId !== activeId) {
           dispatch({

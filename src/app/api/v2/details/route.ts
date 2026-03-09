@@ -1,15 +1,21 @@
 /**
  * @file Details API Route
- * @description V2 Next.js API route securely fetching specific item details via registered providers.
+ * @description Next.js API route securely fetching specific item details via registered providers.
  */
 
 import '@/providers/bootstrap'; // Ensure registry loads in node environment
 
 import { NextResponse } from 'next/server';
 
+import { createErrorResponse } from '@/app/api/utils';
 import { logger } from '@/lib/logger';
 import { registry } from '@/providers/registry';
 
+/**
+ * HTTP GET handler for details provider resolution.
+ * @param request - The incoming HTTP request.
+ * @returns A JSON response with the entity details.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const providerId = searchParams.get('providerId');
@@ -30,8 +36,8 @@ export async function GET(request: Request) {
 
     const result = await entity.getDetails(dbId, { signal: request.signal });
     return NextResponse.json(result);
-  } catch (error: any) {
-    logger.error({ error, providerId, entityId, dbId }, 'V2 Details API Error');
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    logger.error({ error, providerId, entityId, dbId }, 'Details API Error');
+    return createErrorResponse(error);
   }
 }

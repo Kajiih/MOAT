@@ -1,16 +1,22 @@
 /**
  * @file Search API Route
- * @description V2 Next.js API route orchestrating cross-provider generic search proxying.
+ * @description Next.js API route orchestrating cross-provider generic search proxying.
  */
 
 import '@/providers/bootstrap'; // Ensure registry loads in node environment
 
 import { NextResponse } from 'next/server';
 
+import { createErrorResponse } from '@/app/api/utils';
 import { logger } from '@/lib/logger';
 import { registry } from '@/providers/registry';
 import { SortDirection } from '@/search/sort-schemas';
 
+/**
+ * HTTP GET handler for global generic search proxying.
+ * @param request - The incoming HTTP request.
+ * @returns A JSON response containing the search results.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const providerId = searchParams.get('providerId');
@@ -49,8 +55,8 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(result);
-  } catch (error: any) {
-    logger.error({ error, providerId, entityId }, 'V2 Search API Error');
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    logger.error({ error, providerId, entityId }, 'Search API Error');
+    return createErrorResponse(error);
   }
 }

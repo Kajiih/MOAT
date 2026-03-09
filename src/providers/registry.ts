@@ -1,5 +1,12 @@
+/**
+ * @file Registry
+ * @description Centralized singleton and React event emitter tracking loaded DatabaseProviders.
+ */
+import { logger } from '@/lib/logger';
 import { secureFetch } from '@/providers/api-client';
+import { ProviderError, ProviderErrorCode } from '@/providers/errors';
 import { Entity, Fetcher, Provider, ProviderStatus } from '@/providers/types';
+import { handleProviderError } from '@/providers/utils';
 
 /**
  * Possible states for the DatabaseRegistry.
@@ -63,6 +70,7 @@ export class DatabaseRegistry {
 
   /**
    * Generates or retrieves a referentially stable snapshot of the registry's state.
+   * @returns The current snapshot of the registry state.
    */
   public getSnapshot(): RegistrySnapshot {
     if (!this.snapshot) {
@@ -78,6 +86,7 @@ export class DatabaseRegistry {
 
   /**
    * Returns the current status of the registry.
+   * @returns The enum value of the current registry status.
    */
   public getStatus(): RegistryStatus {
     return this.status;
@@ -95,7 +104,7 @@ export class DatabaseRegistry {
 
   /**
    * Sets a custom fetcher for all providers (useful for testing).
-   * @param fetcher
+   * @param fetcher - The custom fetcher implementation to use.
    */
   public setFetcher(fetcher: Fetcher): void {
     this.fetcher = fetcher;
@@ -103,7 +112,7 @@ export class DatabaseRegistry {
 
   /**
    * Registers and initializes a new provider.
-   * @param provider
+   * @param provider - The provider instance to register and initialize.
    */
   public async register(provider: Provider): Promise<void> {
     this.status = RegistryStatus.INITIALIZING;
@@ -123,8 +132,18 @@ export class DatabaseRegistry {
       } catch (error) {
         provider.status = ProviderStatus.ERROR;
         this.notify();
-        console.error(`Failed to initialize provider "${provider.id}":`, error);
-        throw error;
+        
+        // Ensure initialization failures are exposed as standard ProviderErrors
+        if (error instanceof ProviderError) {
+          throw error;
+        } else {
+          throw new ProviderError(
+            ProviderErrorCode.INTERNAL_ERROR,
+            `Initialization failed for provider "${provider.id}"`,
+            error,
+            provider.id
+          );
+        }
       }
     })();
 
@@ -157,11 +176,19 @@ export class DatabaseRegistry {
   /**
    * Retrieves a provider by id.
    * @param id - The provider's unique identifier.
-   * @throws If provider is not found.
+   * @throws {ProviderError} If provider is not found.
+   * @returns The requested provider instance.
    */
   public getProvider(id: string): Provider {
     const provider = this.providers.get(id);
-    if (!provider) throw new Error(`Provider "${id}" not found`);
+    if (!provider) {
+      throw new ProviderError(
+        ProviderErrorCode.NOT_FOUND,
+        `Provider "${id}" not found`,
+        undefined,
+        id
+      );
+    }
     return provider;
   }
 
@@ -169,19 +196,28 @@ export class DatabaseRegistry {
    * Retrieves a specific entity from a specific provider.
    * @param databaseId - The provider's unique identifier.
    * @param entityId - The entity's unique identifier within the provider.
-   * @throws If provider or entity is not found.
+   * @throws {ProviderError} If provider or entity is not found.
+   * @returns The requested entity object.
    */
   public getEntity(databaseId: string, entityId: string): Entity {
     const provider = this.getProvider(databaseId);
     const entity = provider.entities.find(e => e.id === entityId);
-    if (!entity) throw new Error(`Entity "${entityId}" not found in provider "${databaseId}"`);
+    if (!entity) {
+      throw new ProviderError(
+        ProviderErrorCode.NOT_FOUND,
+        `Entity "${entityId}" not found in provider "${databaseId}"`,
+        undefined,
+        databaseId
+      );
+    }
     return entity;
   }
 
   /**
    * Resolves an image reference key globally via the correct provider.
-   * @param providerId
-   * @param key
+   * @param providerId - The ID of the provider to use for resolution.
+   * @param key - The reference key to resolve.
+   * @returns The resolved image URL, or null if resolution fails.
    */
   public async resolveImageReference(providerId: string, key: string): Promise<string | null> {
     await this.waitUntilReady();
@@ -193,10 +229,11 @@ export class DatabaseRegistry {
         return await provider.resolveImage(key);
       }
     } catch (error) {
-      const dbError = import('./utils').then(m => m.handleProviderError(error, providerId));
+      const providerError = handleProviderError(error, providerId);
+      logger.error({ error: providerError, providerId, key }, 'Image resolution failed');
+      
       // In a real app, we'd check if this is an AUTH_ERROR and trigger re-init
       // For now, we just log and return null
-      console.error(`Image resolution failed for ${providerId}:${key}`, error);
     }
     return null;
   }
@@ -204,16 +241,17 @@ export class DatabaseRegistry {
   /**
    * Triggers a manual or automatic re-initialization of a provider.
    * Useful when a provider's credentials expire at runtime.
-   * @param providerId
+   * @param providerId - The ID of the provider to reinitialize.
    */
   public async reinitializeProvider(providerId: string): Promise<void> {
     const provider = this.getProvider(providerId);
-    console.log(`Re-initializing provider "${providerId}"...`);
+    logger.info({ providerId }, 'Re-initializing provider');
     await this.register(provider);
   }
 
   /**
    * Returns all registered providers.
+   * @returns An array of all currently registered Provider instances.
    */
   public getAllProviders(): Provider[] {
     return [...this.providers.values()];
