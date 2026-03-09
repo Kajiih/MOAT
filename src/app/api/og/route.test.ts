@@ -72,7 +72,8 @@ describe('OG Image API Route', () => {
     const mockBoard = {
       title: 'Shared Board',
       tierDefs: [{ id: 't1', label: 'S', color: 'red' }],
-      items: { t1: [{ id: 'm1', imageUrl: 'valid.jpg' }] },
+      tierLayout: { t1: ['m1'] },
+      itemEntities: { m1: { id: 'm1', imageUrl: 'valid.jpg' } },
     };
 
     vi.mocked(kv.get).mockResolvedValue(mockBoard);

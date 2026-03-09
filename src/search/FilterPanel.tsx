@@ -6,13 +6,14 @@
 import React from 'react';
 
 import { Entity } from '@/providers/types';
+import { FilterValues } from '@/search/filter-schemas';
 
 import { FallbackFilterInput, FilterUIComponents } from './filters/index';
 
 interface FilterPanelProps {
   entity: Entity;
-  values: Record<string, unknown>;
-  onChange: (values: Record<string, unknown>) => void;
+  values: FilterValues;
+  onChange: (values: FilterValues) => void;
 }
 
 /**
@@ -27,7 +28,7 @@ interface FilterPanelProps {
 export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
   const allFilters = [...entity.searchOptions, ...entity.filters];
 
-  const handleFilterChange = (id: string, value: unknown) => {
+  const handleFilterChange = (id: string, value: FilterValues[string]) => {
     onChange({
       ...values,
       [id]: value,
@@ -49,7 +50,7 @@ export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
             <Component 
               filter={filter} 
               value={value} 
-              onChange={(val: unknown) => handleFilterChange(filter.id, val)} 
+              onChange={(val: unknown) => handleFilterChange(filter.id, val as FilterValues[string])} 
             />
             
             {filter.helperText && (

@@ -9,7 +9,7 @@
 import { Dispatch, useCallback } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
-import { TierDefinition } from '@/board/types';
+import { TierUpdate } from '@/board/types';
 import { useToast } from '@/lib/ui/ToastProvider';
 
 /**
@@ -33,7 +33,7 @@ export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory
   }, [dispatch, showToast, pushHistory]);
 
   const handleUpdateTier = useCallback(
-    (id: string, updates: Partial<TierDefinition>) => {
+    (id: string, updates: TierUpdate) => {
       // Only push history for significant updates (e.g. not every keystroke if this is debounced elsewhere)
       pushHistory();
       dispatch({

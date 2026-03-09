@@ -11,12 +11,11 @@ import {
   DragOverEvent,
   DragStartEvent,
   SensorDescriptor,
-  SensorOptions,
 } from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
-import { TierDefinition, TierListState } from '@/board/types';
+import { TierDefinition, TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { fromSearchId } from '@/lib/ids';
 
@@ -35,7 +34,8 @@ interface UseTierListNamespacesProps {
     push: () => void;
   };
   dndRaw: {
-    sensors: SensorDescriptor<SensorOptions>[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sensors: SensorDescriptor<any>[];
     activeItem: Item | null;
     activeTier: TierDefinition | null;
     overId: string | null;
@@ -46,7 +46,7 @@ interface UseTierListNamespacesProps {
   };
   structureRaw: {
     handleAddTier: () => void;
-    handleUpdateTier: (id: string, updates: Partial<TierDefinition>) => void;
+    handleUpdateTier: (id: string, updates: TierUpdate) => void;
     handleDeleteTier: (id: string) => void;
     handleRandomizeColors: () => void;
     handleClear: () => void;
