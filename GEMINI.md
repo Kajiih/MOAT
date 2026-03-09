@@ -7,7 +7,7 @@
   - Don't write tests if it is not relevant or trivial.
   - NEVER test implementation details.
   - Few well chosen tests is better than testing anything and everything.
-  - Use `npm run test -- --run` to run tests.
+  - Use `npm run test -- --run --no-color` to run tests.
 - We also use integration tests with playwright.
   - You can implement integration test if they are relevant.
   - Use `PLAYWRIGHT_HTML_OPEN='never' npx playwright test` to run tests.
