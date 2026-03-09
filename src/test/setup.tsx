@@ -46,13 +46,10 @@ globalThis.fetch = async (...args) => {
   }
 
   // Otherwise, throw a catastrophic error
-  const target = (() => {
-    const input = args[0];
-    if (typeof input === 'string') return input;
-    if (input instanceof Request) return input.url;
-    if (input instanceof URL) return input.href;
-    return 'unknown';
-  })();
+  // Verified by Kajih on 2026-03-09: We do this to extract the URL via duck-typing and avoid cross-realm `instanceof` issues.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const input = args[0] as any;
+  const target = input?.url || input?.href || String(input);
   
   logger.fatal(
     { target },

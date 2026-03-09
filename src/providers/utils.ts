@@ -63,15 +63,13 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
 
   // 4. Generic fallback
   let message = 'An unexpected error occurred in the provider layer';
-  const extractMessage = (err: unknown): string | null => {
-    if (err instanceof Error) return err.message;
-    if (isObject(err) && typeof err.message === 'string') return err.message;
-    return null;
-  };
 
-  const extracted = extractMessage(error);
-  if (extracted) {
-    message = extracted;
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (isObject(error) && typeof error.message === 'string') {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
   }
 
   return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, databaseId);

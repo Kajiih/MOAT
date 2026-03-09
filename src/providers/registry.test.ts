@@ -13,7 +13,13 @@ import { ProviderErrorCode } from './errors';
 import { registry, RegistryStatus } from './registry';
 import { handleProviderError } from './utils';
 
-const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
+interface MockItem {
+  id: number;
+  name: string;
+  released: string;
+}
+
+const createMockEntity = (overrides: Partial<Entity<MockItem>> = {}): Entity<MockItem> => ({
   id: 'mock-entity',
   branding: { label: 'Video Game', labelPlural: 'Video Games', icon: Gamepad2, colorClass: 'text-purple-400' },
   filters: [
@@ -24,9 +30,9 @@ const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
     { id: 'precise', label: 'Precise', type: 'boolean', testCases: [] }
   ],
   sortOptions: [
-    { id: 'relevance', label: 'Relevance', defaultDirection: SortDirection.DESC, extractValue: (r: Record<string, unknown>) => r.id as number },
-    { id: 'name', label: 'Name', defaultDirection: SortDirection.ASC, extractValue: (r: Record<string, unknown>) => r.name as string },
-    { id: 'released', label: 'Released', defaultDirection: SortDirection.DESC, extractValue: (r: Record<string, unknown>) => r.released as string },
+    { id: 'relevance', label: 'Relevance', defaultDirection: SortDirection.DESC, extractValue: (r: MockItem) => r.id },
+    { id: 'name', label: 'Name', defaultDirection: SortDirection.ASC, extractValue: (r: MockItem) => r.name },
+    { id: 'released', label: 'Released', defaultDirection: SortDirection.DESC, extractValue: (r: MockItem) => r.released },
   ],
   defaultTestQueries: nonEmpty('query'),
   testDetailsIds: nonEmpty('test-id'),
@@ -115,7 +121,7 @@ describe('Provider Design', () => {
         initialize: async () => { throw new Error('Auth failed'); },
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as unknown as Provider;
+      };
 
       // Create a working provider
       const workingProvider: Provider = {
@@ -126,7 +132,7 @@ describe('Provider Design', () => {
         initialize: async () => {}, // success
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as unknown as Provider;
+      };
 
       await expect(registry.register(failingProvider)).rejects.toThrow('Initialization failed');
 
@@ -163,7 +169,7 @@ describe('Provider Design', () => {
         },
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as unknown as Provider;
+      };
 
       const fastProvider: Provider = {
         id: 'fast',
@@ -176,7 +182,7 @@ describe('Provider Design', () => {
         },
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as unknown as Provider;
+      };
 
       // Start slow registration
       const p1 = registry.register(slowProvider);
