@@ -2,8 +2,8 @@ import '@/providers/index'; // Ensure providers are registered in the Node envir
 
 import { NextResponse } from 'next/server';
 
-import { registry } from '@/providers/registry';
 import { logger } from '@/lib/logger';
+import { registry } from '@/providers/registry';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

@@ -9,8 +9,8 @@
 import { useEffect } from 'react';
 
 import { Item } from '@/board/types';
-import { useItemRegistry } from '@/providers/useItemRegistry';
 import { useDatabaseDetails } from '@/providers/useDatabaseDetails';
+import { useItemRegistry } from '@/providers/useItemRegistry';
 
 interface UseItemResolverOptions {
   /** If false, enrichment will not be attempted. Defaults to true. */

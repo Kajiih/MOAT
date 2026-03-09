@@ -1,5 +1,12 @@
+/**
+ * @file Search Schemas
+ * @description Defines the structured data for provider search queries.
+ */
+
 import { z } from 'zod';
+
 import { ItemSchema } from '@/items/schemas';
+
 import { SortDirection } from './sort-schemas';
 
 /**

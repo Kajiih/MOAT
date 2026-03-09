@@ -2,15 +2,14 @@
 
 import '@/providers'; // Bootstrap all providers on first import
 
-import { Eye, EyeOff, Search, Loader2 } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Eye, EyeOff, Loader2,Search } from 'lucide-react';
+import React, { useMemo } from 'react';
 
 import { useTierListContext } from '@/board/context';
-import { usePersistentState } from '@/storage/usePersistentState';
-import { RegistryStatus, registry } from '@/providers/registry';
-import { ProviderStatus } from '@/providers/types';
-
 import { useRegistry } from '@/providers/hooks/useRegistry';
+import {RegistryStatus } from '@/providers/registry';
+import { usePersistentState } from '@/storage/usePersistentState';
+
 import { SearchTab } from './SearchTab';
 
 /**

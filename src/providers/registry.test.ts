@@ -1,13 +1,14 @@
+import { Building2,Gamepad2 } from 'lucide-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { RAWGDatabase } from '@/providers/adapters/rawg';
-import { ProviderErrorCode } from './errors';
-import { Gamepad2, Building2 } from 'lucide-react';
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/schemas';
-import { Entity, Provider, ProviderStatus, nonEmpty } from '@/providers/types';
+import { RAWGDatabase } from '@/providers/adapters/rawg';
+import { Entity, nonEmpty,Provider, ProviderStatus } from '@/providers/types';
+import { SearchParamsSchema, SearchResultSchema, SortDirection } from '@/search/schemas';
+
+import { ProviderErrorCode } from './errors';
 import { registry, RegistryStatus } from './registry';
-import { SearchParamsSchema, SearchResult, SearchResultSchema, SortDirection } from '@/search/schemas';
 import { handleProviderError } from './utils';
 
 const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({

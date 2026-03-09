@@ -8,7 +8,6 @@ import { Settings, Trash2 } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 import { TIER_COLORS } from '@/lib/colors';
-
 import { Popover } from '@/lib/ui/Popover';
 
 /**

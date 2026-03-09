@@ -12,7 +12,7 @@ import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
-import { createSortSuite, SortDirection, FilterDefinition } from '@/search/schemas';
+import { createSortSuite, FilterDefinition,SortDirection } from '@/search/schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
@@ -428,7 +428,7 @@ export class RAWGDatabaseProvider implements Provider {
   public readonly label = 'RAWG';
   public readonly icon = Gamepad2;
   public status: ProviderStatus = ProviderStatus.IDLE;
-  
+
   private fetcher: Fetcher = secureFetch as unknown as Fetcher;
 
   public initialize = async (fetcher: Fetcher) => {

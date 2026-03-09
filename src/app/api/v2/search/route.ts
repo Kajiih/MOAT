@@ -2,9 +2,9 @@ import '@/providers/index'; // Ensure providers are registered in the Node envir
 
 import { NextResponse } from 'next/server';
 
+import { logger } from '@/lib/logger';
 import { registry } from '@/providers/registry';
 import { SortDirection } from '@/search/schemas';
-import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

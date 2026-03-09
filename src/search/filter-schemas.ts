@@ -48,7 +48,6 @@ export interface FilterTestCase<TValue = unknown, TRaw = unknown> {
    * Optional verification function for the entire result set.
    * Use this for aggregate assertions like "verify ID X is not in results".
    * Receives the full array of raw items.
-   *
    * @important Every test case is expected to return at least one result.
    */
   verifyResults?: (items: TRaw[]) => void;

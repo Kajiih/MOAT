@@ -6,8 +6,8 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { logger } from '@/lib/logger';
 import { TierListState } from '@/board/types';
+import { logger } from '@/lib/logger';
 
 /**
  * Retrieves a shared board from cloud storage.

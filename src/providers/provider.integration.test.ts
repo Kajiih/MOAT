@@ -1,14 +1,16 @@
-import { vi, describe, expect, it, beforeAll, afterAll } from 'vitest';
+/* eslint-disable vitest/valid-expect, vitest/max-nested-describe, vitest/valid-describe-callback, @typescript-eslint/no-explicit-any, sonarjs/no-nested-template-literals */
+import { afterAll,beforeAll, describe, expect, it, vi } from 'vitest';
+
 import { registry } from '@/providers';
 import { ProviderStatus } from '@/providers/types';
 import {
-  SortDirection,
   FilterTestCase,
+  SortDirection,
 } from '@/search/schemas';
+
 import {
-  expectSorted,
-  expectDistinctPages
-} from './test-utils';
+  expectDistinctPages,
+  expectSorted} from './test-utils';
 
 /**
  * Generic Provider Integration Tests (Live API)
@@ -16,7 +18,7 @@ import {
  * Automatically tests common functionality for all registered entities 
  * that provide configuration for sorting, filters, pagination, or details.
  */
-describe('Generic Provider Integration', { timeout: 15000 }, () => {
+describe('Generic Provider Integration', { timeout: 15_000 }, () => {
   const providers = registry.getAllProviders();
   const globalMetrics: Record<string, number> = {};
 
@@ -39,7 +41,7 @@ describe('Generic Provider Integration', { timeout: 15000 }, () => {
       let fetchSpy: ReturnType<typeof vi.spyOn>;
 
       beforeAll(() => {
-        fetchSpy = vi.spyOn(global, 'fetch');
+        fetchSpy = vi.spyOn(globalThis, 'fetch');
         fetchSpy.mockClear();
       });
 
@@ -249,7 +251,7 @@ describe('Generic Provider Integration', { timeout: 15000 }, () => {
                  
                  expect(pageCount, 'Infinite loop detected or query was too broad (> 20 pages)').toBeLessThan(20);
                  expect(hasNext, 'Provider failed to reach a termination boundary for extreme pagination').toBe(false);
-               }, 20000); // Give boundary extraction 20 seconds.
+               }, 20_000); // Give boundary extraction 20 seconds.
              });
           });
         });

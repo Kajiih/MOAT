@@ -1,3 +1,8 @@
+/**
+ * @file Sort Schemas
+ * @description Defines the structured data for sort definitions across the application.
+ */
+
 import { z } from 'zod';
 
 /**
@@ -22,6 +27,9 @@ export const SortDefinitionSchema = z.object({
   isDirectionFixed: z.boolean().optional(),
 });
 
+/**
+ * A generic sort definition tailored for a specific provider payload Type `TRaw`.
+ */
 export interface SortDefinition<TRaw = unknown> extends z.infer<typeof SortDefinitionSchema> {
   /** 
    * Extract the raw value for comparison in integration tests.
@@ -35,9 +43,15 @@ export interface SortDefinition<TRaw = unknown> extends z.infer<typeof SortDefin
  * to the generic type `TRaw` of the expected Provider responses.
  * 
  * This enables robust IDE autocompletion when defining `extractValue`.
+ * @returns An object factory containing a strictly-typed `create` function.
  */
 export function createSortSuite<TRaw>() {
   return {
+    /**
+     * Creates a fully-typed sort definition.
+     * @param config The raw sort definition payload.
+     * @returns The exact same configuration payload, but securely typed against TRaw.
+     */
     create: (config: SortDefinition<TRaw>): SortDefinition<TRaw> => config
   };
 }
@@ -47,6 +61,8 @@ export function createSortSuite<TRaw>() {
  * A sort is reversible if:
  * 1. It is directional (has a defaultDirection)
  * 2. That direction is not explicitly marked as fixed
+ * @param sort The definition block to inspect.
+ * @returns A boolean asserting logic direction reversibility.
  */
 export function isSortReversible(sort: SortDefinition): boolean {
   return !!sort.defaultDirection && !sort.isDirectionFixed;

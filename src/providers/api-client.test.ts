@@ -1,18 +1,19 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { secureFetch } from './api-client';
 import { ProviderError, ProviderErrorCode } from './errors';
 
 describe('secureFetch', () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
   let fetchMock: any;
 
   beforeEach(() => {
     fetchMock = vi.fn();
-    global.fetch = fetchMock;
+    globalThis.fetch = fetchMock;
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
     vi.restoreAllMocks();
   });
 

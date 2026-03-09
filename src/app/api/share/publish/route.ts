@@ -7,8 +7,8 @@ import { kv } from '@vercel/kv';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { logger } from '@/lib/logger';
 import { TierListSchema } from '@/board/types';
+import { logger } from '@/lib/logger';
 
 /**
  * Publishes a board to the cloud storage.

@@ -48,6 +48,7 @@ const eslintConfig = defineConfig([
       'sonarjs/pseudo-random': 'off',
       // 'sonarjs/no-nested-conditional': 'off',  # For now it is useful to keep
       'sonarjs/unused-import': 'off', // Handled by unused-imports plugin
+      'sonarjs/no-unused-vars': 'off', // Handled by unused-imports plugin (allows _)
       'sonarjs/todo-tag': 'off', // Keep TODOs for now
 
       // Unicorn Overrides
@@ -128,6 +129,17 @@ const eslintConfig = defineConfig([
         },
       ],
     },
+  },
+  
+  // Specific JSDoc rules overrides
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'e2e/**', '**/*.config.{js,ts,mjs,mts}'],
+    rules: {
+      'jsdoc/require-param': ['warn', { enableFixer: false }],
+      'jsdoc/require-param-description': 'warn',
+      'jsdoc/require-returns': ['warn', { enableFixer: false }],
+    }
   },
 
   // Test-specific overrides

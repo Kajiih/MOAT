@@ -13,14 +13,14 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { ShareModal } from '@/app/share/_components/ShareModal';
+import { BoardOptionsMenu } from '@/board/BoardOptionsMenu';
+import { BoardTitle } from '@/board/BoardTitle';
 import { useTierListContext } from '@/board/context';
 import { useBrandColors } from '@/board/hooks/useBrandColors';
+import { KeyboardShortcutsModal } from '@/board/KeyboardShortcutsModal';
 import { useUserPreferences } from '@/lib/ui/UserPreferencesProvider';
 
-import { BoardTitle } from '@/board/BoardTitle';
-import { BoardOptionsMenu } from '@/board/BoardOptionsMenu';
 import { BrandLogo } from './BrandLogo';
-import { KeyboardShortcutsModal } from '@/board/KeyboardShortcutsModal';
 
 /**
  * Props for the Header component.

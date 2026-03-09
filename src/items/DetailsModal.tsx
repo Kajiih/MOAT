@@ -8,9 +8,9 @@
 import { Info, LucideIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { useEscapeKey } from '@/lib/ui/useEscapeKey';
-import { useItemResolver } from '@/items/useItemResolver';
 import { Item, ItemSection } from '@/items/schemas';
+import { useItemResolver } from '@/items/useItemResolver';
+import { useEscapeKey } from '@/lib/ui/useEscapeKey';
 import { registry } from '@/providers/registry';
 
 import { ExternalLinks } from './ExternalLinks';

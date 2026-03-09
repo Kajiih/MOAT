@@ -17,12 +17,12 @@ import {
 } from '@dnd-kit/core';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
-import { useTierListIO } from '@/board/hooks/useTierListIO';
-import { useTierListUtils } from '@/board/hooks/useTierListUtils';
-import { useTierStructure } from '@/board/hooks/useTierStructure';
 import { useHistory } from '@/board/hooks/useHistory';
 import { useTierListDnD } from '@/board/hooks/useTierListDnD';
+import { useTierListIO } from '@/board/hooks/useTierListIO';
 import { useTierListNamespaces } from '@/board/hooks/useTierListNamespaces';
+import { useTierListUtils } from '@/board/hooks/useTierListUtils';
+import { useTierStructure } from '@/board/hooks/useTierStructure';
 import { INITIAL_STATE } from '@/board/initial-state';
 import { syncBoardMetadata } from '@/board/registry-utils';
 import { ActionType, TierListAction } from '@/board/state/actions';

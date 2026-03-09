@@ -1,5 +1,5 @@
 import { secureFetch } from '@/providers/api-client';
-import { Entity, Provider, Fetcher, ProviderStatus } from '@/providers/types';
+import { Entity, Fetcher, Provider, ProviderStatus } from '@/providers/types';
 
 /**
  * Possible states for the DatabaseRegistry.
