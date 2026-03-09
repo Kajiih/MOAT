@@ -101,3 +101,9 @@ export const ItemSchema = BaseItemSchema.extend({
 });
 
 export type Item = z.infer<typeof ItemSchema>;
+
+/**
+ * Strict payload for patching an item.
+ * Explicitly removes the Primary Key (id) to prevent accidental mutation.
+ */
+export type ItemUpdate = Partial<Omit<Item, 'id'>>;

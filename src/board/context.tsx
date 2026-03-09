@@ -28,7 +28,7 @@ import { syncBoardMetadata } from '@/board/registry-utils';
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { tierListReducer } from '@/board/state/reducer';
 import { TierDefinition, TierListState } from '@/board/types';
-import { Item } from '@/items/items';
+import { Item, ItemUpdate } from '@/items/items';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 import { usePersistentReducer } from '@/storage/usePersistentReducer';
 
@@ -47,7 +47,7 @@ interface TierListContextType {
     clear: () => void;
     resetItems: () => void;
     updateTitle: (title: string) => void;
-    updateMediaItem: (itemId: string, updates: Partial<Item>) => void;
+    updateMediaItem: (itemId: string, updates: ItemUpdate) => void;
     removeItemFromTier: (tierId: string, itemId: string) => void;
     locate: (id: string) => void;
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -166,7 +166,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       actions: {
         ...actions,
         publish: ioRaw.handlePublish,
-        updateMediaItem: (itemId: string, updates: Partial<Item>) => {
+        updateMediaItem: (itemId: string, updates: ItemUpdate) => {
           const item = state.itemEntities[itemId];
           if (!item) return;
 

@@ -8,7 +8,7 @@
 import { Info, LucideIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Item, ItemSection } from '@/items/items';
+import { Item, ItemSection, ItemUpdate } from '@/items/items';
 import { useItemResolver } from '@/items/useItemResolver';
 import { useEscapeKey } from '@/lib/ui/useEscapeKey';
 import { registry } from '@/providers/registry';
@@ -27,7 +27,7 @@ interface DetailsModalProps {
   /** Callback fired when the modal should be closed. */
   onClose: () => void;
   /** Optional callback to persist enriched metadata back to the parent state. */
-  onUpdateItem?: (itemId: string, updates: Partial<Item>) => void;
+  onUpdateItem?: (itemId: string, updates: ItemUpdate) => void;
 }
 
 /**
@@ -263,16 +263,26 @@ function LocalNotesEditor({
 }: {
   initialNotes: string;
   itemId: string;
-  onUpdate?: (id: string, updates: Partial<Item>) => void;
+  onUpdate?: (id: string, updates: ItemUpdate) => void;
 }) {
+  // --- Idiomatic React Pattern: Render-Phase State Derivation ---
+  // We use this pattern for Controlled Draft Inputs (Inputs that buffer local keystrokes 
+  // to avoid spamming Redux, but must also respect external Redux rollbacks like Undo).
   const [notes, setNotes] = useState(initialNotes);
   const [prevInitialNotes, setPrevInitialNotes] = useState(initialNotes);
   const notesRef = useRef(notes);
   const onUpdateRef = useRef(onUpdate);
+  const [lastPushedNotes, setLastPushedNotes] = useState(initialNotes);
 
   if (initialNotes !== prevInitialNotes) {
     setPrevInitialNotes(initialNotes);
-    setNotes(initialNotes);
+    
+    // Only overwrite the user's active typing if the incoming external state change 
+    // is DIFFERENT from the last string we successfully dispatched to Redux. 
+    // This perfectly differentiates genuine Undo rollbacks from delayed Redux "echoes".
+    if (initialNotes !== lastPushedNotes) {
+      setNotes(initialNotes);
+    }
   }
 
   useEffect(() => {
@@ -286,6 +296,7 @@ function LocalNotesEditor({
   useEffect(() => {
     if (notes === initialNotes) return;
     const timeoutId = setTimeout(() => {
+      setLastPushedNotes(notes);
       onUpdateRef.current?.(itemId, { notes });
     }, 500);
     return () => clearTimeout(timeoutId);
@@ -294,6 +305,7 @@ function LocalNotesEditor({
   useEffect(() => {
     return function flushNotesOnUnmount() {
       if (notesRef.current !== initialNotes) {
+        setLastPushedNotes(notesRef.current);
         onUpdateRef.current?.(itemId, { notes: notesRef.current });
       }
     };

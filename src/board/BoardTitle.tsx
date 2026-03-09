@@ -43,12 +43,18 @@ export function BoardTitle({
   className,
 }: BoardTitleProps) {
   const [localTitle, setLocalTitle] = useState(title);
+  const [prevTitle, setPrevTitle] = useState(title);
+  const [lastPushedTitle, setLastPushedTitle] = useState(title);
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
-  // Sync local title if global title changes externally (e.g., hydration or history)
-  useEffect(() => {
-    setLocalTitle(title);
-  }, [title]);
+  // --- Idiomatic React Pattern: Render-Phase State Derivation ---
+  // Mirrors LocalNotesEditor to handle Undo rollbacks cleanly.
+  if (title !== prevTitle) {
+    setPrevTitle(title);
+    if (title !== lastPushedTitle) {
+      setLocalTitle(title);
+    }
+  }
 
   // Auto-resize textarea height based on content
   useEffect(() => {
@@ -60,6 +66,7 @@ export function BoardTitle({
 
   const handleBlur = () => {
     if (localTitle !== title) {
+      setLastPushedTitle(localTitle);
       onChange?.(localTitle);
     }
   };

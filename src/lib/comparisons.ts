@@ -7,19 +7,16 @@
 
 import fastDeepEqual from 'fast-deep-equal';
 
-import { Item } from '@/items/items';
+import { Item, ItemUpdate } from '@/items/items';
 import { isObject } from '@/lib/type-guards';
 
 /**
  * Checks if a partial update actually changes any values in the current item.
  * @param current - The existing item.
- * @param updates - The partial updates to apply.
- * @returns True if the updates would change the item, false otherwise.
+ * @param updates - The proposed new properties payload.
+ * @returns True if at least one property has meaningfully changed.
  */
-export function hasItemUpdates(
-  current: Item, 
-  updates: Partial<Item>
-): boolean {
+export function hasItemUpdates(current: Item, updates: ItemUpdate): boolean {
   const entries = Object.entries(updates) as [keyof Item, Item[keyof Item]][];
 
   for (const [key, newValue] of entries) {

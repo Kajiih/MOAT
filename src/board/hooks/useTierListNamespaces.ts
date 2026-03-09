@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { TierDefinition, TierListState } from '@/board/types';
-import { Item } from '@/items/items';
+import { Item, ItemUpdate } from '@/items/items';
 import { fromSearchId } from '@/lib/ids';
 
 /**
@@ -122,7 +122,7 @@ export function useTierListNamespaces({
    * Updates item attributes.
    */
   const updateMediaItem = useCallback(
-    (itemId: string, updates: Partial<Item>) => {
+    (itemId: string, updates: ItemUpdate) => {
       dispatch({ type: ActionType.UPDATE_ITEM, payload: { itemId, updates } });
     },
     [dispatch],
