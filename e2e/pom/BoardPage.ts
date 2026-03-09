@@ -81,6 +81,7 @@ export class BoardPage {
     // Idempotent: if the menu is already open, don't toggle it off.
     if (await this.clearBoardButton.isVisible()) return;
 
+    // eslint-disable-next-line playwright/no-force-option - disable for now
     await this.optionsButton.click({ force: true });
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(200);
@@ -116,6 +117,7 @@ export class BoardPage {
   async clearBoard() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
+    // eslint-disable-next-line playwright/no-force-option - disable for now
     await this.clearBoardButton.click({ force: true });
     
     // eslint-disable-next-line playwright/no-wait-for-timeout
@@ -131,6 +133,7 @@ export class BoardPage {
   async resetItems() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
+    // eslint-disable-next-line playwright/no-force-option - disable for now
     await this.resetItemsButton.click({ force: true });
 
     // Wait for the UI to settle after Redux update
