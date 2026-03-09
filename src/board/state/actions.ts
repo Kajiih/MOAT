@@ -24,8 +24,6 @@ export enum ActionType {
   MOVE_ITEM = 'MOVE_ITEM',
   /** Updates metadata for a specific item (e.g., deep details). */
   UPDATE_ITEM = 'UPDATE_ITEM',
-  /** Mutates an item's ID from a temporary Search string to a Canonical string. */
-  NORMALIZE_ITEM = 'NORMALIZE_ITEM',
   /** Removes an item from its current tier. */
   REMOVE_ITEM = 'REMOVE_ITEM',
 
@@ -66,7 +64,6 @@ export type TierListAction =
       };
     }
   | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: Partial<Omit<Item, 'id'>> } }
-  | { type: ActionType.NORMALIZE_ITEM; payload: { oldId: string; newId: string } }
   | { type: ActionType.REMOVE_ITEM; payload: { tierId: string | TierId; itemId: string } }
   | { type: ActionType.UPDATE_TITLE; payload: { title: string } }
   | { type: ActionType.RANDOMIZE_COLORS }

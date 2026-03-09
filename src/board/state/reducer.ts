@@ -42,7 +42,6 @@ export function tierListReducer(state: TierListState, action: TierListAction): T
     case ActionType.REORDER_TIERS:
     case ActionType.MOVE_ITEM:
     case ActionType.UPDATE_ITEM:
-    case ActionType.NORMALIZE_ITEM:
     case ActionType.REMOVE_ITEM:
     case ActionType.UPDATE_TITLE:
     case ActionType.RANDOMIZE_COLORS:

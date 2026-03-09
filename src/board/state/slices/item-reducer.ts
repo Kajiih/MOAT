@@ -15,7 +15,6 @@ import { ActionType, TierListAction } from '../actions';
 /** Type definition for the Move Item action payload */
 export type MoveItemPayload = Extract<TierListAction, { type: 'MOVE_ITEM' }>['payload'];
 export type UpdateItemPayload = Extract<TierListAction, { type: 'UPDATE_ITEM' }>['payload'];
-export type NormalizeItemPayload = Extract<TierListAction, { type: 'NORMALIZE_ITEM' }>['payload'];
 
 /**
  * Utility function to find which tier (container) an item belongs to.
@@ -53,9 +52,14 @@ function handleMoveFromSearch(
     newIndex = overIndex !== -1 ? overIndex : overItems.length;
   }
 
+  // Use canonical ID if available to prevent normalization jumps
+  const targetId = draggingItemFromSearch.id && draggingItemFromSearch.id !== activeId 
+    ? draggingItemFromSearch.id 
+    : activeId;
+
   const exists = Object.values(state.items)
     .flat()
-    .some((i) => i.id === draggingItemFromSearch.id);
+    .some((i) => i.id === targetId);
   if (exists) return state;
 
   return {
@@ -64,13 +68,13 @@ function handleMoveFromSearch(
       ...state.items,
       [overContainer]: [
         ...state.items[overContainer].slice(0, newIndex),
-        { ...draggingItemFromSearch, id: activeId },
+        { ...draggingItemFromSearch, id: targetId },
         ...state.items[overContainer].slice(newIndex),
       ],
     },
     itemLookup: {
       ...state.itemLookup,
-      [activeId]: overContainer,
+      [targetId]: overContainer,
     },
   };
 }
@@ -207,35 +211,6 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
   return modified ? { ...state, items: newItems, itemLookup: newItemLookup } : state;
 }
 
-function handleNormalizeItem(state: TierListState, payload: NormalizeItemPayload): TierListState {
-  const { oldId, newId } = payload;
-  const newItems = { ...state.items };
-  let modified = false;
-  let newItemLookup = state.itemLookup;
-
-  const tierIds = Object.keys(newItems);
-  for (const tierId of tierIds) {
-    const list = newItems[tierId];
-    const index = list.findIndex((a) => a.id === oldId);
-    if (index !== -1) {
-      const currentItem = list[index];
-      const newItem: Item = { ...currentItem, id: newId };
-
-      newItems[tierId] = [...list.slice(0, index), newItem, ...list.slice(index + 1)];
-      modified = true;
-
-      // Handle Component ID Lookup normalization
-      if (state.itemLookup) {
-        newItemLookup = { ...state.itemLookup };
-        delete newItemLookup[oldId];
-        newItemLookup[newId] = tierId;
-      }
-      break;
-    }
-  }
-  return modified ? { ...state, items: newItems, itemLookup: newItemLookup } : state;
-}
-
 /**
  * Slice reducer for item-related actions.
  * @param state - Current tier list state.
@@ -246,9 +221,6 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
   switch (action.type) {
     case ActionType.MOVE_ITEM: {
       return handleMoveItem(state, action.payload);
-    }
-    case ActionType.NORMALIZE_ITEM: {
-      return handleNormalizeItem(state, action.payload);
     }
     case ActionType.REMOVE_ITEM: {
       const { tierId, itemId } = action.payload;

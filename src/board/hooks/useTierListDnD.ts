@@ -24,7 +24,6 @@ import { Dispatch, useCallback, useRef, useState } from 'react';
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { TierDefinition, TierListState } from '@/board/types';
 import { Item } from '@/items/items';
-import { isSearchId } from '@/lib/ids';
 
 /**
  * Manages the Drag and Drop state and event handlers for the Tier List board.
@@ -140,18 +139,6 @@ export function useTierListDnD(
             activeItem: activeItemData,
           },
         });
-      }
-
-      // Normalization check for canonical identity
-      if (isSearchId(activeId) && activeItemData) {
-        const canonicalId = (activeItemData as Item).id;
-
-        if (canonicalId && canonicalId !== activeId) {
-          dispatch({
-            type: ActionType.NORMALIZE_ITEM,
-            payload: { oldId: activeId, newId: canonicalId },
-          });
-        }
       }
     },
     [dispatch, state.tierDefs],
