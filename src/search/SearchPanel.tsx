@@ -1,6 +1,11 @@
+/**
+ * @file Search Panel
+ * @description The top-level declarative search UI coordinating providers, filters, and rendering.
+ */
+
 'use client';
 
-import '@/providers'; // Bootstrap all providers on first import
+import '@/providers/bootstrap'; // Bootstrap all providers on first import
 
 import { Eye, EyeOff, Loader2,Search } from 'lucide-react';
 import React, { useMemo } from 'react';

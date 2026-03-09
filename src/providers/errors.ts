@@ -1,4 +1,9 @@
 /**
+ * @file Provider Errors
+ * @description Centralized error types and enums mirroring standard HTTP mappings.
+ */
+
+/**
  * Standardized error codes for the provider layer.
  */
 export enum ProviderErrorCode {

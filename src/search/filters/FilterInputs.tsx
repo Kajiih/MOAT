@@ -1,3 +1,8 @@
+/**
+ * @file Filter Inputs
+ * @description Low-level presentation components governing diverse individual filter mechanisms.
+ */
+
 import React from 'react';
 
 import {
@@ -10,6 +15,14 @@ import {
 
 import { FilterControlProps } from './types';
 
+/**
+ * Renders a text input for string-based filters.
+ * @param props - The filter control properties.
+ * @param props.filter - The filter definition parameters.
+ * @param props.value - The current string input state.
+ * @param props.onChange - Functional callback resolving the updated state.
+ * @returns A fully bound input node.
+ */
 export function TextFilterInput({
   filter,
   value,
@@ -26,6 +39,14 @@ export function TextFilterInput({
   );
 }
 
+/**
+ * Renders a select dropdown for categorical filters.
+ * @param props - The filter control properties.
+ * @param props.filter - The filter definition containing the option suite.
+ * @param props.value - The currently selected option ID.
+ * @param props.onChange - Functional callback resolving the updated option.
+ * @returns A fully bound select node.
+ */
 export function SelectFilterInput({
   filter,
   value,
@@ -47,6 +68,14 @@ export function SelectFilterInput({
   );
 }
 
+/**
+ * Renders a checkbox for boolean filters.
+ * @param props - The filter control properties.
+ * @param props.filter - The associated boolean parameter definition.
+ * @param props.value - The current boolean state.
+ * @param props.onChange - Functional callback executing the toggle behavior.
+ * @returns A fully bound toggle node.
+ */
 export function BooleanFilterInput({
   value,
   onChange,
@@ -64,6 +93,14 @@ export function BooleanFilterInput({
   );
 }
 
+/**
+ * Renders a multi-select token group for array filters.
+ * @param props - The filter control properties.
+ * @param props.filter - The filter definition containing the available parameters.
+ * @param props.value - The currently selected array of tokens.
+ * @param props.onChange - Functional callback resolving the modified selection array.
+ * @returns A fully bound multiselect grid node.
+ */
 export function MultiSelectFilterInput({
   filter,
   value,
@@ -98,6 +135,14 @@ export function MultiSelectFilterInput({
   );
 }
 
+/**
+ * Renders min/max inputs for range filters.
+ * @param props - The filter control properties.
+ * @param props.filter - The defined filtering boundaries.
+ * @param props.value - The current min/max coordinates.
+ * @param props.onChange - Functional callback mutating the selected range.
+ * @returns A fully bound multi-input node.
+ */
 export function RangeFilterInput({
   filter,
   value,

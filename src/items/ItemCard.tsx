@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Info, X } from 'lucide-react';
 import React from 'react';
 
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 import { registry } from '@/providers/registry';
 
 import { ItemImage } from './ItemImage';

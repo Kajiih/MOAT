@@ -1,3 +1,8 @@
+/**
+ * @file Filter Schemas
+ * @description Core Zod schemas and utilities validating Filter configurations across adapters.
+ */
+
 import { z } from 'zod';
 
 /**
@@ -82,18 +87,21 @@ export interface BaseFilterDefinition<TValue = unknown, TRaw = unknown> {
   testCases: FilterTestCase<TValue, TRaw>[];
 }
 
+/** Defines a text-based filter mechanism */
 export interface TextFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<string, TRaw> {
   type: 'text';
   /** Placeholder text for the input */
   placeholder?: string;
 }
 
+/** Defines a numerical filter mechanism */
 export interface NumberFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<number, TRaw> {
   type: 'number';
   /** Placeholder text for the input */
   placeholder?: string;
 }
 
+/** Defines a boolean toggle filter mechanism */
 export interface BooleanFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
   boolean,
   TRaw
@@ -101,12 +109,14 @@ export interface BooleanFilterDefinition<TRaw = unknown> extends BaseFilterDefin
   type: 'boolean';
 }
 
+/** Defines a single-choice dropdown filter mechanism */
 export interface SelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<string, TRaw> {
   type: 'select';
   /** Available options for selection-based inputs */
   options: FilterOption[];
 }
 
+/** Defines a multiple-choice selection filter mechanism */
 export interface MultiSelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
   string[],
   TRaw
@@ -116,6 +126,7 @@ export interface MultiSelectFilterDefinition<TRaw = unknown> extends BaseFilterD
   options: FilterOption[];
 }
 
+/** Defines an asynchronous single-choice dropdown fetching its options live */
 export interface AsyncSelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
   string,
   TRaw
@@ -128,6 +139,7 @@ export interface AsyncSelectFilterDefinition<TRaw = unknown> extends BaseFilterD
   targetEntityId: string;
 }
 
+/** Defines an asynchronous multiple-choice selection mechanism fetching its options live */
 export interface AsyncMultiSelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
   string[],
   TRaw
@@ -140,6 +152,7 @@ export interface AsyncMultiSelectFilterDefinition<TRaw = unknown> extends BaseFi
   targetEntityId: string;
 }
 
+/** Defines a numeric range (min/max) filter mechanism */
 export interface RangeFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
   { min?: string; max?: string },
   TRaw
@@ -151,6 +164,7 @@ export interface RangeFilterDefinition<TRaw = unknown> extends BaseFilterDefinit
   maxPlaceholder?: string;
 }
 
+/** Defines a date string filter mechanism */
 export interface DateFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<string, TRaw> {
   type: 'date';
   /** Placeholder text for the input */
@@ -183,49 +197,59 @@ export type FilterDefinition<TRaw = unknown> =
  * to the generic type `TRaw` of the expected Provider responses.
  *
  * This prevents repetitive `<any, RAWGGame>` boilerplate on every individual filter definition.
+ * @returns An exact factory suite enforcing the TRaw constraints.
  */
 export function createFilterSuite<TRaw>() {
   return {
+    /** Build a text filter parameter */
     text: (config: Omit<TextFilterDefinition<TRaw>, 'type'>): TextFilterDefinition<TRaw> => {
       return { ...config, type: 'text' };
     },
 
+    /** Build a numerical filter parameter */
     number: (config: Omit<NumberFilterDefinition<TRaw>, 'type'>): NumberFilterDefinition<TRaw> => {
       return { ...config, type: 'number' };
     },
 
+    /** Build a boolean toggle filter parameter */
     boolean: (
       config: Omit<BooleanFilterDefinition<TRaw>, 'type'>,
     ): BooleanFilterDefinition<TRaw> => {
       return { ...config, type: 'boolean' };
     },
 
+    /** Build a single-choice dropdown filter parameter */
     select: (config: Omit<SelectFilterDefinition<TRaw>, 'type'>): SelectFilterDefinition<TRaw> => {
       return { ...config, type: 'select' };
     },
 
+    /** Build a multiple-choice selection filter parameter */
     multiselect: (
       config: Omit<MultiSelectFilterDefinition<TRaw>, 'type'>,
     ): MultiSelectFilterDefinition<TRaw> => {
       return { ...config, type: 'multiselect' };
     },
 
+    /** Build an asynchronous single-choice dropdown fetching its options live */
     asyncSelect: (
       config: Omit<AsyncSelectFilterDefinition<TRaw>, 'type'>,
     ): AsyncSelectFilterDefinition<TRaw> => {
       return { ...config, type: 'async-select' };
     },
 
+    /** Build an asynchronous multiple-choice selection parameter fetching its options live */
     asyncMultiselect: (
       config: Omit<AsyncMultiSelectFilterDefinition<TRaw>, 'type'>,
     ): AsyncMultiSelectFilterDefinition<TRaw> => {
       return { ...config, type: 'async-multiselect' };
     },
 
+    /** Build a max/min scope range filter parameter */
     range: (config: Omit<RangeFilterDefinition<TRaw>, 'type'>): RangeFilterDefinition<TRaw> => {
       return { ...config, type: 'range' };
     },
 
+    /** Build a strict date constraint filter parameter */
     date: (config: Omit<DateFilterDefinition<TRaw>, 'type'>): DateFilterDefinition<TRaw> => {
       return { ...config, type: 'date' };
     },

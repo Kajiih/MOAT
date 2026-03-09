@@ -8,7 +8,7 @@
 import { Info, LucideIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Item, ItemSection } from '@/items/schemas';
+import { Item, ItemSection } from '@/items/items';
 import { useItemResolver } from '@/items/useItemResolver';
 import { useEscapeKey } from '@/lib/ui/useEscapeKey';
 import { registry } from '@/providers/registry';
@@ -32,11 +32,11 @@ interface DetailsModalProps {
 
 /**
  * A comprehensive details view for native Items.
- * @param props - The component props.
- * @param props.item
- * @param props.isOpen
- * @param props.onClose
- * @param props.onUpdateItem
+ * @param props - The component properties.
+ * @param props.item - The item to display details for.
+ * @param props.isOpen - Whether the modal is currently open.
+ * @param props.onClose - Callback to close the modal.
+ * @param props.onUpdateItem - Callback to persist updates to the item.
  * @returns The rendered DetailsModal component.
  */
 export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
@@ -249,10 +249,11 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
 /**
  * Internal component to handle notes editing.
- * @param root0
- * @param root0.initialNotes
- * @param root0.itemId
- * @param root0.onUpdate
+ * @param props - Configuration properties.
+ * @param props.itemId - Target entity ID.
+ * @param props.initialNotes - The cached initial notes block.
+ * @param props.onUpdate - Callback emitted when a save completes.
+ * @returns The decoupled notes state and save handlers.
  */
 function LocalNotesEditor({
   initialNotes,

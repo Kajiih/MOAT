@@ -14,9 +14,10 @@ interface ExternalLinksProps {
 }
 
 /**
- * Renders a collection of external links for an item.
- * @param root0
- * @param root0.urls
+ * Helper component to render external links beautifully.
+ * @param props - The component properties.
+ * @param props.urls - A map or list of external URLs.
+ * @returns Rendered links mapped statically.
  */
 export function ExternalLinks({ urls }: ExternalLinksProps) {
   if (!urls || urls.length === 0) return null;

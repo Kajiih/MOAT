@@ -11,7 +11,7 @@ import { NextRequest } from 'next/server';
 
 import { OGBoard } from '@/board/OGBoard';
 import { TierListState } from '@/board/types';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 import { logger } from '@/lib/logger';
 import { scrubBoardImages } from '@/lib/server/image-logic';
 

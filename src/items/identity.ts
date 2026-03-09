@@ -1,3 +1,8 @@
+/**
+ * @file Item Identity
+ * @description Core identifying schemas and utility functions for canonical data.
+ */
+
 import { z } from 'zod';
 
 /**

@@ -1,3 +1,8 @@
+/**
+ * @file Registry React Hook
+ * @description useSyncExternalStore implementation bridging the static Provider pipeline to React.
+ */
+
 import { useSyncExternalStore } from 'react';
 
 import { registry,RegistrySnapshot, RegistryStatus } from '../registry';

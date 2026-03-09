@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 
-import { ItemSchema } from '@/items/schemas';
+import { ItemSchema } from '@/items/items';
 
 import { SortDirection } from './sort-schemas';
 

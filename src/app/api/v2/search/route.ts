@@ -1,10 +1,15 @@
-import '@/providers/index'; // Ensure providers are registered in the Node environment
+/**
+ * @file Search API Route
+ * @description V2 Next.js API route orchestrating cross-provider generic search proxying.
+ */
+
+import '@/providers/bootstrap'; // Ensure registry loads in node environment
 
 import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
 import { registry } from '@/providers/registry';
-import { SortDirection } from '@/search/schemas';
+import { SortDirection } from '@/search/sort-schemas';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

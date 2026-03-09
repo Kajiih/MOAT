@@ -1,6 +1,11 @@
+/**
+ * @file Filter UI Engine
+ * @description Centralized React routing mechanism dynamically yielding precise inputs from logical filters.
+ */
+
 import React from 'react';
 
-import { FilterDefinition } from '@/search/schemas';
+import { FilterDefinition } from '@/search/filter-schemas';
 
 import {
   BooleanFilterInput,
@@ -17,6 +22,7 @@ import { FilterControlProps } from './types';
  */
 export const FilterUIComponents: Record<
   FilterDefinition['type'],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   React.FC<FilterControlProps<any>>
 > = {
   text: TextFilterInput,
@@ -32,8 +38,9 @@ export const FilterUIComponents: Record<
 
 /**
  * Fallback component for unimplemented filter types.
- * @param root0
- * @param root0.filter
+ * @param props - The filter control properties.
+ * @param props.filter - The definition of the filter being rendered.
+ * @returns An indicative placeholder node.
  */
 export const FallbackFilterInput: React.FC<FilterControlProps> = ({ filter }) => (
   <div className="text-[10px] text-neutral-600 italic">

@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 import { failedImages } from '@/items/image-cache';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 import { useResolvedImage } from '@/items/useResolvedImage';
 
 /**

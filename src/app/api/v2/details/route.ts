@@ -1,4 +1,9 @@
-import '@/providers/index'; // Ensure providers are registered in the Node environment
+/**
+ * @file Details API Route
+ * @description V2 Next.js API route securely fetching specific item details via registered providers.
+ */
+
+import '@/providers/bootstrap'; // Ensure registry loads in node environment
 
 import { NextResponse } from 'next/server';
 

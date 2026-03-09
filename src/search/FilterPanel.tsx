@@ -1,3 +1,8 @@
+/**
+ * @file Filter Panel
+ * @description Purely declarative filter panel that renders UI controls.
+ */
+
 import React from 'react';
 
 import { Entity } from '@/providers/types';
@@ -13,10 +18,11 @@ interface FilterPanelProps {
 /**
  * A purely declarative filter panel that renders UI controls based on 
  * the FilterDefinitions provided by a Entity.
- * @param root0
- * @param root0.entity
- * @param root0.values
- * @param root0.onChange
+ * @param props - The component properties.
+ * @param props.entity - The entity containing the filter definitions.
+ * @param props.values - The current filter values dictionary.
+ * @param props.onChange - Callback invoked when a filter value is changed.
+ * @returns The rendered filter panel component.
  */
 export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
   const allFilters = [...entity.searchOptions, ...entity.filters];

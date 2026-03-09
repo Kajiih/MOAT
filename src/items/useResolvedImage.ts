@@ -5,7 +5,7 @@
  */
 import useSWR from 'swr';
 
-import type { ImageSource } from '@/items/schemas';
+import type { ImageSource } from '@/items/images';
 import { registry } from '@/providers/registry';
 
 /**

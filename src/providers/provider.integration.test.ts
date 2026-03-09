@@ -1,12 +1,12 @@
 /* eslint-disable vitest/valid-expect, vitest/max-nested-describe, vitest/valid-describe-callback, @typescript-eslint/no-explicit-any, sonarjs/no-nested-template-literals */
+import '@/providers/bootstrap';
+
 import { afterAll,beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { registry } from '@/providers';
+import { registry } from '@/providers/registry';
 import { ProviderStatus } from '@/providers/types';
-import {
-  FilterTestCase,
-  SortDirection,
-} from '@/search/schemas';
+import { FilterTestCase } from '@/search/filter-schemas';
+import { SortDirection } from '@/search/sort-schemas';
 
 import {
   expectDistinctPages,

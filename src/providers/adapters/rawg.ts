@@ -5,15 +5,16 @@
 
 import { Building2, Gamepad2 } from 'lucide-react';
 
-import { toCompositeId } from '@/items/schemas';
-import { referenceImage, urlImage } from '@/items/schemas';
-import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/schemas';
+import { toCompositeId } from '@/items/identity';
+import { referenceImage, urlImage } from '@/items/images';
+import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items';
 import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
-import { createSortSuite, FilterDefinition,SortDirection } from '@/search/schemas';
-import { SearchParams, SearchResult, SearchResultSchema } from '@/search/schemas';
+import { FilterDefinition } from '@/search/filter-schemas';
+import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
+import { createSortSuite, SortDirection } from '@/search/sort-schemas';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 
@@ -64,7 +65,7 @@ interface RAWGListResponse<T> {
   results: T[];
 }
 
-import { createFilterSuite } from '@/search/schemas';
+import { createFilterSuite } from '@/search/filter-schemas';
 
 const rawgGameFilters = createFilterSuite<RAWGGame>();
 const rawgGameSorts = createSortSuite<RAWGGame>();

@@ -1,6 +1,11 @@
+/**
+ * @file Database Details Hook
+ * @description SWR-based React hook for fetching and caching robust ItemDetails.
+ */
+
 import useSWR from 'swr';
 
-import { ItemDetails } from '@/items/schemas';
+import { ItemDetails } from '@/items/items';
 
 /**
  * Hook configuration options.
@@ -31,7 +36,7 @@ export function useDatabaseDetails(
     : null;
 
   // 2. Define the fetcher that correctly delegates to our V2 API Proxy
-  const fetcher = async (_key: any[], { signal }: { signal: AbortSignal }): Promise<ItemDetails> => {
+  const fetcher = async (_key: unknown[], { signal }: { signal: AbortSignal }): Promise<ItemDetails> => {
     if (!providerId || !entityId || !dbId) {
       throw new Error('Provider ID, Entity ID, and Database ID are required');
     }

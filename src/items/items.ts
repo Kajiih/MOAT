@@ -1,3 +1,8 @@
+/**
+ * @file Item Schemas
+ * @description Master Zod schemas capturing the fundamental data shapes.
+ */
+
 import { z } from 'zod';
 
 import { EntityIdentitySchema } from './identity';

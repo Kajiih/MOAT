@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 
-import { Item as DbItem, ItemDetails as DbItemDetails, ItemSchema as DbItemSchema } from '@/items/schemas';
+import { Item as DbItem, ItemDetails as DbItemDetails, ItemSchema as DbItemSchema } from '@/items/items';
 
 export type Item = DbItem;
 export type ItemDetails = DbItemDetails;

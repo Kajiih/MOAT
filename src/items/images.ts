@@ -1,3 +1,8 @@
+/**
+ * @file Item Images
+ * @description Zod schemas and utility functions covering media resolution.
+ */
+
 import { z } from 'zod';
 
 /** A direct image URL */
