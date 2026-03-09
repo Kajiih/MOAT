@@ -9,6 +9,7 @@
 import { useEffect } from 'react';
 
 import { Item } from '@/board/types';
+import { ItemUpdate } from '@/items/items';
 import { useDatabaseDetails } from '@/providers/useDatabaseDetails';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 
@@ -16,7 +17,7 @@ interface UseItemResolverOptions {
   /** If false, enrichment will not be attempted. Defaults to true. */
   enabled?: boolean;
   /** Callback fired when a more complete version of the item is found or resolved. */
-  onUpdate?: (id: string, updates: Partial<Omit<Item, 'id'>>) => void;
+  onUpdate?: (id: string, updates: ItemUpdate) => void;
   /** Whether to persist resolved metadata back to the registry. Defaults to true. */
   persist?: boolean;
 }
@@ -66,7 +67,7 @@ export function useItemResolver(
       }
     }
 
-    const updates: Partial<Omit<Item, 'id'>> = {
+    const updates: ItemUpdate = {
       images: mergedImages,
     };
 

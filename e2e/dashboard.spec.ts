@@ -38,7 +38,7 @@ test.describe('Dashboard and Multi-Board', () => {
             const getReq = store.get('tier-list-index');
             getReq.onsuccess = () => {
               const index = getReq.result || [];
-              resolve(index.some((b: Record<string, unknown>) => b.title === title));
+              resolve(index.some((b: { title: string }) => b.title === title));
             };
             getReq.onerror = () => resolve(false);
           };
@@ -52,6 +52,7 @@ test.describe('Dashboard and Multi-Board', () => {
     // 5. Go back to dashboard and verify board exists
     await boardPage.dashboardButton.click();
     await dashboardPage.page.waitForURL(/\/dashboard$/);
+    await expect(dashboardPage.page.getByText(boardTitle)).toBeVisible({ timeout: 15_000 });
     await dashboardPage.page.reload();
     await expect(dashboardPage.page.getByText(boardTitle)).toBeVisible({ timeout: 15_000 });
 

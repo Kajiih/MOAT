@@ -42,6 +42,11 @@ export interface TierDefinition {
 }
 
 /**
+ * Valid attributes that can be updated on a Tier.
+ */
+export type TierUpdate = Partial<Omit<TierDefinition, 'id'>>;
+
+/**
  * Represents the state of the tier list board.
  */
 export interface TierListState {

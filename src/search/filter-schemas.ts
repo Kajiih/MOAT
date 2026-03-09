@@ -35,6 +35,11 @@ export const FilterOptionSchema = z.object({
 export type FilterOption = z.infer<typeof FilterOptionSchema>;
 
 /**
+ * Valid value types for evaluating applied UI filters.
+ */
+export type FilterValues = Record<string, string | number | boolean | string[] | { min?: string; max?: string } | undefined>;
+
+/**
  * A single test case for verifying a filter's behavior in integration tests.
  * Each test case specifies a filter value and optionally a query and verification logic.
  */

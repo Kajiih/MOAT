@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { ItemSchema } from '@/items/items';
 
+import { FilterValues } from './filter-schemas';
 import { SortDirection } from './sort-schemas';
 
 /**
@@ -123,7 +124,7 @@ export const SearchParamsSchema = z.object({
  */
 export interface SearchParams {
   query: string;
-  filters: Record<string, unknown>;
+  filters: FilterValues;
   sort?: string;
   sortDirection?: SortDirection;
   limit: number;

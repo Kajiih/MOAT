@@ -5,7 +5,8 @@
  * @module StateActions
  */
 
-import { Item, TierDefinition, TierId, TierListState } from '@/board/types';
+import { Item, TierId, TierListState, TierUpdate } from '@/board/types';
+import { ItemUpdate } from '@/items/items';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.
@@ -50,7 +51,7 @@ export type TierListAction =
   | { type: ActionType.DELETE_TIER; payload: { id: string | TierId } }
   | {
       type: ActionType.UPDATE_TIER;
-      payload: { id: string | TierId; updates: Partial<TierDefinition> };
+      payload: { id: string | TierId; updates: TierUpdate };
     }
   | { type: ActionType.REORDER_TIERS; payload: { oldIndex: number; newIndex: number } }
   | {
@@ -63,7 +64,7 @@ export type TierListAction =
         activeItem?: Item;
       };
     }
-  | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: Partial<Omit<Item, 'id'>> } }
+  | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: ItemUpdate } }
   | { type: ActionType.REMOVE_ITEM; payload: { tierId: string | TierId; itemId: string } }
   | { type: ActionType.UPDATE_TITLE; payload: { title: string } }
   | { type: ActionType.RANDOMIZE_COLORS }

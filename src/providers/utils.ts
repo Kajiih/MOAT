@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
 import { isObject } from '@/lib/type-guards';
-import { FilterDefinition } from '@/search/filter-schemas';
+import { FilterDefinition, FilterValues } from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
 
@@ -81,7 +81,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
  */
 export function applyFilters<TRaw>(
   apiParams: Record<string, string>,
-  filterValues: Record<string, unknown> | undefined,
+  filterValues: FilterValues | undefined,
   definitions: FilterDefinition<TRaw>[]
 ): void {
   const values = filterValues || {};

@@ -53,6 +53,30 @@ export async function validateImageUrl(url: string, timeoutMs = 1500): Promise<b
   }
 }
 
+function extractImageUrls(state: TierListState, itemsPerTier: number): Set<string> {
+  const uniqueUrls = new Set<string>();
+  const maxImagesPerTier = 10; // Limit to 10 images per tier for OG image generation
+
+  for (const tier of state.tierDefs) {
+    const tierItemIds = state.tierLayout[tier.id] || [];
+    const displayedItems = tierItemIds
+      .slice(0, itemsPerTier)
+      .map((id) => state.itemEntities[id])
+      .filter((item): item is NonNullable<typeof item> => !!item);
+
+    let imageCount = 0;
+    for (const item of displayedItems) {
+      if (imageCount >= maxImagesPerTier) break;
+      const imageUrl = item.images?.[0]?.type === 'url' ? item.images[0].url : null;
+      if (imageUrl) {
+        uniqueUrls.add(imageUrl);
+        imageCount++;
+      }
+    }
+  }
+  return uniqueUrls;
+}
+
 /**
  * Scrubs broken image URLs from a board state.
  * Only validates the images that will actually be displayed in the OG board (top N per tier).
@@ -64,30 +88,10 @@ export async function scrubBoardImages(
   state: TierListState,
   itemsPerTier = 10,
 ): Promise<TierListState> {
-  const newItems: Record<string, Item[]> = {};
+  const newItemEntities: Record<string, Item> = { ...state.itemEntities };
 
   // Collect all images to validate (unique URLs only to optimize)
-  const uniqueImageUrls = new Set<string>();
-  const maxImagesPerTier = 10; // Limit to 10 images per tier for OG image generation
-
-  for (const tier of state.tierDefs) {
-    const tierItems = state.items[tier.id] || [];
-    const displayedItems = tierItems.slice(0, itemsPerTier);
-    let imageCount = 0;
-    for (const item of displayedItems) {
-      if (imageCount >= maxImagesPerTier) break;
-
-      const imageUrl =
-        item.images && item.images.length > 0 && item.images[0].type === 'url'
-          ? item.images[0].url
-          : null;
-
-      if (imageUrl) {
-        uniqueImageUrls.add(imageUrl);
-        imageCount++;
-      }
-    }
-  }
+  const uniqueImageUrls = extractImageUrls(state, itemsPerTier);
 
   // Validate all unique URLs in parallel
   const validationResults = new Map<string, boolean>();
@@ -98,25 +102,17 @@ export async function scrubBoardImages(
     }),
   );
 
-  // Reconstruct items with scrubbed images
-  for (const tierId in state.items) {
-    newItems[tierId] = state.items[tierId].map((item) => {
-      const img = item.images?.[0];
-      const url = img?.type === 'url' ? img.url : null;
-      if (
-        url &&
-        validationResults.has(url) &&
-        !validationResults.get(url)
-      ) {
-        // Find existing image array and remove/replace the broken one, or simply clear the image array
-        return { ...item, images: [] };
-      }
-      return item;
-    });
+  // Reconstruct itemEntities with scrubbed images
+  for (const itemId in state.itemEntities) {
+    const item = state.itemEntities[itemId];
+    const url = item.images?.[0]?.type === 'url' ? item.images[0].url : null;
+    if (url && validationResults.has(url) && !validationResults.get(url)) {
+      newItemEntities[itemId] = { ...item, images: [] };
+    }
   }
 
   return {
     ...state,
-    items: newItems,
+    itemEntities: newItemEntities,
   };
 }
