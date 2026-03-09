@@ -15,7 +15,7 @@ test.describe('Search Functionality', () => {
     await searchPanel.search('Test');
     await searchPanel.dragToTier('item-1', 'S');
 
-    await expect(page.getByTestId('media-card-rawg:game:item-1')).toBeVisible({ timeout: 10_000 });
+    await expect(boardPage.getMediaCard('item-1')).toBeVisible({ timeout: 10_000 });
   });
 
   test('should navigate through different pages of results', async ({
@@ -77,11 +77,11 @@ test.describe('Search Functionality', () => {
     }).toPass();
 
     // 4. Verify it's hidden in search results
-    await expect(page.getByTestId('media-card-search-rawg:game:duplicate-1')).toBeHidden();
+    await expect(searchPanel.container.getByTestId('media-card-rawg:game:duplicate-1')).toBeHidden();
 
     // 5. Toggle "Show Added" (Show it)
     await searchPanel.setShowAdded(true);
-    await expect(page.getByTestId('media-card-search-rawg:game:duplicate-1')).toBeVisible();
+    await expect(searchPanel.container.getByTestId('media-card-rawg:game:duplicate-1')).toBeVisible();
   });
 
   test('should use specific filters for a tab', async ({ page, boardPage, searchPanel }) => {
@@ -91,23 +91,30 @@ test.describe('Search Functionality', () => {
       await route.fulfill({ status: 200, body: JSON.stringify({ results: [], page: 1 }) });
     });
 
-    await searchPanel.switchTab('developer');
+    await searchPanel.switchTab('game');
     await searchPanel.toggleFilters();
 
-    // Use the Country filter which is a text input with a specific placeholder
-    const countryInput = page.getByPlaceholder('e.g. US, GB, JP...');
+    // Use the Platform Select filter
+    const platformSelect = page.getByRole('combobox');
 
-    await expect(countryInput).toBeVisible();
+    await expect(platformSelect).toBeVisible();
 
-    const [request] = await Promise.all([
-      page.waitForRequest((req) => req.url().includes('artistCountry=FR')),
-      (async () => {
-        await countryInput.fill('FR');
-        await searchPanel.search('Frenchie');
-      })(),
-    ]);
+    await platformSelect.selectOption('4');
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(500); // Wait for React useDebounce to flush
 
-    expect(request.url()).toContain('artistCountry=FR');
-    expect(request.url()).toContain('query=Frenchie');
+    const requestPromise = page.waitForRequest((req) => {
+      const url = req.url();
+      if (url.includes('/api/v2/search')) {
+        console.log('[DEBUG-REQ]', url);
+      }
+      return url.includes('filters=') && url.includes('4');
+    });
+
+    await searchPanel.search('Cyberpunk');
+    const request = await requestPromise;
+
+    expect(request.url()).toContain('filters=');
+    expect(request.url()).toContain('4');
   });
 });

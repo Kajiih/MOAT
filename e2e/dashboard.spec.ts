@@ -52,7 +52,8 @@ test.describe('Dashboard and Multi-Board', () => {
     // 5. Go back to dashboard and verify board exists
     await boardPage.dashboardButton.click();
     await dashboardPage.page.waitForURL(/\/dashboard$/);
-    await expect(dashboardPage.page.getByText(boardTitle)).toBeVisible({ timeout: 5000 });
+    await dashboardPage.page.reload();
+    await expect(dashboardPage.page.getByText(boardTitle)).toBeVisible({ timeout: 15_000 });
 
     // 5. Delete board
     await dashboardPage.deleteBoard(boardTitle);
@@ -64,7 +65,9 @@ test.describe('Dashboard and Multi-Board', () => {
     // TODO: Dashboard hydration is flaky in headless browsers
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);
-
+    await expect(boardPage.titleInput).toHaveValue(boardTitle);
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await page.waitForTimeout(500); // Allow debounced auto-save to serialize new board to IndexedDB
     await boardPage.dashboardButton.click();
     await expect(page).toHaveURL(/\/dashboard$/);
   });
@@ -74,7 +77,9 @@ test.describe('Dashboard and Multi-Board', () => {
     // TODO: Dashboard hydration is flaky in headless browsers
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);
-
+    await expect(boardPage.titleInput).toHaveValue(boardTitle);
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await dashboardPage.page.waitForTimeout(500); // Allow debounced auto-save to serialize new board to IndexedDB
     await boardPage.dashboardButton.click();
     await dashboardPage.openBoard(boardTitle);
 

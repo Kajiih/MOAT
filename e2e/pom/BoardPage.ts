@@ -81,8 +81,7 @@ export class BoardPage {
     // Idempotent: if the menu is already open, don't toggle it off.
     if (await this.clearBoardButton.isVisible()) return;
 
-    await this.optionsButton.hover();
-    await this.optionsButton.click({ delay: 50 });
+    await this.optionsButton.click();
     await this.clearBoardButton.waitFor({ state: 'visible' });
   }
 
@@ -115,8 +114,10 @@ export class BoardPage {
   async clearBoard() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    await this.clearBoardButton.click({ delay: 50 });
-    await expect(this.clearBoardButton).toBeHidden();
+    await this.clearBoardButton.click();
+    
+    // Give Redux slightly more time to dispatch the layout changes
+    await expect(this.getTierRow('S')).toBeHidden({ timeout: 5000 });
   }
 
   /**
@@ -125,8 +126,7 @@ export class BoardPage {
   async resetItems() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    await this.resetItemsButton.click({ delay: 50 });
-    await expect(this.resetItemsButton).toBeHidden();
+    await this.resetItemsButton.click();
   }
 
   /**
@@ -145,7 +145,7 @@ export class BoardPage {
    */
   getMediaCard(id: string) {
     const fullId = id.includes(':') ? id : `rawg:game:${id}`;
-    return this.page.getByTestId(`media-card-${fullId}`);
+    return this.tierRows.getByTestId(`media-card-${fullId}`);
   }
 
   /**

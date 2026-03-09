@@ -41,7 +41,7 @@ export function generateExportData(state: TierListState): ExportData {
     tiers: state.tierDefs.map((tier) => ({
       label: tier.label,
       color: tier.color,
-      items: state.items[tier.id] || [],
+      items: (state.tierLayout[tier.id] || []).map(id => state.itemEntities[id]).filter(Boolean) as Item[],
     })),
   };
 }
@@ -73,23 +73,35 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
   // 1. Handle ExportData Format
   if (data.tiers && Array.isArray(data.tiers)) {
     const newTierDefs: TierDefinition[] = [];
-    const newItems: Record<string, Item[]> = {};
+    const itemEntities: Record<string, Item> = {};
+    const tierLayout: Record<string, string[]> = {
+      unranked: [],
+    };
 
     data.tiers.forEach((tier: { label: string; color: string; items: Item[] }) => {
-      const id = crypto.randomUUID();
+      const tierId = crypto.randomUUID();
       newTierDefs.push({
-        id,
+        id: tierId,
         label: tier.label,
         color: tier.color,
       });
-      newItems[id] = tier.items || [];
+      
+      const itemIds: string[] = [];
+      if (tier.items && Array.isArray(tier.items)) {
+        tier.items.forEach(item => {
+          itemEntities[item.id] = item;
+          itemIds.push(item.id);
+        });
+      }
+      tierLayout[tierId] = itemIds;
     });
 
     return {
       title: data.title || fallbackTitle,
       tierDefs: newTierDefs,
-      items: newItems,
-    };
+      itemEntities,
+      tierLayout,
+    } as TierListState;
   }
 
   throw new Error('Invalid tier list file format.');

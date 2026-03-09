@@ -117,13 +117,13 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   // When the board hydrates from IndexedDB, push all items to the standard registry.
   React.useEffect(() => {
     if (isHydrated && !hasSyncedItems.current) {
-      const allItems = Object.values(state.items).flat();
+      const allItems = Object.values(state.itemEntities);
       if (allItems.length > 0) {
         registerItems(allItems);
         hasSyncedItems.current = true;
       }
     }
-  }, [isHydrated, state.items, registerItems]);
+  }, [isHydrated, state.itemEntities, registerItems]);
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
@@ -167,8 +167,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
         ...actions,
         publish: ioRaw.handlePublish,
         updateMediaItem: (itemId: string, updates: Partial<Item>) => {
-          // 1. Find the item
-          const item = Object.values(state.items).flat().find(i => i.id === itemId);
+          const item = state.itemEntities[itemId];
           if (!item) return;
 
           // 2. Dispatch to state

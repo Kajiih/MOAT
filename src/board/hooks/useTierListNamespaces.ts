@@ -92,10 +92,10 @@ export function useTierListNamespaces({
   uiState,
 }: UseTierListNamespacesProps) {
   /** Ref to the latest items state to keep callbacks stable */
-  const itemsRef = useRef(state.items);
+  const itemsRef = useRef(state.itemEntities);
   useEffect(() => {
-    itemsRef.current = state.items;
-  }, [state.items]);
+    itemsRef.current = state.itemEntities;
+  }, [state.itemEntities]);
 
   /**
    * Updates the global board title.
@@ -155,7 +155,7 @@ export function useTierListNamespaces({
   );
 
   /** Computed list of all items currently on the board */
-  const allBoardItems = useMemo(() => Object.values(state.items).flat(), [state.items]);
+  const allBoardItems = useMemo(() => Object.values(state.itemEntities), [state.itemEntities]);
 
   /** Set of item IDs currently on the board (used for badge indicators in search) */
   const addedItemIds = useMemo(() => {

@@ -117,8 +117,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       // 1. Resolve all images to Data URLs BEFORE any DOM operations
       const uniqueUrls = [
         ...new Set(
-          Object.values(state.items)
-            .flat()
+          Object.values(state.itemEntities)
             .flatMap((item) => {
               if (!item.images) return [];
               return item.images.filter((img) => img.type === 'url').map((img) => img.url);

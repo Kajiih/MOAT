@@ -54,7 +54,7 @@ export async function mockSearchResults(
 ) {
   const { page: pageNum = 1, totalPages = 1, totalCount = items.length } = options;
 
-  await page.route('**/api/search*', async (route) => {
+  await page.route('**/api/v2/search*', async (route) => {
     const normalised = items.map((item) => {
       const databaseId = 'rawg';
       const entityId = 'game';
@@ -76,10 +76,14 @@ export async function mockSearchResults(
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        results: normalised,
-        page: pageNum,
-        totalPages,
-        totalCount,
+        items: normalised,
+        pagination: {
+          hasNextPage: pageNum < totalPages,
+          currentPage: pageNum,
+          totalPages: totalPages,
+          totalCount: totalCount
+        },
+        raw: []
       }),
     });
   });
@@ -107,7 +111,7 @@ export async function mockItemDetails(page: Page, detail: MockItemDetail) {
     identity,
   };
 
-  await page.route('**/api/details*', async (route) => {
+  await page.route('**/api/v2/details*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -126,14 +130,43 @@ export async function mockSearchDynamic(
   page: Page,
   handler: (url: URL) => Record<string, unknown>,
 ) {
-  await page.route('**/api/search*', async (route) => {
+  await page.route('**/api/v2/search*', async (route) => {
     const url = new URL(route.request().url());
-    const body = handler(url);
+    const body = handler(url) as Record<string, unknown>;
+
+    let normalisedItems = [];
+    if (Array.isArray(body.results)) {
+      normalisedItems = body.results.map((item) => {
+        const databaseId = 'rawg';
+        const entityId = 'game';
+        const dbId = item.id;
+        const identity = { dbId, databaseId, entityId };
+        const compositeId = `${databaseId}:${entityId}:${dbId}`;
+
+        return {
+          mbid: dbId,
+          subtitle: item.artist || 'Test Artist',
+          images: [],
+          ...item,
+          id: compositeId,
+          identity,
+        };
+      });
+    }
 
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        items: normalisedItems,
+        pagination: {
+          hasNextPage: (body.page || 1) < (body.totalPages || 1),
+          currentPage: body.page || 1,
+          totalPages: body.totalPages || 1,
+          totalCount: normalisedItems.length
+        },
+        raw: []
+      }),
     });
   });
 }

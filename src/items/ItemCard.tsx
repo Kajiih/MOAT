@@ -99,6 +99,7 @@ export function ItemCard({
     <div
       ref={setNodeRef}
       style={style}
+      data-testid={`media-card-${item.id}`}
       className={`group relative transition-shadow hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
         isAdded ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black' : ''
       }`}

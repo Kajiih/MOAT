@@ -97,8 +97,8 @@ function handleHoverShortcuts(
     // 'x' to remove item (only if in a tier)
     if (event.key === 'x') {
       let foundTierId: string | null = null;
-      for (const [tierId, items] of Object.entries(state.items) as [string, Item[]][]) {
-        if (items.some((i) => i.id === hoveredItem.id)) {
+      for (const [tierId, itemIds] of Object.entries(state.tierLayout)) {
+        if (itemIds.includes(hoveredItem.id)) {
           foundTierId = tierId;
           break;
         }
@@ -250,7 +250,7 @@ export default function TierListApp() {
       <div className="pointer-events-none w-full opacity-80">
         <TierRow
           tier={activeTier}
-          items={state.items[activeTier.id] || []}
+          items={(state.tierLayout[activeTier.id] || []).map(id => state.itemEntities[id]!).filter(Boolean)}
           onRemoveItem={() => {}}
           onUpdateTier={() => {}}
           onDeleteTier={() => {}}

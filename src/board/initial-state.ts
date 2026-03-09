@@ -22,7 +22,8 @@ export const getInitialState = (): TierListState => ({
     { id: 'tier-5', label: 'D', color: DEFAULT_BRAND_COLORS[4] },
     { id: 'tier-6', label: 'Unranked', color: 'neutral' },
   ],
-  items: {
+  itemEntities: {},
+  tierLayout: {
     'tier-1': [],
     'tier-2': [],
     'tier-3': [],
@@ -30,7 +31,6 @@ export const getInitialState = (): TierListState => ({
     'tier-5': [],
     'tier-6': [],
   },
-  itemLookup: {},
 });
 
 export const INITIAL_STATE: TierListState = getInitialState();

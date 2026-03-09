@@ -30,7 +30,7 @@ export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
           Hydrated: { value: isHydrated, disabled: true },
           'Total Tiers': { value: state.tierDefs.length, disabled: true },
           'Total Items': {
-            value: Object.values(state.items).flat().length,
+            value: Object.keys(state.itemEntities).length,
             disabled: true,
           },
         },
@@ -44,7 +44,7 @@ export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
     setBoardState({
       Hydrated: isHydrated,
       'Total Tiers': state.tierDefs.length,
-      'Total Items': Object.values(state.items).flat().length,
+      'Total Items': Object.keys(state.itemEntities).length,
     });
   }, [setBoardState, state, isHydrated]);
 

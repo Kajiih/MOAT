@@ -16,23 +16,12 @@ import { ActionType, TierListAction } from '../actions';
 export type MoveItemPayload = Extract<TierListAction, { type: 'MOVE_ITEM' }>['payload'];
 export type UpdateItemPayload = Extract<TierListAction, { type: 'UPDATE_ITEM' }>['payload'];
 
-/**
- * Utility function to find which tier (container) an item belongs to.
- * Uses optimized O(1) lookup if available, otherwise falls back to O(N) scan.
- * @param id - The ID of the item to locate.
- * @param state - The current tier list state.
- * @returns The ID of the tier containing the item, or undefined if not found.
- */
 const findContainer = (id: string, state: TierListState): string | undefined => {
-  // Optimization: O(1) Lookup
-  if (state.itemLookup && state.itemLookup[id]) {
-    return state.itemLookup[id];
-  }
-
-  // Fallback: O(N) Scan
-  const currentItems = state.items;
-  if (id in currentItems) return id;
-  return Object.keys(currentItems).find((key) => currentItems[key].find((a) => a.id === id));
+  // Optimization: O(1) Lookup since tierLayout is just maps of small string arrays
+  const layout = state.tierLayout;
+  if (!layout) return undefined;
+  
+  return Object.keys(layout).find((tierId) => layout[tierId]?.includes(id));
 };
 
 function handleMoveFromSearch(
@@ -42,34 +31,34 @@ function handleMoveFromSearch(
   overContainer: string,
   draggingItemFromSearch: Item,
 ): TierListState {
-  const overItems = state.items[overContainer];
-  const overIndex = overItems.findIndex((item) => item.id === overId);
+  const overLayout = state.tierLayout[overContainer] || [];
+  const overIndex = overLayout.indexOf(overId);
 
   let newIndex;
-  if (overId in state.items) {
-    newIndex = overItems.length;
+  // If moving directly onto the container itself, append
+  if (overId in state.tierLayout) {
+    newIndex = overLayout.length;
   } else {
-    newIndex = overIndex !== -1 ? overIndex : overItems.length;
+    // Else insert before/after the target item
+    newIndex = overIndex !== -1 ? overIndex : overLayout.length;
   }
 
-  const exists = Object.values(state.items)
-    .flat()
-    .some((i) => i.id === activeId);
-  if (exists) return state;
+  // Already exists somewhere? Abort.
+  if (state.itemEntities[activeId]) return state;
 
   return {
     ...state,
-    items: {
-      ...state.items,
-      [overContainer]: [
-        ...state.items[overContainer].slice(0, newIndex),
-        { ...draggingItemFromSearch, id: activeId },
-        ...state.items[overContainer].slice(newIndex),
-      ],
+    itemEntities: {
+      ...state.itemEntities,
+      [activeId]: draggingItemFromSearch,
     },
-    itemLookup: {
-      ...state.itemLookup,
-      [activeId]: overContainer,
+    tierLayout: {
+      ...state.tierLayout,
+      [overContainer]: [
+        ...overLayout.slice(0, newIndex),
+        activeId,
+        ...overLayout.slice(newIndex),
+      ],
     },
   };
 }
@@ -80,16 +69,16 @@ function handleSortInContainer(
   overId: string,
   container: string,
 ): TierListState {
-  const activeItems = state.items[container];
-  const activeIndex = activeItems.findIndex((i) => i.id === activeId);
-  const overIndex = activeItems.findIndex((i) => i.id === overId);
+  const activeLayout = state.tierLayout[container] || [];
+  const activeIndex = activeLayout.indexOf(activeId);
+  const overIndex = activeLayout.indexOf(overId);
 
-  if (activeIndex !== overIndex) {
+  if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
     return {
       ...state,
-      items: {
-        ...state.items,
-        [container]: arrayMove(activeItems, activeIndex, overIndex),
+      tierLayout: {
+        ...state.tierLayout,
+        [container]: arrayMove(activeLayout, activeIndex, overIndex),
       },
     };
   }
@@ -103,32 +92,27 @@ function handleMoveBetweenContainers(
   activeContainer: string,
   overContainer: string,
 ): TierListState {
-  const activeItems = state.items[activeContainer];
-  const overItems = state.items[overContainer];
-  const activeIndex = activeItems.findIndex((item) => item.id === activeId);
-  const overIndex = overItems.findIndex((item) => item.id === overId);
+  const activeLayout = state.tierLayout[activeContainer] || [];
+  const overLayout = state.tierLayout[overContainer] || [];
+  const overIndex = overLayout.indexOf(overId);
 
   let newIndex;
-  if (overId in state.items) {
-    newIndex = overItems.length;
+  if (overId in state.tierLayout) {
+    newIndex = overLayout.length;
   } else {
-    newIndex = overIndex !== -1 ? overIndex : overItems.length;
+    newIndex = overIndex !== -1 ? overIndex : overLayout.length;
   }
 
   return {
     ...state,
-    items: {
-      ...state.items,
-      [activeContainer]: state.items[activeContainer].filter((item) => item.id !== activeId),
+    tierLayout: {
+      ...state.tierLayout,
+      [activeContainer]: activeLayout.filter((id) => id !== activeId),
       [overContainer]: [
-        ...state.items[overContainer].slice(0, newIndex),
-        activeItems[activeIndex],
-        ...state.items[overContainer].slice(newIndex),
+        ...overLayout.slice(0, newIndex),
+        activeId,
+        ...overLayout.slice(newIndex),
       ],
-    },
-    itemLookup: {
-      ...state.itemLookup,
-      [activeId]: overContainer,
     },
   };
 }
@@ -143,8 +127,8 @@ function handleMoveBetweenContainers(
 export function handleMoveItem(state: TierListState, payload: MoveItemPayload): TierListState {
   const { activeId, overId, activeItem: draggingItemFromSearch } = payload;
 
-  const activeContainer = findContainer(activeId, state);
-  const overContainer = findContainer(overId, state);
+  const activeContainer = activeId in state.tierLayout ? activeId : findContainer(activeId, state);
+  const overContainer = overId in state.tierLayout ? overId : findContainer(overId, state);
 
   if (!overContainer) return state;
 
@@ -165,7 +149,7 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
   // Optimization: If it's already in the right spot, we skip
   // (Mostly for handleDragOver which can be called many times)
   const isAlreadyAtTarget =
-    activeContainer !== overContainer && state.items[overContainer].some((i) => i.id === activeId);
+    activeContainer !== overContainer && state.tierLayout[overContainer]?.includes(activeId);
   if (isAlreadyAtTarget) return state;
 
   return handleMoveBetweenContainers(state, activeId, overId, activeContainer, overContainer);
@@ -173,37 +157,44 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
 
 function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): TierListState {
   const { itemId, updates } = payload;
-  const newItems = { ...state.items };
-  let modified = false;
-  let newItemLookup = state.itemLookup;
+  const currentItem = state.itemEntities[itemId];
+  
+  if (!currentItem) return state;
 
-  const tierIds = Object.keys(newItems);
-  for (const tierId of tierIds) {
-    const list = newItems[tierId];
-    const index = list.findIndex((a) => a.id === itemId);
-    if (index !== -1) {
-      const currentItem = list[index];
-
-      // Optimization: Check if updates actually change anything
-      if (!hasItemUpdates(currentItem, updates)) {
-        break;
-      }
-
-      const newItem: Item = { ...currentItem, ...updates };
-
-      newItems[tierId] = [...list.slice(0, index), newItem, ...list.slice(index + 1)];
-      modified = true;
-
-      // Handle ID change (Normalization)
-      if (currentItem.id !== newItem.id && state.itemLookup) {
-        newItemLookup = { ...state.itemLookup };
-        delete newItemLookup[currentItem.id];
-        newItemLookup[newItem.id] = tierId;
-      }
-      break;
-    }
+  if (!hasItemUpdates(currentItem, updates)) {
+    return state;
   }
-  return modified ? { ...state, items: newItems, itemLookup: newItemLookup } : state;
+
+  const newItem: Item = { ...currentItem, ...updates };
+  
+  // If the ID explicitly changed, we must migrate it in dictionaries
+  if (currentItem.id !== newItem.id) {
+    const newEntities = { ...state.itemEntities };
+    delete newEntities[currentItem.id];
+    newEntities[newItem.id] = newItem;
+
+    const newLayout = { ...state.tierLayout };
+    for (const [tierId, layoutArray] of Object.entries(newLayout)) {
+      if (layoutArray.includes(currentItem.id)) {
+        newLayout[tierId] = layoutArray.map(id => id === currentItem.id ? newItem.id : id);
+      }
+    }
+
+    return {
+      ...state,
+      itemEntities: newEntities,
+      tierLayout: newLayout
+    };
+  }
+
+  // Pure data update
+  return {
+    ...state,
+    itemEntities: {
+      ...state.itemEntities,
+      [newItem.id]: newItem
+    }
+  };
 }
 
 /**
@@ -219,16 +210,17 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
     }
     case ActionType.REMOVE_ITEM: {
       const { tierId, itemId } = action.payload;
-      const newLookup = { ...state.itemLookup };
-      delete newLookup[itemId];
+      
+      const newEntities = { ...state.itemEntities };
+      delete newEntities[itemId];
 
       return {
         ...state,
-        items: {
-          ...state.items,
-          [tierId]: state.items[tierId].filter((a) => a.id !== itemId),
+        itemEntities: newEntities,
+        tierLayout: {
+          ...state.tierLayout,
+          [tierId]: (state.tierLayout[tierId] || []).filter((id) => id !== itemId),
         },
-        itemLookup: newLookup,
       };
     }
 
@@ -237,31 +229,26 @@ export function itemReducer(state: TierListState, action: TierListAction): TierL
     }
 
     case ActionType.MOVE_ALL_TO_UNRANKED: {
-      const allItems = Object.values(state.items).flat();
-      if (allItems.length === 0) return state;
+      const allItemIds = Object.keys(state.itemEntities);
+      if (allItemIds.length === 0) return state;
 
-      const newItems: Record<string, (Item)[]> = {};
-      const newLookup: Record<string, string> = {};
+      const newLayout: Record<string, string[]> = {};
 
       // Initialize all tiers as empty
       state.tierDefs.forEach((tier) => {
-        newItems[tier.id] = [];
+        newLayout[tier.id] = [];
       });
 
       const unrankedTier =
         state.tierDefs.find((t) => t.label.toLowerCase() === 'unranked') || state.tierDefs.at(-1);
 
       if (unrankedTier) {
-        newItems[unrankedTier.id] = allItems;
-        allItems.forEach((item) => {
-          newLookup[item.id] = unrankedTier.id;
-        });
+        newLayout[unrankedTier.id] = allItemIds;
       }
 
       return {
         ...state,
-        items: newItems,
-        itemLookup: newLookup,
+        tierLayout: newLayout,
       };
     }
 

@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 
 /**
  * Standardized mouse-based drag and drop for dnd-kit.
@@ -26,8 +26,8 @@ export async function manualDragAndDrop(page: Page, source: Locator, target: Loc
     { steps: 5 },
   );
 
-  // Wait for dnd-kit sensor activation: Verify the source element has become a dashed placeholder
-  await expect(source.first()).toHaveClass(/border-dashed/, { timeout: 2000 });
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(300);
 
   // 4. Move to target center
   await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, {

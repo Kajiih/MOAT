@@ -4,7 +4,7 @@ import { mockItemDetails, mockSearchResults } from './utils/mocks';
 test.describe('Item Management', () => {
   test.setTimeout(60_000);
 
-  test.beforeEach(async ({ page, dashboardPage, searchPanel }) => {
+  test.beforeEach(async ({ page, dashboardPage, searchPanel, boardPage }) => {
     await dashboardPage.goto();
     await dashboardPage.createBoard('Item Management Test');
 
@@ -19,10 +19,10 @@ test.describe('Item Management', () => {
     await expect(await searchPanel.getResultCard('item-2')).toBeVisible();
 
     await searchPanel.dragToTier('item-1', 'S');
-    await expect(page.getByTestId('media-card-rawg:game:item-1')).toBeVisible({ timeout: 15_000 });
+    await expect(boardPage.getMediaCard('item-1')).toBeVisible({ timeout: 15_000 });
 
     await searchPanel.dragToTier('item-2', 'S');
-    await expect(page.getByTestId('media-card-rawg:game:item-2')).toBeVisible({ timeout: 15_000 });
+    await expect(boardPage.getMediaCard('item-2')).toBeVisible({ timeout: 15_000 });
   });
 
   test('should manage items: details, move, reorder, remove', async ({ page, boardPage }) => {
@@ -40,12 +40,12 @@ test.describe('Item Management', () => {
       description: 'A very detailed description',
     });
 
-    const card1 = page.getByTestId('media-card-rawg:game:item-1');
+    const card1 = boardPage.getMediaCard('item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
     // Open details via button (more reliable than shortcut in tests)
     await card1.hover();
-    await card1.getByRole('button', { name: /View details/i }).click();
+    await card1.getByRole('button', { name: /Details/i }).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText('First Item');
@@ -70,8 +70,8 @@ test.describe('Item Management', () => {
     await expect(card1).toBeHidden();
   });
 
-  test('should handle personal notes', async ({ page }) => {
-    const card1 = page.getByTestId('media-card-rawg:game:item-1');
+  test('should handle personal notes', async ({ page, boardPage }) => {
+    const card1 = boardPage.getMediaCard('item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
     // Route API before opening the modal
@@ -85,7 +85,7 @@ test.describe('Item Management', () => {
 
     // Open details via button (more reliable than shortcut in tests)
     await card1.hover();
-    await card1.getByRole('button', { name: /View details/i }).click();
+    await card1.getByRole('button', { name: /Details/i }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
 
     // Type a note

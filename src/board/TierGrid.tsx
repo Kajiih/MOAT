@@ -79,7 +79,7 @@ export const TierGrid = memo(function TierGrid({
       {isExport ? (
         <>{cards}</>
       ) : (
-        <SortableContext id={tierId} items={items.map((a) => a.id)} strategy={rectSortingStrategy}>
+        <SortableContext id={tierId} items={items.map((a) => `board-${a.id}`)} strategy={rectSortingStrategy}>
           {content}
         </SortableContext>
       )}

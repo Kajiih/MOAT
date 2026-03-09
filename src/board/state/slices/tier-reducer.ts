@@ -39,16 +39,35 @@ export function handleAddTier(state: TierListState): TierListState {
   return {
     ...state,
     tierDefs: [...state.tierDefs, newTier],
-    items: { ...state.items, [newId]: [] },
+    tierLayout: { ...state.tierLayout, [newId]: [] },
   };
 }
 
 /**
- * Deletes a tier by ID.
- * Items in the deleted tier are effectively removed from the board (orphaned items are not kept in a holding area in this implementation).
- * @param state - Current state.
- * @param payload - The payload containing the ID of the tier to delete.
- * @returns Updated state with the tier removed and items cleared.
+ * Handles reordering tiers in the board definition.
+ * @param state - Current tier list state.
+ * @param payload - Action payload.
+ * @param payload.oldIndex - Original array index.
+ * @param payload.newIndex - Destination array index.
+ * @returns Updated state with reordered tiers.
+ */
+export function handleReorderTiers(
+  state: TierListState,
+  payload: { oldIndex: number; newIndex: number },
+): TierListState {
+  const { oldIndex, newIndex } = payload;
+  if (oldIndex === newIndex) return state;
+  return {
+    ...state,
+    tierDefs: arrayMove(state.tierDefs, oldIndex, newIndex),
+  };
+}
+
+/**
+ * Deletes a tier and optionally migrates its items to a fallback tier.
+ * @param state - Current tier list state.
+ * @param payload - Action payload containing the tier ID.
+ * @returns Updated state with the tier removed.
  */
 export function handleDeleteTier(state: TierListState, payload: DeleteTierPayload): TierListState {
   const { id } = payload;
@@ -56,31 +75,27 @@ export function handleDeleteTier(state: TierListState, payload: DeleteTierPayloa
   if (tierIndex === -1) return state;
 
   const fallbackId = state.tierDefs.find((t) => t.id !== id)?.id;
-  const orphanedItems = state.items[id] || [];
-  const newItems = { ...state.items };
-  delete newItems[id];
+  const orphanedItemIds = state.tierLayout[id] || [];
+  
+  const newLayout = { ...state.tierLayout };
+  delete newLayout[id];
 
-  const newItemLookup = { ...state.itemLookup };
+  const newEntities = { ...state.itemEntities };
 
-  if (fallbackId && orphanedItems.length > 0) {
-    newItems[fallbackId] = [...newItems[fallbackId], ...orphanedItems];
-
-    // Update lookup for moved items
-    orphanedItems.forEach((item) => {
-      newItemLookup[item.id] = fallbackId;
-    });
+  if (fallbackId && orphanedItemIds.length > 0) {
+    newLayout[fallbackId] = [...(newLayout[fallbackId] || []), ...orphanedItemIds];
   } else {
-    // Remove lookup for deleted items
-    orphanedItems.forEach((item) => {
-      delete newItemLookup[item.id];
+    // Remove deleted items from entities if there's no fallback tier
+    orphanedItemIds.forEach((itemId) => {
+      delete newEntities[itemId];
     });
   }
 
   return {
     ...state,
     tierDefs: state.tierDefs.filter((t) => t.id !== id),
-    items: newItems,
-    itemLookup: newItemLookup,
+    tierLayout: newLayout,
+    itemEntities: newEntities,
   };
 }
 

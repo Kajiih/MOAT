@@ -33,10 +33,9 @@ test.describe('Visual Regression', () => {
       version: 1,
       title: 'Visual Test Board',
       tiers: [
-        { id: '1', label: 'Visual S', color: 'red', items: [] },
-        { id: '2', label: 'Visual A', color: 'blue', items: [] },
+        { label: 'Visual S', color: 'red', items: [] },
+        { label: 'Visual A', color: 'blue', items: [] },
       ],
-      items: {},
     };
 
     // Create temporary file using Playwright's testInfo.outputPath()

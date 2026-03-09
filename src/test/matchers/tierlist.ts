@@ -45,12 +45,12 @@ export const tierListMatchers = {
     if (tierLabel) {
       const tier = received.tierDefs.find((t) => t.label === tierLabel);
       if (tier) {
-        pass = (received.items[tier.id] || []).some((item) => item.id === itemId);
+        pass = (received.tierLayout[tier.id] || []).includes(itemId);
       }
     } else {
       // Search all tiers
       for (const tierDef of received.tierDefs) {
-        if ((received.items[tierDef.id] || []).some((item) => item.id === itemId)) {
+        if ((received.tierLayout[tierDef.id] || []).includes(itemId)) {
           pass = true;
           break;
         }
@@ -86,7 +86,7 @@ export const tierListMatchers = {
       };
     }
 
-    const actualCount = (received.items[tier.id] || []).length;
+    const actualCount = (received.tierLayout[tier.id] || []).length;
     const pass = actualCount === count;
 
     return {

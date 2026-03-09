@@ -119,6 +119,12 @@ export function SearchTab({
     );
   };
 
+  const resetPagination = (limit: number) => {
+    if (!entity) return {};
+    const { page, offset, cursor } = entity.getInitialParams({ limit });
+    return { page, offset, cursor };
+  };
+
   const handleSortChange = (newSort: string) => {
     const option = entity?.sortOptions.find((opt) => opt.id === newSort);
     setParams(prev => ({
@@ -126,7 +132,7 @@ export function SearchTab({
       sort: newSort,
       sortDirection: option?.defaultDirection || SortDirection.ASC,
       // Reset pagination when sort changes
-      ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {})
+      ...resetPagination(prev.limit),
     }));
   }
 
@@ -136,7 +142,7 @@ export function SearchTab({
       ...prev,
       sortDirection: newDir,
       // Reset pagination when direction changes
-      ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {})
+      ...resetPagination(prev.limit),
     }));
   }
 
@@ -155,7 +161,7 @@ export function SearchTab({
               setParams(prev => ({
                 ...prev,
                 // Reset pagination on new search
-                ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {}),
+                ...resetPagination(prev.limit),
                 query,
               }));
             }}
@@ -209,7 +215,7 @@ export function SearchTab({
                 setParams(prev => ({
                   ...prev,
                   // Reset pagination on filter change
-                  ...(entity ? entity.getInitialParams({ limit: prev.limit }) : {}),
+                  ...resetPagination(prev.limit),
                   filters: newFilters,
                 }));
               }}

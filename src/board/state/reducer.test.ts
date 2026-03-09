@@ -15,7 +15,7 @@ Object.defineProperty(globalThis, 'crypto', {
 
 describe('tierListReducer', () => {
   it('should handle ADD_TIER by creating a new tier entry', () => {
-    const state = createTierListState({ tierDefs: [], items: {} });
+    const state = createTierListState({ tierDefs: [], tierLayout: {}, itemEntities: {} });
     const action = { type: ActionType.ADD_TIER } as const;
 
     const nextState = tierListReducer(state, action);
@@ -31,9 +31,10 @@ describe('tierListReducer', () => {
 
     const state = createTierListState({
       tierDefs: [tierKeep, tierDelete],
-      items: {
+      itemEntities: { [song.id]: song },
+      tierLayout: {
         keep: [],
-        delete: [song],
+        delete: [song.id],
       },
     });
 
@@ -53,8 +54,9 @@ describe('tierListReducer', () => {
 
     const state = createTierListState({
       tierDefs: [tier],
-      items: {
-        t1: [song1, song2],
+      itemEntities: { [song1.id]: song1, [song2.id]: song2 },
+      tierLayout: {
+        t1: [song1.id, song2.id],
       },
     });
 
@@ -66,15 +68,16 @@ describe('tierListReducer', () => {
     const nextState = tierListReducer(state, action);
 
     // Behavior: The order of items in the list has changed
-    const itemIds = nextState.items['t1'].map((i) => i.id);
+    const itemIds = nextState.tierLayout['t1'];
     expect(itemIds).toEqual(['2', '1']);
   });
 
   it('should handle UPDATE_ITEM details without affecting other properties', () => {
     const song = createMockItem({ id: '1', title: 'Old' });
     const state = createTierListState({
-      items: {
-        'tier-1': [song],
+      itemEntities: { [song.id]: song },
+      tierLayout: {
+        'tier-1': [song.id],
       },
     });
 
@@ -84,7 +87,7 @@ describe('tierListReducer', () => {
     } as const;
 
     const nextState = tierListReducer(state, action);
-    const updatedItem = nextState.items['tier-1'][0] as Item;
+    const updatedItem = nextState.itemEntities['1'] as Item;
 
     expect(updatedItem.title).toBe('New');
   });
@@ -99,7 +102,8 @@ describe('tierListReducer', () => {
     const newState = createTierListState({
       title: 'Forced State',
       tierDefs: [createTierDef({ id: '1', label: 'Forced' })],
-      items: { '1': [] },
+      itemEntities: {},
+      tierLayout: { '1': [] },
     });
     const action = { type: ActionType.SET_STATE, payload: { state: newState } } as const;
     const nextState = tierListReducer(createTierListState(), action);
@@ -112,8 +116,9 @@ describe('tierListReducer', () => {
     const song = createMockItem({ id: '1' });
     const state = createTierListState({
       tierDefs: [createTierDef({ id: 't1' })],
-      items: {
-        t1: [song],
+      itemEntities: { [song.id]: song },
+      tierLayout: {
+        t1: [song.id],
       },
     });
 

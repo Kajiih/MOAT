@@ -49,12 +49,10 @@ export interface TierListState {
   title: string;
   /** Array defining the order and appearance of tiers. */
   tierDefs: TierDefinition[];
-  /** Map mapping tier IDs to their list of items. */
-  items: Record<string, Item[]>;
-  /**
-   * Optimized lookup map for item locations (itemId -> tierId).
-   */
-  itemLookup?: Record<string, string>;
+  /** Single Source of Truth for Item data. Maps Item ID -> Item object. */
+  itemEntities: Record<string, Item>;
+  /** Positional layout referencing Item IDs. Maps Tier ID -> Array of Item IDs. */
+  tierLayout: Record<string, string[]>;
 }
 
 /**
@@ -110,8 +108,8 @@ export const TierDefinitionSchema = z.object({
 export const TierListSchema = z.object({
   title: z.string(),
   tierDefs: z.array(TierDefinitionSchema),
-  items: z.record(z.string(), z.array(DbItemSchema)),
-  itemLookup: z.record(z.string(), z.string()).optional(),
+  itemEntities: z.record(z.string(), DbItemSchema),
+  tierLayout: z.record(z.string(), z.array(z.string())),
 });
 
 // --- Utilities ---

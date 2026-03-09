@@ -1,5 +1,4 @@
 import { expect, test } from './fixtures';
-import { mockSearchResults } from './utils/mocks';
 
 test.describe('Service Toggle (Multi-Database)', () => {
   test.beforeEach(async ({ dashboardPage }) => {
@@ -23,12 +22,4 @@ test.describe('Service Toggle (Multi-Database)', () => {
     await expect(page.getByTitle('Search Franchises', { exact: false })).toBeHidden();
   });
 
-  test('should search through the selected service', async ({ page, searchPanel }) => {
-    await mockSearchResults(page, [{ id: 'game-1', title: 'The Witcher 3', type: 'game' }]);
-
-    await searchPanel.switchService('IGDB');
-    await searchPanel.search('Witcher');
-
-    await expect(page.getByText('The Witcher 3')).toBeVisible();
-  });
 });

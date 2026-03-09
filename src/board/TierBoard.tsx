@@ -45,7 +45,12 @@ export function TierBoard({ isAnyDragging }: TierBoardProps) {
     <div className="space-y-4">
       <TierList
         tiers={state.tierDefs}
-        items={state.items}
+        items={Object.fromEntries(
+          Object.entries(state.tierLayout).map(([tierId, ids]) => [
+            tierId,
+            ids.map((id) => state.itemEntities[id]!).filter(Boolean)
+          ])
+        )}
         isAnyDragging={isAnyDragging}
         onRemoveItem={removeItemFromTier}
         onUpdateTier={handleUpdateTier}

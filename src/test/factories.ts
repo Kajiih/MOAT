@@ -71,7 +71,8 @@ export function createTierListState(overrides: Partial<TierListState> = {}): Tie
   return {
     title: faker.word.words(3),
     tierDefs: [tier1, tier2],
-    items: {
+    itemEntities: {},
+    tierLayout: {
       [tier1.id]: [],
       [tier2.id]: [],
     },

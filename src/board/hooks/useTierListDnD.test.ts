@@ -27,7 +27,8 @@ describe('useTierListDnD', () => {
       { id: 'tier-1', label: 'S', color: 'red' },
       { id: 'tier-2', label: 'A', color: 'blue' },
     ],
-    items: {
+    itemEntities: {},
+    tierLayout: {
       'tier-1': [],
       'tier-2': [],
     },

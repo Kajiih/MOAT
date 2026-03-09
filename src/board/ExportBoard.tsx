@@ -68,7 +68,12 @@ export function ExportBoard({ state, brandColors }: ExportBoardProps) {
         {/* 2. Tier List - Full Width within Gutter */}
         <TierList
           tiers={state.tierDefs}
-          items={state.items}
+          items={Object.fromEntries(
+            Object.entries(state.tierLayout).map(([tierId, ids]) => [
+              tierId,
+              ids.map((id) => state.itemEntities[id]!).filter(Boolean)
+            ])
+          )}
           isExport={true}
           onRemoveItem={() => {}}
           onUpdateTier={() => {}}
