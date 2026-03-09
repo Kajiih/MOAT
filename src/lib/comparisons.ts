@@ -5,7 +5,10 @@
  * @module Comparisons
  */
 
+import fastDeepEqual from 'fast-deep-equal';
+
 import { Item } from '@/items/items';
+import { isObject } from '@/lib/type-guards';
 
 /**
  * Checks if a partial update actually changes any values in the current item.
@@ -17,10 +20,10 @@ export function hasItemUpdates(
   current: Item, 
   updates: Partial<Item>
 ): boolean {
-  for (const key of Object.keys(updates)) {
-    const k = key as keyof Item;
-    const newValue = (updates as Record<string, unknown>)[k];
-    const oldValue = (current as Record<string, unknown>)[k];
+  const entries = Object.entries(updates) as [keyof Item, Item[keyof Item]][];
+
+  for (const [key, newValue] of entries) {
+    const oldValue = current[key];
 
     // If values are referentially equal, move on
     if (newValue === oldValue) continue;
@@ -30,12 +33,8 @@ export function hasItemUpdates(
     if (newValue === undefined) continue;
 
     // Special handling for nested objects (deep compare)
-    if (k === 'details' || k === 'images' || k === 'identity') {
-      // If one is null/undefined and the other isn't, they are different
-      if (!newValue || !oldValue) return true;
-
-      // Deep compare
-      if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
+    if (isObject(newValue) || isObject(oldValue)) {
+      if (!fastDeepEqual(newValue, oldValue)) {
         return true;
       }
       continue;

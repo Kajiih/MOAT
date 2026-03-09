@@ -35,6 +35,34 @@ export function expectExcludesAnchors(items: BaseItem[], excludedIds: string[]) 
   }
 }
 
+function assertCorrectSortOrder(
+  current: number | string,
+  next: number | string,
+  direction: SortDirection,
+  index: number,
+  label: string
+) {
+  const isNumeric = typeof current === 'number' && typeof next === 'number';
+
+  if (direction === SortDirection.DESC) {
+    if (isNumeric) {
+      expect(current as number, `Wrong sort order for ${label} at index ${index}`).toBeGreaterThanOrEqual(next as number);
+    } else {
+      expect(current.toString() >= next.toString(), `Wrong sort order for ${label} at index ${index} ('${current}' vs '${next}')`).toBe(true);
+    }
+  } else {
+    if (isNumeric) {
+      expect(current as number, `Wrong sort order for ${label} at index ${index}`).toBeLessThanOrEqual(next as number);
+    } else {
+      expect(current.toString() <= next.toString(), `Wrong sort order for ${label} at index ${index} ('${current}' vs '${next}')`).toBe(true);
+    }
+  }
+}
+
+function isValidSortValue(value: unknown): value is string | number {
+  return value !== undefined && value !== null && value !== '';
+}
+
 /**
  * Verifies that the items are sorted by a generic value.
  * @param items - The array of items to test.
@@ -42,7 +70,6 @@ export function expectExcludesAnchors(items: BaseItem[], excludedIds: string[]) 
  * @param direction - The target sorting direction.
  * @param label - A label for the sorted property used in expectations.
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export function expectSorted<T>(
   items: T[],
   getValue: (item: T) => number | string,
@@ -51,27 +78,10 @@ export function expectSorted<T>(
 ) {
   for (let i = 0; i < items.length - 1; i++) {
     const current = getValue(items[i]);
-    const next = getValue(items[i+1]);
-    
-    // We only compare if both values are defined and not empty strings
-    if (current !== undefined && current !== null && current !== '' &&
-        next !== undefined && next !== null && next !== '') {
-      
-      const isNumeric = typeof current === 'number' && typeof next === 'number';
-      
-      if (direction === SortDirection.DESC) {
-        if (isNumeric) {
-          expect(current as number, `Wrong sort order for ${label} at index ${i}`).toBeGreaterThanOrEqual(next as number);
-        } else {
-          expect(current.toString() >= next.toString(), `Wrong sort order for ${label} at index ${i} ('${current}' vs '${next}')`).toBe(true);
-        }
-      } else {
-        if (isNumeric) {
-          expect(current as number, `Wrong sort order for ${label} at index ${i}`).toBeLessThanOrEqual(next as number);
-        } else {
-          expect(current.toString() <= next.toString(), `Wrong sort order for ${label} at index ${i} ('${current}' vs '${next}')`).toBe(true);
-        }
-      }
+    const next = getValue(items[i + 1]);
+
+    if (isValidSortValue(current) && isValidSortValue(next)) {
+      assertCorrectSortOrder(current, next, direction, i, label);
     }
   }
 }

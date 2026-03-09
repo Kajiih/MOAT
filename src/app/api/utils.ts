@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 
+import { isObject } from '@/lib/type-guards';
 import { ProviderError, ProviderErrorCode } from '@/providers/errors';
 
 /**
@@ -34,6 +35,14 @@ export function createErrorResponse(error: unknown): NextResponse {
 
   // 1. If it's a native Error, extract the message
   if (error instanceof Error) {
+    return NextResponse.json(
+      { error: error.message, code: ProviderErrorCode.INTERNAL_ERROR },
+      { status: 500 }
+    );
+  }
+
+  // 1b. If it's an object that threw a message prop (duck typing)
+  if (isObject(error) && typeof error.message === 'string') {
     return NextResponse.json(
       { error: error.message, code: ProviderErrorCode.INTERNAL_ERROR },
       { status: 500 }

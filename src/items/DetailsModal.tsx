@@ -236,7 +236,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               Personal Notes
             </h3>
             <LocalNotesEditor
-              initialNotes={(resolvedItem as Record<string, unknown>).notes as string || ''}
+              key={resolvedItem.id}
+              initialNotes={resolvedItem.notes || ''}
               itemId={resolvedItem.id}
               onUpdate={onUpdateItem}
             />
@@ -262,12 +263,17 @@ function LocalNotesEditor({
 }: {
   initialNotes: string;
   itemId: string;
-  onUpdate?: (id: string, updates: Partial<Item> & { notes?: string }) => void;
+  onUpdate?: (id: string, updates: Partial<Item>) => void;
 }) {
   const [notes, setNotes] = useState(initialNotes);
   const [prevInitialNotes, setPrevInitialNotes] = useState(initialNotes);
   const notesRef = useRef(notes);
   const onUpdateRef = useRef(onUpdate);
+
+  if (initialNotes !== prevInitialNotes) {
+    setPrevInitialNotes(initialNotes);
+    setNotes(initialNotes);
+  }
 
   useEffect(() => {
     notesRef.current = notes;
@@ -276,11 +282,6 @@ function LocalNotesEditor({
   useEffect(() => {
     onUpdateRef.current = onUpdate;
   }, [onUpdate]);
-
-  if (initialNotes !== prevInitialNotes) {
-    setPrevInitialNotes(initialNotes);
-    setNotes(initialNotes);
-  }
 
   useEffect(() => {
     if (notes === initialNotes) return;

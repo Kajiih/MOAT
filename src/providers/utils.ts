@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
+import { isObject } from '@/lib/type-guards';
 import { FilterDefinition } from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
@@ -36,9 +37,6 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
   if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
     return new ProviderError(ProviderErrorCode.TIMEOUT, 'The request timed out or was aborted', error, databaseId);
   }
-
-  // Helper to safely extract properties from unknown errors without messy casting
-  const isObject = (e: unknown): e is Record<string, unknown> => typeof e === 'object' && e !== null;
 
   // 3. Handle API Errors via status codes
   if (isObject(error) && typeof error.status === 'number') {

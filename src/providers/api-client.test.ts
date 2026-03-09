@@ -1,19 +1,20 @@
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach,beforeEach, describe, expect, it, type MockInstance,vi } from 'vitest';
 
 import { secureFetch } from './api-client';
 import { ProviderError, ProviderErrorCode } from './errors';
 
 describe('secureFetch', () => {
-  const originalFetch = globalThis.fetch;
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: MockInstance;
 
   beforeEach(() => {
-    fetchMock = vi.fn();
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    // We can cast the mock directly to the native fetch signature 
+    // to strictly type the interceptor without needing `any`.
+    fetchMock = vi.fn<typeof fetch>();
+    vi.stubGlobal('fetch', fetchMock);
   });
 
   afterEach(() => {
-    globalThis.fetch = originalFetch;
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 

@@ -28,6 +28,9 @@ export const BaseItemSchema = z.object({
   
   /** Normalized rating (usually 0-10 or 0-100) */
   rating: z.number().optional(),
+  
+  /** User's personal custom notes for this specific item layout */
+  notes: z.string().optional(),
 });
 
 export type BaseItem = z.infer<typeof BaseItemSchema>;
