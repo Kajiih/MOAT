@@ -5,11 +5,11 @@ import { ProviderError, ProviderErrorCode } from './errors';
 
 describe('secureFetch', () => {
   const originalFetch = globalThis.fetch;
-  let fetchMock: any;
+  let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     fetchMock = vi.fn();
-    globalThis.fetch = fetchMock;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
   });
 
   afterEach(() => {

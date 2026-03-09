@@ -28,7 +28,7 @@ import { syncBoardMetadata } from '@/board/registry-utils';
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { tierListReducer } from '@/board/state/reducer';
 import { TierDefinition, TierListState } from '@/board/types';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 import { usePersistentReducer } from '@/storage/usePersistentReducer';
 
@@ -152,7 +152,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     state,
     dispatch,
     history: { undo, redo, push, canUndo: historyRaw.canUndo, canRedo: historyRaw.canRedo },
-    dndRaw: dndRaw as any, // Temporary cast while polishing sub-hooks
+    dndRaw: dndRaw as unknown as Parameters<typeof useTierListNamespaces>[0]['dndRaw'], // Temporary cast while polishing sub-hooks
     structureRaw,
     ioRaw,
     utilsRaw,
@@ -178,7 +178,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
           registerItem({ ...item, ...updates } as Item);
         },
       },
-      dnd: dnd as any,
+      dnd: dnd as unknown as TierListContextType['dnd'],
       ui,
       history,
     }),

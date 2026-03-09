@@ -148,8 +148,8 @@ export function useTierListDnD(
 
         if (canonicalId && canonicalId !== activeId) {
           dispatch({
-            type: ActionType.UPDATE_ITEM,
-            payload: { itemId: activeId, updates: { id: canonicalId } },
+            type: ActionType.NORMALIZE_ITEM,
+            payload: { oldId: activeId, newId: canonicalId },
           });
         }
       }

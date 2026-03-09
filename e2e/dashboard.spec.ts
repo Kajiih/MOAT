@@ -38,7 +38,7 @@ test.describe('Dashboard and Multi-Board', () => {
             const getReq = store.get('tier-list-index');
             getReq.onsuccess = () => {
               const index = getReq.result || [];
-              resolve(index.some((b: any) => b.title === title));
+              resolve(index.some((b: Record<string, unknown>) => b.title === title));
             };
             getReq.onerror = () => resolve(false);
           };

@@ -6,6 +6,7 @@
 import { logger } from '@/lib/logger';
 import { ProviderError, ProviderErrorCode } from '@/providers/errors';
 
+/** Options for secure fetch requests. */
 export interface RequestOptions extends RequestInit {
   retryLimit?: number;
   timeout?: number;
@@ -20,6 +21,7 @@ export interface RequestOptions extends RequestInit {
  * @param retryCount - Current retry attempt.
  * @returns The parsed JSON response OR the raw Response object if options.raw is true.
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export async function secureFetch<T = unknown>(
   url: string,
   options: RequestOptions = {},
@@ -27,7 +29,7 @@ export async function secureFetch<T = unknown>(
 ): Promise<T | Response> {
   const { retryLimit = 2, raw = false, timeout, ...fetchOptions } = options;
 
-  let finalOptions = { ...fetchOptions };
+  const finalOptions = { ...fetchOptions };
   
   // Inject timeout abort signal if requested
   if (timeout !== undefined && typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
@@ -51,14 +53,27 @@ export async function secureFetch<T = unknown>(
       
       let errorCode = ProviderErrorCode.INTERNAL_ERROR;
       
-      if (response.status === 401 || response.status === 403) {
+      switch (response.status) {
+      case 401: 
+      case 403: {
         errorCode = ProviderErrorCode.AUTH_ERROR;
-      } else if (response.status === 404) {
+      
+      break;
+      }
+      case 404: {
         errorCode = ProviderErrorCode.NOT_FOUND;
-      } else if (response.status === 429) {
+      
+      break;
+      }
+      case 429: {
         errorCode = ProviderErrorCode.RATE_LIMIT;
-      } else if (response.status >= 500) {
+      
+      break;
+      }
+      default: { if (response.status >= 500) {
         errorCode = ProviderErrorCode.SERVICE_UNAVAILABLE;
+      }
+      }
       }
       
       throw new ProviderError(

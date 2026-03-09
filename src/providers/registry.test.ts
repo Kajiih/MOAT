@@ -2,10 +2,12 @@ import { Building2,Gamepad2 } from 'lucide-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { ImageSourceSchema, referenceImage, urlImage } from '@/items/schemas';
+import { ImageSourceSchema, referenceImage, urlImage } from '@/items/images';
 import { RAWGDatabase } from '@/providers/adapters/rawg';
 import { Entity, nonEmpty,Provider, ProviderStatus } from '@/providers/types';
-import { SearchParamsSchema, SearchResultSchema, SortDirection } from '@/search/schemas';
+import { FilterDefinition } from '@/search/filter-schemas';
+import { SearchParams, SearchParamsSchema, SearchResult, SearchResultSchema } from '@/search/search-schemas';
+import { SortDirection } from '@/search/sort-schemas';
 
 import { ProviderErrorCode } from './errors';
 import { registry, RegistryStatus } from './registry';
@@ -22,9 +24,9 @@ const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
     { id: 'precise', label: 'Precise', type: 'boolean', testCases: [] }
   ],
   sortOptions: [
-    { id: 'relevance', label: 'Relevance', defaultDirection: SortDirection.DESC, extractValue: (r: any) => r.id },
-    { id: 'name', label: 'Name', defaultDirection: SortDirection.ASC, extractValue: (r: any) => r.name },
-    { id: 'released', label: 'Released', defaultDirection: SortDirection.DESC, extractValue: (r: any) => r.released },
+    { id: 'relevance', label: 'Relevance', defaultDirection: SortDirection.DESC, extractValue: (r: Record<string, unknown>) => r.id as number },
+    { id: 'name', label: 'Name', defaultDirection: SortDirection.ASC, extractValue: (r: Record<string, unknown>) => r.name as string },
+    { id: 'released', label: 'Released', defaultDirection: SortDirection.DESC, extractValue: (r: Record<string, unknown>) => r.released as string },
   ],
   defaultTestQueries: nonEmpty('query'),
   testDetailsIds: nonEmpty('test-id'),
@@ -35,11 +37,11 @@ const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
     limit: config.limit,
     page: 1,
   }),
-  getNextParams: (params: any, result: any) => {
-    if (!result.pagination.hasNextPage) return null;
+  getNextParams: (params: SearchParams, result: SearchResult<unknown>) => {
+    if (!result.pagination?.hasNextPage) return null;
     return { ...params, page: (params.page || 1) + 1 };
   },
-  getPreviousParams: (params: any) => {
+  getPreviousParams: (params: SearchParams) => {
     const currentPage = params.page || 1;
     if (currentPage <= 1) return null;
     return { ...params, page: currentPage - 1 };
@@ -49,7 +51,7 @@ const createMockEntity = (overrides: Partial<Entity> = {}): Entity => ({
   ...overrides,
 });
 
-describe('Provider V2 Design', () => {
+describe('Provider Design', () => {
   beforeEach(() => {
     registry.clear();
   });
@@ -113,7 +115,7 @@ describe('Provider V2 Design', () => {
         initialize: async () => { throw new Error('Auth failed'); },
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as any;
+      } as unknown as Provider;
 
       // Create a working provider
       const workingProvider: Provider = {
@@ -124,9 +126,9 @@ describe('Provider V2 Design', () => {
         initialize: async () => {}, // success
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as any;
+      } as unknown as Provider;
 
-      await expect(registry.register(failingProvider)).rejects.toThrow('Auth failed');
+      await expect(registry.register(failingProvider)).rejects.toThrow('Initialization failed');
 
       // The failing provider SHOULD be retrievable so the UI knows it failed (rather than being undefined)
       const failed = registry.getProvider('failing');
@@ -161,7 +163,7 @@ describe('Provider V2 Design', () => {
         },
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as any;
+      } as unknown as Provider;
 
       const fastProvider: Provider = {
         id: 'fast',
@@ -174,7 +176,7 @@ describe('Provider V2 Design', () => {
         },
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
-      } as any;
+      } as unknown as Provider;
 
       // Start slow registration
       const p1 = registry.register(slowProvider);
@@ -339,8 +341,7 @@ describe('Provider V2 Design', () => {
       expect(gameEntity.searchOptions).toHaveLength(1);
       expect(gameEntity.searchOptions?.[0].id).toBe('precise');
       
-      expect(gameEntity.filters).toHaveLength(2);
-      expect(gameEntity.filters.map((f: any) => f.id)).toEqual(['yearRange', 'platform']);
+      expect(gameEntity.filters.map((f: FilterDefinition<never>) => f.id)).toEqual(['yearRange', 'platform']);
     });
   });
 });

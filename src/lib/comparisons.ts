@@ -5,7 +5,7 @@
  * @module Comparisons
  */
 
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 
 /**
  * Checks if a partial update actually changes any values in the current item.
@@ -19,8 +19,8 @@ export function hasItemUpdates(
 ): boolean {
   for (const key of Object.keys(updates)) {
     const k = key as keyof Item;
-    const newValue = (updates as any)[k];
-    const oldValue = (current as any)[k];
+    const newValue = (updates as Record<string, unknown>)[k];
+    const oldValue = (current as Record<string, unknown>)[k];
 
     // If values are referentially equal, move on
     if (newValue === oldValue) continue;

@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
-import { FilterDefinition } from '@/search/schemas';
+import { FilterDefinition } from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
 
@@ -62,11 +62,12 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
   }
 
   // 4. Generic fallback
-  const message = error instanceof Error 
-    ? error.message 
-    : isObject(error) && typeof error.message === 'string'
-      ? error.message
-      : 'An unexpected error occurred in the provider layer';
+  let message = 'An unexpected error occurred in the provider layer';
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (isObject(error) && typeof error.message === 'string') {
+    message = error.message;
+  }
 
   return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, databaseId);
 }

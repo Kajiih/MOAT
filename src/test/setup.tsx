@@ -6,6 +6,7 @@
 import './matchers/tierlist';
 
 import { vi } from 'vitest';
+
 import { logger } from '@/lib/logger';
 
 /**
@@ -32,11 +33,11 @@ vi.mock('next/image', () => ({
  * Prevents any unit test from making a real network request unless explicitly mocked.
  * Integration tests (*.integration.test.ts) are explicitly allowed through this barrier.
  */
-const originalFetch = global.fetch;
+const originalFetch = globalThis.fetch;
 
-global.fetch = async (...args) => {
+globalThis.fetch = async (...args) => {
   // Check the current file context executing this code
-  const errorObj = new Error();
+  const errorObj = new Error('Network guard activation stack trace');
   const stackTrace = errorObj.stack || '';
   
   // If the executing test file contains .integration.test, allow it to pass through to the real internet
@@ -45,9 +46,13 @@ global.fetch = async (...args) => {
   }
 
   // Otherwise, throw a catastrophic error
-  const target = typeof args[0] === 'string' 
-    ? args[0] 
-    : (args[0] instanceof Request ? args[0].url : (args[0] instanceof URL ? args[0].href : 'unknown'));
+  const target = (() => {
+    const input = args[0];
+    if (typeof input === 'string') return input;
+    if (input instanceof Request) return input.url;
+    if (input instanceof URL) return input.href;
+    return 'unknown';
+  })();
   
   logger.fatal(
     { target },
