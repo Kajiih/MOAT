@@ -52,14 +52,9 @@ function handleMoveFromSearch(
     newIndex = overIndex !== -1 ? overIndex : overItems.length;
   }
 
-  // Use canonical ID if available to prevent normalization jumps
-  const targetId = draggingItemFromSearch.id && draggingItemFromSearch.id !== activeId 
-    ? draggingItemFromSearch.id 
-    : activeId;
-
   const exists = Object.values(state.items)
     .flat()
-    .some((i) => i.id === targetId);
+    .some((i) => i.id === activeId);
   if (exists) return state;
 
   return {
@@ -68,13 +63,13 @@ function handleMoveFromSearch(
       ...state.items,
       [overContainer]: [
         ...state.items[overContainer].slice(0, newIndex),
-        { ...draggingItemFromSearch, id: targetId },
+        { ...draggingItemFromSearch, id: activeId },
         ...state.items[overContainer].slice(newIndex),
       ],
     },
     itemLookup: {
       ...state.itemLookup,
-      [targetId]: overContainer,
+      [activeId]: overContainer,
     },
   };
 }

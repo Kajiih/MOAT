@@ -334,13 +334,15 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
  * @returns The standardized application Item representation.
  */
 function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
+  const identity = {
+    databaseId,
+    entityId: 'developer',
+    dbId: dev.id.toString(),
+  };
+
   const item: Item = {
-    id: `${databaseId}:developer:${dev.id}`,
-    identity: {
-      databaseId,
-      entityId: 'developer',
-      dbId: dev.id.toString(),
-    },
+    id: toCompositeId(identity),
+    identity,
     title: dev.name,
     images: dev.image_background ? [urlImage(dev.image_background)] : [],
     subtitle: `${dev.games_count} games`,

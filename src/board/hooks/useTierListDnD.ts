@@ -25,6 +25,13 @@ import { ActionType, TierListAction } from '@/board/state/actions';
 import { TierDefinition, TierListState } from '@/board/types';
 import { Item } from '@/items/items';
 
+function getCanonicalId(dndId: string | null | undefined, dataItem: Item | undefined): string | null {
+  if (!dndId) return null;
+  if (dataItem?.id) return dataItem.id;
+  // Fallback for tiers or unknown
+  return dndId;
+}
+
 /**
  * Manages the Drag and Drop state and event handlers for the Tier List board.
  * @param state - The current tier list state.
@@ -82,11 +89,11 @@ export function useTierListDnD(
       if (active.data.current?.type === 'tier') return;
       if (!over) return;
 
-      const activeId = active.id as string;
-      const overId = over.id as string;
-
       const activeTierId = active.data.current?.sourceTier;
       const activeItemData = active.data.current?.item;
+
+      const activeId = getCanonicalId(active.id as string, activeItemData) as string;
+      const overId = over.id as string;
 
       setTimeout(() => {
         if (!isDraggingRef.current) return;
@@ -126,9 +133,15 @@ export function useTierListDnD(
         return;
       }
 
-      const activeId = active.id as string;
-      const overId = over?.id as string;
-      const activeItemData = active.data.current?.item;
+      const activeItemData = active.data?.current?.item;
+      const activeId = getCanonicalId(active.id as string, activeItemData) as string;
+      // We don't strip overId, because over could be a Tier (id: 'tier-1') or an Item (id: 'board-...')
+      // But items on the board don't trigger Drop properly if we use canonical ID for overId,
+      // because the DOM node has the prefixed ID. Wait, actually `overId` goes to the reducer!
+      // The reducer needs canonical IDs for both.
+      // We will also strip the overId if it's an item.
+      const overItemData = over?.data?.current?.item;
+      const overId = getCanonicalId(over?.id as string, overItemData) as string;
 
       if (activeId && overId && activeId !== overId) {
         dispatch({

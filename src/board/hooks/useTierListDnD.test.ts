@@ -171,7 +171,7 @@ describe('useTierListDnD', () => {
     });
   });
 
-  it('should normalize ID after dragging an item from search', () => {
+  it('should dispatch canonical ID after dragging an item from search', () => {
     const { result } = renderHook(() => useTierListDnD(mockState, mockDispatch, mockPushHistory));
 
     const canonicalItem: Item = {
@@ -199,21 +199,12 @@ describe('useTierListDnD', () => {
       result.current.handleDragEnd(event as unknown as DragEndEvent);
     });
 
-    // MOVE_ITEM happens first
-    expect(mockDispatch).toHaveBeenCalledWith(
-      expect.objectContaining({ type: ActionType.MOVE_ITEM }),
-    );
-
-    // Normalization happens in next tick
-    act(() => {
-      vi.runAllTimers();
-    });
-
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: ActionType.UPDATE_ITEM,
+      type: ActionType.MOVE_ITEM,
       payload: {
-        itemId: 'search-123',
-        updates: { id: 'real-id' },
+        activeId: 'real-id',
+        overId: 'tier-1',
+        activeItem: canonicalItem,
       },
     });
   });
