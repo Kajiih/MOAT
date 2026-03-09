@@ -27,7 +27,7 @@ import { INITIAL_STATE } from '@/board/initial-state';
 import { syncBoardMetadata } from '@/board/registry-utils';
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { tierListReducer } from '@/board/state/reducer';
-import { TierDefinition, TierListState } from '@/board/types';
+import { TierDefinition, TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 import { usePersistentReducer } from '@/storage/usePersistentReducer';
@@ -41,7 +41,7 @@ interface TierListContextType {
   isHydrated: boolean;
   actions: {
     addTier: () => void;
-    updateTier: (id: string, updates: Partial<TierDefinition>) => void;
+    updateTier: (id: string, updates: TierUpdate) => void;
     deleteTier: (id: string) => void;
     randomizeColors: () => void;
     clear: () => void;
@@ -152,7 +152,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     state,
     dispatch,
     history: { undo, redo, push, canUndo: historyRaw.canUndo, canRedo: historyRaw.canRedo },
-    dndRaw: dndRaw as unknown as Parameters<typeof useTierListNamespaces>[0]['dndRaw'], // Temporary cast while polishing sub-hooks
+    dndRaw,
     structureRaw,
     ioRaw,
     utilsRaw,
@@ -177,7 +177,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
           registerItem({ ...item, ...updates } as Item);
         },
       },
-      dnd: dnd as unknown as TierListContextType['dnd'],
+      dnd,
       ui,
       history,
     }),

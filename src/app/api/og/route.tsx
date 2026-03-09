@@ -67,7 +67,12 @@ export async function GET(request: NextRequest) {
       images: [{ type: 'url', url: `https://api.dicebear.com/7.x/shapes/png?seed=${id}&backgroundColor=${color}` }],
     });
 
-    const items: Record<string, Item[]> = board?.items || {
+  const items: Record<string, Item[]> = board ? Object.fromEntries(
+      Object.entries(board.tierLayout).map(([tierId, itemIds]) => [
+        tierId,
+        itemIds.map(id => board.itemEntities[id]).filter(Boolean) as Item[],
+      ])
+    ) : {
       '1': [createMockItem('1', 'ef4444')],
       '2': [createMockItem('2', 'f97316'), createMockItem('3', 'f97316')],
       '3': [

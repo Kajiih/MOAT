@@ -37,21 +37,22 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
   const [detailsItem, setDetailsItem] = useState<Item | null>(null);
 
   const handleUpdateMediaItem = (itemId: string, updates: Partial<Item>) => {
-    setBoard((prev) => {
-      const updatedItems: Record<string, Item[]> = {};
-
-      for (const [tierId, items] of Object.entries(prev.items)) {
-        updatedItems[tierId] = items.map((item) =>
-          item.id === itemId ? ({ ...item, ...updates } as Item) : item,
-        );
-      }
-
-      return {
-        ...prev,
-        items: updatedItems,
-      };
-    });
+    setBoard((prev) => ({
+      ...prev,
+      itemEntities: {
+        ...prev.itemEntities,
+        [itemId]: { ...prev.itemEntities[itemId], ...updates } as Item,
+      },
+    }));
   };
+
+  // Derive items array for TierList using normalized state
+  const tierListItems = Object.fromEntries(
+    Object.entries(board.tierLayout).map(([tierId, itemIds]) => [
+      tierId,
+      itemIds.map((id) => board.itemEntities[id]).filter(Boolean),
+    ])
+  );
 
   // Derive brand colors from the tier colors, similar to ExportBoard
   const tierColors = board.tierDefs.map((t) => t.color);
@@ -85,7 +86,7 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
               <div className="w-full">
                 <TierList
                   tiers={board.tierDefs}
-                  items={board.items}
+                  items={tierListItems}
                   isExport={true}
                   onRemoveItem={() => {}}
                   onUpdateTier={() => {}}

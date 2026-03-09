@@ -16,7 +16,7 @@ import { storage } from '@/storage/storage';
 export async function syncBoardMetadata(id: string, state: TierListState) {
   try {
     const metaKey = `moat-meta-${id}`;
-    const allItems = Object.values(state.items).flat();
+    const allItems = Object.values(state.itemEntities);
 
     // Generate miniature preview data
     // Limit to 10 items per tier to keep registry size manageable
@@ -24,14 +24,18 @@ export async function syncBoardMetadata(id: string, state: TierListState) {
       id: tier.id,
       label: tier.label,
       color: tier.color,
-      items: (state.items[tier.id] || []).slice(0, 10).map((item) => {
-        const firstUrlImage = item.images.find((img) => img.type === 'url');
-        return {
-          type: item.identity.entityId,
-          title: item.title,
-          imageUrl: firstUrlImage?.url,
-        };
-      }),
+      items: (state.tierLayout[tier.id] || [])
+        .slice(0, 10)
+        .map((itemId) => state.itemEntities[itemId])
+        .filter((item): item is NonNullable<typeof item> => !!item)
+        .map((item) => {
+          const firstUrlImage = item.images.find((img) => img.type === 'url');
+          return {
+            type: item.identity.entityId,
+            title: item.title,
+            imageUrl: firstUrlImage?.url,
+          };
+        }),
     }));
 
     const metadata: BoardMetadata = {

@@ -11,6 +11,7 @@ import {
   DragOverEvent,
   DragStartEvent,
   SensorDescriptor,
+  SensorOptions,
 } from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
@@ -34,8 +35,7 @@ interface UseTierListNamespacesProps {
     push: () => void;
   };
   dndRaw: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    sensors: SensorDescriptor<any>[];
+    sensors: SensorDescriptor<SensorOptions>[];
     activeItem: Item | null;
     activeTier: TierDefinition | null;
     overId: string | null;
