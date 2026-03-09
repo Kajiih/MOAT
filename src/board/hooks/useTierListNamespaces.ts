@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { TierDefinition, TierListState } from '@/board/types';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 import { fromSearchId } from '@/lib/ids';
 
 /**
@@ -71,14 +71,15 @@ interface UseTierListNamespacesProps {
 /**
  * Aggregates state and logic into logical namespaces (actions, dnd, ui, history).
  * @param props - The props for the hook.
- * @param props.state
- * @param props.dispatch
- * @param props.history
- * @param props.dndRaw
- * @param props.structureRaw
- * @param props.ioRaw
- * @param props.utilsRaw
- * @param props.uiState
+ * @param props.state - The current tier list state.
+ * @param props.dispatch - The dispatch function for tier list actions.
+ * @param props.history - The history management functions.
+ * @param props.dndRaw - Raw outputs from the drag and drop hook.
+ * @param props.structureRaw - Raw outputs from the structure formatting hook.
+ * @param props.ioRaw - Raw outputs from the import/export hook.
+ * @param props.utilsRaw - Raw outputs from the utility hook.
+ * @param props.uiState - Raw outputs from the UI state hook.
+ * @returns A structured object containing actions, dnd, ui, and history namespaces.
  */
 export function useTierListNamespaces({
   state,
@@ -150,7 +151,6 @@ export function useTierListNamespaces({
       removeItemFromTier,
       utilsRaw.handleLocate,
       ioRaw,
-      dispatch,
     ],
   );
 

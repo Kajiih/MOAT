@@ -8,13 +8,14 @@
 import { update } from 'idb-keyval';
 import { useCallback } from 'react';
 
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 
 
 const REGISTRY_STORAGE_KEY = 'moat-item-registry';
 
 /**
  * Hook for interacting with the persistent item registry.
+ * @returns Methods to register single or batched items into the database.
  */
 export function useItemRegistry() {
   /**

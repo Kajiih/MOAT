@@ -15,7 +15,6 @@ test.describe('Service Toggle (Multi-Database)', () => {
 
   test('should show Game and Developer tabs for RAWG', async ({
     page,
-    searchPanel,
   }) => {
     // RAWG supports Game + Developer
     await expect(page.getByTitle('Search Video Games', { exact: false })).toBeVisible();

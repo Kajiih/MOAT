@@ -8,7 +8,7 @@ import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { memo, ReactNode } from 'react';
 
 import { ItemCard } from '@/items/ItemCard';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 
 import { VirtualGrid } from './VirtualGrid';
 

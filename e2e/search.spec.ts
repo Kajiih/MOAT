@@ -87,9 +87,7 @@ test.describe('Search Functionality', () => {
   test('should use specific filters for a tab', async ({ page, boardPage, searchPanel }) => {
     await boardPage.goto();
 
-    let capturedUrl: string | undefined;
     await page.route('**/api/search*', async (route) => {
-      capturedUrl = route.request().url();
       await route.fulfill({ status: 200, body: JSON.stringify({ results: [], page: 1 }) });
     });
 

@@ -39,15 +39,14 @@ export interface TierListProps {
 /**
  * Renders a list of TierRows and manages the SortableContext for tier reordering.
  * @param props - The component props.
- * @param props.tiers
- * @param props.items
- * @param props.isExport
- * @param props.resolvedImages
- * @param props.isAnyDragging
- * @param props.onRemoveItem
- * @param props.onUpdateTier
- * @param props.onDeleteTier
- * @param props.onInfo
+ * @param props.tiers - Array of tier definitions to render.
+ * @param props.items - Map of items indexed by tier ID.
+ * @param props.isExport - Whether the board is being rendered for image export.
+ * @param props.isAnyDragging - Global dragging state to manage interactions.
+ * @param props.onRemoveItem - Callback to remove an item from a specific tier.
+ * @param props.onUpdateTier - Callback to update a tier's properties (label, color).
+ * @param props.onDeleteTier - Callback to delete an entire tier.
+ * @param props.onInfo - Callback to show detailed information for an item.
  * @returns The rendered TierList component.
  */
 export function TierList({

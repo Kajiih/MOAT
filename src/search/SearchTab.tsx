@@ -5,14 +5,15 @@
 
 'use client';
 
-import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight,Filter } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
 import { ItemCard } from '@/items/ItemCard';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 import { SkeletonCard } from '@/items/SkeletonCard';
 import { registry } from '@/providers/registry';
-import { isSortReversible, SortDirection, SearchParams } from '@/search/schemas';
+import { SearchParams } from '@/search/search-schemas';
+import { isSortReversible, SortDirection } from '@/search/sort-schemas';
 import { SortDropdown } from '@/search/SortDropdown';
 import { useItemSearch } from '@/search/useItemSearch';
 
@@ -29,7 +30,16 @@ interface SearchTabProps {
 }
 
 /**
- * SearchTab component for a specific entity.
+ * Search view interface bridging the FilterPanel, Results grid, and sorting configurations.
+ * @param props - Component configuration settings.
+ * @param props.providerId - ID of the active provider.
+ * @param props.entityId - ID of the active entity within the provider.
+ * @param props.addedItemIds - List to cross-reference existing items.
+ * @param props.onLocate - Callback invoked when an item is located in a tier list.
+ * @param props.isHidden - Boolean indicating if the tab is visually suppressed.
+ * @param props.showAdded - Visual control variable.
+ * @param props.onInfo - Trigger action for item detail modals.
+ * @returns The rendered search tab.
  */
 export function SearchTab({
   providerId,

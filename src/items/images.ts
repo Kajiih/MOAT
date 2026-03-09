@@ -32,7 +32,8 @@ export type ImageSource = z.infer<typeof ImageSourceSchema>;
 
 /**
  * Helper to create a URL image source
- * @param url
+ * @param url - The direct HTTP string pointing to the image source.
+ * @returns A strongly typed UrlImageSource variant payload.
  */
 export function urlImage(url: string): UrlImageSource {
   return { type: 'url', url };
@@ -40,8 +41,9 @@ export function urlImage(url: string): UrlImageSource {
 
 /**
  * Helper to create a reference image source
- * @param provider
- * @param key
+ * @param provider - The upstream metadata provider containing the source reference.
+ * @param key - The unique sub-key referencing the image payload via backend adapters.
+ * @returns A strongly typed ReferenceImageSource variant payload.
  */
 export function referenceImage(provider: string, key: string): ReferenceImageSource {
   return { type: 'reference', provider, key };

@@ -58,6 +58,9 @@ export interface ItemCardProps {
  * @returns The rendered ItemCard component.
  */
 
+/**
+ * Shared base classes for rendering item cards uniformly.
+ */
 export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-neutral-900 shadow-lg";
 
 export function ItemCard({
@@ -77,7 +80,7 @@ export function ItemCard({
 
   // 2. Setup DND (Sorting or Draggable)
   const id = tierId ? `board-${item.id}` : `search-${item.id}`;
-  const dnd = useSortable({
+  const { setNodeRef, attributes, listeners, transform, transition } = useSortable({
     id,
     data: {
       type: 'item',
@@ -87,15 +90,15 @@ export function ItemCard({
   });
 
   const style: React.CSSProperties = {
-    transform: CSS.Translate.toString(dnd.transform),
-    transition: dnd.transition,
+    transform: CSS.Translate.toString(transform),
+    transition,
     opacity: isDragging ? 0.4 : 1,
     zIndex: isDragging ? 1000 : 1,
   };
 
   return (
     <div
-      ref={dnd.setNodeRef}
+      ref={setNodeRef}
       style={style}
       className={`group relative transition-shadow hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
         isAdded ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black' : ''
@@ -105,8 +108,8 @@ export function ItemCard({
       <div 
         className="absolute inset-0 cursor-grab active:cursor-grabbing"
         aria-label={item.title}
-        {...dnd.attributes}
-        {...dnd.listeners}
+        {...attributes}
+        {...listeners}
       />
 
       {/* 2. The Visuals */}

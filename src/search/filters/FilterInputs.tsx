@@ -11,7 +11,7 @@ import {
   RangeFilterDefinition,
   SelectFilterDefinition,
   TextFilterDefinition,
-} from '@/search/schemas';
+} from '@/search/filter-schemas';
 
 import { FilterControlProps } from './types';
 
@@ -71,7 +71,6 @@ export function SelectFilterInput({
 /**
  * Renders a checkbox for boolean filters.
  * @param props - The filter control properties.
- * @param props.filter - The associated boolean parameter definition.
  * @param props.value - The current boolean state.
  * @param props.onChange - Functional callback executing the toggle behavior.
  * @returns A fully bound toggle node.

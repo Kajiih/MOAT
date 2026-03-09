@@ -21,6 +21,7 @@ interface UseDatabaseDetailsOptions {
  * @param entityId - The ID of the entity within the provider.
  * @param dbId - The unique ID of the item within that database.
  * @param options - Additional hook settings.
+ * @returns An SWR response object containing the item details and fetching state.
  */
 export function useDatabaseDetails(
   providerId: string | undefined,

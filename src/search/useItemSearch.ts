@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import { SearchParams, SearchResult } from '@/search/schemas';
+import { SearchParams, SearchResult } from '@/search/search-schemas';
 
 /**
  * Hook configuration options.

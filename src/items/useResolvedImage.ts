@@ -56,7 +56,8 @@ export function useResolvedImage(
 
 /**
  * Attempts to load an image URL and returns whether it succeeded.
- * @param url
+ * @param url - The URL of the image to load.
+ * @returns A promise resolving to true if successful, false otherwise.
  */
 function loadImage(url: string): Promise<boolean> {
   return new Promise((resolve) => {

@@ -7,7 +7,6 @@ import { button, folder, monitor, useControls } from 'leva';
 import { useEffect } from 'react';
 
 import { useTierListContext } from '@/board/context';
-import { useItemRegistry } from '@/providers/useItemRegistry';
 
 interface DebugPanelProps {
   pendingEnrichmentCount: number;
@@ -21,7 +20,6 @@ interface DebugPanelProps {
  */
 export function DebugPanel({ pendingEnrichmentCount }: DebugPanelProps) {
   const { state, isHydrated } = useTierListContext();
-  const registryContext = useItemRegistry();
 
   // General Board State
   const [, setBoardState] = useControls(

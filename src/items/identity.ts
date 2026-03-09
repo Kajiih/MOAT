@@ -23,7 +23,8 @@ export type EntityIdentity = z.infer<typeof EntityIdentitySchema>;
 /**
  * Derives a globally unique composite ID from an EntityIdentity.
  * Format: `${databaseId}:${entityId}:${dbId}`
- * @param identity
+ * @param identity - The entity identity object containing provider and native IDs.
+ * @returns The composite string ID representing the entity globally.
  */
 export function toCompositeId(identity: EntityIdentity): string {
   return `${identity.databaseId}:${identity.entityId}:${identity.dbId}`;

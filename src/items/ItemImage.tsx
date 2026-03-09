@@ -96,7 +96,7 @@ export function ItemImage({
             if (!retryUnoptimized) {
               setRetryUnoptimized(true);
             } else {
-              if (displayUrl) failedImages.add(displayUrl);
+              failedImages.add(displayUrl);
               setImageError(true);
             }
           }}

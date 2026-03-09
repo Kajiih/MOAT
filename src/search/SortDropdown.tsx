@@ -9,7 +9,7 @@ import { ArrowUpDown } from 'lucide-react';
 import { useState } from 'react';
 
 import { Popover } from '@/lib/ui/Popover';
-import { SortDirection } from '@/search/schemas';
+import { SortDirection } from '@/search/sort-schemas';
 
 interface SortOptionItem {
   label: string;

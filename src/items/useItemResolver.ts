@@ -72,7 +72,7 @@ export function useItemResolver(
 
     if (details) {
        
-      const { id, identity, title, images, subtitle, tertiaryText, rating, ...coreDetails } = details;
+      const { id: _id, identity: _identity, title: _title, images: _images, subtitle: _subtitle, tertiaryText: _tertiaryText, rating: _rating, ...coreDetails } = details;
       updates.details = coreDetails;
     }
 

@@ -197,7 +197,7 @@ export default function TierListApp() {
       handleDragEnd,
       handleDragCancel,
     },
-    ui: { headerColors, detailsItem, allBoardItems, showDetails, closeDetails, setShowShortcuts },
+    ui: { headerColors, detailsItem, showDetails, closeDetails, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo },
   } = useTierListContext();
 

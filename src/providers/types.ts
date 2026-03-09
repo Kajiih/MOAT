@@ -1,9 +1,14 @@
+/**
+ * @file Provider Types
+ * @description Core types and protocol interfaces for the generic Provider orchestration layer.
+ */
+
 import { LucideIcon } from 'lucide-react';
 
-import { FilterDefinition } from '@/search/schemas';
-import { ItemDetails } from '@/items/schemas';
-import { SearchParams, SearchResult } from '@/search/schemas';
-import { SortDefinition } from '@/search/schemas';
+import { ItemDetails } from '@/items/items';
+import { FilterDefinition } from '@/search/filter-schemas';
+import { SearchParams, SearchResult } from '@/search/search-schemas';
+import { SortDefinition } from '@/search/sort-schemas';
 
 /**
  * A utility type for arrays that must contain at least one element.
@@ -13,6 +18,9 @@ export type NonEmptyArray<T> = readonly [T, ...T[]];
 /**
  * A type-inference utility that statically guarantees an array is not empty
  * and satisfies the NonEmptyArray<T> contract without requiring explicit type annotations.
+ * @param first - The initial mandatory element of the array.
+ * @param rest - The remaining optional elements of the array.
+ * @returns A tuple guaranteeing at least one element exists (`[T, ...T[]]`).
  */
 export function nonEmpty<T>(first: T, ...rest: T[]): NonEmptyArray<T> {
   return [first, ...rest];
@@ -50,6 +58,7 @@ export interface EntityBranding {
  * Navigation is fully entity-driven: the UI treats SearchParams as an opaque blob
  * and delegates all pagination logic to the entity via getNextParams / getPreviousParams.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Entity<TRaw = any> {
   /** Unique ID for the entity within the provider */
   readonly id: string;
@@ -97,7 +106,7 @@ export type Fetcher = <T>(url: string, options?: RequestInit) => Promise<T>;
 /**
  * Represents an independent external database service provider.
  * This is the top-level object registered in the application.
-  *
+ *
  * Concrete classes narrow the `entities` type via their own annotations
  * (e.g. `readonly entities = [...] as const`), which TypeScript's structural
  * typing matches against this interface.

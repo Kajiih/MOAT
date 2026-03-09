@@ -13,7 +13,7 @@ import { memo, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { TierDefinition } from '@/board/types';
-import { Item } from '@/items/schemas';
+import { Item } from '@/items/items';
 
 import { TierGrid } from './TierGrid';
 import { TierHeader } from './TierHeader';

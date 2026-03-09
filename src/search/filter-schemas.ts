@@ -53,7 +53,6 @@ export interface FilterTestCase<TValue = unknown, TRaw = unknown> {
    * Optional verification function for the entire result set.
    * Use this for aggregate assertions like "verify ID X is not in results".
    * Receives the full array of raw items.
-   * @important Every test case is expected to return at least one result.
    */
   verifyResults?: (items: TRaw[]) => void;
 }
@@ -201,55 +200,91 @@ export type FilterDefinition<TRaw = unknown> =
  */
 export function createFilterSuite<TRaw>() {
   return {
-    /** Build a text filter parameter */
+    /** 
+     * Build a text filter parameter 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed TextFilterDefinition.
+     */
     text: (config: Omit<TextFilterDefinition<TRaw>, 'type'>): TextFilterDefinition<TRaw> => {
       return { ...config, type: 'text' };
     },
 
-    /** Build a numerical filter parameter */
+    /** 
+     * Build a numerical filter parameter 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed NumberFilterDefinition.
+     */
     number: (config: Omit<NumberFilterDefinition<TRaw>, 'type'>): NumberFilterDefinition<TRaw> => {
       return { ...config, type: 'number' };
     },
 
-    /** Build a boolean toggle filter parameter */
+    /** 
+     * Build a boolean toggle filter parameter 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed BooleanFilterDefinition.
+     */
     boolean: (
       config: Omit<BooleanFilterDefinition<TRaw>, 'type'>,
     ): BooleanFilterDefinition<TRaw> => {
       return { ...config, type: 'boolean' };
     },
 
-    /** Build a single-choice dropdown filter parameter */
+    /** 
+     * Build a single-choice dropdown filter parameter 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed SelectFilterDefinition.
+     */
     select: (config: Omit<SelectFilterDefinition<TRaw>, 'type'>): SelectFilterDefinition<TRaw> => {
       return { ...config, type: 'select' };
     },
 
-    /** Build a multiple-choice selection filter parameter */
+    /** 
+     * Build a multiple-choice selection filter parameter 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed MultiSelectFilterDefinition.
+     */
     multiselect: (
       config: Omit<MultiSelectFilterDefinition<TRaw>, 'type'>,
     ): MultiSelectFilterDefinition<TRaw> => {
       return { ...config, type: 'multiselect' };
     },
 
-    /** Build an asynchronous single-choice dropdown fetching its options live */
+    /** 
+     * Build an asynchronous single-choice dropdown fetching its options live 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed AsyncSelectFilterDefinition.
+     */
     asyncSelect: (
       config: Omit<AsyncSelectFilterDefinition<TRaw>, 'type'>,
     ): AsyncSelectFilterDefinition<TRaw> => {
       return { ...config, type: 'async-select' };
     },
 
-    /** Build an asynchronous multiple-choice selection parameter fetching its options live */
+    /** 
+     * Build an asynchronous multiple-choice selection parameter fetching its options live 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed AsyncMultiSelectFilterDefinition.
+     */
     asyncMultiselect: (
       config: Omit<AsyncMultiSelectFilterDefinition<TRaw>, 'type'>,
     ): AsyncMultiSelectFilterDefinition<TRaw> => {
       return { ...config, type: 'async-multiselect' };
     },
 
-    /** Build a max/min scope range filter parameter */
+    /** 
+     * Build a max/min scope range filter parameter 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed RangeFilterDefinition.
+     */
     range: (config: Omit<RangeFilterDefinition<TRaw>, 'type'>): RangeFilterDefinition<TRaw> => {
       return { ...config, type: 'range' };
     },
 
-    /** Build a strict date constraint filter parameter */
+    /** 
+     * Build a strict date constraint filter parameter 
+     * @param config - The filter configuration object without the literal type constraint.
+     * @returns A strongly typed DateFilterDefinition.
+     */
     date: (config: Omit<DateFilterDefinition<TRaw>, 'type'>): DateFilterDefinition<TRaw> => {
       return { ...config, type: 'date' };
     },
