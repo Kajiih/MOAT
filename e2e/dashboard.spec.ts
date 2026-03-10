@@ -67,8 +67,27 @@ test.describe('Dashboard and Multi-Board', () => {
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);
     await expect(boardPage.titleInput).toHaveValue(boardTitle);
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500); // Allow debounced auto-save to serialize new board to IndexedDB
+    
+    // Auto-save triggers on board creation/change. Wait for IDB confirmation.
+    await dashboardPage.page.waitForFunction(
+      async (title) => {
+        return new Promise((resolve) => {
+          const req = indexedDB.open('keyval-store');
+          req.onsuccess = () => {
+             const db = req.result;
+             if (!db.objectStoreNames.contains('keyval')) return resolve(false);
+             const tx = db.transaction('keyval', 'readonly');
+             const getReq = tx.objectStore('keyval').get('tier-list-index');
+             getReq.onsuccess = () => {
+                const index = getReq.result || [];
+                resolve(index.some((b: { title: string }) => b.title === title));
+             };
+          };
+        });
+      },
+      boardTitle,
+      { timeout: 10_000 }
+    );
     await boardPage.dashboardButton.click();
     await expect(page).toHaveURL(/\/dashboard$/);
   });
@@ -79,8 +98,27 @@ test.describe('Dashboard and Multi-Board', () => {
     const boardTitle = 'Permanent Board';
     await dashboardPage.createBoard(boardTitle);
     await expect(boardPage.titleInput).toHaveValue(boardTitle);
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await dashboardPage.page.waitForTimeout(500); // Allow debounced auto-save to serialize new board to IndexedDB
+    
+    // Auto-save triggers on board creation/change. Wait for IDB confirmation.
+    await dashboardPage.page.waitForFunction(
+      async (title) => {
+        return new Promise((resolve) => {
+          const req = indexedDB.open('keyval-store');
+          req.onsuccess = () => {
+             const db = req.result;
+             if (!db.objectStoreNames.contains('keyval')) return resolve(false);
+             const tx = db.transaction('keyval', 'readonly');
+             const getReq = tx.objectStore('keyval').get('tier-list-index');
+             getReq.onsuccess = () => {
+                const index = getReq.result || [];
+                resolve(index.some((b: { title: string }) => b.title === title));
+             };
+          };
+        });
+      },
+      boardTitle,
+      { timeout: 10_000 }
+    );
     await boardPage.dashboardButton.click();
     await dashboardPage.openBoard(boardTitle);
 

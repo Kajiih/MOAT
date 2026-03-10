@@ -84,8 +84,7 @@ export class BoardPage {
     // disable for now
     // eslint-disable-next-line playwright/no-force-option
     await this.optionsButton.click({ force: true });
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(200);
+    // Wait for animation or options to fully span out
     await this.clearBoardButton.waitFor({ state: 'attached', timeout: 5000 });
   }
 
@@ -139,9 +138,8 @@ export class BoardPage {
     // eslint-disable-next-line playwright/no-force-option
     await this.resetItemsButton.click({ force: true });
 
-    // Wait for the UI to settle after Redux update
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(500);
+    // wait for layout change to flush
+    await expect(this.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0, { timeout: 10_000 });
   }
 
   /**

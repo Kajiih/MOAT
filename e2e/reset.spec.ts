@@ -25,13 +25,12 @@ test.describe('Board Reset and Clear Actions', () => {
       await expect(card).toBeVisible();
       await searchPanel.dragToTier(id, 'S');
       await expect(boardPage.getItemCard(id)).toBeVisible({ timeout: 15_000 });
-      // eslint-disable-next-line playwright/no-wait-for-timeout
-      await page.waitForTimeout(500); // Settle
+      // Settle animation before next drag
+      await expect(card).not.toHaveClass(/is-dragging/);
     }
 
     // Wait for full board layout hydration
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(1000);
+    await expect(boardPage.tierRows.getByTestId(/item-card-/)).toHaveCount(3, { timeout: 15_000 });
   });
 
   test('should reset all items to unranked', async ({ boardPage }) => {

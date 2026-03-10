@@ -100,8 +100,6 @@ test.describe('Search Functionality', () => {
     await expect(platformSelect).toBeVisible();
 
     await platformSelect.selectOption('4');
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(500); // Wait for React useDebounce to flush
 
     const requestPromise = page.waitForRequest((req) => {
       const url = req.url();

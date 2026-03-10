@@ -26,8 +26,9 @@ export async function manualDragAndDrop(page: Page, source: Locator, target: Loc
     { steps: 5 },
   );
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(300);
+  // Wait for the dragging clone/overlay to attach to the body
+  const clone = page.locator('body > div[style*="position: fixed"]');
+  await clone.waitFor({ state: 'attached', timeout: 5000 });
 
   // 4. Move to target center
   await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, {
