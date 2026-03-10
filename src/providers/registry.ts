@@ -98,7 +98,7 @@ export class DatabaseRegistry {
    */
   public async waitUntilReady(): Promise<void> {
     if (this.pendingRegistrations.size > 0) {
-      await Promise.allSettled(Array.from(this.pendingRegistrations));
+      await Promise.allSettled(this.pendingRegistrations);
     }
   }
 

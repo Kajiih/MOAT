@@ -3,20 +3,11 @@
  * @description A clean-up hook for aggregating state, dispatch, and multiple sub-hooks
  * into a unified, namespaced API used by the TierListContext.
  * This pattern improves memoization and discoverability of board actions.
- * @module useTierListNamespaces
  */
-
-import {
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-  SensorDescriptor,
-  SensorOptions,
-} from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
-import { TierDefinition, TierListState, TierUpdate } from '@/board/types';
+import { TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { fromSearchId } from '@/lib/ids';
 
@@ -60,18 +51,16 @@ interface UseTierListNamespacesProps {
 }
 
 /**
- * Aggregates state and logic into logical namespaces (actions, dnd, ui, history).
+ * Aggregates state and logic into logical namespaces (actions, dragState, ui, history).
  * @param props - The props for the hook.
  * @param props.state - The current tier list state.
  * @param props.dispatch - The dispatch function for tier list actions.
  * @param props.history - The history management functions.
-
- * @param props.dndRaw - Raw outputs from the drag and drop hook.
  * @param props.structureRaw - Raw outputs from the structure formatting hook.
  * @param props.ioRaw - Raw outputs from the import/export hook.
  * @param props.utilsRaw - Raw outputs from the utility hook.
  * @param props.uiState - Raw outputs from the UI state hook.
- * @returns A structured object containing actions, dnd, ui, and history namespaces.
+ * @returns A structured object containing actions, ui, and history namespaces.
  */
 export function useTierListNamespaces({
   state,

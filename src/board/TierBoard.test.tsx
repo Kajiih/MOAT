@@ -16,7 +16,7 @@ vi.mock('@/storage/storage', () => ({
   },
 }));
 
-// Mock ResizeObserver for dnd-kit
+// Mock ResizeObserver
 globalThis.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}

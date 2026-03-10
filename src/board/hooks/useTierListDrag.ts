@@ -1,12 +1,25 @@
+/**
+ * @file useTierListDrag.ts
+ * @description Hook to manage global drag and drop state using pragmatic-drag-and-drop.
+ */
+
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { useEffect, useState } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
 import { TierDefinition, TierListState } from '@/board/types';
 import { Item } from '@/items/items';
-import { extractSearchId, isSearchId } from '@/lib/ids';
 
-export function useTierListDnD(
+/**
+ * Provides access to the current drag state and wires up global drop monitors
+ * to trigger Redux actions for reordering and cross-tier movements.
+ *
+ * @param state - The current tier list state.
+ * @param dispatch - The Redux dispatch function.
+ * @param pushHistory - Callback to save a history snapshot before mutation.
+ * @returns The current drag state including active item, tier, and over ID.
+ */
+export function useTierListDrag(
   state: TierListState,
   dispatch: React.Dispatch<TierListAction>,
   pushHistory: () => void,
@@ -65,7 +78,7 @@ export function useTierListDnD(
             type: ActionType.MOVE_ITEM,
             payload: {
               activeId,
-              overId: targetTierId,
+              overId: finalTargetId,
               activeItem: item,
             },
           });

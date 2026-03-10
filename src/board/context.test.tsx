@@ -18,9 +18,9 @@ vi.mock('@/lib/ui/ToastProvider', () => ({
   useToast: () => ({ showToast: vi.fn(), toastCount: 0 }),
 }));
 
-// Mock useTierListDnD to avoid dnd-kit complexity in this logic test
-vi.mock('@/board/hooks/useTierListDnD', () => ({
-  useTierListDnD: () => ({
+// Mock useTierListDrag to avoid test complexity in Context tests
+vi.mock('@/board/hooks/useTierListDrag', () => ({
+  useTierListDrag: () => ({
     sensors: [],
     activeItem: null,
     activeTier: null,

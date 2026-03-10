@@ -22,10 +22,8 @@ import { useBrandColors } from '@/board/hooks/useBrandColors';
 import { useDynamicFavicon } from '@/board/hooks/useDynamicFavicon';
 import { useScreenshot } from '@/board/hooks/useScreenshot';
 import { TierBoard } from '@/board/TierBoard';
-import { TierRow } from '@/board/TierRow';
 import { Item, TierListState } from '@/board/types';
 import { DetailsModal } from '@/items/DetailsModal';
-import { ItemCard } from '@/items/ItemCard';
 import { getColorTheme } from '@/lib/colors';
 import { InteractionContext } from '@/lib/ui/InteractionContext';
 import { useToast } from '@/lib/ui/ToastProvider';
@@ -187,7 +185,7 @@ export default function TierListApp() {
   const {
     state,
     isHydrated,
-    dnd: { activeItem, activeTier },
+    dragState: { activeItem, activeTier },
     actions: { randomizeColors, removeItemFromTier, updateMediaItem },
 
     ui: { headerColors, detailsItem, showDetails, closeDetails, setShowShortcuts },

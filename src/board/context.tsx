@@ -12,8 +12,7 @@
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { useHistory } from '@/board/hooks/useHistory';
-import { useTierListDnD } from '@/board/hooks/useTierListDnD';
-
+import { useTierListDrag } from '@/board/hooks/useTierListDrag';
 import { useTierListIO } from '@/board/hooks/useTierListIO';
 import { useTierListNamespaces } from '@/board/hooks/useTierListNamespaces';
 import { useTierListUtils } from '@/board/hooks/useTierListUtils';
@@ -49,7 +48,7 @@ interface TierListContextType {
     export: () => void;
     publish: () => Promise<string | null>;
   };
-  dnd: {
+  dragState: {
     activeItem: Item | null;
     activeTier: TierDefinition | null;
     overId: string | null;
@@ -134,7 +133,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
 
   // --- Sub-Hooks Integration ---
 
-  const dnd = useTierListDnD(state, dispatch, push);
+  const dragState = useTierListDrag(state, dispatch, push);
   const structureRaw = useTierStructure(dispatch, push);
   const ioRaw = useTierListIO(state, dispatch, push);
   const utilsRaw = useTierListUtils(state, null, null);
@@ -168,11 +167,11 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
           registerItem({ ...item, ...updates } as Item);
         },
       },
-      dnd,
+      dragState,
       ui,
       history,
     }),
-    [state, isHydrated, actions, ui, history, registerItem, ioRaw.handlePublish, dnd],
+    [state, isHydrated, actions, ui, history, registerItem, ioRaw.handlePublish, dragState],
   );
 
   return <TierListContext.Provider value={value}>{children}</TierListContext.Provider>;

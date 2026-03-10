@@ -5,9 +5,8 @@
  * @module TierSliceReducer
  */
 
-import { arrayMove } from '@/lib/array';
-
 import { TierDefinition, TierListState } from '@/board/types';
+import { arrayMove } from '@/lib/array';
 import { TIER_COLORS } from '@/lib/colors';
 
 import { ActionType, TierListAction } from '../actions';

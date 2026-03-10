@@ -5,10 +5,10 @@
  */
 'use client';
 
-import { arrayMove } from '@/lib/array';
 import { useCallback, useMemo } from 'react';
 
 import { TierListState } from '@/board/types';
+import { arrayMove } from '@/lib/array';
 import { useToast } from '@/lib/ui/ToastProvider';
 
 /**

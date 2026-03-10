@@ -5,9 +5,8 @@
  * @module ItemSliceReducer
  */
 
-import { arrayMove } from '@/lib/array';
-
 import { Item, TierListState } from '@/board/types';
+import { arrayMove } from '@/lib/array';
 import { hasItemUpdates } from '@/lib/comparisons';
 
 import { ActionType, TierListAction } from '../actions';
