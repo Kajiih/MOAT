@@ -9,7 +9,7 @@
 import { useEffect } from 'react';
 
 import { Item } from '@/board/types';
-import { ItemUpdate } from '@/items/items';
+import { ItemDetailsCoreSchema, ItemUpdate } from '@/items/items';
 import { useDatabaseDetails } from '@/providers/useDatabaseDetails';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 
@@ -72,9 +72,10 @@ export function useItemResolver(
     };
 
     if (details) {
-       
-      const { id: _id, identity: _identity, title: _title, images: _images, subtitle: _subtitle, tertiaryText: _tertiaryText, rating: _rating, ...coreDetails } = details;
-      updates.details = coreDetails;
+      const parsed = ItemDetailsCoreSchema.safeParse(details);
+      if (parsed.success) {
+        updates.details = parsed.data;
+      }
     }
 
     // Propagate to Board

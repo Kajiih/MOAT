@@ -166,26 +166,6 @@ function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): Tie
   }
 
   const newItem: Item = { ...currentItem, ...updates };
-  
-  // If the ID explicitly changed, we must migrate it in dictionaries
-  if (currentItem.id !== newItem.id) {
-    const newEntities = { ...state.itemEntities };
-    delete newEntities[currentItem.id];
-    newEntities[newItem.id] = newItem;
-
-    const newLayout = { ...state.tierLayout };
-    for (const [tierId, layoutArray] of Object.entries(newLayout)) {
-      if (layoutArray.includes(currentItem.id)) {
-        newLayout[tierId] = layoutArray.map(id => id === currentItem.id ? newItem.id : id);
-      }
-    }
-
-    return {
-      ...state,
-      itemEntities: newEntities,
-      tierLayout: newLayout
-    };
-  }
 
   // Pure data update
   return {

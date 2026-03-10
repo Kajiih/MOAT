@@ -97,8 +97,8 @@ export class DatabaseRegistry {
    * If new registrations start while waiting, it will continue to wait until all are complete.
    */
   public async waitUntilReady(): Promise<void> {
-    while (this.pendingRegistrations.size > 0) {
-      await Promise.all(this.pendingRegistrations);
+    if (this.pendingRegistrations.size > 0) {
+      await Promise.allSettled(Array.from(this.pendingRegistrations));
     }
   }
 
@@ -231,9 +231,7 @@ export class DatabaseRegistry {
     } catch (error) {
       const providerError = handleProviderError(error, providerId);
       logger.error({ error: providerError, providerId, key }, 'Image resolution failed');
-      
-      // In a real app, we'd check if this is an AUTH_ERROR and trigger re-init
-      // For now, we just log and return null
+      throw providerError;
     }
     return null;
   }
