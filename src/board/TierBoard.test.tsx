@@ -16,12 +16,6 @@ vi.mock('@/storage/storage', () => ({
   },
 }));
 
-// Mock ResizeObserver
-globalThis.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
 
 describe('TierBoard', () => {
   const defaultProps = {

@@ -21,13 +21,9 @@ vi.mock('@/lib/ui/ToastProvider', () => ({
 // Mock useTierListDrag to avoid test complexity in Context tests
 vi.mock('@/board/hooks/useTierListDrag', () => ({
   useTierListDrag: () => ({
-    sensors: [],
     activeItem: null,
     activeTier: null,
     overId: null,
-    handleDragStart: vi.fn(),
-    handleDragOver: vi.fn(),
-    handleDragEnd: vi.fn(),
   }),
 }));
 
