@@ -49,7 +49,7 @@ export class SearchPanel {
 
   async getResultCard(id: string) {
     const fullId = id.includes(':') ? id : `rawg:game:${id}`;
-    return this.container.getByTestId(`media-card-${fullId}`);
+    return this.container.getByTestId(`item-card-${fullId}`);
   }
 
   async dragToTier(itemId: string, tierLabel: string) {

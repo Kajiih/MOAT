@@ -88,7 +88,7 @@ export function useItemSearch(
       searchParams.set('filters', JSON.stringify(debouncedParams.filters));
     }
 
-    const res = await fetch(`/api/v2/search?${searchParams.toString()}`, { signal: opts?.signal });
+    const res = await fetch(`/api/search?${searchParams.toString()}`, { signal: opts?.signal });
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.error || 'Failed to fetch search results');

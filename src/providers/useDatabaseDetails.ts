@@ -48,7 +48,7 @@ export function useDatabaseDetails(
       dbId
     });
 
-    const res = await fetch(`/api/v2/details?${searchParams.toString()}`, { signal });
+    const res = await fetch(`/api/details?${searchParams.toString()}`, { signal });
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.error || 'Failed to fetch item details');

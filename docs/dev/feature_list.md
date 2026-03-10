@@ -30,7 +30,7 @@ The heart of the application, focusing on the user's ability to create, organize
   - **History Stack**: Full state replay capabilities for destructive actions (moves, edits, deletes).
   - **Keyboard Support**: Standard `Cmd+Z` / `Cmd+Shift+Z` shortcuts.
 - **Items & Media**:
-  - **Rich Media Cards**: Displays album art, artist photos, or song details.
+  - **Rich Item Cards**: Displays album art, artist photos, or song details.
   - **Details Modal**: Quick view for metadata (tracklists, release dates, tags).
   - **Personal Notes**: Users can add personal notes to any card (e.g., to explain a tier choice), visible via a small indicator on the board.
 

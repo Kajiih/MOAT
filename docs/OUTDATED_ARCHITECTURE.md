@@ -288,7 +288,7 @@ Moat employs a multi-layered testing strategy combining unit and integration tes
   - **Stability**: Snapshot tests wait for `document.fonts.ready` and include a settlement pause to prevent layout shift artifacts.
   - **Masking**: Dynamic or transient UI elements (like the Camera icon or Back to Dashboard button) are masked during capture to focus only on board state consistency.
   - **Stabilization Techniques**:
-    - **Robust Locators**: Extensive use of `data-testid` and Playwright's `getBy*` locators to avoid brittle CSS selectors. Legacy `#media-card-*` selectors have been eliminated in favor of stable test-ids.
+    - **Robust Locators**: Extensive use of `data-testid` and Playwright's `getBy*` locators to avoid brittle CSS selectors. Legacy `#item-card-*` selectors have been eliminated in favor of stable test-ids.
     - **Storage Isolation**: A centralized `clearBrowserStorage` utility ensures every test starts with a clean `localStorage`, `sessionStorage`, and `IndexedDB`.
     - **Stable Drag-and-Drop**:
       - **Keyboard Simulation**: Critical reordering flows (Tiers and Items) utilize `dnd-kit`'s `KeyboardSensor` via `Space` and `Arrow` key simulations. Keyboard reordering includes intentional timing buffers (300ms-500ms) to ensure state reconciliation in slow/headless CI environments.

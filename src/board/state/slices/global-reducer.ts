@@ -29,30 +29,7 @@ export function globalReducer(state: TierListState, action: TierListAction): Tie
 
     case ActionType.IMPORT_STATE:
     case ActionType.SET_STATE: {
-      const newState = { ...action.payload.state };
-      
-      // Self-healing: Migrate legacy `items` state to normalized schema if found
-      if ('items' in newState && (!newState.itemEntities || !newState.tierLayout)) {
-        newState.itemEntities = {};
-        newState.tierLayout = {};
-        
-        const legacyItems = (newState as unknown as { items?: Record<string, import('@/board/types').Item[]> }).items;
-        
-        if (legacyItems) {
-          Object.entries(legacyItems).forEach(([tierId, itemsList]) => {
-            newState.tierLayout[tierId] = itemsList.map((item) => {
-              newState.itemEntities[item.id] = item;
-              return item.id;
-            });
-          });
-        }
-        
-        // Remove legacy fields
-        delete (newState as unknown as { items?: unknown }).items;
-        delete (newState as unknown as { itemLookup?: unknown }).itemLookup;
-      }
-      
-      return newState;
+      return { ...action.payload.state };
     }
 
     default: {

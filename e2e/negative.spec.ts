@@ -55,7 +55,7 @@ test.describe('Resilience and Failure Modes', () => {
 
     // Now drag it to the board
     await searchPanel.dragToTier('error-item-1', 'S');
-    const boardCard = page.locator('[data-tier-label="S"]').getByTestId('media-card-rawg:game:error-item-1');
+    const boardCard = page.locator('[data-tier-label="S"]').getByTestId('item-card-rawg:game:error-item-1');
     await expect(boardCard).toBeVisible({ timeout: 10_000 });
 
     // Attempt to open details

@@ -158,9 +158,9 @@ export class BoardPage {
    * @param id - The item ID.
    * @returns The media card locator.
    */
-  getMediaCard(id: string) {
+  getItemCard(id: string) {
     const fullId = id.includes(':') ? id : `rawg:game:${id}`;
-    return this.tierRows.getByTestId(`media-card-${fullId}`);
+    return this.tierRows.getByTestId(`item-card-${fullId}`);
   }
 
   /**
@@ -212,7 +212,7 @@ export class BoardPage {
    * @param targetTierLabel - The label of the destination tier.
    */
   async moveItemToTier(itemId: string, targetTierLabel: string) {
-    const card = this.getMediaCard(itemId);
+    const card = this.getItemCard(itemId);
     const targetTier = this.getTierRow(targetTierLabel);
     const dropZone = targetTier.getByTestId('tier-drop-zone');
 
@@ -220,7 +220,7 @@ export class BoardPage {
 
     // After manual drag, wait for the clone overlay to vanish
     const fullId = itemId.includes(':') ? itemId : `rawg:game:${itemId}`;
-    await expect(this.page.getByTestId(`media-card-${fullId}`)).toHaveCount(1, { timeout: 5000 });
+    await expect(this.page.getByTestId(`item-card-${fullId}`)).toHaveCount(1, { timeout: 5000 });
   }
 
   /**
@@ -294,7 +294,7 @@ export class BoardPage {
    */
   async reorderItemsViaKeyboard(tierLabel: string, sourceIndex: number, targetIndex: number) {
     const tierRow = this.getTierRow(tierLabel);
-    const cards = tierRow.getByTestId(/^media-card-item-/);
+    const cards = tierRow.getByTestId(/^item-card-item-/);
     const sourceCard = cards.nth(sourceIndex);
 
     await sourceCard.focus();
@@ -313,7 +313,7 @@ export class BoardPage {
 
     for (let i = 0; i < steps; i++) {
       const getCardTexts = async () => {
-        const currentCards = tierRow.getByTestId(/^media-card-item-/);
+        const currentCards = tierRow.getByTestId(/^item-card-item-/);
         return await currentCards.allTextContents();
       };
 
@@ -341,14 +341,14 @@ export class BoardPage {
     // Verify final position
     await expect
       .poll(async () => {
-        const updatedCards = tierRow.getByTestId(/^media-card-item-/);
+        const updatedCards = tierRow.getByTestId(/^item-card-item-/);
         return await updatedCards.nth(targetIndex).textContent();
       })
       .toContain(sourceText);
 
     // Ensure the drag overlay has fully unmounted to prevent strict mode violations later
     await expect(
-      this.page.getByTestId(/^media-card-item-/).filter({ hasText: sourceText || '' }),
+      this.page.getByTestId(/^item-card-item-/).filter({ hasText: sourceText || '' }),
     ).toHaveCount(1);
   }
 }

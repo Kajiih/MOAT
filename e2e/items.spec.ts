@@ -19,17 +19,17 @@ test.describe('Item Management', () => {
     await expect(await searchPanel.getResultCard('item-2')).toBeVisible();
 
     await searchPanel.dragToTier('item-1', 'S');
-    await expect(boardPage.getMediaCard('item-1')).toBeVisible({ timeout: 15_000 });
+    await expect(boardPage.getItemCard('item-1')).toBeVisible({ timeout: 15_000 });
 
     await searchPanel.dragToTier('item-2', 'S');
-    await expect(boardPage.getMediaCard('item-2')).toBeVisible({ timeout: 15_000 });
+    await expect(boardPage.getItemCard('item-2')).toBeVisible({ timeout: 15_000 });
   });
 
   test('should manage items: details, move, reorder, remove', async ({ page, boardPage }) => {
     // TODO: dnd-kit drag simulations are flaky in headless browsers
     const tierS = page.locator('[data-tier-label="S"]');
     const tierA = page.locator('[data-tier-label="A"]');
-    const cards = tierS.getByTestId(/^media-card-item-/);
+    const cards = tierS.getByTestId(/^item-card-item-/);
 
     // 1. Details
     await mockItemDetails(page, {
@@ -40,7 +40,7 @@ test.describe('Item Management', () => {
       description: 'A very detailed description',
     });
 
-    const card1 = boardPage.getMediaCard('item-1');
+    const card1 = boardPage.getItemCard('item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
     // Open details via button (more reliable than shortcut in tests)
@@ -71,7 +71,7 @@ test.describe('Item Management', () => {
   });
 
   test('should handle personal notes', async ({ page, boardPage }) => {
-    const card1 = boardPage.getMediaCard('item-1');
+    const card1 = boardPage.getItemCard('item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
     // Route API before opening the modal

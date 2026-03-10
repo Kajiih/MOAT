@@ -24,7 +24,7 @@ test.describe('Board Reset and Clear Actions', () => {
       const card = await searchPanel.getResultCard(id);
       await expect(card).toBeVisible();
       await searchPanel.dragToTier(id, 'S');
-      await expect(boardPage.getMediaCard(id)).toBeVisible({ timeout: 15_000 });
+      await expect(boardPage.getItemCard(id)).toBeVisible({ timeout: 15_000 });
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await page.waitForTimeout(500); // Settle
     }
@@ -36,37 +36,37 @@ test.describe('Board Reset and Clear Actions', () => {
 
   test('should reset all items to unranked', async ({ boardPage }) => {
     // Initial state: all 3 in S
-    await expect(boardPage.getTierRow('S').getByTestId(/media-card-/)).toHaveCount(3);
+    await expect(boardPage.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(3);
 
     // Reset items
     await boardPage.resetItems();
 
     // Verify all tiers except Unranked are empty
-    await expect(boardPage.getTierRow('S').getByTestId(/media-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('A').getByTestId(/media-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('B').getByTestId(/media-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('C').getByTestId(/media-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('D').getByTestId(/media-card-/)).toHaveCount(0);
+    await expect(boardPage.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0);
+    await expect(boardPage.getTierRow('A').getByTestId(/item-card-/)).toHaveCount(0);
+    await expect(boardPage.getTierRow('B').getByTestId(/item-card-/)).toHaveCount(0);
+    await expect(boardPage.getTierRow('C').getByTestId(/item-card-/)).toHaveCount(0);
+    await expect(boardPage.getTierRow('D').getByTestId(/item-card-/)).toHaveCount(0);
 
     // Verify Unranked has all 3 items
-    await expect(boardPage.getTierRow('Unranked').getByTestId(/media-card-/)).toHaveCount(3);
+    await expect(boardPage.getTierRow('Unranked').getByTestId(/item-card-/)).toHaveCount(3);
 
     // Verify items still exist in lookup/UI
-    await expect(boardPage.getMediaCard('item-1')).toBeVisible();
-    await expect(boardPage.getMediaCard('item-2')).toBeVisible();
-    await expect(boardPage.getMediaCard('item-3')).toBeVisible();
+    await expect(boardPage.getItemCard('item-1')).toBeVisible();
+    await expect(boardPage.getItemCard('item-2')).toBeVisible();
+    await expect(boardPage.getItemCard('item-3')).toBeVisible();
   });
 
   // Marked as skip because Playwright natively deadlocks on Radix Dropdowns + window.confirm() modals in certain headless configurations.
   test.skip('should clear the entire board (all items gone)', async ({ boardPage }) => {
     // Initial state: items present
-    await expect(boardPage.tierRows.getByTestId(/media-card-/)).toHaveCount(3);
+    await expect(boardPage.tierRows.getByTestId(/item-card-/)).toHaveCount(3);
 
     // Clear board
     await boardPage.clearBoard();
 
     // Verify EVERYTHING is gone
-    await expect(boardPage.tierRows.getByTestId(/media-card-/)).toHaveCount(0);
+    await expect(boardPage.tierRows.getByTestId(/item-card-/)).toHaveCount(0);
 
     // Verify tiers are reset to default count (6)
     await expect(boardPage.tierLabels).toHaveCount(6);
@@ -77,17 +77,17 @@ test.describe('Board Reset and Clear Actions', () => {
   test.skip('should support undo for reset items', async ({ boardPage }) => {
     // Initial state
     await boardPage.resetItems();
-    await expect(boardPage.getTierRow('Unranked').getByTestId(/media-card-/)).toHaveCount(3);
+    await expect(boardPage.getTierRow('Unranked').getByTestId(/item-card-/)).toHaveCount(3);
 
     // Undo - Use only one shortcut to avoid double-undoing
     // We use Control+z which is handled for both Meta and Ctrl in our app code
     await boardPage.page.keyboard.press('Control+z');
 
     // Verify state is restored to 3 items in S
-    await expect(boardPage.getTierRow('S').getByTestId(/media-card-/)).toHaveCount(3, {
+    await expect(boardPage.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(3, {
       timeout: 15_000,
     });
     // And consequently 0 in Unranked
-    await expect(boardPage.getTierRow('Unranked').getByTestId(/media-card-/)).toHaveCount(0);
+    await expect(boardPage.getTierRow('Unranked').getByTestId(/item-card-/)).toHaveCount(0);
   });
 });
