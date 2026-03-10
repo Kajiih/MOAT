@@ -6,10 +6,8 @@
 
 'use client';
 
-import { useDndContext, useDroppable } from '@dnd-kit/core';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { memo, useMemo, useState } from 'react';
+import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { memo, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { TierDefinition } from '@/board/types';
@@ -64,58 +62,42 @@ export const TierRow = memo(function TierRow({
   isMiddleTier,
   isExport = false,
 }: TierRowProps) {
-  // 1. Sortable logic for the Tier itself (reordering rows)
-  const {
-    attributes,
-    listeners,
-    setNodeRef: setSortableRef,
-    transform,
-    transition,
-    isDragging: isDraggingTier,
-  } = useSortable({
-    id: tier.id,
-    data: {
-      type: 'tier',
-      tier,
-    },
-    disabled: isExport,
-  });
-
-  // 2. Droppable logic for items being dropped into the tier
-  const { setNodeRef: setDroppableRef } = useDroppable({
-    id: tier.id,
-    data: {
-      isTierContainer: true,
-      type: 'tier',
-    },
-  });
-
-  // Combine refs
-  const setCombinedRef = (node: HTMLDivElement | null) => {
-    setSortableRef(node);
-    setDroppableRef(node);
-  };
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
-
-  const { over, active } = useDndContext();
+  const ref = useRef<HTMLDivElement>(null);
+  const [dragHandle, setDragHandle] = useState<HTMLElement | null>(null);
+  
+  const [isDraggingTier, setIsDraggingTier] = useState(false);
+  const [isOverRow, setIsOverRow] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const isOverRow = useMemo(() => {
-    if (!over) return false;
-    if (active?.data.current?.type === 'tier') return false;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || isExport) return;
 
-    if (over.id === tier.id) return true;
-    return items.some((a) => a.id === over.id);
-  }, [over, active, tier.id, items]);
+    const cleanupDraggable = draggable({
+      element: el,
+      dragHandle: dragHandle || undefined,
+      getInitialData: () => ({ type: 'tier', tier }),
+      onDragStart: () => setIsDraggingTier(true),
+      onDrop: () => setIsDraggingTier(false),
+    });
+
+    const cleanupDropTarget = dropTargetForElements({
+      element: el,
+      getData: () => ({ type: 'tier', isTierContainer: true, tierId: tier.id }),
+      onDragEnter: () => setIsOverRow(true),
+      onDragLeave: () => setIsOverRow(false),
+      onDrop: () => setIsOverRow(false),
+    });
+
+    return () => {
+      cleanupDraggable();
+      cleanupDropTarget();
+    };
+  }, [tier, isExport, dragHandle]);
 
   return (
     <div
-      ref={setCombinedRef}
-      style={style}
+      ref={ref}
       data-testid="tier-row"
       data-tier-id={tier.id}
       data-tier-label={tier.label}
@@ -136,8 +118,7 @@ export const TierRow = memo(function TierRow({
         isAnyDragging={isAnyDragging}
         isDragging={isDraggingTier}
         isExport={isExport}
-        dragAttributes={attributes}
-        dragListeners={listeners}
+        setDragHandle={setDragHandle}
         isSettingsOpen={isSettingsOpen}
         onSettingsOpen={setIsSettingsOpen}
       />

@@ -13,7 +13,7 @@
 
 'use client';
 
-import { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
+
 import { memo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
@@ -31,8 +31,7 @@ interface TierHeaderProps {
   isAnyDragging?: boolean;
   isDragging?: boolean;
   isExport?: boolean;
-  dragAttributes?: DraggableAttributes;
-  dragListeners?: DraggableSyntheticListeners;
+  setDragHandle?: (element: HTMLElement | null) => void;
   isSettingsOpen: boolean;
   onSettingsOpen: (open: boolean) => void;
 }
@@ -45,8 +44,7 @@ export const TierHeader = memo(function TierHeader({
   isAnyDragging,
   isDragging,
   isExport = false,
-  dragAttributes,
-  dragListeners,
+  setDragHandle,
   isSettingsOpen,
   onSettingsOpen,
 }: TierHeaderProps) {
@@ -62,8 +60,7 @@ export const TierHeader = memo(function TierHeader({
       <TierLabel
         label={tier.label}
         onUpdate={(newLabel) => onUpdateTier(tier.id, { label: newLabel })}
-        dragAttributes={dragAttributes}
-        dragListeners={dragListeners}
+        setDragHandle={setDragHandle}
         isAnyDragging={isAnyDragging}
         isDragging={isDragging}
         isExport={isExport}

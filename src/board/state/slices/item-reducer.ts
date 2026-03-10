@@ -5,7 +5,7 @@
  * @module ItemSliceReducer
  */
 
-import { arrayMove } from '@dnd-kit/sortable';
+import { arrayMove } from '@/lib/array';
 
 import { Item, TierListState } from '@/board/types';
 import { hasItemUpdates } from '@/lib/comparisons';

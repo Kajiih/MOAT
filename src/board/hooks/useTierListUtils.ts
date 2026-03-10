@@ -5,7 +5,7 @@
  */
 'use client';
 
-import { arrayMove } from '@dnd-kit/sortable';
+import { arrayMove } from '@/lib/array';
 import { useCallback, useMemo } from 'react';
 
 import { TierListState } from '@/board/types';

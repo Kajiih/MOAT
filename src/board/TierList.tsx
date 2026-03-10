@@ -7,7 +7,7 @@
 
 'use client';
 
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+
 import React from 'react';
 
 import { Item,TierDefinition } from '@/board/types';
@@ -79,8 +79,8 @@ export function TierList({
   }
 
   return (
-    <SortableContext items={tiers.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+    <div className="w-full space-y-4">
       {content}
-    </SortableContext>
+    </div>
   );
 }

@@ -5,7 +5,7 @@
  * @module TierSliceReducer
  */
 
-import { arrayMove } from '@dnd-kit/sortable';
+import { arrayMove } from '@/lib/array';
 
 import { TierDefinition, TierListState } from '@/board/types';
 import { TIER_COLORS } from '@/lib/colors';

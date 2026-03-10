@@ -10,7 +10,7 @@
 
 'use client';
 
-import { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
+
 import { GripVertical } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -23,10 +23,8 @@ interface TierLabelProps {
   label: string;
   /** Callback fired when the label is renamed. */
   onUpdate: (newLabel: string) => void;
-  /** Synthetic listeners from dnd-kit for tier reordering. */
-  dragListeners?: DraggableSyntheticListeners;
-  /** Draggable attributes from dnd-kit for tier reordering. */
-  dragAttributes?: DraggableAttributes;
+  /** Ref setter for the pragmatic drag handles. */
+  setDragHandle?: (element: HTMLElement | null) => void;
   /** Global dragging state. */
   isAnyDragging?: boolean;
   /** Whether this specific tier is being dragged. */
@@ -41,8 +39,7 @@ interface TierLabelProps {
  * @param props - The props for the component.
  * @param props.label - The current text of the tier label.
  * @param props.onUpdate - Callback fired when the label is renamed.
- * @param props.dragListeners - Synthetic listeners from dnd-kit for tier reordering.
- * @param props.dragAttributes - Draggable attributes from dnd-kit for tier reordering.
+ * @param props.setDragHandle - Ref setter for the drag handle.
  * @param props.isAnyDragging - Global dragging state.
  * @param props.isDragging - Whether this specific tier is being dragged.
  * @param props.isExport - Whether the component is being rendered for a screenshot export.
@@ -51,8 +48,7 @@ interface TierLabelProps {
 export function TierLabel({
   label,
   onUpdate,
-  dragListeners,
-  dragAttributes,
+  setDragHandle,
   isAnyDragging,
   isDragging,
   isExport = false,
@@ -101,8 +97,7 @@ export function TierLabel({
       {/* Drag Handle */}
       {!isExport && (
         <div
-          {...dragAttributes}
-          {...dragListeners}
+          ref={setDragHandle}
           data-testid="tier-row-drag-handle"
           aria-label="Drag to reorder tier"
           className={twMerge(

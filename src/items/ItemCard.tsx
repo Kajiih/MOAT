@@ -7,10 +7,9 @@
 
 'use client';
 
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Info, X } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Item } from '@/items/items';
 import { registry } from '@/providers/registry';
@@ -77,39 +76,56 @@ export function ItemCard({
   const entityDef = registry.getEntity(item.identity.databaseId, item.identity.entityId);
   const TypeIcon = entityDef.branding.icon || Info;
 
-  // 2. Setup DND (Sorting or Draggable)
-  const id = tierId ? `board-${item.id}` : `search-${item.id}`;
-  const { setNodeRef, attributes, listeners, transform, transition } = useSortable({
-    id,
-    data: {
-      type: 'item',
-      item,
-      tierId,
-    },
-  });
+  // 2. Setup Pragmatic Drag and Drop
+  const ref = useRef<HTMLDivElement>(null);
+  const [isDraggingLocal, setIsDraggingLocal] = useState(false);
+  const [isOverLocal, setIsOverLocal] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || isExport) return;
+
+    const cleanupDraggable = draggable({
+      element: el,
+      getInitialData: () => ({ type: 'item', item, tierId }),
+      onDragStart: () => setIsDraggingLocal(true),
+      onDrop: () => setIsDraggingLocal(false),
+    });
+
+    const cleanupDropTarget = dropTargetForElements({
+      element: el,
+      getData: () => ({ type: 'item', item, tierId }),
+      onDragEnter: () => setIsOverLocal(true),
+      onDragLeave: () => setIsOverLocal(false),
+      onDrop: () => setIsOverLocal(false),
+    });
+
+    return () => {
+      cleanupDraggable();
+      cleanupDropTarget();
+    };
+  }, [item, tierId, isExport]);
+
+  const activeDragging = isDragging || isDraggingLocal;
 
   const style: React.CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-    zIndex: isDragging ? 1000 : 1,
+    opacity: activeDragging ? 0.4 : 1,
+    zIndex: activeDragging ? 1000 : 1,
   };
 
   return (
     <div
-      ref={setNodeRef}
+      ref={ref}
       style={style}
       data-testid={`item-card-${item.id}`}
-      className={`group relative transition-shadow hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
+      className={`group relative transition-all duration-200 hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
         isAdded ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black' : ''
-      }`}
+      } ${isOverLocal ? 'ring-2 ring-emerald-500 scale-105 z-50' : ''}`}
     >
       {/* 1. Drag & Drop Interaction Layer (Separate from buttons) */}
       <div 
         className="absolute inset-0 cursor-grab active:cursor-grabbing"
         aria-label={item.title}
-        {...attributes}
-        {...listeners}
       />
 
       {/* 2. The Visuals */}

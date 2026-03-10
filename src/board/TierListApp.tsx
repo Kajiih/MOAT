@@ -8,7 +8,7 @@
 
 'use client';
 
-import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core';
+
 import { Leva } from 'leva';
 import { Camera, Dices, Loader2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -187,16 +187,9 @@ export default function TierListApp() {
   const {
     state,
     isHydrated,
+    dnd: { activeItem, activeTier },
     actions: { randomizeColors, removeItemFromTier, updateMediaItem },
-    dnd: {
-      sensors,
-      activeItem,
-      activeTier,
-      handleDragStart,
-      handleDragOver,
-      handleDragEnd,
-      handleDragCancel,
-    },
+
     ui: { headerColors, detailsItem, showDetails, closeDetails, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo },
   } = useTierListContext();
@@ -244,24 +237,7 @@ export default function TierListApp() {
     return <LoadingState />;
   }
 
-  let dragOverlayContent = null;
-  if (activeTier) {
-    dragOverlayContent = (
-      <div className="pointer-events-none w-full opacity-80">
-        <TierRow
-          tier={activeTier}
-          items={(state.tierLayout[activeTier.id] || []).map(id => state.itemEntities[id]!).filter(Boolean)}
-          onRemoveItem={() => {}}
-          onUpdateTier={() => {}}
-          onDeleteTier={() => {}}
-          canDelete={false}
-          onInfo={() => {}}
-        />
-      </div>
-    );
-  } else if (activeItem) {
-    dragOverlayContent = <ItemCard item={activeItem} />;
-  }
+
 
   return (
     <div className="relative flex min-h-screen flex-col font-sans text-neutral-200">
@@ -270,14 +246,6 @@ export default function TierListApp() {
           <div className="mx-auto max-w-[1600px]">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
 
-            <DndContext
-              sensors={sensors}
-              collisionDetection={rectIntersection}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDragEnd={handleDragEnd}
-              onDragCancel={handleDragCancel}
-            >
               <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_450px]">
                 <div>
                   <TierBoard isAnyDragging={!!activeItem || !!activeTier} />
@@ -285,9 +253,6 @@ export default function TierListApp() {
 
                 <SearchPanel />
               </div>
-
-              <DragOverlay>{dragOverlayContent}</DragOverlay>
-            </DndContext>
           </div>
         </main>
 

@@ -8,17 +8,12 @@
 
 'use client';
 
-import {
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-  SensorDescriptor,
-  SensorOptions,
-} from '@dnd-kit/core';
+
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { useHistory } from '@/board/hooks/useHistory';
 import { useTierListDnD } from '@/board/hooks/useTierListDnD';
+
 import { useTierListIO } from '@/board/hooks/useTierListIO';
 import { useTierListNamespaces } from '@/board/hooks/useTierListNamespaces';
 import { useTierListUtils } from '@/board/hooks/useTierListUtils';
@@ -55,14 +50,9 @@ interface TierListContextType {
     publish: () => Promise<string | null>;
   };
   dnd: {
-    sensors: SensorDescriptor<SensorOptions>[];
     activeItem: Item | null;
     activeTier: TierDefinition | null;
     overId: string | null;
-    handleDragStart: (event: DragStartEvent) => void;
-    handleDragOver: (event: DragOverEvent) => void;
-    handleDragEnd: (event: DragEndEvent) => void;
-    handleDragCancel: () => void;
   };
   ui: {
     headerColors: string[];
@@ -143,16 +133,17 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   }, [historyRaw, state]);
 
   // --- Sub-Hooks Integration ---
-  const dndRaw = useTierListDnD(state, dispatch, push);
+
+  const dnd = useTierListDnD(state, dispatch, push);
   const structureRaw = useTierStructure(dispatch, push);
   const ioRaw = useTierListIO(state, dispatch, push);
-  const utilsRaw = useTierListUtils(state, dndRaw.activeTier?.id || null, dndRaw.overId);
+  const utilsRaw = useTierListUtils(state, null, null);
 
-  const { actions, dnd, ui, history } = useTierListNamespaces({
+  const { actions, ui, history } = useTierListNamespaces({
     state,
     dispatch,
     history: { undo, redo, push, canUndo: historyRaw.canUndo, canRedo: historyRaw.canRedo },
-    dndRaw,
+
     structureRaw,
     ioRaw,
     utilsRaw,
@@ -181,7 +172,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       ui,
       history,
     }),
-    [state, isHydrated, actions, dnd, ui, history, registerItem, ioRaw.handlePublish],
+    [state, isHydrated, actions, ui, history, registerItem, ioRaw.handlePublish, dnd],
   );
 
   return <TierListContext.Provider value={value}>{children}</TierListContext.Provider>;

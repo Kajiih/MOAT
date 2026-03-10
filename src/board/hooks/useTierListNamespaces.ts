@@ -34,16 +34,7 @@ interface UseTierListNamespacesProps {
     canRedo: boolean;
     push: () => void;
   };
-  dndRaw: {
-    sensors: SensorDescriptor<SensorOptions>[];
-    activeItem: Item | null;
-    activeTier: TierDefinition | null;
-    overId: string | null;
-    handleDragStart: (event: DragStartEvent) => void;
-    handleDragOver: (event: DragOverEvent) => void;
-    handleDragEnd: (event: DragEndEvent) => void;
-    handleDragCancel: () => void;
-  };
+
   structureRaw: {
     handleAddTier: () => void;
     handleUpdateTier: (id: string, updates: TierUpdate) => void;
@@ -74,6 +65,7 @@ interface UseTierListNamespacesProps {
  * @param props.state - The current tier list state.
  * @param props.dispatch - The dispatch function for tier list actions.
  * @param props.history - The history management functions.
+
  * @param props.dndRaw - Raw outputs from the drag and drop hook.
  * @param props.structureRaw - Raw outputs from the structure formatting hook.
  * @param props.ioRaw - Raw outputs from the import/export hook.
@@ -85,7 +77,7 @@ export function useTierListNamespaces({
   state,
   dispatch,
   history,
-  dndRaw,
+
   structureRaw,
   ioRaw,
   utilsRaw,
@@ -189,7 +181,6 @@ export function useTierListNamespaces({
 
   return {
     actions,
-    dnd: dndRaw,
     ui,
     history,
   };

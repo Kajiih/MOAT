@@ -1,4 +1,4 @@
-import { DndContext } from '@dnd-kit/core';
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -33,7 +33,7 @@ describe('TierBoard', () => {
     return render(
       <ToastProvider>
         <TierListProvider boardId="test-board">
-          <DndContext>{ui}</DndContext>
+          {ui}
         </TierListProvider>
       </ToastProvider>,
     );

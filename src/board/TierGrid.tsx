@@ -4,7 +4,7 @@
  * Handles performance for large tiers via virtualization.
  */
 
-import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+
 import { memo, ReactNode } from 'react';
 
 import { ItemCard } from '@/items/ItemCard';
@@ -79,9 +79,7 @@ export const TierGrid = memo(function TierGrid({
       {isExport ? (
         <>{cards}</>
       ) : (
-        <SortableContext id={tierId} items={items.map((a) => `board-${a.id}`)} strategy={rectSortingStrategy}>
-          {content}
-        </SortableContext>
+        content
       )}
 
       {items.length === 0 && isBoardEmpty && isMiddleTier && (
