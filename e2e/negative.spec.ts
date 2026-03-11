@@ -23,8 +23,8 @@ test.describe('Resilience and Failure Modes', () => {
     // Trigger a search
     await searchPanel.search('Fail Test');
 
-    // The app should not crash; it should display an error toast
-    const errorToast = page.getByText(/Search service is busy/i);
+    // The app should not crash; it should display an inline error message
+    const errorToast = page.getByText(/Service Unavailable/i);
     await expect(errorToast).toBeVisible();
 
     // App should still be functional (empty state should render instead of exploding)

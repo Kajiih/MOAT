@@ -18,16 +18,16 @@ export async function nativeDragAndDrop(
 ) {
   // Ensure both elements are visible before attempting math
   // Ensure visibility
-  await source.hover();
+  await source.hover({ force: true });
 
   await page.mouse.down();
 
   // Pragmatic Drag and Drop requires an explicit movement threshold to decouple from clicks
-  await source.hover({ position: { x: 5, y: 5 } });
+  await source.hover({ position: { x: 5, y: 5 }, force: true });
   await page.waitForTimeout(100);
 
   // Animate straight to target to give requestAnimationFrame hooks time to resolve DOM nodes
-  await target.hover({ position: options?.targetPosition });
+  await target.hover({ position: options?.targetPosition, force: true });
   await page.waitForTimeout(100);
 
   await page.mouse.up();

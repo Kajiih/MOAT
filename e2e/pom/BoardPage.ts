@@ -225,9 +225,9 @@ export class BoardPage {
     const sourceLabel = await this.tierLabels.nth(sourceIndex).textContent();
     
     const sourceHandle = this.tierDragHandles.nth(sourceIndex);
-    const targetHandle = this.tierDragHandles.nth(targetIndex);
+    const targetLabel = this.tierLabels.nth(targetIndex);
 
-    await nativeDragAndDrop(this.page, sourceHandle, targetHandle);
+    await nativeDragAndDrop(this.page, sourceHandle, targetLabel);
 
     // Verify final position using polling
     await expect
