@@ -21,7 +21,7 @@ test.describe('Dashboard and Multi-Board', () => {
     // 3. Add a tier (triggers auto-save/persistence)
     const initialTiers = await boardPage.tierLabels.count();
     await boardPage.addTier();
-    await expect(boardPage.tierLabels).toHaveCount(initialTiers + 1);
+    await boardPage.expectTierCount(initialTiers + 1);
 
     // 4. Wait for debounce/save to flush to IndexedDB
     // Idiomatic Playwright: directly await the underlying state change (IndexedDB write)

@@ -12,7 +12,7 @@ test.describe('Board Management', () => {
     // 1. Add
     const initialCount = await boardPage.tierLabels.count();
     await boardPage.addTier();
-    await expect(boardPage.tierLabels).toHaveCount(initialCount + 1);
+    await boardPage.expectTierCount(initialCount + 1);
 
     // 2. Rename the new tier (last one)
     await boardPage.renameTier('New Tier', 'New Awesome Tier');
@@ -26,15 +26,15 @@ test.describe('Board Management', () => {
 
     // 4. Delete
     await boardPage.deleteTier('New Awesome Tier');
-    await expect(boardPage.tierLabels).toHaveCount(initialCount);
+    await boardPage.expectTierCount(initialCount);
   });
 
   test('should randomize tier colors', async ({ page, boardPage }) => {
     await boardPage.goto();
 
     // 1. Capture initial colors of all tiers
+    await boardPage.expectTierCount(6);
     const tiers = page.locator('[data-tier-label] > div:first-child');
-    await expect(tiers).toHaveCount(6);
 
     const getColors = async () => {
       const all = await tiers.all();

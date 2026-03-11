@@ -10,7 +10,7 @@ test.describe('Accessibility Requirements', () => {
     await boardPage.goto();
     // Use an explicit wait to ensure the board is fully hydrated and rendered
     await expect(page.getByLabel('Tier List Title')).toBeVisible();
-    await expect(page.getByTestId('tier-row-label')).toHaveCount(6);
+    await boardPage.expectTierCount(6);
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .disableRules(['color-contrast', 'region', 'page-has-heading-one'])

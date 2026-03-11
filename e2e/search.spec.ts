@@ -65,7 +65,7 @@ test.describe('Search Functionality', () => {
     const boardCard = page.locator('[data-tier-label="S"]').getByTestId('item-card-rawg:game:duplicate-1');
     await expect(boardCard).toBeVisible({ timeout: 10_000 });
     // Verify it's actually in the tier, not just testing the drag overlay
-    await expect(page.locator('[data-tier-label="S"]').getByTestId(/^item-card-/)).toHaveCount(1);
+    await boardPage.expectTierToHaveItemCount('S', 1);
 
     // dnd-kit globally suppresses click events for a few hundred milliseconds after a
     // drag operation completes (to prevent ghost clicks).

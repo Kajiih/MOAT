@@ -15,7 +15,7 @@ test.describe('General Board Actions', () => {
     const uniqueTitle = `Persist Test ${Date.now()}`;
     await boardPage.setBoardTitle(uniqueTitle);
     await boardPage.addTier();
-    await expect(boardPage.tierLabels).toHaveCount(7);
+    await boardPage.expectTierCount(7);
 
     // Get the dynamic board ID from the URL reliably
     const boardId = page.url().split('/').findLast(Boolean);
@@ -38,6 +38,6 @@ test.describe('General Board Actions', () => {
     await expect(boardPage.titleInput).toBeVisible();
 
     await expect(boardPage.titleInput).toHaveValue(uniqueTitle);
-    await expect(boardPage.tierLabels).toHaveCount(7);
+    await boardPage.expectTierCount(7);
   });
 });

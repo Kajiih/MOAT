@@ -120,9 +120,6 @@ export class BoardPage {
     // eslint-disable-next-line playwright/no-force-option
     await this.clearBoardButton.click({ force: true });
     
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(500);
-    
     // Give Redux slightly more time to dispatch the layout changes
     await expect(this.getTierRow('S')).toBeHidden({ timeout: 5000 });
   }
@@ -192,6 +189,26 @@ export class BoardPage {
     const fullId = itemId.includes(':') ? itemId : `rawg:game:${itemId}`;
     const card = tierRow.getByTestId(`item-card-${fullId}`);
     await expect(card).toBeHidden();
+  }
+
+  /**
+   * Semantically asserts the total number of tier rows currently existing on the board.
+   * @param expectedCount - The expected number of tiers.
+   */
+  async expectTierCount(expectedCount: number) {
+    await expect(this.tierLabels).toHaveCount(expectedCount);
+  }
+
+  /**
+   * Semantically asserts the total number of items contained within a specific tier.
+   * @param tierLabel - The label of the targeted tier.
+   * @param expectedCount - The expected number of items.
+   * @param options - Optional assertions, such as timeouts for layout hydration.
+   */
+  async expectTierToHaveItemCount(tierLabel: string, expectedCount: number, options?: { timeout?: number }) {
+    const tierRow = this.getTierRow(tierLabel);
+    const itemCards = tierRow.getByTestId(/^item-card-/);
+    await expect(itemCards).toHaveCount(expectedCount, options);
   }
 
   /**

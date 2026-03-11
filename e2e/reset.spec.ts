@@ -34,25 +34,25 @@ test.describe('Board Reset and Clear Actions', () => {
     }
 
     // Wait for full board layout hydration
-    await expect(boardPage.tierRows.getByTestId(/item-card-/)).toHaveCount(3, { timeout: 15_000 });
+    await boardPage.expectTierToHaveItemCount('S', 3, { timeout: 15_000 });
   });
 
   test('should reset all items to unranked', async ({ boardPage }) => {
     // Initial state: all 3 in S
-    await expect(boardPage.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(3);
+    await boardPage.expectTierToHaveItemCount('S', 3);
 
     // Reset items
     await boardPage.resetItems();
 
     // Verify all tiers except Unranked are empty
-    await expect(boardPage.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('A').getByTestId(/item-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('B').getByTestId(/item-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('C').getByTestId(/item-card-/)).toHaveCount(0);
-    await expect(boardPage.getTierRow('D').getByTestId(/item-card-/)).toHaveCount(0);
+    await boardPage.expectTierToHaveItemCount('S', 0);
+    await boardPage.expectTierToHaveItemCount('A', 0);
+    await boardPage.expectTierToHaveItemCount('B', 0);
+    await boardPage.expectTierToHaveItemCount('C', 0);
+    await boardPage.expectTierToHaveItemCount('D', 0);
 
     // Verify Unranked has all 3 items
-    await expect(boardPage.getTierRow('Unranked').getByTestId(/item-card-/)).toHaveCount(3);
+    await boardPage.expectTierToHaveItemCount('Unranked', 3);
 
     // Verify items still exist in lookup/UI
     await expect(boardPage.getItemCard('item-1')).toBeVisible();
@@ -63,16 +63,16 @@ test.describe('Board Reset and Clear Actions', () => {
   // Marked as skip because Playwright natively deadlocks on Radix Dropdowns + window.confirm() modals in certain headless configurations.
   test.skip('should clear the entire board (all items gone)', async ({ boardPage }) => {
     // Initial state: items present
-    await expect(boardPage.tierRows.getByTestId(/item-card-/)).toHaveCount(3);
+    await boardPage.expectTierToHaveItemCount('S', 3);
 
     // Clear board
     await boardPage.clearBoard();
 
     // Verify EVERYTHING is gone
-    await expect(boardPage.tierRows.getByTestId(/item-card-/)).toHaveCount(0);
+    await boardPage.expectTierToHaveItemCount('S', 0); // and all other tiers should be 0
 
     // Verify tiers are reset to default count (6)
-    await expect(boardPage.tierLabels).toHaveCount(6);
+    await boardPage.expectTierCount(6);
     await expect(boardPage.tierLabels.first()).toHaveText('S');
   });
 
@@ -80,17 +80,15 @@ test.describe('Board Reset and Clear Actions', () => {
   test.skip('should support undo for reset items', async ({ boardPage }) => {
     // Initial state
     await boardPage.resetItems();
-    await expect(boardPage.getTierRow('Unranked').getByTestId(/item-card-/)).toHaveCount(3);
+    await boardPage.expectTierToHaveItemCount('Unranked', 3);
 
     // Undo - Use only one shortcut to avoid double-undoing
     // We use Control+z which is handled for both Meta and Ctrl in our app code
     await boardPage.page.keyboard.press('Control+z');
 
     // Verify state is restored to 3 items in S
-    await expect(boardPage.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(3, {
-      timeout: 15_000,
-    });
+    await boardPage.expectTierToHaveItemCount('S', 3, { timeout: 15_000 });
     // And consequently 0 in Unranked
-    await expect(boardPage.getTierRow('Unranked').getByTestId(/item-card-/)).toHaveCount(0);
+    await boardPage.expectTierToHaveItemCount('Unranked', 0);
   });
 });
