@@ -161,6 +161,40 @@ export class BoardPage {
   }
 
   /**
+   * Semantically deletes an item from the board using the global hotkey 'x'.
+   * @param itemId - The ID of the item to delete.
+   */
+  async deleteItem(itemId: string) {
+    const card = this.getItemCard(itemId).first();
+    await card.hover();
+    await this.page.keyboard.press('x');
+  }
+
+  /**
+   * Asserts that an item exists within a specific tier.
+   * @param itemId - The ID of the item.
+   * @param tierLabel - The label of the tier.
+   */
+  async expectItemInTier(itemId: string, tierLabel: string) {
+    const tierRow = this.getTierRow(tierLabel);
+    const fullId = itemId.includes(':') ? itemId : `rawg:game:${itemId}`;
+    const card = tierRow.getByTestId(`item-card-${fullId}`);
+    await expect(card).toBeVisible();
+  }
+
+  /**
+   * Asserts that an item does not exist within a specific tier.
+   * @param itemId - The ID of the item.
+   * @param tierLabel - The label of the tier.
+   */
+  async expectItemNotInTier(itemId: string, tierLabel: string) {
+    const tierRow = this.getTierRow(tierLabel);
+    const fullId = itemId.includes(':') ? itemId : `rawg:game:${itemId}`;
+    const card = tierRow.getByTestId(`item-card-${fullId}`);
+    await expect(card).toBeHidden();
+  }
+
+  /**
    * Renames a tier.
    * @param oldLabel - Current label.
    * @param newLabel - New label.
@@ -204,16 +238,59 @@ export class BoardPage {
   }
 
   /**
-   * Moves an item from its current position to a specific tier's drop zone.
-   * @param itemId - The ID of the item to move.
+   * Semantically moves an item to the absolute beginning of a tier.
+   * @param itemId - The ID of the item being moved.
    * @param targetTierLabel - The label of the destination tier.
    */
-  async moveItemToTier(itemId: string, targetTierLabel: string) {
-    const card = this.getItemCard(itemId);
-    const targetTier = this.getTierRow(targetTierLabel);
-    const dropZone = targetTier.getByTestId('tier-drop-zone');
+  async moveItemToStartOfTier(itemId: string, targetTierLabel: string) {
+    const tierRow = this.getTierRow(targetTierLabel);
+    const cards = tierRow.getByTestId(/^item-card-/);
+    
+    // We exclude the item we are currently moving in case it is already in this tier
+    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+    const otherCards = cards.filter({ hasNot: this.page.locator(`[data-testid*="${searchToken}"]`) });
+    
+    const count = await otherCards.count();
+    
+    if (count === 0) {
+      // Tier is empty, just drop it in the generic zone
+      const card = this.getItemCard(itemId);
+      const dropZone = tierRow.getByTestId('tier-drop-zone');
+      await nativeDragAndDrop(this.page, card.first(), dropZone);
+    } else {
+      // Drop it before the first existing item
+      const firstCardIdStr = await otherCards.first().getAttribute('data-testid');
+      const match = firstCardIdStr?.match(/item-card-(.+)$/);
+      if (!match) throw new Error('Could not extract neighbor ID');
+      await this.moveItemBeforeItem(itemId, match[1]);
+    }
+  }
 
-    await nativeDragAndDrop(this.page, card.first(), dropZone);
+  /**
+   * Semantically moves an item to the absolute end of a tier.
+   * @param itemId - The ID of the item being moved.
+   * @param targetTierLabel - The label of the destination tier.
+   */
+  async moveItemToEndOfTier(itemId: string, targetTierLabel: string) {
+    const tierRow = this.getTierRow(targetTierLabel);
+    const cards = tierRow.getByTestId(/^item-card-/);
+    
+    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+    const otherCards = cards.filter({ hasNot: this.page.locator(`[data-testid*="${searchToken}"]`) });
+    
+    const count = await otherCards.count();
+    
+    if (count === 0) {
+      const card = this.getItemCard(itemId);
+      const dropZone = tierRow.getByTestId('tier-drop-zone');
+      await nativeDragAndDrop(this.page, card.first(), dropZone);
+    } else {
+      // Drop it after the last existing item
+      const lastCardIdStr = await otherCards.last().getAttribute('data-testid');
+      const match = lastCardIdStr?.match(/item-card-(.+)$/);
+      if (!match) throw new Error('Could not extract neighbor ID');
+      await this.moveItemAfterItem(itemId, match[1]);
+    }
   }
 
   /**

@@ -65,15 +65,14 @@ test.describe('Item Management', () => {
     await boardPage.shiftItemRight('item-2');
     await expect(cards.nth(1)).toContainText('Second Item');
 
-    // 3. Move from S to A
-    await boardPage.moveItemToTier('item-1', 'A');
-    await expect(tierA).toContainText('First Item');
-    await expect(tierS).not.toContainText('First Item');
+    // 3. Move from S to A using edge semantics
+    await boardPage.moveItemToStartOfTier('item-1', 'A');
+    await boardPage.expectItemInTier('item-1', 'A');
+    await boardPage.expectItemNotInTier('item-1', 'S');
 
-    // 4. Remove
-    await card1.click();
-    await page.keyboard.press('x');
-    await expect(card1).toBeHidden();
+    // 4. Semantically Remove
+    await boardPage.deleteItem('item-1');
+    await boardPage.expectItemNotInTier('item-1', 'A');
   });
 
   test('should handle personal notes', async ({ page, boardPage }) => {
