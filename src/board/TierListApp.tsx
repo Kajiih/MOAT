@@ -239,7 +239,7 @@ export default function TierListApp() {
 
   return (
     <div className="relative flex min-h-screen flex-col font-sans text-neutral-200">
-      <InteractionContext.Provider value={{ hoveredItem: null, setHoveredItem }}>
+      <InteractionContext.Provider value={{ hoveredItem, setHoveredItem }}>
         <main className="flex-1 p-8 pb-0">
           <div className="mx-auto max-w-[1600px]">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />

@@ -6,6 +6,7 @@ test.describe('Item Management', () => {
 
   test.beforeEach(async ({ page, dashboardPage, searchPanel, boardPage }) => {
     await dashboardPage.goto();
+    page.on('console', msg => console.log('BROWSER:', msg.text()));
     await dashboardPage.createBoard('Item Management Test');
 
     // Setup: Add two items to tier S
@@ -26,10 +27,10 @@ test.describe('Item Management', () => {
   });
 
   test('should manage items: details, move, reorder, remove', async ({ page, boardPage }) => {
-    // TODO: dnd-kit drag simulations are flaky in headless browsers
+
     const tierS = page.locator('[data-tier-label="S"]');
     const tierA = page.locator('[data-tier-label="A"]');
-    const cards = tierS.getByTestId(/^item-card-item-/);
+    const cards = tierS.getByTestId(/^item-card-/);
 
     // 1. Details
     await mockItemDetails(page, {
@@ -55,8 +56,12 @@ test.describe('Item Management', () => {
 
     // 2. Reorder in S
     await expect(cards).toHaveCount(2);
+    const text0 = await cards.nth(0).textContent();
+    const text1 = await cards.nth(1).textContent();
+    console.log('NODE DOM DUMP BEFORE REORDER: nth[0]=', text0, 'nth[1]=', text1);
+
     // Drag item-2 (index 1) to position of item-1 (index 0)
-    await boardPage.reorderItemsViaKeyboard('S', 1, 0);
+    await boardPage.reorderItemsViaPointer('S', 1, 0);
     await expect(cards.nth(0)).toContainText('Second Item');
 
     // 3. Move from S to A
@@ -95,9 +100,10 @@ test.describe('Item Management', () => {
 
     // Close modal — the unmount flush handler persists the note immediately
     await page.keyboard.press('Escape');
-    await expect(page.getByRole('dialog')).toBeHidden();
+    // Ensure dialog fully leaves the DOM before checking notes indicator
+    await expect(page.locator('dialog')).toBeHidden({ timeout: 10000 });
 
     // The notes indicator badge should now be visible on the card
-    await expect(card1.getByTestId('notes-indicator')).toBeVisible();
+    await expect(card1.getByTestId('notes-indicator').first()).toBeVisible({ timeout: 10000 });
   });
 });

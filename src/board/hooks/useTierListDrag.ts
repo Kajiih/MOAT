@@ -4,6 +4,7 @@
  */
 
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { useEffect, useState } from 'react';
 
 import { ActionType, TierListAction } from '@/board/state/actions';
@@ -31,7 +32,8 @@ export function useTierListDrag(
   useEffect(() => {
     return monitorForElements({
       onDragStart({ source }) {
-        const { type } = source.data;
+        const { type, item } = source.data;
+        console.log('BROWSER: BROWSER: onDragStart triggered for', type, 'activeId:', item ? (item as Item).id : 'N/A');
         if (type === 'item') {
           setActiveItem(source.data.item as Item);
         } else if (type === 'tier') {
@@ -57,21 +59,20 @@ export function useTierListDrag(
         setOverId(null);
 
         if (!location.current.dropTargets.length) {
+          console.log('BROWSER: onDrop fired but dropped NOWHERE (0 dropTargets)');
           return; // Dropped nowhere
         }
 
         const dropTarget = location.current.dropTargets[0];
+        console.log('BROWSER: onDrop fired into dropTarget data', JSON.stringify(dropTarget.data));
         const { type: targetType, tierId, item: targetItem } = dropTarget.data;
         const finalTargetId = targetType === 'item' ? (targetItem as Item).id : (tierId as string);
 
         if (source.data.type === 'item') {
           const item = source.data.item as Item;
           
-          let activeId = item.id;
-          if (source.data.tierId === undefined) {
-             // Came from search
-             activeId = `search-${item.id}`;
-          }
+          const activeId = item.id;
+          const edge = extractClosestEdge(dropTarget.data);
 
           pushHistory();
           dispatch({
@@ -80,6 +81,7 @@ export function useTierListDrag(
               activeId,
               overId: finalTargetId,
               activeItem: item,
+              edge,
             },
           });
         } else if (source.data.type === 'tier') {
@@ -89,7 +91,7 @@ export function useTierListDrag(
            if (sourceTier.id !== targetTierId) {
              pushHistory();
              dispatch({
-               type: ActionType.MOVE_TIER,
+               type: ActionType.REORDER_TIERS,
                payload: {
                  activeId: sourceTier.id,
                  overId: finalTargetId,

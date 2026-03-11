@@ -42,25 +42,6 @@ export function handleAddTier(state: TierListState): TierListState {
   };
 }
 
-/**
- * Handles reordering tiers in the board definition.
- * @param state - Current tier list state.
- * @param payload - Action payload.
- * @param payload.oldIndex - Original array index.
- * @param payload.newIndex - Destination array index.
- * @returns Updated state with reordered tiers.
- */
-export function handleReorderTiers(
-  state: TierListState,
-  payload: { oldIndex: number; newIndex: number },
-): TierListState {
-  const { oldIndex, newIndex } = payload;
-  if (oldIndex === newIndex) return state;
-  return {
-    ...state,
-    tierDefs: arrayMove(state.tierDefs, oldIndex, newIndex),
-  };
-}
 
 /**
  * Deletes a tier and optionally migrates its items to a fallback tier.
@@ -123,8 +104,11 @@ export function tierReducer(state: TierListState, action: TierListAction): TierL
     }
 
     case ActionType.REORDER_TIERS: {
-      const { oldIndex, newIndex } = action.payload;
-      if (oldIndex === newIndex) return state;
+      const { activeId, overId } = action.payload;
+      const oldIndex = state.tierDefs.findIndex(t => t.id === activeId);
+      const newIndex = state.tierDefs.findIndex(t => t.id === overId);
+      
+      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return state;
       return {
         ...state,
         tierDefs: arrayMove(state.tierDefs, oldIndex, newIndex),

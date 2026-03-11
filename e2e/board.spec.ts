@@ -21,7 +21,7 @@ test.describe('Board Management', () => {
     // 3. Reorder: move the new tier up ONE spot for better stability
     const newIndex = (await boardPage.tierLabels.count()) - 1;
     const targetIndex = newIndex - 1;
-    await boardPage.reorderTiersViaKeyboard(newIndex, targetIndex);
+    await boardPage.reorderTiersViaPointer(newIndex, targetIndex);
     await expect(boardPage.tierLabels.nth(targetIndex)).toHaveText('New Awesome Tier');
 
     // 4. Delete
@@ -108,7 +108,7 @@ test.describe('Board Management', () => {
     // Reorder second tier to the top (this should trigger a branding update)
     const secondLabel = await boardPage.tierLabels.nth(1).textContent();
     expect(secondLabel).not.toBeNull();
-    await boardPage.reorderTiersViaKeyboard(1, 0);
+    await boardPage.reorderTiersViaPointer(1, 0);
 
     // Verify reorder happened
     await expect(boardPage.tierLabels.first()).toHaveText(secondLabel!);

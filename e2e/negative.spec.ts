@@ -12,7 +12,7 @@ test.describe('Resilience and Failure Modes', () => {
     await boardPage.goto();
 
     // Route search API to simulate a 503 Service Unavailable (MusicBrainz rate limit)
-    await page.route('**/api/v2/search*', async (route) => {
+    await page.route('**/api/search*', async (route) => {
       await route.fulfill({
         status: 503,
         contentType: 'application/json',
@@ -49,7 +49,7 @@ test.describe('Resilience and Failure Modes', () => {
 
     // Mock the details route to fail with 404 BEFORE dragging
     // Otherwise `useLegacyBackgroundEnrichment` will attempt to fetch the real API immediately on drop
-    await page.route('**/api/v2/details*', async (route) => {
+    await page.route('**/api/details*', async (route) => {
       await route.fulfill({ status: 404, body: 'Not found' });
     });
 

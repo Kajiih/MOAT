@@ -7,12 +7,14 @@
 
 'use client';
 
+import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Info, X } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { Item } from '@/items/items';
 import { registry } from '@/providers/registry';
+import { InteractionContext } from '@/lib/ui/InteractionContext';
 
 import { ItemImage } from './ItemImage';
 
@@ -80,6 +82,9 @@ export function ItemCard({
   const ref = useRef<HTMLDivElement>(null);
   const [isDraggingLocal, setIsDraggingLocal] = useState(false);
   const [isOverLocal, setIsOverLocal] = useState(false);
+  
+  const interactionContext = useContext(InteractionContext);
+  const setHoveredItem = interactionContext?.setHoveredItem;
 
   useEffect(() => {
     const el = ref.current;
@@ -94,7 +99,14 @@ export function ItemCard({
 
     const cleanupDropTarget = dropTargetForElements({
       element: el,
-      getData: () => ({ type: 'item', item, tierId }),
+      getData: ({ input }) => {
+        const baseData = { type: 'item', item, tierId };
+        return attachClosestEdge(baseData, {
+          element: el,
+          input,
+          allowedEdges: ['left', 'right'],
+        });
+      },
       onDragEnter: () => setIsOverLocal(true),
       onDragLeave: () => setIsOverLocal(false),
       onDrop: () => setIsOverLocal(false),
@@ -116,6 +128,11 @@ export function ItemCard({
   return (
     <div
       ref={ref}
+      tabIndex={0}
+      onMouseEnter={() => setHoveredItem?.(item)}
+      onMouseLeave={() => setHoveredItem?.(null)}
+      onFocus={() => setHoveredItem?.(item)}
+      onBlur={() => setHoveredItem?.(null)}
       style={style}
       data-testid={`item-card-${item.id}`}
       className={`group relative transition-all duration-200 hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
@@ -149,6 +166,17 @@ export function ItemCard({
             </p>
           )}
         </div>
+        
+        {/* Notes Indicator */}
+        {item.notes && (
+          <div
+            data-testid="notes-indicator"
+            className="absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
+            title="Contains personal notes"
+          >
+            <div className="h-1.5 w-1.5 rounded-full bg-current" />
+          </div>
+        )}
       </div>
 
       {/* 3. Actions (Visible on Hover) */}

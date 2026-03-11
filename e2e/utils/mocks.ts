@@ -54,7 +54,7 @@ export async function mockSearchResults(
 ) {
   const { page: pageNum = 1, totalPages = 1, totalCount = items.length } = options;
 
-  await page.route('**/api/v2/search*', async (route) => {
+  await page.route('**/api/search*', async (route) => {
     const normalised = items.map((item) => {
       const databaseId = 'rawg';
       const entityId = 'game';
@@ -111,7 +111,7 @@ export async function mockItemDetails(page: Page, detail: MockItemDetail) {
     identity,
   };
 
-  await page.route('**/api/v2/details*', async (route) => {
+  await page.route('**/api/details*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -130,7 +130,7 @@ export async function mockSearchDynamic(
   page: Page,
   handler: (url: URL) => Record<string, unknown>,
 ) {
-  await page.route('**/api/v2/search*', async (route) => {
+  await page.route('**/api/search*', async (route) => {
     const url = new URL(route.request().url());
     const body = handler(url) as Record<string, unknown>;
 
