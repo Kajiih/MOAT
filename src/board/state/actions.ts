@@ -7,6 +7,7 @@
 
 import { Item, TierId, TierListState, TierUpdate } from '@/board/types';
 import { ItemUpdate } from '@/items/items';
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.
@@ -53,7 +54,7 @@ export type TierListAction =
       type: ActionType.UPDATE_TIER;
       payload: { id: string | TierId; updates: TierUpdate };
     }
-  | { type: ActionType.REORDER_TIERS; payload: { oldIndex: number; newIndex: number } }
+  | { type: ActionType.REORDER_TIERS; payload: { activeId: string | TierId; overId: string | TierId } }
   | {
       type: ActionType.MOVE_ITEM;
       payload: {
@@ -62,6 +63,7 @@ export type TierListAction =
         activeTierId?: string | TierId;
         overTierId?: string | TierId;
         activeItem?: Item;
+        edge?: Edge | null;
       };
     }
   | { type: ActionType.UPDATE_ITEM; payload: { itemId: string; updates: ItemUpdate } }

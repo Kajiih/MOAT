@@ -1,6 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-
-import { manualDragAndDrop } from '../utils/mouse';
+import { nativeDragAndDrop } from '../utils/drag';
 
 export class BoardPage {
   readonly page: Page;
@@ -214,139 +213,73 @@ export class BoardPage {
     const targetTier = this.getTierRow(targetTierLabel);
     const dropZone = targetTier.getByTestId('tier-drop-zone');
 
-    await manualDragAndDrop(this.page, card.first(), dropZone);
-
-    // After manual drag, wait for the clone overlay to vanish
-    const fullId = itemId.includes(':') ? itemId : `rawg:game:${itemId}`;
-    await expect(this.page.getByTestId(`item-card-${fullId}`)).toHaveCount(1, { timeout: 5000 });
+    await nativeDragAndDrop(this.page, card.first(), dropZone);
   }
 
   /**
-   * Reorders tiers using keyboard shortcuts (Space, ArrowUp/Down, Space).
+   * Reorders tiers using native drag and drop.
    * @param sourceIndex - Original index of the tier.
    * @param targetIndex - Destination index of the tier.
    */
-  async reorderTiersViaKeyboard(sourceIndex: number, targetIndex: number) {
-    // Get the label of the tier we're moving for verification
-    const tierLabel = await this.tierLabels.nth(sourceIndex).textContent();
+  async reorderTiersViaPointer(sourceIndex: number, targetIndex: number) {
+    const sourceLabel = await this.tierLabels.nth(sourceIndex).textContent();
+    
+    const sourceHandle = this.tierDragHandles.nth(sourceIndex);
+    const targetHandle = this.tierDragHandles.nth(targetIndex);
 
-    // Use positional index to acquire the handle before drag starts.
-    // We can't use `getTierRow(label).getByTestId(...)` because dnd-kit's drag overlay
-    // duplicates the entire tier row (including data-tier-label), causing strict mode violations mid-drag.
-    const handle = this.tierDragHandles.nth(sourceIndex);
-    await handle.focus();
-    await expect(handle).toBeFocused();
+    await nativeDragAndDrop(this.page, sourceHandle, targetHandle);
 
-    await this.page.keyboard.press(' '); // Start drag
-
-    // Wait for dnd-kit accessibility state to reflect dragging
-    await expect(handle).toHaveAttribute('aria-pressed', 'true');
-    // dnd-kit uses requestAnimationFrame for layout measuring before accepting move commands
-    await this.page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)));
-
-    const steps = Math.abs(sourceIndex - targetIndex);
-    const key = targetIndex < sourceIndex ? 'ArrowUp' : 'ArrowDown';
-
-    for (let i = 0; i < steps; i++) {
-      const prevBox = await handle.boundingBox();
-      await this.page.keyboard.press(key);
-
-      // dnd-kit doesn't reorder the DOM until drop — it only applies CSS transforms mid-drag.
-      // Poll until the handle's visual position changes, confirming the keyboard event was processed.
-      await expect
-        .poll(
-          async () => {
-            const currBox = await handle.boundingBox();
-            return prevBox && currBox && (currBox.y !== prevBox.y || currBox.x !== prevBox.x);
-          },
-          {
-            message: 'wait for tier list UI to reflect keyboard move',
-            timeout: 1000,
-          },
-        )
-        .toBeTruthy();
-    }
-
-    await this.page.keyboard.press(' '); // End drag
-
-    // Wait for drag to end
-    await expect(handle).not.toHaveAttribute('aria-pressed', 'true');
-
-    // Verify final position using polling instead of fixed timeout
+    // Verify final position using polling
     await expect
       .poll(async () => {
         const labels = await this.getTierLabels();
         return labels[targetIndex];
       })
-      .toBe(tierLabel);
-
-    // Ensure the drag overlay has fully unmounted to prevent strict mode violations later
-    await expect(this.page.locator(`[data-tier-label="${tierLabel}"]`)).toHaveCount(1);
+      .toBe(sourceLabel);
   }
 
   /**
-   * Reorders items within a tier using keyboard shortcuts.
+   * Reorders items within a tier using native drag and drop.
    * @param tierLabel - Label of the tier.
    * @param sourceIndex - Original index of the item.
    * @param targetIndex - Destination index of the item.
    */
-  async reorderItemsViaKeyboard(tierLabel: string, sourceIndex: number, targetIndex: number) {
+  async reorderItemsViaPointer(tierLabel: string, sourceIndex: number, targetIndex: number) {
     const tierRow = this.getTierRow(tierLabel);
-    const cards = tierRow.getByTestId(/^item-card-item-/);
-    const sourceCard = cards.nth(sourceIndex);
+    const cards = tierRow.getByTestId(/^item-card-/);
+    
+    // We must wait for the cards to be attached
+    await expect(cards.nth(sourceIndex)).toBeVisible();
+    await expect(cards.nth(targetIndex)).toBeVisible();
 
-    await sourceCard.focus();
-    // Wait for focus to settle
-    await expect(sourceCard).toBeFocused();
-
+    const sourceCard = cards.nth(sourceIndex).first();
+    const targetCard = cards.nth(targetIndex).first();
     const sourceText = await sourceCard.textContent();
 
-    await this.page.keyboard.press(' '); // Start drag
+    const box = await targetCard.boundingBox();
+    const sourceBox = await sourceCard.boundingBox();
+    if (!box || !sourceBox) throw new Error('Could not get target bounding box during reorder');
 
-    // Instead of aria-pressed, we check for the placeholder class because dnd-kit replaces the element
-    await expect(sourceCard).toHaveClass(/border-dashed/);
+    console.log(`Reorder DOM BoundingBoxes: item[${sourceIndex}] =`, sourceBox, `item[${targetIndex}] =`, box);
 
-    const steps = Math.abs(sourceIndex - targetIndex);
-    const key = targetIndex < sourceIndex ? 'ArrowLeft' : 'ArrowRight';
+    // If moving backward (1 to 0), aim for the left edge.
+    // If moving forward (0 to 1), aim for the right edge.
+    const isMovingBackwards = sourceIndex > targetIndex;
+    const targetPos = isMovingBackwards
+      ? { x: 5, y: box.height / 2 }
+      : { x: box.width - 5, y: box.height / 2 };
 
-    for (let i = 0; i < steps; i++) {
-      const getCardTexts = async () => {
-        const currentCards = tierRow.getByTestId(/^item-card-item-/);
-        return await currentCards.allTextContents();
-      };
+    await nativeDragAndDrop(this.page, sourceCard, targetCard, {
+      targetPosition: targetPos,
+    });
 
-      const currentTexts = await getCardTexts();
-      await this.page.keyboard.press(key);
-
-      // Wait for SortableContext to restructure the card array in the DOM
-      await expect
-        .poll(
-          async () => {
-            const afterTexts = await getCardTexts();
-            return JSON.stringify(currentTexts) !== JSON.stringify(afterTexts);
-          },
-          {
-            message: 'wait for horizontal grid to reflect keyboard move',
-            timeout: 1000,
-          },
-        )
-        .toBeTruthy();
-    }
-
-    await this.page.keyboard.press(' '); // End drag
-    await expect(sourceCard).not.toHaveClass(/border-dashed/);
-
-    // Verify final position
+    // Verify final position using async polling mechanism
     await expect
       .poll(async () => {
-        const updatedCards = tierRow.getByTestId(/^item-card-item-/);
-        return await updatedCards.nth(targetIndex).textContent();
+        // As a safeguard we look for the exact test id format with no trailing clone id.
+        const currentTarget = tierRow.locator(`[data-testid^="item-card-"]`).nth(targetIndex);
+        return await currentTarget.textContent();
       })
       .toContain(sourceText);
-
-    // Ensure the drag overlay has fully unmounted to prevent strict mode violations later
-    await expect(
-      this.page.getByTestId(/^item-card-item-/).filter({ hasText: sourceText || '' }),
-    ).toHaveCount(1);
   }
 }

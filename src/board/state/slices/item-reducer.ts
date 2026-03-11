@@ -25,11 +25,11 @@ const findContainer = (id: string, state: TierListState): string | undefined => 
 
 function handleMoveFromSearch(
   state: TierListState,
-  activeId: string,
-  overId: string,
+  payload: MoveItemPayload,
   overContainer: string,
-  draggingItemFromSearch: Item,
 ): TierListState {
+  const { activeId, overId, activeItem: draggingItemFromSearch, edge } = payload;
+  if (!draggingItemFromSearch) return state;
   const overLayout = state.tierLayout[overContainer] || [];
   const overIndex = overLayout.indexOf(overId);
 
@@ -38,8 +38,17 @@ function handleMoveFromSearch(
   if (overId in state.tierLayout) {
     newIndex = overLayout.length;
   } else {
-    // Else insert before/after the target item
+    // Determine edge placement around target item
     newIndex = overIndex !== -1 ? overIndex : overLayout.length;
+    
+    // Apply strict PRDnD edge index adjustments if available
+    if (overIndex !== -1) {
+       if (edge === 'right' || edge === 'bottom') {
+         newIndex = overIndex + 1;
+       } else if (edge === 'left' || edge === 'top') {
+         newIndex = overIndex;
+       }
+    }
   }
 
   // Already exists somewhere? Abort.
@@ -64,42 +73,72 @@ function handleMoveFromSearch(
 
 function handleSortInContainer(
   state: TierListState,
-  activeId: string,
-  overId: string,
+  payload: MoveItemPayload,
   container: string,
 ): TierListState {
+  const { activeId, overId, edge } = payload;
   const activeLayout = state.tierLayout[container] || [];
   const activeIndex = activeLayout.indexOf(activeId);
   const overIndex = activeLayout.indexOf(overId);
 
-  if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
-    return {
-      ...state,
-      tierLayout: {
-        ...state.tierLayout,
-        [container]: arrayMove(activeLayout, activeIndex, overIndex),
-      },
-    };
+  if (activeIndex === -1 || overIndex === -1 || activeIndex === overIndex) {
+    return state;
   }
-  return state;
+
+  // Find exact DOM edge (Pragmatic Drag and Drop Hitboxes)
+  let finalDropIndex = overIndex;
+
+  if (edge) {
+    if (edge === 'right' || edge === 'bottom') {
+      finalDropIndex = activeIndex < overIndex ? overIndex : overIndex + 1;
+    } else if (edge === 'left' || edge === 'top') {
+      finalDropIndex = activeIndex > overIndex ? overIndex : Math.max(0, overIndex - 1);
+    }
+  } else {
+    // Default fallback to old behavior (should be rare with hitboxes)
+    finalDropIndex = activeIndex < overIndex ? Math.max(0, overIndex - 1) : overIndex;
+  }
+
+  if (finalDropIndex === activeIndex) {
+    return state;
+  }
+
+  return {
+    ...state,
+    tierLayout: {
+      ...state.tierLayout,
+      [container]: arrayMove(activeLayout, activeIndex, finalDropIndex),
+    },
+  };
 }
 
 function handleMoveBetweenContainers(
   state: TierListState,
-  activeId: string,
-  overId: string,
+  payload: MoveItemPayload,
   activeContainer: string,
   overContainer: string,
 ): TierListState {
+  const { activeId, overId, edge } = payload;
   const activeLayout = state.tierLayout[activeContainer] || [];
   const overLayout = state.tierLayout[overContainer] || [];
   const overIndex = overLayout.indexOf(overId);
 
   let newIndex;
+  // If moving directly onto the container itself, append
   if (overId in state.tierLayout) {
     newIndex = overLayout.length;
   } else {
+    // Determine edge placement around target item
     newIndex = overIndex !== -1 ? overIndex : overLayout.length;
+    
+    // Apply strict PRDnD edge index adjustments if available
+    if (overIndex !== -1) {
+       if (edge === 'right' || edge === 'bottom') {
+         newIndex = overIndex + 1;
+       } else if (edge === 'left' || edge === 'top') {
+         newIndex = overIndex;
+       }
+    }
   }
 
   return {
@@ -133,15 +172,14 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
 
   // Case 1: Dragging from Search (New Item)
   if (!activeContainer) {
-    if (!draggingItemFromSearch) return state;
-    return handleMoveFromSearch(state, activeId, overId, overContainer, draggingItemFromSearch);
+    return handleMoveFromSearch(state, payload, overContainer);
   }
 
   // Case 2: Sorting within same container
   if (activeContainer === overContainer) {
     // Optimization: If overId is the container ID itself and item is already in it, skip
     if (overId === overContainer) return state;
-    return handleSortInContainer(state, activeId, overId, activeContainer);
+    return handleSortInContainer(state, payload, activeContainer);
   }
 
   // Case 3: Moving between tiers
@@ -151,7 +189,7 @@ export function handleMoveItem(state: TierListState, payload: MoveItemPayload): 
     activeContainer !== overContainer && state.tierLayout[overContainer]?.includes(activeId);
   if (isAlreadyAtTarget) return state;
 
-  return handleMoveBetweenContainers(state, activeId, overId, activeContainer, overContainer);
+  return handleMoveBetweenContainers(state, payload, activeContainer, overContainer);
 }
 
 function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): TierListState {

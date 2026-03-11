@@ -1,6 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
-
-import { manualDragAndDrop } from '../utils/mouse';
+import { nativeDragAndDrop } from '../utils/drag';
 
 export class SearchPanel {
   readonly page: Page;
@@ -14,7 +13,7 @@ export class SearchPanel {
 
   constructor(page: Page) {
     this.page = page;
-    this.container = page.locator('.sticky'); // As seen in visual.spec.ts
+    this.container = page.locator('.sticky');
     this.searchInput = page.locator('input[placeholder^="Search"]');
     this.tabButtons = page.locator('button[title^="Search"]');
     this.results = page.getByTestId('search-results');
@@ -49,15 +48,18 @@ export class SearchPanel {
 
   async getResultCard(id: string) {
     const fullId = id.includes(':') ? id : `rawg:game:${id}`;
-    return this.container.getByTestId(`item-card-${fullId}`);
+    const card = this.container.getByTestId(`item-card-${fullId}`);
+    return card;
   }
 
   async dragToTier(itemId: string, tierLabel: string) {
     const card = await this.getResultCard(itemId);
-    const tierRow = this.page.locator(`[data-tier-label="${tierLabel}"]`);
-    const dropZone = tierRow.getByTestId('tier-drop-zone');
-
-    await manualDragAndDrop(this.page, card, dropZone);
+    const tier = this.page.locator(`[data-tier-label="${tierLabel}"]`);
+    
+    // Target the tier's drop zone directly. Redux logic handles empty vs populated appended placement.
+    await nativeDragAndDrop(this.page, card, tier.getByTestId('tier-drop-zone'), {
+      targetPosition: { x: 5, y: 5 },
+    });
   }
 
   async toggleFilters() {

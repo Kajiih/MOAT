@@ -2,7 +2,7 @@ import { expect, test } from './fixtures';
 import { mockSearchResults } from './utils/mocks';
 
 test.describe('Board Reset and Clear Actions', () => {
-  test.skip(({ browserName }) => browserName === 'firefox', 'Firefox headless dnd-kit drag layers permanently overlap and block Radix Dropdown menus from receiving pointer events.');
+
   test.setTimeout(60_000);
 
   test.beforeEach(async ({ page, dashboardPage, searchPanel, boardPage }) => {
@@ -21,8 +21,12 @@ test.describe('Board Reset and Clear Actions', () => {
     // Drag multiple items to Tier S - this is more stable for setup
     const items = ['item-1', 'item-2', 'item-3'];
     for (const id of items) {
+      await searchPanel.search('Setup');
+      
       const card = await searchPanel.getResultCard(id);
-      await expect(card).toBeVisible();
+      
+      await expect(card).toBeVisible({ timeout: 5000 });
+      
       await searchPanel.dragToTier(id, 'S');
       await expect(boardPage.getItemCard(id)).toBeVisible({ timeout: 15_000 });
       // Settle animation before next drag
