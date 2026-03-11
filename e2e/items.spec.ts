@@ -56,13 +56,14 @@ test.describe('Item Management', () => {
 
     // 2. Reorder in S
     await expect(cards).toHaveCount(2);
-    const text0 = await cards.nth(0).textContent();
-    const text1 = await cards.nth(1).textContent();
-    console.log('NODE DOM DUMP BEFORE REORDER: nth[0]=', text0, 'nth[1]=', text1);
 
-    // Drag item-2 (index 1) to position of item-1 (index 0)
-    await boardPage.reorderItemsViaPointer('S', 1, 0);
+    // Semantically move item-2 before item-1
+    await boardPage.moveItemBeforeItem('item-2', 'item-1');
     await expect(cards.nth(0)).toContainText('Second Item');
+
+    // Shift it right again
+    await boardPage.shiftItemRight('item-2');
+    await expect(cards.nth(1)).toContainText('Second Item');
 
     // 3. Move from S to A
     await boardPage.moveItemToTier('item-1', 'A');

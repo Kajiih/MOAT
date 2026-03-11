@@ -282,4 +282,110 @@ export class BoardPage {
       })
       .toContain(sourceText);
   }
+
+  /**
+   * Semantically moves an item so it sits immediately before a target item.
+   * @param sourceItemId - The ID of the item being moved.
+   * @param targetItemId - The ID of the item it should go before.
+   */
+  async moveItemBeforeItem(sourceItemId: string, targetItemId: string) {
+    const sourceCard = this.getItemCard(sourceItemId).first();
+    const targetCard = this.getItemCard(targetItemId).first();
+    
+    // Ensure visibility
+    await expect(sourceCard).toBeVisible();
+    await expect(targetCard).toBeVisible();
+
+    const box = await targetCard.boundingBox();
+    if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
+    
+    await nativeDragAndDrop(this.page, sourceCard, targetCard, {
+      targetPosition: { x: 5, y: box.height / 2 },
+    });
+  }
+
+  /**
+   * Semantically moves an item so it sits immediately after a target item.
+   * @param sourceItemId - The ID of the item being moved.
+   * @param targetItemId - The ID of the item it should go after.
+   */
+  async moveItemAfterItem(sourceItemId: string, targetItemId: string) {
+    const sourceCard = this.getItemCard(sourceItemId).first();
+    const targetCard = this.getItemCard(targetItemId).first();
+    
+    // Ensure visibility
+    await expect(sourceCard).toBeVisible();
+    await expect(targetCard).toBeVisible();
+
+    const box = await targetCard.boundingBox();
+    if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
+    
+    await nativeDragAndDrop(this.page, sourceCard, targetCard, {
+      targetPosition: { x: box.width - 5, y: box.height / 2 },
+    });
+  }
+
+  /**
+   * Shifts an item one slot to the right by moving it after its immediate right neighbor.
+   * @param itemId - The ID of the item to shift right.
+   */
+  async shiftItemRight(itemId: string) {
+    const card = this.getItemCard(itemId).first();
+    const tierDropZone = card.locator('xpath=ancestor::*[contains(@data-testid, "tier-drop-zone")]').first();
+    const cards = tierDropZone.locator('[data-testid^="item-card-"]');
+    
+    const count = await cards.count();
+    let sourceIndex = -1;
+    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+
+    for (let i = 0; i < count; i++) {
+      const parentIdStr = await cards.nth(i).getAttribute('data-testid');
+      if (parentIdStr && parentIdStr.includes(searchToken)) {
+        sourceIndex = i;
+        break;
+      }
+    }
+    
+    if (sourceIndex === -1) throw new Error('Could not find item index to shift right');
+    if (sourceIndex === count - 1) throw new Error('Cannot shift item right: already at the end of the tier');
+    
+    // Find the ID of the right neighbor
+    const neighborIdStr = await cards.nth(sourceIndex + 1).getAttribute('data-testid');
+    const neighborIdMatch = neighborIdStr?.match(/item-card-(.+)$/);
+    if (!neighborIdMatch) throw new Error('Could not extract neighbor ID');
+    
+    await this.moveItemAfterItem(itemId, neighborIdMatch[1]);
+  }
+
+  /**
+   * Shifts an item one slot to the left by moving it before its immediate left neighbor.
+   * @param itemId - The ID of the item to shift left.
+   */
+  async shiftItemLeft(itemId: string) {
+    const card = this.getItemCard(itemId).first();
+    const tierDropZone = card.locator('xpath=ancestor::*[contains(@data-testid, "tier-drop-zone")]').first();
+    const cards = tierDropZone.locator('[data-testid^="item-card-"]');
+    
+    const count = await cards.count();
+    let sourceIndex = -1;
+    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+
+    for (let i = 0; i < count; i++) {
+      const parentIdStr = await cards.nth(i).getAttribute('data-testid');
+      if (parentIdStr && parentIdStr.includes(searchToken)) {
+        sourceIndex = i;
+        break;
+      }
+    }
+    
+    if (sourceIndex === -1) throw new Error('Could not find item index to shift left');
+    if (sourceIndex === 0) throw new Error('Cannot shift item left: already at the start of the tier');
+    
+    // Find the ID of the left neighbor
+    const neighborIdStr = await cards.nth(sourceIndex - 1).getAttribute('data-testid');
+    const neighborIdMatch = neighborIdStr?.match(/item-card-(.+)$/);
+    if (!neighborIdMatch) throw new Error('Could not extract neighbor ID');
+    
+    await this.moveItemBeforeItem(itemId, neighborIdMatch[1]);
+  }
 }

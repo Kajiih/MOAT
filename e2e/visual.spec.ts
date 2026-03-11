@@ -5,9 +5,25 @@ import { expect, test } from './fixtures';
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+
+    // Mock the search API to return a deterministic empty or fixed state so the height doesn't wobble
+    await page.route('**/api/search*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [],
+          pagination: { total: 0, page: 1, limit: 20, totalPages: 0 }
+        }),
+      });
+    });
+
     // Wait for hydration
     await expect(page.getByLabel('Tier List Title')).toBeVisible();
     await expect(page.getByTestId('tier-row-label')).toHaveCount(6);
+
+    // Wait for the skeleton loaders to disappear to ensure the UI is in a static state
+    await expect(page.getByTestId('skeleton-card')).toHaveCount(0, { timeout: 15_000 });
   });
 
   test('default board snapshot', async ({ page }) => {
