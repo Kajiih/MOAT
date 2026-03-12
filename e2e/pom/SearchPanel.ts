@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+
 import { nativeDragAndDrop } from '../utils/drag';
 
 export class SearchPanel {

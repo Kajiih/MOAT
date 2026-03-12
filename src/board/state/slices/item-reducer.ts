@@ -163,7 +163,7 @@ function handleMoveBetweenContainers(
  * @returns Updated state with item in its new position.
  */
 export function handleMoveItem(state: TierListState, payload: MoveItemPayload): TierListState {
-  const { activeId, overId, activeItem: draggingItemFromSearch } = payload;
+  const { activeId, overId } = payload;
 
   const activeContainer = activeId in state.tierLayout ? activeId : findContainer(activeId, state);
   const overContainer = overId in state.tierLayout ? overId : findContainer(overId, state);

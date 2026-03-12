@@ -29,7 +29,6 @@ test.describe('Item Management', () => {
   test('should manage items: details, move, reorder, remove', async ({ page, boardPage }) => {
 
     const tierS = page.locator('[data-tier-label="S"]');
-    const tierA = page.locator('[data-tier-label="A"]');
     const cards = tierS.getByTestId(/^item-card-/);
 
     // 1. Details
@@ -101,9 +100,9 @@ test.describe('Item Management', () => {
     // Close modal — the unmount flush handler persists the note immediately
     await page.keyboard.press('Escape');
     // Ensure dialog fully leaves the DOM before checking notes indicator
-    await expect(page.locator('dialog')).toBeHidden({ timeout: 10000 });
+    await expect(page.locator('dialog')).toBeHidden({ timeout: 10_000 });
 
     // The notes indicator badge should now be visible on the card
-    await expect(card1.getByTestId('notes-indicator').first()).toBeVisible({ timeout: 10000 });
+    await expect(card1.getByTestId('notes-indicator').first()).toBeVisible({ timeout: 10_000 });
   });
 });

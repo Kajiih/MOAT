@@ -5,9 +5,10 @@
  * @module StateActions
  */
 
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+
 import { Item, TierId, TierListState, TierUpdate } from '@/board/types';
 import { ItemUpdate } from '@/items/items';
-import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 
 /**
  * Enumeration of all possible action types that can be dispatched to the tierListReducer.

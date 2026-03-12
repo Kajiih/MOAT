@@ -164,9 +164,42 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
           <ExportBoard state={state} brandColors={headerColors} />,
         );
 
-        // 4. Wait for React and styles to stabilize
-        // Generous timeout for complex layouts
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // 4. Wait for React to finish asynchronous mounting
+        // React 18 createRoot renders asynchronously. We observe the container until 
+        // child nodes appear, guaranteeing the render phase has committed.
+        await new Promise<void>((resolve) => {
+          if (container.childElementCount > 0) {
+            resolve();
+          } else {
+            const observer = new MutationObserver(() => {
+              if (container.childElementCount > 0) {
+                observer.disconnect();
+                resolve();
+              }
+            });
+            observer.observe(container, { childList: true });
+          }
+        });
+
+        // Yield to the browser's reflow/paint cycle to ensure CSS OM calculates bounding boxes
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
+        // Ensure all rendered images are fully loaded and decoded
+        const renderedImages = [...container.querySelectorAll('img')];
+        await Promise.all(
+          renderedImages.map((img) => {
+            if (img.complete) return Promise.resolve();
+            return new Promise((resolve) => {
+              img.onload = resolve;
+              img.onerror = resolve; // Continue capture even if an image fails to load
+            });
+          })
+        );
+
+        // Ensure web fonts are completely loaded
+        if (document.fonts) {
+          await document.fonts.ready;
+        }
 
         const boardElement = container.querySelector('#export-board-surface') as HTMLElement;
         if (!boardElement) {
@@ -178,9 +211,8 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         logger.info(`Screenshot Engine: Board measured at ${_height}px.`);
 
         // 5. Final Paint Sync
-        // Headless browsers (especially Firefox) might throttle RAF.
-        // We use a guaranteed timeout instead.
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Yield to the browser's paint cycle deterministically
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
         // 6. Capture the PNG
         const dataUrl = await toPng(boardElement, {

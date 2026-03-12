@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+
 import { nativeDragAndDrop } from '../utils/drag';
 
 export class BoardPage {
@@ -200,6 +201,7 @@ export class BoardPage {
    * @param tierLabel - The label of the targeted tier.
    * @param expectedCount - The expected number of items.
    * @param options - Optional assertions, such as timeouts for layout hydration.
+   * @param options.timeout - Timeout in milliseconds.
    */
   async expectTierToHaveItemCount(tierLabel: string, expectedCount: number, options?: { timeout?: number }) {
     const tierRow = this.getTierRow(tierLabel);
@@ -260,7 +262,7 @@ export class BoardPage {
     const cards = tierRow.getByTestId(/^item-card-/);
     
     // We exclude the item we are currently moving in case it is already in this tier
-    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+    const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
     const otherCards = cards.filter({ hasNot: this.page.locator(`[data-testid*="${searchToken}"]`) });
     
     const count = await otherCards.count();
@@ -288,7 +290,7 @@ export class BoardPage {
     const tierRow = this.getTierRow(targetTierLabel);
     const cards = tierRow.getByTestId(/^item-card-/);
     
-    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+    const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
     const otherCards = cards.filter({ hasNot: this.page.locator(`[data-testid*="${searchToken}"]`) });
     
     const count = await otherCards.count();
@@ -436,7 +438,7 @@ export class BoardPage {
     
     const count = await cards.count();
     let sourceIndex = -1;
-    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+    const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
 
     for (let i = 0; i < count; i++) {
       const parentIdStr = await cards.nth(i).getAttribute('data-testid');
@@ -468,7 +470,7 @@ export class BoardPage {
     
     const count = await cards.count();
     let sourceIndex = -1;
-    const searchToken = itemId.replace(/[^a-zA-Z0-9-]/g, '');
+    const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
 
     for (let i = 0; i < count; i++) {
       const parentIdStr = await cards.nth(i).getAttribute('data-testid');

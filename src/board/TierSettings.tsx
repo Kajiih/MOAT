@@ -122,7 +122,7 @@ export function TierSettings({
               <Trash2 size={14} /> Delete Tier
             </button>
           )}
-          <div className="mt-2 text-center text-[10px] text-neutral-600">
+          <div className="mt-2 text-center text-tiny text-neutral-600">
             Tip: Drag the grip handle on the left to reorder
           </div>
         </div>

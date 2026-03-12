@@ -83,7 +83,7 @@ export function SearchPanel() {
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => setShowAdded(!showAdded)}
-            className={`flex items-center gap-2 rounded border px-2 py-1 text-[10px] font-medium transition-colors ${showAdded ? 'border-neutral-600 bg-neutral-800 text-neutral-300 hover:bg-neutral-700' : 'border-blue-900/40 bg-blue-900/10 text-blue-400'}`}
+            className={`flex items-center gap-2 rounded border px-2 py-1 text-tiny font-medium transition-colors ${showAdded ? 'border-neutral-600 bg-neutral-800 text-neutral-300 hover:bg-neutral-700' : 'border-blue-900/40 bg-blue-900/10 text-blue-400'}`}
             title={
               showAdded ? 'Hide items already on the board' : 'Show items already on the board'
             }
@@ -97,13 +97,13 @@ export function SearchPanel() {
       {/* Provider Toggle (Provider selection) */}
       {availableProviders.length > 1 && (
         <div className="mb-3 flex shrink-0 items-center gap-2">
-          <span className="text-[10px] font-medium text-neutral-500">Provider:</span>
+          <span className="text-tiny font-medium text-neutral-500">Provider:</span>
           <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-black p-0.5">
             {availableProviders.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setProviderId(p.id)}
-                className={`rounded px-2.5 py-1 text-[10px] font-bold uppercase transition-all ${
+                className={`rounded px-2.5 py-1 text-tiny font-bold uppercase transition-all ${
                   providerId === p.id
                     ? 'bg-neutral-800 text-white shadow-sm'
                     : 'text-neutral-500 hover:text-neutral-400'

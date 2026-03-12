@@ -43,7 +43,7 @@ export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
 
         return (
           <div key={filter.id} className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase text-neutral-500">
+            <label className="text-tiny font-bold uppercase text-neutral-500">
               {filter.label}
             </label>
             
@@ -54,7 +54,7 @@ export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
             />
             
             {filter.helperText && (
-              <span className="text-[9px] text-neutral-600 italic">
+              <span className="text-xxs text-neutral-600 italic">
                 {filter.helperText}
               </span>
             )}

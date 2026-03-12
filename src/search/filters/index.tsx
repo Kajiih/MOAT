@@ -43,7 +43,7 @@ export const FilterUIComponents: Record<
  * @returns An indicative placeholder node.
  */
 export const FallbackFilterInput: React.FC<FilterControlProps> = ({ filter }) => (
-  <div className="text-[10px] text-neutral-600 italic">
+  <div className="text-tiny text-neutral-600 italic">
     UI for {filter.type} not implemented yet
   </div>
 );

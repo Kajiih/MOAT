@@ -76,7 +76,7 @@ const DashboardItem = ({ item }: { item: PreviewItem }) => {
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 text-neutral-600">
           <ImageOff size={10} className="mb-0.5 opacity-50" />
-          <span className="w-full truncate text-center text-[4px] leading-none font-bold uppercase opacity-20">
+          <span className="w-full truncate text-center text-atto leading-none font-bold uppercase opacity-20">
             {item.type}
           </span>
         </div>
@@ -97,7 +97,7 @@ const MiniatureTierList = ({ tiers }: { tiers: TierPreview[] }) => {
           >
             {/* Tier Label */}
             <div
-              className={`flex w-8 items-center justify-center ${theme.bg} p-0.5 text-[6px] font-bold text-black uppercase`}
+              className={`flex w-8 items-center justify-center ${theme.bg} p-0.5 text-pico font-bold text-black uppercase`}
             >
               <span className="truncate">{tier.label}</span>
             </div>

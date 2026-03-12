@@ -14,7 +14,6 @@ import { Item } from '@/items/items';
 /**
  * Provides access to the current drag state and wires up global drop monitors
  * to trigger Redux actions for reordering and cross-tier movements.
- *
  * @param state - The current tier list state.
  * @param dispatch - The Redux dispatch function.
  * @param pushHistory - Callback to save a history snapshot before mutation.

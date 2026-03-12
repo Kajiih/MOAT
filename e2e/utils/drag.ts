@@ -5,10 +5,13 @@ import { type Locator, type Page } from '@playwright/test';
  * PrDnd relies on the native browser drag event lifecycle and strict DataTransfer payloads.
  * Playwright's `locator.dragTo()` works sometimes but can be flaky if the DataTransfer
  * isn't perfectly populated or if dragenter/dragover bounds are strict.
- *
  * @param page - The Playwright Page object.
  * @param source - The locator for the element to drag.
  * @param target - The locator for the target drop zone.
+ * @param options - Optional drag configuration.
+ * @param options.targetPosition - Specific pixel coordinates to drop onto inside the target.
+ * @param options.targetPosition.x - X coordinate relative to the target's bounding box.
+ * @param options.targetPosition.y - Y coordinate relative to the target's bounding box.
  */
 export async function nativeDragAndDrop(
   page: Page,
