@@ -80,11 +80,9 @@ export class BoardPage {
     // Idempotent: if the menu is already open, don't toggle it off.
     if (await this.clearBoardButton.isVisible()) return;
 
-    // disable for now
-    // eslint-disable-next-line playwright/no-force-option
-    await this.optionsButton.click({ force: true });
-    // Wait for animation or options to fully span out
-    await this.clearBoardButton.waitFor({ state: 'attached', timeout: 5000 });
+    await this.optionsButton.click();
+    // Wait for the Radix Popover animation to complete and be fully actionable
+    await this.clearBoardButton.waitFor({ state: 'visible', timeout: 5000 });
   }
 
   /**
@@ -116,9 +114,8 @@ export class BoardPage {
   async clearBoard() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    // disable for now
-    // eslint-disable-next-line playwright/no-force-option
-    await this.clearBoardButton.click({ force: true });
+    
+    await this.clearBoardButton.click();
     
     // Give Redux slightly more time to dispatch the layout changes
     await expect(this.getTierRow('S')).toBeHidden({ timeout: 5000 });
@@ -130,9 +127,8 @@ export class BoardPage {
   async resetItems() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    // disable for now
-    // eslint-disable-next-line playwright/no-force-option
-    await this.resetItemsButton.click({ force: true });
+    
+    await this.resetItemsButton.click();
 
     // wait for layout change to flush
     await expect(this.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0, { timeout: 10_000 });
@@ -318,10 +314,20 @@ export class BoardPage {
   async reorderTiersViaPointer(sourceIndex: number, targetIndex: number) {
     const sourceLabel = await this.tierLabels.nth(sourceIndex).textContent();
     
+    // The DragEvent MUST originate from the strict Handle DOM element so PRDnD accepts the handle bounds check
     const sourceHandle = this.tierDragHandles.nth(sourceIndex);
-    const targetLabel = this.tierLabels.nth(targetIndex);
+    
+    // The Drop Target MUST be the entire Row so we can target its top/bottom boundaries accurately
+    const targetRow = this.tierRows.nth(targetIndex);
 
-    await nativeDragAndDrop(this.page, sourceHandle, targetLabel);
+    const isMovingUp = sourceIndex > targetIndex;
+
+    const box = await targetRow.boundingBox();
+    if (!box) throw new Error('Could not get target bounding box during tier reorder');
+
+    await nativeDragAndDrop(this.page, sourceHandle, targetRow, {
+      targetPosition: isMovingUp ? { x: box.width / 2, y: 10 } : { x: box.width / 2, y: box.height - 10 }
+    });
 
     // Verify final position using polling
     await expect

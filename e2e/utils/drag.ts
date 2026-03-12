@@ -16,22 +16,30 @@ export async function nativeDragAndDrop(
   target: Locator,
   options?: { targetPosition?: { x: number; y: number } }
 ) {
-  // Ensure both elements are visible before attempting math
-  // Ensure visibility
-  await source.hover({ force: true });
+  // Pragmatic Drag and Drop requires an explicit movement heuristic to differentiate drags from clicks.
+  // Instead of forced sleeps or manually fighting DOM synthetic event dispatchers, we use natural
+  // Playwright mouse boundaries seamlessly.
 
+  // Wait for the components to be fully mounted and visible
+  await source.waitFor({ state: 'visible' });
+  await target.waitFor({ state: 'visible' });
+
+  // Playwright's locator.hover() natively manages element auto-scrolling
+  // We avoid arbitrary waitForTimeout by structurally yielding execution flow inline 
+  // with browser frame rendering, exactly matching Pragmatic Drag and Drop's internal architecture.
+  
+  await source.hover();
   await page.mouse.down();
 
-  // Pragmatic Drag and Drop requires an explicit movement threshold to decouple from clicks
-  await source.hover({ position: { x: 5, y: 5 }, force: true });
-  await page.waitForTimeout(100);
+  // Pragmatic Drag and Drop requires a threshold movement distance to trigger drag start
+  const DRAG_THRESHOLD_OFFSET = 5;
+  await source.hover({ position: { x: DRAG_THRESHOLD_OFFSET, y: DRAG_THRESHOLD_OFFSET } });
+  await page.evaluate(() => new Promise(requestAnimationFrame));
 
-  // Animate straight to target to give requestAnimationFrame hooks time to resolve DOM nodes
-  await target.hover({ position: options?.targetPosition, force: true });
-  await page.waitForTimeout(100);
+  // Animate directly to the target element's relative layout coordinates
+  await target.hover({ position: options?.targetPosition });
+  await page.evaluate(() => new Promise(requestAnimationFrame));
 
   await page.mouse.up();
-
-  // Wait for React to process the drop action and trigger Redux
-  await page.waitForTimeout(100);
+  await page.evaluate(() => new Promise(requestAnimationFrame));
 }
