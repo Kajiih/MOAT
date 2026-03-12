@@ -174,7 +174,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                     <div className="flex flex-wrap gap-3">
                       {details.relatedEntities.map((entity, idx) => (
                         <div key={idx} className="flex flex-col">
-                          <span className="text-tiny font-bold tracking-tight text-neutral-500 uppercase">
+                          <span className="text-caption font-bold tracking-tight text-neutral-500 uppercase">
                             {entity.label}
                           </span>
                           <span className="text-sm text-neutral-200">
@@ -194,7 +194,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                     <div className="grid grid-cols-2 gap-4 rounded-lg bg-neutral-950/50 p-4 border border-neutral-800/50">
                       {Object.entries(details.extendedData).map(([key, value]) => (
                         <div key={key} className="flex flex-col">
-                          <span className="text-tiny font-bold tracking-tight text-neutral-500 uppercase">
+                          <span className="text-caption font-bold tracking-tight text-neutral-500 uppercase">
                             {key.replaceAll(/([A-Z])/g, ' $1').trim()}
                           </span>
                           <span className="text-sm text-neutral-200">

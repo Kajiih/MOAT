@@ -157,11 +157,11 @@ export function ItemCard({
 
         {/* Overlay / Content */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/80 to-transparent p-2 pt-6">
-          <p className="line-clamp-2 text-tiny font-bold text-white leading-tight">
+          <p className="line-clamp-2 text-caption font-bold text-white leading-tight">
             {item.title}
           </p>
           {(item.subtitle || item.tertiaryText) && (
-            <p className="mt-0.5 line-clamp-1 text-xxs text-neutral-400 leading-tight">
+            <p className="mt-0.5 line-clamp-1 text-caption text-neutral-400 leading-tight">
               {item.subtitle || item.tertiaryText}
             </p>
           )}
@@ -211,7 +211,7 @@ export function ItemCard({
 
       {/* 4. Rating Indicator (If exists) */}
       {item.rating !== undefined && (
-        <div className="absolute top-1 left-1 rounded bg-black/60 px-1 py-0.5 text-nano font-black text-white backdrop-blur-sm border border-white/10">
+        <div className="absolute top-1 left-1 rounded bg-black/60 px-1 py-0.5 text-indicator font-black text-white backdrop-blur-sm border border-white/10">
           {item.rating.toFixed(1)}
         </div>
       )}

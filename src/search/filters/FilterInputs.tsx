@@ -120,7 +120,7 @@ export function MultiSelectFilterInput({
                 : [...current, optVal];
               onChange(next);
             }}
-            className={`rounded border px-2 py-1 text-tiny transition-colors ${
+            className={`rounded border px-2 py-1 text-caption transition-colors ${
               isChecked
                 ? 'border-red-900 bg-red-900/20 text-red-400'
                 : 'border-neutral-800 bg-black text-neutral-500 hover:text-neutral-400'

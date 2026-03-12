@@ -92,7 +92,7 @@ export function BoardOptionsMenu({
           >
             <Keyboard size={18} className="text-neutral-500" />
             <span>Keyboard Shortcuts</span>
-            <kbd className="ml-auto flex h-5 items-center rounded border border-neutral-700 bg-black px-1.5 text-tiny text-neutral-500">
+            <kbd className="ml-auto flex h-5 items-center rounded border border-neutral-700 bg-black px-1.5 text-caption text-neutral-500">
               ?
             </kbd>
           </button>

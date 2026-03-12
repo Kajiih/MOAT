@@ -112,11 +112,11 @@ export function ItemImage({
     >
       <TypeIcon size={24} className="mb-1 opacity-50" />
       {isExport && (
-        <span className="mt-1 line-clamp-2 px-1 text-center text-xxs leading-tight font-black uppercase opacity-30">
+        <span className="mt-1 line-clamp-2 px-1 text-center text-caption leading-tight font-black uppercase opacity-30">
           {item.title}
         </span>
       )}
-      <span className="mt-1 text-center text-micro leading-tight font-bold uppercase opacity-20">
+      <span className="mt-1 text-center text-indicator leading-tight font-bold uppercase opacity-20">
         {item.identity.entityId}
       </span>
     </div>

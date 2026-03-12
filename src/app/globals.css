@@ -11,12 +11,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
-  --text-tiny: 10px;
-  --text-xxs: 9px;
-  --text-nano: 8px;
-  --text-micro: 7px;
-  --text-pico: 6px;
-  --text-atto: 4px;
+  --text-caption: 10px;
+  --text-indicator: 8px;
 }
 
 @media (prefers-color-scheme: dark) {

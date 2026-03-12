@@ -138,7 +138,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 {/* Badge */}
                 {toasts.length > 1 && (
-                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-tiny font-bold text-white shadow-md ring-2 ring-neutral-950">
+                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-caption font-bold text-white shadow-md ring-2 ring-neutral-950">
                     {toasts.length}
                   </div>
                 )}
