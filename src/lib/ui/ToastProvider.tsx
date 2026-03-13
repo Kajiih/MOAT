@@ -114,7 +114,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast, toastCount: toasts.length }}>
       {children}
-      <div className="pointer-events-none fixed right-8 bottom-4 z-[100] flex flex-col-reverse items-end gap-2">
+      <div className="pointer-events-none fixed right-8 bottom-4 z-toast flex flex-col-reverse items-end gap-2">
         {/* Collapse Action */}
         {isExpanded && toasts.length > 1 && (
           <button

@@ -273,7 +273,7 @@ export default function TierListApp() {
 
         {/* Export Preview Overlay */}
         {showExportPreview && (
-          <div className="fixed inset-0 z-[100] flex flex-col items-center overflow-auto bg-black/90 p-20 backdrop-blur-sm">
+          <div className="fixed inset-0 z-overlay flex flex-col items-center overflow-auto bg-black/90 p-20 backdrop-blur-sm">
             <div className="relative">
               {/* Preview Header */}
               <div className="absolute -top-12 right-0 left-0 flex items-center justify-between px-4">
