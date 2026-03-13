@@ -115,7 +115,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={onPublish}
             disabled={isPublishing}
-            className="flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-bold text-white transition-all hover:bg-blue-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-white transition-all hover:bg-blue-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             title="Publish to Cloud"
           >
             {isPublishing ? (

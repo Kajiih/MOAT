@@ -58,7 +58,7 @@ export function SearchPanel() {
   if (availableProviders.length === 0) {
     if (status === RegistryStatus.INITIALIZING || status === RegistryStatus.IDLE) {
       return (
-        <div className="sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface p-6 text-secondary shadow-2xl">
+        <div className="sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface p-6 text-secondary shadow-floating">
           <Loader2 className="animate-spin text-neutral-600" size={24} />
           <span className="text-sm font-medium">Booting providers...</span>
         </div>
@@ -66,14 +66,14 @@ export function SearchPanel() {
     }
     
     return (
-      <div className="sticky top-4 flex h-64 flex-col items-center justify-center rounded-lg border border-border bg-surface p-6 text-secondary italic shadow-2xl">
+      <div className="sticky top-4 flex h-64 flex-col items-center justify-center rounded-lg border border-border bg-surface p-6 text-secondary italic shadow-floating">
         No providers available.
       </div>
     );
   }
 
   return (
-    <div className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border border-border bg-surface p-6 shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
+    <div className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border border-border bg-surface p-6 shadow-floating sm:max-h-[calc(100dvh-2rem)]">
       <div className="mb-4 flex shrink-0 flex-wrap items-center gap-4 text-white">
         <div className="flex items-center gap-2">
           <Search size={20} />
@@ -83,7 +83,7 @@ export function SearchPanel() {
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => setShowAdded(!showAdded)}
-            className={`flex items-center gap-2 rounded-md border px-2 py-1 text-caption font-medium transition-colors ${showAdded ? 'border-border bg-surface-hover text-secondary hover:bg-neutral-700' : 'border-blue-900/40 bg-blue-900/10 text-blue-400'}`}
+            className={`flex items-center gap-2 rounded-md border px-2 py-1 text-caption font-medium transition-colors ${showAdded ? 'border-border bg-surface-hover text-secondary hover:bg-neutral-700' : 'border-primary/40 bg-primary/10 text-primary'}`}
             title={
               showAdded ? 'Hide items already on the board' : 'Show items already on the board'
             }

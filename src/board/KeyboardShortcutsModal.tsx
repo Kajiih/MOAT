@@ -42,11 +42,11 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
 
   return (
     <div
-      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200"
+      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-fast"
       onClick={onClose}
     >
       <div
-        className="animate-in zoom-in-95 w-full max-w-sm overflow-hidden rounded-lg border border-border bg-surface shadow-2xl duration-200"
+        className="animate-in zoom-in-95 w-full max-w-sm overflow-hidden rounded-lg border border-border bg-surface shadow-floating duration-fast"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border bg-neutral-900/50 p-4">

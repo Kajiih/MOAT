@@ -26,8 +26,8 @@ interface FilterButtonProps {
 export function FilterButton({ label, isSelected, onClick, variant }: FilterButtonProps) {
   const activeClass =
     variant === 'primary'
-      ? 'bg-red-600 border-red-500 text-white font-medium'
-      : 'bg-blue-600 border-blue-500 text-white font-medium';
+      ? 'bg-destructive border-destructive text-white font-medium'
+      : 'bg-primary border-primary text-white font-medium';
 
   const inactiveClass =
     variant === 'primary'

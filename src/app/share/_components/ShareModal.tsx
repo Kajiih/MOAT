@@ -47,16 +47,16 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
     <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="animate-in fade-in absolute inset-0 bg-black/80 backdrop-blur-sm duration-300"
+        className="animate-in fade-in absolute inset-0 bg-black/80 backdrop-blur-sm duration-normal"
         onClick={onClose}
       />
 
       {/* Content */}
-      <div className="animate-in zoom-in-95 relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl duration-200">
+      <div className="animate-in zoom-in-95 relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-surface shadow-floating duration-fast">
         <div className="border-b border-border p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-blue-600/20 p-2 text-blue-400">
+              <div className="rounded-full bg-primary/20 p-2 text-primary">
                 <Globe size={24} />
               </div>
               <h2 className="text-xl font-bold text-white">Board Published</h2>
@@ -75,7 +75,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
             Your board is now public! Anyone with the link can view it.
           </p>
 
-          <div className="flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 ring-neutral-800 transition-all focus-within:ring-blue-500/50">
+          <div className="flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 ring-neutral-800 transition-all focus-within:ring-2 focus-within:ring-primary focus-within:outline-none">
             <input
               readOnly
               value={shareUrl}
@@ -85,7 +85,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               onClick={handleCopy}
               className={`flex items-center gap-2 rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
                 copied
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-success text-white'
                   : 'bg-surface-hover text-secondary hover:bg-neutral-700 hover:text-white'
               }`}
             >
@@ -105,7 +105,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               href={shareUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 active:scale-95"
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-card shadow-primary/20 transition-all hover:bg-blue-500 active:scale-95"
             >
               <ExternalLink size={16} />
               Visit Page

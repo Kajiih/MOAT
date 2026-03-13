@@ -72,7 +72,7 @@ export function BoardOptionsMenu({
         </button>
       }
     >
-      <div className="w-64 origin-top-right rounded-lg border border-border bg-surface p-2 shadow-2xl ring-1 ring-black/50">
+      <div className="w-64 origin-top-right rounded-lg border border-border bg-surface p-2 shadow-floating ring-1 ring-black/50">
         <div className="flex items-center justify-between px-3 py-2">
           <h3 className="text-xs font-bold tracking-wider text-secondary uppercase">
             Board Options
@@ -133,7 +133,7 @@ export function BoardOptionsMenu({
               <div
                 className={twMerge(
                   'relative h-5 w-9 rounded-full transition-colors',
-                  showAdvanced ? 'bg-blue-600' : 'bg-surface-hover',
+                  showAdvanced ? 'bg-primary' : 'bg-surface-hover',
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -173,7 +173,7 @@ export function BoardOptionsMenu({
               setIsOpen(false);
             }}
             data-testid="clear-board-button"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-destructive transition-colors hover:bg-red-500/10 hover:text-red-400"
           >
             <Trash2 size={18} />
             <span>Clear Board</span>

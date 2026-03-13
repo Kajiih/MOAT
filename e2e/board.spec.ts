@@ -93,8 +93,8 @@ test.describe('Board Management', () => {
     // Close settings
     await page.keyboard.press('Escape');
 
-    // Verify the tier background class contains red
-    await expect(firstTierHeader).toHaveClass(/bg-red-/);
+    // Verify the tier background class contains the destructive semantic token
+    await expect(firstTierHeader).toHaveClass(/bg-destructive/);
   });
 
   test('should update branding (favicon) when reordering tiers', async ({ page, boardPage }) => {

@@ -47,7 +47,7 @@ export interface ItemCardProps {
 /**
  * Shared base classes for rendering item cards uniformly.
  */
-export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-surface shadow-lg";
+export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-surface shadow-card";
 
 /**
  * A standardized card component for displaying and interacting with items.
@@ -135,8 +135,8 @@ export function ItemCard({
       onBlur={() => setHoveredItem?.(null)}
       style={style}
       data-testid={`item-card-${item.id}`}
-      className={`group relative transition-all duration-200 hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
-        isAdded ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-black' : ''
+      className={`group relative transition-all duration-fast hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
+        isAdded ? 'ring-2 ring-primary ring-offset-2 ring-offset-black' : ''
       } ${isOverLocal ? 'ring-2 ring-emerald-500 scale-105 z-50' : ''}`}
     >
       {/* 1. Drag & Drop Interaction Layer (Separate from buttons) */}
@@ -171,7 +171,7 @@ export function ItemCard({
         {item.notes && (
           <div
             data-testid="notes-indicator"
-            className="absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-amber-400/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
+            className="absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-highlight/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
             title="Contains personal notes"
           >
             <div className="h-1.5 w-1.5 rounded-full bg-current" />

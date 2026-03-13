@@ -52,7 +52,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
   const entityDef = registry.getEntity(resolvedItem.identity.databaseId, resolvedItem.identity.entityId);
   const PlaceholderIcon = (entityDef.branding.icon as LucideIcon) || Info;
-  const colorClass = entityDef.branding.colorClass || 'text-blue-400';
+  const colorClass = entityDef.branding.colorClass || 'text-primary';
   
   const subtitle = resolvedItem.subtitle || '';
 
@@ -60,13 +60,13 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
   return (
     <div
-      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-200"
+      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-fast"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
-        className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-2xl duration-200"
+        className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-floating duration-fast"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Cover Art */}
@@ -85,7 +85,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             <ItemImage
               item={resolvedItem}
               TypeIcon={PlaceholderIcon}
-              containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-white/10 bg-surface-hover shadow-lg sm:h-24 sm:w-24"
+              containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-white/10 bg-surface-hover shadow-card sm:h-24 sm:w-24"
               sizes="96px"
             />
             <div className="min-w-0 flex-1 pt-2">
@@ -127,7 +127,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
           )}
 
           {error && (
-            <div className="rounded-md border border-red-900/20 bg-red-900/10 p-4 text-center text-red-400">
+            <div className="rounded-md border border-destructive/20 bg-red-900/10 p-4 text-center text-destructive">
               Failed to load additional details.
             </div>
           )}
@@ -316,7 +316,7 @@ function LocalNotesEditor({
       value={notes}
       onChange={(e) => setNotes(e.target.value)}
       placeholder="Write your thoughts about this item... (e.g. why it's in this tier)"
-      className="min-h-[120px] w-full rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-secondary transition-colors placeholder:text-neutral-700 focus:border-neutral-600 focus:ring-0 focus:outline-none"
+      className="min-h-[120px] w-full rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-secondary transition-colors placeholder:text-neutral-700 focus:border-border focus:ring-2 focus:ring-primary focus:outline-none"
     />
   );
 }

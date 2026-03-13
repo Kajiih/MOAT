@@ -102,12 +102,12 @@ export const TierRow = memo(function TierRow({
       data-tier-id={tier.id}
       data-tier-label={tier.label}
       className={twMerge(
-        'relative mb-2 flex min-h-[7rem] rounded-lg border bg-surface transition-all duration-200 ease-out',
+        'relative mb-2 flex min-h-[7rem] rounded-lg border bg-surface transition-all duration-fast ease-out',
         isOverRow
-          ? 'z-20 scale-[1.01] border-blue-500/50 bg-surface-hover shadow-lg ring-1 ring-blue-500/30'
+          ? 'z-20 scale-[1.01] border-primary/50 bg-surface-hover shadow-card ring-1 ring-primary/30'
           : 'border-border',
         isSettingsOpen ? 'z-30' : 'z-0',
-        isDraggingTier && 'scale-95 border-blue-500 opacity-50 ring-2 ring-blue-500/50',
+        isDraggingTier && 'scale-95 border-primary opacity-50 ring-2 ring-primary/50',
       )}
     >
       <TierHeader

@@ -75,7 +75,7 @@ export function SortDropdown({ sortOption, onSortChange, type, options }: SortDr
         </button>
       }
     >
-      <div className="flex w-48 flex-col overflow-hidden rounded-lg border border-border bg-surface p-1 shadow-xl">
+      <div className="flex w-48 flex-col overflow-hidden rounded-lg border border-border bg-surface p-1 shadow-elevated">
         {finalOptions.map((opt: SortOptionItem) => (
           <button
             key={opt.value}

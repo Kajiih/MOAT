@@ -154,7 +154,7 @@ export function SearchTab({
         <div className="flex gap-2">
           <input
             placeholder={`Search ${entity?.branding.labelPlural}...`}
-            className="w-full rounded-md border border-border bg-black px-3 py-2 text-sm outline-none focus:border-red-600"
+            className="w-full rounded-md border border-border bg-black px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
             value={params.query}
             onChange={(e) => {
               const query = e.target.value;
@@ -197,7 +197,7 @@ export function SearchTab({
           {entity && (entity.filters.length > 0 || entity.searchOptions.length > 0) && (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`rounded-md border p-2 transition-colors ${showFilters ? 'border-red-900/50 bg-red-900/20 text-red-400' : 'border-border bg-black text-secondary hover:text-white'}`}
+              className={`rounded-md border p-2 transition-colors ${showFilters ? 'border-destructive/50 bg-destructive/20 text-destructive' : 'border-border bg-black text-secondary hover:text-white'}`}
               title="Toggle Filters"
             >
               <Filter size={18} />
@@ -227,7 +227,7 @@ export function SearchTab({
       {/* Results Area (Grid + Pagination) */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {error && (
-          <div className="mb-4 rounded-md bg-red-900/20 p-3 text-sm text-red-400 border border-red-900/50">
+          <div className="mb-4 rounded-md bg-destructive/20 p-3 text-sm text-destructive border border-destructive/50">
             {error.message}
           </div>
         )}

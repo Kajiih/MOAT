@@ -80,7 +80,7 @@ export function TierSettings({
       }
     >
       <div
-        className="flex w-[280px] flex-col gap-3 rounded-lg border border-border bg-surface p-3 shadow-2xl"
+        className="flex w-[280px] flex-col gap-3 rounded-lg border border-border bg-surface p-3 shadow-floating"
         style={{ transform: 'translate(10px, 10px)' }}
       >
         <div className="flex items-center justify-between border-b border-border pb-2">
@@ -117,7 +117,7 @@ export function TierSettings({
               onClick={() => {
                 if (confirm('Delete tier?')) onDelete();
               }}
-              className="mt-1 flex items-center justify-center gap-2 rounded-md bg-red-900/30 p-1 text-xs text-red-200 hover:bg-red-900/50"
+              className="mt-1 flex items-center justify-center gap-2 rounded-md bg-destructive/30 p-1 text-xs text-destructive hover:bg-red-900/50"
             >
               <Trash2 size={14} /> Delete Tier
             </button>

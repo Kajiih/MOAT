@@ -265,7 +265,7 @@ export default function TierListApp() {
         {/* Floating Randomize Colors Button */}
         <button
           onClick={randomizeColors}
-          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-surface-hover p-4 text-white shadow-2xl transition-all hover:scale-110 hover:bg-neutral-700 active:scale-95 ${fabPosition}`}
+          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-surface-hover p-4 text-white shadow-floating transition-all hover:scale-110 hover:bg-neutral-700 active:scale-95 ${fabPosition}`}
           title="Randomize Colors"
         >
           <Dices size={24} className="transition-transform group-hover:rotate-12" />

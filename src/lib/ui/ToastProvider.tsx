@@ -138,7 +138,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 {/* Badge */}
                 {toasts.length > 1 && (
-                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-caption font-bold text-white shadow-md ring-2 ring-neutral-950">
+                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption font-bold text-white shadow-md ring-2 ring-neutral-950">
                     {toasts.length}
                   </div>
                 )}
@@ -160,7 +160,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                         right: 0,
                         width: '100%', // Ensure absolute ones take full width of relative parent
                       }}
-                      className={`origin-bottom transition-all duration-300 ${!isTop ? 'pointer-events-none' : ''}`}
+                      className={`origin-bottom transition-all duration-normal ${!isTop ? 'pointer-events-none' : ''}`}
                     >
                       <ToastItem toast={toast} onDismiss={removeToast} stacked={true} />
                     </div>
@@ -191,16 +191,16 @@ function ToastItem({
   stacked: boolean;
 }) {
   const typeStyles: Record<ToastType, string> = {
-    success: 'border-green-900/50 bg-surface text-green-400',
-    error: 'border-red-900/50 bg-surface text-red-400',
-    info: 'border-blue-900/50 bg-surface text-blue-400',
+    success: 'border-success/50 bg-surface text-success',
+    error: 'border-destructive/50 bg-surface text-destructive',
+    info: 'border-primary/50 bg-surface text-primary',
   };
 
   const baseStyles =
-    'pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-xl';
+    'pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-elevated';
   const stackStyles = stacked
     ? 'hover:bg-neutral-800'
-    : 'animate-in slide-in-from-right-full duration-300';
+    : 'animate-in slide-in-from-right-full duration-normal';
 
   return (
     <div className={`${baseStyles} ${typeStyles[toast.type]} ${stackStyles}`}>

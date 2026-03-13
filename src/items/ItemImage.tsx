@@ -91,7 +91,7 @@ export function ItemImage({
           sizes={sizes}
           priority={priority}
           unoptimized={retryUnoptimized}
-          className={`${imageClassName} pointer-events-none transition-opacity duration-300`}
+          className={`${imageClassName} pointer-events-none transition-opacity duration-normal`}
           onError={() => {
             if (!retryUnoptimized) {
               setRetryUnoptimized(true);

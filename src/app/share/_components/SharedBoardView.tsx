@@ -102,7 +102,7 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
                 </p>
                 <Link
                   href="/"
-                  className="rounded-full bg-blue-600 px-6 py-2 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 active:scale-95"
+                  className="rounded-full bg-primary px-6 py-2 text-sm font-bold text-white shadow-card shadow-primary/20 transition-all hover:bg-blue-500 active:scale-95"
                 >
                   Create Your Own Tier List
                 </Link>

@@ -25,7 +25,7 @@ export interface ColorTheme {
 }
 
 export const COLOR_PALETTE: Record<string, ColorTheme> = {
-  red: { id: 'red', label: 'Red', bg: 'bg-red-500', text: 'text-red-500', hex: '#ef4444' },
+  red: { id: 'red', label: 'Red', bg: 'bg-destructive', text: 'text-destructive', hex: '#ef4444' },
   orange: {
     id: 'orange',
     label: 'Orange',
@@ -36,8 +36,8 @@ export const COLOR_PALETTE: Record<string, ColorTheme> = {
   amber: {
     id: 'amber',
     label: 'Amber',
-    bg: 'bg-amber-400',
-    text: 'text-amber-400',
+    bg: 'bg-highlight',
+    text: 'text-highlight',
     hex: '#fbbf24',
   },
   yellow: {
@@ -51,15 +51,15 @@ export const COLOR_PALETTE: Record<string, ColorTheme> = {
   green: {
     id: 'green',
     label: 'Green',
-    bg: 'bg-green-500',
-    text: 'text-green-500',
+    bg: 'bg-success',
+    text: 'text-success',
     hex: '#22c55e',
   },
   // emerald: { id: 'emerald', label: 'Emerald', bg: 'bg-emerald-500', text: 'text-emerald-500', hex: '#10b981' },
   teal: { id: 'teal', label: 'Teal', bg: 'bg-teal-400', text: 'text-teal-400', hex: '#2dd4bf' },
   cyan: { id: 'cyan', label: 'Cyan', bg: 'bg-cyan-400', text: 'text-cyan-400', hex: '#22d3ee' },
   // sky: { id: 'sky', label: 'Sky', bg: 'bg-sky-500', text: 'text-sky-500', hex: '#0ea5e9' },
-  blue: { id: 'blue', label: 'Blue', bg: 'bg-blue-500', text: 'text-blue-400', hex: '#3b82f6' },
+  blue: { id: 'blue', label: 'Blue', bg: 'bg-primary', text: 'text-primary', hex: '#3b82f6' },
   indigo: {
     id: 'indigo',
     label: 'Indigo',

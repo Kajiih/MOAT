@@ -363,7 +363,7 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     label: 'Developer',
     labelPlural: 'Developers',
     icon: Building2,
-    colorClass: 'text-blue-400',
+    colorClass: 'text-primary',
   };
   public readonly searchOptions: FilterDefinition<RAWGDeveloper>[] = [];
   public readonly filters: FilterDefinition<RAWGDeveloper>[] = [];
