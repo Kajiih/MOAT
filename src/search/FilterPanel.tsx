@@ -43,7 +43,7 @@ export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
 
         return (
           <div key={filter.id} className="flex flex-col gap-1.5">
-            <label className="text-caption font-bold uppercase text-neutral-500">
+            <label className="text-caption font-bold uppercase text-secondary">
               {filter.label}
             </label>
             

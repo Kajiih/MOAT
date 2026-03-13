@@ -52,8 +52,8 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
       />
 
       {/* Content */}
-      <div className="animate-in zoom-in-95 relative w-full max-w-md overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 shadow-2xl duration-200">
-        <div className="border-b border-neutral-800 p-6">
+      <div className="animate-in zoom-in-95 relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl duration-200">
+        <div className="border-b border-border p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-blue-600/20 p-2 text-blue-400">
@@ -63,7 +63,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
             </div>
             <button
               onClick={onClose}
-              className="rounded-full p-2 text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-white"
+              className="rounded-full p-2 text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
             >
               <X size={20} />
             </button>
@@ -71,7 +71,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
         </div>
 
         <div className="p-6">
-          <p className="mb-4 text-sm leading-relaxed text-neutral-400">
+          <p className="mb-4 text-sm leading-relaxed text-secondary">
             Your board is now public! Anyone with the link can view it.
           </p>
 
@@ -79,14 +79,14 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
             <input
               readOnly
               value={shareUrl}
-              className="flex-1 bg-transparent px-2 py-1.5 font-mono text-sm text-neutral-300 outline-none"
+              className="flex-1 bg-transparent px-2 py-1.5 font-mono text-sm text-secondary outline-none"
             />
             <button
               onClick={handleCopy}
-              className={`flex items-center gap-2 rounded px-4 py-1.5 text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
                 copied
                   ? 'bg-green-600 text-white'
-                  : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white'
+                  : 'bg-surface-hover text-secondary hover:bg-neutral-700 hover:text-white'
               }`}
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -97,7 +97,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
           <div className="mt-6 flex justify-end gap-3">
             <button
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 transition-colors hover:text-white"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-secondary transition-colors hover:text-white"
             >
               Close
             </button>

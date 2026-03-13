@@ -79,7 +79,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           className="flex items-center gap-2 rounded-lg p-1 pr-3 transition-colors hover:bg-neutral-800"
           title="Back to Dashboard"
         >
-          <ChevronLeft size={20} className="text-neutral-500 group-hover:text-neutral-300" />
+          <ChevronLeft size={20} className="text-secondary group-hover:text-neutral-300" />
           <BrandLogo colors={brandColors} variant="header" />
           <span className="hidden text-sm font-bold text-neutral-600 group-hover:text-neutral-400 lg:inline">
             / Dashboard
@@ -96,7 +96,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={undo}
             disabled={!canUndo}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-900 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface text-secondary transition-colors hover:bg-neutral-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             title="Undo (Ctrl+Z)"
           >
             <Undo2 size={18} />
@@ -104,7 +104,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={redo}
             disabled={!canRedo}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-900 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface text-secondary transition-colors hover:bg-neutral-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             title="Redo (Ctrl+Shift+Z)"
           >
             <Redo2 size={18} />
@@ -129,7 +129,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={onScreenshot}
             disabled={isCapturing}
-            className="flex h-10 items-center gap-2 rounded-lg bg-neutral-800 px-4 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 items-center gap-2 rounded-lg bg-surface-hover px-4 text-sm font-medium text-secondary transition-colors hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
             title="Save as Image"
           >
             {isCapturing ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}

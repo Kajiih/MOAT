@@ -119,7 +119,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {isExpanded && toasts.length > 1 && (
           <button
             onClick={() => dispatch({ type: 'SET_EXPANDED', isExpanded: false })}
-            className="pointer-events-auto mb-2 flex items-center gap-1 rounded-full bg-neutral-900/80 px-2 py-1 text-xs text-neutral-500 backdrop-blur-sm transition-colors hover:text-white"
+            className="pointer-events-auto mb-2 flex items-center gap-1 rounded-full bg-neutral-900/80 px-2 py-1 text-xs text-secondary backdrop-blur-sm transition-colors hover:text-white"
           >
             Collapse <ChevronDown size={12} />
           </button>
@@ -191,9 +191,9 @@ function ToastItem({
   stacked: boolean;
 }) {
   const typeStyles: Record<ToastType, string> = {
-    success: 'border-green-900/50 bg-neutral-900 text-green-400',
-    error: 'border-red-900/50 bg-neutral-900 text-red-400',
-    info: 'border-blue-900/50 bg-neutral-900 text-blue-400',
+    success: 'border-green-900/50 bg-surface text-green-400',
+    error: 'border-red-900/50 bg-surface text-red-400',
+    info: 'border-blue-900/50 bg-surface text-blue-400',
   };
 
   const baseStyles =
@@ -217,7 +217,7 @@ function ToastItem({
       {!stacked && (
         <button
           onClick={(e) => onDismiss(toast.id, e)}
-          className="ml-2 rounded p-1 transition-colors hover:bg-white/10 hover:text-white"
+          className="ml-2 rounded-md p-1 transition-colors hover:bg-white/10 hover:text-white"
         >
           <X size={14} />
         </button>

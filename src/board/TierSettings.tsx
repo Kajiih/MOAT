@@ -67,7 +67,7 @@ export function TierSettings({
       trigger={
         <button
           className={twMerge(
-            'flex rounded bg-black/20 p-1 text-black transition-opacity hover:bg-black/40',
+            'flex rounded-md bg-black/20 p-1 text-black transition-opacity hover:bg-black/40',
             isAnyDragging
               ? 'pointer-events-none opacity-0'
               : 'opacity-0 group-hover/row:opacity-100',
@@ -80,19 +80,19 @@ export function TierSettings({
       }
     >
       <div
-        className="flex w-[280px] flex-col gap-3 rounded-lg border border-neutral-700 bg-neutral-900 p-3 shadow-2xl"
+        className="flex w-[280px] flex-col gap-3 rounded-lg border border-border bg-surface p-3 shadow-2xl"
         style={{ transform: 'translate(10px, 10px)' }}
       >
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-          <span className="text-xs font-bold text-neutral-400 uppercase">Tier Settings</span>
-          <button onClick={onClose} className="text-neutral-500 hover:text-white">
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <span className="text-xs font-bold text-secondary uppercase">Tier Settings</span>
+          <button onClick={onClose} className="text-secondary hover:text-white">
             ✕
           </button>
         </div>
 
         {/* Colors */}
         <div>
-          <div className="mb-1 text-xs text-neutral-500">Color</div>
+          <div className="mb-1 text-xs text-secondary">Color</div>
           <div className="flex flex-wrap gap-1">
             {TIER_COLORS.map((c) => (
               <button
@@ -117,7 +117,7 @@ export function TierSettings({
               onClick={() => {
                 if (confirm('Delete tier?')) onDelete();
               }}
-              className="mt-1 flex items-center justify-center gap-2 rounded bg-red-900/30 p-1 text-xs text-red-200 hover:bg-red-900/50"
+              className="mt-1 flex items-center justify-center gap-2 rounded-md bg-red-900/30 p-1 text-xs text-red-200 hover:bg-red-900/50"
             >
               <Trash2 size={14} /> Delete Tier
             </button>

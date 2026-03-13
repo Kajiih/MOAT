@@ -31,13 +31,13 @@ export function FilterButton({ label, isSelected, onClick, variant }: FilterButt
 
   const inactiveClass =
     variant === 'primary'
-      ? 'bg-black border-neutral-700 text-neutral-400 hover:border-neutral-500'
-      : 'bg-neutral-900 border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-neutral-300';
+      ? 'bg-black border-border text-secondary hover:border-neutral-500'
+      : 'bg-surface border-border text-secondary hover:border-neutral-500 hover:text-neutral-300';
 
   return (
     <button
       onClick={onClick}
-      className={`rounded border px-2 py-1 text-caption transition-all ${
+      className={`rounded-md border px-2 py-1 text-caption transition-all ${
         isSelected ? activeClass : inactiveClass
       }`}
     >

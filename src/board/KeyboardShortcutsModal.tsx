@@ -46,15 +46,15 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
       onClick={onClose}
     >
       <div
-        className="animate-in zoom-in-95 w-full max-w-sm overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-2xl duration-200"
+        className="animate-in zoom-in-95 w-full max-w-sm overflow-hidden rounded-lg border border-border bg-surface shadow-2xl duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/50 p-4">
+        <div className="flex items-center justify-between border-b border-border bg-neutral-900/50 p-4">
           <div className="flex items-center gap-2 font-bold text-neutral-200">
-            <Keyboard size={20} className="text-neutral-400" />
+            <Keyboard size={20} className="text-secondary" />
             <span>Shortcuts</span>
           </div>
-          <button onClick={onClose} className="text-neutral-500 transition-colors hover:text-white">
+          <button onClick={onClose} className="text-secondary transition-colors hover:text-white">
             <X size={20} />
           </button>
         </div>
@@ -62,12 +62,12 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
         <div className="space-y-3 p-4">
           {shortcuts.map((s, i) => (
             <div key={i} className="flex items-center justify-between text-sm">
-              <span className="text-neutral-400">{s.label}</span>
+              <span className="text-secondary">{s.label}</span>
               <div className="flex gap-1">
                 {s.keys.map((k, j) => (
                   <kbd
                     key={j}
-                    className="flex min-w-[24px] items-center justify-center rounded-md border border-neutral-700 bg-neutral-800 px-2 py-1 text-center font-mono text-xs text-neutral-300 shadow-sm"
+                    className="flex min-w-[24px] items-center justify-center rounded-md border border-border bg-surface-hover px-2 py-1 text-center font-mono text-xs text-secondary shadow-sm"
                   >
                     {k === 'Ctrl/Cmd' ? <Command size={10} className="mr-1" /> : null}
                     {k === 'Ctrl/Cmd' ? 'Cmd' : k}
@@ -77,8 +77,8 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             </div>
           ))}
         </div>
-        <div className="border-t border-neutral-800 bg-neutral-900/50 p-4 text-center text-xs text-neutral-500">
-          Press <kbd className="font-mono text-neutral-400">Esc</kbd> to close
+        <div className="border-t border-border bg-neutral-900/50 p-4 text-center text-xs text-secondary">
+          Press <kbd className="font-mono text-secondary">Esc</kbd> to close
         </div>
       </div>
     </div>

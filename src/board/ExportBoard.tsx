@@ -38,7 +38,7 @@ export function ExportBoard({ state, brandColors }: ExportBoardProps) {
   return (
     <div
       id="export-board-surface"
-      className="relative flex flex-col items-center justify-center bg-neutral-950 px-8 py-4 font-sans text-neutral-200 antialiased"
+      className="relative flex flex-col items-center justify-center bg-surface px-8 py-4 font-sans text-neutral-200 antialiased"
       style={{
         width: '1200px',
         minHeight: '800px',

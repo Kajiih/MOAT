@@ -47,7 +47,7 @@ export interface ItemCardProps {
 /**
  * Shared base classes for rendering item cards uniformly.
  */
-export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-neutral-900 shadow-lg";
+export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-surface shadow-lg";
 
 /**
  * A standardized card component for displaying and interacting with items.
@@ -161,7 +161,7 @@ export function ItemCard({
             {item.title}
           </p>
           {(item.subtitle || item.tertiaryText) && (
-            <p className="mt-0.5 line-clamp-1 text-caption text-neutral-400 leading-tight">
+            <p className="mt-0.5 line-clamp-1 text-caption text-secondary leading-tight">
               {item.subtitle || item.tertiaryText}
             </p>
           )}
@@ -211,7 +211,7 @@ export function ItemCard({
 
       {/* 4. Rating Indicator (If exists) */}
       {item.rating !== undefined && (
-        <div className="absolute top-1 left-1 rounded bg-black/60 px-1 py-0.5 text-indicator font-black text-white backdrop-blur-sm border border-white/10">
+        <div className="absolute top-1 left-1 rounded-md bg-black/60 px-1 py-0.5 text-indicator font-black text-white backdrop-blur-sm border border-white/10">
           {item.rating.toFixed(1)}
         </div>
       )}

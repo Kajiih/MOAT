@@ -59,9 +59,9 @@ export function TierBoard({ isAnyDragging }: TierBoardProps) {
       />
       <button
         onClick={handleAddTier}
-        className="group flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-700 py-4 font-bold text-neutral-400 transition-all hover:border-neutral-500 hover:bg-neutral-900 hover:text-white"
+        className="group flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-4 font-bold text-secondary transition-all hover:border-neutral-500 hover:bg-neutral-900 hover:text-white"
       >
-        <div className="rounded bg-neutral-800 p-1 transition-colors group-hover:bg-neutral-700">
+        <div className="rounded-md bg-surface-hover p-1 transition-colors group-hover:bg-neutral-700">
           <Plus size={16} />
         </div>
         <span>Add Tier</span>

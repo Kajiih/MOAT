@@ -66,11 +66,11 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
       <div
         role="dialog"
         aria-modal="true"
-        className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-neutral-700 bg-neutral-900 shadow-2xl duration-200"
+        className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-2xl duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Cover Art */}
-        <div className="relative h-48 shrink-0 overflow-hidden bg-neutral-950 sm:h-64">
+        <div className="relative h-48 shrink-0 overflow-hidden bg-surface sm:h-64">
           <ItemImage
             item={resolvedItem}
             TypeIcon={PlaceholderIcon}
@@ -85,20 +85,20 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             <ItemImage
               item={resolvedItem}
               TypeIcon={PlaceholderIcon}
-              containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-white/10 bg-neutral-800 shadow-lg sm:h-24 sm:w-24"
+              containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-white/10 bg-surface-hover shadow-lg sm:h-24 sm:w-24"
               sizes="96px"
             />
             <div className="min-w-0 flex-1 pt-2">
               <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
                 {resolvedItem.title}
               </h2>
-              <div className="mt-1 flex items-center gap-2 text-neutral-300">
+              <div className="mt-1 flex items-center gap-2 text-secondary">
                 <PlaceholderIcon size={16} className={colorClass} />
                 <span className="font-medium">{subtitle}</span>
                 {resolvedItem.tertiaryText && (
                   <>
                     <span className="text-neutral-600">•</span>
-                    <span className="text-neutral-400">{resolvedItem.tertiaryText}</span>
+                    <span className="text-secondary">{resolvedItem.tertiaryText}</span>
                   </>
                 )}
               </div>
@@ -117,17 +117,17 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
         <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto p-6">
           {isLoading && (
             <div className="animate-pulse space-y-4">
-              <div className="h-4 w-1/3 rounded bg-neutral-800"></div>
+              <div className="h-4 w-1/3 rounded-md bg-surface-hover"></div>
               <div className="space-y-2">
-                <div className="h-10 w-full rounded bg-neutral-800"></div>
-                <div className="h-10 w-full rounded bg-neutral-800"></div>
-                <div className="h-10 w-full rounded bg-neutral-800"></div>
+                <div className="h-10 w-full rounded-md bg-surface-hover"></div>
+                <div className="h-10 w-full rounded-md bg-surface-hover"></div>
+                <div className="h-10 w-full rounded-md bg-surface-hover"></div>
               </div>
             </div>
           )}
 
           {error && (
-            <div className="rounded border border-red-900/20 bg-red-900/10 p-4 text-center text-red-400">
+            <div className="rounded-md border border-red-900/20 bg-red-900/10 p-4 text-center text-red-400">
               Failed to load additional details.
             </div>
           )}
@@ -139,10 +139,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               <div className="space-y-6">
                 {details.description && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
                       Description
                     </h3>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-neutral-300">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-secondary">
                       {details.description}
                     </p>
                   </div>
@@ -150,14 +150,14 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.tags && details.tags.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
                       Subjects / Tags
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {[...new Set(details.tags)].map((tag: string) => (
                         <span
                           key={tag}
-                          className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs text-neutral-300"
+                          className="rounded-md border border-border bg-surface-hover px-2 py-1 text-xs text-secondary"
                         >
                           {tag}
                         </span>
@@ -168,13 +168,13 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.relatedEntities && details.relatedEntities.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
                       Related
                     </h3>
                     <div className="flex flex-wrap gap-3">
                       {details.relatedEntities.map((entity, idx) => (
                         <div key={idx} className="flex flex-col">
-                          <span className="text-caption font-bold tracking-tight text-neutral-500 uppercase">
+                          <span className="text-caption font-bold tracking-tight text-secondary uppercase">
                             {entity.label}
                           </span>
                           <span className="text-sm text-neutral-200">
@@ -188,13 +188,13 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.extendedData && Object.keys(details.extendedData).length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
                       Additional Info
                     </h3>
                     <div className="grid grid-cols-2 gap-4 rounded-lg bg-neutral-950/50 p-4 border border-neutral-800/50">
                       {Object.entries(details.extendedData).map(([key, value]) => (
                         <div key={key} className="flex flex-col">
-                          <span className="text-caption font-bold tracking-tight text-neutral-500 uppercase">
+                          <span className="text-caption font-bold tracking-tight text-secondary uppercase">
                             {key.replaceAll(/([A-Z])/g, ' $1').trim()}
                           </span>
                           <span className="text-sm text-neutral-200">
@@ -208,10 +208,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.sections?.map((section: ItemSection, idx: number) => (
                   <div key={idx} className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
                       {section.title}
                     </h3>
-                    <div className="text-sm text-neutral-300">
+                    <div className="text-sm text-secondary">
                       {section.type === 'text' && <p className="leading-relaxed">{section.content as string}</p>}
                       {section.type === 'list' && (
                         <ul className="list-disc list-inside space-y-1">
@@ -231,8 +231,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             </>
           )}
 
-          <div className="mt-8 border-t border-neutral-800 pt-6">
-            <h3 className="mb-3 text-sm font-semibold tracking-wider text-neutral-400 uppercase">
+          <div className="mt-8 border-t border-border pt-6">
+            <h3 className="mb-3 text-sm font-semibold tracking-wider text-secondary uppercase">
               Personal Notes
             </h3>
             <LocalNotesEditor
@@ -316,7 +316,7 @@ function LocalNotesEditor({
       value={notes}
       onChange={(e) => setNotes(e.target.value)}
       placeholder="Write your thoughts about this item... (e.g. why it's in this tier)"
-      className="min-h-[120px] w-full rounded-lg border border-neutral-800 bg-neutral-950 p-4 text-sm leading-relaxed text-neutral-300 transition-colors placeholder:text-neutral-700 focus:border-neutral-600 focus:ring-0 focus:outline-none"
+      className="min-h-[120px] w-full rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-secondary transition-colors placeholder:text-neutral-700 focus:border-neutral-600 focus:ring-0 focus:outline-none"
     />
   );
 }

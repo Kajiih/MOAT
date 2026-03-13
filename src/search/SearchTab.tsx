@@ -154,7 +154,7 @@ export function SearchTab({
         <div className="flex gap-2">
           <input
             placeholder={`Search ${entity?.branding.labelPlural}...`}
-            className="w-full rounded border border-neutral-700 bg-black px-3 py-2 text-sm outline-none focus:border-red-600"
+            className="w-full rounded-md border border-border bg-black px-3 py-2 text-sm outline-none focus:border-red-600"
             value={params.query}
             onChange={(e) => {
               const query = e.target.value;
@@ -168,7 +168,7 @@ export function SearchTab({
           />
 
           {entity && entity.sortOptions.length > 0 && (
-            <div className="flex shrink-0 gap-1 rounded border border-neutral-700 bg-black p-1">
+            <div className="flex shrink-0 gap-1 rounded-md border border-border bg-black p-1">
               <SortDropdown
                 sortOption={params.sort || ''}
                 onSortChange={handleSortChange}
@@ -181,7 +181,7 @@ export function SearchTab({
               {currentSortOption && isSortReversible(currentSortOption) && (
                 <button
                   onClick={toggleSortDirection}
-                  className="flex h-8 w-8 items-center justify-center rounded bg-neutral-800 text-neutral-400 transition-colors hover:text-white"
+                  className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-hover text-secondary transition-colors hover:text-white"
                   title={`Sort ${params.sortDirection === SortDirection.ASC ? 'Ascending' : 'Descending'} (Click to reverse)`}
                 >
                   {params.sortDirection === SortDirection.ASC ? (
@@ -197,7 +197,7 @@ export function SearchTab({
           {entity && (entity.filters.length > 0 || entity.searchOptions.length > 0) && (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`rounded border p-2 transition-colors ${showFilters ? 'border-red-900/50 bg-red-900/20 text-red-400' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
+              className={`rounded-md border p-2 transition-colors ${showFilters ? 'border-red-900/50 bg-red-900/20 text-red-400' : 'border-border bg-black text-secondary hover:text-white'}`}
               title="Toggle Filters"
             >
               <Filter size={18} />
@@ -207,7 +207,7 @@ export function SearchTab({
 
         {/* Advanced Filters Panel */}
         {showFilters && entity && (
-          <div className="rounded border border-neutral-800 bg-neutral-900/50 p-2">
+          <div className="rounded-md border border-border bg-neutral-900/50 p-2">
             <FilterPanel
               entity={entity}
               values={params.filters}
@@ -227,7 +227,7 @@ export function SearchTab({
       {/* Results Area (Grid + Pagination) */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {error && (
-          <div className="mb-4 rounded bg-red-900/20 p-3 text-sm text-red-400 border border-red-900/50">
+          <div className="mb-4 rounded-md bg-red-900/20 p-3 text-sm text-red-400 border border-red-900/50">
             {error.message}
           </div>
         )}
@@ -238,21 +238,21 @@ export function SearchTab({
 
         {/* Pagination Footer */}
         {!isLoading && results.length > 0 && pagination && (
-          <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-neutral-800 pb-2 pt-2">
+          <div className="mt-2 flex shrink-0 items-center justify-center gap-4 border-t border-border pb-2 pt-2">
             <button
               disabled={!entity?.getPreviousParams(params, { items: results, pagination, raw: [] })}
               onClick={() => {
                 const prev = entity?.getPreviousParams(params, { items: results, pagination, raw: [] });
                 if (prev) setParams(prev);
               }}
-              className="rounded bg-neutral-800 p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
+              className="rounded-md bg-surface-hover p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
               title="Previous Page"
             >
               <ChevronLeft size={16} />
             </button>
 
             {'totalPages' in pagination && (
-              <span className="text-xs text-neutral-400">
+              <span className="text-xs text-secondary">
                 Page {'page' in params ? params.page : 1} of {pagination.totalPages}
               </span>
             )}
@@ -263,7 +263,7 @@ export function SearchTab({
                 const next = entity?.getNextParams(params, { items: results, pagination, raw: [] });
                 if (next) setParams(next);
               }}
-              className="rounded bg-neutral-800 p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
+              className="rounded-md bg-surface-hover p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
               title="Next Page"
             >
               <ChevronRight size={16} />

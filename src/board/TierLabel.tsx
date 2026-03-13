@@ -118,7 +118,7 @@ export function TierLabel({
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={handleSave}
           onKeyDown={handleKeyDown}
-          className="h-full w-full resize-none overflow-hidden rounded bg-white/20 p-1 text-center text-sm font-bold text-black placeholder-black/50 focus:outline-none"
+          className="h-full w-full resize-none overflow-hidden rounded-md bg-white/20 p-1 text-center text-sm font-bold text-black placeholder-black/50 focus:outline-none"
           aria-label="Tier label"
           style={{ minHeight: '60px' }}
         />
@@ -128,7 +128,7 @@ export function TierLabel({
           onDoubleClick={!isExport ? handleDoubleClick : undefined}
           className={twMerge(
             'flex h-full w-full items-center justify-center overflow-hidden text-center font-black break-words text-black transition-colors select-none',
-            !isExport && 'cursor-pointer rounded hover:bg-black/5',
+            !isExport && 'cursor-pointer rounded-md hover:bg-black/5',
           )}
           title={!isExport ? 'Double click to rename' : undefined}
           style={{ fontSize: label.length > 5 ? '1rem' : '1.75rem', lineHeight: '1.1' }}

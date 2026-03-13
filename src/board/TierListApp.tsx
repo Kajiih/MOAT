@@ -39,7 +39,7 @@ const LoadingState = () => {
   const colors = ['red', 'orange', 'amber', 'green']; // Preview colors
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-950 p-8 font-sans text-neutral-200">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 font-sans text-neutral-200">
       <h1 className="flex animate-pulse text-4xl font-black tracking-tighter uppercase italic select-none">
         {letters.map((letter, i) => {
           const theme = getColorTheme(colors[i]);
@@ -50,7 +50,7 @@ const LoadingState = () => {
           );
         })}
       </h1>
-      <div className="text-sm text-neutral-500">Loading application...</div>
+      <div className="text-sm text-secondary">Loading application...</div>
     </div>
   );
 };
@@ -265,7 +265,7 @@ export default function TierListApp() {
         {/* Floating Randomize Colors Button */}
         <button
           onClick={randomizeColors}
-          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-neutral-800 p-4 text-white shadow-2xl transition-all hover:scale-110 hover:bg-neutral-700 active:scale-95 ${fabPosition}`}
+          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-surface-hover p-4 text-white shadow-2xl transition-all hover:scale-110 hover:bg-neutral-700 active:scale-95 ${fabPosition}`}
           title="Randomize Colors"
         >
           <Dices size={24} className="transition-transform group-hover:rotate-12" />
@@ -277,14 +277,14 @@ export default function TierListApp() {
             <div className="relative">
               {/* Preview Header */}
               <div className="absolute -top-12 right-0 left-0 flex items-center justify-between px-4">
-                <span className="font-mono text-xs tracking-widest text-neutral-500 uppercase">
+                <span className="font-mono text-xs tracking-widest text-secondary uppercase">
                   Export Preview (Shift+P to close)
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleScreenshot}
                     disabled={isCapturing}
-                    className="flex items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm text-white transition-all hover:bg-neutral-700 active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-md bg-surface-hover px-3 py-2 text-sm text-white transition-all hover:bg-neutral-700 active:scale-95 disabled:opacity-50"
                   >
                     {isCapturing ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -295,7 +295,7 @@ export default function TierListApp() {
                   </button>
                   <button
                     onClick={() => setShowExportPreview(false)}
-                    className="rounded bg-neutral-800 p-2 text-white transition-colors hover:bg-neutral-700"
+                    className="rounded-md bg-surface-hover p-2 text-white transition-colors hover:bg-neutral-700"
                   >
                     <X size={20} />
                   </button>
@@ -303,7 +303,7 @@ export default function TierListApp() {
               </div>
 
               {/* The Actual Export Surface */}
-              <div className="border border-neutral-800 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+              <div className="border border-border shadow-[0_0_100px_rgba(0,0,0,0.5)]">
                 <ExportBoard state={state} brandColors={headerColors} />
               </div>
 

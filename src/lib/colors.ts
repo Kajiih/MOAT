@@ -82,7 +82,7 @@ export const COLOR_PALETTE: Record<string, ColorTheme> = {
     id: 'neutral',
     label: 'Neutral',
     bg: 'bg-neutral-500',
-    text: 'text-neutral-500',
+    text: 'text-secondary',
     hex: '#737373',
   },
   slate: {

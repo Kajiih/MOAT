@@ -63,8 +63,8 @@ export function BoardOptionsMenu({
           className={twMerge(
             'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
             isOpen
-              ? 'bg-neutral-800 text-white'
-              : 'text-neutral-400 hover:bg-neutral-800 hover:text-white',
+              ? 'bg-surface-hover text-white'
+              : 'text-secondary hover:bg-neutral-800 hover:text-white',
           )}
           title="Board Options"
         >
@@ -72,12 +72,12 @@ export function BoardOptionsMenu({
         </button>
       }
     >
-      <div className="w-64 origin-top-right rounded-xl border border-neutral-800 bg-neutral-900 p-2 shadow-2xl ring-1 ring-black/50">
+      <div className="w-64 origin-top-right rounded-lg border border-border bg-surface p-2 shadow-2xl ring-1 ring-black/50">
         <div className="flex items-center justify-between px-3 py-2">
-          <h3 className="text-xs font-bold tracking-wider text-neutral-500 uppercase">
+          <h3 className="text-xs font-bold tracking-wider text-secondary uppercase">
             Board Options
           </h3>
-          <button onClick={() => setIsOpen(false)} className="text-neutral-500 hover:text-white">
+          <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-white">
             <X size={14} />
           </button>
         </div>
@@ -88,17 +88,17 @@ export function BoardOptionsMenu({
               onShowShortcuts();
               setIsOpen(false);
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
           >
-            <Keyboard size={18} className="text-neutral-500" />
+            <Keyboard size={18} className="text-secondary" />
             <span>Keyboard Shortcuts</span>
-            <kbd className="ml-auto flex h-5 items-center rounded border border-neutral-700 bg-black px-1.5 text-caption text-neutral-500">
+            <kbd className="ml-auto flex h-5 items-center rounded-md border border-border bg-black px-1.5 text-caption text-secondary">
               ?
             </kbd>
           </button>
 
-          <label className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white">
-            <Upload size={18} className="text-neutral-500" />
+          <label className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white">
+            <Upload size={18} className="text-secondary" />
             <span>Import JSON</span>
             <input
               type="file"
@@ -116,24 +116,24 @@ export function BoardOptionsMenu({
               onExport();
               setIsOpen(false);
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
           >
-            <Download size={18} className="text-neutral-500" />
+            <Download size={18} className="text-secondary" />
             <span>Export JSON</span>
           </button>
 
-          <div className="my-2 h-px bg-neutral-800" />
+          <div className="my-2 h-px bg-surface-hover" />
 
           <div className="px-3 py-2">
-            <label className="flex cursor-pointer items-center justify-between text-sm text-neutral-300">
+            <label className="flex cursor-pointer items-center justify-between text-sm text-secondary">
               <div className="flex items-center gap-3">
-                <Settings2 size={18} className="text-neutral-500" />
+                <Settings2 size={18} className="text-secondary" />
                 <span>Advanced Mode</span>
               </div>
               <div
                 className={twMerge(
                   'relative h-5 w-9 rounded-full transition-colors',
-                  showAdvanced ? 'bg-blue-600' : 'bg-neutral-700',
+                  showAdvanced ? 'bg-blue-600' : 'bg-surface-hover',
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -148,12 +148,12 @@ export function BoardOptionsMenu({
                 />
               </div>
             </label>
-            <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500">
+            <p className="mt-1.5 text-[11px] leading-relaxed text-secondary">
               Enables technical configuration like fuzzy search and wildcard matching.
             </p>
           </div>
 
-          <div className="my-2 h-px bg-neutral-800" />
+          <div className="my-2 h-px bg-surface-hover" />
 
           <button
             onClick={() => {
@@ -161,9 +161,9 @@ export function BoardOptionsMenu({
               setIsOpen(false);
             }}
             data-testid="reset-items-button"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
           >
-            <RotateCcw size={18} className="text-neutral-500" />
+            <RotateCcw size={18} className="text-secondary" />
             <span>Reset items to unranked</span>
           </button>
 

@@ -108,7 +108,7 @@ export function ItemImage({
   // Placeholder mode
   return (
     <div
-      className={`${containerClassName} flex flex-col items-center justify-center overflow-hidden border border-neutral-800 bg-neutral-900 p-2 text-neutral-600`}
+      className={`${containerClassName} flex flex-col items-center justify-center overflow-hidden border border-border bg-surface p-2 text-neutral-600`}
     >
       <TypeIcon size={24} className="mb-1 opacity-50" />
       {isExport && (

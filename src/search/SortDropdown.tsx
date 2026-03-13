@@ -68,14 +68,14 @@ export function SortDropdown({ sortOption, onSortChange, type, options }: SortDr
       contentClassName="top-full right-0"
       trigger={
         <button
-          className={`rounded border p-2 transition-colors ${isOpen ? 'border-neutral-600 bg-neutral-800 text-white' : 'border-neutral-700 bg-black text-neutral-400 hover:text-white'}`}
+          className={`rounded-md border p-2 transition-colors ${isOpen ? 'border-border bg-surface-hover text-white' : 'border-border bg-black text-secondary hover:text-white'}`}
           title="Sort Results"
         >
           <ArrowUpDown size={18} />
         </button>
       }
     >
-      <div className="flex w-48 flex-col overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 p-1 shadow-xl">
+      <div className="flex w-48 flex-col overflow-hidden rounded-lg border border-border bg-surface p-1 shadow-xl">
         {finalOptions.map((opt: SortOptionItem) => (
           <button
             key={opt.value}
@@ -83,7 +83,7 @@ export function SortDropdown({ sortOption, onSortChange, type, options }: SortDr
               onSortChange(opt.value);
               setIsOpen(false);
             }}
-            className={`rounded px-3 py-2 text-left text-xs transition-colors hover:bg-neutral-800 ${sortOption === opt.value ? 'bg-neutral-800 font-bold text-white' : 'text-neutral-400'}`}
+            className={`rounded-md px-3 py-2 text-left text-xs transition-colors hover:bg-neutral-800 ${sortOption === opt.value ? 'bg-surface-hover font-bold text-white' : 'text-secondary'}`}
           >
             {opt.label}
           </button>

@@ -58,7 +58,7 @@ export function SearchPanel() {
   if (availableProviders.length === 0) {
     if (status === RegistryStatus.INITIALIZING || status === RegistryStatus.IDLE) {
       return (
-        <div className="sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-500 shadow-2xl">
+        <div className="sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface p-6 text-secondary shadow-2xl">
           <Loader2 className="animate-spin text-neutral-600" size={24} />
           <span className="text-sm font-medium">Booting providers...</span>
         </div>
@@ -66,14 +66,14 @@ export function SearchPanel() {
     }
     
     return (
-      <div className="sticky top-4 flex h-64 flex-col items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-500 italic shadow-2xl">
+      <div className="sticky top-4 flex h-64 flex-col items-center justify-center rounded-lg border border-border bg-surface p-6 text-secondary italic shadow-2xl">
         No providers available.
       </div>
     );
   }
 
   return (
-    <div className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-xl border border-neutral-800 bg-neutral-900 p-6 shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
+    <div className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border border-border bg-surface p-6 shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
       <div className="mb-4 flex shrink-0 flex-wrap items-center gap-4 text-white">
         <div className="flex items-center gap-2">
           <Search size={20} />
@@ -83,7 +83,7 @@ export function SearchPanel() {
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => setShowAdded(!showAdded)}
-            className={`flex items-center gap-2 rounded border px-2 py-1 text-caption font-medium transition-colors ${showAdded ? 'border-neutral-600 bg-neutral-800 text-neutral-300 hover:bg-neutral-700' : 'border-blue-900/40 bg-blue-900/10 text-blue-400'}`}
+            className={`flex items-center gap-2 rounded-md border px-2 py-1 text-caption font-medium transition-colors ${showAdded ? 'border-border bg-surface-hover text-secondary hover:bg-neutral-700' : 'border-blue-900/40 bg-blue-900/10 text-blue-400'}`}
             title={
               showAdded ? 'Hide items already on the board' : 'Show items already on the board'
             }
@@ -97,16 +97,16 @@ export function SearchPanel() {
       {/* Provider Toggle (Provider selection) */}
       {availableProviders.length > 1 && (
         <div className="mb-3 flex shrink-0 items-center gap-2">
-          <span className="text-caption font-medium text-neutral-500">Provider:</span>
-          <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-black p-0.5">
+          <span className="text-caption font-medium text-secondary">Provider:</span>
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-black p-0.5">
             {availableProviders.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setProviderId(p.id)}
-                className={`rounded px-2.5 py-1 text-caption font-bold uppercase transition-all ${
+                className={`rounded-md px-2.5 py-1 text-caption font-bold uppercase transition-all ${
                   providerId === p.id
-                    ? 'bg-neutral-800 text-white shadow-sm'
-                    : 'text-neutral-500 hover:text-neutral-400'
+                    ? 'bg-surface-hover text-white shadow-sm'
+                    : 'text-secondary hover:text-neutral-400'
                 }`}
               >
                 {p.label}
@@ -118,7 +118,7 @@ export function SearchPanel() {
 
       {/* Entity Tabs (Tabs driven by selected provider) */}
       {selectedProvider && selectedProvider.entities.length > 0 && (
-        <div className="mb-4 flex shrink-0 gap-1 rounded-lg border border-neutral-800 bg-black p-1">
+        <div className="mb-4 flex shrink-0 gap-1 rounded-lg border border-border bg-black p-1">
           {selectedProvider.entities.map((entity) => {
             const { branding } = entity;
             const Icon = branding.icon;
@@ -129,7 +129,7 @@ export function SearchPanel() {
                 key={entity.id}
                 onClick={() => setActiveEntityId(entity.id)}
                 title={`Search ${branding.labelPlural}`}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${isActive ? 'bg-neutral-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'} `}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${isActive ? 'bg-surface-hover text-white shadow-sm' : 'text-secondary hover:text-neutral-300'} `}
               >
                 <Icon size={12} className={isActive ? branding.colorClass : ''} />
                 <span>{branding.label}</span>
