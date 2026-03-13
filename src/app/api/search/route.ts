@@ -56,6 +56,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json({ error: 'Request aborted' }, { status: 499 });
+    }
     logger.error({ error, providerId, entityId }, 'Search API Error');
     return createErrorResponse(error);
   }

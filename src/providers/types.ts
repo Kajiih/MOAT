@@ -9,6 +9,7 @@ import { ItemDetails } from '@/items/items';
 import { FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchResult } from '@/search/search-schemas';
 import { SortDefinition } from '@/search/sort-schemas';
+import { RequestOptions } from './api-client';
 
 /**
  * A utility type for arrays that must contain at least one element.
@@ -101,7 +102,10 @@ export interface Entity<TRaw = any> {
 /**
  * Generic fetcher type for dependency injection.
  */
-export type Fetcher = <T>(url: string, options?: RequestInit) => Promise<T>;
+export interface Fetcher {
+  <T = unknown>(url: string, options?: Omit<RequestOptions, 'raw'> & { raw?: false }): Promise<T>;
+  (url: string, options: RequestOptions & { raw: true }): Promise<Response>;
+}
 
 /**
  * Represents an independent external database service provider.

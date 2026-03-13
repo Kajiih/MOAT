@@ -6,8 +6,9 @@
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
+import { EntityLink } from '@/items/items';
 import { isObject } from '@/lib/type-guards';
-import { FilterDefinition, FilterValues } from '@/search/filter-schemas';
+import { BaseFilterDefinition, FilterValues } from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
 
@@ -82,7 +83,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
 export function applyFilters<TRaw>(
   apiParams: Record<string, string>,
   filterValues: FilterValues | undefined,
-  definitions: FilterDefinition<TRaw>[]
+  definitions: BaseFilterDefinition<unknown, TRaw>[]
 ): void {
   const values = filterValues || {};
   for (const def of definitions) {
@@ -95,24 +96,62 @@ export function applyFilters<TRaw>(
     if (value === undefined || value === null || value === '') continue;
 
     if (def.transform) {
-      const transformed = (def.transform as (v: unknown) => unknown)(value);
+      const transformed = def.transform(value);
       
       // If transform returns an object, we merge it into apiParams (for complex mappings)
       if (typeof transformed === 'object' && transformed !== null) {
         Object.entries(transformed).forEach(([key, val]) => {
           if (val !== undefined && val !== null) {
-            apiParams[key] = val.toString();
+            apiParams[key] = String(val);
           }
         });
       } 
       // If transform returns a primitive and we have mapTo, we use it
       else if (def.mapTo && transformed !== undefined && transformed !== null) {
-        apiParams[def.mapTo] = transformed.toString();
+        apiParams[def.mapTo] = String(transformed);
       }
     } 
     // Simple direct mapping
     else if (def.mapTo) {
-      apiParams[def.mapTo] = value.toString();
+      apiParams[def.mapTo] = String(value);
     }
   }
+}
+
+/**
+ * Standard utility to safely extract tags from raw entity responses.
+ * @param sourceList - Array of objects containing tags/genres.
+ * @param nameExtractor - Function to extract the tag string from the object.
+ * @param filterFn - Optional function to filter the objects before extracting.
+ * @returns Array of unique tag strings, up to 10.
+ */
+export function extractTags<T>(
+  sourceList: T[] | null | undefined,
+  nameExtractor: (item: T) => string,
+  filterFn?: (item: T) => boolean
+): string[] {
+  if (!sourceList || !Array.isArray(sourceList)) return [];
+
+  let filtered = sourceList;
+  if (filterFn) {
+    filtered = sourceList.filter(filterFn);
+  }
+
+  // Use Set to ensure uniqueness, then limit to top 10
+  const uniqueTags = new Set(filtered.map(nameExtractor).filter(Boolean));
+  return Array.from(uniqueTags).slice(0, 10);
+}
+
+/**
+ * Standard utility to safely map related entities from raw responses.
+ * @param sourceList - Array of related raw objects (e.g., developers, publishers).
+ * @param mappingFn - Function to map the raw object to the EntityLink schema shape.
+ * @returns Array of valid EntityLink objects.
+ */
+export function extractRelatedEntities<T>(
+  sourceList: T[] | null | undefined,
+  mappingFn: (item: T) => EntityLink
+): EntityLink[] {
+  if (!sourceList || !Array.isArray(sourceList)) return [];
+  return sourceList.map(mappingFn);
 }

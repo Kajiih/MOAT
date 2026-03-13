@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/images';
-import { RAWGDatabase } from '@/providers/adapters/rawg';
+import { RAWGDatabaseProvider } from '@/providers/adapters/rawg';
 import { Entity, nonEmpty,Provider, ProviderStatus } from '@/providers/types';
 import { FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchParamsSchema, SearchResult, SearchResultSchema } from '@/search/search-schemas';
@@ -12,6 +12,10 @@ import { SortDirection } from '@/search/sort-schemas';
 import { ProviderErrorCode } from './errors';
 import { registry, RegistryStatus } from './registry';
 import { handleProviderError } from './utils';
+
+const RAWGDatabase = new RAWGDatabaseProvider();
+
+// Shared test data
 
 interface MockItem {
   id: number;
@@ -68,14 +72,14 @@ describe('Provider Design', () => {
     });
 
     it('should register and reach READY status', async () => {
-      const p = registry.register(RAWGDatabase);
+      const p = registry.register(new RAWGDatabaseProvider());
       expect(registry.getStatus()).toBe(RegistryStatus.INITIALIZING);
       await p;
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
     });
 
     it('should clear all state when clear() is called', async () => {
-      await registry.register(RAWGDatabase);
+      await registry.register(new RAWGDatabaseProvider());
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
       
       registry.clear();
@@ -86,7 +90,7 @@ describe('Provider Design', () => {
     });
 
     it('should register and retrieve a provider', async () => {
-      await registry.register(RAWGDatabase);
+      await registry.register(new RAWGDatabaseProvider());
       const provider = registry.getProvider('rawg');
       expect(provider).toBeDefined();
       expect(provider.id).toBe('rawg');

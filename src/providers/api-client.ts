@@ -15,12 +15,13 @@ export interface RequestOptions extends RequestInit {
 
 /**
  * Robust fetcher with automatic retries for common server errors (503, 504, 429).
- * @template T - The expected response type (ignored if options.raw is true).
+ * @template T - The expected response type when not expecting a raw Response.
  * @param url - The full URL to fetch.
  * @param options - Fetch options including retry limits, timeouts, and raw response flag.
  * @param retryCount - Current retry attempt.
- * @returns The parsed JSON response OR the raw Response object if options.raw is true.
  */
+export async function secureFetch<T = unknown>(url: string, options?: Omit<RequestOptions, 'raw'> & { raw?: false }, retryCount?: number): Promise<T>;
+export async function secureFetch(url: string, options: RequestOptions & { raw: true }, retryCount?: number): Promise<Response>;
 export async function secureFetch<T = unknown>(
   url: string,
   options: RequestOptions = {},

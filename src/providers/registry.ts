@@ -34,7 +34,7 @@ export interface RegistrySnapshot {
 export class DatabaseRegistry {
   private static instance: DatabaseRegistry;
   private providers: Map<string, Provider> = new Map();
-  private fetcher: Fetcher = secureFetch as unknown as Fetcher;
+  private fetcher: Fetcher = secureFetch;
   
   private status: RegistryStatus = RegistryStatus.IDLE;
   private pendingRegistrations: Set<Promise<void>> = new Set();

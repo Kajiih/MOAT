@@ -58,37 +58,37 @@ export function useItemSearch(
   }, [enabled, providerId, entityId, debouncedParams]);
 
   // 3. Define the fetcher that correctly delegates to our API Proxy
-  const fetcher = async (key: string[], opts?: { signal?: AbortSignal }): Promise<SearchResult> => {
+  const fetcher = async ([_cacheKey, providerId, entityId, serializedParams]: string[], { signal }: { signal?: AbortSignal } = {}) => {
     if (!providerId || !entityId) {
       throw new Error('Provider ID and Entity ID are required');
     }
-
+    
     const searchParams = new URLSearchParams();
     searchParams.set('providerId', providerId);
     searchParams.set('entityId', entityId);
     
-    if (debouncedParams.query) searchParams.set('query', debouncedParams.query);
-    if (debouncedParams.sort) searchParams.set('sort', debouncedParams.sort);
-    if (debouncedParams.sortDirection) searchParams.set('sortDirection', debouncedParams.sortDirection);
-    if (debouncedParams.limit) searchParams.set('limit', debouncedParams.limit.toString());
-    
-    // Strategy-specific pagination params
-    if ('page' in debouncedParams && debouncedParams.page) {
-      searchParams.set('page', debouncedParams.page.toString());
-    }
-    if ('cursor' in debouncedParams && debouncedParams.cursor) {
-      searchParams.set('cursor', debouncedParams.cursor);
-    }
-    if ('offset' in debouncedParams && debouncedParams.offset !== undefined) {
-      searchParams.set('offset', debouncedParams.offset.toString());
-    }
-    
-    // Deeply stringify the filters to pass over URL params
-    if (debouncedParams.filters && Object.keys(debouncedParams.filters).length > 0) {
-      searchParams.set('filters', JSON.stringify(debouncedParams.filters));
-    }
+    const parsedParams = JSON.parse(serializedParams) as SearchParams;
 
-    const res = await fetch(`/api/search?${searchParams.toString()}`, { signal: opts?.signal });
+    if (parsedParams.query) searchParams.set('query', parsedParams.query);
+    if (parsedParams.sort) searchParams.set('sort', parsedParams.sort);
+    if (parsedParams.sortDirection) searchParams.set('sortDirection', parsedParams.sortDirection);
+    if (parsedParams.limit) searchParams.set('limit', parsedParams.limit.toString());
+    
+    if ('page' in parsedParams && parsedParams.page) {
+      searchParams.set('page', parsedParams.page.toString());
+    }
+    if ('cursor' in parsedParams && parsedParams.cursor) {
+      searchParams.set('cursor', parsedParams.cursor);
+    }
+    if ('offset' in parsedParams && parsedParams.offset !== undefined) {
+      searchParams.set('offset', parsedParams.offset.toString());
+    }
+    
+    if (parsedParams.filters && Object.keys(parsedParams.filters).length > 0) {
+      searchParams.set('filters', JSON.stringify(parsedParams.filters));
+    }
+    
+    const res = await fetch(`/api/search?${searchParams.toString()}`, { signal });
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.error || 'Failed to fetch search results');

@@ -11,7 +11,7 @@ import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items'
 import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
-import { applyFilters, handleProviderError } from '@/providers/utils';
+import { applyFilters, handleProviderError, extractTags, extractRelatedEntities } from '@/providers/utils';
 import { FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/search/sort-schemas';
@@ -266,15 +266,15 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
       const game = RAWGGameSchema.parse(rawData);
       
       const tags = [
-        ...(game.genres?.map(g => g.name) ?? []),
-        ...(game.tags?.filter(t => t.language === 'eng').map(t => t.name) ?? []).slice(0, 10),
-      ];
+        ...extractTags(game.genres, g => g.name),
+        ...extractTags(game.tags, t => t.name, t => t.language === 'eng')
+      ].slice(0, 10);
 
-      const relatedEntities = game.developers?.map(dev => ({
+      const relatedEntities = extractRelatedEntities(game.developers, dev => ({
         label: 'Developer',
         name: dev.name,
         identity: { dbId: dev.id.toString(), databaseId: this.provider.id, entityId: 'developer' },
-      })) ?? [];
+      }));
 
       const item = mapGameToItem(game, this.provider.id);
       const details: ItemDetails = {
@@ -432,7 +432,12 @@ export class RAWGDatabaseProvider implements Provider {
   public readonly icon = Gamepad2;
   public status: ProviderStatus = ProviderStatus.IDLE;
 
-  private fetcher: Fetcher = secureFetch as unknown as Fetcher;
+  private fetcher: Fetcher = secureFetch;
+  private apiKey: string;
+
+  public constructor(config?: { apiKey: string }) {
+    this.apiKey = config?.apiKey || 'test-key';
+  }
 
   public initialize = async (fetcher: Fetcher) => {
     this.fetcher = fetcher;
@@ -521,10 +526,8 @@ export class RAWGDatabaseProvider implements Provider {
     params: Record<string, string> = {},
     options?: { signal?: AbortSignal }
   ): Promise<T> {
-    const apiKey = process.env.RAWG_API_KEY || 'test-key'; // Fallback for tests
-
     const query = new URLSearchParams(params);
-    query.append('key', apiKey);
+    query.append('key', this.apiKey);
 
     return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`, { signal: options?.signal });
   }
@@ -534,6 +537,3 @@ export class RAWGDatabaseProvider implements Provider {
     new RAWGDeveloperEntity(this)
   ] as const;
 }
-
-// Export a singleton instance
-export const RAWGDatabase = new RAWGDatabaseProvider();
