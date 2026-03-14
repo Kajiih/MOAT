@@ -180,4 +180,30 @@ test.describe('Item Management', () => {
     // Verify it moved back to Tier S
     await boardPage.expectItemInTier('item-1', 'S');
   });
+
+  test('should move item 2 tiers down continuously without pressing space', async ({ page, boardPage }) => {
+    // 1. Focus on item-1
+    const item1 = boardPage.getItemCard('item-1');
+    await item1.focus();
+
+    // 2. Lift the item using Space
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(100);
+    await expect(item1).toHaveAttribute('aria-selected', 'true');
+
+    // 3. Move it down two tiers continuously using ArrowDown (S -> A -> B)
+    await page.keyboard.press('ArrowDown');
+    await page.waitForTimeout(200);
+    await page.keyboard.press('ArrowDown');
+    await page.waitForTimeout(200);
+
+    // 4. Drop the item using Space
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(100);
+
+    // Verify it moved to Tier B
+    await boardPage.expectItemInTier('item-1', 'B');
+    await expect(item1).toHaveAttribute('aria-selected', 'false');
+  });
 });
+

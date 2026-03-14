@@ -66,6 +66,7 @@ export function TierSettings({
       contentClassName="bottom-0 right-0"
       trigger={
         <button
+          tabIndex={1}
           className={twMerge(
             'flex rounded-md bg-black/20 p-1 text-black transition-opacity hover:bg-black/40',
             isAnyDragging

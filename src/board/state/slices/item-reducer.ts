@@ -32,9 +32,9 @@ function handleMoveFromSearch(
   const overIndex = overLayout.indexOf(overId);
 
   let newIndex;
-  // If moving directly onto the container itself, append
+  // If moving directly onto the container itself, append or prepend based on edge
   if (overId in state.tierLayout) {
-    newIndex = overLayout.length;
+    newIndex = (edge === 'left' || edge === 'top') ? 0 : overLayout.length;
   } else {
     // Determine edge placement around target item
     newIndex = overIndex !== -1 ? overIndex : overLayout.length;
@@ -106,9 +106,9 @@ function handleMoveBetweenContainers(
   const overIndex = overLayout.indexOf(overId);
 
   let newIndex;
-  // If moving directly onto the container itself, append
+  // If moving directly onto the container itself, append or prepend based on edge
   if (overId in state.tierLayout) {
-    newIndex = overLayout.length;
+    newIndex = (edge === 'left' || edge === 'top') ? 0 : overLayout.length;
   } else {
     newIndex = overIndex !== -1 ? overIndex : overLayout.length;
     

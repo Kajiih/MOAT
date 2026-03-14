@@ -105,10 +105,20 @@ export function ItemCard({
   const interactionContext = useContext(InteractionContext);
   const setHoveredItem = interactionContext?.setHoveredItem;
 
-  // 3. Fallback Keyboard State if Pragmatic DnD core fails to mount key events
-  const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
+  // 3. Global Keyboard State 
   const tierListContext = useTierListContext();
   const actions = tierListContext?.actions;
+  const activeKeyboardDragId = tierListContext?.ui.activeKeyboardDragId;
+  const setActiveKeyboardDragId = tierListContext?.ui.setActiveKeyboardDragId;
+  const isKeyboardDragging = activeKeyboardDragId?.itemId === item.id && activeKeyboardDragId?.tierId === tierId;
+
+  // React destroys focus when `actions.moveItem` bridges a card across tiers (Component unmounts/remounts).
+  // This listener immediately reclaims native DOM focus upon remount if context remembers the drag session.
+  useEffect(() => {
+    if (isKeyboardDragging) {
+      ref.current?.focus();
+    }
+  }, [isKeyboardDragging]);
 
   useEffect(() => {
     const el = ref.current;
@@ -154,18 +164,33 @@ export function ItemCard({
       ref={ref}
       role="option"
       aria-selected={activeDragging}
-      tabIndex={0}
+      tabIndex={2}
       onMouseEnter={() => setHoveredItem?.(item)}
       onMouseLeave={() => setHoveredItem?.(null)}
       onFocus={() => setHoveredItem?.(item)}
       onBlur={() => {
         setHoveredItem?.(null);
-        setIsKeyboardDragging(false);
+        // Only clear drag state if we are truly unfocusing (not just remounting to another tier)
+        // Wait, if it remounts, onBlur fires FIRST before unmount. So we can't blindly clear it onBlur!
+        // Actually, if we clear it onBlur, the cross-tier movement immediately kills the drag!
+        // We should ONLY clear drag state on Escape, or Space/Enter toggle. 
+        // DO NOT clear setActiveKeyboardDragId(null) here, otherwise bridging tiers cancels the drag. 
       }}
       onKeyDown={(e) => {
         if (e.key === ' ' || e.key === 'Enter') {
           e.preventDefault();
-          setIsKeyboardDragging((prev) => !prev);
+          if (tierId) {
+            setActiveKeyboardDragId?.(isKeyboardDragging ? null : { itemId: item.id, tierId });
+          }
+          return;
+        }
+        
+        // Escape to cancel dragging
+        if (e.key === 'Escape') {
+          if (isKeyboardDragging) {
+            e.preventDefault();
+            setActiveKeyboardDragId?.(null);
+          }
           return;
         }
         
@@ -173,7 +198,7 @@ export function ItemCard({
         
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
           e.preventDefault();
-          const currentTier = ref.current?.closest('[data-tier-id]');
+          const currentTier = (e.currentTarget as HTMLElement).closest('[data-tier-id]');
           if (!currentTier) return;
           
           const isUp = e.key === 'ArrowUp';
@@ -188,7 +213,9 @@ export function ItemCard({
                 activeId: item.id,
                 overId: overTierId,
                 activeItem: item,
+                edge: isUp ? 'right' : 'left',
               });
+              setActiveKeyboardDragId?.({ itemId: item.id, tierId: overTierId });
               
               setTimeout(() => {
                 ref.current?.focus();

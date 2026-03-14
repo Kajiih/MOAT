@@ -48,6 +48,8 @@ interface UseTierListNamespacesProps {
     setDetailsItem: (item: Item | null) => void;
     showShortcuts: boolean;
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
+    activeKeyboardDragId: { itemId: string; tierId: string } | null;
+    setActiveKeyboardDragId: React.Dispatch<React.SetStateAction<{ itemId: string; tierId: string } | null>>;
   };
 }
 
@@ -176,6 +178,8 @@ export function useTierListNamespaces({
       setShowShortcuts: uiState.setShowShortcuts,
       addedItemIds,
       allBoardItems,
+      activeKeyboardDragId: uiState.activeKeyboardDragId,
+      setActiveKeyboardDragId: uiState.setActiveKeyboardDragId,
     };
   }, [utilsRaw.headerColors, uiState, addedItemIds, allBoardItems]);
 

@@ -63,6 +63,8 @@ interface TierListContextType {
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
     addedItemIds: Set<string>;
     allBoardItems: (Item)[];
+    activeKeyboardDragId: { itemId: string; tierId: string } | null;
+    setActiveKeyboardDragId: (state: { itemId: string; tierId: string } | null) => void;
   };
   history: {
     undo: () => void;
@@ -98,6 +100,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   const historyRaw = useHistory<TierListState>();
   const [detailsItem, setDetailsItem] = useState<Item | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [activeKeyboardDragId, setActiveKeyboardDragId] = useState<{ itemId: string; tierId: string } | null>(null);
   
   const { registerItem, registerItems } = useItemRegistry();
   
@@ -147,7 +150,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     structureRaw,
     ioRaw,
     utilsRaw,
-    uiState: { detailsItem, setDetailsItem, showShortcuts, setShowShortcuts },
+    uiState: { detailsItem, setDetailsItem, showShortcuts, setShowShortcuts, activeKeyboardDragId, setActiveKeyboardDragId },
   });
 
   const value = useMemo(
