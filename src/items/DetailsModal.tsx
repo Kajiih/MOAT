@@ -80,7 +80,6 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             priority
             containerClassName="absolute inset-0"
             imageClassName="object-cover opacity-60 blur-sm"
-            sizes="300px"
           />
           <div className="from-background via-background/50 absolute inset-0 bg-gradient-to-t to-transparent" />
 
@@ -88,8 +87,8 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             <ItemImage
               item={resolvedItem}
               TypeIcon={PlaceholderIcon}
+              priority
               containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-white/10 bg-surface-hover shadow-card sm:h-24 sm:w-24"
-              sizes="96px"
             />
             <div className="min-w-0 flex-1 pt-2">
               <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">

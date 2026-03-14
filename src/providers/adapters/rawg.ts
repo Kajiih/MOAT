@@ -310,7 +310,7 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
 
   const images = [
     ...(game.background_image ? [urlImage(game.background_image)] : []),
-    ...(game.slug ? [referenceImage('wikidata', `slug:${game.slug}`)] : []),
+    ...(game.slug ? [referenceImage(databaseId, game.slug)] : []),
   ];
 
   const item: Item = {

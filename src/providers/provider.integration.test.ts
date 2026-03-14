@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { registry } from '@/providers/registry';
 import { DEFAULT_PAGE_LIMIT, ProviderStatus } from '@/providers/types';
 import { FilterTestCase } from '@/search/filter-schemas';
+import { SearchResult } from '@/search/search-schemas';
 import { SortDirection } from '@/search/sort-schemas';
 
 import { expectDistinctPages, expectSorted } from './test-utils';
@@ -167,6 +168,9 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
           describe.runIf(allFilters.length > 0)('Filters', () => {
             allFilters.forEach((filter) => {
               describe(`Filter: ${filter.label} (${filter.id})`, () => {
+                // Cache baseline results by query string to avoid duplicate provider API calls
+                const baselineCache: Record<string, SearchResult<any>> = {};
+
                 filter.testCases.forEach((testCase: FilterTestCase<any, any>) => {
                   const { value, query = '' } = testCase;
                   it(`should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`, async () => {
@@ -183,6 +187,26 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                       items.length,
                       `Filter ${filter.id} for value ${JSON.stringify(value)} returned no results.`,
                     ).toBeGreaterThan(0);
+
+                    // By default, assume filters MUST alter the query payload compared to a baseline.
+                    // This can be natively skipped by setting skipQueryDifferenceTest: true.
+                    if (!testCase.skipQueryDifferenceTest) {
+                      if (!baselineCache[query]) {
+                        baselineCache[query] = await entity.search({
+                          query,
+                          filters: {},
+                          limit: DEFAULT_PAGE_LIMIT,
+                        });
+                      }
+                      
+                      const baselineRes = baselineCache[query]!;
+                      
+                      // A filter must demonstrably alter the result payload compared to the unfiltered baseline
+                      expect(
+                        JSON.stringify(items) !== JSON.stringify(baselineRes.raw),
+                        `Expected filter ${filter.id} to alter the search results compared to the baseline query, but the payloads were identical. Make sure this filter actually mutates the backend request. If this is intentional, set skipQueryDifferenceTest: true.`
+                      ).toBe(true);
+                    }
 
                     if ('expectAll' in testCase && testCase.expectAll) {
                       items.forEach((item, i) => {

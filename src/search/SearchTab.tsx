@@ -243,6 +243,7 @@ export function SearchTab({
         {showFilters && entity && (
           <div className="border-border bg-surface rounded-md border p-2">
             <FilterPanel
+              providerId={providerId}
               entity={entity}
               values={params.filters}
               onChange={(newFilters) => {

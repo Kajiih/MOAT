@@ -98,6 +98,15 @@ export interface BaseFilterTestCase<TValue = unknown, TRaw = unknown> {
   expectNone?: (item: TRaw) => boolean;
 
   /**
+   * Evaluates to true if the final URL request sent to the provider's API
+   * is strictly different from the URL request sent when NO filters are applied.
+   * This proves the filter definition actually alters the backend fetch logic.
+   * Defaults to `false` (meaning the test RUNS by default). Set to `true` to explicitly disable this check for 
+   * filters that might legitimately not alter the query under certain conditions.
+   */
+  skipQueryDifferenceTest?: boolean;
+
+  /**
    * Custom hook to inspect the entire raw array payload collectively.
    * Should only be used for complex assertions that cannot be expressed with expectAll, expectSome, or expectNone.
    */

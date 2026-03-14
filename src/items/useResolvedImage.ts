@@ -6,7 +6,6 @@
 import useSWR from 'swr';
 
 import type { ImageSource } from '@/items/images';
-import { registry } from '@/providers/registry';
 
 /**
  * Resolves an ordered list of ImageSource entries to the first working image URL.
@@ -28,10 +27,20 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
 
       for (const source of activeSources) {
         try {
-          const targetUrl =
-            source.type === 'url'
-              ? source.url
-              : await registry.resolveImageReference(source.provider, source.key);
+          let targetUrl: string | undefined;
+
+          if (source.type === 'url') {
+            targetUrl = source.url;
+          } else {
+            const res = await fetch(
+              `/api/resolve-image?providerId=${encodeURIComponent(source.provider)}&key=${encodeURIComponent(source.key)}`,
+            );
+            
+            if (res.ok) {
+              const data = await res.json();
+              targetUrl = data.url;
+            }
+          }
 
           if (targetUrl) {
             const loaded = await loadImage(targetUrl);

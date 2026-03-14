@@ -127,6 +127,7 @@ export function SearchPanel() {
             return (
               <button
                 key={entity.id}
+                data-testid={`tab-${entity.id}`}
                 onClick={() => setActiveEntityId(entity.id)}
                 title={`Search ${branding.labelPlural}`}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${isActive ? 'bg-surface-hover text-foreground shadow-sm' : 'text-secondary hover:text-muted'} `}

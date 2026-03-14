@@ -23,12 +23,12 @@ export class SearchPanel {
     this.serviceToggle = page.locator('text=Database:').locator('..');
   }
 
-  async switchTab(type: 'game' | 'developer') {
-    const titleMap = {
-      game: 'Search Video Games',
-      developer: 'Search Developers',
-    };
-    await this.page.getByTitle(titleMap[type], { exact: false }).click();
+  /**
+   * Switches to a specific search tab using its deterministic entity ID mapped to data-testid.
+   * @param entityId - The core registry entity ID to switch to (e.g. 'game', 'artist', 'album')
+   */
+  async switchTab(entityId: string) {
+    await this.page.getByTestId(`tab-${entityId}`).click();
   }
 
   /**

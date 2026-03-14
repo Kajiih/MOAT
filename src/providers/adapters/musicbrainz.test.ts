@@ -9,39 +9,41 @@ import {
 describe('MusicBrainz Adapter', () => {
   describe('Lucene Query Builders', () => {
     describe('buildAlbumLuceneQuery', () => {
+      const NOT_SECONDARY = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ-mix OR Mixtape\/Street)`;
+
       it('should build a basic term query', () => {
         const query = buildAlbumLuceneQuery({ term: 'thriller' });
-        expect(query).toBe('"thriller"');
+        expect(query).toBe(`thriller AND ${NOT_SECONDARY}`);
       });
 
       it('should escape special characters in term', () => {
         const query = buildAlbumLuceneQuery({ term: 'AC/DC' });
-        expect(query).toBe(String.raw`"AC\/DC"`);
+        expect(query).toBe(String.raw`AC\/DC AND ${NOT_SECONDARY}`);
       });
 
       it('should build an exact artistId query', () => {
         const query = buildAlbumLuceneQuery({ artistId: '1234-5678', term: 'album' });
-        expect(query).toBe('"album" AND arid:1234-5678');
+        expect(query).toBe(`album AND arid:1234-5678 AND ${NOT_SECONDARY}`);
       });
 
       it('should prioritize artistId over artist text', () => {
         const query = buildAlbumLuceneQuery({ artistId: '1234-5678', artist: 'Michael Jackson' });
-        expect(query).toBe('arid:1234-5678');
+        expect(query).toBe(`arid:1234-5678 AND ${NOT_SECONDARY}`);
       });
 
       it('should handle secondary types array', () => {
         const query = buildAlbumLuceneQuery({ secondarytype: ['Live', 'Compilation'] });
-        expect(query).toBe('secondarytype:("Live" OR "Compilation")');
+        expect(query).toBe('secondarytype:(Live OR Compilation)');
       });
 
       it('should handle date ranges', () => {
         const query = buildAlbumLuceneQuery({ firstreleasedate: { min: '1990', max: '2000' } });
-        expect(query).toBe('firstreleasedate:[1990 TO 2000]');
+        expect(query).toBe(`${NOT_SECONDARY} AND firstreleasedate:[1990 TO 2000]`);
       });
 
       it('should return empty string query if no conditions', () => {
         const query = buildAlbumLuceneQuery({});
-        expect(query).toBe('""');
+        expect(query).toBe(NOT_SECONDARY);
       });
     });
 
@@ -53,7 +55,7 @@ describe('MusicBrainz Adapter', () => {
 
       it('should build country filter', () => {
         const query = buildArtistLuceneQuery({ country: 'GB', term: 'radiohead' });
-        expect(query).toBe('"radiohead" AND country:"GB"');
+        expect(query).toBe('radiohead AND country:GB');
       });
 
       it('should handle begin date ranges', () => {
@@ -65,18 +67,100 @@ describe('MusicBrainz Adapter', () => {
     describe('buildRecordingLuceneQuery', () => {
       it('should build a basic term query', () => {
         const query = buildRecordingLuceneQuery({ term: 'moonlight' });
-        expect(query).toBe('"moonlight"');
+        expect(query).toBe('moonlight');
       });
 
       it('should handle video boolean', () => {
         const query = buildRecordingLuceneQuery({ video: true, term: 'thriller' });
-        expect(query).toBe('"thriller" AND video:true');
+        expect(query).toBe('thriller AND video:true');
       });
 
       it('should handle dur (duration) range', () => {
         const query = buildRecordingLuceneQuery({ dur: { min: '120000', max: '240000' } });
         expect(query).toBe('dur:[120000 TO 240000]');
       });
+    });
+  });
+
+  describe('MusicBrainzDatabaseProvider Search Methods', () => {
+    it('should generate the correct URL containing the proper Lucene query', async () => {
+      // We import here to avoid circular dep issues if any, but they are already imported above for query builders.
+      // Wait, we need to import MusicBrainzDatabaseProvider and MusicBrainzAlbumEntity
+      const { MusicBrainzDatabaseProvider, MusicBrainzAlbumEntity } = await import('./musicbrainz');
+
+      const provider = new MusicBrainzDatabaseProvider();
+      let fetchedUrl = '';
+
+      // Mock fetcher that captures URL and returns empty response payload
+      await provider.initialize((async (url: string) => {
+        fetchedUrl = url;
+        return { count: 0, offset: 0, 'release-groups': [] };
+      }) as never);
+
+      const albumEntity = new MusicBrainzAlbumEntity(provider);
+      await albumEntity.search({
+        query: 'aventurier',
+        filters: { artistId: '1234-5678' },
+        limit: 20,
+        page: 1,
+      });
+
+      const urlObj = new URL(fetchedUrl);
+      const EXPECTED_NOT = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ-mix OR Mixtape\/Street)`;
+      expect(urlObj.searchParams.get('query')).toBe(`aventurier AND arid:1234-5678 AND ${EXPECTED_NOT}`);
+    });
+  });
+
+  describe('MusicBrainzDatabaseProvider.resolveImage', () => {
+    it('should resolve an album reference to coverartarchive', async () => {
+      const { MusicBrainzDatabaseProvider } = await import('./musicbrainz');
+      const provider = new MusicBrainzDatabaseProvider();
+      const url = await provider.resolveImage('album:2c55f39d-9cb3-401c-b218-2fc600d26ec5');
+      expect(url).toBe('https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front');
+    });
+
+    it('should successfully resolve an artist reference using Wikidata fallback', async () => {
+      const { MusicBrainzDatabaseProvider } = await import('./musicbrainz');
+      const provider = new MusicBrainzDatabaseProvider();
+
+      // Mock fetchMB through initialize
+      await provider.initialize((async (url: string) => {
+        if (url.includes('/artist/076caf66')) {
+          return {
+            relations: [{ type: 'wikidata', url: { resource: 'https://www.wikidata.org/wiki/Q123' } }]
+          };
+        }
+        return {};
+      }) as never);
+
+      // Mock externalFetcher manually to return JSON (as secureFetch naturally does)
+      (provider as unknown as { externalFetcher: unknown }).externalFetcher = async (url: string | URL | Request) => {
+        const urlStr = url.toString();
+        let data: Record<string, unknown> = {};
+
+        if (urlStr.includes('fanart.tv')) {
+          throw new Error('Not found'); // secureFetch throws generic/ProviderErrors
+        } else if (urlStr.includes('action=wbgetclaims&entity=Q123')) {
+          data = {
+            claims: {
+              P18: [
+                {
+                  mainsnak: {
+                    datavalue: {
+                      value: 'Artist_Image.jpg'
+                    }
+                  }
+                }
+              ]
+            }
+          };
+        }
+
+        return data; // returning raw parsed JSON
+      };
+
+      const url = await provider.resolveImage('artist:076caf66-1bb1-4486-8f46-910c83441eab');
+      expect(url).toContain('Artist_Image.jpg');
     });
   });
 });

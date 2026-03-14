@@ -7,6 +7,7 @@ import React from 'react';
 
 import { FilterDefinition } from '@/search/filter-schemas';
 
+import { AsyncSelectFilterInput } from './AsyncSelectFilterInput';
 import {
   BooleanFilterInput,
   MultiSelectFilterInput,
@@ -32,7 +33,7 @@ export const FilterUIComponents: Record<
   range: RangeFilterInput,
   number: TextFilterInput, // Fallback to text for number
   date: TextFilterInput, // Fallback to text for date
-  'async-select': SelectFilterInput, // Fallback to select for async select
+  'async-select': AsyncSelectFilterInput,
   'async-multiselect': MultiSelectFilterInput,
 };
 
