@@ -164,7 +164,7 @@ export function ItemCard({
       ref={ref}
       role="option"
       aria-selected={activeDragging}
-      tabIndex={2}
+      tabIndex={0}
       onMouseEnter={() => setHoveredItem?.(item)}
       onMouseLeave={() => setHoveredItem?.(null)}
       onFocus={() => setHoveredItem?.(item)}

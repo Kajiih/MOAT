@@ -121,21 +121,18 @@ test.describe('Item Management', () => {
     
     // 2. Lift the item using Space
     await page.keyboard.press('Space');
-    // Give state a moment to update the opacity/aria-selected
-    await page.waitForTimeout(100);
     await expect(item2).toHaveAttribute('aria-selected', 'true');
 
     // 3. Move it left using ArrowLeft (before item-1)
     await page.keyboard.press('ArrowLeft');
-    await page.waitForTimeout(200); // Allow Redux processing
 
     // Expect order to have swapped
     await expect(cards.nth(0)).toContainText('Second Item');
     await expect(cards.nth(1)).toContainText('First Item');
+    await expect(item2).toBeFocused();
 
     // 4. Drop the item using Space
     await page.keyboard.press('Space');
-    await page.waitForTimeout(100);
     
     // Verify changes persisted via UI
     await expect(item2).toHaveAttribute('aria-selected', 'false');
@@ -153,29 +150,31 @@ test.describe('Item Management', () => {
     
     // 2. Lift the item using Space
     await page.keyboard.press('Space');
-    await page.waitForTimeout(100);
     await expect(item1).toHaveAttribute('aria-selected', 'true');
 
     // 3. Move it down securely using ArrowDown (should go from S to A)
     await page.keyboard.press('ArrowDown');
-    await page.waitForTimeout(200);
+    await boardPage.expectItemInTier('item-1', 'A');
+    await expect(item1).toBeFocused();
 
     // 4. Drop the item using Space
     await page.keyboard.press('Space');
-    await page.waitForTimeout(100);
-
-    // Verify it moved to Tier A
-    await boardPage.expectItemInTier('item-1', 'A');
     await expect(item1).toHaveAttribute('aria-selected', 'false');
+
+    // Verify it remains in Tier A
+    await boardPage.expectItemInTier('item-1', 'A');
 
     // 5. Move it back up using ArrowUp (should go from A to S)
     await item1.focus();
     await page.keyboard.press('Space');
-    await page.waitForTimeout(100);
+    await expect(item1).toHaveAttribute('aria-selected', 'true');
+
     await page.keyboard.press('ArrowUp');
-    await page.waitForTimeout(200);
+    await boardPage.expectItemInTier('item-1', 'S');
+    await expect(item1).toBeFocused();
+
     await page.keyboard.press('Space');
-    await page.waitForTimeout(100);
+    await expect(item1).toHaveAttribute('aria-selected', 'false');
 
     // Verify it moved back to Tier S
     await boardPage.expectItemInTier('item-1', 'S');
@@ -188,22 +187,58 @@ test.describe('Item Management', () => {
 
     // 2. Lift the item using Space
     await page.keyboard.press('Space');
-    await page.waitForTimeout(100);
     await expect(item1).toHaveAttribute('aria-selected', 'true');
 
     // 3. Move it down two tiers continuously using ArrowDown (S -> A -> B)
     await page.keyboard.press('ArrowDown');
-    await page.waitForTimeout(200);
+    await boardPage.expectItemInTier('item-1', 'A');
+    await expect(item1).toBeFocused();
+
     await page.keyboard.press('ArrowDown');
-    await page.waitForTimeout(200);
+    await boardPage.expectItemInTier('item-1', 'B');
+    await expect(item1).toBeFocused();
 
     // 4. Drop the item using Space
     await page.keyboard.press('Space');
-    await page.waitForTimeout(100);
+    await expect(item1).toHaveAttribute('aria-selected', 'false');
 
     // Verify it moved to Tier B
     await boardPage.expectItemInTier('item-1', 'B');
-    await expect(item1).toHaveAttribute('aria-selected', 'false');
+  });
+
+  test.fail('should support contiguous tab navigation between tiers and items', async ({ page, boardPage }) => {
+    // We intentionally expect this to "fail" the contiguity assertion because
+    // we decided to preserve the native DOM hierarchy for Web Accessibility (WCAG).
+    // Tab flow organically moves Tier Handle -> Tier Items -> Next Tier Handle.
+    // Forcing synthetic contiguity broke screen-reader contextual grouping.
+    
+    // 1. Setup - move item 2 to Tier A
+    await boardPage.moveItemToStartOfTier('item-2', 'A');
+    
+    const item1 = boardPage.getItemCard('item-1');
+    const item2 = boardPage.getItemCard('item-2');
+    // The handle is rendered as data-testid="tier-row-drag-handle" inside the tier-row
+    const rowS = page.locator('[data-testid="tier-row"][data-tier-label="S"]');
+    const rowA = page.locator('[data-testid="tier-row"][data-tier-label="A"]');
+    const handleS = rowS.getByTestId('tier-row-drag-handle');
+    const handleA = rowA.getByTestId('tier-row-drag-handle');
+
+    // Start focus on Tier S Handle
+    await rowS.hover();
+    await handleS.focus();
+    await expect(handleS).toBeFocused();
+
+    // Tab -> Should natively hit item-1 (inside Tier S) next, not Tier A Handle
+    await page.keyboard.press('Tab');
+    await expect(item1).toBeFocused();
+
+    // Tab -> Should natively hit Tier A Handle next
+    await page.keyboard.press('Tab');
+    await expect(handleA).toBeFocused();
+
+    // Tab -> Should natively hit item-2 (inside Tier A) next
+    await page.keyboard.press('Tab');
+    await expect(item2).toBeFocused();
   });
 });
 

@@ -98,10 +98,10 @@ export function TierLabel({
       {!isExport && (
         <div
           ref={setDragHandle}
+          role="button"
           data-testid="tier-row-drag-handle"
           aria-label="Drag to reorder tier"
-          role="button"
-          tabIndex={1}
+          tabIndex={0}
           className={twMerge(
             'absolute top-1 left-1 cursor-grab p-1 text-black/40 transition-opacity hover:text-black active:cursor-grabbing',
             dragOpacityClass,
