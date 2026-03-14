@@ -11,6 +11,7 @@ import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-d
 import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 import { Item } from '@/items/items';
 import { InteractionContext } from '@/lib/ui/InteractionContext';
@@ -42,6 +43,8 @@ export interface ItemCardProps {
   onInfo?: (item: Item) => void;
   /** Callback to locate the item on the board. */
   onLocate?: () => void;
+  /** Optional class overrides. */
+  className?: string;
 }
 
 /**
@@ -61,6 +64,7 @@ export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden roun
  * @param props.priority - Whether the image should be loaded with priority.
  * @param props.onRemove - Callback to remove the item.
  * @param props.onInfo - Callback to show item details.
+ * @param props.className - Optional class overrides.
  * @returns The rendered ItemCard component.
  */
 export function ItemCard({
@@ -73,6 +77,7 @@ export function ItemCard({
   priority,
   onRemove,
   onInfo,
+  className,
 }: ItemCardProps) {
   // 1. Get configuration from registry
   const entityDef = registry.getEntity(item.identity.databaseId, item.identity.entityId);
@@ -135,9 +140,12 @@ export function ItemCard({
       onBlur={() => setHoveredItem?.(null)}
       style={style}
       data-testid={`item-card-${item.id}`}
-      className={`group relative transition-all duration-fast hover:shadow-xl ${ITEM_CARD_BASE_CLASSES} ${
-        isAdded ? 'ring-2 ring-primary ring-offset-2 ring-offset-black' : ''
-      } ${isOverLocal ? 'ring-2 ring-emerald-500 scale-105 z-50' : ''}`}
+      className={twMerge(
+        `group relative transition-all duration-fast hover:shadow-xl ${ITEM_CARD_BASE_CLASSES}`,
+        isAdded ? 'ring-2 ring-primary ring-offset-2 ring-offset-black' : '',
+        isOverLocal ? 'ring-2 ring-emerald-500 scale-105 z-50' : '',
+        className
+      )}
     >
       {/* 1. Drag & Drop Interaction Layer (Separate from buttons) */}
       <div 
