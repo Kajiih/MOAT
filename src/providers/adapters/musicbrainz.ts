@@ -22,60 +22,130 @@ const mbArtistFilters = createFilterSuite<MBArtist>();
 const MB_BASE_URL = 'https://musicbrainz.org/ws/2';
 const MB_USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
 
-/**
- * Lucene Query Builder for MusicBrainz API
+
+/** 
+ * Helper to add a Lucene range to parts array 
+ * @param parts - Array of query string parts to mutate
+ * @param field - Lucene field name
+ * @param range - Object containing min and max string values
+ * @param range.min - Minimum value
+ * @param range.max - Maximum value
  */
-export interface LuceneQuery {
+const addLuceneRange = (parts: string[], field: string, range?: { min?: string; max?: string }) => {
+  if (range && (range.min || range.max)) {
+    const min = range.min || '*';
+    const max = range.max || '*';
+    parts.push(`${field}:[${min} TO ${max}]`);
+  }
+};
+
+/** Album search query model */
+export interface AlbumLuceneQuery {
+  term?: string;
+  artist?: string;
+  artistId?: string;
+  primarytype?: string;
+  secondarytype?: string | string[];
+  status?: string;
+  firstreleasedate?: { min?: string; max?: string };
+  tag?: string;
+}
+
+/** 
+ * Build an album-specific lucene string 
+ * @param query - The album search query model
+ * @returns The compiled Lucene query string
+ */
+export function buildAlbumLuceneQuery(query: AlbumLuceneQuery): string {
+  const parts: string[] = [];
+
+  const escape = (str: string) => str.replaceAll(/(["\\/:])/g, String.raw`\$1`);
+
+  if (query.term?.trim()) parts.push(`"${escape(query.term.trim())}"`);
+  if (query.artistId?.trim()) parts.push(`arid:${query.artistId.trim()}`);
+  else if (query.artist?.trim()) parts.push(`artist:"${escape(query.artist.trim())}"`);
+  if (query.primarytype?.trim()) parts.push(`primarytype:"${escape(query.primarytype.trim())}"`);
+  
+  if (query.secondarytype) {
+    if (Array.isArray(query.secondarytype)) {
+      if (query.secondarytype.length > 0) {
+        const types = query.secondarytype.map(t => `"${escape(t)}"`).join(' OR ');
+        parts.push(`secondarytype:(${types})`);
+      }
+    } else if (query.secondarytype.trim()) {
+      parts.push(`secondarytype:"${escape(query.secondarytype.trim())}"`);
+    }
+  }
+
+  if (query.status?.trim()) parts.push(`status:"${escape(query.status.trim())}"`);
+  if (query.tag?.trim()) parts.push(`tag:"${escape(query.tag.trim())}"`);
+
+  addLuceneRange(parts, 'firstreleasedate', query.firstreleasedate);
+
+  return parts.length > 0 ? parts.join(' AND ') : '""';
+}
+
+/** Artist search query model */
+export interface ArtistLuceneQuery {
+  term?: string;
+  country?: string;
+  type?: string;
+  begin?: { min?: string; max?: string };
+  tag?: string;
+}
+
+/** 
+ * Build an artist-specific lucene string 
+ * @param query - The artist search query model
+ * @returns The compiled Lucene query string
+ */
+export function buildArtistLuceneQuery(query: ArtistLuceneQuery): string {
+  const parts: string[] = [];
+
+  const escape = (str: string) => str.replaceAll(/(["\\/:])/g, String.raw`\$1`);
+
+  if (query.term?.trim()) parts.push(`"${escape(query.term.trim())}"`);
+  if (query.country?.trim()) parts.push(`country:"${escape(query.country.trim())}"`);
+  if (query.type?.trim()) parts.push(`type:"${escape(query.type.trim())}"`);
+  if (query.tag?.trim()) parts.push(`tag:"${escape(query.tag.trim())}"`);
+
+  addLuceneRange(parts, 'begin', query.begin);
+
+  return parts.length > 0 ? parts.join(' AND ') : '""';
+}
+
+/** Recording search query model */
+export interface RecordingLuceneQuery {
   term?: string;
   artist?: string;
   release?: string;
-  primarytype?: string;
-  type?: string;
-  status?: string;
   video?: boolean;
+  artistId?: string;
+  releaseGroupId?: string;
+  dur?: { min?: string; max?: string };
+  tag?: string;
 }
 
-export function buildLuceneQuery(query: LuceneQuery): string {
+/** 
+ * Build a recording-specific lucene string 
+ * @param query - The recording search query model
+ * @returns The compiled Lucene query string
+ */
+export function buildRecordingLuceneQuery(query: RecordingLuceneQuery): string {
   const parts: string[] = [];
 
-  // Helper to escape Lucene special characters (e.g., +, -, &, ||, !, (, ), {, }, [, ], ^, ", ~, *, ?, :, \, /)
-  // We only escape basic ones here that might break queries if users search with them
-  const escape = (str: string) => {
-    // Escape quotes, colons, and slashes that have special meaning in Lucene
-    return str.replace(/(["\\/:])/g, '\\$1');
-  };
+  const escape = (str: string) => str.replaceAll(/(["\\/:])/g, String.raw`\$1`);
 
-  if (query.term?.trim()) {
-    // If we have a general search term, wrap it in quotes for exact phrase matching
-    // or leave it unquoted for generic keyword matching. We'll use quotes for better precision.
-    parts.push(`"${escape(query.term.trim())}"`);
-  }
+  if (query.term?.trim()) parts.push(`"${escape(query.term.trim())}"`);
+  if (query.artistId?.trim()) parts.push(`arid:${query.artistId.trim()}`);
+  else if (query.artist?.trim()) parts.push(`artist:"${escape(query.artist.trim())}"`);
+  if (query.releaseGroupId?.trim()) parts.push(`rgid:${query.releaseGroupId.trim()}`);
+  if (query.release?.trim()) parts.push(`release:"${escape(query.release.trim())}"`);
+  if (query.video !== undefined) parts.push(`video:${query.video}`);
+  if (query.tag?.trim()) parts.push(`tag:"${escape(query.tag.trim())}"`);
 
-  if (query.artist?.trim()) {
-    parts.push(`artist:"${escape(query.artist.trim())}"`);
-  }
+  addLuceneRange(parts, 'dur', query.dur);
 
-  if (query.release?.trim()) {
-    parts.push(`release:"${escape(query.release.trim())}"`);
-  }
-
-  if (query.primarytype?.trim()) {
-    parts.push(`primarytype:"${escape(query.primarytype.trim())}"`);
-  }
-
-  if (query.type?.trim()) {
-    parts.push(`type:"${escape(query.type.trim())}"`);
-  }
-
-  if (query.status?.trim()) {
-    parts.push(`status:"${escape(query.status.trim())}"`);
-  }
-
-  if (query.video !== undefined) {
-    parts.push(`video:${query.video}`);
-  }
-
-  // Combine conditions with AND
   return parts.length > 0 ? parts.join(' AND ') : '""';
 }
 
@@ -370,13 +440,6 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
   public readonly edgeShortQuery = 'zzzzzzz';
 
   public constructor(private provider: MusicBrainzDatabaseProvider) {
-    // Support filtering by artist entity type (Person, Group, etc)
-    const typeCase = (label: string, value: string) => ({
-      value,
-      label,
-      match: (item: MBArtist) => item.type?.toLowerCase() === value.toLowerCase(),
-    });
-
     this.filters = [
       mbArtistFilters.select({
         id: 'type',
@@ -675,12 +738,12 @@ function mapRecordingToItem(recording: MBRecording, databaseId: string): Item {
   const artistName = recording['artist-credit']?.[0]?.name;
   
   // Try to find the first release title for the subtitle, fallback to length info
-  let albumTitle = recording.releases?.[0]?.title;
+  const albumTitle = recording.releases?.[0]?.title;
   let tertiaryText = recording.video ? 'Video' : 'Audio';
 
   if (recording.length) {
-    const mins = Math.floor(recording.length / 60000);
-    const secs = Math.floor((recording.length % 60000) / 1000);
+    const mins = Math.floor(recording.length / 60_000);
+    const secs = Math.floor((recording.length % 60_000) / 1000);
     tertiaryText += ` • ${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
@@ -724,54 +787,12 @@ export class MusicBrainzDatabaseProvider implements Provider {
         const id = key.replace('artist:', '');
 
         // Tier 1: Fanart.tv (Optional)
-        // We will mock process.env since this relies on user API keys
-        const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
-        if (fanartKey) {
-          try {
-            const res = await this.externalFetcher(`https://webservice.fanart.tv/v3/music/${id}`, {
-              headers: { 'api-key': fanartKey, Accept: 'application/json' },
-            });
-            if (res.ok) {
-              const data = await res.json();
-              const url = data?.artistthumb?.[0]?.url;
-              if (url) return url;
-            }
-          } catch {
-            // Silently fallback on failure
-          }
-        }
+        const fanartRes = await this.resolveImageFromFanart(id);
+        if (fanartRes) return fanartRes;
 
         // Tier 2: Wikidata Fallback
-        // First we must fetch the Wikidata ID from the Artist's MusicBrainz relations
-        // To save an HTTP roundtrip if not cached, we use MusicBrainz directly
-        try {
-          const mbRes = await this.fetchMB<{ relations?: { type: string; url: { resource: string } }[] }>(
-            `/artist/${id}`,
-            { inc: 'url-rels' }
-          );
-
-          const wikidataUrl = mbRes.relations?.find((r) => r.type === 'wikidata')?.url?.resource;
-          if (wikidataUrl) {
-            const QID = wikidataUrl.split('/').pop();
-            if (QID) {
-              // Now query Wikidata for P18 (image)
-              const wdRes = await this.externalFetcher(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${QID}&property=P18&format=json`);
-              if (wdRes.ok) {
-                const wdData = await wdRes.json();
-                const fileClaim = wdData.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
-                if (fileClaim) {
-                  // Transform filename to wikimedia commons special URL
-                  const fileName = fileClaim.replace(/ /g, '_');
-                  // A rough commons direct link (usually requires MD5 hashing for absolute path, 
-                  // but wikimedia's Special:FilePath router handles direct filenames perfectly)
-                  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=800`;
-                }
-              }
-            }
-          }
-        } catch {
-          // Fallthrough
-        }
+        const wikidataRes = await this.resolveImageFromWikidata(id);
+        if (wikidataRes) return wikidataRes;
       }
 
       // Legacy fallback exactly to release-group just in case
@@ -788,11 +809,15 @@ export class MusicBrainzDatabaseProvider implements Provider {
     try {
       const appliedFilters = applyFilters(params.filters, searchOptions);
 
-      const queryStr = buildLuceneQuery({
+      const queryStr = buildAlbumLuceneQuery({
         term: params.query || 'rock',
-        artist: appliedFilters.artist,
-        primarytype: appliedFilters.primarytype,
-        status: appliedFilters.status,
+        artistId: appliedFilters.artistId as string | undefined,
+        artist: appliedFilters.artist as string | undefined,
+        primarytype: appliedFilters.primarytype as string | undefined,
+        secondarytype: appliedFilters.secondarytype as string | string[] | undefined,
+        status: appliedFilters.status as string | undefined,
+        firstreleasedate: appliedFilters.firstreleasedate as { min?: string; max?: string } | undefined,
+        tag: appliedFilters.tag as string | undefined,
       });
 
       const limit = params.limit || 20;
@@ -837,11 +862,12 @@ export class MusicBrainzDatabaseProvider implements Provider {
     try {
       const appliedFilters = applyFilters(params.filters, searchOptions);
       
-      const queryStr = buildLuceneQuery({
+      const queryStr = buildArtistLuceneQuery({
         term: params.query || 'pop',
-        type: appliedFilters.type,
-        // Country is not natively a lucene field in identical way always but MB supports country:"GB"
-        ...(appliedFilters.country ? { term: `country:${appliedFilters.country} ${params.query || ''}`.trim() } : {})
+        type: appliedFilters.type as string | undefined,
+        country: appliedFilters.country as string | undefined,
+        begin: appliedFilters.begin as { min?: string; max?: string } | undefined,
+        tag: appliedFilters.tag as string | undefined,
       });
 
       const limit = params.limit || 20;
@@ -904,11 +930,15 @@ export class MusicBrainzDatabaseProvider implements Provider {
     try {
       const appliedFilters = applyFilters(params.filters, searchOptions);
 
-      const queryStr = buildLuceneQuery({
+      const queryStr = buildRecordingLuceneQuery({
         term: params.query || 'love',
-        artist: appliedFilters.artist,
-        release: appliedFilters.release,
+        artistId: appliedFilters.artistId as string | undefined,
+        artist: appliedFilters.artist as string | undefined,
+        releaseGroupId: appliedFilters.albumId as string | undefined,
+        release: appliedFilters.release as string | undefined,
         video: appliedFilters.video !== undefined ? Boolean(appliedFilters.video) : undefined,
+        dur: appliedFilters.dur as { min?: string; max?: string } | undefined,
+        tag: appliedFilters.tag as string | undefined,
       });
 
       const limit = params.limit || 20;
@@ -951,4 +981,50 @@ export class MusicBrainzDatabaseProvider implements Provider {
     new MusicBrainzArtistEntity(this),
     new MusicBrainzRecordingEntity(this),
   ] as const;
+  private async resolveImageFromWikidata(id: string): Promise<string | null> {
+    try {
+      const mbRes = await this.fetchMB<{ relations?: { type: string; url: { resource: string } }[] }>(
+        `/artist/${id}`,
+        { inc: 'url-rels' }
+      );
+
+      const wikidataUrl = mbRes.relations?.find((r) => r.type === 'wikidata')?.url?.resource;
+      if (wikidataUrl) {
+        const QID = wikidataUrl.split('/').pop();
+        if (QID) {
+          const wdRes = await this.externalFetcher(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${QID}&property=P18&format=json`);
+          if (wdRes.ok) {
+            const wdData = await wdRes.json();
+            const fileClaim = wdData.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+            if (fileClaim && typeof fileClaim === 'string') {
+              const fileName = fileClaim.replaceAll(' ', '_');
+              return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=800`;
+            }
+          }
+        }
+      }
+    } catch {
+      // Fallthrough
+    }
+    return null;
+  }
+
+  private async resolveImageFromFanart(id: string): Promise<string | null> {
+    const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
+    if (fanartKey) {
+      try {
+        const res = await this.externalFetcher(`https://webservice.fanart.tv/v3/music/${id}`, {
+          headers: { 'api-key': fanartKey, Accept: 'application/json' },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const url = data?.artistthumb?.[0]?.url;
+          if (url) return url;
+        }
+      } catch {
+        // Silently fallback on failure
+      }
+    }
+    return null;
+  }
 }
