@@ -6,10 +6,11 @@ test.describe('Service Toggle (Multi-Database)', () => {
     await dashboardPage.createBoard('Game Board');
   });
 
-  test('should not show a database toggle when only one provider is available', async ({ page }) => {
-    // The "Database:" label and toggle should NOT be visible when there's only one provider
-    await expect(page.getByText('Database:')).toBeHidden();
-    await expect(page.getByRole('button', { name: 'RAWG' })).toBeHidden();
+  test('should show a provider toggle when multiple providers are available', async ({ page }) => {
+    // The "Provider:" label and toggle should be visible because 'bootstrap.ts' loads RAWG and MusicBrainz
+    await expect(page.getByText('Provider:')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'RAWG' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'MUSICBRAINZ' })).toBeVisible();
   });
 
   test('should show Game and Developer tabs for RAWG', async ({

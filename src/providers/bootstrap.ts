@@ -3,6 +3,7 @@
  * @description Central Node.js execution file instantiating API data adapters into the registry.
  */
 
+import { MusicBrainzDatabaseProvider } from './adapters/musicbrainz';
 import { RAWGDatabaseProvider } from './adapters/rawg';
 import { registry } from './registry';
 
@@ -12,5 +13,7 @@ import { registry } from './registry';
 const rawgProvider = new RAWGDatabaseProvider({
   apiKey: process.env.RAWG_API_KEY || 'test-key',
 });
+const musicBrainzProvider = new MusicBrainzDatabaseProvider();
 
 registry.register(rawgProvider);
+registry.register(musicBrainzProvider);
