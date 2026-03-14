@@ -188,7 +188,9 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                       items.forEach((item, i) => {
                         expect(
                           testCase.expectAll!(item),
-                          testCase.message || `Item at index ${i} did not match expectAll for filter ${filter.id}`,
+                          testCase.expectAllMessage
+                            ? `Expected all results to ${testCase.expectAllMessage}, but item at index ${i} doesn't: ${JSON.stringify(item)}`
+                            : `Item at index ${i} did not match expectAll for filter ${filter.id}`,
                         ).toBe(true);
                       });
                     }
@@ -197,16 +199,21 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                       const hasMatch = items.some((item) => testCase.expectSome!(item));
                       expect(
                         hasMatch,
-                        testCase.message || `Filter ${filter.id} expectSome failed: No items matched the condition.`,
+                        testCase.expectSomeMessage
+                          ? `Expected at least one result to ${testCase.expectSomeMessage}, but none did.`
+                          : `Filter ${filter.id} expectSome failed: No items matched the condition.`,
                       ).toBe(true);
                     }
 
                     if ('expectNone' in testCase && testCase.expectNone) {
-                      const hasMatch = items.some((item) => testCase.expectNone!(item));
+                      // Find the first matching item to show in the error message
+                      const matchedItem = items.find((item) => testCase.expectNone!(item));
                       expect(
-                        hasMatch,
-                        testCase.message || `Filter ${filter.id} expectNone failed: One or more items incorrectly matched the condition.`,
-                      ).toBe(false);
+                        matchedItem === undefined,
+                        testCase.expectNoneMessage
+                          ? `Expected no results to ${testCase.expectNoneMessage}, but this item did: ${JSON.stringify(matchedItem)}`
+                          : `Filter ${filter.id} expectNone failed: One or more items incorrectly matched the condition.`,
+                      ).toBe(true);
                     }
 
                     if ('expectAggregate' in testCase && testCase.expectAggregate) {

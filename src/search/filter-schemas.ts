@@ -103,10 +103,12 @@ export interface BaseFilterTestCase<TValue = unknown, TRaw = unknown> {
    */
   expectAggregate?: (items: TRaw[]) => void;
 
-  /**
-   * Custom error message to display if the test case fails.
-   */
-  message?: string;
+  /** Description of the expected property for expectAll. Fits into: "Expected all results to [msg], but [item] doesn't." */
+  expectAllMessage?: string;
+  /** Description of the expected property for expectSome. Fits into: "Expected at least one result to [msg], but none did." */
+  expectSomeMessage?: string;
+  /** Description of the expected property for expectNone. Fits into: "Expected no results to [msg], but [item] did." */
+  expectNoneMessage?: string;
 }
 
 /**
