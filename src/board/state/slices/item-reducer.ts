@@ -1,25 +1,22 @@
 /**
  * @file item-reducer.ts
- * @description specialized slice reducer for managing items on the board.
+ * @description Specialized slice case reducers for managing items on the board via Redux Toolkit.
  * Handles item movements (reordering and cross-tier), deletions, and attribute updates.
- * @module ItemSliceReducer
+ * @module ItemSliceReducers
  */
 
-import { Item, TierListState } from '@/board/types';
+import { PayloadAction } from '@reduxjs/toolkit';
+
+import { TierId, TierListState } from '@/board/types';
+import { ItemUpdate } from '@/items/items';
 import { arrayMove } from '@/lib/array';
 import { hasItemUpdates } from '@/lib/comparisons';
 
-import { ActionType, TierListAction } from '../actions';
-
-/** Type definition for the Move Item action payload */
-export type MoveItemPayload = Extract<TierListAction, { type: 'MOVE_ITEM' }>['payload'];
-export type UpdateItemPayload = Extract<TierListAction, { type: 'UPDATE_ITEM' }>['payload'];
+import { MoveItemPayload } from '../reducer';
 
 const findContainer = (id: string, state: TierListState): string | undefined => {
-  // Optimization: O(1) Lookup since tierLayout is just maps of small string arrays
   const layout = state.tierLayout;
   if (!layout) return undefined;
-  
   return Object.keys(layout).find((tierId) => layout[tierId]?.includes(id));
 };
 
@@ -27,9 +24,10 @@ function handleMoveFromSearch(
   state: TierListState,
   payload: MoveItemPayload,
   overContainer: string,
-): TierListState {
+): void {
   const { activeId, overId, activeItem: draggingItemFromSearch, edge } = payload;
-  if (!draggingItemFromSearch) return state;
+  if (!draggingItemFromSearch) return;
+
   const overLayout = state.tierLayout[overContainer] || [];
   const overIndex = overLayout.indexOf(overId);
 
@@ -52,37 +50,27 @@ function handleMoveFromSearch(
   }
 
   // Already exists somewhere? Abort.
-  if (state.itemEntities[activeId]) return state;
+  if (state.itemEntities[activeId]) return;
 
-  return {
-    ...state,
-    itemEntities: {
-      ...state.itemEntities,
-      [activeId]: draggingItemFromSearch,
-    },
-    tierLayout: {
-      ...state.tierLayout,
-      [overContainer]: [
-        ...overLayout.slice(0, newIndex),
-        activeId,
-        ...overLayout.slice(newIndex),
-      ],
-    },
-  };
+  // IMUTATE VIA IMMER
+  state.itemEntities[activeId] = draggingItemFromSearch;
+  
+  if (!state.tierLayout[overContainer]) state.tierLayout[overContainer] = [];
+  state.tierLayout[overContainer].splice(newIndex, 0, activeId);
 }
 
 function handleSortInContainer(
   state: TierListState,
   payload: MoveItemPayload,
   container: string,
-): TierListState {
+): void {
   const { activeId, overId, edge } = payload;
   const activeLayout = state.tierLayout[container] || [];
   const activeIndex = activeLayout.indexOf(activeId);
   const overIndex = activeLayout.indexOf(overId);
 
   if (activeIndex === -1 || overIndex === -1 || activeIndex === overIndex) {
-    return state;
+    return;
   }
 
   // Find exact DOM edge (Pragmatic Drag and Drop Hitboxes)
@@ -95,21 +83,16 @@ function handleSortInContainer(
       finalDropIndex = activeIndex > overIndex ? overIndex : Math.max(0, overIndex - 1);
     }
   } else {
-    // Default fallback to old behavior (should be rare with hitboxes)
+    // Default fallback to old behavior
     finalDropIndex = activeIndex < overIndex ? Math.max(0, overIndex - 1) : overIndex;
   }
 
   if (finalDropIndex === activeIndex) {
-    return state;
+    return;
   }
 
-  return {
-    ...state,
-    tierLayout: {
-      ...state.tierLayout,
-      [container]: arrayMove(activeLayout, activeIndex, finalDropIndex),
-    },
-  };
+  // MUTATE VIA IMMER
+  state.tierLayout[container] = arrayMove(activeLayout, activeIndex, finalDropIndex);
 }
 
 function handleMoveBetweenContainers(
@@ -117,9 +100,8 @@ function handleMoveBetweenContainers(
   payload: MoveItemPayload,
   activeContainer: string,
   overContainer: string,
-): TierListState {
+): void {
   const { activeId, overId, edge } = payload;
-  const activeLayout = state.tierLayout[activeContainer] || [];
   const overLayout = state.tierLayout[overContainer] || [];
   const overIndex = overLayout.indexOf(overId);
 
@@ -128,10 +110,8 @@ function handleMoveBetweenContainers(
   if (overId in state.tierLayout) {
     newIndex = overLayout.length;
   } else {
-    // Determine edge placement around target item
     newIndex = overIndex !== -1 ? overIndex : overLayout.length;
     
-    // Apply strict PRDnD edge index adjustments if available
     if (overIndex !== -1) {
        if (edge === 'right' || edge === 'bottom') {
          newIndex = overIndex + 1;
@@ -141,136 +121,95 @@ function handleMoveBetweenContainers(
     }
   }
 
-  return {
-    ...state,
-    tierLayout: {
-      ...state.tierLayout,
-      [activeContainer]: activeLayout.filter((id) => id !== activeId),
-      [overContainer]: [
-        ...overLayout.slice(0, newIndex),
-        activeId,
-        ...overLayout.slice(newIndex),
-      ],
-    },
-  };
+  // MUTATE VIA IMMER
+  if (!state.tierLayout[overContainer]) state.tierLayout[overContainer] = [];
+  
+  // 1. Remove from source
+  state.tierLayout[activeContainer] = state.tierLayout[activeContainer].filter(id => id !== activeId);
+  
+  // 2. Insert into destination
+  state.tierLayout[overContainer].splice(newIndex, 0, activeId);
 }
 
 /**
- * Logic for moving an item within a tier or between tiers.
- * Also handles adding new items from the search panel.
- * @param state - Current tier list state.
- * @param payload - Move details (activeId, overId, dragging item if from search).
- * @returns Updated state with item in its new position.
+ * RTK Case Reducer for moving an item within a tier or between tiers.
+ * @param state - The draft state provided by Immer.
+ * @param action - The RTK PayloadAction containing MoveItemPayload.
  */
-export function handleMoveItem(state: TierListState, payload: MoveItemPayload): TierListState {
+export function handleMoveItem(state: TierListState, action: PayloadAction<MoveItemPayload>): void {
+  const payload = action.payload;
   const { activeId, overId } = payload;
 
   const activeContainer = activeId in state.tierLayout ? activeId : findContainer(activeId, state);
   const overContainer = overId in state.tierLayout ? overId : findContainer(overId, state);
 
-  if (!overContainer) return state;
+  if (!overContainer) return;
 
-  // Case 1: Dragging from Search (New Item)
   if (!activeContainer) {
     return handleMoveFromSearch(state, payload, overContainer);
   }
 
-  // Case 2: Sorting within same container
   if (activeContainer === overContainer) {
-    // Optimization: If overId is the container ID itself and item is already in it, skip
-    if (overId === overContainer) return state;
+    if (overId === overContainer) return;
     return handleSortInContainer(state, payload, activeContainer);
   }
 
-  // Case 3: Moving between tiers
-  // Optimization: If it's already in the right spot, we skip
-  // (Mostly for handleDragOver which can be called many times)
-  const isAlreadyAtTarget =
-    activeContainer !== overContainer && state.tierLayout[overContainer]?.includes(activeId);
-  if (isAlreadyAtTarget) return state;
+  const isAlreadyAtTarget = state.tierLayout[overContainer]?.includes(activeId);
+  if (isAlreadyAtTarget) return;
 
   return handleMoveBetweenContainers(state, payload, activeContainer, overContainer);
 }
 
-function handleUpdateItem(state: TierListState, payload: UpdateItemPayload): TierListState {
-  const { itemId, updates } = payload;
+/**
+ * RTK Case Reducer for updating item attributes.
+ * @param state - The draft state provided by Immer.
+ * @param action - The RTK PayloadAction containing the item ID and updates.
+ */
+export function handleUpdateItem(state: TierListState, action: PayloadAction<{ itemId: string; updates: ItemUpdate }>): void {
+  const { itemId, updates } = action.payload;
   const currentItem = state.itemEntities[itemId];
   
-  if (!currentItem) return state;
+  if (!currentItem) return;
 
   if (!hasItemUpdates(currentItem, updates)) {
-    return state;
+    return;
   }
 
-  const newItem: Item = { ...currentItem, ...updates };
-
-  // Pure data update
-  return {
-    ...state,
-    itemEntities: {
-      ...state.itemEntities,
-      [newItem.id]: newItem
-    }
-  };
+  // MUTATE VIA IMMER
+  Object.assign(state.itemEntities[itemId], updates);
 }
 
 /**
- * Slice reducer for item-related actions.
- * @param state - Current tier list state.
- * @param action - TierListAction related to items.
- * @returns New state if handled, otherwise original state.
+ * RTK Case Reducer for removing an item from the board.
+ * @param state - The draft state provided by Immer.
+ * @param action - The RTK PayloadAction containing the tier ID and item ID.
  */
-export function itemReducer(state: TierListState, action: TierListAction): TierListState {
-  switch (action.type) {
-    case ActionType.MOVE_ITEM: {
-      return handleMoveItem(state, action.payload);
-    }
-    case ActionType.REMOVE_ITEM: {
-      const { tierId, itemId } = action.payload;
-      
-      const newEntities = { ...state.itemEntities };
-      delete newEntities[itemId];
+export function handleRemoveItem(state: TierListState, action: PayloadAction<{ tierId: string | TierId; itemId: string }>): void {
+  const { tierId, itemId } = action.payload;
+  
+  // MUTATE VIA IMMER
+  delete state.itemEntities[itemId];
+  if (state.tierLayout[tierId]) {
+    state.tierLayout[tierId] = state.tierLayout[tierId].filter(id => id !== itemId);
+  }
+}
 
-      return {
-        ...state,
-        itemEntities: newEntities,
-        tierLayout: {
-          ...state.tierLayout,
-          [tierId]: (state.tierLayout[tierId] || []).filter((id) => id !== itemId),
-        },
-      };
-    }
+/**
+ * RTK Case Reducer for resetting all items to the unranked tier.
+ * @param state - The draft state provided by Immer.
+ */
+export function handleMoveAllToUnranked(state: TierListState): void {
+  const allItemIds = Object.keys(state.itemEntities);
+  if (allItemIds.length === 0) return;
 
-    case ActionType.UPDATE_ITEM: {
-      return handleUpdateItem(state, action.payload);
-    }
+  // Clear all layouts explicitly
+  state.tierDefs.forEach((tier) => {
+    state.tierLayout[tier.id] = [];
+  });
 
-    case ActionType.MOVE_ALL_TO_UNRANKED: {
-      const allItemIds = Object.keys(state.itemEntities);
-      if (allItemIds.length === 0) return state;
+  const unrankedTier = state.tierDefs.find((t) => t.label.toLowerCase() === 'unranked') || state.tierDefs.at(-1);
 
-      const newLayout: Record<string, string[]> = {};
-
-      // Initialize all tiers as empty
-      state.tierDefs.forEach((tier) => {
-        newLayout[tier.id] = [];
-      });
-
-      const unrankedTier =
-        state.tierDefs.find((t) => t.label.toLowerCase() === 'unranked') || state.tierDefs.at(-1);
-
-      if (unrankedTier) {
-        newLayout[unrankedTier.id] = allItemIds;
-      }
-
-      return {
-        ...state,
-        tierLayout: newLayout,
-      };
-    }
-
-    default: {
-      return state;
-    }
+  if (unrankedTier) {
+    state.tierLayout[unrankedTier.id] = allItemIds;
   }
 }

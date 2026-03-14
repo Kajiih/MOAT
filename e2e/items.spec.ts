@@ -6,7 +6,6 @@ test.describe('Item Management', () => {
 
   test.beforeEach(async ({ page, dashboardPage, searchPanel, boardPage }) => {
     await dashboardPage.goto();
-    // page.on('console', msg => console.log('BROWSER:', msg.text()));
     await dashboardPage.createBoard('Item Management Test');
 
     // Setup: Add two items to tier S

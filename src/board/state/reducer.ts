@@ -1,58 +1,98 @@
 /**
  * @file reducer.ts
- * @description The core state management logic for the Tier List.
- * Delegates state transitions to specialized slice reducers.
+ * @description The core state management logic for the Tier List, implemented via Redux Toolkit.
+ * This file constructs the primary `boardSlice` and exports the generated action creators.
  * @module TierListReducer
  */
 
-import { assertNever, TierListState } from '@/board/types';
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { ActionType, TierListAction } from './actions';
-import { globalReducer } from './slices/global-reducer';
-import { itemReducer } from './slices/item-reducer';
-import { tierReducer } from './slices/tier-reducer';
+import { INITIAL_STATE } from '@/board/initial-state';
+import { Item, TierId, TierListState, TierUpdate } from '@/board/types';
+import { ItemUpdate } from '@/items/items';
+
+import { handleGlobalState } from './slices/global-reducer';
+import {
+  handleMoveAllToUnranked,
+  handleMoveItem,
+  handleRemoveItem,
+  handleUpdateItem,
+} from './slices/item-reducer';
+import {
+  handleAddTier,
+  handleDeleteTier,
+  handleRandomizeColors,
+  handleReorderTiers,
+  handleUpdateTier,
+} from './slices/tier-reducer';
 
 /**
- * The primary reducer for the Tier List application.
- * Delegates actions to specialized slice reducers for better maintainability.
- * @param state - The current application state.
- * @param action - The action to perform.
- * @returns A new state object reflecting the changes.
+ * Payload interface for moveItem defining source, sink, and edge data for pragmatic-drag-and-drop.
  */
-export function tierListReducer(state: TierListState, action: TierListAction): TierListState {
-  // 1. Structural changes (Tiers)
-  let nextState = tierReducer(state, action);
-  if (nextState !== state) return nextState;
-
-  // 2. Item manipulation
-  nextState = itemReducer(state, action);
-  if (nextState !== state) return nextState;
-
-  // 3. Global actions (Title, Import, Clear)
-  nextState = globalReducer(state, action);
-  if (nextState !== state) return nextState;
-
-  // 4. Exhaustiveness check for the action type
-  // This ensures that all ActionTypes are at least KNOWN by the system,
-  // even if a specific action results in no state change.
-  switch (action.type) {
-    case ActionType.ADD_TIER:
-    case ActionType.DELETE_TIER:
-    case ActionType.UPDATE_TIER:
-    case ActionType.REORDER_TIERS:
-    case ActionType.MOVE_ITEM:
-    case ActionType.UPDATE_ITEM:
-    case ActionType.REMOVE_ITEM:
-    case ActionType.UPDATE_TITLE:
-    case ActionType.RANDOMIZE_COLORS:
-    case ActionType.CLEAR_BOARD:
-    case ActionType.IMPORT_STATE:
-    case ActionType.SET_STATE:
-    case ActionType.MOVE_ALL_TO_UNRANKED: {
-      return state;
-    }
-    default: {
-      return assertNever(action);
-    }
-  }
+export interface MoveItemPayload {
+  activeId: string;
+  overId: string;
+  activeTierId?: string | TierId;
+  overTierId?: string | TierId;
+  activeItem?: Item;
+  edge?: Edge | null;
 }
+
+/**
+ * The unified slice containing all board functionality.
+ * Generates all Action Creators natively using Immer.
+ */
+const boardSlice = createSlice({
+  name: 'board',
+  initialState: INITIAL_STATE,
+  reducers: {
+    // --- Tier Actions ---
+    addTier: handleAddTier,
+    deleteTier: (state, action: PayloadAction<{ id: string | TierId }>) => handleDeleteTier(state, action),
+    updateTier: (state, action: PayloadAction<{ id: string | TierId; updates: TierUpdate }>) => handleUpdateTier(state, action),
+    reorderTiers: (state, action: PayloadAction<{ activeId: string | TierId; overId: string | TierId }>) => handleReorderTiers(state, action),
+    randomizeColors: handleRandomizeColors,
+
+    // --- Item Actions ---
+    moveItem: (state, action: PayloadAction<MoveItemPayload>) => handleMoveItem(state, action),
+    removeItem: (state, action: PayloadAction<{ tierId: string | TierId; itemId: string }>) => handleRemoveItem(state, action),
+    updateItem: (state, action: PayloadAction<{ itemId: string; updates: ItemUpdate }>) => handleUpdateItem(state, action),
+    moveAllToUnranked: handleMoveAllToUnranked,
+
+    // --- Global Actions ---
+    updateTitle: (state, action: PayloadAction<{ title: string }>) => handleGlobalState.updateTitle(state, action),
+    clearBoard: () => INITIAL_STATE,
+    importState: (state, action: PayloadAction<{ state: TierListState }>) => action.payload.state,
+    setState: (state, action: PayloadAction<{ state: TierListState }>) => action.payload.state,
+  },
+});
+
+export const {
+  addTier,
+  deleteTier,
+  updateTier,
+  reorderTiers,
+  randomizeColors,
+  moveItem,
+  removeItem,
+  updateItem,
+  moveAllToUnranked,
+  updateTitle,
+  clearBoard,
+  importState,
+  setState,
+} = boardSlice.actions;
+
+export const tierListReducer = boardSlice.reducer;
+
+/**
+ * A discriminated union of all possible actions generated by the boardSlice.
+ * Provides strict typing for our custom `dispatch` functions within the React layer.
+ */
+export type BoardAction = ReturnType<typeof boardSlice.actions[keyof typeof boardSlice.actions]>;
+
+/**
+ * The strictly typed Dispatch function for the Tier List context.
+ */
+export type BoardDispatch = React.Dispatch<BoardAction>;

@@ -134,12 +134,12 @@ export function extractTags<T>(
 
   let filtered = sourceList;
   if (filterFn) {
-    filtered = sourceList.filter(filterFn);
+    filtered = sourceList.filter((f) => filterFn(f));
   }
 
   // Use Set to ensure uniqueness, then limit to top 10
-  const uniqueTags = new Set(filtered.map(nameExtractor).filter(Boolean));
-  return Array.from(uniqueTags).slice(0, 10);
+  const uniqueTags = new Set(filtered.map((d) => nameExtractor(d)).filter(Boolean));
+  return [...uniqueTags].slice(0, 10);
 }
 
 /**
@@ -153,5 +153,5 @@ export function extractRelatedEntities<T>(
   mappingFn: (item: T) => EntityLink
 ): EntityLink[] {
   if (!sourceList || !Array.isArray(sourceList)) return [];
-  return sourceList.map(mappingFn);
+  return sourceList.map((val) => mappingFn(val));
 }

@@ -4,10 +4,9 @@
  */
 
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { useEffect, useState } from 'react';
 
-import { ActionType, TierListAction } from '@/board/state/actions';
+import { BoardDispatch, moveItem, reorderTiers } from '@/board/state/reducer';
 import { TierDefinition, TierListState } from '@/board/types';
 import { Item } from '@/items/items';
 
@@ -21,7 +20,7 @@ import { Item } from '@/items/items';
  */
 export function useTierListDrag(
   state: TierListState,
-  dispatch: React.Dispatch<TierListAction>,
+  dispatch: BoardDispatch,
   pushHistory: () => void,
 ) {
   const [activeItem, setActiveItem] = useState<Item | null>(null);
@@ -74,28 +73,26 @@ export function useTierListDrag(
           const edge = extractClosestEdge(dropTarget.data);
 
           pushHistory();
-          dispatch({
-            type: ActionType.MOVE_ITEM,
-            payload: {
+          dispatch(
+            moveItem({
               activeId,
               overId: finalTargetId,
               activeItem: item,
               edge,
-            },
-          });
+            })
+          );
         } else if (source.data.type === 'tier') {
            const sourceTier = source.data.tier as TierDefinition;
            const targetTierId = dropTarget.data.tierId as string;
            
            if (sourceTier.id !== targetTierId) {
              pushHistory();
-             dispatch({
-               type: ActionType.REORDER_TIERS,
-               payload: {
+             dispatch(
+               reorderTiers({
                  activeId: sourceTier.id,
                  overId: finalTargetId,
-               },
-             });
+               })
+             );
            }
         }
       },

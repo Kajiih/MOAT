@@ -19,6 +19,7 @@ export interface RequestOptions extends RequestInit {
  * @param url - The full URL to fetch.
  * @param options - Fetch options including retry limits, timeouts, and raw response flag.
  * @param retryCount - Current retry attempt.
+ * @returns The parsed generic Type T or the raw Response.
  */
 export async function secureFetch<T = unknown>(url: string, options?: Omit<RequestOptions, 'raw'> & { raw?: false }, retryCount?: number): Promise<T>;
 export async function secureFetch(url: string, options: RequestOptions & { raw: true }, retryCount?: number): Promise<Response>;

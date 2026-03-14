@@ -5,9 +5,9 @@
  * @module useTierListIO
  */
 
-import { Dispatch, useCallback } from 'react';
+import { useCallback } from 'react';
 
-import { ActionType, TierListAction } from '@/board/state/actions';
+import { BoardDispatch, importState } from '@/board/state/reducer';
 import { TierListState } from '@/board/types';
 import { downloadJson, generateExportData, parseImportData } from '@/lib/io';
 import { logger } from '@/lib/logger';
@@ -22,7 +22,7 @@ import { useToast } from '@/lib/ui/ToastProvider';
  */
 export function useTierListIO(
   state: TierListState,
-  dispatch: Dispatch<TierListAction>,
+  dispatch: BoardDispatch,
   pushHistory?: () => void,
 ) {
   const { showToast } = useToast();
@@ -61,7 +61,7 @@ export function useTierListIO(
           const newState = parseImportData(jsonString, 'Untitled Tier List');
 
           if (pushHistory) pushHistory();
-          dispatch({ type: ActionType.IMPORT_STATE, payload: { state: newState } });
+          dispatch(importState({ state: newState }));
 
 
           showToast('Tier list imported successfully!', 'success');

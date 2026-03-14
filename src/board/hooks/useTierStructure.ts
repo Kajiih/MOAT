@@ -6,9 +6,9 @@
  * @module useTierStructure
  */
 
-import { Dispatch, useCallback } from 'react';
+import { useCallback } from 'react';
 
-import { ActionType, TierListAction } from '@/board/state/actions';
+import { addTier, BoardDispatch, clearBoard, deleteTier, moveAllToUnranked, randomizeColors, updateTier } from '@/board/state/reducer';
 import { TierUpdate } from '@/board/types';
 import { useToast } from '@/lib/ui/ToastProvider';
 
@@ -18,17 +18,17 @@ import { useToast } from '@/lib/ui/ToastProvider';
  * @param pushHistory - Callback to capture a history snapshot before mutation.
  * @returns Object containing event handlers for structural changes.
  */
-export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory: () => void) {
+export function useTierStructure(dispatch: BoardDispatch, pushHistory: () => void) {
   const { showToast } = useToast();
 
   const handleAddTier = useCallback(() => {
     pushHistory();
-    dispatch({ type: ActionType.ADD_TIER });
+    dispatch(addTier());
   }, [dispatch, pushHistory]);
 
   const handleRandomizeColors = useCallback(() => {
     pushHistory();
-    dispatch({ type: ActionType.RANDOMIZE_COLORS });
+    dispatch(randomizeColors());
     showToast('Colors randomized!', 'success');
   }, [dispatch, showToast, pushHistory]);
 
@@ -36,10 +36,7 @@ export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory
     (id: string, updates: TierUpdate) => {
       // Only push history for significant updates (e.g. not every keystroke if this is debounced elsewhere)
       pushHistory();
-      dispatch({
-        type: ActionType.UPDATE_TIER,
-        payload: { id, updates },
-      });
+      dispatch(updateTier({ id, updates }));
     },
     [dispatch, pushHistory],
   );
@@ -47,22 +44,19 @@ export function useTierStructure(dispatch: Dispatch<TierListAction>, pushHistory
   const handleDeleteTier = useCallback(
     (id: string) => {
       pushHistory();
-      dispatch({
-        type: ActionType.DELETE_TIER,
-        payload: { id },
-      });
+      dispatch(deleteTier({ id }));
     },
     [dispatch, pushHistory],
   );
 
   const handleClear = useCallback(() => {
     pushHistory();
-    dispatch({ type: ActionType.CLEAR_BOARD });
+    dispatch(clearBoard());
   }, [dispatch, pushHistory]);
 
   const handleResetItems = useCallback(() => {
     pushHistory();
-    dispatch({ type: ActionType.MOVE_ALL_TO_UNRANKED });
+    dispatch(moveAllToUnranked());
   }, [dispatch, pushHistory]);
 
   return {

@@ -14,6 +14,7 @@
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.9",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",
+    "@reduxjs/toolkit": "^2.11.2",
     "@tanstack/react-virtual": "^3.13.18",
     "@vercel/kv": "^3.0.0",
     "@vercel/og": "^0.8.6",

@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ActionType } from '@/board/state/actions';
+import { addTier, deleteTier, randomizeColors } from '@/board/state/reducer';
 
 import { useTierStructure } from './useTierStructure';
 
@@ -19,6 +19,7 @@ vi.mock('@/lib/colors', () => ({
     { id: 'red', label: 'Red' },
     { id: 'blue', label: 'Blue' },
   ],
+  DEFAULT_BRAND_COLORS: ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'teal'],
 }));
 
 describe('useTierStructure', () => {
@@ -32,9 +33,7 @@ describe('useTierStructure', () => {
     });
 
     expect(pushHistoryMock).toHaveBeenCalled();
-    expect(dispatchMock).toHaveBeenCalledWith({
-      type: ActionType.ADD_TIER,
-    });
+    expect(dispatchMock).toHaveBeenCalledWith(addTier());
   });
 
   it('should delete a tier', () => {
@@ -49,10 +48,7 @@ describe('useTierStructure', () => {
     });
 
     expect(pushHistoryMock).toHaveBeenCalled();
-    expect(dispatchMock).toHaveBeenCalledWith({
-      type: ActionType.DELETE_TIER,
-      payload: { id: tierId },
-    });
+    expect(dispatchMock).toHaveBeenCalledWith(deleteTier({ id: tierId }));
   });
 
   it('should randomize colors', () => {
@@ -65,9 +61,7 @@ describe('useTierStructure', () => {
     });
 
     expect(pushHistoryMock).toHaveBeenCalled();
-    expect(dispatchMock).toHaveBeenCalledWith({
-      type: ActionType.RANDOMIZE_COLORS,
-    });
+    expect(dispatchMock).toHaveBeenCalledWith(randomizeColors());
     expect(mockShowToast).toHaveBeenCalled();
   });
 });

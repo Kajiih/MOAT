@@ -1,25 +1,21 @@
 /**
  * @file tier-reducer.ts
- * @description specialized slice reducer for managing tier structure and visual properties.
+ * @description Specialized slice case reducers for managing tier structure and visual properties via Redux Toolkit.
  * Handles adding, deleting, and updating tiers, as well as color randomization.
- * @module TierSliceReducer
+ * @module TierSliceReducers
  */
 
-import { TierDefinition, TierListState } from '@/board/types';
+import { PayloadAction } from '@reduxjs/toolkit';
+
+import { TierDefinition, TierId,TierListState, TierUpdate } from '@/board/types';
 import { arrayMove } from '@/lib/array';
 import { TIER_COLORS } from '@/lib/colors';
 
-import { ActionType, TierListAction } from '../actions';
-
-/** Type definition for the Delete Tier action payload */
-export type DeleteTierPayload = Extract<TierListAction, { type: 'DELETE_TIER' }>['payload'];
-
 /**
- * Logic for adding a new tier with a unique ID and a random unused color.
- * @param state - Current tier list state.
- * @returns Updated state with the new tier.
+ * RTK Case Reducer for adding a new tier with a unique ID and a random unused color.
+ * @param state - The draft state provided by Immer.
  */
-export function handleAddTier(state: TierListState): TierListState {
+export function handleAddTier(state: TierListState): void {
   const newId = crypto.randomUUID();
   const usedColors = new Set(state.tierDefs.map((t) => t.color));
   const availableColors = TIER_COLORS.filter((c) => !usedColors.has(c.id));
@@ -35,100 +31,83 @@ export function handleAddTier(state: TierListState): TierListState {
     color: randomColorObj.id,
   };
 
-  return {
-    ...state,
-    tierDefs: [...state.tierDefs, newTier],
-    tierLayout: { ...state.tierLayout, [newId]: [] },
-  };
+  // MUTATE VIA IMMER
+  state.tierDefs.push(newTier);
+  state.tierLayout[newId] = [];
 }
 
-
 /**
- * Deletes a tier and optionally migrates its items to a fallback tier.
- * @param state - Current tier list state.
- * @param payload - Action payload containing the tier ID.
- * @returns Updated state with the tier removed.
+ * RTK Case Reducer for deleting a tier and optionally migrating its items to a fallback tier.
+ * @param state - The draft state provided by Immer.
+ * @param action - The RTK PayloadAction containing the tier ID to delete.
  */
-export function handleDeleteTier(state: TierListState, payload: DeleteTierPayload): TierListState {
-  const { id } = payload;
+export function handleDeleteTier(state: TierListState, action: PayloadAction<{ id: string | TierId }>): void {
+  const { id } = action.payload;
   const tierIndex = state.tierDefs.findIndex((t) => t.id === id);
-  if (tierIndex === -1) return state;
+  if (tierIndex === -1) return;
 
   const fallbackId = state.tierDefs.find((t) => t.id !== id)?.id;
   const orphanedItemIds = state.tierLayout[id] || [];
   
-  const newLayout = { ...state.tierLayout };
-  delete newLayout[id];
-
-  const newEntities = { ...state.itemEntities };
+  // MUTATE VIA IMMER
+  state.tierDefs.splice(tierIndex, 1);
+  delete state.tierLayout[id];
 
   if (fallbackId && orphanedItemIds.length > 0) {
-    newLayout[fallbackId] = [...(newLayout[fallbackId] || []), ...orphanedItemIds];
+    if (!state.tierLayout[fallbackId]) state.tierLayout[fallbackId] = [];
+    state.tierLayout[fallbackId].push(...orphanedItemIds);
   } else {
     // Remove deleted items from entities if there's no fallback tier
     orphanedItemIds.forEach((itemId) => {
-      delete newEntities[itemId];
+      delete state.itemEntities[itemId];
     });
   }
-
-  return {
-    ...state,
-    tierDefs: state.tierDefs.filter((t) => t.id !== id),
-    tierLayout: newLayout,
-    itemEntities: newEntities,
-  };
 }
 
 /**
- * Slice reducer for tier-related actions.
- * @param state - Current tier list state.
- * @param action - TierListAction related to tier structure.
- * @returns New state if handled, otherwise original state.
+ * RTK Case Reducer for updating a tier's metadata.
+ * @param state - The draft state provided by Immer.
+ * @param action - The RTK PayloadAction containing the tier ID and updates.
  */
-export function tierReducer(state: TierListState, action: TierListAction): TierListState {
-  switch (action.type) {
-    case ActionType.ADD_TIER: {
-      return handleAddTier(state);
-    }
-
-    case ActionType.DELETE_TIER: {
-      return handleDeleteTier(state, action.payload);
-    }
-
-    case ActionType.UPDATE_TIER: {
-      const { id, updates } = action.payload;
-      return {
-        ...state,
-        tierDefs: state.tierDefs.map((t) => (t.id === id ? { ...t, ...updates } : t)),
-      };
-    }
-
-    case ActionType.REORDER_TIERS: {
-      const { activeId, overId } = action.payload;
-      const oldIndex = state.tierDefs.findIndex(t => t.id === activeId);
-      const newIndex = state.tierDefs.findIndex(t => t.id === overId);
-      
-      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return state;
-      return {
-        ...state,
-        tierDefs: arrayMove(state.tierDefs, oldIndex, newIndex),
-      };
-    }
-
-    case ActionType.RANDOMIZE_COLORS: {
-      let pool = [...TIER_COLORS];
-      const newDefs = state.tierDefs.map((tier) => {
-        if (pool.length === 0) pool = [...TIER_COLORS];
-        const index = Math.floor(Math.random() * pool.length);
-        const color = pool[index];
-        pool.splice(index, 1);
-        return { ...tier, color: color.id };
-      });
-      return { ...state, tierDefs: newDefs };
-    }
-
-    default: {
-      return state;
-    }
+export function handleUpdateTier(state: TierListState, action: PayloadAction<{ id: string | TierId; updates: TierUpdate }>): void {
+  const { id, updates } = action.payload;
+  const tier = state.tierDefs.find((t) => t.id === id);
+  
+  if (tier) {
+    // MUTATE VIA IMMER
+    Object.assign(tier, updates);
   }
+}
+
+/**
+ * RTK Case Reducer for reordering tiers vertically.
+ * @param state - The draft state provided by Immer.
+ * @param action - The RTK PayloadAction containing the active and over tier IDs.
+ */
+export function handleReorderTiers(state: TierListState, action: PayloadAction<{ activeId: string | TierId; overId: string | TierId }>): void {
+  const { activeId, overId } = action.payload;
+  const oldIndex = state.tierDefs.findIndex((t) => t.id === activeId);
+  const newIndex = state.tierDefs.findIndex((t) => t.id === overId);
+  
+  if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
+  
+  // MUTATE VIA IMMER
+  state.tierDefs = arrayMove(state.tierDefs, oldIndex, newIndex);
+}
+
+/**
+ * RTK Case Reducer for shuffling all tier colors.
+ * @param state - The draft state provided by Immer.
+ */
+export function handleRandomizeColors(state: TierListState): void {
+  let pool = [...TIER_COLORS];
+  
+  // MUTATE VIA IMMER
+  state.tierDefs.forEach((tier) => {
+    if (pool.length === 0) pool = [...TIER_COLORS];
+    const index = Math.floor(Math.random() * pool.length);
+    const color = pool[index];
+    pool.splice(index, 1);
+    tier.color = color.id;
+  });
 }

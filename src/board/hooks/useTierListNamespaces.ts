@@ -6,7 +6,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { ActionType, TierListAction } from '@/board/state/actions';
+import { BoardDispatch, removeItem, updateItem, updateTitle } from '@/board/state/reducer';
 import { TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { fromSearchId } from '@/lib/ids';
@@ -17,7 +17,7 @@ import { fromSearchId } from '@/lib/ids';
  */
 interface UseTierListNamespacesProps {
   state: TierListState;
-  dispatch: React.Dispatch<TierListAction>;
+  dispatch: BoardDispatch;
   history: {
     undo: () => void;
     redo: () => void;
@@ -83,7 +83,7 @@ export function useTierListNamespaces({
    */
   const handleUpdateTitle = useCallback(
     (newTitle: string) => {
-      dispatch({ type: ActionType.UPDATE_TITLE, payload: { title: newTitle } });
+      dispatch(updateTitle({ title: newTitle }));
     },
     [dispatch],
   );
@@ -94,7 +94,7 @@ export function useTierListNamespaces({
   const removeItemFromTier = useCallback(
     (tierId: string, itemId: string) => {
       history.push();
-      dispatch({ type: ActionType.REMOVE_ITEM, payload: { tierId, itemId } });
+      dispatch(removeItem({ tierId, itemId }));
     },
     [dispatch, history],
   );
@@ -104,7 +104,7 @@ export function useTierListNamespaces({
    */
   const updateMediaItem = useCallback(
     (itemId: string, updates: ItemUpdate) => {
-      dispatch({ type: ActionType.UPDATE_ITEM, payload: { itemId, updates } });
+      dispatch(updateItem({ itemId, updates }));
     },
     [dispatch],
   );

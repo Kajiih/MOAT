@@ -77,6 +77,7 @@ test.describe('Board Reset and Clear Actions', () => {
   });
 
   // Marked as skip because Playwright natively deadlocks on Radix Dropdowns + window.confirm() modals in certain headless configurations.
+  // eslint-disable-next-line playwright/expect-expect
   test.skip('should support undo for reset items', async ({ boardPage }) => {
     // Initial state
     await boardPage.resetItems();

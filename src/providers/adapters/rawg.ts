@@ -11,7 +11,7 @@ import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items'
 import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
-import { applyFilters, handleProviderError, extractTags, extractRelatedEntities } from '@/providers/utils';
+import { applyFilters, extractRelatedEntities,extractTags, handleProviderError } from '@/providers/utils';
 import { FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/search/sort-schemas';

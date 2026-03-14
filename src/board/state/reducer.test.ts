@@ -3,8 +3,15 @@ import { describe, expect, it } from 'vitest';
 import { Item } from '@/board/types';
 import { createMockItem, createTierDef, createTierListState } from '@/test/factories';
 
-import { ActionType } from './actions';
-import { tierListReducer } from './reducer';
+import {
+  addTier,
+  deleteTier,
+  moveItem,
+  setState,
+  tierListReducer,
+  updateItem,
+  updateTitle,
+} from './reducer';
 
 // Mock crypto.randomUUID for predictable IDs in tests
 Object.defineProperty(globalThis, 'crypto', {
@@ -14,9 +21,9 @@ Object.defineProperty(globalThis, 'crypto', {
 });
 
 describe('tierListReducer', () => {
-  it('should handle ADD_TIER by creating a new tier entry', () => {
+  it('should handle addTier by creating a new tier entry', () => {
     const state = createTierListState({ tierDefs: [], tierLayout: {}, itemEntities: {} });
-    const action = { type: ActionType.ADD_TIER } as const;
+    const action = addTier();
 
     const nextState = tierListReducer(state, action);
 
@@ -24,7 +31,7 @@ describe('tierListReducer', () => {
     expect(nextState).toHaveItemCount(0, 'New Tier');
   });
 
-  it('should handle DELETE_TIER by removing the tier and migrating its items', () => {
+  it('should handle deleteTier by removing the tier and migrating its items', () => {
     const tierKeep = createTierDef({ id: 'keep', label: 'Keep' });
     const tierDelete = createTierDef({ id: 'delete', label: 'Delete' });
     const song = createMockItem({ id: 'item-1' });
@@ -38,7 +45,7 @@ describe('tierListReducer', () => {
       },
     });
 
-    const action = { type: ActionType.DELETE_TIER, payload: { id: 'delete' } } as const;
+    const action = deleteTier({ id: 'delete' });
     const nextState = tierListReducer(state, action);
 
     // Behavior: The tier is gone, but the item is preserved in the remaining tier
@@ -47,7 +54,7 @@ describe('tierListReducer', () => {
     expect(nextState).toContainItem('item-1', 'Keep');
   });
 
-  it('should handle MOVE_ITEM by updating item positions', () => {
+  it('should handle moveItem by updating item positions', () => {
     const tier = createTierDef({ id: 't1' });
     const song1 = createMockItem({ id: '1' });
     const song2 = createMockItem({ id: '2' });
@@ -60,10 +67,7 @@ describe('tierListReducer', () => {
       },
     });
 
-    const action = {
-      type: ActionType.MOVE_ITEM,
-      payload: { activeId: '2', overId: '1' },
-    } as const;
+    const action = moveItem({ activeId: '2', overId: '1' });
 
     const nextState = tierListReducer(state, action);
 
@@ -72,7 +76,7 @@ describe('tierListReducer', () => {
     expect(itemIds).toEqual(['2', '1']);
   });
 
-  it('should handle UPDATE_ITEM details without affecting other properties', () => {
+  it('should handle updateItem details without affecting other properties', () => {
     const song = createMockItem({ id: '1', title: 'Old' });
     const state = createTierListState({
       itemEntities: { [song.id]: song },
@@ -81,10 +85,7 @@ describe('tierListReducer', () => {
       },
     });
 
-    const action = {
-      type: ActionType.UPDATE_ITEM,
-      payload: { itemId: '1', updates: { title: 'New' } },
-    } as const;
+    const action = updateItem({ itemId: '1', updates: { title: 'New' } });
 
     const nextState = tierListReducer(state, action);
     const updatedItem = nextState.itemEntities['1'] as Item;
@@ -92,20 +93,20 @@ describe('tierListReducer', () => {
     expect(updatedItem.title).toBe('New');
   });
 
-  it('should handle UPDATE_TITLE', () => {
-    const action = { type: ActionType.UPDATE_TITLE, payload: { title: 'New' } } as const;
+  it('should handle updateTitle', () => {
+    const action = updateTitle({ title: 'New' });
     const nextState = tierListReducer(createTierListState(), action);
     expect(nextState).toHaveTitle('New');
   });
 
-  it('should handle SET_STATE by replacing the entire state', () => {
+  it('should handle setState by replacing the entire state', () => {
     const newState = createTierListState({
       title: 'Forced State',
       tierDefs: [createTierDef({ id: '1', label: 'Forced' })],
       itemEntities: {},
       tierLayout: { '1': [] },
     });
-    const action = { type: ActionType.SET_STATE, payload: { state: newState } } as const;
+    const action = setState({ state: newState });
     const nextState = tierListReducer(createTierListState(), action);
     expect(nextState).toEqual(newState);
     expect(nextState).toHaveTitle('Forced State');
@@ -122,14 +123,11 @@ describe('tierListReducer', () => {
       },
     });
 
-    const action = {
-      type: ActionType.MOVE_ITEM,
-      payload: { activeId: '1', overId: 't1' },
-    } as const;
+    const action = moveItem({ activeId: '1', overId: 't1' });
 
     const nextState = tierListReducer(state, action);
 
-    // If it's already in t1, dragging over t1 should ideally be a no-op (same object reference)
+    // RTK with Immer will return the exact same object if mutations are avoided (which our early return `return;` does)
     expect(nextState).toBe(state);
   });
 });

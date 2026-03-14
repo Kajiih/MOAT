@@ -19,8 +19,7 @@ import { useTierListUtils } from '@/board/hooks/useTierListUtils';
 import { useTierStructure } from '@/board/hooks/useTierStructure';
 import { INITIAL_STATE } from '@/board/initial-state';
 import { syncBoardMetadata } from '@/board/registry-utils';
-import { ActionType, TierListAction } from '@/board/state/actions';
-import { tierListReducer } from '@/board/state/reducer';
+import { BoardAction, setState, tierListReducer } from '@/board/state/reducer';
 import { TierDefinition, TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { useItemRegistry } from '@/providers/useItemRegistry';
@@ -85,7 +84,7 @@ const TierListContext = createContext<TierListContextType | null>(null);
 export function TierListProvider({ children, boardId }: { children: ReactNode; boardId: string }) {
   const storageKey = `moat-board-${boardId}`;
 
-  const [state, dispatch, isHydrated] = usePersistentReducer<TierListState, TierListAction>(
+  const [state, dispatch, isHydrated] = usePersistentReducer<TierListState, BoardAction>(
     tierListReducer,
     INITIAL_STATE,
     storageKey,
@@ -117,13 +116,13 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   // --- History Helpers ---
   const undo = React.useCallback(() => {
     historyRaw.undo(state, (newState) =>
-      dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }),
+      dispatch(setState({ state: newState })),
     );
   }, [historyRaw, state, dispatch]);
 
   const redo = React.useCallback(() => {
     historyRaw.redo(state, (newState) =>
-      dispatch({ type: ActionType.SET_STATE, payload: { state: newState } }),
+      dispatch(setState({ state: newState })),
     );
   }, [historyRaw, state, dispatch]);
 

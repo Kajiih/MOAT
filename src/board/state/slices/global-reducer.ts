@@ -1,39 +1,20 @@
 /**
  * @file global-reducer.ts
- * @description specialized slice reducer for global application state.
- * Handles top-level properties like the board title, as well as state-wide operations
- * like clearing the board or importing a full state snapshot.
- * @module GlobalSliceReducer
+ * @description Specialized slice case reducers for global application state via Redux Toolkit.
+ * Handles top-level properties like the board title.
+ * @module GlobalSliceReducers
  */
 
-import { getInitialState } from '@/board/initial-state';
+import { PayloadAction } from '@reduxjs/toolkit';
+
 import { TierListState } from '@/board/types';
 
-import { ActionType, TierListAction } from '../actions';
-
 /**
- * Slice reducer for global application actions.
- * @param state - Current tier list state.
- * @param action - TierListAction related to global configuration or state overrides.
- * @returns New state if handled, otherwise original state.
+ * RTK Case Reducer for updating the global title of the tier list.
  */
-export function globalReducer(state: TierListState, action: TierListAction): TierListState {
-  switch (action.type) {
-    case ActionType.UPDATE_TITLE: {
-      return { ...state, title: action.payload.title };
-    }
-
-    case ActionType.CLEAR_BOARD: {
-      return { ...getInitialState() };
-    }
-
-    case ActionType.IMPORT_STATE:
-    case ActionType.SET_STATE: {
-      return { ...action.payload.state };
-    }
-
-    default: {
-      return state;
-    }
+export const handleGlobalState = {
+  updateTitle: (state: TierListState, action: PayloadAction<{ title: string }>): void => {
+    // MUTATE VIA IMMER
+    state.title = action.payload.title;
   }
-}
+};
