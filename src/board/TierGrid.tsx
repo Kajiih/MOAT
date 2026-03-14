@@ -58,7 +58,6 @@ export const TierGrid = memo(function TierGrid({
         onRemove={onRemoveItem}
         onInfo={onInfo}
         isExport={isExport}
-        className={!isLargeTier ? "w-24 sm:w-28 shrink-0" : undefined}
       />
     );
   };

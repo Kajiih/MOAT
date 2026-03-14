@@ -48,9 +48,22 @@ export interface ItemCardProps {
 }
 
 /**
+ * Standardized Card Dimensions utilized to synchronize responsive sizing between
+ * Tailwind inline layouts and Next.js optimized image resolutions.
+ * 
+ * Note: The explicit `tw` string (e.g. 'w-24') MUST be strictly declared alongside
+ * the `px` value. Tailwind CSS uses static string extraction at build time and 
+ * will purge computed class names (e.g. `w-${px/4}`) from the production CSS bundle.
+ */
+export const ITEM_CARD_DIMENSIONS = {
+  mobile: { px: 96, tw: 'w-24' },
+  desktop: { px: 112, tw: 'w-28' },
+} as const;
+
+/**
  * Shared base classes for rendering item cards uniformly.
  */
-export const ITEM_CARD_BASE_CLASSES = "aspect-square w-full overflow-hidden rounded-md bg-surface shadow-card";
+export const ITEM_CARD_BASE_CLASSES = `${ITEM_CARD_DIMENSIONS.mobile.tw} sm:${ITEM_CARD_DIMENSIONS.desktop.tw} aspect-square shrink-0 overflow-hidden rounded-md bg-surface shadow-card`;
 
 /**
  * A standardized card component for displaying and interacting with items.
@@ -141,7 +154,7 @@ export function ItemCard({
       style={style}
       data-testid={`item-card-${item.id}`}
       className={twMerge(
-        `group relative transition-all duration-fast hover:shadow-xl ${ITEM_CARD_BASE_CLASSES}`,
+        `group relative transition-all duration-fast hover:shadow-xl w-[var(--card-width-mobile)] sm:w-[var(--card-width-desktop)] ${ITEM_CARD_BASE_CLASSES}`,
         isAdded ? 'ring-2 ring-primary ring-offset-2 ring-offset-black' : '',
         isOverLocal ? 'ring-2 ring-emerald-500 scale-105 z-50' : '',
         className

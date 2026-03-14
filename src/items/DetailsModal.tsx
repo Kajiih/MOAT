@@ -77,7 +77,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             priority
             containerClassName="absolute inset-0"
             imageClassName="object-cover opacity-60 blur-sm"
-            sizes="100vw"
+            sizes="300px"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
 

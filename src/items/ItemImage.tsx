@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 import { failedImages } from '@/items/image-cache';
+import { ITEM_CARD_DIMENSIONS } from '@/items/ItemCard';
 import { Item } from '@/items/items';
 import { useResolvedImage } from '@/items/useResolvedImage';
 
@@ -57,7 +58,7 @@ export function ItemImage({
   priority = false,
   containerClassName = 'absolute inset-0',
   imageClassName = 'object-cover',
-  sizes = '112px',
+  sizes = `(max-width: 640px) ${ITEM_CARD_DIMENSIONS.mobile.px}px, ${ITEM_CARD_DIMENSIONS.desktop.px}px`,
 }: ItemImageProps) {
   const resolvedUrl = useResolvedImage(item.images);
   const displayUrl = isExport ? exportUrl : resolvedUrl;
