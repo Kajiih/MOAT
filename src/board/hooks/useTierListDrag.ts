@@ -4,6 +4,7 @@
  */
 
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { useEffect, useState } from 'react';
 
 import { BoardDispatch, moveItem, reorderTiers } from '@/board/state/reducer';
