@@ -77,9 +77,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ToastProvider>
-          <UserPreferencesProvider>
-            {children}
-          </UserPreferencesProvider>
+          <UserPreferencesProvider>{children}</UserPreferencesProvider>
         </ToastProvider>
       </body>
     </html>

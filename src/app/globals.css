@@ -3,14 +3,14 @@
 :root {
   /* LIgHT MODE (Default) */
   --background: #ffffff;
-  --foreground: #171717;      /* neutral-900 */
-  --surface: #f5f5f5;         /* neutral-100 */
-  --surface-hover: #e5e5e5;   /* neutral-200 */
-  --border: #d4d4d4;          /* neutral-300 */
-  
-  --muted: #525252;           /* neutral-600 */
-  --secondary: #737373;       /* neutral-500 */
-  
+  --foreground: #171717; /* neutral-900 */
+  --surface: #f5f5f5; /* neutral-100 */
+  --surface-hover: #e5e5e5; /* neutral-200 */
+  --border: #d4d4d4; /* neutral-300 */
+
+  --muted: #525252; /* neutral-600 */
+  --secondary: #737373; /* neutral-500 */
+
   --primary: #2563eb;
   --destructive: #dc2626;
   --highlight: #f59e0b;
@@ -23,18 +23,20 @@
   --color-surface: var(--surface);
   --color-surface-hover: var(--surface-hover);
   --color-border: var(--border);
-  
+
   --color-muted: var(--muted);
   --color-secondary: var(--secondary);
-  
+
   --color-primary: var(--primary);
   --color-destructive: var(--destructive);
   --color-highlight: var(--highlight);
   --color-success: var(--success);
 
   --shadow-floating: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-  --shadow-elevated: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
-  --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  --shadow-elevated:
+    0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-card:
+    0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
 
   --animate-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --animate-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -49,7 +51,7 @@
   --z-overlay: 100;
   --z-modal: 200;
   --z-toast: 500;
-  
+
   --text-caption: 10px;
   --text-indicator: 8px;
 }
@@ -57,19 +59,19 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* DARK MODE (Matching the original hardcoded Tailwind palette) */
-    --background: #0a0a0a;    /* neutral-950 */
-    --foreground: #e5e5e5;    /* neutral-200 */
-    --surface: #171717;       /* neutral-900 */
+    --background: #0a0a0a; /* neutral-950 */
+    --foreground: #e5e5e5; /* neutral-200 */
+    --surface: #171717; /* neutral-900 */
     --surface-hover: #262626; /* neutral-800 */
-    --border: #262626;        /* neutral-800 mostly */
-    
-    --muted: #525252;         /* neutral-600 */
-    --secondary: #737373;     /* neutral-500 */
-    
-    --primary: #3b82f6;       /* blue-500 */
-    --destructive: #ef4444;   /* red-500 */
-    --highlight: #fbbf24;     /* amber-400 */
-    --success: #22c55e;       /* green-500 */
+    --border: #262626; /* neutral-800 mostly */
+
+    --muted: #525252; /* neutral-600 */
+    --secondary: #737373; /* neutral-500 */
+
+    --primary: #3b82f6; /* blue-500 */
+    --destructive: #ef4444; /* red-500 */
+    --highlight: #fbbf24; /* amber-400 */
+    --success: #22c55e; /* green-500 */
   }
 }
 

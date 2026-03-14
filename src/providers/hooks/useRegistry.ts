@@ -5,7 +5,7 @@
 
 import { useSyncExternalStore } from 'react';
 
-import { registry,RegistrySnapshot, RegistryStatus } from '../registry';
+import { registry, RegistrySnapshot, RegistryStatus } from '../registry';
 
 /**
  * Custom React hook that connects components reactively to the DatabaseRegistry singleton.
@@ -16,16 +16,16 @@ export function useRegistry(): RegistrySnapshot {
   return useSyncExternalStore(
     // 1. Subscribe: React calls this to listen to the store
     (onChange) => registry.subscribe(onChange),
-    
+
     // 2. Snapshot: React calls this to get the current state and detect changes
     // Referentially stable (memoized) to prevent continuous re-renders
     () => registry.getSnapshot(),
-    
+
     // 3. SSR Fallback (optional, but good practice for Next.js)
     () => ({
       status: RegistryStatus.IDLE,
       providers: [],
       availableProviders: [],
-    })
+    }),
   );
 }

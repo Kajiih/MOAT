@@ -115,11 +115,13 @@ export class BoardPage {
   async clearBoard() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    
+
     await this.clearBoardButton.click();
-    
+
     // Give Redux slightly more time to dispatch the layout changes
-    await expect(this.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0, { timeout: 10_000 });
+    await expect(this.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0, {
+      timeout: 10_000,
+    });
   }
 
   /**
@@ -128,11 +130,13 @@ export class BoardPage {
   async resetItems() {
     await this.openOptions();
     this.page.once('dialog', (dialog) => dialog.accept());
-    
+
     await this.resetItemsButton.click();
 
     // wait for layout change to flush
-    await expect(this.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0, { timeout: 10_000 });
+    await expect(this.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0, {
+      timeout: 10_000,
+    });
   }
 
   /**
@@ -203,7 +207,11 @@ export class BoardPage {
    * @param options - Optional assertions, such as timeouts for layout hydration.
    * @param options.timeout - Timeout in milliseconds.
    */
-  async expectTierToHaveItemCount(tierLabel: string, expectedCount: number, options?: { timeout?: number }) {
+  async expectTierToHaveItemCount(
+    tierLabel: string,
+    expectedCount: number,
+    options?: { timeout?: number },
+  ) {
     const tierRow = this.getTierRow(tierLabel);
     const itemCards = tierRow.getByTestId(/^item-card-/);
     await expect(itemCards).toHaveCount(expectedCount, options);
@@ -260,13 +268,15 @@ export class BoardPage {
   async moveItemToStartOfTier(itemId: string, targetTierLabel: string) {
     const tierRow = this.getTierRow(targetTierLabel);
     const cards = tierRow.getByTestId(/^item-card-/);
-    
+
     // We exclude the item we are currently moving in case it is already in this tier
     const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
-    const otherCards = cards.filter({ hasNot: this.page.locator(`[data-testid*="${searchToken}"]`) });
-    
+    const otherCards = cards.filter({
+      hasNot: this.page.locator(`[data-testid*="${searchToken}"]`),
+    });
+
     const count = await otherCards.count();
-    
+
     if (count === 0) {
       // Tier is empty, just drop it in the generic zone
       const card = this.getItemCard(itemId);
@@ -289,12 +299,14 @@ export class BoardPage {
   async moveItemToEndOfTier(itemId: string, targetTierLabel: string) {
     const tierRow = this.getTierRow(targetTierLabel);
     const cards = tierRow.getByTestId(/^item-card-/);
-    
+
     const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
-    const otherCards = cards.filter({ hasNot: this.page.locator(`[data-testid*="${searchToken}"]`) });
-    
+    const otherCards = cards.filter({
+      hasNot: this.page.locator(`[data-testid*="${searchToken}"]`),
+    });
+
     const count = await otherCards.count();
-    
+
     if (count === 0) {
       const card = this.getItemCard(itemId);
       const dropZone = tierRow.getByTestId('tier-drop-zone');
@@ -315,10 +327,10 @@ export class BoardPage {
    */
   async reorderTiersViaPointer(sourceIndex: number, targetIndex: number) {
     const sourceLabel = await this.tierLabels.nth(sourceIndex).textContent();
-    
+
     // The DragEvent MUST originate from the strict Handle DOM element so PRDnD accepts the handle bounds check
     const sourceHandle = this.tierDragHandles.nth(sourceIndex);
-    
+
     // The Drop Target MUST be the entire Row so we can target its top/bottom boundaries accurately
     const targetRow = this.tierRows.nth(targetIndex);
 
@@ -328,7 +340,9 @@ export class BoardPage {
     if (!box) throw new Error('Could not get target bounding box during tier reorder');
 
     await nativeDragAndDrop(this.page, sourceHandle, targetRow, {
-      targetPosition: isMovingUp ? { x: box.width / 2, y: 10 } : { x: box.width / 2, y: box.height - 10 }
+      targetPosition: isMovingUp
+        ? { x: box.width / 2, y: 10 }
+        : { x: box.width / 2, y: box.height - 10 },
     });
 
     // Verify final position using polling
@@ -349,7 +363,7 @@ export class BoardPage {
   async reorderItemsViaPointer(tierLabel: string, sourceIndex: number, targetIndex: number) {
     const tierRow = this.getTierRow(tierLabel);
     const cards = tierRow.getByTestId(/^item-card-/);
-    
+
     // We must wait for the cards to be attached
     await expect(cards.nth(sourceIndex)).toBeVisible();
     await expect(cards.nth(targetIndex)).toBeVisible();
@@ -362,7 +376,12 @@ export class BoardPage {
     const sourceBox = await sourceCard.boundingBox();
     if (!box || !sourceBox) throw new Error('Could not get target bounding box during reorder');
 
-    console.log(`Reorder DOM BoundingBoxes: item[${sourceIndex}] =`, sourceBox, `item[${targetIndex}] =`, box);
+    console.log(
+      `Reorder DOM BoundingBoxes: item[${sourceIndex}] =`,
+      sourceBox,
+      `item[${targetIndex}] =`,
+      box,
+    );
 
     // If moving backward (1 to 0), aim for the left edge.
     // If moving forward (0 to 1), aim for the right edge.
@@ -393,14 +412,14 @@ export class BoardPage {
   async moveItemBeforeItem(sourceItemId: string, targetItemId: string) {
     const sourceCard = this.getItemCard(sourceItemId).first();
     const targetCard = this.getItemCard(targetItemId).first();
-    
+
     // Ensure visibility
     await expect(sourceCard).toBeVisible();
     await expect(targetCard).toBeVisible();
 
     const box = await targetCard.boundingBox();
     if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
-    
+
     await nativeDragAndDrop(this.page, sourceCard, targetCard, {
       targetPosition: { x: 5, y: box.height / 2 },
     });
@@ -414,14 +433,14 @@ export class BoardPage {
   async moveItemAfterItem(sourceItemId: string, targetItemId: string) {
     const sourceCard = this.getItemCard(sourceItemId).first();
     const targetCard = this.getItemCard(targetItemId).first();
-    
+
     // Ensure visibility
     await expect(sourceCard).toBeVisible();
     await expect(targetCard).toBeVisible();
 
     const box = await targetCard.boundingBox();
     if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
-    
+
     await nativeDragAndDrop(this.page, sourceCard, targetCard, {
       targetPosition: { x: box.width - 5, y: box.height / 2 },
     });
@@ -433,9 +452,11 @@ export class BoardPage {
    */
   async shiftItemRight(itemId: string) {
     const card = this.getItemCard(itemId).first();
-    const tierDropZone = card.locator('xpath=ancestor::*[contains(@data-testid, "tier-drop-zone")]').first();
+    const tierDropZone = card
+      .locator('xpath=ancestor::*[contains(@data-testid, "tier-drop-zone")]')
+      .first();
     const cards = tierDropZone.locator('[data-testid^="item-card-"]');
-    
+
     const count = await cards.count();
     let sourceIndex = -1;
     const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
@@ -447,15 +468,16 @@ export class BoardPage {
         break;
       }
     }
-    
+
     if (sourceIndex === -1) throw new Error('Could not find item index to shift right');
-    if (sourceIndex === count - 1) throw new Error('Cannot shift item right: already at the end of the tier');
-    
+    if (sourceIndex === count - 1)
+      throw new Error('Cannot shift item right: already at the end of the tier');
+
     // Find the ID of the right neighbor
     const neighborIdStr = await cards.nth(sourceIndex + 1).getAttribute('data-testid');
     const neighborIdMatch = neighborIdStr?.match(/item-card-(.+)$/);
     if (!neighborIdMatch) throw new Error('Could not extract neighbor ID');
-    
+
     await this.moveItemAfterItem(itemId, neighborIdMatch[1]);
   }
 
@@ -465,9 +487,11 @@ export class BoardPage {
    */
   async shiftItemLeft(itemId: string) {
     const card = this.getItemCard(itemId).first();
-    const tierDropZone = card.locator('xpath=ancestor::*[contains(@data-testid, "tier-drop-zone")]').first();
+    const tierDropZone = card
+      .locator('xpath=ancestor::*[contains(@data-testid, "tier-drop-zone")]')
+      .first();
     const cards = tierDropZone.locator('[data-testid^="item-card-"]');
-    
+
     const count = await cards.count();
     let sourceIndex = -1;
     const searchToken = itemId.replaceAll(/[^a-zA-Z0-9-]/g, '');
@@ -479,15 +503,16 @@ export class BoardPage {
         break;
       }
     }
-    
+
     if (sourceIndex === -1) throw new Error('Could not find item index to shift left');
-    if (sourceIndex === 0) throw new Error('Cannot shift item left: already at the start of the tier');
-    
+    if (sourceIndex === 0)
+      throw new Error('Cannot shift item left: already at the start of the tier');
+
     // Find the ID of the left neighbor
     const neighborIdStr = await cards.nth(sourceIndex - 1).getAttribute('data-testid');
     const neighborIdMatch = neighborIdStr?.match(/item-card-(.+)$/);
     if (!neighborIdMatch) throw new Error('Could not extract neighbor ID');
-    
+
     await this.moveItemBeforeItem(itemId, neighborIdMatch[1]);
   }
 }

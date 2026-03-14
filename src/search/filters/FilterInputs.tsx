@@ -32,7 +32,7 @@ export function TextFilterInput({
     <input
       type="text"
       placeholder={filter.placeholder}
-      className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+      className="border-border text-foreground focus:border-primary focus:ring-primary w-full rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus:ring-1"
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -54,7 +54,7 @@ export function SelectFilterInput({
 }: FilterControlProps<SelectFilterDefinition>) {
   return (
     <select
-      className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+      className="border-border text-foreground focus:border-primary focus:ring-primary w-full rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus:ring-1"
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
     >
@@ -83,11 +83,11 @@ export function BooleanFilterInput({
     <div className="flex items-center gap-2">
       <input
         type="checkbox"
-        className="h-4 w-4 rounded-md border-border bg-black text-destructive"
+        className="border-border text-destructive h-4 w-4 rounded-md bg-black"
         checked={!!value}
         onChange={(e) => onChange(e.target.checked)}
       />
-      <span className="text-xs text-secondary">Enabled</span>
+      <span className="text-secondary text-xs">Enabled</span>
     </div>
   );
 }
@@ -115,15 +115,13 @@ export function MultiSelectFilterInput({
             key={opt.value}
             onClick={() => {
               const current = Array.isArray(value) ? value : [];
-              const next = isChecked
-                ? current.filter((v) => v !== optVal)
-                : [...current, optVal];
+              const next = isChecked ? current.filter((v) => v !== optVal) : [...current, optVal];
               onChange(next);
             }}
-            className={`rounded-md border px-2 py-1 text-caption transition-colors ${
+            className={`text-caption rounded-md border px-2 py-1 transition-colors ${
               isChecked
                 ? 'border-destructive bg-destructive/20 text-destructive'
-                : 'border-border bg-black text-secondary hover:text-foreground'
+                : 'border-border text-secondary hover:text-foreground bg-black'
             }`}
           >
             {opt.label}
@@ -155,7 +153,7 @@ export function RangeFilterInput({
       <input
         type="text"
         placeholder={filter.minPlaceholder || 'Min'}
-        className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+        className="border-border text-foreground focus:border-primary focus:ring-primary w-full rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus:ring-1"
         value={minVal}
         onChange={(e) => onChange({ ...value, min: e.target.value })}
       />
@@ -163,7 +161,7 @@ export function RangeFilterInput({
       <input
         type="text"
         placeholder={filter.maxPlaceholder || 'Max'}
-        className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+        className="border-border text-foreground focus:border-primary focus:ring-primary w-full rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus:ring-1"
         value={maxVal}
         onChange={(e) => onChange({ ...value, max: e.target.value })}
       />

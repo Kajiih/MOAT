@@ -64,30 +64,37 @@ export async function GET(request: NextRequest) {
       id,
       identity: { dbId: id, databaseId: 'mock', entityId: id },
       title: `Mock ${id}`,
-      images: [{ type: 'url', url: `https://api.dicebear.com/7.x/shapes/png?seed=${id}&backgroundColor=${color}` }],
+      images: [
+        {
+          type: 'url',
+          url: `https://api.dicebear.com/7.x/shapes/png?seed=${id}&backgroundColor=${color}`,
+        },
+      ],
     });
 
-  const items: Record<string, Item[]> = board ? Object.fromEntries(
-      Object.entries(board.tierLayout).map(([tierId, itemIds]) => [
-        tierId,
-        itemIds.map(id => board.itemEntities[id]).filter(Boolean) as Item[],
-      ])
-    ) : {
-      '1': [createMockItem('1', 'ef4444')],
-      '2': [createMockItem('2', 'f97316'), createMockItem('3', 'f97316')],
-      '3': [
-        createMockItem('4', 'eab308'),
-        createMockItem('5', 'eab308'),
-        createMockItem('6', 'eab308'),
-        createMockItem('7', 'eab308'),
-      ],
-      '4': [
-        createMockItem('8', '22c55e'),
-        createMockItem('9', '22c55e'),
-        createMockItem('10', '22c55e'),
-      ],
-      '5': [createMockItem('11', '3b82f6')],
-    };
+    const items: Record<string, Item[]> = board
+      ? Object.fromEntries(
+          Object.entries(board.tierLayout).map(([tierId, itemIds]) => [
+            tierId,
+            itemIds.map((id) => board.itemEntities[id]).filter(Boolean) as Item[],
+          ]),
+        )
+      : {
+          '1': [createMockItem('1', 'ef4444')],
+          '2': [createMockItem('2', 'f97316'), createMockItem('3', 'f97316')],
+          '3': [
+            createMockItem('4', 'eab308'),
+            createMockItem('5', 'eab308'),
+            createMockItem('6', 'eab308'),
+            createMockItem('7', 'eab308'),
+          ],
+          '4': [
+            createMockItem('8', '22c55e'),
+            createMockItem('9', '22c55e'),
+            createMockItem('10', '22c55e'),
+          ],
+          '5': [createMockItem('11', '3b82f6')],
+        };
     const headerColors = ['#3b82f6'];
 
     return new ImageResponse(

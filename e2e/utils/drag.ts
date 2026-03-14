@@ -17,7 +17,7 @@ export async function nativeDragAndDrop(
   page: Page,
   source: Locator,
   target: Locator,
-  options?: { targetPosition?: { x: number; y: number } }
+  options?: { targetPosition?: { x: number; y: number } },
 ) {
   // Pragmatic Drag and Drop requires an explicit movement heuristic to differentiate drags from clicks.
   // Instead of forced sleeps or manually fighting DOM synthetic event dispatchers, we use natural
@@ -28,9 +28,9 @@ export async function nativeDragAndDrop(
   await target.waitFor({ state: 'visible' });
 
   // Playwright's locator.hover() natively manages element auto-scrolling
-  // We avoid arbitrary waitForTimeout by structurally yielding execution flow inline 
+  // We avoid arbitrary waitForTimeout by structurally yielding execution flow inline
   // with browser frame rendering, exactly matching Pragmatic Drag and Drop's internal architecture.
-  
+
   await source.hover();
   await page.mouse.down();
 

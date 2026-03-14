@@ -81,9 +81,9 @@ export async function mockSearchResults(
           hasNextPage: pageNum < totalPages,
           currentPage: pageNum,
           totalPages: totalPages,
-          totalCount: totalCount
+          totalCount: totalCount,
         },
-        raw: []
+        raw: [],
       }),
     });
   });
@@ -163,9 +163,9 @@ export async function mockSearchDynamic(
           hasNextPage: (body.page || 1) < (body.totalPages || 1),
           currentPage: body.page || 1,
           totalPages: body.totalPages || 1,
-          totalCount: normalisedItems.length
+          totalCount: normalisedItems.length,
         },
-        raw: []
+        raw: [],
       }),
     });
   });

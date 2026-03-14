@@ -42,19 +42,22 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
 
   return (
     <div
-      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-fast"
+      className="animate-in fade-in duration-fast fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="animate-in zoom-in-95 w-full max-w-sm overflow-hidden rounded-lg border border-border bg-surface shadow-floating duration-fast"
+        className="animate-in zoom-in-95 border-border bg-surface shadow-floating duration-fast w-full max-w-sm overflow-hidden rounded-lg border"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-border bg-background p-4">
-          <div className="flex items-center gap-2 font-bold text-foreground">
+        <div className="border-border bg-background flex items-center justify-between border-b p-4">
+          <div className="text-foreground flex items-center gap-2 font-bold">
             <Keyboard size={20} className="text-secondary" />
             <span>Shortcuts</span>
           </div>
-          <button onClick={onClose} className="text-secondary transition-colors hover:text-foreground">
+          <button
+            onClick={onClose}
+            className="text-secondary hover:text-foreground transition-colors"
+          >
             <X size={20} />
           </button>
         </div>
@@ -67,7 +70,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
                 {s.keys.map((k, j) => (
                   <kbd
                     key={j}
-                    className="flex min-w-[24px] items-center justify-center rounded-md border border-border bg-surface-hover px-2 py-1 text-center font-mono text-xs text-secondary shadow-sm"
+                    className="border-border bg-surface-hover text-secondary flex min-w-[24px] items-center justify-center rounded-md border px-2 py-1 text-center font-mono text-xs shadow-sm"
                   >
                     {k === 'Ctrl/Cmd' ? <Command size={10} className="mr-1" /> : null}
                     {k === 'Ctrl/Cmd' ? 'Cmd' : k}
@@ -77,8 +80,8 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             </div>
           ))}
         </div>
-        <div className="border-t border-border bg-background p-4 text-center text-xs text-secondary">
-          Press <kbd className="font-mono text-secondary">Esc</kbd> to close
+        <div className="border-border bg-background text-secondary border-t p-4 text-center text-xs">
+          Press <kbd className="text-secondary font-mono">Esc</kbd> to close
         </div>
       </div>
     </div>

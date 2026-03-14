@@ -40,7 +40,7 @@ export enum ProviderStatus {
   IDLE = 'IDLE',
   INITIALIZING = 'INITIALIZING',
   READY = 'READY',
-  ERROR = 'ERROR'
+  ERROR = 'ERROR',
 }
 
 /**
@@ -133,17 +133,17 @@ export interface Provider {
 
   /** The list of entities this database exposes to the user */
   readonly entities: readonly Entity[];
-  
-  /** 
+
+  /**
    * The current status of this specific provider.
    */
   status: ProviderStatus;
 
-  /** 
+  /**
    * Lifecycle hook for initialization.
    * Receives a standard fetcher for dependency injection.
    */
-  initialize?: (fetcher: Fetcher) => Promise<void>; 
+  initialize?: (fetcher: Fetcher) => Promise<void>;
 
   /**
    * Keys used to verify the resolveImage implementation in integration tests.
@@ -154,7 +154,7 @@ export interface Provider {
 
   /**
    * Method to resolve reference image sources.
-   * Must be implemented by all providers. If a provider does not support resolving images, 
+   * Must be implemented by all providers. If a provider does not support resolving images,
    * it should return `null`.
    * @param key The provider-specific reference key.
    * @returns The resolved image URL, or null if unresolvable.

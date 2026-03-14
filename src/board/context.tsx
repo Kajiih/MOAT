@@ -8,7 +8,7 @@
 
 'use client';
 
-
+import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { useHistory } from '@/board/hooks/useHistory';
@@ -24,7 +24,6 @@ import { TierDefinition, TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 import { usePersistentReducer } from '@/storage/usePersistentReducer';
-import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -47,7 +46,12 @@ interface TierListContextType {
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
     export: () => void;
     publish: () => Promise<string | null>;
-    moveItem: (payload: { activeId: string; overId: string; activeItem?: Item; edge?: Edge | null }) => void;
+    moveItem: (payload: {
+      activeId: string;
+      overId: string;
+      activeItem?: Item;
+      edge?: Edge | null;
+    }) => void;
   };
   dragState: {
     activeItem: Item | null;
@@ -62,7 +66,7 @@ interface TierListContextType {
     showShortcuts: boolean;
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
     addedItemIds: Set<string>;
-    allBoardItems: (Item)[];
+    allBoardItems: Item[];
     activeKeyboardDragId: { itemId: string; tierId: string } | null;
     setActiveKeyboardDragId: (state: { itemId: string; tierId: string } | null) => void;
   };
@@ -100,10 +104,13 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   const historyRaw = useHistory<TierListState>();
   const [detailsItem, setDetailsItem] = useState<Item | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [activeKeyboardDragId, setActiveKeyboardDragId] = useState<{ itemId: string; tierId: string } | null>(null);
-  
+  const [activeKeyboardDragId, setActiveKeyboardDragId] = useState<{
+    itemId: string;
+    tierId: string;
+  } | null>(null);
+
   const { registerItem, registerItems } = useItemRegistry();
-  
+
   const hasSyncedItems = React.useRef(false);
 
   // --- Hydration Sync ---
@@ -120,15 +127,11 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
 
   // --- History Helpers ---
   const undo = React.useCallback(() => {
-    historyRaw.undo(state, (newState) =>
-      dispatch(setState({ state: newState })),
-    );
+    historyRaw.undo(state, (newState) => dispatch(setState({ state: newState })));
   }, [historyRaw, state, dispatch]);
 
   const redo = React.useCallback(() => {
-    historyRaw.redo(state, (newState) =>
-      dispatch(setState({ state: newState })),
-    );
+    historyRaw.redo(state, (newState) => dispatch(setState({ state: newState })));
   }, [historyRaw, state, dispatch]);
 
   const push = React.useCallback(() => {
@@ -150,7 +153,14 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     structureRaw,
     ioRaw,
     utilsRaw,
-    uiState: { detailsItem, setDetailsItem, showShortcuts, setShowShortcuts, activeKeyboardDragId, setActiveKeyboardDragId },
+    uiState: {
+      detailsItem,
+      setDetailsItem,
+      showShortcuts,
+      setShowShortcuts,
+      activeKeyboardDragId,
+      setActiveKeyboardDragId,
+    },
   });
 
   const value = useMemo(

@@ -60,44 +60,41 @@ export function useBoardRegistry() {
    * @param title - The title of the new board.
    * @returns The UUID of the newly created board.
    */
-  const createBoard = useCallback(
-    async (title: string = 'Untitled Board') => {
-      const newId = uuidv4();
-      const newMeta: BoardMetadata = {
-        id: newId,
-        title,
-        createdAt: Date.now(),
-        lastModified: Date.now(),
-        itemCount: 0,
-      };
+  const createBoard = useCallback(async (title: string = 'Untitled Board') => {
+    const newId = uuidv4();
+    const newMeta: BoardMetadata = {
+      id: newId,
+      title,
+      createdAt: Date.now(),
+      lastModified: Date.now(),
+      itemCount: 0,
+    };
 
-      const BOARD_INDEX_KEY = 'moat-boards-index';
+    const BOARD_INDEX_KEY = 'moat-boards-index';
 
-      // 1. Optimistic UI update
-      setBoards((prev) => [newMeta, ...prev]);
+    // 1. Optimistic UI update
+    setBoards((prev) => [newMeta, ...prev]);
 
-      // 2. Atomic DB Transaction: Update Index, Meta, and Initial State
-      // We first need the current index to append.
-      // NOTE: strict atomicity for "read-modify-write" of index across multiple tabs
-      // would require a transaction block, which `idb-keyval` doesn't fully expose in `setMany`.
-      // Usage of `update` is safer for the index, but we also want to set the other keys.
-      // For now, we chain them, but use `update` for the index to avoid race conditions there.
+    // 2. Atomic DB Transaction: Update Index, Meta, and Initial State
+    // We first need the current index to append.
+    // NOTE: strict atomicity for "read-modify-write" of index across multiple tabs
+    // would require a transaction block, which `idb-keyval` doesn't fully expose in `setMany`.
+    // Usage of `update` is safer for the index, but we also want to set the other keys.
+    // For now, we chain them, but use `update` for the index to avoid race conditions there.
 
-      const newBoardState = {
-        ...INITIAL_STATE,
-        title,
-      };
+    const newBoardState = {
+      ...INITIAL_STATE,
+      title,
+    };
 
-      await Promise.all([
-        storage.set(`moat-meta-${newId}`, newMeta),
-        storage.set(`moat-board-${newId}`, newBoardState),
-        storage.update<string[]>(BOARD_INDEX_KEY, (prev) => [newId, ...(prev || [])]),
-      ]);
+    await Promise.all([
+      storage.set(`moat-meta-${newId}`, newMeta),
+      storage.set(`moat-board-${newId}`, newBoardState),
+      storage.update<string[]>(BOARD_INDEX_KEY, (prev) => [newId, ...(prev || [])]),
+    ]);
 
-      return newId;
-    },
-    [],
-  );
+    return newId;
+  }, []);
 
   /**
    * Permanently deletes a board and its associated data.

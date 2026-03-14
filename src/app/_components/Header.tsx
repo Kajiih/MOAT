@@ -76,12 +76,12 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
       <div className="group pointer-events-auto flex items-center">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 rounded-lg p-1 pr-3 transition-colors hover:bg-surface-hover"
+          className="hover:bg-surface-hover flex items-center gap-2 rounded-lg p-1 pr-3 transition-colors"
           title="Back to Dashboard"
         >
           <ChevronLeft size={20} className="text-secondary group-hover:text-neutral-300" />
           <BrandLogo colors={brandColors} variant="header" />
-          <span className="hidden text-sm font-bold text-muted group-hover:text-secondary lg:inline">
+          <span className="text-muted group-hover:text-secondary hidden text-sm font-bold lg:inline">
             / Dashboard
           </span>
         </Link>
@@ -96,7 +96,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={undo}
             disabled={!canUndo}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface text-secondary transition-colors hover:bg-surface-hover hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+            className="bg-surface text-secondary hover:bg-surface-hover hover:text-foreground flex h-10 w-10 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-30"
             title="Undo (Ctrl+Z)"
           >
             <Undo2 size={18} />
@@ -104,7 +104,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={redo}
             disabled={!canRedo}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface text-secondary transition-colors hover:bg-surface-hover hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+            className="bg-surface text-secondary hover:bg-surface-hover hover:text-foreground flex h-10 w-10 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-30"
             title="Redo (Ctrl+Shift+Z)"
           >
             <Redo2 size={18} />
@@ -115,7 +115,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={onPublish}
             disabled={isPublishing}
-            className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-white transition-all hover:bg-blue-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-primary flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-bold text-white transition-all hover:bg-blue-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             title="Publish to Cloud"
           >
             {isPublishing ? (
@@ -129,7 +129,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
           <button
             onClick={onScreenshot}
             disabled={isCapturing}
-            className="flex h-10 items-center gap-2 rounded-lg bg-surface-hover px-4 text-sm font-medium text-secondary transition-colors hover:bg-surface hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-surface-hover text-secondary hover:bg-surface hover:text-foreground flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             title="Save as Image"
           >
             {isCapturing ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}

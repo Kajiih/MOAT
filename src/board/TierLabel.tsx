@@ -10,7 +10,6 @@
 
 'use client';
 
-
 import { GripVertical } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';

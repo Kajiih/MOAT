@@ -63,7 +63,6 @@ export function useTierListIO(
           if (pushHistory) pushHistory();
           dispatch(importState({ state: newState }));
 
-
           showToast('Tier list imported successfully!', 'success');
         } catch (error) {
           logger.error({ error }, 'Failed to import JSON file');

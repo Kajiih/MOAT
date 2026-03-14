@@ -7,7 +7,10 @@
 
 'use client';
 
-import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import {
+  draggable,
+  dropTargetForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
@@ -51,9 +54,9 @@ export interface ItemCardProps {
 /**
  * Standardized Card Dimensions utilized to synchronize responsive sizing between
  * Tailwind inline layouts and Next.js optimized image resolutions.
- * 
+ *
  * Note: The explicit `tw` string (e.g. 'w-24') MUST be strictly declared alongside
- * the `px` value. Tailwind CSS uses static string extraction at build time and 
+ * the `px` value. Tailwind CSS uses static string extraction at build time and
  * will purge computed class names (e.g. `w-${px/4}`) from the production CSS bundle.
  */
 export const ITEM_CARD_DIMENSIONS = {
@@ -101,16 +104,17 @@ export function ItemCard({
   const ref = useRef<HTMLDivElement>(null);
   const [isDraggingLocal, setIsDraggingLocal] = useState(false);
   const [isOverLocal, setIsOverLocal] = useState(false);
-  
+
   const interactionContext = useContext(InteractionContext);
   const setHoveredItem = interactionContext?.setHoveredItem;
 
-  // 3. Global Keyboard State 
+  // 3. Global Keyboard State
   const tierListContext = useTierListContext();
   const actions = tierListContext?.actions;
   const activeKeyboardDragId = tierListContext?.ui.activeKeyboardDragId;
   const setActiveKeyboardDragId = tierListContext?.ui.setActiveKeyboardDragId;
-  const isKeyboardDragging = activeKeyboardDragId?.itemId === item.id && activeKeyboardDragId?.tierId === tierId;
+  const isKeyboardDragging =
+    activeKeyboardDragId?.itemId === item.id && activeKeyboardDragId?.tierId === tierId;
 
   // React destroys focus when `actions.moveItem` bridges a card across tiers (Component unmounts/remounts).
   // This listener immediately reclaims native DOM focus upon remount if context remembers the drag session.
@@ -173,8 +177,8 @@ export function ItemCard({
         // Only clear drag state if we are truly unfocusing (not just remounting to another tier)
         // Wait, if it remounts, onBlur fires FIRST before unmount. So we can't blindly clear it onBlur!
         // Actually, if we clear it onBlur, the cross-tier movement immediately kills the drag!
-        // We should ONLY clear drag state on Escape, or Space/Enter toggle. 
-        // DO NOT clear setActiveKeyboardDragId(null) here, otherwise bridging tiers cancels the drag. 
+        // We should ONLY clear drag state on Escape, or Space/Enter toggle.
+        // DO NOT clear setActiveKeyboardDragId(null) here, otherwise bridging tiers cancels the drag.
       }}
       onKeyDown={(e) => {
         if (e.key === ' ' || e.key === 'Enter') {
@@ -184,7 +188,7 @@ export function ItemCard({
           }
           return;
         }
-        
+
         // Escape to cancel dragging
         if (e.key === 'Escape') {
           if (isKeyboardDragging) {
@@ -193,21 +197,21 @@ export function ItemCard({
           }
           return;
         }
-        
+
         if (!isKeyboardDragging || !actions) return;
-        
+
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
           e.preventDefault();
           const currentTier = (e.currentTarget as HTMLElement).closest('[data-tier-id]');
           if (!currentTier) return;
-          
+
           const isUp = e.key === 'ArrowUp';
-          const targetTier = isUp 
-            ? currentTier.previousElementSibling 
+          const targetTier = isUp
+            ? currentTier.previousElementSibling
             : currentTier.nextElementSibling;
-            
-          if (targetTier && targetTier.hasAttribute('data-tier-id')) {
-            const overTierId = targetTier.getAttribute('data-tier-id');
+
+          if (targetTier && Object.hasOwn(targetTier.dataset, 'tierId')) {
+            const overTierId = targetTier.dataset.tierId;
             if (overTierId) {
               actions.moveItem({
                 activeId: item.id,
@@ -216,7 +220,7 @@ export function ItemCard({
                 edge: isUp ? 'right' : 'left',
               });
               setActiveKeyboardDragId?.({ itemId: item.id, tierId: overTierId });
-              
+
               setTimeout(() => {
                 ref.current?.focus();
               }, 10);
@@ -228,21 +232,21 @@ export function ItemCard({
         if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
           e.preventDefault();
           const isRight = e.key === 'ArrowRight';
-          const targetEl = isRight 
-            ? ref.current?.nextElementSibling 
+          const targetEl = isRight
+            ? ref.current?.nextElementSibling
             : ref.current?.previousElementSibling;
-            
-          if (targetEl && targetEl.hasAttribute('data-testid')) {
-            const targetIdAttr = targetEl.getAttribute('data-testid');
+
+          if (targetEl && Object.hasOwn(targetEl.dataset, 'testid')) {
+            const targetIdAttr = targetEl.dataset.testid;
             const overId = targetIdAttr?.replace('item-card-', '');
             if (overId) {
               actions.moveItem({
                 activeId: item.id,
                 overId,
                 activeItem: item,
-                edge: isRight ? 'right' : 'left'
+                edge: isRight ? 'right' : 'left',
               });
-              
+
               // Refocus item so they can chain moves
               setTimeout(() => {
                 ref.current?.focus();
@@ -254,14 +258,14 @@ export function ItemCard({
       style={style}
       data-testid={`item-card-${item.id}`}
       className={twMerge(
-        `group relative transition-all duration-fast hover:shadow-xl w-[var(--card-width-mobile)] sm:w-[var(--card-width-desktop)] ${ITEM_CARD_BASE_CLASSES}`,
-        isAdded ? 'ring-2 ring-primary ring-offset-2 ring-offset-black' : '',
-        isOverLocal ? 'ring-2 ring-emerald-500 scale-105 z-50' : '',
-        className
+        `group duration-fast relative w-[var(--card-width-mobile)] transition-all hover:shadow-xl sm:w-[var(--card-width-desktop)] ${ITEM_CARD_BASE_CLASSES}`,
+        isAdded ? 'ring-primary ring-2 ring-offset-2 ring-offset-black' : '',
+        isOverLocal ? 'z-50 scale-105 ring-2 ring-emerald-500' : '',
+        className,
       )}
     >
       {/* 1. Drag & Drop Interaction Layer (Separate from buttons) */}
-      <div 
+      <div
         className="absolute inset-0 cursor-grab active:cursor-grabbing"
         aria-label={item.title}
       />
@@ -278,21 +282,21 @@ export function ItemCard({
 
         {/* Overlay / Content */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/100 via-black/80 to-transparent p-2 pt-6">
-          <p className="line-clamp-2 text-caption font-bold text-white leading-tight">
+          <p className="text-caption line-clamp-2 leading-tight font-bold text-white">
             {item.title}
           </p>
           {(item.subtitle || item.tertiaryText) && (
-            <p className="mt-0.5 line-clamp-1 text-caption text-secondary leading-tight">
+            <p className="text-caption text-secondary mt-0.5 line-clamp-1 leading-tight">
               {item.subtitle || item.tertiaryText}
             </p>
           )}
         </div>
-        
+
         {/* Notes Indicator */}
         {item.notes && (
           <div
             data-testid="notes-indicator"
-            className="absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-highlight/90 text-background shadow-sm transition-transform group-hover/card:scale-110"
+            className="bg-highlight/90 text-background absolute right-1 bottom-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm shadow-sm transition-transform group-hover/card:scale-110"
             title="Contains personal notes"
           >
             <div className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -302,7 +306,7 @@ export function ItemCard({
 
       {/* 3. Actions (Visible on Hover) */}
       {!isExport && (
-        <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {onRemove && (
             <button
               onClick={(e) => {
@@ -334,7 +338,7 @@ export function ItemCard({
 
       {/* 4. Rating Indicator (If exists) */}
       {item.rating !== undefined && (
-        <div className="absolute top-1 left-1 rounded-md bg-black/60 px-1 py-0.5 text-indicator font-black text-white backdrop-blur-sm border border-white/10">
+        <div className="text-indicator absolute top-1 left-1 rounded-md border border-white/10 bg-black/60 px-1 py-0.5 font-black text-white backdrop-blur-sm">
           {item.rating.toFixed(1)}
         </div>
       )}

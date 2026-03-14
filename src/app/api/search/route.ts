@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const providerId = searchParams.get('providerId');
   const entityId = searchParams.get('entityId');
-  
+
   if (!providerId || !entityId) {
     return NextResponse.json({ error: 'Missing providerId or entityId' }, { status: 400 });
   }
@@ -31,14 +31,17 @@ export async function GET(request: Request) {
   const cursor = searchParams.get('cursor') || undefined;
   const sort = searchParams.get('sort') || undefined;
   const sortDirection = (searchParams.get('sortDirection') as SortDirection) || undefined;
-  
+
   const filtersData = searchParams.get('filters');
   const filters = filtersData ? JSON.parse(filtersData) : {};
 
   try {
     const entity = registry.getEntity(providerId, entityId);
     if (!entity) {
-      return NextResponse.json({ error: `Entity ${providerId}:${entityId} not found` }, { status: 404 });
+      return NextResponse.json(
+        { error: `Entity ${providerId}:${entityId} not found` },
+        { status: 404 },
+      );
     }
 
     await registry.waitUntilReady();
@@ -51,7 +54,7 @@ export async function GET(request: Request) {
       sort,
       sortDirection,
       filters,
-      signal: request.signal
+      signal: request.signal,
     });
 
     return NextResponse.json(result);

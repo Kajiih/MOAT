@@ -34,18 +34,18 @@ function handleMoveFromSearch(
   let newIndex;
   // If moving directly onto the container itself, append or prepend based on edge
   if (overId in state.tierLayout) {
-    newIndex = (edge === 'left' || edge === 'top') ? 0 : overLayout.length;
+    newIndex = edge === 'left' || edge === 'top' ? 0 : overLayout.length;
   } else {
     // Determine edge placement around target item
     newIndex = overIndex !== -1 ? overIndex : overLayout.length;
-    
+
     // Apply strict PRDnD edge index adjustments if available
     if (overIndex !== -1) {
-       if (edge === 'right' || edge === 'bottom') {
-         newIndex = overIndex + 1;
-       } else if (edge === 'left' || edge === 'top') {
-         newIndex = overIndex;
-       }
+      if (edge === 'right' || edge === 'bottom') {
+        newIndex = overIndex + 1;
+      } else if (edge === 'left' || edge === 'top') {
+        newIndex = overIndex;
+      }
     }
   }
 
@@ -54,7 +54,7 @@ function handleMoveFromSearch(
 
   // IMUTATE VIA IMMER
   state.itemEntities[activeId] = draggingItemFromSearch;
-  
+
   if (!state.tierLayout[overContainer]) state.tierLayout[overContainer] = [];
   state.tierLayout[overContainer].splice(newIndex, 0, activeId);
 }
@@ -108,25 +108,27 @@ function handleMoveBetweenContainers(
   let newIndex;
   // If moving directly onto the container itself, append or prepend based on edge
   if (overId in state.tierLayout) {
-    newIndex = (edge === 'left' || edge === 'top') ? 0 : overLayout.length;
+    newIndex = edge === 'left' || edge === 'top' ? 0 : overLayout.length;
   } else {
     newIndex = overIndex !== -1 ? overIndex : overLayout.length;
-    
+
     if (overIndex !== -1) {
-       if (edge === 'right' || edge === 'bottom') {
-         newIndex = overIndex + 1;
-       } else if (edge === 'left' || edge === 'top') {
-         newIndex = overIndex;
-       }
+      if (edge === 'right' || edge === 'bottom') {
+        newIndex = overIndex + 1;
+      } else if (edge === 'left' || edge === 'top') {
+        newIndex = overIndex;
+      }
     }
   }
 
   // MUTATE VIA IMMER
   if (!state.tierLayout[overContainer]) state.tierLayout[overContainer] = [];
-  
+
   // 1. Remove from source
-  state.tierLayout[activeContainer] = state.tierLayout[activeContainer].filter(id => id !== activeId);
-  
+  state.tierLayout[activeContainer] = state.tierLayout[activeContainer].filter(
+    (id) => id !== activeId,
+  );
+
   // 2. Insert into destination
   state.tierLayout[overContainer].splice(newIndex, 0, activeId);
 }
@@ -166,10 +168,13 @@ export function handleMoveItem(state: TierListState, action: PayloadAction<MoveI
  * @param state - The draft state provided by Immer.
  * @param action - The RTK PayloadAction containing the item ID and updates.
  */
-export function handleUpdateItem(state: TierListState, action: PayloadAction<{ itemId: string; updates: ItemUpdate }>): void {
+export function handleUpdateItem(
+  state: TierListState,
+  action: PayloadAction<{ itemId: string; updates: ItemUpdate }>,
+): void {
   const { itemId, updates } = action.payload;
   const currentItem = state.itemEntities[itemId];
-  
+
   if (!currentItem) return;
 
   if (!hasItemUpdates(currentItem, updates)) {
@@ -185,13 +190,16 @@ export function handleUpdateItem(state: TierListState, action: PayloadAction<{ i
  * @param state - The draft state provided by Immer.
  * @param action - The RTK PayloadAction containing the tier ID and item ID.
  */
-export function handleRemoveItem(state: TierListState, action: PayloadAction<{ tierId: string | TierId; itemId: string }>): void {
+export function handleRemoveItem(
+  state: TierListState,
+  action: PayloadAction<{ tierId: string | TierId; itemId: string }>,
+): void {
   const { tierId, itemId } = action.payload;
-  
+
   // MUTATE VIA IMMER
   delete state.itemEntities[itemId];
   if (state.tierLayout[tierId]) {
-    state.tierLayout[tierId] = state.tierLayout[tierId].filter(id => id !== itemId);
+    state.tierLayout[tierId] = state.tierLayout[tierId].filter((id) => id !== itemId);
   }
 }
 
@@ -208,7 +216,8 @@ export function handleMoveAllToUnranked(state: TierListState): void {
     state.tierLayout[tier.id] = [];
   });
 
-  const unrankedTier = state.tierDefs.find((t) => t.label.toLowerCase() === 'unranked') || state.tierDefs.at(-1);
+  const unrankedTier =
+    state.tierDefs.find((t) => t.label.toLowerCase() === 'unranked') || state.tierDefs.at(-1);
 
   if (unrankedTier) {
     state.tierLayout[unrankedTier.id] = allItemIds;

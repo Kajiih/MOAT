@@ -9,4 +9,5 @@ The **Item** domain defines the universal visual identity of an entity (a Game, 
 3. **Deep Metadata (`DetailsModal`)**: Houses the presentation layer for rich, asynchronous entity descriptions and tags.
 
 ## Guidelines
-* Components in this directory must remain **Agnostic**. An `ItemCard` should only ever care about rendering generic `Item` types, never knowing if it's currently displaying a RAWG Game or an OpenLibrary Book.
+
+- Components in this directory must remain **Agnostic**. An `ItemCard` should only ever care about rendering generic `Item` types, never knowing if it's currently displaying a RAWG Game or an OpenLibrary Book.

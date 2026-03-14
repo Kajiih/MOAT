@@ -39,7 +39,7 @@ globalThis.fetch = async (...args) => {
   // Check the current file context executing this code
   const errorObj = new Error('Network guard activation stack trace');
   const stackTrace = errorObj.stack || '';
-  
+
   // If the executing test file contains .integration.test, allow it to pass through to the real internet
   if (stackTrace.includes('.integration.test.')) {
     return originalFetch(...args);
@@ -50,14 +50,14 @@ globalThis.fetch = async (...args) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const input = args[0] as any;
   const target = input?.url || input?.href || String(input);
-  
+
   logger.fatal(
     { target },
     '🚨 [FATAL: UNMOCKED NETWORK REQUEST IN UNIT TEST] 🚨\n' +
-    'A test attempted to call fetch() without providing a mock implementation.\n' +
-    'If this is an integration test intended to hit a real API, rename the file to end with .integration.test.ts\n' +
-    'Otherwise, wrap global.fetch with vi.spyOn() or vi.fn().'
+      'A test attempted to call fetch() without providing a mock implementation.\n' +
+      'If this is an integration test intended to hit a real API, rename the file to end with .integration.test.ts\n' +
+      'Otherwise, wrap global.fetch with vi.spyOn() or vi.fn().',
   );
-  
+
   throw new Error(`Unmocked network request attempted in test environment targeting: ${target}`);
 };

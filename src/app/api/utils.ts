@@ -29,7 +29,7 @@ export function createErrorResponse(error: unknown): NextResponse {
 
     return NextResponse.json(
       { error: error.message, code: error.code },
-      { status: statusMap[error.code] || 500 }
+      { status: statusMap[error.code] || 500 },
     );
   }
 
@@ -37,7 +37,7 @@ export function createErrorResponse(error: unknown): NextResponse {
   if (error instanceof Error) {
     return NextResponse.json(
       { error: error.message, code: ProviderErrorCode.INTERNAL_ERROR },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -45,21 +45,18 @@ export function createErrorResponse(error: unknown): NextResponse {
   if (isObject(error) && typeof error.message === 'string') {
     return NextResponse.json(
       { error: error.message, code: ProviderErrorCode.INTERNAL_ERROR },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   // 2. If it's an arbitrary string payload
   if (typeof error === 'string' && error.trim() !== '') {
-    return NextResponse.json(
-      { error, code: ProviderErrorCode.INTERNAL_ERROR },
-      { status: 500 }
-    );
+    return NextResponse.json({ error, code: ProviderErrorCode.INTERNAL_ERROR }, { status: 500 });
   }
 
   // 3. Absolute fallback (blank object or null)
   return NextResponse.json(
     { error: 'An unknown server error occurred', code: ProviderErrorCode.INTERNAL_ERROR },
-    { status: 500 }
+    { status: 500 },
   );
 }

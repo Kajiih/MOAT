@@ -1,4 +1,4 @@
-import { Building2,Gamepad2 } from 'lucide-react';
+import { Building2, Gamepad2 } from 'lucide-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
@@ -6,7 +6,12 @@ import { ImageSourceSchema, referenceImage, urlImage } from '@/items/images';
 import { RAWGDatabaseProvider } from '@/providers/adapters/rawg';
 import { DEFAULT_PAGE_LIMIT, Entity, nonEmpty, Provider, ProviderStatus } from '@/providers/types';
 import { FilterDefinition } from '@/search/filter-schemas';
-import { SearchParams, SearchParamsSchema, SearchResult, SearchResultSchema } from '@/search/search-schemas';
+import {
+  SearchParams,
+  SearchParamsSchema,
+  SearchResult,
+  SearchResultSchema,
+} from '@/search/search-schemas';
 import { SortDirection } from '@/search/sort-schemas';
 
 import { ProviderErrorCode } from './errors';
@@ -25,18 +30,36 @@ interface MockItem {
 
 const createMockEntity = (overrides: Partial<Entity<MockItem>> = {}): Entity<MockItem> => ({
   id: 'mock-entity',
-  branding: { label: 'Video Game', labelPlural: 'Video Games', icon: Gamepad2, colorClass: 'text-purple-400' },
+  branding: {
+    label: 'Video Game',
+    labelPlural: 'Video Games',
+    icon: Gamepad2,
+    colorClass: 'text-purple-400',
+  },
   filters: [
     { id: 'yearRange', label: 'Year Range', type: 'range', testCases: [] },
     { id: 'platform', label: 'Platform', type: 'select', options: [], testCases: [] },
   ],
-  searchOptions: [
-    { id: 'precise', label: 'Precise', type: 'boolean', testCases: [] }
-  ],
+  searchOptions: [{ id: 'precise', label: 'Precise', type: 'boolean', testCases: [] }],
   sortOptions: [
-    { id: 'relevance', label: 'Relevance', defaultDirection: SortDirection.DESC, extractValue: (r: MockItem) => r.id },
-    { id: 'name', label: 'Name', defaultDirection: SortDirection.ASC, extractValue: (r: MockItem) => r.name },
-    { id: 'released', label: 'Released', defaultDirection: SortDirection.DESC, extractValue: (r: MockItem) => r.released },
+    {
+      id: 'relevance',
+      label: 'Relevance',
+      defaultDirection: SortDirection.DESC,
+      extractValue: (r: MockItem) => r.id,
+    },
+    {
+      id: 'name',
+      label: 'Name',
+      defaultDirection: SortDirection.ASC,
+      extractValue: (r: MockItem) => r.name,
+    },
+    {
+      id: 'released',
+      label: 'Released',
+      defaultDirection: SortDirection.DESC,
+      extractValue: (r: MockItem) => r.released,
+    },
   ],
   defaultTestQueries: nonEmpty('query'),
   testDetailsIds: nonEmpty('test-id'),
@@ -81,9 +104,9 @@ describe('Provider Design', () => {
     it('should clear all state when clear() is called', async () => {
       await registry.register(new RAWGDatabaseProvider());
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
-      
+
       registry.clear();
-      
+
       expect(registry.getStatus()).toBe(RegistryStatus.IDLE);
       expect(registry.getAllProviders()).toHaveLength(0);
       expect(() => registry.getProvider('rawg')).toThrow('Provider "rawg" not found');
@@ -107,10 +130,10 @@ describe('Provider Design', () => {
     it('should allow injecting a custom fetcher via registry', async () => {
       const mockFetcher = vi.fn().mockResolvedValue({ results: [], count: 0 });
       registry.setFetcher(mockFetcher);
-      
+
       await registry.register(RAWGDatabase);
       const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
-      
+
       await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: DEFAULT_PAGE_LIMIT });
       expect(mockFetcher).toHaveBeenCalled();
     });
@@ -122,7 +145,9 @@ describe('Provider Design', () => {
         label: 'Failing Provider',
         entities: [],
         status: ProviderStatus.IDLE,
-        initialize: async () => { throw new Error('Auth failed'); },
+        initialize: async () => {
+          throw new Error('Auth failed');
+        },
         testImageKeys: nonEmpty('test-key'),
         resolveImage: async () => null,
       };
@@ -150,10 +175,10 @@ describe('Provider Design', () => {
 
       // But registering a new working provider should work and reset the registry to READY
       await registry.register(workingProvider);
-      
+
       const working = registry.getProvider('working');
       expect(working?.status).toBe(ProviderStatus.READY);
-      
+
       // Registry is READY because at least one provider is READY
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
     });
@@ -165,10 +190,16 @@ describe('Provider Design', () => {
       const slowProvider: Provider = {
         id: 'slow',
         label: 'Slow',
-        entities: [createMockEntity({ id: 'game' }), createMockEntity({ id: 'developer', branding: { ...createMockEntity().branding, icon: Building2 } })],
+        entities: [
+          createMockEntity({ id: 'game' }),
+          createMockEntity({
+            id: 'developer',
+            branding: { ...createMockEntity().branding, icon: Building2 },
+          }),
+        ],
         status: ProviderStatus.IDLE,
         initialize: async () => {
-          await new Promise(r => setTimeout(r, 50));
+          await new Promise((r) => setTimeout(r, 50));
           slowDone = true;
         },
         testImageKeys: nonEmpty('test-key'),
@@ -178,10 +209,16 @@ describe('Provider Design', () => {
       const fastProvider: Provider = {
         id: 'fast',
         label: 'Fast',
-        entities: [createMockEntity({ id: 'game' }), createMockEntity({ id: 'developer', branding: { ...createMockEntity().branding, icon: Building2 } })],
+        entities: [
+          createMockEntity({ id: 'game' }),
+          createMockEntity({
+            id: 'developer',
+            branding: { ...createMockEntity().branding, icon: Building2 },
+          }),
+        ],
         status: ProviderStatus.IDLE,
         initialize: async () => {
-          await new Promise(r => setTimeout(r, 10));
+          await new Promise((r) => setTimeout(r, 10));
           fastDone = true;
         },
         testImageKeys: nonEmpty('test-key'),
@@ -190,7 +227,7 @@ describe('Provider Design', () => {
 
       // Start slow registration
       const p1 = registry.register(slowProvider);
-      
+
       // Start waiting
       const waitPromise = registry.waitUntilReady();
 
@@ -202,7 +239,7 @@ describe('Provider Design', () => {
       expect(slowDone).toBe(true);
       expect(fastDone).toBe(true);
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
-      
+
       await Promise.all([p1, p2]); // Cleanup
     });
   });
@@ -211,7 +248,7 @@ describe('Provider Design', () => {
     it('should map AbortError to TIMEOUT', () => {
       const abortError = new Error('The operation was aborted');
       abortError.name = 'AbortError';
-      
+
       const dbError = handleProviderError(abortError, 'test');
       expect(dbError.code).toBe(ProviderErrorCode.TIMEOUT);
     });
@@ -219,7 +256,7 @@ describe('Provider Design', () => {
     it('should map TimeoutError to TIMEOUT', () => {
       const timeoutError = new Error('The operation timed out');
       timeoutError.name = 'TimeoutError';
-      
+
       const dbError = handleProviderError(timeoutError, 'test');
       expect(dbError.code).toBe(ProviderErrorCode.TIMEOUT);
     });
@@ -230,7 +267,9 @@ describe('Provider Design', () => {
     });
 
     it('should map 500 to SERVICE_UNAVAILABLE', () => {
-      expect(handleProviderError({ status: 500 }, 'test').code).toBe(ProviderErrorCode.SERVICE_UNAVAILABLE);
+      expect(handleProviderError({ status: 500 }, 'test').code).toBe(
+        ProviderErrorCode.SERVICE_UNAVAILABLE,
+      );
     });
 
     it('should map ZodError to VALIDATION_ERROR', () => {
@@ -261,7 +300,7 @@ describe('Provider Design', () => {
         },
         raw: [],
       });
-      
+
       expect(result.pagination.hasNextPage).toBe(true);
       expect('currentPage' in result.pagination && result.pagination.currentPage).toBe(1);
     });
@@ -300,7 +339,11 @@ describe('Provider Design', () => {
     });
 
     it('should accept reference image sources', () => {
-      const source = ImageSourceSchema.parse({ type: 'reference', provider: 'wikidata', key: 'elden-ring' });
+      const source = ImageSourceSchema.parse({
+        type: 'reference',
+        provider: 'wikidata',
+        key: 'elden-ring',
+      });
       expect(source.type).toBe('reference');
       if (source.type === 'reference') {
         expect(source.provider).toBe('wikidata');
@@ -347,11 +390,14 @@ describe('Provider Design', () => {
   describe('Search Options', () => {
     it('should cleanly separate search modifiers from data filters', () => {
       const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game')!;
-      
+
       expect(gameEntity.searchOptions).toHaveLength(1);
       expect(gameEntity.searchOptions?.[0].id).toBe('precise');
-      
-      expect(gameEntity.filters.map((f: FilterDefinition<never>) => f.id)).toEqual(['yearRange', 'platform']);
+
+      expect(gameEntity.filters.map((f: FilterDefinition<never>) => f.id)).toEqual([
+        'yearRange',
+        'platform',
+      ]);
     });
   });
 });

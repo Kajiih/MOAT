@@ -16,19 +16,19 @@ export const BaseItemSchema = z.object({
   id: z.string(),
   /** Routing identity — where this item comes from */
   identity: EntityIdentitySchema,
-  
+
   /** Primary display title */
   title: z.string(),
   /** Ordered list of image sources to try — first working source wins */
   images: z.array(ImageSourceSchema).default([]),
-  
+
   /** Pre-computed strings for the UI to avoid complex formatting logic in components */
   subtitle: z.string().optional(),
   tertiaryText: z.string().optional(),
-  
+
   /** Normalized rating (usually 0-10 or 0-100) */
   rating: z.number().optional(),
-  
+
   /** User's personal custom notes for this specific item layout */
   notes: z.string().optional(),
 });
@@ -71,10 +71,14 @@ export const ItemDetailsCoreSchema = z.object({
   /** Links to other entities in the same provider (e.g. Developer of a Game) */
   relatedEntities: z.array(EntityLinkSchema).optional(),
   /** External resource links (Wikipedia, Official Site, etc.) */
-  urls: z.array(z.object({
-    type: z.string(),
-    url: z.string().url(),
-  })).optional(),
+  urls: z
+    .array(
+      z.object({
+        type: z.string(),
+        url: z.string().url(),
+      }),
+    )
+    .optional(),
   /** Flexible sections of data (Tracks, Cast, etc.) */
   sections: z.array(ItemSectionSchema).optional(),
   /** Flexible record for any extra data specific to a database/entity */

@@ -9,4 +9,5 @@
  * @param e - The unknown value to check.
  * @returns True if `e` is an object and not null.
  */
-export const isObject = (e: unknown): e is Record<string, unknown> => typeof e === 'object' && e !== null;
+export const isObject = (e: unknown): e is Record<string, unknown> =>
+  typeof e === 'object' && e !== null;

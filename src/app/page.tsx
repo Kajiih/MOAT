@@ -47,7 +47,7 @@ export default function Page() {
   }, [boards, isLoading, createBoard, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface text-secondary">
+    <div className="bg-surface text-secondary flex min-h-screen items-center justify-center">
       <Loader2 className="mr-2 animate-spin" />
       <span>Loading...</span>
     </div>

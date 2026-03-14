@@ -48,8 +48,8 @@ export function TierBoard({ isAnyDragging }: TierBoardProps) {
         items={Object.fromEntries(
           Object.entries(state.tierLayout).map(([tierId, ids]) => [
             tierId,
-            ids.map((id) => state.itemEntities[id]!).filter(Boolean)
-          ])
+            ids.map((id) => state.itemEntities[id]!).filter(Boolean),
+          ]),
         )}
         isAnyDragging={isAnyDragging}
         onRemoveItem={removeItemFromTier}
@@ -59,9 +59,9 @@ export function TierBoard({ isAnyDragging }: TierBoardProps) {
       />
       <button
         onClick={handleAddTier}
-        className="group flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-4 font-bold text-secondary transition-all hover:border-muted hover:bg-surface hover:text-foreground"
+        className="group border-border text-secondary hover:border-muted hover:bg-surface hover:text-foreground flex w-full items-center justify-center gap-2 rounded-lg border border-dashed py-4 font-bold transition-all"
       >
-        <div className="rounded-md bg-surface-hover p-1 transition-colors group-hover:bg-muted">
+        <div className="bg-surface-hover group-hover:bg-muted rounded-md p-1 transition-colors">
           <Plus size={16} />
         </div>
         <span>Add Tier</span>

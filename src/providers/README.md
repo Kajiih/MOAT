@@ -11,18 +11,18 @@ Providers rely entirely on a single-variable constraint model (`TRaw`) represent
 // The filter simply enforces that all test matching behaves against that shape.
 const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
   rawgGameFilters.range({
-    id: 'yearRange',
-    label: 'Release Year',
-    mapTo: 'dates', // The API param it targets internally
-    transform: (val: { min?: string; max?: string }) => 'YYYY-YYY', // Normalizes into specific patterns
+    id: "yearRange",
+    label: "Release Year",
+    mapTo: "dates", // The API param it targets internally
+    transform: (val: { min?: string; max?: string }) => "YYYY-YYY", // Normalizes into specific patterns
     testCases: [
       {
-        value: { min: '2020', max: '2022' },
-        match: (item: RAWGGame) => Number.parseInt(item.released) >= 2020 // Strictly typed Native Checks
-      }
-    ]
+        value: { min: "2020", max: "2022" },
+        match: (item: RAWGGame) => Number.parseInt(item.released) >= 2020, // Strictly typed Native Checks
+      },
+    ],
   }),
-]
+];
 ```
 
 To create filter definitions for a specific API response shape, use the **Curried Suite Factory Pattern** (`createFilterSuite<TRaw>()`).
@@ -35,6 +35,7 @@ const rawgDeveloperFilters = createFilterSuite<RAWGDeveloper>();
 ## Unified Payload Safeties (Zod)
 
 The Provider Layer places a hard Zod validation barrier at **both** ends of the pipeline in all native adapters (`adapters/`):
+
 1. `search()` payload results are strictly parsed before being evaluated.
 2. `getDetails()` blocks are strictly parsed by a custom Zod schema before the registry coerces them into abstract generic `ItemDetails` shapes for the React UI.
 

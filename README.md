@@ -15,7 +15,7 @@
 
 - **Frontend**: Next.js (App Router), React 19, Tailwind CSS v4.
 - **Drag & Drop**: Pragmatic Drag and Drop (`@atlaskit/pragmatic-drag-and-drop`).
-- **Data Fetching**: Custom fetcher with exponential backoff and `Retry-After` header support. Overlaps with native React 19 `<Suspense>` bounds. 
+- **Data Fetching**: Custom fetcher with exponential backoff and `Retry-After` header support. Overlaps with native React 19 `<Suspense>` bounds.
 - **Data Layers**: `idb-keyval` for Async Persistence. Zod for absolute API safety.
 - **Testing**: Vitest, React Testing Library, Playwright.
 
@@ -62,13 +62,12 @@ Global project terminology is maintained in [`docs/GLOSSARY.md`](docs/GLOSSARY.m
 
 Rather than centralized documentation, each core domain maintains its own local `README.md` explaining its constraints, architectures, and guidelines.
 
-*   [`e2e/`](./e2e/README.md) - Playwright End-to-End Tests & Critical User Journeys (CUJs)
-*   [`src/app/`](./src/app/README.md) - The Next.js Application Shell (Routes & Global UI)
-*   [`src/board/`](./src/board/README.md) - The Work Surface (Tier Grid, Drag & Drop, Redux)
-*   [`src/items/`](./src/items/README.md) - The Content Primitive (Universal Models, Image Caching)
-*   [`src/search/`](./src/search/README.md) - The Discovery Engine (Filters, Sorting, Panels)
-*   [`src/providers/`](./src/providers/README.md) - The Generic Provider Architecture (Adapters, Live APIs)
-*   [`src/storage/`](./src/storage/README.md) - IndexedDB Persistence Hub
-*   [`src/lib/`](./src/lib/README.md) - Shared Infrastructure (Generic UI, Tools)
-*   [`src/test/`](./src/test/README.md) - Diagnostics Engine (MSW, Guardrails)
-
+- [`e2e/`](./e2e/README.md) - Playwright End-to-End Tests & Critical User Journeys (CUJs)
+- [`src/app/`](./src/app/README.md) - The Next.js Application Shell (Routes & Global UI)
+- [`src/board/`](./src/board/README.md) - The Work Surface (Tier Grid, Drag & Drop, Redux)
+- [`src/items/`](./src/items/README.md) - The Content Primitive (Universal Models, Image Caching)
+- [`src/search/`](./src/search/README.md) - The Discovery Engine (Filters, Sorting, Panels)
+- [`src/providers/`](./src/providers/README.md) - The Generic Provider Architecture (Adapters, Live APIs)
+- [`src/storage/`](./src/storage/README.md) - IndexedDB Persistence Hub
+- [`src/lib/`](./src/lib/README.md) - Shared Infrastructure (Generic UI, Tools)
+- [`src/test/`](./src/test/README.md) - Diagnostics Engine (MSW, Guardrails)

@@ -11,7 +11,7 @@ import { BaseFilterDefinition, FilterDefinition } from '@/search/filter-schemas'
  */
 export interface FilterControlProps<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  T extends BaseFilterDefinition<any, any> = FilterDefinition
+  T extends BaseFilterDefinition<any, any> = FilterDefinition,
 > {
   /** The filter definition object powering this control. */
   filter: T;

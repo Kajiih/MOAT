@@ -14,8 +14,8 @@ import { ITEM_CARD_BASE_CLASSES } from '@/items/ItemCard';
  */
 export function SkeletonCard() {
   return (
-    <div className={`animate-pulse bg-surface-hover/50 ${ITEM_CARD_BASE_CLASSES}`}>
-      <div className="h-full w-full bg-surface-hover"></div>
+    <div className={`bg-surface-hover/50 animate-pulse ${ITEM_CARD_BASE_CLASSES}`}>
+      <div className="bg-surface-hover h-full w-full"></div>
     </div>
   );
 }

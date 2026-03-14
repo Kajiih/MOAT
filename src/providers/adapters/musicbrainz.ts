@@ -13,7 +13,7 @@ import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { handleProviderError } from '@/providers/utils';
-import {FilterDefinition } from '@/search/filter-schemas';
+import { FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite } from '@/search/sort-schemas';
 
@@ -30,10 +30,12 @@ const MBTagSchema = z.object({
 
 const MBArtistCreditSchema = z.object({
   name: z.string(),
-  artist: z.object({
-    id: z.string(),
-    name: z.string(),
-  }).nullish(),
+  artist: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+    })
+    .nullish(),
 });
 
 export const MBArtistSchema = z.object({
@@ -83,9 +85,7 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
   };
   public readonly searchOptions: FilterDefinition<MBReleaseGroup>[] = [];
   public readonly filters: FilterDefinition<MBReleaseGroup>[] = [];
-  public readonly sortOptions = [
-    mbAlbumSorts.create({ id: 'relevance', label: 'Relevance' }),
-  ];
+  public readonly sortOptions = [mbAlbumSorts.create({ id: 'relevance', label: 'Relevance' })];
 
   public readonly defaultTestQueries = nonEmpty('Thriller', 'Abbey Road');
   public readonly testDetailsIds = nonEmpty(ALBUM_THRILLER_ID, ALBUM_ABBEY_ROAD_ID);
@@ -106,7 +106,10 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
     return this.provider.searchAlbums(params);
   };
 
-  public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
+  public readonly getNextParams = (
+    params: SearchParams,
+    result: SearchResult,
+  ): SearchParams | null => {
     if (!result.pagination.hasNextPage) return null;
     return { ...params, page: (params.page || 1) + 1 };
   };
@@ -117,13 +120,20 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
     return { ...params, page: currentPage - 1 };
   };
 
-  public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
+  public readonly getDetails = async (
+    dbId: string,
+    options?: { signal?: AbortSignal },
+  ): Promise<ItemDetails> => {
     try {
-      const rawData = await this.provider.fetchMB<unknown>(`/release-group/${dbId}`, { inc: 'artist-credits+tags' }, { signal: options?.signal });
+      const rawData = await this.provider.fetchMB<unknown>(
+        `/release-group/${dbId}`,
+        { inc: 'artist-credits+tags' },
+        { signal: options?.signal },
+      );
       const album = MBReleaseGroupSchema.parse(rawData);
-      
+
       const item = mapAlbumToItem(album, this.provider.id);
-      const tags = (album.tags || []).map(t => t.name).slice(0, 10);
+      const tags = (album.tags || []).map((t) => t.name).slice(0, 10);
 
       const details: ItemDetails = {
         ...item,
@@ -140,7 +150,7 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
 
 function mapAlbumToItem(album: MBReleaseGroup, databaseId: string): Item {
   const identity = { dbId: album.id, databaseId, entityId: 'album' };
-  
+
   // Try to use coverartarchive for the image
   const images = [urlImage(`https://coverartarchive.org/release-group/${album.id}/front`)];
 
@@ -175,9 +185,7 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
   };
   public readonly searchOptions: FilterDefinition<MBArtist>[] = [];
   public readonly filters: FilterDefinition<MBArtist>[] = [];
-  public readonly sortOptions = [
-    mbArtistSorts.create({ id: 'relevance', label: 'Relevance' }),
-  ];
+  public readonly sortOptions = [mbArtistSorts.create({ id: 'relevance', label: 'Relevance' })];
 
   public readonly defaultTestQueries = nonEmpty('Daft Punk', 'Radiohead');
   public readonly testDetailsIds = nonEmpty(ARTIST_DAFT_PUNK_ID, ARTIST_RADIOHEAD_ID);
@@ -198,7 +206,10 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
     return this.provider.searchArtists(params);
   };
 
-  public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
+  public readonly getNextParams = (
+    params: SearchParams,
+    result: SearchResult,
+  ): SearchParams | null => {
     if (!result.pagination.hasNextPage) return null;
     return { ...params, page: (params.page || 1) + 1 };
   };
@@ -209,13 +220,20 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
     return { ...params, page: currentPage - 1 };
   };
 
-  public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
+  public readonly getDetails = async (
+    dbId: string,
+    options?: { signal?: AbortSignal },
+  ): Promise<ItemDetails> => {
     try {
-      const rawData = await this.provider.fetchMB<unknown>(`/artist/${dbId}`, { inc: 'tags' }, { signal: options?.signal });
+      const rawData = await this.provider.fetchMB<unknown>(
+        `/artist/${dbId}`,
+        { inc: 'tags' },
+        { signal: options?.signal },
+      );
       const artist = MBArtistSchema.parse(rawData);
-      
+
       const item = mapArtistToItem(artist, this.provider.id);
-      const tags = (artist.tags || []).map(t => t.name).slice(0, 10);
+      const tags = (artist.tags || []).map((t) => t.name).slice(0, 10);
 
       const details: ItemDetails = {
         ...item,
@@ -232,7 +250,7 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
 
 function mapArtistToItem(artist: MBArtist, databaseId: string): Item {
   const identity = { dbId: artist.id, databaseId, entityId: 'artist' };
-  
+
   const item: Item = {
     id: toCompositeId(identity),
     identity,
@@ -262,7 +280,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
 
   public resolveImage = async (key: string): Promise<string | null> => {
     try {
-      // Cover Art Archive provides redirects to images, we can check if it exists by a simple HEAD request, 
+      // Cover Art Archive provides redirects to images, we can check if it exists by a simple HEAD request,
       // but for resolution we can just return the constructed URL.
       return `https://coverartarchive.org/release-group/${key}/front`;
     } catch {
@@ -283,9 +301,11 @@ export class MusicBrainzDatabaseProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMB<MBReleaseGroupListResponse>('/release-group', apiParams, { signal: params.signal });
+      const data = await this.fetchMB<MBReleaseGroupListResponse>('/release-group', apiParams, {
+        signal: params.signal,
+      });
       const parsedResults = z.array(MBReleaseGroupSchema).parse(data['release-groups']);
-      const items = parsedResults.map(item => mapAlbumToItem(item, this.id));
+      const items = parsedResults.map((item) => mapAlbumToItem(item, this.id));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / limit);
@@ -320,9 +340,11 @@ export class MusicBrainzDatabaseProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMB<MBArtistListResponse>('/artist', apiParams, { signal: params.signal });
+      const data = await this.fetchMB<MBArtistListResponse>('/artist', apiParams, {
+        signal: params.signal,
+      });
       const parsedResults = z.array(MBArtistSchema).parse(data.artists);
-      const items = parsedResults.map(item => mapArtistToItem(item, this.id));
+      const items = parsedResults.map((item) => mapArtistToItem(item, this.id));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / limit);
@@ -347,7 +369,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
   public async fetchMB<T>(
     endpoint: string,
     params: Record<string, string> = {},
-    options?: { signal?: AbortSignal }
+    options?: { signal?: AbortSignal },
   ): Promise<T> {
     const query = new URLSearchParams({ ...params, fmt: 'json' });
     const queryString = query.toString();
@@ -357,13 +379,13 @@ export class MusicBrainzDatabaseProvider implements Provider {
       ...options,
       headers: {
         'User-Agent': MB_USER_AGENT,
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
   }
 
   public readonly entities = [
     new MusicBrainzAlbumEntity(this),
-    new MusicBrainzArtistEntity(this)
+    new MusicBrainzArtistEntity(this),
   ] as const;
 }

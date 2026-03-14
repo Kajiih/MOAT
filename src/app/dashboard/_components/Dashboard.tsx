@@ -8,12 +8,7 @@
 
 'use client';
 
-import {
-  ImageOff,
-  Layout,
-  Plus,
-  Trash2,
-} from 'lucide-react';
+import { ImageOff, Layout, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -31,21 +26,17 @@ import { logger } from '@/lib/logger';
 
 // --- Sub-components for Dashboard ---
 
-const CreateBoardCard = ({
-  onCreate,
-}: {
-  onCreate: (title: string) => void;
-}) => {
+const CreateBoardCard = ({ onCreate }: { onCreate: (title: string) => void }) => {
   return (
     <button
       onClick={() => onCreate('')}
-      className="group flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-background transition-all hover:border-blue-500/50 hover:bg-surface"
+      className="group border-border bg-background hover:bg-surface flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all hover:border-blue-500/50"
       title="New Tier List"
     >
-      <div className="rounded-full bg-surface-hover p-3 text-secondary transition-colors group-hover:bg-blue-600 group-hover:text-white">
+      <div className="bg-surface-hover text-secondary rounded-full p-3 transition-colors group-hover:bg-blue-600 group-hover:text-white">
         <Plus size={32} />
       </div>
-      <span className="mt-2 text-sm font-medium text-muted group-hover:text-foreground">
+      <span className="text-muted group-hover:text-foreground mt-2 text-sm font-medium">
         Create Board
       </span>
     </button>
@@ -60,7 +51,7 @@ const DashboardItem = ({ item }: { item: PreviewItem }) => {
   const showImage = item.imageUrl && !error;
 
   return (
-    <div className="relative aspect-square h-full border-r border-border bg-surface">
+    <div className="border-border bg-surface relative aspect-square h-full border-r">
       {showImage ? (
         <Image
           src={item.imageUrl!}
@@ -74,9 +65,9 @@ const DashboardItem = ({ item }: { item: PreviewItem }) => {
           }}
         />
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 text-muted">
+        <div className="text-muted absolute inset-0 flex flex-col items-center justify-center p-0.5">
           <ImageOff size={10} className="mb-0.5 opacity-50" />
-          <span className="w-full truncate text-center text-indicator leading-none font-bold uppercase opacity-20">
+          <span className="text-indicator w-full truncate text-center leading-none font-bold uppercase opacity-20">
             {item.type}
           </span>
         </div>
@@ -87,22 +78,19 @@ const DashboardItem = ({ item }: { item: PreviewItem }) => {
 
 const MiniatureTierList = ({ tiers }: { tiers: TierPreview[] }) => {
   return (
-    <div className="flex h-full w-full flex-col bg-surface">
+    <div className="bg-surface flex h-full w-full flex-col">
       {tiers.map((tier) => {
         const theme = getColorTheme(tier.color);
         return (
-          <div
-            key={tier.id}
-            className="flex min-h-0 flex-1 border-b border-border last:border-0"
-          >
+          <div key={tier.id} className="border-border flex min-h-0 flex-1 border-b last:border-0">
             {/* Tier Label */}
             <div
-              className={`flex w-8 items-center justify-center ${theme.bg} p-0.5 text-indicator font-bold text-black uppercase`}
+              className={`flex w-8 items-center justify-center ${theme.bg} text-indicator p-0.5 font-bold text-black uppercase`}
             >
               <span className="truncate">{tier.label}</span>
             </div>
             {/* Tier Items */}
-            <div className="flex flex-1 items-center bg-surface-hover">
+            <div className="bg-surface-hover flex flex-1 items-center">
               {(tier.items || []).slice(0, 12).map((item, i) => (
                 <DashboardItem key={`${item.title}-${i}`} item={item} />
               ))}
@@ -122,9 +110,9 @@ const BoardThumbnail = ({ board }: { board: BoardMetadata }) => {
 
   // 2. Placeholder
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-surface-hover">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-background/80" />
-      <Layout className="h-16 w-16 text-muted" strokeWidth={1} />
+    <div className="bg-surface-hover relative flex h-full w-full items-center justify-center">
+      <div className="to-background/80 absolute inset-0 bg-gradient-to-br from-blue-900/20" />
+      <Layout className="text-muted h-16 w-16" strokeWidth={1} />
     </div>
   );
 };
@@ -160,21 +148,21 @@ export function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface text-secondary">
+      <div className="bg-surface text-secondary flex min-h-screen items-center justify-center">
         Loading registry...
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface font-sans text-foreground">
+    <div className="bg-surface text-foreground flex min-h-screen flex-col font-sans">
       <main className="flex-1 p-8 pb-0">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
           <div className="mb-12 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <BrandLogo colors={brandColors} variant="header" />
-              <span className="hidden text-2xl font-bold text-secondary sm:inline">
+              <span className="text-secondary hidden text-2xl font-bold sm:inline">
                 / Dashboard
               </span>
             </div>
@@ -189,14 +177,14 @@ export function Dashboard() {
                 key={board.id}
                 data-testid="board-card"
                 href={`/board/${board.id}`}
-                className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-2 hover:ring-blue-500/50"
+                className="group border-border bg-surface relative flex flex-col overflow-hidden rounded-lg border transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-2 hover:ring-blue-500/50"
               >
                 {/* Thumbnail / Icon Placeholder */}
-                <div className="relative h-28 w-full overflow-hidden bg-surface-hover">
+                <div className="bg-surface-hover relative h-28 w-full overflow-hidden">
                   <BoardThumbnail board={board} />
 
                   {/* Item Count Badge */}
-                  <div className="absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-secondary backdrop-blur-sm">
+                  <div className="text-secondary absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-0.5 text-xs backdrop-blur-sm">
                     {board.itemCount} items
                   </div>
                 </div>
@@ -204,10 +192,10 @@ export function Dashboard() {
                 {/* Metadata */}
                 <div className="flex flex-1 flex-col justify-between p-4">
                   <div>
-                    <h3 className="line-clamp-1 text-lg font-bold text-foreground transition-colors group-hover:text-blue-400">
+                    <h3 className="text-foreground line-clamp-1 text-lg font-bold transition-colors group-hover:text-blue-400">
                       {board.title}
                     </h3>
-                    <p className="mt-1 text-xs text-secondary">
+                    <p className="text-secondary mt-1 text-xs">
                       Modified {new Date(board.lastModified).toLocaleDateString()}
                     </p>
                   </div>
@@ -216,7 +204,7 @@ export function Dashboard() {
                 {/* Delete Action (Hidden by default) */}
                 <button
                   onClick={(e) => handleDelete(e, board.id)}
-                  className="absolute top-2 right-2 rounded-md bg-background/80 p-2 text-secondary opacity-0 transition-all group-hover:opacity-100 hover:bg-red-900/80 hover:text-red-200"
+                  className="bg-background/80 text-secondary absolute top-2 right-2 rounded-md p-2 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-900/80 hover:text-red-200"
                   title="Delete Board"
                 >
                   <Trash2 size={16} />
@@ -226,7 +214,7 @@ export function Dashboard() {
           </div>
 
           {boards.length === 0 && (
-            <div className="mt-12 text-center text-muted">
+            <div className="text-muted mt-12 text-center">
               <p>No boards found. Create one to get started!</p>
             </div>
           )}

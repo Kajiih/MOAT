@@ -6,11 +6,7 @@
 
 import { faker } from '@faker-js/faker';
 
-import {
-  Item,
-  TierDefinition,
-  TierListState,
-} from '@/board/types';
+import { Item, TierDefinition, TierListState } from '@/board/types';
 
 /**
  * Creates a mock TierDefinition.

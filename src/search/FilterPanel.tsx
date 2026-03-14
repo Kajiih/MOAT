@@ -17,7 +17,7 @@ interface FilterPanelProps {
 }
 
 /**
- * A purely declarative filter panel that renders UI controls based on 
+ * A purely declarative filter panel that renders UI controls based on
  * the FilterDefinitions provided by a Entity.
  * @param props - The component properties.
  * @param props.entity - The entity containing the filter definitions.
@@ -43,20 +43,20 @@ export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
 
         return (
           <div key={filter.id} className="flex flex-col gap-1.5">
-            <label className="text-caption font-bold uppercase text-secondary">
+            <label className="text-caption text-secondary font-bold uppercase">
               {filter.label}
             </label>
-            
-            <Component 
-              filter={filter} 
-              value={value} 
-              onChange={(val: unknown) => handleFilterChange(filter.id, val as FilterValues[string])} 
+
+            <Component
+              filter={filter}
+              value={value}
+              onChange={(val: unknown) =>
+                handleFilterChange(filter.id, val as FilterValues[string])
+              }
             />
-            
+
             {filter.helperText && (
-              <span className="text-caption text-muted italic">
-                {filter.helperText}
-              </span>
+              <span className="text-caption text-muted italic">{filter.helperText}</span>
             )}
           </div>
         );

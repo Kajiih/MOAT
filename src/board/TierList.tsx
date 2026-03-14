@@ -7,10 +7,9 @@
 
 'use client';
 
-
 import React from 'react';
 
-import { Item,TierDefinition } from '@/board/types';
+import { Item, TierDefinition } from '@/board/types';
 
 import { TierRow } from './TierRow';
 
@@ -78,9 +77,5 @@ export function TierList({
     return <div className="w-full space-y-4">{content}</div>;
   }
 
-  return (
-    <div className="w-full space-y-4">
-      {content}
-    </div>
-  );
+  return <div className="w-full space-y-4">{content}</div>;
 }

@@ -39,9 +39,7 @@ test.describe('Resilience and Failure Modes', () => {
     await boardPage.goto();
 
     // Set up a normal search result so we have something to drag
-    await mockSearchResults(page, [
-      { id: 'error-item-1', title: 'Error Item', type: 'game' },
-    ]);
+    await mockSearchResults(page, [{ id: 'error-item-1', title: 'Error Item', type: 'game' }]);
 
     await searchPanel.search('ErrorItem');
     const resultCard = await searchPanel.getResultCard('error-item-1');
@@ -55,7 +53,9 @@ test.describe('Resilience and Failure Modes', () => {
 
     // Now drag it to the board
     await searchPanel.dragToTier('error-item-1', 'S');
-    const boardCard = page.locator('[data-tier-label="S"]').getByTestId('item-card-rawg:game:error-item-1');
+    const boardCard = page
+      .locator('[data-tier-label="S"]')
+      .getByTestId('item-card-rawg:game:error-item-1');
     await expect(boardCard).toBeVisible({ timeout: 10_000 });
 
     // Attempt to open details

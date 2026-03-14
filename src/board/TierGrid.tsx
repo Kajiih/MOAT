@@ -4,7 +4,6 @@
  * Handles performance for large tiers via virtualization.
  */
 
-
 import { memo, ReactNode } from 'react';
 
 import { ItemCard } from '@/items/ItemCard';
@@ -65,25 +64,17 @@ export const TierGrid = memo(function TierGrid({
   const cards = items.map((item) => renderCard(item));
 
   const content = isLargeTier ? (
-    <VirtualGrid
-      items={items}
-      className="max-h-[500px] p-3"
-      renderItem={renderCard}
-    />
+    <VirtualGrid items={items} className="max-h-[500px] p-3" renderItem={renderCard} />
   ) : (
     cards
   );
 
   return (
     <div className={`flex-1 ${!isLargeTier ? 'flex flex-wrap items-center gap-2 p-3' : ''}`}>
-      {isExport ? (
-        <>{cards}</>
-      ) : (
-        content
-      )}
+      {isExport ? <>{cards}</> : content}
 
       {items.length === 0 && isBoardEmpty && isMiddleTier && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold text-muted italic select-none">
+        <div className="text-muted pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold italic select-none">
           Drop items here...
         </div>
       )}

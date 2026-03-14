@@ -80,11 +80,11 @@ export function TierSettings({
       }
     >
       <div
-        className="flex w-[280px] flex-col gap-3 rounded-lg border border-border bg-surface p-3 shadow-floating"
+        className="border-border bg-surface shadow-floating flex w-[280px] flex-col gap-3 rounded-lg border p-3"
         style={{ transform: 'translate(10px, 10px)' }}
       >
-        <div className="flex items-center justify-between border-b border-border pb-2">
-          <span className="text-xs font-bold text-secondary uppercase">Tier Settings</span>
+        <div className="border-border flex items-center justify-between border-b pb-2">
+          <span className="text-secondary text-xs font-bold uppercase">Tier Settings</span>
           <button onClick={onClose} className="text-secondary hover:text-foreground">
             ✕
           </button>
@@ -92,7 +92,7 @@ export function TierSettings({
 
         {/* Colors */}
         <div>
-          <div className="mb-1 text-xs text-secondary">Color</div>
+          <div className="text-secondary mb-1 text-xs">Color</div>
           <div className="flex flex-wrap gap-1">
             {TIER_COLORS.map((c) => (
               <button
@@ -117,12 +117,12 @@ export function TierSettings({
               onClick={() => {
                 if (confirm('Delete tier?')) onDelete();
               }}
-              className="mt-1 flex items-center justify-center gap-2 rounded-md bg-destructive/30 p-1 text-xs text-destructive hover:bg-destructive/50"
+              className="bg-destructive/30 text-destructive hover:bg-destructive/50 mt-1 flex items-center justify-center gap-2 rounded-md p-1 text-xs"
             >
               <Trash2 size={14} /> Delete Tier
             </button>
           )}
-          <div className="mt-2 text-center text-caption text-muted">
+          <div className="text-caption text-muted mt-2 text-center">
             Tip: Drag the grip handle on the left to reorder
           </div>
         </div>

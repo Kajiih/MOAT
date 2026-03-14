@@ -7,7 +7,7 @@
 
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { TierDefinition, TierId,TierListState, TierUpdate } from '@/board/types';
+import { TierDefinition, TierId, TierListState, TierUpdate } from '@/board/types';
 import { arrayMove } from '@/lib/array';
 import { TIER_COLORS } from '@/lib/colors';
 
@@ -41,14 +41,17 @@ export function handleAddTier(state: TierListState): void {
  * @param state - The draft state provided by Immer.
  * @param action - The RTK PayloadAction containing the tier ID to delete.
  */
-export function handleDeleteTier(state: TierListState, action: PayloadAction<{ id: string | TierId }>): void {
+export function handleDeleteTier(
+  state: TierListState,
+  action: PayloadAction<{ id: string | TierId }>,
+): void {
   const { id } = action.payload;
   const tierIndex = state.tierDefs.findIndex((t) => t.id === id);
   if (tierIndex === -1) return;
 
   const fallbackId = state.tierDefs.find((t) => t.id !== id)?.id;
   const orphanedItemIds = state.tierLayout[id] || [];
-  
+
   // MUTATE VIA IMMER
   state.tierDefs.splice(tierIndex, 1);
   delete state.tierLayout[id];
@@ -69,10 +72,13 @@ export function handleDeleteTier(state: TierListState, action: PayloadAction<{ i
  * @param state - The draft state provided by Immer.
  * @param action - The RTK PayloadAction containing the tier ID and updates.
  */
-export function handleUpdateTier(state: TierListState, action: PayloadAction<{ id: string | TierId; updates: TierUpdate }>): void {
+export function handleUpdateTier(
+  state: TierListState,
+  action: PayloadAction<{ id: string | TierId; updates: TierUpdate }>,
+): void {
   const { id, updates } = action.payload;
   const tier = state.tierDefs.find((t) => t.id === id);
-  
+
   if (tier) {
     // MUTATE VIA IMMER
     Object.assign(tier, updates);
@@ -84,13 +90,16 @@ export function handleUpdateTier(state: TierListState, action: PayloadAction<{ i
  * @param state - The draft state provided by Immer.
  * @param action - The RTK PayloadAction containing the active and over tier IDs.
  */
-export function handleReorderTiers(state: TierListState, action: PayloadAction<{ activeId: string | TierId; overId: string | TierId }>): void {
+export function handleReorderTiers(
+  state: TierListState,
+  action: PayloadAction<{ activeId: string | TierId; overId: string | TierId }>,
+): void {
   const { activeId, overId } = action.payload;
   const oldIndex = state.tierDefs.findIndex((t) => t.id === activeId);
   const newIndex = state.tierDefs.findIndex((t) => t.id === overId);
-  
+
   if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
-  
+
   // MUTATE VIA IMMER
   state.tierDefs = arrayMove(state.tierDefs, oldIndex, newIndex);
 }
@@ -101,7 +110,7 @@ export function handleReorderTiers(state: TierListState, action: PayloadAction<{
  */
 export function handleRandomizeColors(state: TierListState): void {
   let pool = [...TIER_COLORS];
-  
+
   // MUTATE VIA IMMER
   state.tierDefs.forEach((tier) => {
     if (pool.length === 0) pool = [...TIER_COLORS];

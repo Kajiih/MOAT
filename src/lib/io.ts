@@ -5,7 +5,7 @@
  * @module IO
  */
 
-import { Item,TierDefinition, TierListState } from '@/board/types';
+import { Item, TierDefinition, TierListState } from '@/board/types';
 
 const CURRENT_VERSION = 1;
 
@@ -41,7 +41,9 @@ export function generateExportData(state: TierListState): ExportData {
     tiers: state.tierDefs.map((tier) => ({
       label: tier.label,
       color: tier.color,
-      items: (state.tierLayout[tier.id] || []).map(id => state.itemEntities[id]).filter(Boolean) as Item[],
+      items: (state.tierLayout[tier.id] || [])
+        .map((id) => state.itemEntities[id])
+        .filter(Boolean) as Item[],
     })),
   };
 }
@@ -85,10 +87,10 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
         label: tier.label,
         color: tier.color,
       });
-      
+
       const itemIds: string[] = [];
       if (tier.items && Array.isArray(tier.items)) {
-        tier.items.forEach(item => {
+        tier.items.forEach((item) => {
           itemEntities[item.id] = item;
           itemIds.push(item.id);
         });

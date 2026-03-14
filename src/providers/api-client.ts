@@ -13,10 +13,18 @@ export interface RequestOptions extends RequestInit {
   raw?: boolean;
 }
 
-function buildFetchOptions(baseOptions: RequestInit, customSignal?: AbortSignal | null, timeout?: number): RequestInit {
+function buildFetchOptions(
+  baseOptions: RequestInit,
+  customSignal?: AbortSignal | null,
+  timeout?: number,
+): RequestInit {
   const signals: AbortSignal[] = [];
   if (customSignal) signals.push(customSignal);
-  if (timeout !== undefined && typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+  if (
+    timeout !== undefined &&
+    typeof AbortSignal !== 'undefined' &&
+    typeof AbortSignal.timeout === 'function'
+  ) {
     signals.push(AbortSignal.timeout(timeout));
   }
 
@@ -33,12 +41,12 @@ function calculateRetryDelay(response: Response | null, attempt: number): number
     const retryAfterHeader = response.headers.get('Retry-After');
     if (retryAfterHeader) {
       const delaySeconds = Number.parseInt(retryAfterHeader, 10);
-      
+
       // If parsed as an integer, it's a delay in seconds
       if (!Number.isNaN(delaySeconds) && delaySeconds > 0) {
         return delaySeconds * 1000;
       }
-      
+
       // Otherwise, it might be an HTTP-date
       const date = new Date(retryAfterHeader);
       if (!Number.isNaN(date.getTime())) {
@@ -60,11 +68,17 @@ function calculateRetryDelay(response: Response | null, attempt: number): number
  * @param options - Fetch options including retry limits, timeouts, and raw response flag.
  * @returns The parsed generic Type T or the raw Response.
  */
-export async function secureFetch<T = unknown>(url: string, options?: Omit<RequestOptions, 'raw'> & { raw?: false }): Promise<T>;
-export async function secureFetch(url: string, options: RequestOptions & { raw: true }): Promise<Response>;
 export async function secureFetch<T = unknown>(
   url: string,
-  options: RequestOptions = {}
+  options?: Omit<RequestOptions, 'raw'> & { raw?: false },
+): Promise<T>;
+export async function secureFetch(
+  url: string,
+  options: RequestOptions & { raw: true },
+): Promise<Response>;
+export async function secureFetch<T = unknown>(
+  url: string,
+  options: RequestOptions = {},
 ): Promise<T | Response> {
   const { retryLimit = 2, raw = false, timeout, signal: customSignal, ...rest } = options;
   const currentFetchOptions = buildFetchOptions(rest, customSignal, timeout);
@@ -83,7 +97,9 @@ export async function secureFetch<T = unknown>(
 
       logger.warn({ error, url }, 'Network Error, retrying...');
       const delay = calculateRetryDelay(null, attempt);
-      await new Promise((resolve) => { setTimeout(resolve, delay); });
+      await new Promise((resolve) => {
+        setTimeout(resolve, delay);
+      });
       continue;
     }
 
@@ -94,8 +110,12 @@ export async function secureFetch<T = unknown>(
       }
 
       const delay = calculateRetryDelay(response, attempt);
-      logger.warn(`API received ${response.status} for ${url}. Retrying in ${Math.round(delay)}ms...`);
-      await new Promise((resolve) => { setTimeout(resolve, delay); });
+      logger.warn(
+        `API received ${response.status} for ${url}. Retrying in ${Math.round(delay)}ms...`,
+      );
+      await new Promise((resolve) => {
+        setTimeout(resolve, delay);
+      });
       continue;
     }
 
@@ -122,7 +142,7 @@ async function handleNonOkResponse(response: Response, url: string): Promise<nev
   throw new ProviderError(
     resolveErrorCode(response.status),
     `API Error: ${response.status} ${response.statusText}`,
-    { status: response.status, body: text }
+    { status: response.status, body: text },
   );
 }
 
@@ -138,7 +158,11 @@ function shouldRetryError(error: unknown): boolean {
 function handleTerminalError(error: unknown, url: string, timeout?: number): never {
   if (error instanceof DOMException && error.name === 'TimeoutError') {
     logger.error({ url, timeout }, 'API Request Timed Out');
-    throw new ProviderError(ProviderErrorCode.TIMEOUT, `Request timed out after ${timeout}ms`, error);
+    throw new ProviderError(
+      ProviderErrorCode.TIMEOUT,
+      `Request timed out after ${timeout}ms`,
+      error,
+    );
   }
   throw error;
 }
@@ -149,4 +173,3 @@ function resolveErrorCode(status: number): ProviderErrorCode {
   if (status >= 500) return ProviderErrorCode.SERVICE_UNAVAILABLE;
   return ProviderErrorCode.INTERNAL_ERROR;
 }
-

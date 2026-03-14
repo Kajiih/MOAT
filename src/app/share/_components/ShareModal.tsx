@@ -44,26 +44,26 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
+    <div className="z-modal fixed inset-0 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="animate-in fade-in absolute inset-0 bg-black/80 backdrop-blur-sm duration-normal"
+        className="animate-in fade-in duration-normal absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Content */}
-      <div className="animate-in zoom-in-95 relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-surface shadow-floating duration-fast">
-        <div className="border-b border-border p-6">
+      <div className="animate-in zoom-in-95 border-border bg-surface shadow-floating duration-fast relative w-full max-w-md overflow-hidden rounded-2xl border">
+        <div className="border-border border-b p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-primary/20 p-2 text-primary">
+              <div className="bg-primary/20 text-primary rounded-full p-2">
                 <Globe size={24} />
               </div>
-              <h2 className="text-xl font-bold text-foreground">Board Published</h2>
+              <h2 className="text-foreground text-xl font-bold">Board Published</h2>
             </div>
             <button
               onClick={onClose}
-              className="rounded-full p-2 text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
+              className="text-secondary hover:bg-surface-hover hover:text-foreground rounded-full p-2 transition-colors"
             >
               <X size={20} />
             </button>
@@ -71,15 +71,15 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
         </div>
 
         <div className="p-6">
-          <p className="mb-4 text-sm leading-relaxed text-secondary">
+          <p className="text-secondary mb-4 text-sm leading-relaxed">
             Your board is now public! Anyone with the link can view it.
           </p>
 
-          <div className="flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 ring-border transition-all focus-within:ring-2 focus-within:ring-primary focus-within:outline-none">
+          <div className="ring-border focus-within:ring-primary flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 transition-all focus-within:ring-2 focus-within:outline-none">
             <input
               readOnly
               value={shareUrl}
-              className="flex-1 bg-transparent px-2 py-1.5 font-mono text-sm text-secondary outline-none"
+              className="text-secondary flex-1 bg-transparent px-2 py-1.5 font-mono text-sm outline-none"
             />
             <button
               onClick={handleCopy}
@@ -97,7 +97,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
           <div className="mt-6 flex justify-end gap-3">
             <button
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-secondary transition-colors hover:text-foreground"
+              className="text-secondary hover:text-foreground rounded-lg px-4 py-2 text-sm font-medium transition-colors"
             >
               Close
             </button>
@@ -105,7 +105,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               href={shareUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-foreground shadow-card shadow-primary/20 transition-all hover:bg-blue-500 active:scale-95"
+              className="bg-primary text-foreground shadow-card shadow-primary/20 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all hover:bg-blue-500 active:scale-95"
             >
               <ExternalLink size={16} />
               Visit Page

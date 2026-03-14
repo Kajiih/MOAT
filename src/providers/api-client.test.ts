@@ -1,4 +1,4 @@
-import { afterEach,beforeEach, describe, expect, it, type MockInstance,vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
 import { secureFetch } from './api-client';
 import { ProviderError, ProviderErrorCode } from './errors';
@@ -7,7 +7,7 @@ describe('secureFetch', () => {
   let fetchMock: MockInstance;
 
   beforeEach(() => {
-    // We can cast the mock directly to the native fetch signature 
+    // We can cast the mock directly to the native fetch signature
     // to strictly type the interceptor without needing `any`.
     fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
@@ -80,7 +80,7 @@ describe('secureFetch', () => {
       expect(error).toBeInstanceOf(ProviderError);
       expect((error as ProviderError).code).toBe(ProviderErrorCode.RATE_LIMIT);
     }
-    
+
     // Initial call + 2 retries
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
@@ -91,13 +91,13 @@ describe('secureFetch', () => {
 
     expect.assertions(2);
     try {
-       await secureFetch('http://example.com', { timeout: 100 });
+      await secureFetch('http://example.com', { timeout: 100 });
     } catch (error) {
-       expect(error).toBeInstanceOf(ProviderError);
-       expect((error as ProviderError).code).toBe(ProviderErrorCode.TIMEOUT);
+      expect(error).toBeInstanceOf(ProviderError);
+      expect((error as ProviderError).code).toBe(ProviderErrorCode.TIMEOUT);
     }
   });
-  
+
   it('should NOT retry on ProviderErrors natively generated (e.g. 404)', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,

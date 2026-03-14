@@ -4,13 +4,19 @@
  * into a unified, namespaced API used by the TierListContext.
  * This pattern improves memoization and discoverability of board actions.
  */
+import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { BoardDispatch, moveItem, removeItem, updateItem, updateTitle } from '@/board/state/reducer';
+import {
+  BoardDispatch,
+  moveItem,
+  removeItem,
+  updateItem,
+  updateTitle,
+} from '@/board/state/reducer';
 import { TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { fromSearchId } from '@/lib/ids';
-import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
 
 /**
  * Props for the useTierListNamespaces hook.
@@ -49,7 +55,9 @@ interface UseTierListNamespacesProps {
     showShortcuts: boolean;
     setShowShortcuts: React.Dispatch<React.SetStateAction<boolean>>;
     activeKeyboardDragId: { itemId: string; tierId: string } | null;
-    setActiveKeyboardDragId: React.Dispatch<React.SetStateAction<{ itemId: string; tierId: string } | null>>;
+    setActiveKeyboardDragId: React.Dispatch<
+      React.SetStateAction<{ itemId: string; tierId: string } | null>
+    >;
   };
 }
 

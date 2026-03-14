@@ -92,7 +92,7 @@ export function ItemImage({
           sizes={sizes}
           priority={priority}
           unoptimized={retryUnoptimized}
-          className={`${imageClassName} pointer-events-none transition-opacity duration-normal`}
+          className={`${imageClassName} duration-normal pointer-events-none transition-opacity`}
           onError={() => {
             if (!retryUnoptimized) {
               setRetryUnoptimized(true);
@@ -109,15 +109,15 @@ export function ItemImage({
   // Placeholder mode
   return (
     <div
-      className={`${containerClassName} flex flex-col items-center justify-center overflow-hidden border border-border bg-surface p-2 text-muted`}
+      className={`${containerClassName} border-border bg-surface text-muted flex flex-col items-center justify-center overflow-hidden border p-2`}
     >
       <TypeIcon size={24} className="mb-1 opacity-50" />
       {isExport && (
-        <span className="mt-1 line-clamp-2 px-1 text-center text-caption leading-tight font-black uppercase opacity-30">
+        <span className="text-caption mt-1 line-clamp-2 px-1 text-center leading-tight font-black uppercase opacity-30">
           {item.title}
         </span>
       )}
-      <span className="mt-1 text-center text-indicator leading-tight font-bold uppercase opacity-20">
+      <span className="text-indicator mt-1 text-center leading-tight font-bold uppercase opacity-20">
         {item.identity.entityId}
       </span>
     </div>

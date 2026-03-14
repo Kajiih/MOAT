@@ -67,7 +67,11 @@ export const OffsetPaginationSchema = z.object({
 });
 
 /** Runtime schema that accepts any pagination strategy */
-export const PaginationInfoSchema = z.union([PagePaginationSchema, CursorPaginationSchema, OffsetPaginationSchema]);
+export const PaginationInfoSchema = z.union([
+  PagePaginationSchema,
+  CursorPaginationSchema,
+  OffsetPaginationSchema,
+]);
 
 /**
  * Standardized search response from any entity.

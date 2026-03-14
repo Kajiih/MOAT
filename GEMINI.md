@@ -27,5 +27,4 @@
   - We are in early development mode with no real users, so we can make breaking changes, ambitious refactoring, using cutting edge solutions, etc.
   - Our UI and API should be simple, predictable and reliable, always focus on those aspects.
 
-
 - Always use the terminology defined in the [Glossary](docs/GLOSSARY.md).

@@ -16,5 +16,5 @@ export const handleGlobalState = {
   updateTitle: (state: TierListState, action: PayloadAction<{ title: string }>): void => {
     // MUTATE VIA IMMER
     state.title = action.payload.title;
-  }
+  },
 };

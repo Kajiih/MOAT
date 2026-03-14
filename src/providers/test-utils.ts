@@ -18,7 +18,7 @@ import { SortDirection } from '@/search/sort-schemas';
  * @param targetId - The canonical ID that must be present.
  */
 export function expectContainsCanonical(items: BaseItem[], targetId: string) {
-  const ids = items.map(i => i.identity.dbId);
+  const ids = items.map((i) => i.identity.dbId);
   expect(ids, `Expected results to contain ID ${targetId}`).toContain(targetId);
 }
 
@@ -29,7 +29,7 @@ export function expectContainsCanonical(items: BaseItem[], targetId: string) {
  * @param excludedIds - Array of IDs that must not be present.
  */
 export function expectExcludesAnchors(items: BaseItem[], excludedIds: string[]) {
-  const foundIds = items.map(i => i.identity.dbId);
+  const foundIds = items.map((i) => i.identity.dbId);
   for (const excludedId of excludedIds) {
     expect(foundIds, `Expected results to NOT contain ID ${excludedId}`).not.toContain(excludedId);
   }
@@ -40,21 +40,33 @@ function assertCorrectSortOrder(
   next: number | string,
   direction: SortDirection,
   index: number,
-  label: string
+  label: string,
 ) {
   const isNumeric = typeof current === 'number' && typeof next === 'number';
 
   if (direction === SortDirection.DESC) {
     if (isNumeric) {
-      expect(current as number, `Wrong sort order for ${label} at index ${index}`).toBeGreaterThanOrEqual(next as number);
+      expect(
+        current as number,
+        `Wrong sort order for ${label} at index ${index}`,
+      ).toBeGreaterThanOrEqual(next as number);
     } else {
-      expect(current.toString() >= next.toString(), `Wrong sort order for ${label} at index ${index} ('${current}' vs '${next}')`).toBe(true);
+      expect(
+        current.toString() >= next.toString(),
+        `Wrong sort order for ${label} at index ${index} ('${current}' vs '${next}')`,
+      ).toBe(true);
     }
   } else {
     if (isNumeric) {
-      expect(current as number, `Wrong sort order for ${label} at index ${index}`).toBeLessThanOrEqual(next as number);
+      expect(
+        current as number,
+        `Wrong sort order for ${label} at index ${index}`,
+      ).toBeLessThanOrEqual(next as number);
     } else {
-      expect(current.toString() <= next.toString(), `Wrong sort order for ${label} at index ${index} ('${current}' vs '${next}')`).toBe(true);
+      expect(
+        current.toString() <= next.toString(),
+        `Wrong sort order for ${label} at index ${index} ('${current}' vs '${next}')`,
+      ).toBe(true);
     }
   }
 }
@@ -74,7 +86,7 @@ export function expectSorted<T>(
   items: T[],
   getValue: (item: T) => number | string,
   direction: SortDirection,
-  label: string = 'value'
+  label: string = 'value',
 ) {
   for (let i = 0; i < items.length - 1; i++) {
     const current = getValue(items[i]);
@@ -86,7 +98,6 @@ export function expectSorted<T>(
   }
 }
 
-
 /**
  * Verifies that two pages of results are distinct (pagination check).
  * @param page1 - The first array of generic items.
@@ -94,6 +105,8 @@ export function expectSorted<T>(
  */
 export function expectDistinctPages(page1: BaseItem[], page2: BaseItem[]) {
   if (page1.length > 0 && page2.length > 0) {
-    expect(page1[0].id, 'Page 1 and Page 2 should have different first items').not.toBe(page2[0].id);
+    expect(page1[0].id, 'Page 1 and Page 2 should have different first items').not.toBe(
+      page2[0].id,
+    );
   }
 }

@@ -29,7 +29,7 @@ export function Footer({ colors, className = '' }: FooterProps) {
     <div className={`pointer-events-none text-center select-none ${className}`}>
       <div className="flex items-center justify-center gap-3 opacity-90">
         <BrandLogo colors={colors} variant="footer" />
-        <span className="border-l border-border pl-3 text-caption font-semibold tracking-widest text-muted uppercase">
+        <span className="border-border text-caption text-muted border-l pl-3 font-semibold tracking-widest uppercase">
           Tier List Maker
         </span>
       </div>

@@ -27,7 +27,7 @@ export function ExternalLinks({ urls }: ExternalLinksProps) {
 
   return (
     <div className="mt-6">
-      <h3 className="mb-2 text-sm font-bold text-secondary uppercase tracking-wider">Links</h3>
+      <h3 className="text-secondary mb-2 text-sm font-bold tracking-wider uppercase">Links</h3>
       <div className="flex flex-wrap gap-3">
         {uniqueUrls.map((link) => (
           <a
@@ -35,7 +35,7 @@ export function ExternalLinks({ urls }: ExternalLinksProps) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-md bg-surface-hover px-3 py-1.5 text-xs text-secondary transition-colors hover:bg-surface hover:text-foreground border border-white/5"
+            className="bg-surface-hover text-secondary hover:bg-surface hover:text-foreground flex items-center gap-1.5 rounded-md border border-white/5 px-3 py-1.5 text-xs transition-colors"
           >
             <ExternalLink size={12} />
             <span className="capitalize">{link.type}</span>

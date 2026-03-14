@@ -28,10 +28,7 @@ interface UseItemResolverOptions {
  * @param options - Resolution options.
  * @returns Resolution state including the enriched item and loading status.
  */
-export function useItemResolver(
-  item: Item | null,
-  options: UseItemResolverOptions = {}
-) {
+export function useItemResolver(item: Item | null, options: UseItemResolverOptions = {}) {
   const { enabled = true, persist = true, onUpdate } = options;
   const { registerItem } = useItemRegistry();
 
@@ -43,7 +40,7 @@ export function useItemResolver(
     item?.identity.databaseId,
     item?.identity.entityId,
     item?.identity.dbId,
-    { enabled: shouldFetch }
+    { enabled: shouldFetch },
   );
 
   /**
@@ -55,7 +52,7 @@ export function useItemResolver(
     const mergedImages = [...item.images];
     if (details.images) {
       for (const newImg of details.images) {
-        const exists = mergedImages.some(existing => {
+        const exists = mergedImages.some((existing) => {
           if (existing.type !== newImg.type) return false;
           if (existing.type === 'url' && newImg.type === 'url') return existing.url === newImg.url;
           if (existing.type === 'reference' && newImg.type === 'reference') {

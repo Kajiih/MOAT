@@ -72,9 +72,9 @@ export function BoardOptionsMenu({
         </button>
       }
     >
-      <div className="w-64 origin-top-right rounded-lg border border-border bg-surface p-2 shadow-floating ring-1 ring-black/50">
+      <div className="border-border bg-surface shadow-floating w-64 origin-top-right rounded-lg border p-2 ring-1 ring-black/50">
         <div className="flex items-center justify-between px-3 py-2">
-          <h3 className="text-xs font-bold tracking-wider text-secondary uppercase">
+          <h3 className="text-secondary text-xs font-bold tracking-wider uppercase">
             Board Options
           </h3>
           <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-foreground">
@@ -88,16 +88,16 @@ export function BoardOptionsMenu({
               onShowShortcuts();
               setIsOpen(false);
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
+            className="text-secondary hover:bg-surface-hover hover:text-foreground flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors"
           >
             <Keyboard size={18} className="text-secondary" />
             <span>Keyboard Shortcuts</span>
-            <kbd className="ml-auto flex h-5 items-center rounded-md border border-border bg-black px-1.5 text-caption text-secondary">
+            <kbd className="border-border text-caption text-secondary ml-auto flex h-5 items-center rounded-md border bg-black px-1.5">
               ?
             </kbd>
           </button>
 
-          <label className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground">
+          <label className="text-secondary hover:bg-surface-hover hover:text-foreground flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors">
             <Upload size={18} className="text-secondary" />
             <span>Import JSON</span>
             <input
@@ -116,16 +116,16 @@ export function BoardOptionsMenu({
               onExport();
               setIsOpen(false);
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
+            className="text-secondary hover:bg-surface-hover hover:text-foreground flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors"
           >
             <Download size={18} className="text-secondary" />
             <span>Export JSON</span>
           </button>
 
-          <div className="my-2 h-px bg-surface-hover" />
+          <div className="bg-surface-hover my-2 h-px" />
 
           <div className="px-3 py-2">
-            <label className="flex cursor-pointer items-center justify-between text-sm text-secondary">
+            <label className="text-secondary flex cursor-pointer items-center justify-between text-sm">
               <div className="flex items-center gap-3">
                 <Settings2 size={18} className="text-secondary" />
                 <span>Advanced Mode</span>
@@ -148,12 +148,12 @@ export function BoardOptionsMenu({
                 />
               </div>
             </label>
-            <p className="mt-1.5 text-[11px] leading-relaxed text-secondary">
+            <p className="text-secondary mt-1.5 text-[11px] leading-relaxed">
               Enables technical configuration like fuzzy search and wildcard matching.
             </p>
           </div>
 
-          <div className="my-2 h-px bg-surface-hover" />
+          <div className="bg-surface-hover my-2 h-px" />
 
           <button
             onClick={() => {
@@ -161,7 +161,7 @@ export function BoardOptionsMenu({
               setIsOpen(false);
             }}
             data-testid="reset-items-button"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
+            className="text-secondary hover:bg-surface-hover hover:text-foreground flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors"
           >
             <RotateCcw size={18} className="text-secondary" />
             <span>Reset items to unranked</span>
@@ -173,7 +173,7 @@ export function BoardOptionsMenu({
               setIsOpen(false);
             }}
             data-testid="clear-board-button"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-destructive transition-colors hover:bg-red-500/10 hover:text-red-400"
+            className="text-destructive flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-red-500/10 hover:text-red-400"
           >
             <Trash2 size={18} />
             <span>Clear Board</span>

@@ -23,9 +23,7 @@ export class SearchPanel {
     this.serviceToggle = page.locator('text=Database:').locator('..');
   }
 
-  async switchTab(
-    type: 'game' | 'developer',
-  ) {
+  async switchTab(type: 'game' | 'developer') {
     const titleMap = {
       game: 'Search Video Games',
       developer: 'Search Developers',
@@ -56,7 +54,7 @@ export class SearchPanel {
   async dragToTier(itemId: string, tierLabel: string) {
     const card = await this.getResultCard(itemId);
     const tier = this.page.locator(`[data-tier-label="${tierLabel}"]`);
-    
+
     // Target the tier's drop zone directly. Redux logic handles empty vs populated appended placement.
     await nativeDragAndDrop(this.page, card, tier.getByTestId('tier-drop-zone'), {
       targetPosition: { x: 5, y: 5 },

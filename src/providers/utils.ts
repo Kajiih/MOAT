@@ -8,14 +8,14 @@ import { fromZodError } from 'zod-validation-error';
 
 import { EntityLink } from '@/items/items';
 import { isObject } from '@/lib/type-guards';
-import { 
+import {
   ArrayValueSchema,
   BooleanValueSchema,
-  FilterDefinition, 
+  FilterDefinition,
   FilterValues,
   NumberValueSchema,
   RangeValueSchema,
-  TextValueSchema
+  TextValueSchema,
 } from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
@@ -38,13 +38,18 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
       ProviderErrorCode.VALIDATION_ERROR,
       validationError.message,
       error,
-      databaseId
+      databaseId,
     );
   }
 
   // 2. Handle Abort / Timeout errors natively
   if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
-    return new ProviderError(ProviderErrorCode.TIMEOUT, 'The request timed out or was aborted', error, databaseId);
+    return new ProviderError(
+      ProviderErrorCode.TIMEOUT,
+      'The request timed out or was aborted',
+      error,
+      databaseId,
+    );
   }
 
   // 3. Handle API Errors via status codes
@@ -52,17 +57,37 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
     switch (error.status) {
       case 401:
       case 403: {
-        return new ProviderError(ProviderErrorCode.AUTH_ERROR, 'Authentication failed or API key invalid', error, databaseId);
+        return new ProviderError(
+          ProviderErrorCode.AUTH_ERROR,
+          'Authentication failed or API key invalid',
+          error,
+          databaseId,
+        );
       }
       case 404: {
-        return new ProviderError(ProviderErrorCode.NOT_FOUND, 'The requested item was not found', error, databaseId);
+        return new ProviderError(
+          ProviderErrorCode.NOT_FOUND,
+          'The requested item was not found',
+          error,
+          databaseId,
+        );
       }
       case 429: {
-        return new ProviderError(ProviderErrorCode.RATE_LIMIT, 'Rate limit exceeded for this provider', error, databaseId);
+        return new ProviderError(
+          ProviderErrorCode.RATE_LIMIT,
+          'Rate limit exceeded for this provider',
+          error,
+          databaseId,
+        );
       }
       default: {
         if (error.status >= 500) {
-          return new ProviderError(ProviderErrorCode.SERVICE_UNAVAILABLE, 'External service is currently unavailable', error, databaseId);
+          return new ProviderError(
+            ProviderErrorCode.SERVICE_UNAVAILABLE,
+            'External service is currently unavailable',
+            error,
+            databaseId,
+          );
         }
       }
     }
@@ -88,7 +113,11 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
  * @param transformed - The result returned from the filter's transform function
  * @param mapTo - Optional direct mapping key for primitive results
  */
-function processTransformResult(apiParams: Record<string, string>, transformed: unknown, mapTo?: string) {
+function processTransformResult(
+  apiParams: Record<string, string>,
+  transformed: unknown,
+  mapTo?: string,
+) {
   // If transform returns an object (and not an array), we merge it into apiParams (for complex mappings)
   if (isObject(transformed) && !Array.isArray(transformed)) {
     for (const [key, val] of Object.entries(transformed)) {
@@ -96,7 +125,7 @@ function processTransformResult(apiParams: Record<string, string>, transformed: 
         apiParams[key] = String(val);
       }
     }
-  } 
+  }
   // If transform returns a primitive (or array) and we have mapTo, we use it
   else if (mapTo && transformed !== undefined && transformed !== null) {
     apiParams[mapTo] = String(transformed);
@@ -109,7 +138,10 @@ function processTransformResult(apiParams: Record<string, string>, transformed: 
  * @param rawValue - The unparsed value straight from SearchParams
  * @returns The transformed payload
  */
-function applyTransform<TRaw>(def: FilterDefinition<TRaw>, rawValue: NonNullable<FilterValues[string]>): unknown {
+function applyTransform<TRaw>(
+  def: FilterDefinition<TRaw>,
+  rawValue: NonNullable<FilterValues[string]>,
+): unknown {
   try {
     switch (def.type) {
       case 'text':
@@ -155,17 +187,17 @@ function applyTransform<TRaw>(def: FilterDefinition<TRaw>, rawValue: NonNullable
  */
 export function applyFilters<TRaw>(
   filterValues: FilterValues | undefined,
-  definitions: FilterDefinition<TRaw>[]
+  definitions: FilterDefinition<TRaw>[],
 ): Record<string, string> {
   const apiParams: Record<string, string> = {};
   const values = filterValues || {};
-  
+
   for (const def of definitions) {
     // Skip if there's no mapping defined
     if (!def.mapTo && !def.transform) continue;
 
     const rawValue = values[def.id];
-    
+
     // Skip if value is "empty" (null, undefined, or empty string)
     if (rawValue === undefined || rawValue === null || rawValue === '') continue;
 
@@ -177,13 +209,13 @@ export function applyFilters<TRaw>(
 
     if (def.transform) {
       processTransformResult(apiParams, parsedAndTransformed, def.mapTo);
-    } 
+    }
     // Simple direct mapping (parsedAndTransformed is the raw validated primitive)
     else if (def.mapTo) {
       apiParams[def.mapTo] = String(parsedAndTransformed);
     }
   }
-  
+
   return apiParams;
 }
 
@@ -197,7 +229,7 @@ export function applyFilters<TRaw>(
 export function extractTags<T>(
   sourceList: T[] | null | undefined,
   nameExtractor: (item: T) => string,
-  filterFn?: (item: T) => boolean
+  filterFn?: (item: T) => boolean,
 ): string[] {
   if (!sourceList || !Array.isArray(sourceList)) return [];
 
@@ -219,7 +251,7 @@ export function extractTags<T>(
  */
 export function extractRelatedEntities<T>(
   sourceList: T[] | null | undefined,
-  mappingFn: (item: T) => EntityLink
+  mappingFn: (item: T) => EntityLink,
 ): EntityLink[] {
   if (!sourceList || !Array.isArray(sourceList)) return [];
   return sourceList.map((val) => mappingFn(val));

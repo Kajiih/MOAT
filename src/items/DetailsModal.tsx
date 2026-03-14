@@ -50,27 +50,30 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
   if (!isOpen || !resolvedItem) return null;
 
-  const entityDef = registry.getEntity(resolvedItem.identity.databaseId, resolvedItem.identity.entityId);
+  const entityDef = registry.getEntity(
+    resolvedItem.identity.databaseId,
+    resolvedItem.identity.entityId,
+  );
   const PlaceholderIcon = (entityDef.branding.icon as LucideIcon) || Info;
   const colorClass = entityDef.branding.colorClass || 'text-primary';
-  
+
   const subtitle = resolvedItem.subtitle || '';
 
   const details = resolvedItem.details;
 
   return (
     <div
-      className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-fast"
+      className="animate-in fade-in duration-fast fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
-        className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-floating duration-fast"
+        className="animate-in zoom-in-95 border-border bg-surface shadow-floating duration-fast flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Cover Art */}
-        <div className="relative h-48 shrink-0 overflow-hidden bg-surface sm:h-64">
+        <div className="bg-surface relative h-48 shrink-0 overflow-hidden sm:h-64">
           <ItemImage
             item={resolvedItem}
             TypeIcon={PlaceholderIcon}
@@ -79,7 +82,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             imageClassName="object-cover opacity-60 blur-sm"
             sizes="300px"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className="from-background via-background/50 absolute inset-0 bg-gradient-to-t to-transparent" />
 
           <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
             <ItemImage
@@ -92,7 +95,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
                 {resolvedItem.title}
               </h2>
-              <div className="mt-1 flex items-center gap-2 text-secondary">
+              <div className="text-secondary mt-1 flex items-center gap-2">
                 <PlaceholderIcon size={16} className={colorClass} />
                 <span className="font-medium">{subtitle}</span>
                 {resolvedItem.tertiaryText && (
@@ -117,32 +120,30 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
         <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto p-6">
           {isLoading && (
             <div className="animate-pulse space-y-4">
-              <div className="h-4 w-1/3 rounded-md bg-surface-hover"></div>
+              <div className="bg-surface-hover h-4 w-1/3 rounded-md"></div>
               <div className="space-y-2">
-                <div className="h-10 w-full rounded-md bg-surface-hover"></div>
-                <div className="h-10 w-full rounded-md bg-surface-hover"></div>
-                <div className="h-10 w-full rounded-md bg-surface-hover"></div>
+                <div className="bg-surface-hover h-10 w-full rounded-md"></div>
+                <div className="bg-surface-hover h-10 w-full rounded-md"></div>
+                <div className="bg-surface-hover h-10 w-full rounded-md"></div>
               </div>
             </div>
           )}
 
           {error && (
-            <div className="rounded-md border border-destructive/20 bg-red-900/10 p-4 text-center text-destructive">
+            <div className="border-destructive/20 text-destructive rounded-md border bg-red-900/10 p-4 text-center">
               Failed to load additional details.
             </div>
           )}
 
           {details && !isLoading && (
             <>
-
-              
               <div className="space-y-6">
                 {details.description && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
                       Description
                     </h3>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-secondary">
+                    <p className="text-secondary text-sm leading-relaxed whitespace-pre-wrap">
                       {details.description}
                     </p>
                   </div>
@@ -150,14 +151,14 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.tags && details.tags.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
                       Subjects / Tags
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {[...new Set(details.tags)].map((tag: string) => (
                         <span
                           key={tag}
-                          className="rounded-md border border-border bg-surface-hover px-2 py-1 text-xs text-secondary"
+                          className="border-border bg-surface-hover text-secondary rounded-md border px-2 py-1 text-xs"
                         >
                           {tag}
                         </span>
@@ -168,18 +169,16 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.relatedEntities && details.relatedEntities.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
                       Related
                     </h3>
                     <div className="flex flex-wrap gap-3">
                       {details.relatedEntities.map((entity, idx) => (
                         <div key={idx} className="flex flex-col">
-                          <span className="text-caption font-bold tracking-tight text-secondary uppercase">
+                          <span className="text-caption text-secondary font-bold tracking-tight uppercase">
                             {entity.label}
                           </span>
-                          <span className="text-sm text-foreground">
-                            {entity.name}
-                          </span>
+                          <span className="text-foreground text-sm">{entity.name}</span>
                         </div>
                       ))}
                     </div>
@@ -188,18 +187,16 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.extendedData && Object.keys(details.extendedData).length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
                       Additional Info
                     </h3>
-                    <div className="grid grid-cols-2 gap-4 rounded-lg bg-background p-4 border border-border">
+                    <div className="bg-background border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
                       {Object.entries(details.extendedData).map(([key, value]) => (
                         <div key={key} className="flex flex-col">
-                          <span className="text-caption font-bold tracking-tight text-secondary uppercase">
+                          <span className="text-caption text-secondary font-bold tracking-tight uppercase">
                             {key.replaceAll(/([A-Z])/g, ' $1').trim()}
                           </span>
-                          <span className="text-sm text-foreground">
-                            {String(value)}
-                          </span>
+                          <span className="text-foreground text-sm">{String(value)}</span>
                         </div>
                       ))}
                     </div>
@@ -208,13 +205,15 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
                 {details.sections?.map((section: ItemSection, idx: number) => (
                   <div key={idx} className="space-y-2">
-                    <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
                       {section.title}
                     </h3>
-                    <div className="text-sm text-secondary">
-                      {section.type === 'text' && <p className="leading-relaxed">{section.content as string}</p>}
+                    <div className="text-secondary text-sm">
+                      {section.type === 'text' && (
+                        <p className="leading-relaxed">{section.content as string}</p>
+                      )}
                       {section.type === 'list' && (
-                        <ul className="list-disc list-inside space-y-1">
+                        <ul className="list-inside list-disc space-y-1">
                           {(section.content as string[]).map((li, i) => (
                             <li key={i}>{li}</li>
                           ))}
@@ -225,14 +224,12 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                 ))}
               </div>
 
-              {details.urls && details.urls.length > 0 && (
-                <ExternalLinks urls={details.urls} />
-              )}
+              {details.urls && details.urls.length > 0 && <ExternalLinks urls={details.urls} />}
             </>
           )}
 
-          <div className="mt-8 border-t border-border pt-6">
-            <h3 className="mb-3 text-sm font-semibold tracking-wider text-secondary uppercase">
+          <div className="border-border mt-8 border-t pt-6">
+            <h3 className="text-secondary mb-3 text-sm font-semibold tracking-wider uppercase">
               Personal Notes
             </h3>
             <LocalNotesEditor
@@ -266,7 +263,7 @@ function LocalNotesEditor({
   onUpdate?: (id: string, updates: ItemUpdate) => void;
 }) {
   // --- Idiomatic React Pattern: Render-Phase State Derivation ---
-  // We use this pattern for Controlled Draft Inputs (Inputs that buffer local keystrokes 
+  // We use this pattern for Controlled Draft Inputs (Inputs that buffer local keystrokes
   // to avoid spamming Redux, but must also respect external Redux rollbacks like Undo).
   const [notes, setNotes] = useState(initialNotes);
   const [prevInitialNotes, setPrevInitialNotes] = useState(initialNotes);
@@ -276,9 +273,9 @@ function LocalNotesEditor({
 
   if (initialNotes !== prevInitialNotes) {
     setPrevInitialNotes(initialNotes);
-    
-    // Only overwrite the user's active typing if the incoming external state change 
-    // is DIFFERENT from the last string we successfully dispatched to Redux. 
+
+    // Only overwrite the user's active typing if the incoming external state change
+    // is DIFFERENT from the last string we successfully dispatched to Redux.
     // This perfectly differentiates genuine Undo rollbacks from delayed Redux "echoes".
     if (initialNotes !== lastPushedNotes) {
       setNotes(initialNotes);
@@ -316,7 +313,7 @@ function LocalNotesEditor({
       value={notes}
       onChange={(e) => setNotes(e.target.value)}
       placeholder="Write your thoughts about this item... (e.g. why it's in this tier)"
-      className="min-h-[120px] w-full rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-secondary transition-colors placeholder:text-muted focus:border-border focus:ring-2 focus:ring-primary focus:outline-none"
+      className="border-border bg-surface text-secondary placeholder:text-muted focus:border-border focus:ring-primary min-h-[120px] w-full rounded-lg border p-4 text-sm leading-relaxed transition-colors focus:ring-2 focus:outline-none"
     />
   );
 }

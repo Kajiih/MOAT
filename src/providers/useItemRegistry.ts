@@ -10,7 +10,6 @@ import { useCallback } from 'react';
 
 import { Item } from '@/items/items';
 
-
 const REGISTRY_STORAGE_KEY = 'moat-item-registry';
 
 /**
@@ -23,7 +22,7 @@ export function useItemRegistry() {
    */
   const registerItem = useCallback(async (item: Item) => {
     if (!item.id) return;
-    
+
     await update(REGISTRY_STORAGE_KEY, (val: Record<string, Item> = {}) => {
       const existing = val[item.id];
       if (existing) {
@@ -47,7 +46,7 @@ export function useItemRegistry() {
    */
   const registerItems = useCallback(async (items: Item[]) => {
     if (items.length === 0) return;
-    
+
     await update(REGISTRY_STORAGE_KEY, (val: Record<string, Item> = {}) => {
       const next = { ...val };
       for (const item of items) {
@@ -55,10 +54,10 @@ export function useItemRegistry() {
         const existing = next[item.id];
         if (existing) {
           next[item.id] = {
-             ...existing,
-             ...item,
-             details: item.details || existing.details,
-             images: item.images.length > existing.images.length ? item.images : existing.images,
+            ...existing,
+            ...item,
+            details: item.details || existing.details,
+            images: item.images.length > existing.images.length ? item.images : existing.images,
           };
         } else {
           next[item.id] = item;

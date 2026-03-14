@@ -117,11 +117,10 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       // 1. Resolve all images to Data URLs BEFORE any DOM operations
       const uniqueUrls = [
         ...new Set(
-          Object.values(state.itemEntities)
-            .flatMap((item) => {
-              if (!item.images) return [];
-              return item.images.filter((img) => img.type === 'url').map((img) => img.url);
-            }),
+          Object.values(state.itemEntities).flatMap((item) => {
+            if (!item.images) return [];
+            return item.images.filter((img) => img.type === 'url').map((img) => img.url);
+          }),
         ),
       ];
 
@@ -160,12 +159,10 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
 
       try {
         // 3. Render with resolved images
-        root.render(
-          <ExportBoard state={state} brandColors={headerColors} />,
-        );
+        root.render(<ExportBoard state={state} brandColors={headerColors} />);
 
         // 4. Wait for React to finish asynchronous mounting
-        // React 18 createRoot renders asynchronously. We observe the container until 
+        // React 18 createRoot renders asynchronously. We observe the container until
         // child nodes appear, guaranteeing the render phase has committed.
         await new Promise<void>((resolve) => {
           if (container.childElementCount > 0) {
@@ -193,7 +190,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
               img.onload = resolve;
               img.onerror = resolve; // Continue capture even if an image fails to load
             });
-          })
+          }),
         );
 
         // Ensure web fonts are completely loaded

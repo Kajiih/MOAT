@@ -6,7 +6,10 @@
 
 'use client';
 
-import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import {
+  draggable,
+  dropTargetForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { memo, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
@@ -64,7 +67,7 @@ export const TierRow = memo(function TierRow({
 }: TierRowProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [dragHandle, setDragHandle] = useState<HTMLElement | null>(null);
-  
+
   const [isDraggingTier, setIsDraggingTier] = useState(false);
   const [isOverRow, setIsOverRow] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -102,12 +105,12 @@ export const TierRow = memo(function TierRow({
       data-tier-id={tier.id}
       data-tier-label={tier.label}
       className={twMerge(
-        'relative mb-2 flex min-h-[7rem] rounded-lg border bg-surface transition-all duration-fast ease-out',
+        'bg-surface duration-fast relative mb-2 flex min-h-[7rem] rounded-lg border transition-all ease-out',
         isOverRow
-          ? 'z-20 scale-[1.01] border-primary/50 bg-surface-hover shadow-card ring-1 ring-primary/30'
+          ? 'border-primary/50 bg-surface-hover shadow-card ring-primary/30 z-20 scale-[1.01] ring-1'
           : 'border-border',
         isSettingsOpen ? 'z-30' : 'z-0',
-        isDraggingTier && 'scale-95 border-primary opacity-50 ring-2 ring-primary/50',
+        isDraggingTier && 'border-primary ring-primary/50 scale-95 opacity-50 ring-2',
       )}
     >
       <TierHeader

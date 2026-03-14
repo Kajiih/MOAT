@@ -13,12 +13,16 @@ Create a new file in `lib/services/`. Use the service name (e.g., `tmdb.ts`, `mu
 ### Boilerplate
 
 ```typescript
-import { DatabaseProvider, ProviderStatus, Fetcher } from '@/lib/database/types';
-import { handleDatabaseError } from '@/lib/database/utils';
+import {
+  DatabaseProvider,
+  ProviderStatus,
+  Fetcher,
+} from "@/lib/database/types";
+import { handleDatabaseError } from "@/lib/database/utils";
 
 export class MyServiceDatabaseProvider implements DatabaseProvider {
-  public id = 'myservice';
-  public label = 'My Service';
+  public id = "myservice";
+  public label = "My Service";
   public status: ProviderStatus = ProviderStatus.IDLE;
   private fetcher!: Fetcher;
 
@@ -42,39 +46,44 @@ To avoid coupling logic to `this` and to prevent fragile lookups (like `this.ent
 ```typescript
 // 1. Define filters as standalone constants
 const MOVIE_FILTERS: FilterDefinition[] = [
-  { id: 'year', label: 'Year', type: 'text', mapTo: 'primary_release_year' }
+  { id: "year", label: "Year", type: "text", mapTo: "primary_release_year" },
 ];
 
 // 2. Create a factory function that takes the provider instance
-const createMovieEntity = (provider: MyServiceDatabaseProvider): DatabaseEntity => ({
-  id: 'movie',
+const createMovieEntity = (
+  provider: MyServiceDatabaseProvider,
+): DatabaseEntity => ({
+  id: "movie",
   branding: {
-    label: 'Movie',
-    labelPlural: 'Movies',
+    label: "Movie",
+    labelPlural: "Movies",
     icon: Film,
-    colorClass: 'text-red-400',
+    colorClass: "text-red-400",
   },
   filters: MOVIE_FILTERS,
   searchOptions: [],
   sortOptions: [
-    { id: 'relevance', label: 'Relevance' },
-    { id: 'release_date', label: 'Release Date', defaultDirection: 'desc' },
+    { id: "relevance", label: "Relevance" },
+    { id: "release_date", label: "Release Date", defaultDirection: "desc" },
   ],
   search: async (params) => {
     try {
       const apiParams: Record<string, string> = { query: params.query };
-      
+
       // Use the captured MOVIE_FILTERS directly
       applyFilters(apiParams, params.filters, MOVIE_FILTERS);
-      
+
       // Call methods on the passed provider instance, passing the signal
-      const data = await provider.fetchApi('/search/movie', apiParams, { signal: params.signal });
+      const data = await provider.fetchApi("/search/movie", apiParams, {
+        signal: params.signal,
+      });
       // ... map results ...
     } catch (error) {
       throw handleDatabaseError(error, provider.id);
     }
   },
-  getDetails: (dbId, options) => provider.fetchApi(`/movie/${dbId}`, {}, { signal: options?.signal }),
+  getDetails: (dbId, options) =>
+    provider.fetchApi(`/movie/${dbId}`, {}, { signal: options?.signal }),
 });
 
 // 3. In your class, initialize entities using the factories
@@ -82,7 +91,7 @@ export class MyServiceDatabaseProvider implements DatabaseProvider {
   // ...
   public entities: DatabaseEntity[] = [
     createMovieEntity(this),
-    createOtherEntity(this)
+    createOtherEntity(this),
   ];
 }
 ```
@@ -92,19 +101,22 @@ export class MyServiceDatabaseProvider implements DatabaseProvider {
 Use the `applyFilters` utility to map UI filters to API parameters automatically.
 
 ```typescript
-import { applyFilters } from '@/lib/database/utils';
+import { applyFilters } from "@/lib/database/utils";
 
 // Inside search:
 const apiParams: Record<string, string> = {
   query: params.query,
-  page: params.page?.toString() || '1',
+  page: params.page?.toString() || "1",
 };
 
 // Map filters and search options
 applyFilters(apiParams, params.filters, entity.filters);
 applyFilters(apiParams, params.filters, entity.searchOptions);
 
-const data = await this.fetcher<MyApiResult>(url, { signal: params.signal, params: apiParams });
+const data = await this.fetcher<MyApiResult>(url, {
+  signal: params.signal,
+  params: apiParams,
+});
 ```
 
 ### Filter Definitions
@@ -125,17 +137,21 @@ Each filter can have a `mapTo` key and an optional `transform` function.
 The `search` method must return `Item` objects validated by Zod.
 
 ```typescript
-import { ItemSchema, toCompositeId, urlImage } from '@/lib/database/types';
+import { ItemSchema, toCompositeId, urlImage } from "@/lib/database/types";
 
-const items = data.results.map(raw => {
-  const identity = { dbId: raw.id.toString(), databaseId: 'myservice', entityId: 'movie' };
-  
+const items = data.results.map((raw) => {
+  const identity = {
+    dbId: raw.id.toString(),
+    databaseId: "myservice",
+    entityId: "movie",
+  };
+
   const item = {
     id: toCompositeId(identity),
     identity,
     title: raw.title,
     images: [urlImage(raw.poster_path)],
-    subtitle: raw.release_date?.split('-')[0],
+    subtitle: raw.release_date?.split("-")[0],
     rating: raw.vote_average * 10, // Normalize to 0-100
   };
 
@@ -151,23 +167,23 @@ The `getDetails` method returns deep metadata.
 getDetails: async (dbId: string): Promise<ItemDetails> => {
   try {
     const raw = await this.fetcher<MyApiDetails>(`/movie/${dbId}`);
-    
+
     const details = {
       // Item fields...
       description: raw.overview,
-      tags: raw.genres.map(g => g.name),
-      externalLinks: [{ label: 'Official', url: raw.homepage }],
+      tags: raw.genres.map((g) => g.name),
+      externalLinks: [{ label: "Official", url: raw.homepage }],
       extendedData: {
         budget: raw.budget,
         revenue: raw.revenue,
-      }
+      },
     };
 
     return ItemDetailsSchema.parse(details);
   } catch (error) {
     throw handleDatabaseError(error, this.id);
   }
-}
+};
 ```
 
 ## 6. Register the Provider
@@ -176,7 +192,7 @@ Add your provider to the `providers` array in `lib/database/providers.ts` — th
 
 ```typescript
 // lib/database/providers.ts
-import { MyServiceDatabase } from '../services/myservice';
+import { MyServiceDatabase } from "../services/myservice";
 
 const providers: DatabaseProvider[] = [
   RAWGDatabase,

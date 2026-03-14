@@ -32,7 +32,12 @@ export function useTierListDrag(
     return monitorForElements({
       onDragStart({ source }) {
         const { type, item } = source.data;
-        console.log('BROWSER: BROWSER: onDragStart triggered for', type, 'activeId:', item ? (item as Item).id : 'N/A');
+        console.log(
+          'BROWSER: BROWSER: onDragStart triggered for',
+          type,
+          'activeId:',
+          item ? (item as Item).id : 'N/A',
+        );
         if (type === 'item') {
           setActiveItem(source.data.item as Item);
         } else if (type === 'tier') {
@@ -44,7 +49,7 @@ export function useTierListDrag(
           setOverId(null);
           return;
         }
-        
+
         // Find deepest drop target
         const dropTarget = location.current.dropTargets[0];
         if (dropTarget) {
@@ -69,7 +74,7 @@ export function useTierListDrag(
 
         if (source.data.type === 'item') {
           const item = source.data.item as Item;
-          
+
           const activeId = item.id;
           const edge = extractClosestEdge(dropTarget.data);
 
@@ -80,21 +85,21 @@ export function useTierListDrag(
               overId: finalTargetId,
               activeItem: item,
               edge,
-            })
+            }),
           );
         } else if (source.data.type === 'tier') {
-           const sourceTier = source.data.tier as TierDefinition;
-           const targetTierId = dropTarget.data.tierId as string;
-           
-           if (sourceTier.id !== targetTierId) {
-             pushHistory();
-             dispatch(
-               reorderTiers({
-                 activeId: sourceTier.id,
-                 overId: finalTargetId,
-               })
-             );
-           }
+          const sourceTier = source.data.tier as TierDefinition;
+          const targetTierId = dropTarget.data.tierId as string;
+
+          if (sourceTier.id !== targetTierId) {
+            pushHistory();
+            dispatch(
+              reorderTiers({
+                activeId: sourceTier.id,
+                overId: finalTargetId,
+              }),
+            );
+          }
         }
       },
     });

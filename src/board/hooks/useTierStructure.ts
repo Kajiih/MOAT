@@ -8,7 +8,15 @@
 
 import { useCallback } from 'react';
 
-import { addTier, BoardDispatch, clearBoard, deleteTier, moveAllToUnranked, randomizeColors, updateTier } from '@/board/state/reducer';
+import {
+  addTier,
+  BoardDispatch,
+  clearBoard,
+  deleteTier,
+  moveAllToUnranked,
+  randomizeColors,
+  updateTier,
+} from '@/board/state/reducer';
 import { TierUpdate } from '@/board/types';
 import { useToast } from '@/lib/ui/ToastProvider';
 

@@ -130,7 +130,7 @@ const eslintConfig = defineConfig([
       ],
     },
   },
-  
+
   // Specific JSDoc rules overrides
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -139,7 +139,7 @@ const eslintConfig = defineConfig([
       'jsdoc/require-param': ['warn', { enableFixer: false }],
       'jsdoc/require-param-description': 'warn',
       'jsdoc/require-returns': ['warn', { enableFixer: false }],
-    }
+    },
   },
 
   // Test-specific overrides

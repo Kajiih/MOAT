@@ -38,7 +38,7 @@ export function ExportBoard({ state, brandColors }: ExportBoardProps) {
   return (
     <div
       id="export-board-surface"
-      className="relative flex flex-col items-center justify-center bg-surface px-8 py-4 font-sans text-foreground antialiased"
+      className="bg-surface text-foreground relative flex flex-col items-center justify-center px-8 py-4 font-sans antialiased"
       style={{
         width: '1200px',
         minHeight: '800px',
@@ -71,8 +71,8 @@ export function ExportBoard({ state, brandColors }: ExportBoardProps) {
           items={Object.fromEntries(
             Object.entries(state.tierLayout).map(([tierId, ids]) => [
               tierId,
-              ids.map((id) => state.itemEntities[id]!).filter(Boolean)
-            ])
+              ids.map((id) => state.itemEntities[id]!).filter(Boolean),
+            ]),
           )}
           isExport={true}
           onRemoveItem={() => {}}

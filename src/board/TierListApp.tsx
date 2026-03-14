@@ -8,7 +8,6 @@
 
 'use client';
 
-
 import { Leva } from 'leva';
 import { Camera, Dices, Loader2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -39,7 +38,7 @@ const LoadingState = () => {
   const colors = ['red', 'orange', 'amber', 'green']; // Preview colors
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 font-sans text-foreground">
+    <div className="bg-surface text-foreground flex min-h-screen flex-col items-center justify-center gap-4 p-8 font-sans">
       <h1 className="flex animate-pulse text-4xl font-black tracking-tighter uppercase italic select-none">
         {letters.map((letter, i) => {
           const theme = getColorTheme(colors[i]);
@@ -50,7 +49,7 @@ const LoadingState = () => {
           );
         })}
       </h1>
-      <div className="text-sm text-secondary">Loading application...</div>
+      <div className="text-secondary text-sm">Loading application...</div>
     </div>
   );
 };
@@ -235,22 +234,20 @@ export default function TierListApp() {
     return <LoadingState />;
   }
 
-
-
   return (
-    <div className="relative flex min-h-screen flex-col font-sans text-foreground bg-background">
+    <div className="text-foreground bg-background relative flex min-h-screen flex-col font-sans">
       <InteractionContext.Provider value={{ hoveredItem, setHoveredItem }}>
         <main className="flex-1 p-8 pb-0">
           <div className="mx-auto max-w-[1600px]">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
 
-              <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_450px]">
-                <div>
-                  <TierBoard isAnyDragging={!!activeItem || !!activeTier} />
-                </div>
-
-                <SearchPanel />
+            <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_450px]">
+              <div>
+                <TierBoard isAnyDragging={!!activeItem || !!activeTier} />
               </div>
+
+              <SearchPanel />
+            </div>
           </div>
         </main>
 
@@ -265,7 +262,7 @@ export default function TierListApp() {
         {/* Floating Randomize Colors Button */}
         <button
           onClick={randomizeColors}
-          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-surface-hover p-4 text-foreground shadow-floating transition-all hover:scale-110 hover:bg-surface active:scale-95 ${fabPosition}`}
+          className={`group screenshot-exclude bg-surface-hover text-foreground shadow-floating hover:bg-surface fixed right-8 z-50 rounded-full p-4 transition-all hover:scale-110 active:scale-95 ${fabPosition}`}
           title="Randomize Colors"
         >
           <Dices size={24} className="transition-transform group-hover:rotate-12" />
@@ -273,18 +270,18 @@ export default function TierListApp() {
 
         {/* Export Preview Overlay */}
         {showExportPreview && (
-          <div className="fixed inset-0 z-overlay flex flex-col items-center overflow-auto bg-black/90 p-20 backdrop-blur-sm">
+          <div className="z-overlay fixed inset-0 flex flex-col items-center overflow-auto bg-black/90 p-20 backdrop-blur-sm">
             <div className="relative">
               {/* Preview Header */}
               <div className="absolute -top-12 right-0 left-0 flex items-center justify-between px-4">
-                <span className="font-mono text-xs tracking-widest text-secondary uppercase">
+                <span className="text-secondary font-mono text-xs tracking-widest uppercase">
                   Export Preview (Shift+P to close)
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleScreenshot}
                     disabled={isCapturing}
-                    className="flex items-center gap-2 rounded-md bg-surface-hover px-3 py-2 text-sm text-foreground transition-all hover:bg-surface active:scale-95 disabled:opacity-50"
+                    className="bg-surface-hover text-foreground hover:bg-surface flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all active:scale-95 disabled:opacity-50"
                   >
                     {isCapturing ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -295,7 +292,7 @@ export default function TierListApp() {
                   </button>
                   <button
                     onClick={() => setShowExportPreview(false)}
-                    className="rounded-md bg-surface-hover p-2 text-foreground transition-colors hover:bg-surface"
+                    className="bg-surface-hover text-foreground hover:bg-surface rounded-md p-2 transition-colors"
                   >
                     <X size={20} />
                   </button>
@@ -303,11 +300,11 @@ export default function TierListApp() {
               </div>
 
               {/* The Actual Export Surface */}
-              <div className="border border-border shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+              <div className="border-border border shadow-[0_0_100px_rgba(0,0,0,0.5)]">
                 <ExportBoard state={state} brandColors={headerColors} />
               </div>
 
-              <div className="mt-8 text-center text-sm text-muted">
+              <div className="text-muted mt-8 text-center text-sm">
                 This is a live preview of the export board. Interaction is disabled here.
               </div>
             </div>

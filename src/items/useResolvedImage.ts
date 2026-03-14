@@ -1,6 +1,6 @@
 /**
  * @file useResolvedImage.ts
- * @description Hook and utilities for resolving declarative ImageSource 
+ * @description Hook and utilities for resolving declarative ImageSource
  * references into playable URLs using SWR for caching and deduplication.
  */
 import useSWR from 'swr';
@@ -16,9 +16,7 @@ import { registry } from '@/providers/registry';
  * @param sources - Ordered list of image sources to try
  * @returns The first successfully resolved image URL, or undefined
  */
-export function useResolvedImage(
-  sources: ImageSource[],
-): string | undefined {
+export function useResolvedImage(sources: ImageSource[]): string | undefined {
   // SWR automatically hashes the array into a stable string key.
   // We use null to prevent fetching if there are no sources.
   const cacheKey = sources.length > 0 ? JSON.stringify(sources) : null;
@@ -30,9 +28,10 @@ export function useResolvedImage(
 
       for (const source of activeSources) {
         try {
-          const targetUrl = source.type === 'url' 
-            ? source.url 
-            : await registry.resolveImageReference(source.provider, source.key);
+          const targetUrl =
+            source.type === 'url'
+              ? source.url
+              : await registry.resolveImageReference(source.provider, source.key);
 
           if (targetUrl) {
             const loaded = await loadImage(targetUrl);
@@ -47,8 +46,8 @@ export function useResolvedImage(
     {
       revalidateOnFocus: false, // Don't refetch simply because window gained focus
       dedupingInterval: 86_400_000, // Keep cached results alive for 24 hours
-      shouldRetryOnError: false // Don't spam retries if all sources genuinely failed
-    }
+      shouldRetryOnError: false, // Don't spam retries if all sources genuinely failed
+    },
   );
 
   return resolvedUrl;

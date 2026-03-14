@@ -114,12 +114,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast, toastCount: toasts.length }}>
       {children}
-      <div className="pointer-events-none fixed right-8 bottom-4 z-toast flex flex-col-reverse items-end gap-2">
+      <div className="z-toast pointer-events-none fixed right-8 bottom-4 flex flex-col-reverse items-end gap-2">
         {/* Collapse Action */}
         {isExpanded && toasts.length > 1 && (
           <button
             onClick={() => dispatch({ type: 'SET_EXPANDED', isExpanded: false })}
-            className="pointer-events-auto mb-2 flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-secondary backdrop-blur-sm transition-colors hover:text-foreground"
+            className="bg-background/80 text-secondary hover:text-foreground pointer-events-auto mb-2 flex items-center gap-1 rounded-full px-2 py-1 text-xs backdrop-blur-sm transition-colors"
           >
             Collapse <ChevronDown size={12} />
           </button>
@@ -138,7 +138,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 {/* Badge */}
                 {toasts.length > 1 && (
-                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption font-bold text-white shadow-md ring-2 ring-background">
+                  <div className="bg-primary text-caption ring-background absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full font-bold text-white shadow-md ring-2">
                     {toasts.length}
                   </div>
                 )}
@@ -160,7 +160,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                         right: 0,
                         width: '100%', // Ensure absolute ones take full width of relative parent
                       }}
-                      className={`origin-bottom transition-all duration-normal ${!isTop ? 'pointer-events-none' : ''}`}
+                      className={`duration-normal origin-bottom transition-all ${!isTop ? 'pointer-events-none' : ''}`}
                     >
                       <ToastItem toast={toast} onDismiss={removeToast} stacked={true} />
                     </div>
@@ -208,7 +208,7 @@ function ToastItem({
       {toast.type === 'error' && <AlertCircle size={18} />}
       {toast.type === 'info' && <Info size={18} />}
 
-      <span className="max-w-[200px] truncate text-sm font-medium text-foreground">
+      <span className="text-foreground max-w-[200px] truncate text-sm font-medium">
         {toast.message}
       </span>
 

@@ -10,7 +10,12 @@ describe('TierList custom matchers', () => {
       { id: 'tier-a', label: 'A', color: 'blue' },
     ],
     itemEntities: {
-      'item-1': { id: 'item-1', identity: { dbId: 'item-1', databaseId: 'mock', entityId: 'item-1' }, title: 'Top Song', images: [] }
+      'item-1': {
+        id: 'item-1',
+        identity: { dbId: 'item-1', databaseId: 'mock', entityId: 'item-1' },
+        title: 'Top Song',
+        images: [],
+      },
     },
     tierLayout: {
       'tier-s': ['item-1'],

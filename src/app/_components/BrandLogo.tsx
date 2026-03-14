@@ -42,7 +42,7 @@ export function BrandLogo({ colors, className, variant = 'default' }: BrandLogoP
           key={i}
           style={{ color: colors[i] }}
           className={twMerge(
-            'transition-all duration-normal',
+            'duration-normal transition-all',
             !colors[i] && 'pointer-events-none opacity-0',
           )}
         >

@@ -37,7 +37,7 @@ export function FilterButton({ label, isSelected, onClick, variant }: FilterButt
   return (
     <button
       onClick={onClick}
-      className={`rounded-md border px-2 py-1 text-caption transition-all ${
+      className={`text-caption rounded-md border px-2 py-1 transition-all ${
         isSelected ? activeClass : inactiveClass
       }`}
     >

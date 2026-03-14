@@ -15,7 +15,7 @@ export enum RegistryStatus {
   IDLE = 'IDLE',
   INITIALIZING = 'INITIALIZING',
   READY = 'READY',
-  ERROR = 'ERROR'
+  ERROR = 'ERROR',
 }
 
 /**
@@ -35,7 +35,7 @@ export class DatabaseRegistry {
   private static instance: DatabaseRegistry;
   private providers: Map<string, Provider> = new Map();
   private fetcher: Fetcher = secureFetch;
-  
+
   private status: RegistryStatus = RegistryStatus.IDLE;
   private pendingRegistrations: Set<Promise<void>> = new Set();
   private listeners: Set<() => void> = new Set();
@@ -65,7 +65,7 @@ export class DatabaseRegistry {
    */
   private notify(): void {
     this.snapshot = null;
-    this.listeners.forEach(listener => listener());
+    this.listeners.forEach((listener) => listener());
   }
 
   /**
@@ -78,7 +78,7 @@ export class DatabaseRegistry {
       this.snapshot = {
         status: this.status,
         providers,
-        availableProviders: providers.filter(p => p.status === ProviderStatus.READY),
+        availableProviders: providers.filter((p) => p.status === ProviderStatus.READY),
       };
     }
     return this.snapshot;
@@ -117,7 +117,7 @@ export class DatabaseRegistry {
   public async register(provider: Provider): Promise<void> {
     this.status = RegistryStatus.INITIALIZING;
     provider.status = ProviderStatus.INITIALIZING;
-    
+
     // Always add the provider to the map so its status can be tracked by UI
     this.providers.set(provider.id, provider);
     this.notify();
@@ -132,7 +132,7 @@ export class DatabaseRegistry {
       } catch (error) {
         provider.status = ProviderStatus.ERROR;
         this.notify();
-        
+
         // Ensure initialization failures are exposed as standard ProviderErrors
         if (error instanceof ProviderError) {
           throw error;
@@ -141,25 +141,25 @@ export class DatabaseRegistry {
             ProviderErrorCode.INTERNAL_ERROR,
             `Initialization failed for provider "${provider.id}"`,
             error,
-            provider.id
+            provider.id,
           );
         }
       }
     })();
 
     this.pendingRegistrations.add(registration);
-    
+
     try {
       await registration;
     } finally {
       this.pendingRegistrations.delete(registration);
-      
-      // Only finalize status if no other registrations are pending 
+
+      // Only finalize status if no other registrations are pending
       if (this.pendingRegistrations.size === 0) {
         const allProviders = [...this.providers.values()];
-        const hasReady = allProviders.some(p => p.status === ProviderStatus.READY);
+        const hasReady = allProviders.some((p) => p.status === ProviderStatus.READY);
         const hasProviders = allProviders.length > 0;
-        
+
         // Let the registry be READY if at least one provider is functioning,
         // or if there are no providers (so it's not stuck in ERROR).
         // Only set ERROR if there are providers and *none* of them are READY.
@@ -186,7 +186,7 @@ export class DatabaseRegistry {
         ProviderErrorCode.NOT_FOUND,
         `Provider "${id}" not found`,
         undefined,
-        id
+        id,
       );
     }
     return provider;
@@ -201,13 +201,13 @@ export class DatabaseRegistry {
    */
   public getEntity(databaseId: string, entityId: string): Entity {
     const provider = this.getProvider(databaseId);
-    const entity = provider.entities.find(e => e.id === entityId);
+    const entity = provider.entities.find((e) => e.id === entityId);
     if (!entity) {
       throw new ProviderError(
         ProviderErrorCode.NOT_FOUND,
         `Entity "${entityId}" not found in provider "${databaseId}"`,
         undefined,
-        databaseId
+        databaseId,
       );
     }
     return entity;
@@ -267,4 +267,3 @@ export class DatabaseRegistry {
 }
 
 export const registry = DatabaseRegistry.getInstance();
-

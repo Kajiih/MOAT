@@ -31,7 +31,7 @@ export const SortDefinitionSchema = z.object({
  * A generic sort definition tailored for a specific provider payload Type `TRaw`.
  */
 export interface SortDefinition<TRaw = unknown> extends z.infer<typeof SortDefinitionSchema> {
-  /** 
+  /**
    * Extract the raw value for comparison in integration tests.
    * If not provided, the sort will not be tested.
    */
@@ -41,7 +41,7 @@ export interface SortDefinition<TRaw = unknown> extends z.infer<typeof SortDefin
 /**
  * Creates a suite of sort building functions that are statically bound
  * to the generic type `TRaw` of the expected Provider responses.
- * 
+ *
  * This enables robust IDE autocompletion when defining `extractValue`.
  * @returns An object factory containing a strictly-typed `create` function.
  */
@@ -52,7 +52,7 @@ export function createSortSuite<TRaw>() {
      * @param config The raw sort definition payload.
      * @returns The exact same configuration payload, but securely typed against TRaw.
      */
-    create: (config: SortDefinition<TRaw>): SortDefinition<TRaw> => config
+    create: (config: SortDefinition<TRaw>): SortDefinition<TRaw> => config,
   };
 }
 

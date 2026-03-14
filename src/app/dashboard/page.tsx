@@ -5,7 +5,6 @@
 
 import { Dashboard } from '@/app/dashboard/_components/Dashboard';
 
-
 /**
  * Renders the application dashboard.
  * @returns The main dashboard page component.

@@ -7,12 +7,12 @@
 
 import '@/providers/bootstrap'; // Bootstrap all providers on first import
 
-import { Eye, EyeOff, Loader2,Search } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Search } from 'lucide-react';
 import React, { useMemo } from 'react';
 
 import { useTierListContext } from '@/board/context';
 import { useRegistry } from '@/providers/hooks/useRegistry';
-import {RegistryStatus } from '@/providers/registry';
+import { RegistryStatus } from '@/providers/registry';
 import { usePersistentState } from '@/storage/usePersistentState';
 
 import { SearchTab } from './SearchTab';
@@ -37,7 +37,7 @@ export function SearchPanel() {
   );
 
   const selectedProvider = useMemo(() => {
-    return availableProviders.find(p => p.id === providerId) || availableProviders[0];
+    return availableProviders.find((p) => p.id === providerId) || availableProviders[0];
   }, [availableProviders, providerId]);
 
   // 4. Entity selection (Tabs)
@@ -50,7 +50,7 @@ export function SearchPanel() {
 
   // Ensure selection is valid
   React.useEffect(() => {
-    if (selectedProvider && !selectedProvider.entities.some(e => e.id === activeEntityId)) {
+    if (selectedProvider && !selectedProvider.entities.some((e) => e.id === activeEntityId)) {
       setActiveEntityId(selectedProvider.entities[0]?.id || '');
     }
   }, [selectedProvider, activeEntityId, setActiveEntityId]);
@@ -58,22 +58,22 @@ export function SearchPanel() {
   if (availableProviders.length === 0) {
     if (status === RegistryStatus.INITIALIZING || status === RegistryStatus.IDLE) {
       return (
-        <div className="sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface p-6 text-secondary shadow-floating">
-          <Loader2 className="animate-spin text-muted" size={24} />
+        <div className="border-border bg-surface text-secondary shadow-floating sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-lg border p-6">
+          <Loader2 className="text-muted animate-spin" size={24} />
           <span className="text-sm font-medium">Booting providers...</span>
         </div>
       );
     }
-    
+
     return (
-      <div className="sticky top-4 flex h-64 flex-col items-center justify-center rounded-lg border border-border bg-surface p-6 text-secondary italic shadow-floating">
+      <div className="border-border bg-surface text-secondary shadow-floating sticky top-4 flex h-64 flex-col items-center justify-center rounded-lg border p-6 italic">
         No providers available.
       </div>
     );
   }
 
   return (
-    <div className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border border-border bg-surface p-6 shadow-floating sm:max-h-[calc(100dvh-2rem)]">
+    <div className="border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 sm:max-h-[calc(100dvh-2rem)]">
       <div className="mb-4 flex shrink-0 flex-wrap items-center gap-4 text-white">
         <div className="flex items-center gap-2">
           <Search size={20} />
@@ -83,7 +83,7 @@ export function SearchPanel() {
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => setShowAdded(!showAdded)}
-            className={`flex items-center gap-2 rounded-md border px-2 py-1 text-caption font-medium transition-colors ${showAdded ? 'border-border bg-surface-hover text-secondary hover:bg-surface' : 'border-primary/40 bg-primary/10 text-primary'}`}
+            className={`text-caption flex items-center gap-2 rounded-md border px-2 py-1 font-medium transition-colors ${showAdded ? 'border-border bg-surface-hover text-secondary hover:bg-surface' : 'border-primary/40 bg-primary/10 text-primary'}`}
             title={
               showAdded ? 'Hide items already on the board' : 'Show items already on the board'
             }
@@ -97,13 +97,13 @@ export function SearchPanel() {
       {/* Provider Toggle (Provider selection) */}
       {availableProviders.length > 1 && (
         <div className="mb-3 flex shrink-0 items-center gap-2">
-          <span className="text-caption font-medium text-secondary">Provider:</span>
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-black p-0.5">
+          <span className="text-caption text-secondary font-medium">Provider:</span>
+          <div className="border-border flex items-center gap-1 rounded-lg border bg-black p-0.5">
             {availableProviders.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setProviderId(p.id)}
-                className={`rounded-md px-2.5 py-1 text-caption font-bold uppercase transition-all ${
+                className={`text-caption rounded-md px-2.5 py-1 font-bold uppercase transition-all ${
                   providerId === p.id
                     ? 'bg-surface-hover text-foreground shadow-sm'
                     : 'text-secondary hover:text-muted'
@@ -118,7 +118,7 @@ export function SearchPanel() {
 
       {/* Entity Tabs (Tabs driven by selected provider) */}
       {selectedProvider && selectedProvider.entities.length > 0 && (
-        <div className="mb-4 flex shrink-0 gap-1 rounded-lg border border-border bg-black p-1">
+        <div className="border-border mb-4 flex shrink-0 gap-1 rounded-lg border bg-black p-1">
           {selectedProvider.entities.map((entity) => {
             const { branding } = entity;
             const Icon = branding.icon;

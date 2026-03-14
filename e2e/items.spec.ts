@@ -26,7 +26,6 @@ test.describe('Item Management', () => {
   });
 
   test('should manage items: details, move, reorder, remove', async ({ page, boardPage }) => {
-
     const tierS = page.locator('[data-tier-label="S"]');
     const cards = tierS.getByTestId(/^item-card-/);
 
@@ -104,6 +103,7 @@ test.describe('Item Management', () => {
     // The notes indicator badge should now be visible on the card
     await expect(card1.getByTestId('notes-indicator').first()).toBeVisible({ timeout: 10_000 });
   });
+
   test('should move and reorder items via Keyboard', async ({ page, boardPage }) => {
     // Both items are in Tier S.
     // [ First Item (item-1) ] [ Second Item (item-2) ]
@@ -118,7 +118,7 @@ test.describe('Item Management', () => {
     // 1. Focus on the second item
     const item2 = boardPage.getItemCard('item-2');
     await item2.focus();
-    
+
     // 2. Lift the item using Space
     await page.keyboard.press('Space');
     await expect(item2).toHaveAttribute('aria-selected', 'true');
@@ -133,7 +133,7 @@ test.describe('Item Management', () => {
 
     // 4. Drop the item using Space
     await page.keyboard.press('Space');
-    
+
     // Verify changes persisted via UI
     await expect(item2).toHaveAttribute('aria-selected', 'false');
     await expect(cards.nth(0)).toContainText('Second Item');
@@ -143,11 +143,11 @@ test.describe('Item Management', () => {
     // Both items are in Tier S.
     const tierS = page.locator('[data-tier-label="S"]');
     const tierA = page.locator('[data-tier-label="A"]');
-    
+
     // 1. Focus on item-1
     const item1 = boardPage.getItemCard('item-1');
     await item1.focus();
-    
+
     // 2. Lift the item using Space
     await page.keyboard.press('Space');
     await expect(item1).toHaveAttribute('aria-selected', 'true');
@@ -180,7 +180,10 @@ test.describe('Item Management', () => {
     await boardPage.expectItemInTier('item-1', 'S');
   });
 
-  test('should move item 2 tiers down continuously without pressing space', async ({ page, boardPage }) => {
+  test('should move item 2 tiers down continuously without pressing space', async ({
+    page,
+    boardPage,
+  }) => {
     // 1. Focus on item-1
     const item1 = boardPage.getItemCard('item-1');
     await item1.focus();
@@ -206,39 +209,41 @@ test.describe('Item Management', () => {
     await boardPage.expectItemInTier('item-1', 'B');
   });
 
-  test.fail('should support contiguous tab navigation between tiers and items', async ({ page, boardPage }) => {
-    // We intentionally expect this to "fail" the contiguity assertion because
-    // we decided to preserve the native DOM hierarchy for Web Accessibility (WCAG).
-    // Tab flow organically moves Tier Handle -> Tier Items -> Next Tier Handle.
-    // Forcing synthetic contiguity broke screen-reader contextual grouping.
-    
-    // 1. Setup - move item 2 to Tier A
-    await boardPage.moveItemToStartOfTier('item-2', 'A');
-    
-    const item1 = boardPage.getItemCard('item-1');
-    const item2 = boardPage.getItemCard('item-2');
-    // The handle is rendered as data-testid="tier-row-drag-handle" inside the tier-row
-    const rowS = page.locator('[data-testid="tier-row"][data-tier-label="S"]');
-    const rowA = page.locator('[data-testid="tier-row"][data-tier-label="A"]');
-    const handleS = rowS.getByTestId('tier-row-drag-handle');
-    const handleA = rowA.getByTestId('tier-row-drag-handle');
+  test.fail(
+    'should support contiguous tab navigation between tiers and items',
+    async ({ page, boardPage }) => {
+      // We intentionally expect this to "fail" the contiguity assertion because
+      // we decided to preserve the native DOM hierarchy for Web Accessibility (WCAG).
+      // Tab flow organically moves Tier Handle -> Tier Items -> Next Tier Handle.
+      // Forcing synthetic contiguity broke screen-reader contextual grouping.
 
-    // Start focus on Tier S Handle
-    await rowS.hover();
-    await handleS.focus();
-    await expect(handleS).toBeFocused();
+      // 1. Setup - move item 2 to Tier A
+      await boardPage.moveItemToStartOfTier('item-2', 'A');
 
-    // Tab -> Should natively hit item-1 (inside Tier S) next, not Tier A Handle
-    await page.keyboard.press('Tab');
-    await expect(item1).toBeFocused();
+      const item1 = boardPage.getItemCard('item-1');
+      const item2 = boardPage.getItemCard('item-2');
+      // The handle is rendered as data-testid="tier-row-drag-handle" inside the tier-row
+      const rowS = page.locator('[data-testid="tier-row"][data-tier-label="S"]');
+      const rowA = page.locator('[data-testid="tier-row"][data-tier-label="A"]');
+      const handleS = rowS.getByTestId('tier-row-drag-handle');
+      const handleA = rowA.getByTestId('tier-row-drag-handle');
 
-    // Tab -> Should natively hit Tier A Handle next
-    await page.keyboard.press('Tab');
-    await expect(handleA).toBeFocused();
+      // Start focus on Tier S Handle
+      await rowS.hover();
+      await handleS.focus();
+      await expect(handleS).toBeFocused();
 
-    // Tab -> Should natively hit item-2 (inside Tier A) next
-    await page.keyboard.press('Tab');
-    await expect(item2).toBeFocused();
-  });
+      // Tab -> Should natively hit item-1 (inside Tier S) next, not Tier A Handle
+      await page.keyboard.press('Tab');
+      await expect(item1).toBeFocused();
+
+      // Tab -> Should natively hit Tier A Handle next
+      await page.keyboard.press('Tab');
+      await expect(handleA).toBeFocused();
+
+      // Tab -> Should natively hit item-2 (inside Tier A) next
+      await page.keyboard.press('Tab');
+      await expect(item2).toBeFocused();
+    },
+  );
 });
-

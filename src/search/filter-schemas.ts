@@ -37,14 +37,17 @@ export type FilterOption = z.infer<typeof FilterOptionSchema>;
 /**
  * Valid value types for evaluating applied UI filters.
  */
-export type FilterValues = Record<string, string | number | boolean | string[] | { min?: string; max?: string } | undefined>;
+export type FilterValues = Record<
+  string,
+  string | number | boolean | string[] | { min?: string; max?: string } | undefined
+>;
 
 // --- Runtime Validation Schemas for Filter Values ---
 
 export const TextValueSchema = z.string();
 
 export const NumberValueSchema = z.coerce.number().refine((val) => !Number.isNaN(val), {
-  message: "Parsed number cannot be NaN",
+  message: 'Parsed number cannot be NaN',
 });
 
 export const BooleanValueSchema = z.preprocess((val) => {
@@ -54,14 +57,11 @@ export const BooleanValueSchema = z.preprocess((val) => {
   return Boolean(val);
 }, z.boolean());
 
-export const ArrayValueSchema = z.preprocess(
-  (val) => {
-    if (Array.isArray(val)) return val;
-    if (val) return [val];
-    return [];
-  },
-  z.array(z.string())
-);
+export const ArrayValueSchema = z.preprocess((val) => {
+  if (Array.isArray(val)) return val;
+  if (val) return [val];
+  return [];
+}, z.array(z.string()));
 
 export const RangeValueSchema = z.object({
   min: z.string().optional(),
@@ -236,8 +236,8 @@ export type FilterDefinition<TRaw = unknown> =
  */
 export function createFilterSuite<TRaw>() {
   return {
-    /** 
-     * Build a text filter parameter 
+    /**
+     * Build a text filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed TextFilterDefinition.
      */
@@ -245,8 +245,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'text' };
     },
 
-    /** 
-     * Build a numerical filter parameter 
+    /**
+     * Build a numerical filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed NumberFilterDefinition.
      */
@@ -254,8 +254,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'number' };
     },
 
-    /** 
-     * Build a boolean toggle filter parameter 
+    /**
+     * Build a boolean toggle filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed BooleanFilterDefinition.
      */
@@ -265,8 +265,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'boolean' };
     },
 
-    /** 
-     * Build a single-choice dropdown filter parameter 
+    /**
+     * Build a single-choice dropdown filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed SelectFilterDefinition.
      */
@@ -274,8 +274,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'select' };
     },
 
-    /** 
-     * Build a multiple-choice selection filter parameter 
+    /**
+     * Build a multiple-choice selection filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed MultiSelectFilterDefinition.
      */
@@ -285,8 +285,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'multiselect' };
     },
 
-    /** 
-     * Build an asynchronous single-choice dropdown fetching its options live 
+    /**
+     * Build an asynchronous single-choice dropdown fetching its options live
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed AsyncSelectFilterDefinition.
      */
@@ -296,8 +296,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'async-select' };
     },
 
-    /** 
-     * Build an asynchronous multiple-choice selection parameter fetching its options live 
+    /**
+     * Build an asynchronous multiple-choice selection parameter fetching its options live
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed AsyncMultiSelectFilterDefinition.
      */
@@ -307,8 +307,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'async-multiselect' };
     },
 
-    /** 
-     * Build a max/min scope range filter parameter 
+    /**
+     * Build a max/min scope range filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed RangeFilterDefinition.
      */
@@ -316,8 +316,8 @@ export function createFilterSuite<TRaw>() {
       return { ...config, type: 'range' };
     },
 
-    /** 
-     * Build a strict date constraint filter parameter 
+    /**
+     * Build a strict date constraint filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed DateFilterDefinition.
      */

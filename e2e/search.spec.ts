@@ -62,7 +62,9 @@ test.describe('Search Functionality', () => {
     await searchPanel.dragToTier('duplicate-1', 'S');
 
     // We expect the item to exist on the board now.
-    const boardCard = page.locator('[data-tier-label="S"]').getByTestId('item-card-rawg:game:duplicate-1');
+    const boardCard = page
+      .locator('[data-tier-label="S"]')
+      .getByTestId('item-card-rawg:game:duplicate-1');
     await expect(boardCard).toBeVisible({ timeout: 10_000 });
     // Verify it's actually in the tier, not just testing the drag overlay
     await boardPage.expectTierToHaveItemCount('S', 1);
@@ -81,7 +83,9 @@ test.describe('Search Functionality', () => {
 
     // 5. Toggle "Show Added" (Show it)
     await searchPanel.setShowAdded(true);
-    await expect(searchPanel.container.getByTestId('item-card-rawg:game:duplicate-1')).toBeVisible();
+    await expect(
+      searchPanel.container.getByTestId('item-card-rawg:game:duplicate-1'),
+    ).toBeVisible();
   });
 
   test('should use specific filters for a tab', async ({ page, boardPage, searchPanel }) => {

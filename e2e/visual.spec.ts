@@ -13,7 +13,7 @@ test.describe('Visual Regression', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           data: [],
-          pagination: { total: 0, page: 1, limit: 20, totalPages: 0 }
+          pagination: { total: 0, page: 1, limit: 20, totalPages: 0 },
         }),
       });
     });

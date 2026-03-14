@@ -1,4 +1,3 @@
-
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -16,7 +15,6 @@ vi.mock('@/storage/storage', () => ({
   },
 }));
 
-
 describe('TierBoard', () => {
   const defaultProps = {
     screenshotRef: { current: null },
@@ -26,9 +24,7 @@ describe('TierBoard', () => {
   const renderWithProviders = (ui: React.ReactElement) => {
     return render(
       <ToastProvider>
-        <TierListProvider boardId="test-board">
-          {ui}
-        </TierListProvider>
+        <TierListProvider boardId="test-board">{ui}</TierListProvider>
       </ToastProvider>,
     );
   };

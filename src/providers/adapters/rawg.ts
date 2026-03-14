@@ -11,7 +11,12 @@ import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items'
 import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
-import { applyFilters, extractRelatedEntities,extractTags, handleProviderError } from '@/providers/utils';
+import {
+  applyFilters,
+  extractRelatedEntities,
+  extractTags,
+  handleProviderError,
+} from '@/providers/utils';
 import { FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/search/sort-schemas';
@@ -82,25 +87,29 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<RAWGGame>[] = [
     mapTo: 'search_precise',
     helperText: 'Disable fuzzy matching for exact results',
     testCases: [
-      { 
-        value: true, 
+      {
+        value: true,
         query: 'The Watcher 3',
         verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map(i => i.id.toString());
+          const ids = items.map((i) => i.id.toString());
           // Precise: true should NOT return Witcher 3 for typo "The Watcher 3"
           if (ids.includes(THE_WITCHER_3_ID)) {
-            throw new Error(`Found Witcher 3 (${THE_WITCHER_3_ID}) in precise results for typo "The Watcher 3"`);
+            throw new Error(
+              `Found Witcher 3 (${THE_WITCHER_3_ID}) in precise results for typo "The Watcher 3"`,
+            );
           }
         },
       },
-      { 
+      {
         value: false,
         query: 'The Watcher 3',
         verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map(i => i.id.toString());
+          const ids = items.map((i) => i.id.toString());
           // Precise: false SHOULD return Witcher 3
           if (!ids.includes(THE_WITCHER_3_ID)) {
-            throw new Error(`Did NOT find Witcher 3 (${THE_WITCHER_3_ID}) in fuzzy results for typo "The Watcher 3"`);
+            throw new Error(
+              `Did NOT find Witcher 3 (${THE_WITCHER_3_ID}) in fuzzy results for typo "The Watcher 3"`,
+            );
           }
         },
       },
@@ -108,10 +117,12 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<RAWGGame>[] = [
         value: true,
         query: 'Elder Ring',
         verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map(i => i.id.toString());
+          const ids = items.map((i) => i.id.toString());
           // Elden Ring
           if (ids.includes(ELDEN_RING_ID)) {
-            throw new Error(`Found Elden Ring (${ELDEN_RING_ID}) in precise results for typo "Elder Ring"`);
+            throw new Error(
+              `Found Elden Ring (${ELDEN_RING_ID}) in precise results for typo "Elder Ring"`,
+            );
           }
         },
       },
@@ -119,13 +130,15 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<RAWGGame>[] = [
         value: false,
         query: 'Elder Ring',
         verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map(i => i.id.toString());
+          const ids = items.map((i) => i.id.toString());
           if (!ids.includes(ELDEN_RING_ID)) {
-            throw new Error(`Did NOT find Elden Ring (${ELDEN_RING_ID}) in fuzzy results for typo "Elder Ring"`);
+            throw new Error(
+              `Did NOT find Elden Ring (${ELDEN_RING_ID}) in fuzzy results for typo "Elder Ring"`,
+            );
           }
         },
-      }
-    ]
+      },
+    ],
   }),
 ];
 
@@ -143,15 +156,15 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
       return `${start},${end}`;
     },
     testCases: [
-      { 
-        value: { min: '2020', max: '2022' }, 
+      {
+        value: { min: '2020', max: '2022' },
         match: (item: RAWGGame) => {
           if (!item.released) return false;
           const year = Number.parseInt(item.released.split('-')[0]);
           return year >= 2020 && year <= 2022;
-        }
-      }
-    ]
+        },
+      },
+    ],
   }),
   rawgGameFilters.select({
     id: 'platform',
@@ -167,10 +180,11 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
     testCases: [
       {
         value: '7', // Switch
-        match: (item: RAWGGame) => item.platforms?.some((p: { platform: { id: number } }) => p.platform.id === 7) ?? false
-      }
-    ]
-  })
+        match: (item: RAWGGame) =>
+          item.platforms?.some((p: { platform: { id: number } }) => p.platform.id === 7) ?? false,
+      },
+    ],
+  }),
 ];
 
 export class RAWGGameEntity implements Entity<RAWGGame> {
@@ -185,48 +199,48 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
   public readonly filters = GAME_FILTERS;
   public readonly sortOptions = [
     rawgGameSorts.create({ id: 'relevance', label: 'Relevance' }),
-    rawgGameSorts.create({ 
-      id: 'name', 
-      label: 'Name', 
+    rawgGameSorts.create({
+      id: 'name',
+      label: 'Name',
       defaultDirection: SortDirection.ASC,
       // Name sorting is functional but we don't test it the RAWG API uses a custom collation (dealing with symbols and non-latin scripts) that doesn't match standard JS string comparison.
-      // extractValue: (raw) => raw.name ?? '' // 
+      // extractValue: (raw) => raw.name ?? '' //
     }),
-    rawgGameSorts.create({ 
-      id: 'rating', 
-      label: 'Rating (Highest)', 
+    rawgGameSorts.create({
+      id: 'rating',
+      label: 'Rating (Highest)',
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.rating ?? 0
+      extractValue: (raw: RAWGGame) => raw.rating ?? 0,
     }),
-    rawgGameSorts.create({ 
-      id: 'released', 
-      label: 'Release Date', 
+    rawgGameSorts.create({
+      id: 'released',
+      label: 'Release Date',
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.released ?? ''
+      extractValue: (raw: RAWGGame) => raw.released ?? '',
     }),
-    rawgGameSorts.create({ 
-      id: 'added', 
-      label: 'Popularity (Added count)', 
+    rawgGameSorts.create({
+      id: 'added',
+      label: 'Popularity (Added count)',
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.added ?? 0
+      extractValue: (raw: RAWGGame) => raw.added ?? 0,
     }),
-    rawgGameSorts.create({ 
-      id: 'created', 
-      label: 'Creation Date', 
+    rawgGameSorts.create({
+      id: 'created',
+      label: 'Creation Date',
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.created ?? ''
+      extractValue: (raw: RAWGGame) => raw.created ?? '',
     }),
-    rawgGameSorts.create({ 
-      id: 'updated', 
-      label: 'Update Date', 
+    rawgGameSorts.create({
+      id: 'updated',
+      label: 'Update Date',
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.updated ?? ''
+      extractValue: (raw: RAWGGame) => raw.updated ?? '',
     }),
-    rawgGameSorts.create({ 
-      id: 'metacritic', 
-      label: 'Metacritic Score', 
+    rawgGameSorts.create({
+      id: 'metacritic',
+      label: 'Metacritic Score',
       defaultDirection: SortDirection.DESC,
-      extractValue: (raw: RAWGGame) => raw.metacritic ?? 0
+      extractValue: (raw: RAWGGame) => raw.metacritic ?? 0,
     }),
   ];
 
@@ -246,10 +260,19 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
   });
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<RAWGGame>> => {
-    return this.provider.searchEntities<RAWGGame>(params, [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS], '/games', RAWGGameSchema, (game: RAWGGame) => mapGameToItem(game, this.provider.id));
+    return this.provider.searchEntities<RAWGGame>(
+      params,
+      [...GAME_FILTERS, ...GAME_SEARCH_OPTIONS],
+      '/games',
+      RAWGGameSchema,
+      (game: RAWGGame) => mapGameToItem(game, this.provider.id),
+    );
   };
 
-  public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
+  public readonly getNextParams = (
+    params: SearchParams,
+    result: SearchResult,
+  ): SearchParams | null => {
     if (!result.pagination.hasNextPage) return null;
     return { ...params, page: (params.page || 1) + 1 };
   };
@@ -260,17 +283,28 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
     return { ...params, page: currentPage - 1 };
   };
 
-  public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
+  public readonly getDetails = async (
+    dbId: string,
+    options?: { signal?: AbortSignal },
+  ): Promise<ItemDetails> => {
     try {
-      const rawData = await this.provider.fetchRawg<unknown>(`/games/${dbId}`, {}, { signal: options?.signal });
+      const rawData = await this.provider.fetchRawg<unknown>(
+        `/games/${dbId}`,
+        {},
+        { signal: options?.signal },
+      );
       const game = RAWGGameSchema.parse(rawData);
-      
+
       const tags = [
-        ...extractTags(game.genres, g => g.name),
-        ...extractTags(game.tags, t => t.name, t => t.language === 'eng')
+        ...extractTags(game.genres, (g) => g.name),
+        ...extractTags(
+          game.tags,
+          (t) => t.name,
+          (t) => t.language === 'eng',
+        ),
       ].slice(0, 10);
 
-      const relatedEntities = extractRelatedEntities(game.developers, dev => ({
+      const relatedEntities = extractRelatedEntities(game.developers, (dev) => ({
         label: 'Developer',
         name: dev.name,
         identity: { dbId: dev.id.toString(), databaseId: this.provider.id, entityId: 'developer' },
@@ -300,7 +334,7 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
  */
 function mapGameToItem(game: RAWGGame, databaseId: string): Item {
   const identity = { dbId: game.id.toString(), databaseId, entityId: 'game' };
-  
+
   const images = [
     ...(game.background_image ? [urlImage(game.background_image)] : []),
     ...(game.slug ? [referenceImage('wikidata', `slug:${game.slug}`)] : []),
@@ -311,8 +345,10 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
     identity,
     title: game.name,
     images,
-    subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]].filter(Boolean).join(' • '),
-    tertiaryText: game.parent_platforms?.map(p => p.platform.name).join(', '),
+    subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]]
+      .filter(Boolean)
+      .join(' • '),
+    tertiaryText: game.parent_platforms?.map((p) => p.platform.name).join(', '),
     rating: game.rating || undefined,
   };
 
@@ -320,7 +356,7 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
     item.details = {
       extendedData: {
         metacritic: game.metacritic.toString(),
-      }
+      },
     };
   }
 
@@ -367,9 +403,7 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   };
   public readonly searchOptions: FilterDefinition<RAWGDeveloper>[] = [];
   public readonly filters: FilterDefinition<RAWGDeveloper>[] = [];
-  public readonly sortOptions = [
-    rawgDevSorts.create({ id: 'relevance', label: 'Relevance' }),
-  ];
+  public readonly sortOptions = [rawgDevSorts.create({ id: 'relevance', label: 'Relevance' })];
 
   public readonly defaultTestQueries = nonEmpty('Ubisoft', 'Nintendo');
   public readonly testDetailsIds = nonEmpty(UBISOFT_ID, NINTENDO_ID);
@@ -387,10 +421,19 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   });
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<RAWGDeveloper>> => {
-    return this.provider.searchEntities<RAWGDeveloper>(params, this.searchOptions, '/developers', RAWGDeveloperSchema, (dev) => mapDeveloperToItem(dev, this.provider.id));
+    return this.provider.searchEntities<RAWGDeveloper>(
+      params,
+      this.searchOptions,
+      '/developers',
+      RAWGDeveloperSchema,
+      (dev) => mapDeveloperToItem(dev, this.provider.id),
+    );
   };
 
-  public readonly getNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
+  public readonly getNextParams = (
+    params: SearchParams,
+    result: SearchResult,
+  ): SearchParams | null => {
     if (!result.pagination.hasNextPage) return null;
     return { ...params, page: (params.page || 1) + 1 };
   };
@@ -401,11 +444,18 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     return { ...params, page: currentPage - 1 };
   };
 
-  public readonly getDetails = async (dbId: string, options?: { signal?: AbortSignal }): Promise<ItemDetails> => {
+  public readonly getDetails = async (
+    dbId: string,
+    options?: { signal?: AbortSignal },
+  ): Promise<ItemDetails> => {
     try {
-      const rawData = await this.provider.fetchRawg<unknown>(`/developers/${dbId}`, {}, { signal: options?.signal });
+      const rawData = await this.provider.fetchRawg<unknown>(
+        `/developers/${dbId}`,
+        {},
+        { signal: options?.signal },
+      );
       const dev = RAWGDeveloperSchema.parse(rawData);
-      
+
       const item = mapDeveloperToItem(dev, this.provider.id);
 
       const details: ItemDetails = {
@@ -470,13 +520,13 @@ export class RAWGDatabaseProvider implements Provider {
     searchOptions: FilterDefinition<T>[],
     endpoint: string,
     schema: z.ZodType<T>,
-    mapper: (raw: T) => Item
+    mapper: (raw: T) => Item,
   ): Promise<SearchResult<T>> {
     try {
       const apiParams: Record<string, string> = {
         page: (params.page || 1).toString(),
         page_size: params.limit.toString(),
-        ...applyFilters(params.filters, searchOptions)
+        ...applyFilters(params.filters, searchOptions),
       };
 
       if (params.query) {
@@ -484,12 +534,15 @@ export class RAWGDatabaseProvider implements Provider {
       }
 
       if (params.sort && params.sort !== 'relevance') {
-        apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
+        apiParams.ordering =
+          params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;
       }
 
-      const data = await this.fetchRawg<RAWGListResponse<unknown>>(endpoint, apiParams, { signal: params.signal });
+      const data = await this.fetchRawg<RAWGListResponse<unknown>>(endpoint, apiParams, {
+        signal: params.signal,
+      });
       const parsedResults = z.array(schema).parse(data.results);
-      const items = parsedResults.map(item => mapper(item));
+      const items = parsedResults.map((item) => mapper(item));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / params.limit);
@@ -523,16 +576,15 @@ export class RAWGDatabaseProvider implements Provider {
   public async fetchRawg<T>(
     endpoint: string,
     params: Record<string, string> = {},
-    options?: { signal?: AbortSignal }
+    options?: { signal?: AbortSignal },
   ): Promise<T> {
     const query = new URLSearchParams(params);
     query.append('key', this.apiKey);
 
-    return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`, { signal: options?.signal });
+    return this.fetcher<T>(`${RAWG_BASE_URL}${endpoint}?${query.toString()}`, {
+      signal: options?.signal,
+    });
   }
 
-  public readonly entities = [
-    new RAWGGameEntity(this),
-    new RAWGDeveloperEntity(this)
-  ] as const;
+  public readonly entities = [new RAWGGameEntity(this), new RAWGDeveloperEntity(this)] as const;
 }

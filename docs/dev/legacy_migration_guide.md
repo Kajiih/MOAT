@@ -11,30 +11,34 @@ This document outlines the patterns and steps for porting legacy services from `
 ## Mapping Patterns
 
 ### 1. Identify Entity Types
+
 In V1, a service often handled multiple media types (e.g., `MusicService` handled `album`, `artist`, `song`). In V2, these should be separate `DatabaseEntity` objects within a single `DatabaseProvider`.
 
 ### 2. Parameter Mapping
+
 Map V1 `SearchOptions` to V2 `SearchParams`.
 
-| V1 Option | V2 SearchParam | Notes |
-|-----------|----------------|-------|
-| `page` | `page` | Standard |
-| `filters` | `filters` | Use `applyFilters` utility |
-| `sort` | `sort` | Map to V2 `SortOption` |
+| V1 Option | V2 SearchParam | Notes                      |
+| --------- | -------------- | -------------------------- |
+| `page`    | `page`         | Standard                   |
+| `filters` | `filters`      | Use `applyFilters` utility |
+| `sort`    | `sort`         | Map to V2 `SortOption`     |
 
 ### 3. Response Mapping
+
 Convert V1 `BaseMediaItem` to V2 `Item`.
 
-| V1 Field | V2 Field | Notes |
-|----------|----------|-------|
-| `id` | `identity.dbId` | Local ID from the API |
-| `mbid` | `extendedData.mbid` | Store as metadata if needed |
-| `type` | `identity.entityId` | e.g. 'album', 'movie' |
-| `imageUrl`| `images` | Use `urlImage()` or `referenceImage()` |
-| `artist` | `subtitle` | Generalize to subtitle |
-| `year` | `subtertText` | or `tertiaryText` |
+| V1 Field   | V2 Field            | Notes                                  |
+| ---------- | ------------------- | -------------------------------------- |
+| `id`       | `identity.dbId`     | Local ID from the API                  |
+| `mbid`     | `extendedData.mbid` | Store as metadata if needed            |
+| `type`     | `identity.entityId` | e.g. 'album', 'movie'                  |
+| `imageUrl` | `images`            | Use `urlImage()` or `referenceImage()` |
+| `artist`   | `subtitle`          | Generalize to subtitle                 |
+| `year`     | `subtertText`       | or `tertiaryText`                      |
 
 ### 4. Detail Resolution
+
 Legacy services often fetched details during search. V2 separates these into `search()` (shallow) and `getDetails()` (deep).
 
 ## Implementation Checklist
