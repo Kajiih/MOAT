@@ -135,6 +135,7 @@ function handleMoveBetweenContainers(
  * RTK Case Reducer for moving an item within a tier or between tiers.
  * @param state - The draft state provided by Immer.
  * @param action - The RTK PayloadAction containing MoveItemPayload.
+ * @returns Mutates the state directly via Immer.
  */
 export function handleMoveItem(state: TierListState, action: PayloadAction<MoveItemPayload>): void {
   const payload = action.payload;

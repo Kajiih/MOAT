@@ -476,13 +476,12 @@ export class RAWGDatabaseProvider implements Provider {
       const apiParams: Record<string, string> = {
         page: (params.page || 1).toString(),
         page_size: params.limit.toString(),
+        ...applyFilters(params.filters, searchOptions)
       };
 
       if (params.query) {
         apiParams.search = params.query;
       }
-
-      applyFilters(apiParams, params.filters, searchOptions);
 
       if (params.sort && params.sort !== 'relevance') {
         apiParams.ordering = params.sortDirection === SortDirection.DESC ? `-${params.sort}` : params.sort;

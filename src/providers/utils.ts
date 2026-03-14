@@ -8,7 +8,7 @@ import { fromZodError } from 'zod-validation-error';
 
 import { EntityLink } from '@/items/items';
 import { isObject } from '@/lib/type-guards';
-import { BaseFilterDefinition, FilterValues } from '@/search/filter-schemas';
+import { FilterDefinition, FilterValues } from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
 
@@ -75,47 +75,95 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
 }
 
 /**
+ * Helper to process the result of a filter transform function
+ * @param apiParams - The mutating object that receives API parameters
+ * @param transformed - The result returned from the filter's transform function
+ * @param mapTo - Optional direct mapping key for primitive results
+ */
+function processTransformResult(apiParams: Record<string, string>, transformed: unknown, mapTo?: string) {
+  // If transform returns an object (and not an array), we merge it into apiParams (for complex mappings)
+  if (isObject(transformed) && !Array.isArray(transformed)) {
+    for (const [key, val] of Object.entries(transformed)) {
+      if (val !== undefined && val !== null) {
+        apiParams[key] = String(val);
+      }
+    }
+  } 
+  // If transform returns a primitive (or array) and we have mapTo, we use it
+  else if (mapTo && transformed !== undefined && transformed !== null) {
+    apiParams[mapTo] = String(transformed);
+  }
+}
+
+/**
+ * Helper to strongly type the filter payload mapping natively.
+ * @param def - The specific FilterDefinition being applied
+ * @param rawValue - The unparsed value straight from SearchParams
+ * @returns The transformed payload
+ */
+function applyTransform<TRaw>(def: FilterDefinition<TRaw>, rawValue: NonNullable<FilterValues[string]>): unknown {
+  switch (def.type) {
+    case 'text':
+    case 'select':
+    case 'async-select':
+    case 'date': {
+      return def.transform?.(String(rawValue));
+    }
+    case 'number': {
+      return def.transform?.(Number(rawValue));
+    }
+    case 'boolean': {
+      const parsedBool = rawValue === 'false' ? false : Boolean(rawValue);
+      return def.transform?.(parsedBool);
+    }
+    case 'multiselect':
+    case 'async-multiselect': {
+      const arr = Array.isArray(rawValue) ? rawValue : [rawValue];
+      return def.transform?.(arr.map(String));
+    }
+    case 'range': {
+      const rangeVal = isObject(rawValue) ? (rawValue as { min?: string; max?: string }) : {};
+      return def.transform?.(rangeVal);
+    }
+    default: {
+      return undefined;
+    }
+  }
+}
+
+/**
  * Automates the mapping of UI filter values to API parameters based on FilterDefinitions.
- * @param apiParams - The object to populate with API parameters.
  * @param filterValues - The current filter values from SearchParams.
  * @param definitions - The list of FilterDefinitions for the entity.
+ * @returns A new record containing the mapped API parameters.
  */
 export function applyFilters<TRaw>(
-  apiParams: Record<string, string>,
   filterValues: FilterValues | undefined,
-  definitions: BaseFilterDefinition<unknown, TRaw>[]
-): void {
+  definitions: FilterDefinition<TRaw>[]
+): Record<string, string> {
+  const apiParams: Record<string, string> = {};
   const values = filterValues || {};
+  
   for (const def of definitions) {
     // Skip if there's no mapping defined
     if (!def.mapTo && !def.transform) continue;
 
-    const value = values[def.id];
+    const rawValue = values[def.id];
     
     // Skip if value is "empty" (null, undefined, or empty string)
-    if (value === undefined || value === null || value === '') continue;
+    if (rawValue === undefined || rawValue === null || rawValue === '') continue;
 
     if (def.transform) {
-      const transformed = def.transform(value);
-      
-      // If transform returns an object, we merge it into apiParams (for complex mappings)
-      if (typeof transformed === 'object' && transformed !== null) {
-        Object.entries(transformed).forEach(([key, val]) => {
-          if (val !== undefined && val !== null) {
-            apiParams[key] = String(val);
-          }
-        });
-      } 
-      // If transform returns a primitive and we have mapTo, we use it
-      else if (def.mapTo && transformed !== undefined && transformed !== null) {
-        apiParams[def.mapTo] = String(transformed);
-      }
+      const transformed = applyTransform(def, rawValue);
+      processTransformResult(apiParams, transformed, def.mapTo);
     } 
     // Simple direct mapping
     else if (def.mapTo) {
-      apiParams[def.mapTo] = String(value);
+      apiParams[def.mapTo] = String(rawValue);
     }
   }
+  
+  return apiParams;
 }
 
 /**
