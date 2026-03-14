@@ -104,4 +104,80 @@ test.describe('Item Management', () => {
     // The notes indicator badge should now be visible on the card
     await expect(card1.getByTestId('notes-indicator').first()).toBeVisible({ timeout: 10_000 });
   });
+  test('should move and reorder items via Keyboard', async ({ page, boardPage }) => {
+    // Both items are in Tier S.
+    // [ First Item (item-1) ] [ Second Item (item-2) ]
+    const tierS = page.locator('[data-tier-label="S"]');
+    const cards = tierS.getByTestId(/^item-card-/);
+
+    // Initial state check
+    await expect(cards).toHaveCount(2);
+    await expect(cards.nth(0)).toContainText('First Item');
+    await expect(cards.nth(1)).toContainText('Second Item');
+
+    // 1. Focus on the second item
+    const item2 = boardPage.getItemCard('item-2');
+    await item2.focus();
+    
+    // 2. Lift the item using Space
+    await page.keyboard.press('Space');
+    // Give state a moment to update the opacity/aria-selected
+    await page.waitForTimeout(100);
+    await expect(item2).toHaveAttribute('aria-selected', 'true');
+
+    // 3. Move it left using ArrowLeft (before item-1)
+    await page.keyboard.press('ArrowLeft');
+    await page.waitForTimeout(200); // Allow Redux processing
+
+    // Expect order to have swapped
+    await expect(cards.nth(0)).toContainText('Second Item');
+    await expect(cards.nth(1)).toContainText('First Item');
+
+    // 4. Drop the item using Space
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(100);
+    
+    // Verify changes persisted via UI
+    await expect(item2).toHaveAttribute('aria-selected', 'false');
+    await expect(cards.nth(0)).toContainText('Second Item');
+  });
+
+  test('should move items vertically between tiers via Keyboard', async ({ page, boardPage }) => {
+    // Both items are in Tier S.
+    const tierS = page.locator('[data-tier-label="S"]');
+    const tierA = page.locator('[data-tier-label="A"]');
+    
+    // 1. Focus on item-1
+    const item1 = boardPage.getItemCard('item-1');
+    await item1.focus();
+    
+    // 2. Lift the item using Space
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(100);
+    await expect(item1).toHaveAttribute('aria-selected', 'true');
+
+    // 3. Move it down securely using ArrowDown (should go from S to A)
+    await page.keyboard.press('ArrowDown');
+    await page.waitForTimeout(200);
+
+    // 4. Drop the item using Space
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(100);
+
+    // Verify it moved to Tier A
+    await boardPage.expectItemInTier('item-1', 'A');
+    await expect(item1).toHaveAttribute('aria-selected', 'false');
+
+    // 5. Move it back up using ArrowUp (should go from A to S)
+    await item1.focus();
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(100);
+    await page.keyboard.press('ArrowUp');
+    await page.waitForTimeout(200);
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(100);
+
+    // Verify it moved back to Tier S
+    await boardPage.expectItemInTier('item-1', 'S');
+  });
 });

@@ -6,10 +6,11 @@
  */
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { BoardDispatch, removeItem, updateItem, updateTitle } from '@/board/state/reducer';
+import { BoardDispatch, moveItem, removeItem, updateItem, updateTitle } from '@/board/state/reducer';
 import { TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { fromSearchId } from '@/lib/ids';
+import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
 
 /**
  * Props for the useTierListNamespaces hook.
@@ -109,6 +110,14 @@ export function useTierListNamespaces({
     [dispatch],
   );
 
+  const handleMoveItem = useCallback(
+    (payload: { activeId: string; overId: string; activeItem?: Item; edge?: Edge | null }) => {
+      history.push();
+      dispatch(moveItem(payload));
+    },
+    [dispatch, history],
+  );
+
   // Namespace: actions
   const actions = useMemo(
     () => ({
@@ -124,6 +133,7 @@ export function useTierListNamespaces({
       import: ioRaw.handleImport,
       export: ioRaw.handleExport,
       resetItems: structureRaw.handleResetItems,
+      moveItem: handleMoveItem,
     }),
     [
       structureRaw,
@@ -132,6 +142,7 @@ export function useTierListNamespaces({
       removeItemFromTier,
       utilsRaw.handleLocate,
       ioRaw,
+      handleMoveItem,
     ],
   );
 

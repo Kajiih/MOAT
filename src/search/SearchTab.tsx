@@ -81,7 +81,7 @@ export function SearchTab({
     if (isLoading) {
       return (
         <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
-          <div className="flex flex-wrap justify-center gap-2">
+          <div role="listbox" aria-label="Search Results" className="flex flex-wrap justify-center gap-2">
             {Array.from({ length: 15 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -93,7 +93,7 @@ export function SearchTab({
     if (finalResults.length > 0) {
       return (
         <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
-          <div className="flex flex-wrap justify-center gap-2">
+          <div role="listbox" aria-label="Search Results" className="flex flex-wrap justify-center gap-2">
             {finalResults.map((item) => {
               const isAdded = addedItemIds.has(item.id);
               return (

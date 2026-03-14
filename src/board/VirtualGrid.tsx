@@ -94,6 +94,8 @@ export function VirtualGrid<T>({
   return (
     <div
       ref={parentRef}
+      role="listbox"
+      aria-label="Tier Grid"
       className={`custom-scrollbar h-full min-h-0 w-full overflow-y-auto ${className}`}
       style={{ padding: padding }}
     >

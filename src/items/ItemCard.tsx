@@ -13,6 +13,7 @@ import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+import { useTierListContext } from '@/board/context';
 import { Item } from '@/items/items';
 import { InteractionContext } from '@/lib/ui/InteractionContext';
 import { registry } from '@/providers/registry';
@@ -104,6 +105,11 @@ export function ItemCard({
   const interactionContext = useContext(InteractionContext);
   const setHoveredItem = interactionContext?.setHoveredItem;
 
+  // 3. Fallback Keyboard State if Pragmatic DnD core fails to mount key events
+  const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
+  const tierListContext = useTierListContext();
+  const actions = tierListContext?.actions;
+
   useEffect(() => {
     const el = ref.current;
     if (!el || isExport) return;
@@ -136,7 +142,7 @@ export function ItemCard({
     };
   }, [item, tierId, isExport]);
 
-  const activeDragging = isDragging || isDraggingLocal;
+  const activeDragging = isDragging || isDraggingLocal || isKeyboardDragging;
 
   const style: React.CSSProperties = {
     opacity: activeDragging ? 0.4 : 1,
@@ -146,11 +152,78 @@ export function ItemCard({
   return (
     <div
       ref={ref}
+      role="option"
+      aria-selected={activeDragging}
       tabIndex={0}
       onMouseEnter={() => setHoveredItem?.(item)}
       onMouseLeave={() => setHoveredItem?.(null)}
       onFocus={() => setHoveredItem?.(item)}
-      onBlur={() => setHoveredItem?.(null)}
+      onBlur={() => {
+        setHoveredItem?.(null);
+        setIsKeyboardDragging(false);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          setIsKeyboardDragging((prev) => !prev);
+          return;
+        }
+        
+        if (!isKeyboardDragging || !actions) return;
+        
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const currentTier = ref.current?.closest('[data-tier-id]');
+          if (!currentTier) return;
+          
+          const isUp = e.key === 'ArrowUp';
+          const targetTier = isUp 
+            ? currentTier.previousElementSibling 
+            : currentTier.nextElementSibling;
+            
+          if (targetTier && targetTier.hasAttribute('data-tier-id')) {
+            const overTierId = targetTier.getAttribute('data-tier-id');
+            if (overTierId) {
+              actions.moveItem({
+                activeId: item.id,
+                overId: overTierId,
+                activeItem: item,
+              });
+              
+              setTimeout(() => {
+                ref.current?.focus();
+              }, 10);
+            }
+          }
+          return;
+        }
+
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const isRight = e.key === 'ArrowRight';
+          const targetEl = isRight 
+            ? ref.current?.nextElementSibling 
+            : ref.current?.previousElementSibling;
+            
+          if (targetEl && targetEl.hasAttribute('data-testid')) {
+            const targetIdAttr = targetEl.getAttribute('data-testid');
+            const overId = targetIdAttr?.replace('item-card-', '');
+            if (overId) {
+              actions.moveItem({
+                activeId: item.id,
+                overId,
+                activeItem: item,
+                edge: isRight ? 'right' : 'left'
+              });
+              
+              // Refocus item so they can chain moves
+              setTimeout(() => {
+                ref.current?.focus();
+              }, 10);
+            }
+          }
+        }
+      }}
       style={style}
       data-testid={`item-card-${item.id}`}
       className={twMerge(
@@ -211,6 +284,7 @@ export function ItemCard({
               }}
               className="flex h-5 w-5 items-center justify-center rounded-full bg-red-600/90 text-white hover:bg-red-500"
               title="Remove"
+              tabIndex={-1}
             >
               <X size={12} />
             </button>
@@ -223,6 +297,7 @@ export function ItemCard({
               }}
               className="flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
               title="Details"
+              tabIndex={-1}
             >
               <Info size={12} />
             </button>

@@ -24,6 +24,7 @@ import { TierDefinition, TierListState, TierUpdate } from '@/board/types';
 import { Item, ItemUpdate } from '@/items/items';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 import { usePersistentReducer } from '@/storage/usePersistentReducer';
+import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -46,6 +47,7 @@ interface TierListContextType {
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
     export: () => void;
     publish: () => Promise<string | null>;
+    moveItem: (payload: { activeId: string; overId: string; activeItem?: Item; edge?: Edge | null }) => void;
   };
   dragState: {
     activeItem: Item | null;

@@ -125,6 +125,8 @@ export const TierRow = memo(function TierRow({
 
       {/* Items Column */}
       <div
+        role="listbox"
+        aria-label={`Tier ${tier.label}`}
         className="relative flex min-h-[100px] min-w-0 flex-1 flex-col"
         data-testid="tier-drop-zone"
       >
