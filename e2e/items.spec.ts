@@ -10,8 +10,8 @@ test.describe('Item Management', () => {
 
     // Setup: Add two items to tier S
     await mockSearchResults(page, [
-      { id: 'item-1', title: 'First Item', type: 'song', artist: 'Artist 1' },
-      { id: 'item-2', title: 'Second Item', type: 'song', artist: 'Artist 2' },
+      { id: 'item-1', title: 'First Item', type: 'game', developer: 'Artist 1' },
+      { id: 'item-2', title: 'Second Item', type: 'game', developer: 'Artist 2' },
     ]);
 
     await searchPanel.search('Setup');
@@ -34,8 +34,8 @@ test.describe('Item Management', () => {
     await mockItemDetails(page, {
       id: 'item-1',
       title: 'First Item',
-      type: 'song',
-      artist: 'Artist 1',
+      type: 'game',
+      developer: 'Artist 1',
       description: 'A very detailed description',
     });
 
@@ -81,8 +81,8 @@ test.describe('Item Management', () => {
     await mockItemDetails(page, {
       id: 'item-1',
       title: 'First Item',
-      type: 'song',
-      artist: 'Artist 1',
+      type: 'game',
+      developer: 'Artist 1',
       description: 'A very detailed description',
     });
 

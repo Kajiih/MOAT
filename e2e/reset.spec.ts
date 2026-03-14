@@ -60,8 +60,7 @@ test.describe('Board Reset and Clear Actions', () => {
     await expect(boardPage.getItemCard('item-3')).toBeVisible();
   });
 
-  // Marked as skip because Playwright natively deadlocks on Radix Dropdowns + window.confirm() modals in certain headless configurations.
-  test.skip('should clear the entire board (all items gone)', async ({ boardPage }) => {
+  test('should clear the entire board (all items gone)', async ({ boardPage }) => {
     // Initial state: items present
     await boardPage.expectTierToHaveItemCount('S', 3);
 
@@ -76,9 +75,8 @@ test.describe('Board Reset and Clear Actions', () => {
     await expect(boardPage.tierLabels.first()).toHaveText('S');
   });
 
-  // Marked as skip because Playwright natively deadlocks on Radix Dropdowns + window.confirm() modals in certain headless configurations.
   // eslint-disable-next-line playwright/expect-expect
-  test.skip('should support undo for reset items', async ({ boardPage }) => {
+  test('should support undo for reset items', async ({ boardPage }) => {
     // Initial state
     await boardPage.resetItems();
     await boardPage.expectTierToHaveItemCount('Unranked', 3);

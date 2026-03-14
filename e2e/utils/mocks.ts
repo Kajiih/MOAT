@@ -21,7 +21,7 @@ export interface MockSearchItem {
   id: string;
   title: string;
   type: string;
-  artist?: string;
+  developer?: string;
   mbid?: string;
 }
 
@@ -64,7 +64,7 @@ export async function mockSearchResults(
 
       return {
         mbid: dbId,
-        subtitle: item.artist || 'Test Artist',
+        subtitle: item.developer || 'Test Developer',
         images: [],
         ...item,
         id: compositeId,
@@ -104,7 +104,7 @@ export async function mockItemDetails(page: Page, detail: MockItemDetail) {
 
   const normalised = {
     mbid: dbId,
-    subtitle: detail.artist || 'Test Artist',
+    subtitle: detail.developer || 'Test Developer',
     images: [],
     ...detail,
     id: compositeId,
@@ -145,7 +145,7 @@ export async function mockSearchDynamic(
 
         return {
           mbid: dbId,
-          subtitle: item.artist || 'Test Artist',
+          subtitle: item.developer || 'Test Developer',
           images: [],
           ...item,
           id: compositeId,

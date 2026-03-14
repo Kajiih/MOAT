@@ -119,7 +119,7 @@ export class BoardPage {
     await this.clearBoardButton.click();
     
     // Give Redux slightly more time to dispatch the layout changes
-    await expect(this.getTierRow('S')).toBeHidden({ timeout: 5000 });
+    await expect(this.getTierRow('S').getByTestId(/item-card-/)).toHaveCount(0, { timeout: 10_000 });
   }
 
   /**

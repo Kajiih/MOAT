@@ -8,7 +8,7 @@ test.describe('Search Functionality', () => {
     await boardPage.goto();
 
     await mockSearchResults(page, [
-      { id: 'item-1', title: 'Search Result', type: 'song', artist: 'Artist' },
+      { id: 'item-1', title: 'Search Result', type: 'game', developer: 'Developer' },
     ]);
 
     await searchPanel.switchTab('game');
@@ -30,7 +30,7 @@ test.describe('Search Functionality', () => {
       callCount++;
       const pageNum = url.searchParams.get('page') || '1';
       return {
-        results: [{ id: `item-p${pageNum}`, title: `Item Page ${pageNum}`, type: 'song' }],
+        results: [{ id: `item-p${pageNum}`, title: `Item Page ${pageNum}`, type: 'game' }],
         page: Number.parseInt(pageNum),
         totalPages: 2,
       };
@@ -52,7 +52,7 @@ test.describe('Search Functionality', () => {
     await boardPage.goto();
 
     // 1. Mock search to return one item
-    await mockSearchResults(page, [{ id: 'duplicate-1', title: 'Unique Item', type: 'song' }]);
+    await mockSearchResults(page, [{ id: 'duplicate-1', title: 'Unique Item', type: 'game' }]);
 
     await searchPanel.search('Unique');
 
