@@ -90,53 +90,26 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<RAWGGame>[] = [
       {
         value: true,
         query: 'The Watcher 3',
-        verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map((i) => i.id.toString());
-          // Precise: true should NOT return Witcher 3 for typo "The Watcher 3"
-          if (ids.includes(THE_WITCHER_3_ID)) {
-            throw new Error(
-              `Found Witcher 3 (${THE_WITCHER_3_ID}) in precise results for typo "The Watcher 3"`,
-            );
-          }
-        },
+        expectNone: (item: RAWGGame) => item.id.toString() === THE_WITCHER_3_ID,
+        message: `Found Witcher 3 (${THE_WITCHER_3_ID}) in precise results for typo "The Watcher 3"`,
       },
       {
         value: false,
         query: 'The Watcher 3',
-        verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map((i) => i.id.toString());
-          // Precise: false SHOULD return Witcher 3
-          if (!ids.includes(THE_WITCHER_3_ID)) {
-            throw new Error(
-              `Did NOT find Witcher 3 (${THE_WITCHER_3_ID}) in fuzzy results for typo "The Watcher 3"`,
-            );
-          }
-        },
+        expectSome: (item: RAWGGame) => item.id.toString() === THE_WITCHER_3_ID,
+        message: `Did NOT find Witcher 3 (${THE_WITCHER_3_ID}) in fuzzy results for typo "The Watcher 3"`,
       },
       {
         value: true,
         query: 'Elder Ring',
-        verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map((i) => i.id.toString());
-          // Elden Ring
-          if (ids.includes(ELDEN_RING_ID)) {
-            throw new Error(
-              `Found Elden Ring (${ELDEN_RING_ID}) in precise results for typo "Elder Ring"`,
-            );
-          }
-        },
+        expectNone: (item: RAWGGame) => item.id.toString() === ELDEN_RING_ID,
+        message: `Found Elden Ring (${ELDEN_RING_ID}) in precise results for typo "Elder Ring"`,
       },
       {
         value: false,
         query: 'Elder Ring',
-        verifyResults: (items: RAWGGame[]) => {
-          const ids = items.map((i) => i.id.toString());
-          if (!ids.includes(ELDEN_RING_ID)) {
-            throw new Error(
-              `Did NOT find Elden Ring (${ELDEN_RING_ID}) in fuzzy results for typo "Elder Ring"`,
-            );
-          }
-        },
+        expectSome: (item: RAWGGame) => item.id.toString() === ELDEN_RING_ID,
+        message: `Did NOT find Elden Ring (${ELDEN_RING_ID}) in fuzzy results for typo "Elder Ring"`,
       },
     ],
   }),
@@ -158,7 +131,7 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
     testCases: [
       {
         value: { min: '2020', max: '2022' },
-        match: (item: RAWGGame) => {
+        expectAll: (item: RAWGGame) => {
           if (!item.released) return false;
           const year = Number.parseInt(item.released.split('-')[0]);
           return year >= 2020 && year <= 2022;
@@ -180,7 +153,7 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
     testCases: [
       {
         value: '7', // Switch
-        match: (item: RAWGGame) =>
+        expectAll: (item: RAWGGame) =>
           item.platforms?.some((p: { platform: { id: number } }) => p.platform.id === 7) ?? false,
       },
     ],

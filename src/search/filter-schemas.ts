@@ -71,27 +71,57 @@ export const RangeValueSchema = z.object({
 // ---------------------------------------------------
 
 /**
- * A single test case for verifying a filter's behavior in integration tests.
- * Each test case specifies a filter value and optionally a query and verification logic.
+ * Base properties for a single test case verifying a filter's behavior.
  */
-export interface FilterTestCase<TValue = unknown, TRaw = unknown> {
-  /** Optional query to use with this filter test case */
+export interface BaseFilterTestCase<TValue = unknown, TRaw = unknown> {
+  /** Optional query string to search for alongside this filter value */
   query?: string;
   /** The value to apply to the filter in the UI/search state */
   value: TValue;
+  
   /**
-   * Optional per-item verification function.
-   * Receives the raw item returned by the database (Provider specific).
-   * Must return true if the item honors the filter value.
+   * Evaluates to true if ALL items in the result set passes this condition.
+   * Useful for strict filters where no outliers are acceptable (e.g. status: 'official').
    */
-  match?: (item: TRaw) => boolean;
+  expectAll?: (item: TRaw) => boolean;
+
   /**
-   * Optional verification function for the entire result set.
-   * Use this for aggregate assertions like "verify ID X is not in results".
-   * Receives the full array of raw items.
+   * Evaluates to true if AT LEAST ONE item in the result set passes this condition.
+   * Useful for arrays or broad matches (e.g. ensuring an artist credit is present somewhere).
    */
-  verifyResults?: (items: TRaw[]) => void;
+  expectSome?: (item: TRaw) => boolean;
+
+  /**
+   * Evaluates to true if NO items in the result set pass this condition.
+   * Useful for negative assertions (e.g. precise search should exclude a specific typo result).
+   */
+  expectNone?: (item: TRaw) => boolean;
+
+  /**
+   * Custom hook to inspect the entire raw array payload collectively.
+   * Should only be used for complex assertions that cannot be expressed with expectAll, expectSome, or expectNone.
+   */
+  expectAggregate?: (items: TRaw[]) => void;
+
+  /**
+   * Custom error message to display if the test case fails.
+   */
+  message?: string;
 }
+
+/**
+ * A test case for verifying a filter's behavior in integration tests.
+ * Enforces at the TypeScript level that at least one verification predicate
+ * (expectEvery, expectSome, or expectAggregate) is defined.
+ */
+export type FilterTestCase<TValue = unknown, TRaw = unknown> = 
+  BaseFilterTestCase<TValue, TRaw> &
+  (
+    | { expectAll: Exclude<BaseFilterTestCase<TValue, TRaw>['expectAll'], undefined> }
+    | { expectSome: Exclude<BaseFilterTestCase<TValue, TRaw>['expectSome'], undefined> }
+    | { expectNone: Exclude<BaseFilterTestCase<TValue, TRaw>['expectNone'], undefined> }
+    | { expectAggregate: Exclude<BaseFilterTestCase<TValue, TRaw>['expectAggregate'], undefined> }
+  );
 
 /**
  * Definition for a filter that the UI should render.

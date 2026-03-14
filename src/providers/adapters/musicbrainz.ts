@@ -13,7 +13,7 @@ import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
-import { createFilterSuite, FilterDefinition } from '@/search/filter-schemas';
+import { createFilterSuite, FilterDefinition, FilterTestCase } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite } from '@/search/sort-schemas';
 
@@ -261,9 +261,10 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
   public readonly edgeShortQuery = 'zzzzzzzzzzz';
 
   public constructor(private provider: MusicBrainzDatabaseProvider) {
-    const typeCase = (label: string, value: string) => ({
+    const typeCase = (expectedType: string, value: string): FilterTestCase<string, MBReleaseGroup> => ({
       value,
-      label,
+      expectAll: (album) => album['primary-type']?.toLowerCase() === expectedType.toLowerCase(),
+      message: `Expected all albums to have primary-type "${expectedType}"`
     });
 
     this.filters = [
@@ -288,6 +289,13 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
           {
             value: 'Michael Jackson',
             query: 'Thriller',
+            expectSome: (album) => {
+              return album['artist-credit']?.some((credit) => 
+                credit.name.toLowerCase().includes('michael jackson') || 
+                credit.artist?.name.toLowerCase().includes('michael jackson')
+              ) ?? false;
+            },
+            message: 'Could not find Michael Jackson in the Thriller results',
           },
         ],
       }),
@@ -304,6 +312,11 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
         testCases: [
           {
             value: 'official',
+            expectAll: (album: MBReleaseGroup) => {
+              const releases = (album as MBReleaseGroup & { releases?: { status?: string | null }[] }).releases;
+              return releases?.some((r) => r.status?.toLowerCase() === 'official') ?? true;
+            },
+            message: 'Expected all albums to have official status in one of their releases',
           },
         ],
       }),
@@ -453,7 +466,13 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
           { label: 'Character', value: 'character' },
           { label: 'Other', value: 'other' },
         ],
-        testCases: [{ value: 'group' }],
+        testCases: [
+          { 
+            value: 'group', 
+            expectAll: (artist: MBArtist) => artist.type?.toLowerCase() === 'group',
+            message: 'Expected all matching artists to have type "group"',
+          }
+        ],
       }),
       mbArtistFilters.text({
         id: 'country',
@@ -463,6 +482,8 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
           {
             value: 'GB',
             query: 'Radiohead',
+            expectAll: (artist: MBArtist) => artist.country?.toLowerCase() === 'gb',
+            message: 'Expected all matching artists to be from country GB',
           },
         ],
       }),
@@ -592,6 +613,13 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
           {
             value: 'Radiohead',
             query: 'Creep',
+            expectSome: (recording: MBRecording) => {
+              return recording['artist-credit']?.some((credit) => 
+                credit.name.toLowerCase().includes('radiohead') || 
+                credit.artist?.name.toLowerCase().includes('radiohead')
+              ) ?? false;
+            },
+            message: 'Could not find Radiohead in the Creep recording results',
           },
         ],
       }),
@@ -603,6 +631,10 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
           {
             value: 'Pablo Honey',
             query: 'Creep',
+            expectSome: (recording: MBRecording) => {
+              return recording.releases?.some((r) => r.title.toLowerCase().includes('pablo honey')) ?? false;
+            },
+            message: 'Could not find Pablo Honey in the Creep recording results',
           },
         ],
       }),
@@ -615,6 +647,8 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
           {
             value: true,
             query: 'Thriller',
+            expectAll: (recording: MBRecording) => recording.video === true,
+            message: 'Expected all recordings to be video=true',
           },
         ],
       }),

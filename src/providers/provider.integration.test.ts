@@ -184,16 +184,34 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                       `Filter ${filter.id} for value ${JSON.stringify(value)} returned no results.`,
                     ).toBeGreaterThan(0);
 
-                    if (testCase.match) {
+                    if ('expectAll' in testCase && testCase.expectAll) {
                       items.forEach((item, i) => {
                         expect(
-                          testCase.match!(item),
-                          `Item at index ${i} did not match filter ${filter.id}`,
+                          testCase.expectAll!(item),
+                          testCase.message || `Item at index ${i} did not match expectAll for filter ${filter.id}`,
                         ).toBe(true);
                       });
                     }
 
-                    testCase.verifyResults?.(items);
+                    if ('expectSome' in testCase && testCase.expectSome) {
+                      const hasMatch = items.some((item) => testCase.expectSome!(item));
+                      expect(
+                        hasMatch,
+                        testCase.message || `Filter ${filter.id} expectSome failed: No items matched the condition.`,
+                      ).toBe(true);
+                    }
+
+                    if ('expectNone' in testCase && testCase.expectNone) {
+                      const hasMatch = items.some((item) => testCase.expectNone!(item));
+                      expect(
+                        hasMatch,
+                        testCase.message || `Filter ${filter.id} expectNone failed: One or more items incorrectly matched the condition.`,
+                      ).toBe(false);
+                    }
+
+                    if ('expectAggregate' in testCase && testCase.expectAggregate) {
+                      testCase.expectAggregate(items);
+                    }
                   });
                 });
               });
