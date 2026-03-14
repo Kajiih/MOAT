@@ -1,6 +1,6 @@
 # 🏰 Moat
 
-**Moat** is a premium, high-performance universal media tier list builder. It combines a seamless drag-and-drop experience with a strictly-typed, pluggable **Generic Provider Architecture** capable of deeply enriching metadata from any external API (RAWG, TMDB, MusicBrainz, etc.).
+**Moat** is a premium, high-performance universal media tier list builder. It combines a seamless drag-and-drop experience with a strictly-typed, pluggable **Generic Provider Architecture** capable of deeply enriching metadata from any external API (e.g., RAWG for video games).
 
 ## ✨ Key Features
 
@@ -56,10 +56,19 @@ To update visual snapshots after intentional UI changes:
 npx playwright test --update-snapshots
 ```
 
-## 📐 Documentation
+## 🗂️ Directory Structure
 
-Detailed engineering documentation is available in the `docs/` directory:
-- [Testing & Diagnostics](docs/TESTING.md)
-- [Provider Data Architecture](docs/PROVIDERS.md)
-- [Directory Structure](docs/DIRECTORY_STRUCTURE.md)
-- [Glossary](docs/GLOSSARY.md)
+Global project terminology is maintained in [`docs/GLOSSARY.md`](docs/GLOSSARY.md).
+
+Rather than centralized documentation, each core domain maintains its own local `README.md` explaining its constraints, architectures, and guidelines.
+
+*   [`e2e/`](./e2e/README.md) - Playwright End-to-End Tests & Critical User Journeys (CUJs)
+*   [`src/app/`](./src/app/README.md) - The Next.js Application Shell (Routes & Global UI)
+*   [`src/board/`](./src/board/README.md) - The Work Surface (Tier Grid, Drag & Drop, Redux)
+*   [`src/items/`](./src/items/README.md) - The Content Primitive (Universal Models, Image Caching)
+*   [`src/search/`](./src/search/README.md) - The Discovery Engine (Filters, Sorting, Panels)
+*   [`src/providers/`](./src/providers/README.md) - The Generic Provider Architecture (Adapters, Live APIs)
+*   [`src/storage/`](./src/storage/README.md) - IndexedDB Persistence Hub
+*   [`src/lib/`](./src/lib/README.md) - Shared Infrastructure (Generic UI, Tools)
+*   [`src/test/`](./src/test/README.md) - Diagnostics Engine (MSW, Guardrails)
+

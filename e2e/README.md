@@ -1,4 +1,10 @@
-# Main CUJs
+# `/e2e` - End-to-End Testing
+
+This domain houses the Playwright End-to-End (E2E) testing suite. It operates functionally as a black-box tester, interacting with the application via simulated browser events rather than internal React internals.
+
+## Critical User Journeys (CUJs)
+
+The automated tests within this directory aim to perfectly replicate the following critical human paths securely across Chromium and Firefox:
 
 - Open the app and see the default board
 
