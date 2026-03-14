@@ -13,6 +13,11 @@ import { SortDefinition } from '@/search/sort-schemas';
 import { RequestOptions } from './api-client';
 
 /**
+ * Standard default page limit for fetching items from providers.
+ */
+export const DEFAULT_PAGE_LIMIT = 20;
+
+/**
  * A utility type for arrays that must contain at least one element.
  */
 export type NonEmptyArray<T> = readonly [T, ...T[]];

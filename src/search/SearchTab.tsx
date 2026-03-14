@@ -12,6 +12,7 @@ import { ItemCard } from '@/items/ItemCard';
 import { Item } from '@/items/items';
 import { SkeletonCard } from '@/items/SkeletonCard';
 import { registry } from '@/providers/registry';
+import { DEFAULT_PAGE_LIMIT } from '@/providers/types';
 import { SearchParams } from '@/search/search-schemas';
 import { isSortReversible, SortDirection } from '@/search/sort-schemas';
 import { SortDropdown } from '@/search/SortDropdown';
@@ -55,7 +56,7 @@ export function SearchTab({
   // Use a unified params state initialized by the entity
   // We use PaginationStrategy union here because we don't know the specific one until the entity is resolved.
   const [params, setParams] = useState<SearchParams>(() => 
-    entity?.getInitialParams({ limit: 20 }) || { query: '', filters: {}, limit: 20 }
+    entity?.getInitialParams({ limit: DEFAULT_PAGE_LIMIT }) || { query: '', filters: {}, limit: DEFAULT_PAGE_LIMIT }
   );
   
   const [showFilters, setShowFilters] = useState(false);

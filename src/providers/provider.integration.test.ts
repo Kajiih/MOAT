@@ -4,7 +4,7 @@ import '@/providers/bootstrap';
 import { afterAll,beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { registry } from '@/providers/registry';
-import { ProviderStatus } from '@/providers/types';
+import { DEFAULT_PAGE_LIMIT, ProviderStatus } from '@/providers/types';
 import { FilterTestCase } from '@/search/filter-schemas';
 import { SortDirection } from '@/search/sort-schemas';
 
@@ -99,7 +99,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                     filters: {},
                     sort: sortOpt.id,
                     sortDirection: defaultDir,
-                    limit: 10
+                    limit: DEFAULT_PAGE_LIMIT
                   });
 
                   const items = res.raw || [];
@@ -113,7 +113,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                       filters: {},
                       sort: sortOpt.id,
                       sortDirection: altDir,
-                      limit: 10
+                      limit: DEFAULT_PAGE_LIMIT
                     });
 
                     const altItems = altRes.raw || [];
@@ -134,7 +134,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                     const res = await entity.search({
                       query,
                       filters: { [filter.id]: value },
-                      limit: 10
+                      limit: DEFAULT_PAGE_LIMIT
                     });
 
                     const items = res.raw || [];
@@ -230,7 +230,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
              
              describe('Boundary Pagination', () => {
                it('should safely exhaust a short query until reaching the absolute API boundary limit', async () => {
-                 const initialParams = entity.getInitialParams({ limit: 10 });
+                 const initialParams = entity.getInitialParams({ limit: DEFAULT_PAGE_LIMIT });
                  let currentParams = { ...initialParams, query: entity.edgeShortQuery };
                  
                  let pageCount = 0;

@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/images';
 import { RAWGDatabaseProvider } from '@/providers/adapters/rawg';
-import { Entity, nonEmpty,Provider, ProviderStatus } from '@/providers/types';
+import { DEFAULT_PAGE_LIMIT, Entity, nonEmpty, Provider, ProviderStatus } from '@/providers/types';
 import { FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchParamsSchema, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { SortDirection } from '@/search/sort-schemas';
@@ -111,7 +111,7 @@ describe('Provider Design', () => {
       await registry.register(RAWGDatabase);
       const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
       
-      await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: 10 });
+      await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: DEFAULT_PAGE_LIMIT });
       expect(mockFetcher).toHaveBeenCalled();
     });
 
