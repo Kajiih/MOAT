@@ -141,8 +141,7 @@ test.describe('Item Management', () => {
 
   test('should move items vertically between tiers via Keyboard', async ({ page, boardPage }) => {
     // Both items are in Tier S.
-    const tierS = page.locator('[data-tier-label="S"]');
-    const tierA = page.locator('[data-tier-label="A"]');
+
 
     // 1. Focus on item-1
     const item1 = boardPage.getItemCard('item-1');

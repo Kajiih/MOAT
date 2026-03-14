@@ -163,6 +163,93 @@ export function ItemCard({
     zIndex: activeDragging ? 1000 : 1,
   };
 
+  const handleToggleDrag = () => {
+    if (tierId) {
+      setActiveKeyboardDragId?.(isKeyboardDragging ? null : { itemId: item.id, tierId });
+    }
+  };
+
+  const handleCancelDrag = () => {
+    if (isKeyboardDragging) {
+      setActiveKeyboardDragId?.(null);
+    }
+  };
+
+  const handleVerticalMove = (isUp: boolean, currentTier: HTMLElement) => {
+    const targetTier = isUp
+      ? currentTier.previousElementSibling
+      : currentTier.nextElementSibling;
+
+    if (targetTier instanceof HTMLElement && Object.hasOwn(targetTier.dataset, 'tierId')) {
+      const overTierId = targetTier.dataset.tierId;
+      if (overTierId && actions) {
+        actions.moveItem({
+          activeId: item.id,
+          overId: overTierId,
+          activeItem: item,
+          edge: isUp ? 'right' : 'left',
+        });
+        setActiveKeyboardDragId?.({ itemId: item.id, tierId: overTierId });
+
+        setTimeout(() => {
+          ref.current?.focus();
+        }, 10);
+      }
+    }
+  };
+
+  const handleHorizontalMove = (isRight: boolean) => {
+    const targetEl = isRight
+      ? ref.current?.nextElementSibling
+      : ref.current?.previousElementSibling;
+
+    if (targetEl instanceof HTMLElement && Object.hasOwn(targetEl.dataset, 'testid')) {
+      const targetIdAttr = targetEl.dataset.testid;
+      const overId = targetIdAttr?.replace('item-card-', '');
+      if (overId && actions) {
+        actions.moveItem({
+          activeId: item.id,
+          overId,
+          activeItem: item,
+          edge: isRight ? 'right' : 'left',
+        });
+
+        // Refocus item so they can chain moves
+        setTimeout(() => {
+          ref.current?.focus();
+        }, 10);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      handleToggleDrag();
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      if (isKeyboardDragging) e.preventDefault();
+      handleCancelDrag();
+      return;
+    }
+
+    if (!isKeyboardDragging || !actions) return;
+
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const currentTier = (e.currentTarget as HTMLElement).closest('[data-tier-id]');
+      if (currentTier) handleVerticalMove(e.key === 'ArrowUp', currentTier as HTMLElement);
+      return;
+    }
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      handleHorizontalMove(e.key === 'ArrowRight');
+    }
+  };
+
   return (
     <div
       ref={ref}
@@ -180,81 +267,7 @@ export function ItemCard({
         // We should ONLY clear drag state on Escape, or Space/Enter toggle.
         // DO NOT clear setActiveKeyboardDragId(null) here, otherwise bridging tiers cancels the drag.
       }}
-      onKeyDown={(e) => {
-        if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          if (tierId) {
-            setActiveKeyboardDragId?.(isKeyboardDragging ? null : { itemId: item.id, tierId });
-          }
-          return;
-        }
-
-        // Escape to cancel dragging
-        if (e.key === 'Escape') {
-          if (isKeyboardDragging) {
-            e.preventDefault();
-            setActiveKeyboardDragId?.(null);
-          }
-          return;
-        }
-
-        if (!isKeyboardDragging || !actions) return;
-
-        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-          e.preventDefault();
-          const currentTier = (e.currentTarget as HTMLElement).closest('[data-tier-id]');
-          if (!currentTier) return;
-
-          const isUp = e.key === 'ArrowUp';
-          const targetTier = isUp
-            ? currentTier.previousElementSibling
-            : currentTier.nextElementSibling;
-
-          if (targetTier && Object.hasOwn(targetTier.dataset, 'tierId')) {
-            const overTierId = targetTier.dataset.tierId;
-            if (overTierId) {
-              actions.moveItem({
-                activeId: item.id,
-                overId: overTierId,
-                activeItem: item,
-                edge: isUp ? 'right' : 'left',
-              });
-              setActiveKeyboardDragId?.({ itemId: item.id, tierId: overTierId });
-
-              setTimeout(() => {
-                ref.current?.focus();
-              }, 10);
-            }
-          }
-          return;
-        }
-
-        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-          e.preventDefault();
-          const isRight = e.key === 'ArrowRight';
-          const targetEl = isRight
-            ? ref.current?.nextElementSibling
-            : ref.current?.previousElementSibling;
-
-          if (targetEl && Object.hasOwn(targetEl.dataset, 'testid')) {
-            const targetIdAttr = targetEl.dataset.testid;
-            const overId = targetIdAttr?.replace('item-card-', '');
-            if (overId) {
-              actions.moveItem({
-                activeId: item.id,
-                overId,
-                activeItem: item,
-                edge: isRight ? 'right' : 'left',
-              });
-
-              // Refocus item so they can chain moves
-              setTimeout(() => {
-                ref.current?.focus();
-              }, 10);
-            }
-          }
-        }
-      }}
+      onKeyDown={handleKeyDown}
       style={style}
       data-testid={`item-card-${item.id}`}
       className={twMerge(
