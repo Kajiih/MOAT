@@ -21,10 +21,10 @@
 
 - Search an item
 - Search an item using all filters
-- Search an item using the specific filters for the current tab (e.g. artist filter for album search)
+- Search an item using the specific filters for the current tab (e.g. developer filter for games search or author for books)
 - See different pages of results
 - Hide and show already added items
-- Change the search tab (songs, albums, artists, etc.)
+- Change the search tab (games, developers, franchises, etc.)
 - Drag and drop an item from the search results to a tier
 
 ## Item management

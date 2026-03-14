@@ -11,9 +11,8 @@ The top-level workspace representing a single tier list project (e.g., "Best RPG
 A horizontal categorization row on the **Board**. Each tier is defined by a label (e.g., 'S', 'A') and a semantic color. It acts as a container for **Items**.
 
 ### 3. Item
-The fundamental unit of content on a **Board**. An **Item** represents a specific piece of media (a Game, an Album, a Book, etc.).
+The fundamental unit of content on a **Board**. An **Item** represents a specific piece of media (a Game, a Movie, a Book, etc.).
 - **Item**: The universal format that supports diverse data sources and rich metadata.
-- **Legacy Item (V1)**: The previous format (Album, Artist, Song), now isolated in the `v1/` namespace.
 
 ### 4. Entity
 A classification of **Items** within a **Provider**. For example, the "RAWG" Provider exposes entities like "Game", "Developer", and "Franchise". Each entity defines its own unique filters, sorting options, and UI branding.
@@ -35,7 +34,7 @@ An external database service that supplies data to the app (e.g., RAWG, MusicBra
 - **Tier Settings**: The modal/interface for editing a Tier's label and color.
 
 ### 2. Item Visualization
-- **Item Card**: The visual tile representing a **Standard Item** or **Legacy Item**.
+- **Item Card**: The visual tile representing an **Item**.
 - **Item Image**: The specialized image component with "waterfall" resolution.
 - **Details Modal**: The overlay showing rich metadata, tracklists, or descriptions for an Item.
 
