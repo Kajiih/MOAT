@@ -8,7 +8,15 @@ import { fromZodError } from 'zod-validation-error';
 
 import { EntityLink } from '@/items/items';
 import { isObject } from '@/lib/type-guards';
-import { FilterDefinition, FilterValues } from '@/search/filter-schemas';
+import { 
+  ArrayValueSchema,
+  BooleanValueSchema,
+  FilterDefinition, 
+  FilterValues,
+  NumberValueSchema,
+  RangeValueSchema,
+  TextValueSchema
+} from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
 
@@ -102,32 +110,40 @@ function processTransformResult(apiParams: Record<string, string>, transformed: 
  * @returns The transformed payload
  */
 function applyTransform<TRaw>(def: FilterDefinition<TRaw>, rawValue: NonNullable<FilterValues[string]>): unknown {
-  switch (def.type) {
-    case 'text':
-    case 'select':
-    case 'async-select':
-    case 'date': {
-      return def.transform?.(String(rawValue));
+  try {
+    switch (def.type) {
+      case 'text':
+      case 'select':
+      case 'async-select':
+      case 'date': {
+        const parsed = TextValueSchema.parse(rawValue);
+        return def.transform ? def.transform(parsed) : parsed;
+      }
+      case 'number': {
+        const parsed = NumberValueSchema.parse(rawValue);
+        return def.transform ? def.transform(parsed) : parsed;
+      }
+      case 'boolean': {
+        const parsed = BooleanValueSchema.parse(rawValue);
+        return def.transform ? def.transform(parsed) : parsed;
+      }
+      case 'multiselect':
+      case 'async-multiselect': {
+        const parsed = ArrayValueSchema.parse(rawValue);
+        return def.transform ? def.transform(parsed) : parsed;
+      }
+      case 'range': {
+        const parsed = RangeValueSchema.parse(rawValue);
+        return def.transform ? def.transform(parsed) : parsed;
+      }
+      default: {
+        return undefined;
+      }
     }
-    case 'number': {
-      return def.transform?.(Number(rawValue));
-    }
-    case 'boolean': {
-      const parsedBool = rawValue === 'false' ? false : Boolean(rawValue);
-      return def.transform?.(parsedBool);
-    }
-    case 'multiselect':
-    case 'async-multiselect': {
-      const arr = Array.isArray(rawValue) ? rawValue : [rawValue];
-      return def.transform?.(arr.map(String));
-    }
-    case 'range': {
-      const rangeVal = isObject(rawValue) ? (rawValue as { min?: string; max?: string }) : {};
-      return def.transform?.(rangeVal);
-    }
-    default: {
-      return undefined;
-    }
+  } catch {
+    // If a filter value completely fails structural validation, safely ignore it.
+    // E.g., a URL parameter that should be a number was passed as "abc".
+    return undefined;
   }
 }
 
@@ -153,13 +169,18 @@ export function applyFilters<TRaw>(
     // Skip if value is "empty" (null, undefined, or empty string)
     if (rawValue === undefined || rawValue === null || rawValue === '') continue;
 
+    // Parse it securely through Zod based on the filter type
+    const parsedAndTransformed = applyTransform(def, rawValue);
+
+    // If parsing failed (returned undefined), skip the filter entirely
+    if (parsedAndTransformed === undefined) continue;
+
     if (def.transform) {
-      const transformed = applyTransform(def, rawValue);
-      processTransformResult(apiParams, transformed, def.mapTo);
+      processTransformResult(apiParams, parsedAndTransformed, def.mapTo);
     } 
-    // Simple direct mapping
+    // Simple direct mapping (parsedAndTransformed is the raw validated primitive)
     else if (def.mapTo) {
-      apiParams[def.mapTo] = String(rawValue);
+      apiParams[def.mapTo] = String(parsedAndTransformed);
     }
   }
   

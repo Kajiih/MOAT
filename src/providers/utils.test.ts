@@ -84,6 +84,29 @@ describe('Providers Utils', () => {
        const result = applyFilters(filters, definitions);
        expect(result).toEqual({ active: '0' });
     });
+
+    it('should drop malformed number payloads safely without crashing', () => {
+      const numberDef: FilterDefinition<unknown>[] = [
+        { id: 'year', type: 'number', label: 'Year', mapTo: 'y', testCases: [] }
+      ];
+      const filters = { year: 'not-a-number' };
+      const result = applyFilters(filters, numberDef);
+      
+      // Invalid numbers should fail Zod coercion and be safely ignored
+      expect(result).toEqual({});
+    });
+
+    it('should drop malformed range payloads safely without crashing', () => {
+      const rangeDef: FilterDefinition<unknown>[] = [
+        { id: 'score', type: 'range', label: 'Score', mapTo: 's', transform: val => val?.min || undefined, testCases: [] }
+      ];
+      // Pass a string instead of the expected { min, max } object
+      const filters = { score: 'just-string' };
+      const result = applyFilters(filters, rangeDef);
+      
+      // Invalid range objects should fail Zod parsing and be ignored
+      expect(result).toEqual({});
+    });
   });
 
   describe('extractTags', () => {

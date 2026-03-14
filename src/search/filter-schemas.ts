@@ -39,6 +39,37 @@ export type FilterOption = z.infer<typeof FilterOptionSchema>;
  */
 export type FilterValues = Record<string, string | number | boolean | string[] | { min?: string; max?: string } | undefined>;
 
+// --- Runtime Validation Schemas for Filter Values ---
+
+export const TextValueSchema = z.string();
+
+export const NumberValueSchema = z.coerce.number().refine((val) => !Number.isNaN(val), {
+  message: "Parsed number cannot be NaN",
+});
+
+export const BooleanValueSchema = z.preprocess((val) => {
+  if (typeof val === 'boolean') return val;
+  if (val === 'false' || val === '0' || val === 0) return false;
+  if (val === 'true' || val === '1' || val === 1) return true;
+  return Boolean(val);
+}, z.boolean());
+
+export const ArrayValueSchema = z.preprocess(
+  (val) => {
+    if (Array.isArray(val)) return val;
+    if (val) return [val];
+    return [];
+  },
+  z.array(z.string())
+);
+
+export const RangeValueSchema = z.object({
+  min: z.string().optional(),
+  max: z.string().optional(),
+});
+
+// ---------------------------------------------------
+
 /**
  * A single test case for verifying a filter's behavior in integration tests.
  * Each test case specifies a filter value and optionally a query and verification logic.
