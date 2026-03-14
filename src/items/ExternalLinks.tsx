@@ -35,7 +35,7 @@ export function ExternalLinks({ urls }: ExternalLinksProps) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-md bg-surface-hover px-3 py-1.5 text-xs text-secondary transition-colors hover:bg-neutral-700 hover:text-white border border-white/5"
+            className="flex items-center gap-1.5 rounded-md bg-surface-hover px-3 py-1.5 text-xs text-secondary transition-colors hover:bg-surface hover:text-foreground border border-white/5"
           >
             <ExternalLink size={12} />
             <span className="capitalize">{link.type}</span>

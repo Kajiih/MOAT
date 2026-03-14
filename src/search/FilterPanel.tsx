@@ -54,7 +54,7 @@ export function FilterPanel({ entity, values, onChange }: FilterPanelProps) {
             />
             
             {filter.helperText && (
-              <span className="text-caption text-neutral-600 italic">
+              <span className="text-caption text-muted italic">
                 {filter.helperText}
               </span>
             )}

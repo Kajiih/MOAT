@@ -83,7 +83,7 @@ export const TierGrid = memo(function TierGrid({
       )}
 
       {items.length === 0 && isBoardEmpty && isMiddleTier && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold text-neutral-600 italic select-none">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold text-muted italic select-none">
           Drop items here...
         </div>
       )}

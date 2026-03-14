@@ -32,7 +32,7 @@ export function TextFilterInput({
     <input
       type="text"
       placeholder={filter.placeholder}
-      className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-white outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+      className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -54,7 +54,7 @@ export function SelectFilterInput({
 }: FilterControlProps<SelectFilterDefinition>) {
   return (
     <select
-      className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-white outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+      className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
     >
@@ -123,7 +123,7 @@ export function MultiSelectFilterInput({
             className={`rounded-md border px-2 py-1 text-caption transition-colors ${
               isChecked
                 ? 'border-destructive bg-destructive/20 text-destructive'
-                : 'border-border bg-black text-secondary hover:text-neutral-400'
+                : 'border-border bg-black text-secondary hover:text-foreground'
             }`}
           >
             {opt.label}
@@ -155,7 +155,7 @@ export function RangeFilterInput({
       <input
         type="text"
         placeholder={filter.minPlaceholder || 'Min'}
-        className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-white outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+        className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         value={minVal}
         onChange={(e) => onChange({ ...value, min: e.target.value })}
       />
@@ -163,7 +163,7 @@ export function RangeFilterInput({
       <input
         type="text"
         placeholder={filter.maxPlaceholder || 'Max'}
-        className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-white outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+        className="w-full rounded-md border border-border bg-black px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         value={maxVal}
         onChange={(e) => onChange({ ...value, max: e.target.value })}
       />

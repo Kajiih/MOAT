@@ -39,13 +39,13 @@ const CreateBoardCard = ({
   return (
     <button
       onClick={() => onCreate('')}
-      className="group flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-neutral-900/50 transition-all hover:border-blue-500/50 hover:bg-neutral-900"
+      className="group flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-background transition-all hover:border-blue-500/50 hover:bg-surface"
       title="New Tier List"
     >
       <div className="rounded-full bg-surface-hover p-3 text-secondary transition-colors group-hover:bg-blue-600 group-hover:text-white">
         <Plus size={32} />
       </div>
-      <span className="mt-2 text-sm font-medium text-secondary group-hover:text-neutral-300">
+      <span className="mt-2 text-sm font-medium text-muted group-hover:text-foreground">
         Create Board
       </span>
     </button>
@@ -60,7 +60,7 @@ const DashboardItem = ({ item }: { item: PreviewItem }) => {
   const showImage = item.imageUrl && !error;
 
   return (
-    <div className="relative aspect-square h-full border-r border-neutral-900 bg-surface">
+    <div className="relative aspect-square h-full border-r border-border bg-surface">
       {showImage ? (
         <Image
           src={item.imageUrl!}
@@ -74,7 +74,7 @@ const DashboardItem = ({ item }: { item: PreviewItem }) => {
           }}
         />
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 text-neutral-600">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 text-muted">
           <ImageOff size={10} className="mb-0.5 opacity-50" />
           <span className="w-full truncate text-center text-indicator leading-none font-bold uppercase opacity-20">
             {item.type}
@@ -93,7 +93,7 @@ const MiniatureTierList = ({ tiers }: { tiers: TierPreview[] }) => {
         return (
           <div
             key={tier.id}
-            className="flex min-h-0 flex-1 border-b border-neutral-950 last:border-0"
+            className="flex min-h-0 flex-1 border-b border-border last:border-0"
           >
             {/* Tier Label */}
             <div
@@ -123,8 +123,8 @@ const BoardThumbnail = ({ board }: { board: BoardMetadata }) => {
   // 2. Placeholder
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-surface-hover">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-neutral-900/80" />
-      <Layout className="h-16 w-16 text-neutral-700" strokeWidth={1} />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-background/80" />
+      <Layout className="h-16 w-16 text-muted" strokeWidth={1} />
     </div>
   );
 };
@@ -167,7 +167,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface font-sans text-neutral-200">
+    <div className="flex min-h-screen flex-col bg-surface font-sans text-foreground">
       <main className="flex-1 p-8 pb-0">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
@@ -204,7 +204,7 @@ export function Dashboard() {
                 {/* Metadata */}
                 <div className="flex flex-1 flex-col justify-between p-4">
                   <div>
-                    <h3 className="line-clamp-1 text-lg font-bold text-neutral-200 transition-colors group-hover:text-blue-400">
+                    <h3 className="line-clamp-1 text-lg font-bold text-foreground transition-colors group-hover:text-blue-400">
                       {board.title}
                     </h3>
                     <p className="mt-1 text-xs text-secondary">
@@ -216,7 +216,7 @@ export function Dashboard() {
                 {/* Delete Action (Hidden by default) */}
                 <button
                   onClick={(e) => handleDelete(e, board.id)}
-                  className="absolute top-2 right-2 rounded-md bg-neutral-950/80 p-2 text-secondary opacity-0 transition-all group-hover:opacity-100 hover:bg-red-900/80 hover:text-red-200"
+                  className="absolute top-2 right-2 rounded-md bg-background/80 p-2 text-secondary opacity-0 transition-all group-hover:opacity-100 hover:bg-red-900/80 hover:text-red-200"
                   title="Delete Board"
                 >
                   <Trash2 size={16} />
@@ -226,7 +226,7 @@ export function Dashboard() {
           </div>
 
           {boards.length === 0 && (
-            <div className="mt-12 text-center text-neutral-600">
+            <div className="mt-12 text-center text-muted">
               <p>No boards found. Create one to get started!</p>
             </div>
           )}

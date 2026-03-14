@@ -59,11 +59,11 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               <div className="rounded-full bg-primary/20 p-2 text-primary">
                 <Globe size={24} />
               </div>
-              <h2 className="text-xl font-bold text-white">Board Published</h2>
+              <h2 className="text-xl font-bold text-foreground">Board Published</h2>
             </div>
             <button
               onClick={onClose}
-              className="rounded-full p-2 text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
+              className="rounded-full p-2 text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
             >
               <X size={20} />
             </button>
@@ -75,7 +75,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
             Your board is now public! Anyone with the link can view it.
           </p>
 
-          <div className="flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 ring-neutral-800 transition-all focus-within:ring-2 focus-within:ring-primary focus-within:outline-none">
+          <div className="flex items-center gap-2 rounded-lg bg-black/50 p-2 ring-1 ring-border transition-all focus-within:ring-2 focus-within:ring-primary focus-within:outline-none">
             <input
               readOnly
               value={shareUrl}
@@ -85,8 +85,8 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               onClick={handleCopy}
               className={`flex items-center gap-2 rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
                 copied
-                  ? 'bg-success text-white'
-                  : 'bg-surface-hover text-secondary hover:bg-neutral-700 hover:text-white'
+                  ? 'bg-success text-foreground'
+                  : 'bg-surface-hover text-secondary hover:bg-surface hover:text-foreground'
               }`}
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -97,7 +97,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
           <div className="mt-6 flex justify-end gap-3">
             <button
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-secondary transition-colors hover:text-white"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-secondary transition-colors hover:text-foreground"
             >
               Close
             </button>
@@ -105,7 +105,7 @@ export function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProps) {
               href={shareUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-card shadow-primary/20 transition-all hover:bg-blue-500 active:scale-95"
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-foreground shadow-card shadow-primary/20 transition-all hover:bg-blue-500 active:scale-95"
             >
               <ExternalLink size={16} />
               Visit Page

@@ -31,8 +31,8 @@ export function FilterButton({ label, isSelected, onClick, variant }: FilterButt
 
   const inactiveClass =
     variant === 'primary'
-      ? 'bg-black border-border text-secondary hover:border-neutral-500'
-      : 'bg-surface border-border text-secondary hover:border-neutral-500 hover:text-neutral-300';
+      ? 'bg-black border-border text-secondary hover:border-muted'
+      : 'bg-surface border-border text-secondary hover:border-muted hover:text-foreground';
 
   return (
     <button

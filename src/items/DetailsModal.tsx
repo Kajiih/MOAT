@@ -79,7 +79,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
             imageClassName="object-cover opacity-60 blur-sm"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
 
           <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
             <ItemImage
@@ -97,7 +97,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                 <span className="font-medium">{subtitle}</span>
                 {resolvedItem.tertiaryText && (
                   <>
-                    <span className="text-neutral-600">•</span>
+                    <span className="text-muted">•</span>
                     <span className="text-secondary">{resolvedItem.tertiaryText}</span>
                   </>
                 )}
@@ -177,7 +177,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                           <span className="text-caption font-bold tracking-tight text-secondary uppercase">
                             {entity.label}
                           </span>
-                          <span className="text-sm text-neutral-200">
+                          <span className="text-sm text-foreground">
                             {entity.name}
                           </span>
                         </div>
@@ -191,13 +191,13 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
                     <h3 className="text-sm font-semibold tracking-wider text-secondary uppercase">
                       Additional Info
                     </h3>
-                    <div className="grid grid-cols-2 gap-4 rounded-lg bg-neutral-950/50 p-4 border border-neutral-800/50">
+                    <div className="grid grid-cols-2 gap-4 rounded-lg bg-background p-4 border border-border">
                       {Object.entries(details.extendedData).map(([key, value]) => (
                         <div key={key} className="flex flex-col">
                           <span className="text-caption font-bold tracking-tight text-secondary uppercase">
                             {key.replaceAll(/([A-Z])/g, ' $1').trim()}
                           </span>
-                          <span className="text-sm text-neutral-200">
+                          <span className="text-sm text-foreground">
                             {String(value)}
                           </span>
                         </div>
@@ -316,7 +316,7 @@ function LocalNotesEditor({
       value={notes}
       onChange={(e) => setNotes(e.target.value)}
       placeholder="Write your thoughts about this item... (e.g. why it's in this tier)"
-      className="min-h-[120px] w-full rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-secondary transition-colors placeholder:text-neutral-700 focus:border-border focus:ring-2 focus:ring-primary focus:outline-none"
+      className="min-h-[120px] w-full rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-secondary transition-colors placeholder:text-muted focus:border-border focus:ring-2 focus:ring-primary focus:outline-none"
     />
   );
 }

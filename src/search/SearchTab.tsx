@@ -113,7 +113,7 @@ export function SearchTab({
     return (
       <div className="custom-scrollbar flex-1 overflow-y-auto">
         {(params.query || Object.keys(params.filters).length > 0) && (
-          <div className="mt-8 text-center text-sm text-neutral-600 italic">No results found.</div>
+          <div className="mt-8 text-center text-sm text-muted italic">No results found.</div>
         )}
       </div>
     );
@@ -181,7 +181,7 @@ export function SearchTab({
               {currentSortOption && isSortReversible(currentSortOption) && (
                 <button
                   onClick={toggleSortDirection}
-                  className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-hover text-secondary transition-colors hover:text-white"
+                  className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-hover text-secondary transition-colors hover:text-foreground"
                   title={`Sort ${params.sortDirection === SortDirection.ASC ? 'Ascending' : 'Descending'} (Click to reverse)`}
                 >
                   {params.sortDirection === SortDirection.ASC ? (
@@ -197,7 +197,7 @@ export function SearchTab({
           {entity && (entity.filters.length > 0 || entity.searchOptions.length > 0) && (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`rounded-md border p-2 transition-colors ${showFilters ? 'border-destructive/50 bg-destructive/20 text-destructive' : 'border-border bg-black text-secondary hover:text-white'}`}
+              className={`rounded-md border p-2 transition-colors ${showFilters ? 'border-destructive/50 bg-destructive/20 text-destructive' : 'border-border bg-black text-secondary hover:text-foreground'}`}
               title="Toggle Filters"
             >
               <Filter size={18} />
@@ -207,7 +207,7 @@ export function SearchTab({
 
         {/* Advanced Filters Panel */}
         {showFilters && entity && (
-          <div className="rounded-md border border-border bg-neutral-900/50 p-2">
+          <div className="rounded-md border border-border bg-surface p-2">
             <FilterPanel
               entity={entity}
               values={params.filters}
@@ -245,7 +245,7 @@ export function SearchTab({
                 const prev = entity?.getPreviousParams(params, { items: results, pagination, raw: [] });
                 if (prev) setParams(prev);
               }}
-              className="rounded-md bg-surface-hover p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
+              className="rounded-md bg-surface-hover p-1 transition-colors hover:bg-surface disabled:opacity-30"
               title="Previous Page"
             >
               <ChevronLeft size={16} />
@@ -263,7 +263,7 @@ export function SearchTab({
                 const next = entity?.getNextParams(params, { items: results, pagination, raw: [] });
                 if (next) setParams(next);
               }}
-              className="rounded-md bg-surface-hover p-1 transition-colors hover:bg-neutral-700 disabled:opacity-30"
+              className="rounded-md bg-surface-hover p-1 transition-colors hover:bg-surface disabled:opacity-30"
               title="Next Page"
             >
               <ChevronRight size={16} />

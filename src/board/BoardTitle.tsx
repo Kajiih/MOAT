@@ -83,7 +83,7 @@ export function BoardTitle({
   };
 
   const baseStyles =
-    'text-neutral-200 text-4xl font-black tracking-tighter italic text-center leading-[1.1]';
+    'text-foreground text-4xl font-black tracking-tighter italic text-center leading-[1.1]';
 
   if (isExport) {
     return (

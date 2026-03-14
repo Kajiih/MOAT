@@ -85,7 +85,7 @@ export function TierSettings({
       >
         <div className="flex items-center justify-between border-b border-border pb-2">
           <span className="text-xs font-bold text-secondary uppercase">Tier Settings</span>
-          <button onClick={onClose} className="text-secondary hover:text-white">
+          <button onClick={onClose} className="text-secondary hover:text-foreground">
             ✕
           </button>
         </div>
@@ -117,12 +117,12 @@ export function TierSettings({
               onClick={() => {
                 if (confirm('Delete tier?')) onDelete();
               }}
-              className="mt-1 flex items-center justify-center gap-2 rounded-md bg-destructive/30 p-1 text-xs text-destructive hover:bg-red-900/50"
+              className="mt-1 flex items-center justify-center gap-2 rounded-md bg-destructive/30 p-1 text-xs text-destructive hover:bg-destructive/50"
             >
               <Trash2 size={14} /> Delete Tier
             </button>
           )}
-          <div className="mt-2 text-center text-caption text-neutral-600">
+          <div className="mt-2 text-center text-caption text-muted">
             Tip: Drag the grip handle on the left to reorder
           </div>
         </div>

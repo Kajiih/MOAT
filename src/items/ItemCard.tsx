@@ -171,7 +171,7 @@ export function ItemCard({
         {item.notes && (
           <div
             data-testid="notes-indicator"
-            className="absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-highlight/90 text-neutral-900 shadow-sm transition-transform group-hover/card:scale-110"
+            className="absolute bottom-1 right-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm bg-highlight/90 text-background shadow-sm transition-transform group-hover/card:scale-110"
             title="Contains personal notes"
           >
             <div className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -200,7 +200,7 @@ export function ItemCard({
                 e.stopPropagation();
                 onInfo(item);
               }}
-              className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800/90 text-white hover:bg-neutral-700"
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
               title="Details"
             >
               <Info size={12} />

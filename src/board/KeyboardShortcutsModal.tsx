@@ -49,12 +49,12 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
         className="animate-in zoom-in-95 w-full max-w-sm overflow-hidden rounded-lg border border-border bg-surface shadow-floating duration-fast"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-border bg-neutral-900/50 p-4">
-          <div className="flex items-center gap-2 font-bold text-neutral-200">
+        <div className="flex items-center justify-between border-b border-border bg-background p-4">
+          <div className="flex items-center gap-2 font-bold text-foreground">
             <Keyboard size={20} className="text-secondary" />
             <span>Shortcuts</span>
           </div>
-          <button onClick={onClose} className="text-secondary transition-colors hover:text-white">
+          <button onClick={onClose} className="text-secondary transition-colors hover:text-foreground">
             <X size={20} />
           </button>
         </div>
@@ -77,7 +77,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             </div>
           ))}
         </div>
-        <div className="border-t border-border bg-neutral-900/50 p-4 text-center text-xs text-secondary">
+        <div className="border-t border-border bg-background p-4 text-center text-xs text-secondary">
           Press <kbd className="font-mono text-secondary">Esc</kbd> to close
         </div>
       </div>

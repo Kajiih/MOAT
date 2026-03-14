@@ -59,7 +59,7 @@ export function SearchPanel() {
     if (status === RegistryStatus.INITIALIZING || status === RegistryStatus.IDLE) {
       return (
         <div className="sticky top-4 flex h-64 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface p-6 text-secondary shadow-floating">
-          <Loader2 className="animate-spin text-neutral-600" size={24} />
+          <Loader2 className="animate-spin text-muted" size={24} />
           <span className="text-sm font-medium">Booting providers...</span>
         </div>
       );
@@ -83,7 +83,7 @@ export function SearchPanel() {
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => setShowAdded(!showAdded)}
-            className={`flex items-center gap-2 rounded-md border px-2 py-1 text-caption font-medium transition-colors ${showAdded ? 'border-border bg-surface-hover text-secondary hover:bg-neutral-700' : 'border-primary/40 bg-primary/10 text-primary'}`}
+            className={`flex items-center gap-2 rounded-md border px-2 py-1 text-caption font-medium transition-colors ${showAdded ? 'border-border bg-surface-hover text-secondary hover:bg-surface' : 'border-primary/40 bg-primary/10 text-primary'}`}
             title={
               showAdded ? 'Hide items already on the board' : 'Show items already on the board'
             }
@@ -105,8 +105,8 @@ export function SearchPanel() {
                 onClick={() => setProviderId(p.id)}
                 className={`rounded-md px-2.5 py-1 text-caption font-bold uppercase transition-all ${
                   providerId === p.id
-                    ? 'bg-surface-hover text-white shadow-sm'
-                    : 'text-secondary hover:text-neutral-400'
+                    ? 'bg-surface-hover text-foreground shadow-sm'
+                    : 'text-secondary hover:text-muted'
                 }`}
               >
                 {p.label}
@@ -129,7 +129,7 @@ export function SearchPanel() {
                 key={entity.id}
                 onClick={() => setActiveEntityId(entity.id)}
                 title={`Search ${branding.labelPlural}`}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${isActive ? 'bg-surface-hover text-white shadow-sm' : 'text-secondary hover:text-neutral-300'} `}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${isActive ? 'bg-surface-hover text-foreground shadow-sm' : 'text-secondary hover:text-muted'} `}
               >
                 <Icon size={12} className={isActive ? branding.colorClass : ''} />
                 <span>{branding.label}</span>

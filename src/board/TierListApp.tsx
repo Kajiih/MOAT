@@ -39,7 +39,7 @@ const LoadingState = () => {
   const colors = ['red', 'orange', 'amber', 'green']; // Preview colors
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 font-sans text-neutral-200">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 font-sans text-foreground">
       <h1 className="flex animate-pulse text-4xl font-black tracking-tighter uppercase italic select-none">
         {letters.map((letter, i) => {
           const theme = getColorTheme(colors[i]);
@@ -238,7 +238,7 @@ export default function TierListApp() {
 
 
   return (
-    <div className="relative flex min-h-screen flex-col font-sans text-neutral-200">
+    <div className="relative flex min-h-screen flex-col font-sans text-foreground bg-background">
       <InteractionContext.Provider value={{ hoveredItem, setHoveredItem }}>
         <main className="flex-1 p-8 pb-0">
           <div className="mx-auto max-w-[1600px]">
@@ -265,7 +265,7 @@ export default function TierListApp() {
         {/* Floating Randomize Colors Button */}
         <button
           onClick={randomizeColors}
-          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-surface-hover p-4 text-white shadow-floating transition-all hover:scale-110 hover:bg-neutral-700 active:scale-95 ${fabPosition}`}
+          className={`group screenshot-exclude fixed right-8 z-50 rounded-full bg-surface-hover p-4 text-foreground shadow-floating transition-all hover:scale-110 hover:bg-surface active:scale-95 ${fabPosition}`}
           title="Randomize Colors"
         >
           <Dices size={24} className="transition-transform group-hover:rotate-12" />
@@ -284,7 +284,7 @@ export default function TierListApp() {
                   <button
                     onClick={handleScreenshot}
                     disabled={isCapturing}
-                    className="flex items-center gap-2 rounded-md bg-surface-hover px-3 py-2 text-sm text-white transition-all hover:bg-neutral-700 active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-md bg-surface-hover px-3 py-2 text-sm text-foreground transition-all hover:bg-surface active:scale-95 disabled:opacity-50"
                   >
                     {isCapturing ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -295,7 +295,7 @@ export default function TierListApp() {
                   </button>
                   <button
                     onClick={() => setShowExportPreview(false)}
-                    className="rounded-md bg-surface-hover p-2 text-white transition-colors hover:bg-neutral-700"
+                    className="rounded-md bg-surface-hover p-2 text-foreground transition-colors hover:bg-surface"
                   >
                     <X size={20} />
                   </button>
@@ -307,7 +307,7 @@ export default function TierListApp() {
                 <ExportBoard state={state} brandColors={headerColors} />
               </div>
 
-              <div className="mt-8 text-center text-sm text-neutral-600">
+              <div className="mt-8 text-center text-sm text-muted">
                 This is a live preview of the export board. Interaction is disabled here.
               </div>
             </div>

@@ -63,8 +63,8 @@ export function BoardOptionsMenu({
           className={twMerge(
             'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
             isOpen
-              ? 'bg-surface-hover text-white'
-              : 'text-secondary hover:bg-neutral-800 hover:text-white',
+              ? 'bg-surface-hover text-foreground'
+              : 'text-secondary hover:bg-surface-hover hover:text-foreground',
           )}
           title="Board Options"
         >
@@ -77,7 +77,7 @@ export function BoardOptionsMenu({
           <h3 className="text-xs font-bold tracking-wider text-secondary uppercase">
             Board Options
           </h3>
-          <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-white">
+          <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-foreground">
             <X size={14} />
           </button>
         </div>
@@ -88,7 +88,7 @@ export function BoardOptionsMenu({
               onShowShortcuts();
               setIsOpen(false);
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
           >
             <Keyboard size={18} className="text-secondary" />
             <span>Keyboard Shortcuts</span>
@@ -97,7 +97,7 @@ export function BoardOptionsMenu({
             </kbd>
           </button>
 
-          <label className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white">
+          <label className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground">
             <Upload size={18} className="text-secondary" />
             <span>Import JSON</span>
             <input
@@ -116,7 +116,7 @@ export function BoardOptionsMenu({
               onExport();
               setIsOpen(false);
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
           >
             <Download size={18} className="text-secondary" />
             <span>Export JSON</span>
@@ -161,7 +161,7 @@ export function BoardOptionsMenu({
               setIsOpen(false);
             }}
             data-testid="reset-items-button"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-neutral-800 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
           >
             <RotateCcw size={18} className="text-secondary" />
             <span>Reset items to unranked</span>

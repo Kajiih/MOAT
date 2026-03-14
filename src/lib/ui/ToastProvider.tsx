@@ -119,7 +119,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {isExpanded && toasts.length > 1 && (
           <button
             onClick={() => dispatch({ type: 'SET_EXPANDED', isExpanded: false })}
-            className="pointer-events-auto mb-2 flex items-center gap-1 rounded-full bg-neutral-900/80 px-2 py-1 text-xs text-secondary backdrop-blur-sm transition-colors hover:text-white"
+            className="pointer-events-auto mb-2 flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 text-xs text-secondary backdrop-blur-sm transition-colors hover:text-foreground"
           >
             Collapse <ChevronDown size={12} />
           </button>
@@ -138,7 +138,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 {/* Badge */}
                 {toasts.length > 1 && (
-                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption font-bold text-white shadow-md ring-2 ring-neutral-950">
+                  <div className="absolute -top-2 -left-2 z-50 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-caption font-bold text-white shadow-md ring-2 ring-background">
                     {toasts.length}
                   </div>
                 )}
@@ -199,7 +199,7 @@ function ToastItem({
   const baseStyles =
     'pointer-events-auto flex w-max max-w-[320px] items-center gap-3 rounded-lg border px-4 py-3 shadow-elevated';
   const stackStyles = stacked
-    ? 'hover:bg-neutral-800'
+    ? 'hover:bg-surface-hover'
     : 'animate-in slide-in-from-right-full duration-normal';
 
   return (
@@ -208,7 +208,7 @@ function ToastItem({
       {toast.type === 'error' && <AlertCircle size={18} />}
       {toast.type === 'info' && <Info size={18} />}
 
-      <span className="max-w-[200px] truncate text-sm font-medium text-neutral-200">
+      <span className="max-w-[200px] truncate text-sm font-medium text-foreground">
         {toast.message}
       </span>
 
