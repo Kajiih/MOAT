@@ -45,8 +45,8 @@ const MUSICBRAINZ_USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
  */
 const addLuceneRange = (parts: string[], field: string, range?: { min?: string; max?: string }) => {
   if (range && (range.min || range.max)) {
-    const min = range.min || '*';
-    const max = range.max || '*';
+    const min = range.min || (field === 'dur' ? '0' : '0001');
+    const max = range.max || (field === 'dur' ? '999999999' : '9999');
     parts.push(`${field}:[${min} TO ${max}]`);
   }
 };
@@ -460,14 +460,13 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.range({
         id: 'firstreleasedate',
         label: 'Release Year Range',
-        mapTo: 'firstreleasedate',
+        transform: (val) => ({ firstreleasedate_min: val.min, firstreleasedate_max: val.max }),
         minPlaceholder: 'From YYYY',
         maxPlaceholder: 'To YYYY',
         testCases: [
           {
             value: { min: '1980', max: '1989' },
             skipQueryDifferenceTest: true,
-            expectToFail: true,
             expectAll: (album: MusicBrainzReleaseGroup) => {
               if (!album['first-release-date']) return false;
               const year = Number.parseInt(album['first-release-date'].split('-')[0], 10);
@@ -632,14 +631,13 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       musicBrainzArtistFilters.range({
         id: 'begin',
         label: 'Active Year Range',
-        mapTo: 'begin',
+        transform: (val) => ({ begin_min: val.min, begin_max: val.max }),
         minPlaceholder: 'From YYYY',
         maxPlaceholder: 'To YYYY',
         testCases: [
           {
             value: { min: '1990', max: '1999' },
             skipQueryDifferenceTest: true,
-            expectToFail: true,
             expectAll: (artist: MusicBrainzArtist) => {
               const beginStr = artist['life-span']?.begin;
               if (!beginStr) return false;
@@ -797,14 +795,13 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
       musicBrainzRecordingFilters.range({
         id: 'duration',
         label: 'Duration (ms)',
-        mapTo: 'duration',
+        transform: (val) => ({ duration_min: val.min, duration_max: val.max }),
         minPlaceholder: 'Min ms',
         maxPlaceholder: 'Max ms',
         testCases: [
           {
             value: { min: '180000', max: '240000' },
             skipQueryDifferenceTest: true,
-            expectToFail: true,
             // TODO(P2): Check if we can remove the check that the length is provided.
             expectAll: (recording: MusicBrainzRecording) => {
               if (!recording.length) return false;
@@ -1012,7 +1009,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
         primarytype: appliedFilters.primarytype as string | undefined,
         secondarytype: appliedFilters.secondarytype as string | string[] | undefined,
         status: appliedFilters.status as string | undefined,
-        firstreleasedate: appliedFilters.firstreleasedate as { min?: string; max?: string } | undefined,
+        firstreleasedate: { min: appliedFilters.firstreleasedate_min, max: appliedFilters.firstreleasedate_max },
         tag: appliedFilters.tag as string | undefined,
       });
 
@@ -1062,7 +1059,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
         term: params.query,
         type: appliedFilters.type as string | undefined,
         country: appliedFilters.country as string | undefined,
-        begin: appliedFilters.begin as { min?: string; max?: string } | undefined,
+        begin: { min: appliedFilters.begin_min, max: appliedFilters.begin_max },
         tag: appliedFilters.tag as string | undefined,
       });
 
@@ -1133,7 +1130,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
         releaseGroupId: appliedFilters.releaseGroupId as string | undefined,
         release: appliedFilters.release as string | undefined,
         video: appliedFilters.video !== undefined ? Boolean(appliedFilters.video) : undefined,
-        duration: appliedFilters.duration as { min?: string; max?: string } | undefined,
+        duration: { min: appliedFilters.duration_min, max: appliedFilters.duration_max },
         tag: appliedFilters.tag as string | undefined,
       });
 
