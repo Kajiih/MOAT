@@ -15,7 +15,7 @@ import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
 import { createFilterSuite, FilterDefinition } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
-import { createSortSuite } from '@/search/sort-schemas';
+import { createSortSuite, SortDirection } from '@/search/sort-schemas';
 
 const SECONDARY_TYPES = [
   'Compilation',
@@ -29,10 +29,10 @@ const SECONDARY_TYPES = [
   'Mixtape/Street',
 ];
 
-const mbArtistFilters = createFilterSuite<MBArtist>();
+const musicBrainzArtistFilters = createFilterSuite<MusicBrainzArtist>();
 
-const MB_BASE_URL = 'https://musicbrainz.org/ws/2';
-const MB_USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
+const MUSICBRAINZ_BASE_URL = 'https://musicbrainz.org/ws/2';
+const MUSICBRAINZ_USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
 
 
 /** 
@@ -64,16 +64,15 @@ export interface AlbumLuceneQuery {
 }
 
 /**
- * Escape a string for Lucene query parser, preserving wildcards (*) and fuzzy modifiers (~).
- * Note: Lucene does not support wildcards or fuzzy operators inside double-quoted phrases.
+ * Escape a string for Lucene query parser to perform literal searches.
+ * Escapes all Lucene special characters: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /
  * @param str - The string to escape
  * @returns The escaped string
  */
-const escapeLucene = (str: string) => str.replaceAll(/(["\\/;:!^()[\]{}])/g, String.raw`\$1`);
+const escapeLucene = (str: string) => str.replaceAll(/(["\\/;:!^()[\]{}~*?+\-&|])/g, String.raw`\$1`);
 
 /**
- * Wraps a term in double quotes only if it contains a space, allowing single words
- * to freely use wildcard (*) and fuzzy (~) operators in the Lucene engine.
+ * Wraps a term in double quotes only if it contains a space.
  */
 const formatLuceneTerm = (str: string) => {
   const escaped = escapeLucene(str.trim());
@@ -123,7 +122,7 @@ export function buildAlbumLuceneQuery(query: AlbumLuceneQuery): string {
   const parts: string[] = [];
 
   if (query.term?.trim()) {
-    parts.push(`${formatLuceneTerm(query.term)}`);
+    parts.push(`release:${formatLuceneTerm(query.term)}`);
   }
 
   if (query.artistId?.trim()) {
@@ -143,7 +142,12 @@ export function buildAlbumLuceneQuery(query: AlbumLuceneQuery): string {
 
   addLuceneRange(parts, 'firstreleasedate', query.firstreleasedate);
 
-  return parts.length > 0 ? parts.join(' AND ') : '*:*';
+  // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
+  if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
+    return '*:*';
+  }
+
+  return parts.join(' AND ');
 }
 
 /** Artist search query model */
@@ -170,7 +174,12 @@ export function buildArtistLuceneQuery(query: ArtistLuceneQuery): string {
 
   addLuceneRange(parts, 'begin', query.begin);
 
-  return parts.length > 0 ? parts.join(' AND ') : '*:*';
+  // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
+  if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
+    return '*:*';
+  }
+
+  return parts.join(' AND ');
 }
 
 /** Recording search query model */
@@ -181,7 +190,7 @@ export interface RecordingLuceneQuery {
   video?: boolean;
   artistId?: string;
   releaseGroupId?: string;
-  dur?: { min?: string; max?: string };
+  duration?: { min?: string; max?: string };
   tag?: string;
 }
 
@@ -196,25 +205,30 @@ export function buildRecordingLuceneQuery(query: RecordingLuceneQuery): string {
   if (query.term?.trim()) parts.push(`${formatLuceneTerm(query.term)}`);
   if (query.artistId?.trim()) parts.push(`arid:${query.artistId.trim()}`);
   else if (query.artist?.trim()) parts.push(`artist:${formatLuceneTerm(query.artist)}`);
-  if (query.releaseGroupId?.trim()) parts.push(`rgid:${query.releaseGroupId.trim()}`);
+  if (query.releaseGroupId?.trim()) parts.push(`rgid:\"${query.releaseGroupId.trim()}\"`);
   if (query.release?.trim()) parts.push(`release:${formatLuceneTerm(query.release)}`);
   if (query.video !== undefined) parts.push(`video:${query.video}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
-  addLuceneRange(parts, 'dur', query.dur);
+  addLuceneRange(parts, 'dur', query.duration);
+  
+  // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
+  if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
+    return '*:*';
+  }
 
-  return parts.length > 0 ? parts.join(' AND ') : '*:*';
+  return parts.join(' AND ');
 }
 
 /**
  * MusicBrainz API Types
  */
-const MBTagSchema = z.object({
+const MusicBrainzTagSchema = z.object({
   name: z.string(),
   count: z.number().nullish(),
 });
 
-const MBArtistCreditSchema = z.object({
+const MusicBrainzArtistCreditSchema = z.object({
   name: z.string(),
   artist: z
     .object({
@@ -224,7 +238,7 @@ const MBArtistCreditSchema = z.object({
     .nullish(),
 });
 
-const MBUrlRelationSchema = z.object({
+const MusicBrainzUrlRelationSchema = z.object({
   type: z.string().nullish(),
   url: z
     .object({
@@ -234,34 +248,41 @@ const MBUrlRelationSchema = z.object({
     .nullish(),
 });
 
-export const MBArtistSchema = z.object({
+export const MusicBrainzArtistSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string().nullish(),
   country: z.string().nullish(),
-  tags: z.array(MBTagSchema).nullish(),
-  relations: z.array(MBUrlRelationSchema).nullish(),
+  'life-span': z.object({
+    begin: z.string().nullish(),
+    end: z.string().nullish(),
+  }).nullish(),
+  tags: z.array(MusicBrainzTagSchema).nullish(),
+  relations: z.array(MusicBrainzUrlRelationSchema).nullish(),
 });
-export type MBArtist = z.infer<typeof MBArtistSchema>;
+export type MusicBrainzArtist = z.infer<typeof MusicBrainzArtistSchema>;
 
-export const MBReleaseGroupSchema = z.object({
+export const MusicBrainzReleaseGroupSchema = z.object({
   id: z.string(),
   title: z.string(),
   'primary-type': z.string().nullish(),
   'secondary-types': z.array(z.string()).nullish(),
   'first-release-date': z.string().nullish(),
-  'artist-credit': z.array(MBArtistCreditSchema).nullish(),
-  tags: z.array(MBTagSchema).nullish(),
-  relations: z.array(MBUrlRelationSchema).nullish(),
+  'artist-credit': z.array(MusicBrainzArtistCreditSchema).nullish(),
+  releases: z.array(z.object({
+    status: z.string().nullish(),
+  })).nullish(),
+  tags: z.array(MusicBrainzTagSchema).nullish(),
+  relations: z.array(MusicBrainzUrlRelationSchema).nullish(),
 });
-export type MBReleaseGroup = z.infer<typeof MBReleaseGroupSchema>;
+export type MusicBrainzReleaseGroup = z.infer<typeof MusicBrainzReleaseGroupSchema>;
 
-export const MBRecordingSchema = z.object({
+export const MusicBrainzRecordingSchema = z.object({
   id: z.string(),
   title: z.string(),
   length: z.number().nullish(),
   video: z.boolean().nullish(),
-  'artist-credit': z.array(MBArtistCreditSchema).nullish(),
+  'artist-credit': z.array(MusicBrainzArtistCreditSchema).nullish(),
   releases: z
     .array(
       z.object({
@@ -276,33 +297,59 @@ export const MBRecordingSchema = z.object({
       }),
     )
     .nullish(),
-  tags: z.array(MBTagSchema).nullish(),
+  tags: z.array(MusicBrainzTagSchema).nullish(),
 });
-export type MBRecording = z.infer<typeof MBRecordingSchema>;
+export type MusicBrainzRecording = z.infer<typeof MusicBrainzRecordingSchema>;
+
+// --- Shared Pagination Utilities ---
+const getMusicBrainzInitialParams = (
+  config: { limit: number },
+  defaultSortId?: string,
+  defaultDirection?: SortDirection,
+  defaultFilters: Record<string, string | string[]> = {},
+): SearchParams => ({
+  query: '',
+  filters: defaultFilters,
+  sort: defaultSortId,
+  sortDirection: defaultDirection,
+  limit: config.limit,
+  page: 1,
+});
+
+const getMusicBrainzNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
+  if (!result.pagination.hasNextPage) return null;
+  return { ...params, page: (params.page || 1) + 1 };
+};
+
+const getMusicBrainzPreviousParams = (params: SearchParams): SearchParams | null => {
+  const currentPage = params.page || 1;
+  if (currentPage <= 1) return null;
+  return { ...params, page: currentPage - 1 };
+};
 
 interface MBListResponse {
   count: number;
   offset: number;
 }
-interface MBReleaseGroupListResponse extends MBListResponse {
-  'release-groups': MBReleaseGroup[];
+interface MusicBrainzReleaseGroupListResponse extends MBListResponse {
+  'release-groups': MusicBrainzReleaseGroup[];
 }
-interface MBArtistListResponse extends MBListResponse {
-  artists: MBArtist[];
+interface MusicBrainzArtistListResponse extends MBListResponse {
+  artists: MusicBrainzArtist[];
 }
-interface MBRecordingListResponse extends MBListResponse {
-  recordings: MBRecording[];
+interface MusicBrainzRecordingListResponse extends MBListResponse {
+  recordings: MusicBrainzRecording[];
 }
 
-const mbAlbumSorts = createSortSuite<MBReleaseGroup>();
-const mbAlbumFilters = createFilterSuite<MBReleaseGroup>();
+const mbAlbumSorts = createSortSuite<MusicBrainzReleaseGroup>();
+const mbAlbumFilters = createFilterSuite<MusicBrainzReleaseGroup>();
 
 // --- Album Entity ---
 // IDs for integration tests (e.g., Thriller, Abbey Road)
-const ALBUM_THRILLER_ID = '3a7817b5-22cb-32c3-a31b-2c8309fbf92e'; // Thriller
+const ALBUM_THRILLER_ID = 'f32fab67-77dd-3937-addc-9062e28e4c37'; // Thriller
 const ALBUM_ABBEY_ROAD_ID = '9162580e-5df4-32de-80cc-f45a8d8a9b1d'; // Abbey Road
 
-export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
+export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly id = 'album';
   public readonly branding = {
     label: 'Album',
@@ -310,8 +357,8 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
     icon: Disc3,
     colorClass: 'text-rose-500',
   };
-  public readonly searchOptions: FilterDefinition<MBReleaseGroup>[] = [];
-  public readonly filters: FilterDefinition<MBReleaseGroup>[] = [];
+  public readonly searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[] = [];
+  public readonly filters: FilterDefinition<MusicBrainzReleaseGroup>[] = [];
   public readonly sortOptions = [mbAlbumSorts.create({ id: 'relevance', label: 'Relevance' })];
 
   public readonly defaultTestQueries = nonEmpty('Thriller', 'Abbey Road');
@@ -334,10 +381,14 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
         ],
         testCases: [{
             value: ['ep'],
-            expectAll: (album: MBReleaseGroup) => {
+            expectAll: (album: MusicBrainzReleaseGroup) => {
               const matchesPrimary = album['primary-type']?.toLowerCase() === 'ep';
-              const matchesSecondary = album['secondary-types']?.some(t => t.toLowerCase() === 'ep') ?? false;
-              return matchesPrimary || matchesSecondary;
+              if (matchesPrimary) return true;
+
+              for (const type of album['secondary-types'] ?? []) {
+                if (type.toLowerCase() === 'ep') return true;
+              }
+              return false;
             },
             expectAllMessage: 'have primary or secondary type "EP"',
           }],
@@ -350,8 +401,11 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
         testCases: [
           {
             value: ['live'],
-            expectAll: (album: MBReleaseGroup) => {
-              return album['secondary-types']?.some((t) => t.toLowerCase() === 'live') ?? false;
+            expectAll: (album: MusicBrainzReleaseGroup) => {
+              for (const type of album['secondary-types'] ?? []) {
+                if (type.toLowerCase() === 'live') return true;
+              }
+              return false;
             },
             expectAllMessage: 'have secondary type "live"',
           }
@@ -366,8 +420,11 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
           {
             value: ARTIST_RADIOHEAD_ID,
             query: 'OK Computer',
-            expectAll: (album: MBReleaseGroup) => {
-              return album['artist-credit']?.some((c) => c.artist?.id === ARTIST_RADIOHEAD_ID) ?? false;
+            expectAll: (album: MusicBrainzReleaseGroup) => {
+              for (const credit of album['artist-credit'] ?? []) {
+                if (credit.artist?.id === ARTIST_RADIOHEAD_ID) return true;
+              }
+              return false;
             },
             expectAllMessage: 'be by Radiohead',
           },
@@ -387,9 +444,14 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
         testCases: [
           {
             value: 'official',
-            expectAll: (album: MBReleaseGroup) => {
-              const releases = (album as MBReleaseGroup & { releases?: { status?: string | null }[] }).releases;
-              return releases?.some((r) => r.status?.toLowerCase() === 'official') ?? true;
+            expectAll: (album: MusicBrainzReleaseGroup) => {
+              const releases = album.releases;
+              if (!releases) return true;
+
+              for (const release of releases) {
+                if (release.status?.toLowerCase() === 'official') return true;
+              }
+              return false;
             },
             expectAllMessage: 'have official status in one of their releases',
           },
@@ -404,56 +466,40 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
         testCases: [
           {
             value: { min: '1980', max: '1989' },
-            expectAll: (album: MBReleaseGroup) => {
-              if (!album['first-release-date']) return true;
+            skipQueryDifferenceTest: true,
+            expectSome: (album: MusicBrainzReleaseGroup) => {
+              if (!album['first-release-date']) return false;
               const year = Number.parseInt(album['first-release-date'].split('-')[0], 10);
               return year >= 1980 && year <= 1989;
             },
-            expectAllMessage: 'be released in the 1980s if date is available',
+            expectSomeMessage: 'be released in the 1980s',
           }
         ]
       }),
     ];
   }
 
-  public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
-    query: '',
-    filters: { primarytype: ['album'] },
-    sort: this.sortOptions[0]?.id,
-    sortDirection: this.sortOptions[0]?.defaultDirection,
-    limit: config.limit,
-    page: 1,
-  });
+  public readonly getInitialParams = (config: { limit: number }): SearchParams =>
+    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection, { primarytype: ['album'] });
 
-  public readonly search = async (params: SearchParams): Promise<SearchResult<MBReleaseGroup>> => {
+  public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzReleaseGroup>> => {
     return this.provider.searchAlbums(params, this.filters);
   };
 
-  public readonly getNextParams = (
-    params: SearchParams,
-    result: SearchResult,
-  ): SearchParams | null => {
-    if (!result.pagination.hasNextPage) return null;
-    return { ...params, page: (params.page || 1) + 1 };
-  };
-
-  public readonly getPreviousParams = (params: SearchParams): SearchParams | null => {
-    const currentPage = params.page || 1;
-    if (currentPage <= 1) return null;
-    return { ...params, page: currentPage - 1 };
-  };
+  public readonly getNextParams = getMusicBrainzNextParams;
+  public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
   public readonly getDetails = async (
     dbId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
-      const rawData = await this.provider.fetchMB<unknown>(
+      const rawData = await this.provider.fetchMusicBrainz<unknown>(
         `/release-group/${dbId}`,
         { inc: 'artist-credits+tags+url-rels' },
         { signal: options?.signal },
       );
-      const album = MBReleaseGroupSchema.parse(rawData);
+      const album = MusicBrainzReleaseGroupSchema.parse(rawData);
 
       const item = mapAlbumToItem(album, this.provider.id);
       const tags = (album.tags || []).map((t) => t.name).slice(0, 10);
@@ -502,7 +548,7 @@ export class MusicBrainzAlbumEntity implements Entity<MBReleaseGroup> {
   };
 }
 
-function mapAlbumToItem(album: MBReleaseGroup, databaseId: string): Item {
+function mapAlbumToItem(album: MusicBrainzReleaseGroup, databaseId: string): Item {
   const identity = { dbId: album.id, databaseId, entityId: 'album' };
 
   // Try to use coverartarchive for the image
@@ -524,12 +570,12 @@ function mapAlbumToItem(album: MBReleaseGroup, databaseId: string): Item {
 }
 
 // --- Artist Entity ---
-const mbArtistSorts = createSortSuite<MBArtist>();
+const mbArtistSorts = createSortSuite<MusicBrainzArtist>();
 
 const ARTIST_DAFT_PUNK_ID = '056e4f3e-d505-4dad-8ec1-d04f521cbb56'; // Daft Punk
 const ARTIST_RADIOHEAD_ID = 'a74b1b7f-71a5-4011-9441-d0b5e4122711'; // Radiohead
 
-export class MusicBrainzArtistEntity implements Entity<MBArtist> {
+export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   public readonly id = 'artist';
   public readonly branding = {
     label: 'Artist',
@@ -537,8 +583,8 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
     icon: Mic2,
     colorClass: 'text-rose-500',
   };
-  public readonly searchOptions: FilterDefinition<MBArtist>[] = [];
-  public readonly filters: FilterDefinition<MBArtist>[] = [];
+  public readonly searchOptions: FilterDefinition<MusicBrainzArtist>[] = [];
+  public readonly filters: FilterDefinition<MusicBrainzArtist>[] = [];
   public readonly sortOptions = [mbArtistSorts.create({ id: 'relevance', label: 'Relevance' })];
 
   public readonly defaultTestQueries = nonEmpty('Daft Punk', 'Radiohead');
@@ -547,7 +593,7 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
 
   public constructor(private provider: MusicBrainzDatabaseProvider) {
     this.filters = [
-      mbArtistFilters.select({
+      musicBrainzArtistFilters.select({
         id: 'type',
         label: 'Artist Type',
         mapTo: 'type',
@@ -563,12 +609,12 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
         testCases: [
           { 
             value: 'group', 
-            expectAll: (artist: MBArtist) => artist.type?.toLowerCase() === 'group',
+            expectAll: (artist: MusicBrainzArtist) => artist.type?.toLowerCase() === 'group',
             expectAllMessage: 'have type "group"',
           }
         ],
       }),
-      mbArtistFilters.text({
+      musicBrainzArtistFilters.text({
         id: 'country',
         label: 'Country (2-letter Code)',
         mapTo: 'country',
@@ -577,12 +623,12 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
           {
             value: 'GB',
             query: 'Radiohead',
-            expectAll: (artist: MBArtist) => artist.country?.toLowerCase() === 'gb',
+            expectAll: (artist: MusicBrainzArtist) => artist.country?.toLowerCase() === 'gb',
             expectAllMessage: 'be from country GB',
           },
         ],
       }),
-      mbArtistFilters.range({
+      musicBrainzArtistFilters.range({
         id: 'begin',
         label: 'Active Year Range',
         mapTo: 'begin',
@@ -591,62 +637,45 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
         testCases: [
           {
             value: { min: '1990', max: '1999' },
-            // TODO(P2): Check if we can remove the check that the date is available.
-            expectAll: (artist: MBArtist) => {
-              const beginStr = (artist as any)['life-span']?.begin;
-              if (!beginStr) return true;
+            skipQueryDifferenceTest: true,
+            expectSome: (artist: MusicBrainzArtist) => {
+              const beginStr = artist['life-span']?.begin;
+              if (!beginStr) return false;
               
               const yearMatch = beginStr.match(/^(\d{4})/);
-              if (!yearMatch) return true;
+              if (!yearMatch) return false;
               
               const year = parseInt(yearMatch[1], 10);
               return year >= 1990 && year <= 1999;
             },
-            expectAllMessage: 'be active in the 1990s if date is available',
+            expectSomeMessage: 'be active in the 1990s',
           }
         ]
       }),
     ];
   }
 
-  public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
-    query: '',
-    filters: {},
-    sort: this.sortOptions[0]?.id,
-    sortDirection: this.sortOptions[0]?.defaultDirection,
-    limit: config.limit,
-    page: 1,
-  });
+  public readonly getInitialParams = (config: { limit: number }): SearchParams =>
+    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection);
 
-  public readonly search = async (params: SearchParams): Promise<SearchResult<MBArtist>> => {
+  public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzArtist>> => {
     return this.provider.searchArtists(params, this.filters);
   };
 
-  public readonly getNextParams = (
-    params: SearchParams,
-    result: SearchResult,
-  ): SearchParams | null => {
-    if (!result.pagination.hasNextPage) return null;
-    return { ...params, page: (params.page || 1) + 1 };
-  };
-
-  public readonly getPreviousParams = (params: SearchParams): SearchParams | null => {
-    const currentPage = params.page || 1;
-    if (currentPage <= 1) return null;
-    return { ...params, page: currentPage - 1 };
-  };
+  public readonly getNextParams = getMusicBrainzNextParams;
+  public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
   public readonly getDetails = async (
     dbId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
-      const rawData = await this.provider.fetchMB<unknown>(
+      const rawData = await this.provider.fetchMusicBrainz<unknown>(
         `/artist/${dbId}`,
         { inc: 'tags+url-rels' },
         { signal: options?.signal },
       );
-      const artist = MBArtistSchema.parse(rawData);
+      const artist = MusicBrainzArtistSchema.parse(rawData);
 
       const item = mapArtistToItem(artist, this.provider.id);
       const tags = (artist.tags || []).map((t) => t.name).slice(0, 10);
@@ -681,7 +710,7 @@ export class MusicBrainzArtistEntity implements Entity<MBArtist> {
   };
 }
 
-function mapArtistToItem(artist: MBArtist, databaseId: string): Item {
+function mapArtistToItem(artist: MusicBrainzArtist, databaseId: string): Item {
   const identity = { dbId: artist.id, databaseId, entityId: 'artist' };
 
   // Resolve image order: Fanart.tv -> Wikidata P18 extraction
@@ -700,13 +729,13 @@ function mapArtistToItem(artist: MBArtist, databaseId: string): Item {
 }
 
 // --- Recording Entity (Song) ---
-const mbRecordingSorts = createSortSuite<MBRecording>();
-const mbRecordingFilters = createFilterSuite<MBRecording>();
+const mbRecordingSorts = createSortSuite<MusicBrainzRecording>();
+const musicBrainzRecordingFilters = createFilterSuite<MusicBrainzRecording>();
 
 const SONG_CREEP_ID = '8ea89714-3742-4dce-8940-510480ae1372'; // A valid Radiohead - Creep recording MBID
 const SONG_BILLIE_JEAN_ID = '494c5a79-bc87-4a9f-8847-55122c7817b8'; // A valid Michael Jackson - Billie Jean recording MBID
 
-export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
+export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> {
   public readonly id = 'song';
   public readonly branding = {
     label: 'Song',
@@ -714,8 +743,8 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
     icon: Disc3, // We can reuse Disc3 or conceptually AudioLines if we had it, but Disc3 works for now
     colorClass: 'text-rose-500',
   };
-  public readonly searchOptions: FilterDefinition<MBRecording>[] = [];
-  public readonly filters: FilterDefinition<MBRecording>[];
+  public readonly searchOptions: FilterDefinition<MusicBrainzRecording>[] = [];
+  public readonly filters: FilterDefinition<MusicBrainzRecording>[];
   public readonly sortOptions = [mbRecordingSorts.create({ id: 'relevance', label: 'Relevance' })];
 
   public readonly defaultTestQueries = nonEmpty('Creep', 'Billie Jean');
@@ -724,7 +753,7 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
 
   public constructor(private provider: MusicBrainzDatabaseProvider) {
     this.filters = [
-      mbRecordingFilters.asyncSelect({
+      musicBrainzRecordingFilters.asyncSelect({
         id: 'artistId',
         label: 'Artist',
         mapTo: 'artistId',
@@ -733,36 +762,23 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
           {
             value: ARTIST_RADIOHEAD_ID,
             query: 'Creep',
-            expectAll: (recording: MBRecording) => {
-              if (!recording['artist-credit']) return false;
-              return recording['artist-credit'].some((credit) => 
-                credit.name.toLowerCase().includes('radiohead') || 
-                credit.artist?.name.toLowerCase().includes('radiohead') ||
-                credit.artist?.id === ARTIST_RADIOHEAD_ID
-              );
+            expectAll: (recording: MusicBrainzRecording) => {
+              for (const credit of recording['artist-credit'] ?? []) {
+                if (
+                  credit.name.toLowerCase().includes('radiohead') || 
+                  credit.artist?.name.toLowerCase().includes('radiohead') ||
+                  credit.artist?.id === ARTIST_RADIOHEAD_ID
+                ) {
+                  return true;
+                }
+              }
+              return false;
             },
             expectAllMessage: 'have Radiohead as artist',
           },
         ],
       }),
-      mbRecordingFilters.asyncSelect({
-        id: 'albumId',
-        label: 'Album',
-        mapTo: 'releaseGroupId',
-        targetEntityId: 'album',
-        testCases: [
-          {
-            value: ALBUM_THRILLER_ID,
-            query: 'Billie Jean',
-            expectAll: (recording: MBRecording) => {
-              const rels = (recording as any).releases;
-              return rels.some((r: any) => r['release-group']?.id === ALBUM_THRILLER_ID);
-            },
-            expectAllMessage: 'belong to Thriller release group',
-          },
-        ],
-      }),
-      mbRecordingFilters.boolean({
+      musicBrainzRecordingFilters.boolean({
         id: 'video',
         label: 'Is Video',
         defaultValue: false,
@@ -771,70 +787,74 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
           {
             value: true,
             query: 'Thriller',
-            expectAll: (recording: MBRecording) => recording.video === true,
+            expectAll: (recording: MusicBrainzRecording) => recording.video === true,
             expectAllMessage: 'be video=true',
           },
         ],
       }),
-      mbRecordingFilters.range({
-        id: 'dur',
+      musicBrainzRecordingFilters.range({
+        id: 'duration',
         label: 'Duration (ms)',
-        mapTo: 'dur',
+        mapTo: 'duration',
         minPlaceholder: 'Min ms',
         maxPlaceholder: 'Max ms',
         testCases: [
           {
             value: { min: '180000', max: '240000' },
+            skipQueryDifferenceTest: true,
             // TODO(P2): Check if we can remove the check that the length is provided.
-            expectAll: (recording: MBRecording) => {
-              if (!recording.length) return true;
+            expectSome: (recording: MusicBrainzRecording) => {
+              if (!recording.length) return false;
               return recording.length >= 180_000 && recording.length <= 240_000;
             },
-            expectAllMessage: 'be between 3 and 4 minutes long if length is provided',
+            expectSomeMessage: 'be between 3 and 4 minutes long',
           }
         ]
+      }),
+      musicBrainzRecordingFilters.asyncSelect({
+        id: 'albumId',
+        label: 'Album',
+        mapTo: 'releaseGroupId',
+        targetEntityId: 'album',
+        testCases: [
+          {
+            value: ALBUM_THRILLER_ID,
+            query: 'Billie Jean',
+            skipQueryDifferenceTest: true,
+            expectSome: (recording: MusicBrainzRecording) => {
+              for (const release of recording.releases ?? []) {
+                if (release['release-group']?.id === ALBUM_THRILLER_ID) return true;
+              }
+              return false;
+            },
+            expectSomeMessage: 'belong to Thriller release group',
+          },
+        ],
       }),
     ];
   }
 
-  public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
-    query: '',
-    filters: {},
-    sort: this.sortOptions[0]?.id,
-    sortDirection: this.sortOptions[0]?.defaultDirection,
-    limit: config.limit,
-    page: 1,
-  });
+  public readonly getInitialParams = (config: { limit: number }): SearchParams =>
+    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection);
 
-  public readonly search = async (params: SearchParams): Promise<SearchResult<MBRecording>> => {
+  public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzRecording>> => {
     return this.provider.searchRecordings(params, this.filters);
   };
 
-  public readonly getNextParams = (
-    params: SearchParams,
-    result: SearchResult,
-  ): SearchParams | null => {
-    if (!result.pagination.hasNextPage) return null;
-    return { ...params, page: (params.page || 1) + 1 };
-  };
-
-  public readonly getPreviousParams = (params: SearchParams): SearchParams | null => {
-    const currentPage = params.page || 1;
-    if (currentPage <= 1) return null;
-    return { ...params, page: currentPage - 1 };
-  };
+  public readonly getNextParams = getMusicBrainzNextParams;
+  public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
   public readonly getDetails = async (
     dbId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
-      const rawData = await this.provider.fetchMB<unknown>(
+      const rawData = await this.provider.fetchMusicBrainz<unknown>(
         `/recording/${dbId}`,
         { inc: 'artist-credits+tags+releases' },
         { signal: options?.signal },
       );
-      const recording = MBRecordingSchema.parse(rawData);
+      const recording = MusicBrainzRecordingSchema.parse(rawData);
 
       const item = mapRecordingToItem(recording, this.provider.id);
       const tags = (recording.tags || []).map((t) => t.name).slice(0, 10);
@@ -895,7 +915,7 @@ export class MusicBrainzRecordingEntity implements Entity<MBRecording> {
   };
 }
 
-function mapRecordingToItem(recording: MBRecording, databaseId: string): Item {
+function mapRecordingToItem(recording: MusicBrainzRecording, databaseId: string): Item {
   const identity = { dbId: recording.id, databaseId, entityId: 'song' };
 
   // For images, we try to use the first release-group associated with the recording
@@ -953,33 +973,32 @@ export class MusicBrainzDatabaseProvider implements Provider {
 
   private externalFetcher: Fetcher = secureFetch;
 
-  public resolveImage = async (key: string): Promise<string | null> => {
+  public async resolveImage(key: string): Promise<string | null> {
+    const id = key.replace(/^(album|artist|recording):/, '');
+
+    // 1. Try Cover Art Archive (Assuming it might be a release group)
     try {
-      if (key.startsWith('album:')) {
-        const id = key.replace('album:', '');
-        return `https://coverartarchive.org/release-group/${id}/front`;
-      }
-
-      if (key.startsWith('artist:')) {
-        const id = key.replace('artist:', '');
-
-        // Tier 1: Fanart.tv (Optional)
-        const fanartRes = await this.resolveImageFromFanart(id);
-        if (fanartRes) return fanartRes;
-
-        // Tier 2: Wikidata Fallback
-        const wikidataRes = await this.resolveImageFromWikidata(id);
-        if (wikidataRes) return wikidataRes;
-      }
+      const caaRes = await fetch(`https://coverartarchive.org/release-group/${id}/front-500`, { method: 'HEAD' });
+      if (caaRes.ok) return caaRes.url;
     } catch {
-      return null;
+      // Not a release group or no cover art
     }
-  };
+
+    // 2. Try Fanart.tv (Artists/Albums)
+    const fromFanart = await this.resolveImageFromFanart(id);
+    if (fromFanart) return fromFanart;
+
+    // 3. Try Wikidata (Artists)
+    const fromWikidata = await this.resolveImageFromWikidata(id);
+    if (fromWikidata) return fromWikidata;
+
+    return null;
+  }
 
   public async searchAlbums(
     params: SearchParams,
-    searchOptions: FilterDefinition<MBReleaseGroup>[],
-  ): Promise<SearchResult<MBReleaseGroup>> {
+    searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[],
+  ): Promise<SearchResult<MusicBrainzReleaseGroup>> {
     try {
       const appliedFilters = applyFilters(params.filters, searchOptions);
 
@@ -1003,10 +1022,10 @@ export class MusicBrainzDatabaseProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMB<MBReleaseGroupListResponse>('/release-group', apiParams, {
+      const data = await this.fetchMusicBrainz<MusicBrainzReleaseGroupListResponse>('/release-group', apiParams, {
         signal: params.signal,
       });
-      const parsedResults = z.array(MBReleaseGroupSchema).parse(data['release-groups']);
+      const parsedResults = z.array(MusicBrainzReleaseGroupSchema).parse(data['release-groups'] ?? []);
       const items = parsedResults.map((item) => mapAlbumToItem(item, this.id));
 
       const currentPage = params.page || 1;
@@ -1023,7 +1042,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
         },
       });
 
-      return result as SearchResult<MBReleaseGroup>;
+      return result as SearchResult<MusicBrainzReleaseGroup>;
     } catch (error) {
       throw handleProviderError(error, this.id);
     }
@@ -1031,8 +1050,8 @@ export class MusicBrainzDatabaseProvider implements Provider {
 
   public async searchArtists(
     params: SearchParams,
-    searchOptions: FilterDefinition<MBArtist>[],
-  ): Promise<SearchResult<MBArtist>> {
+    searchOptions: FilterDefinition<MusicBrainzArtist>[],
+  ): Promise<SearchResult<MusicBrainzArtist>> {
     try {
       const appliedFilters = applyFilters(params.filters, searchOptions);
       
@@ -1053,10 +1072,10 @@ export class MusicBrainzDatabaseProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMB<MBArtistListResponse>('/artist', apiParams, {
+      const data = await this.fetchMusicBrainz<MusicBrainzArtistListResponse>('/artist', apiParams, {
         signal: params.signal,
       });
-      const parsedResults = z.array(MBArtistSchema).parse(data.artists);
+      const parsedResults = z.array(MusicBrainzArtistSchema).parse(data.artists ?? []);
       const items = parsedResults.map((item) => mapArtistToItem(item, this.id));
 
       const currentPage = params.page || 1;
@@ -1073,25 +1092,25 @@ export class MusicBrainzDatabaseProvider implements Provider {
         },
       });
 
-      return result as SearchResult<MBArtist>;
+      return result as SearchResult<MusicBrainzArtist>;
     } catch (error) {
       throw handleProviderError(error, this.id);
     }
   }
 
-  public async fetchMB<T>(
+  public async fetchMusicBrainz<T>(
     endpoint: string,
     params: Record<string, string> = {},
     options?: { signal?: AbortSignal },
   ): Promise<T> {
     const query = new URLSearchParams({ ...params, fmt: 'json' });
     const queryString = query.toString();
-    const url = `${MB_BASE_URL}${endpoint}?${queryString}`;
+    const url = `${MUSICBRAINZ_BASE_URL}${endpoint}?${queryString}`;
 
     return this.fetcher<T>(url, {
       ...options,
       headers: {
-        'User-Agent': MB_USER_AGENT,
+        'User-Agent': MUSICBRAINZ_USER_AGENT,
         Accept: 'application/json',
       },
     });
@@ -1099,8 +1118,8 @@ export class MusicBrainzDatabaseProvider implements Provider {
 
   public async searchRecordings(
     params: SearchParams,
-    searchOptions: FilterDefinition<MBRecording>[],
-  ): Promise<SearchResult<MBRecording>> {
+    searchOptions: FilterDefinition<MusicBrainzRecording>[],
+  ): Promise<SearchResult<MusicBrainzRecording>> {
     try {
       const appliedFilters = applyFilters(params.filters, searchOptions);
 
@@ -1108,10 +1127,10 @@ export class MusicBrainzDatabaseProvider implements Provider {
         term: params.query,
         artistId: appliedFilters.artistId as string | undefined,
         artist: appliedFilters.artist as string | undefined,
-        releaseGroupId: appliedFilters.albumId as string | undefined,
+        releaseGroupId: appliedFilters.releaseGroupId as string | undefined,
         release: appliedFilters.release as string | undefined,
         video: appliedFilters.video !== undefined ? Boolean(appliedFilters.video) : undefined,
-        dur: appliedFilters.dur as { min?: string; max?: string } | undefined,
+        duration: appliedFilters.duration as { min?: string; max?: string } | undefined,
         tag: appliedFilters.tag as string | undefined,
       });
 
@@ -1124,10 +1143,10 @@ export class MusicBrainzDatabaseProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMB<MBRecordingListResponse>('/recording', apiParams, {
+      const data = await this.fetchMusicBrainz<MusicBrainzRecordingListResponse>('/recording', apiParams, {
         signal: params.signal,
       });
-      const parsedResults = z.array(MBRecordingSchema).parse(data.recordings || []);
+      const parsedResults = z.array(MusicBrainzRecordingSchema).parse(data.recordings ?? []);
       const items = parsedResults.map((item) => mapRecordingToItem(item, this.id));
 
       const currentPage = params.page || 1;
@@ -1144,7 +1163,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
         },
       });
 
-      return result as SearchResult<MBRecording>;
+      return result as SearchResult<MusicBrainzRecording>;
     } catch (error) {
       throw handleProviderError(error, this.id);
     }
@@ -1157,7 +1176,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
   ] as const;
   private async resolveImageFromWikidata(id: string): Promise<string | null> {
     try {
-      const mbRes = await this.fetchMB<{ relations?: { type: string; url: { resource: string } }[] }>(
+      const mbRes = await this.fetchMusicBrainz<{ relations?: { type: string; url: { resource: string } }[] }>(
         `/artist/${id}`,
         { inc: 'url-rels' }
       );
@@ -1170,7 +1189,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
 
       const wdData = await this.externalFetcher<{ claims?: { P18?: [{ mainsnak?: { datavalue?: { value?: string } } }] } }>(
         `https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${QID}&property=P18&format=json`,
-        { headers: { 'User-Agent': MB_USER_AGENT } }
+        { headers: { 'User-Agent': MUSICBRAINZ_USER_AGENT } }
       );
 
       const fileClaim = wdData?.claims?.P18?.[0]?.mainsnak?.datavalue?.value;

@@ -13,17 +13,17 @@ describe('MusicBrainz Adapter', () => {
 
       it('should build a basic term query', () => {
         const query = buildAlbumLuceneQuery({ term: 'thriller' });
-        expect(query).toBe(`thriller AND ${NOT_SECONDARY}`);
+        expect(query).toBe(`release:thriller AND ${NOT_SECONDARY}`);
       });
 
       it('should escape special characters in term', () => {
         const query = buildAlbumLuceneQuery({ term: 'AC/DC' });
-        expect(query).toBe(String.raw`AC\/DC AND ${NOT_SECONDARY}`);
+        expect(query).toBe(String.raw`release:AC\/DC AND ${NOT_SECONDARY}`);
       });
 
       it('should build an exact artistId query', () => {
         const query = buildAlbumLuceneQuery({ artistId: '1234-5678', term: 'album' });
-        expect(query).toBe(`album AND arid:1234-5678 AND ${NOT_SECONDARY}`);
+        expect(query).toBe(`release:album AND arid:1234-5678 AND ${NOT_SECONDARY}`);
       });
 
       it('should prioritize artistId over artist text', () => {
@@ -43,7 +43,7 @@ describe('MusicBrainz Adapter', () => {
 
       it('should return empty string query if no conditions', () => {
         const query = buildAlbumLuceneQuery({});
-        expect(query).toBe(NOT_SECONDARY);
+        expect(query).toBe('*:*');
       });
     });
 
@@ -107,7 +107,7 @@ describe('MusicBrainz Adapter', () => {
 
       const urlObj = new URL(fetchedUrl);
       const EXPECTED_NOT = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ-mix OR Mixtape\/Street)`;
-      expect(urlObj.searchParams.get('query')).toBe(`aventurier AND arid:1234-5678 AND ${EXPECTED_NOT}`);
+      expect(urlObj.searchParams.get('query')).toBe(`release:aventurier AND arid:1234-5678 AND ${EXPECTED_NOT}`);
     });
   });
 
