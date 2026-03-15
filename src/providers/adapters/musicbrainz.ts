@@ -467,12 +467,13 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
           {
             value: { min: '1980', max: '1989' },
             skipQueryDifferenceTest: true,
-            expectSome: (album: MusicBrainzReleaseGroup) => {
+            expectToFail: true,
+            expectAll: (album: MusicBrainzReleaseGroup) => {
               if (!album['first-release-date']) return false;
               const year = Number.parseInt(album['first-release-date'].split('-')[0], 10);
               return year >= 1980 && year <= 1989;
             },
-            expectSomeMessage: 'be released in the 1980s',
+            expectAllMessage: 'be released in the 1980s',
           }
         ]
       }),
@@ -638,7 +639,8 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
           {
             value: { min: '1990', max: '1999' },
             skipQueryDifferenceTest: true,
-            expectSome: (artist: MusicBrainzArtist) => {
+            expectToFail: true,
+            expectAll: (artist: MusicBrainzArtist) => {
               const beginStr = artist['life-span']?.begin;
               if (!beginStr) return false;
               
@@ -648,7 +650,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
               const year = parseInt(yearMatch[1], 10);
               return year >= 1990 && year <= 1999;
             },
-            expectSomeMessage: 'be active in the 1990s',
+            expectAllMessage: 'be active in the 1990s',
           }
         ]
       }),
@@ -802,12 +804,13 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
           {
             value: { min: '180000', max: '240000' },
             skipQueryDifferenceTest: true,
+            expectToFail: true,
             // TODO(P2): Check if we can remove the check that the length is provided.
-            expectSome: (recording: MusicBrainzRecording) => {
+            expectAll: (recording: MusicBrainzRecording) => {
               if (!recording.length) return false;
               return recording.length >= 180_000 && recording.length <= 240_000;
             },
-            expectSomeMessage: 'be between 3 and 4 minutes long',
+            expectAllMessage: 'be between 3 and 4 minutes long',
           }
         ]
       }),

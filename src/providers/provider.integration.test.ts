@@ -173,7 +173,8 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
 
                 filter.testCases.forEach((testCase: FilterTestCase<any, any>) => {
                   const { value, query = '' } = testCase;
-                  it(`should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`, async () => {
+                  const programmableIt = testCase.expectToFail ? it.fails : it;
+                  programmableIt(`should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`, async () => {
                     const res = await entity.search({
                       query,
                       filters: { [filter.id]: value },

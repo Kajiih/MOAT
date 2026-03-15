@@ -107,6 +107,12 @@ export interface BaseFilterTestCase<TValue = unknown, TRaw = unknown> {
   skipQueryDifferenceTest?: boolean;
 
   /**
+   * If true, this test is expected to fail. Useful for tracking known issues
+   * with provider implementation that are tracked but not yet fixed.
+   */
+  expectToFail?: boolean;
+
+  /**
    * Custom hook to inspect the entire raw array payload collectively.
    * Should only be used for complex assertions that cannot be expressed with expectAll, expectSome, or expectNone.
    */
