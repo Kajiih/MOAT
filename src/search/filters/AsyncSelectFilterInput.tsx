@@ -68,11 +68,12 @@ export function AsyncSelectFilterInput({
 
   const searchParams = useMemo(
     () => ({
-      query: debouncedQuery,
-      filters: {},
       limit: 10,
+      page: 1,
+      query: debouncedQuery,
+      filters: filter.id && value ? { [filter.id]: value } : {},
     }),
-    [debouncedQuery],
+    [debouncedQuery, filter.id, value],
   );
 
   const { results, isLoading } = useItemSearch(providerId || '', targetEntityId, searchParams, {
@@ -105,7 +106,8 @@ export function AsyncSelectFilterInput({
           </div>
           <button
             onClick={() => {
-              onChange();
+              const clearValue = undefined;
+              onChange(clearValue);
               setQuery('');
             }}
             className="text-secondary hover:text-foreground shrink-0 p-0.5"

@@ -9,7 +9,7 @@ import {
 describe('MusicBrainz Adapter', () => {
   describe('Lucene Query Builders', () => {
     describe('buildAlbumLuceneQuery', () => {
-      const NOT_SECONDARY = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ-mix OR Mixtape\/Street)`;
+      const NOT_SECONDARY = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ\-mix OR Mixtape\/Street)`;
 
       it('should build a basic term query', () => {
         const query = buildAlbumLuceneQuery({ term: 'thriller' });
@@ -37,7 +37,7 @@ describe('MusicBrainz Adapter', () => {
       });
 
       it('should handle date ranges', () => {
-        const query = buildAlbumLuceneQuery({ firstreleasedate: { min: '1990', max: '2000' } });
+        const query = buildAlbumLuceneQuery({ firstreleasedate_min: '1990', firstreleasedate_max: '2000' });
         expect(query).toBe(`${NOT_SECONDARY} AND firstreleasedate:[1990 TO 2000]`);
       });
 
@@ -59,8 +59,8 @@ describe('MusicBrainz Adapter', () => {
       });
 
       it('should handle begin date ranges', () => {
-        const query = buildArtistLuceneQuery({ begin: { min: '1990' } });
-        expect(query).toBe('begin:[1990 TO *]');
+        const query = buildArtistLuceneQuery({ begin_min: '1990' });
+        expect(query).toBe('begin:[1990 TO 9999]');
       });
     });
 
@@ -76,7 +76,7 @@ describe('MusicBrainz Adapter', () => {
       });
 
       it('should handle dur (duration) range', () => {
-        const query = buildRecordingLuceneQuery({ dur: { min: '120000', max: '240000' } });
+        const query = buildRecordingLuceneQuery({ duration_min: '120000', duration_max: '240000' });
         expect(query).toBe('dur:[120000 TO 240000]');
       });
     });
@@ -99,15 +99,15 @@ describe('MusicBrainz Adapter', () => {
 
       const albumEntity = new MusicBrainzAlbumEntity(provider);
       await albumEntity.search({
-        query: 'aventurier',
-        filters: { artistId: '1234-5678' },
-        limit: 20,
+        query: 'Billie Jean',
+        filters: {},
+        limit: 10,
         page: 1,
       });
 
       const urlObj = new URL(fetchedUrl);
-      const EXPECTED_NOT = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ-mix OR Mixtape\/Street)`;
-      expect(urlObj.searchParams.get('query')).toBe(`release:aventurier AND arid:1234-5678 AND ${EXPECTED_NOT}`);
+      const EXPECTED_NOT = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ\-mix OR Mixtape\/Street)`;
+      expect(urlObj.searchParams.get('query')).toBe(`release:"Billie Jean" AND ${EXPECTED_NOT}`);
     });
   });
 
@@ -115,13 +115,22 @@ describe('MusicBrainz Adapter', () => {
     it('should resolve an album reference to coverartarchive', async () => {
       const { MusicBrainzDatabaseProvider } = await import('./musicbrainz');
       const provider = new MusicBrainzDatabaseProvider();
+
+      // Ensure no real network requests execute
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = async () => ({ ok: true, url: 'https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front' } as Response);
+
       const url = await provider.resolveImage('album:2c55f39d-9cb3-401c-b218-2fc600d26ec5');
       expect(url).toBe('https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front');
+      globalThis.fetch = originalFetch;
     });
 
     it('should successfully resolve an artist reference using Wikidata fallback', async () => {
       const { MusicBrainzDatabaseProvider } = await import('./musicbrainz');
       const provider = new MusicBrainzDatabaseProvider();
+
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = async () => ({ ok: false } as Response);
 
       // Mock fetchMB through initialize
       await provider.initialize((async (url: string) => {
@@ -161,6 +170,7 @@ describe('MusicBrainz Adapter', () => {
 
       const url = await provider.resolveImage('artist:076caf66-1bb1-4486-8f46-910c83441eab');
       expect(url).toContain('Artist_Image.jpg');
+      globalThis.fetch = originalFetch;
     });
   });
 });

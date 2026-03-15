@@ -70,7 +70,7 @@ interface RAWGListResponse<T> {
   results: T[];
 }
 
-import { createFilterSuite } from '@/search/filter-schemas';
+import { createFilterSuite, mapTo } from '@/search/filter-schemas';
 
 const rawgGameFilters = createFilterSuite<RAWGGame>();
 const rawgGameSorts = createSortSuite<RAWGGame>();
@@ -84,7 +84,7 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<RAWGGame>[] = [
     id: 'precise',
     label: 'Precise Search',
     defaultValue: true,
-    mapTo: 'search_precise',
+    transform: mapTo('search_precise'),
     helperText: 'Disable fuzzy matching for exact results',
     testCases: [
       {
@@ -121,12 +121,11 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
     label: 'Release Year',
     minPlaceholder: 'From YYYY',
     maxPlaceholder: 'To YYYY',
-    mapTo: 'dates',
-    transform: (val: { min?: string; max?: string }) => {
-      if (!val.min && !val.max) return;
+    transform: (val: { min?: string; max?: string }): Record<string, string> => {
+      if (!val.min && !val.max) return {};
       const start = val.min ? `${val.min}-01-01` : '1970-01-01';
       const end = val.max ? `${val.max}-12-31` : '2030-12-31';
-      return `${start},${end}`;
+      return { dates: `${start},${end}` };
     },
     testCases: [
       {
@@ -142,7 +141,7 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
   rawgGameFilters.select({
     id: 'platform',
     label: 'Platform',
-    mapTo: 'platforms',
+    transform: mapTo('platforms'),
     options: [
       { label: 'All Platforms', value: '' },
       { label: 'PC', value: '4' },

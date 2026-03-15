@@ -52,22 +52,29 @@ describe('Providers Utils', () => {
 
   describe('applyFilters', () => {
     const definitions: FilterDefinition<unknown>[] = [
-      { id: 'search', type: 'text', label: 'Search', mapTo: 'q', testCases: [] },
+      { id: 'search', type: 'text', label: 'Search', transform: (val) => ({ q: String(val) }), testCases: [] as never },
+      {
+          id: 'category',
+          type: 'select',
+          label: 'Category',
+          options: [{ label: 'All', value: '' }],
+          transform: (val: unknown) => ({ cat: String(val) }),
+          testCases: [] as never,
+      },
       {
         id: 'status',
         type: 'select',
         label: 'Status',
         options: [],
         transform: (val) => ({ fq: `status:${val}` }),
-        testCases: [],
+        testCases: [] as never,
       },
       {
         id: 'isActive',
         type: 'boolean',
         label: 'Active',
-        mapTo: 'active',
-        transform: (val) => (val ? '1' : '0'),
-        testCases: [],
+        transform: (val) => ({ active: val ? '1' : '0' }),
+        testCases: [] as never,
       },
     ];
 
@@ -103,7 +110,7 @@ describe('Providers Utils', () => {
 
     it('should drop malformed number payloads safely without crashing', () => {
       const numberDef: FilterDefinition<unknown>[] = [
-        { id: 'year', type: 'number', label: 'Year', mapTo: 'y', testCases: [] },
+        { id: 'year', type: 'number', label: 'Year', transform: (val) => ({ y: String(val) }), testCases: [] as never },
       ];
       const filters = { year: 'not-a-number' };
       const result = applyFilters(filters, numberDef);
@@ -118,9 +125,8 @@ describe('Providers Utils', () => {
           id: 'score',
           type: 'range',
           label: 'Score',
-          mapTo: 's',
-          transform: (val) => val?.min || undefined,
-          testCases: [],
+          transform: (val: { min?: string; max?: string } | undefined) => val?.min ? ({ s: val.min }) : ({} as Record<string, string>),
+          testCases: [] as never,
         },
       ];
       // Pass a string instead of the expected { min, max } object

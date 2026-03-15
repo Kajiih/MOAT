@@ -21,12 +21,12 @@ import {
 import { ProviderError, ProviderErrorCode } from './errors';
 
 /**
- * Wraps any error into a standardized ProviderError.
- * @param error - The original error object.
- * @param databaseId - The identifier of the provider where the error occurred.
- * @returns A standardized ProviderError.
+ * Handles error thrown by providers, converting them predictably into structured logs and standard errors.
+ * @param error The emitted error payload.
+ * @param providerId The ID of the provider throwing the error.
+ * @returns The structured standard formatting Error.
  */
-export function handleProviderError(error: unknown, databaseId: string): ProviderError {
+export function handleProviderError(error: unknown, providerId: string): ProviderError {
   if (error instanceof ProviderError) {
     return error;
   }
@@ -38,7 +38,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
       ProviderErrorCode.VALIDATION_ERROR,
       validationError.message,
       error,
-      databaseId,
+      providerId,
     );
   }
 
@@ -48,7 +48,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
       ProviderErrorCode.TIMEOUT,
       'The request timed out or was aborted',
       error,
-      databaseId,
+      providerId,
     );
   }
 
@@ -61,7 +61,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
           ProviderErrorCode.AUTH_ERROR,
           'Authentication failed or API key invalid',
           error,
-          databaseId,
+          providerId,
         );
       }
       case 404: {
@@ -69,7 +69,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
           ProviderErrorCode.NOT_FOUND,
           'The requested item was not found',
           error,
-          databaseId,
+          providerId,
         );
       }
       case 429: {
@@ -77,7 +77,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
           ProviderErrorCode.RATE_LIMIT,
           'Rate limit exceeded for this provider',
           error,
-          databaseId,
+          providerId,
         );
       }
       default: {
@@ -86,7 +86,7 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
             ProviderErrorCode.SERVICE_UNAVAILABLE,
             'External service is currently unavailable',
             error,
-            databaseId,
+            providerId,
           );
         }
       }
@@ -104,44 +104,15 @@ export function handleProviderError(error: unknown, databaseId: string): Provide
     message = error;
   }
 
-  return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, databaseId);
+  return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, providerId);
 }
 
-/**
- * Helper to process the result of a filter transform function
- * @param apiParams - The mutating object that receives API parameters
- * @param transformed - The result returned from the filter's transform function
- * @param mapTo - Optional direct mapping key for primitive results
- */
-function processTransformResult(
-  apiParams: Record<string, string>,
-  transformed: unknown,
-  mapTo?: string,
-) {
-  // If transform returns an object (and not an array), we merge it into apiParams (for complex mappings)
-  if (isObject(transformed) && !Array.isArray(transformed)) {
-    for (const [key, val] of Object.entries(transformed)) {
-      if (val !== undefined && val !== null) {
-        apiParams[key] = String(val);
-      }
-    }
-  }
-  // If transform returns a primitive (or array) and we have mapTo, we use it
-  else if (mapTo && transformed !== undefined && transformed !== null) {
-    apiParams[mapTo] = String(transformed);
-  }
-}
 
-/**
- * Helper to strongly type the filter payload mapping natively.
- * @param def - The specific FilterDefinition being applied
- * @param rawValue - The unparsed value straight from SearchParams
- * @returns The transformed payload
- */
+
 function applyTransform<TRaw>(
   def: FilterDefinition<TRaw>,
   rawValue: NonNullable<FilterValues[string]>,
-): unknown {
+): Record<string, string> | undefined {
   try {
     switch (def.type) {
       case 'text':
@@ -149,24 +120,24 @@ function applyTransform<TRaw>(
       case 'async-select':
       case 'date': {
         const parsed = TextValueSchema.parse(rawValue);
-        return def.transform ? def.transform(parsed) : parsed;
+        return def.transform(parsed);
       }
       case 'number': {
         const parsed = NumberValueSchema.parse(rawValue);
-        return def.transform ? def.transform(parsed) : parsed;
+        return def.transform(parsed);
       }
       case 'boolean': {
         const parsed = BooleanValueSchema.parse(rawValue);
-        return def.transform ? def.transform(parsed) : parsed;
+        return def.transform(parsed);
       }
       case 'multiselect':
       case 'async-multiselect': {
         const parsed = ArrayValueSchema.parse(rawValue);
-        return def.transform ? def.transform(parsed) : parsed;
+        return def.transform(parsed);
       }
       case 'range': {
         const parsed = RangeValueSchema.parse(rawValue);
-        return def.transform ? def.transform(parsed) : parsed;
+        return def.transform(parsed);
       }
       default: {
         return undefined;
@@ -180,40 +151,32 @@ function applyTransform<TRaw>(
 }
 
 /**
- * Automates the mapping of UI filter values to API parameters based on FilterDefinitions.
- * @param filterValues - The current filter values from SearchParams.
- * @param definitions - The list of FilterDefinitions for the entity.
- * @returns A new record containing the mapped API parameters.
+ * Orchestrates iterating through filter definitions to parse and transform standard payloads
+ * into exact API query objects for external APIs.
+ * @param filterValues The current UI payload mapping filter ID to specific string payload.
+ * @param definitions The standard filter configurations to parse payloads with.
+ * @returns Serialized map of precise URL values.
  */
 export function applyFilters<TRaw>(
   filterValues: FilterValues | undefined,
   definitions: FilterDefinition<TRaw>[],
 ): Record<string, string> {
-  const apiParams: Record<string, string> = {};
+  let apiParams: Record<string, string> = {};
   const values = filterValues || {};
 
   for (const def of definitions) {
-    // Skip if there's no mapping defined
-    if (!def.mapTo && !def.transform) continue;
-
     const rawValue = values[def.id];
 
     // Skip if value is "empty" (null, undefined, or empty string)
     if (rawValue === undefined || rawValue === null || rawValue === '') continue;
 
     // Parse it securely through Zod based on the filter type
-    const parsedAndTransformed = applyTransform(def, rawValue);
+    const transformedParams = applyTransform(def, rawValue);
 
     // If parsing failed (returned undefined), skip the filter entirely
-    if (parsedAndTransformed === undefined) continue;
+    if (transformedParams === undefined) continue;
 
-    if (def.transform) {
-      processTransformResult(apiParams, parsedAndTransformed, def.mapTo);
-    }
-    // Simple direct mapping (parsedAndTransformed is the raw validated primitive)
-    else if (def.mapTo) {
-      apiParams[def.mapTo] = String(parsedAndTransformed);
-    }
+    apiParams = { ...apiParams, ...transformedParams };
   }
 
   return apiParams;

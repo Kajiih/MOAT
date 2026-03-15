@@ -154,15 +154,10 @@ export interface BaseFilterDefinition<TValue = unknown, TRaw = unknown> {
   helperText?: string;
 
   /**
-   * Declarative Mapping
-   * The API parameter name this filter maps to.
+   * The transformation function to convert the UI value to an API parameter.
+   * Returns an object representing the API parameters to merge into the request payload.
    */
-  mapTo?: string;
-  /**
-   * A transformation function to convert the UI value to an API parameter.
-   * This is the "Escape Hatch" for database-specific logic.
-   */
-  transform?: (value: TValue) => unknown;
+  transform: (value: TValue) => Record<string, string>;
   /**
    * Defines test cases to verify this filter correctly narrows results.
    */
@@ -373,3 +368,13 @@ export function createFilterSuite<TRaw>() {
     },
   };
 }
+
+/**
+ * Convenience helper to generate a basic `transform` function representing
+ * a 1-to-1 payload mapping.
+ * @param key - The backend API parameter key to map to.
+ * @returns A transform function returning a valid `Record<string, string>`
+ */
+export const mapTo = <T>(key: string) => (val: T): Record<string, string> => ({
+  [key]: String(val),
+});

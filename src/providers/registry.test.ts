@@ -36,11 +36,18 @@ const createMockEntity = (overrides: Partial<Entity<MockItem>> = {}): Entity<Moc
     icon: Gamepad2,
     colorClass: 'text-purple-400',
   },
+  searchOptions: [],
   filters: [
-    { id: 'yearRange', label: 'Year Range', type: 'range', testCases: [] },
-    { id: 'platform', label: 'Platform', type: 'select', options: [], testCases: [] },
+    { id: 'price', label: 'Price Range', type: 'range', transform: (val: { min?: string, max?: string }) => ({ price: String(val.min) }), testCases: [] as never },
+    { id: 'category', label: 'Category', type: 'select', options: [], transform: (val: string) => ({ category: String(val) }), testCases: [] as never },
+    {
+      id: 'inStock',
+      label: 'In Stock',
+      type: 'boolean',
+      transform: (val: boolean) => ({ inStock: String(val) }),
+      testCases: [] as never,
+    },
   ],
-  searchOptions: [{ id: 'precise', label: 'Precise', type: 'boolean', testCases: [] }],
   sortOptions: [
     {
       id: 'relevance',

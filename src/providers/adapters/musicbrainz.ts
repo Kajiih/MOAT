@@ -13,7 +13,7 @@ import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
-import { createFilterSuite, FilterDefinition } from '@/search/filter-schemas';
+import { createFilterSuite, FilterDefinition, mapTo } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/search/sort-schemas';
 
@@ -59,7 +59,8 @@ export interface AlbumLuceneQuery {
   primarytype?: string | string[];
   secondarytype?: string | string[];
   status?: string;
-  firstreleasedate?: { min?: string; max?: string };
+  firstreleasedate_min?: string;
+  firstreleasedate_max?: string;
   tag?: string;
 }
 
@@ -73,6 +74,8 @@ const escapeLucene = (str: string) => str.replaceAll(/(["\\/;:!^()[\]{}~*?+\-&|]
 
 /**
  * Wraps a term in double quotes only if it contains a space.
+ * @param str - The string to format
+ * @returns The formatted string
  */
 const formatLuceneTerm = (str: string) => {
   const escaped = escapeLucene(str.trim());
@@ -140,7 +143,7 @@ export function buildAlbumLuceneQuery(query: AlbumLuceneQuery): string {
   if (query.status?.trim()) parts.push(`status:${formatLuceneTerm(query.status)}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
-  addLuceneRange(parts, 'firstreleasedate', query.firstreleasedate);
+  addLuceneRange(parts, 'firstreleasedate', { min: query.firstreleasedate_min, max: query.firstreleasedate_max });
 
   // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
   if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
@@ -155,7 +158,8 @@ export interface ArtistLuceneQuery {
   term?: string;
   country?: string;
   type?: string;
-  begin?: { min?: string; max?: string };
+  begin_min?: string;
+  begin_max?: string;
   tag?: string;
 }
 
@@ -172,7 +176,7 @@ export function buildArtistLuceneQuery(query: ArtistLuceneQuery): string {
   if (query.type?.trim()) parts.push(`type:${formatLuceneTerm(query.type)}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
-  addLuceneRange(parts, 'begin', query.begin);
+  addLuceneRange(parts, 'begin', { min: query.begin_min, max: query.begin_max });
 
   // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
   if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
@@ -190,7 +194,8 @@ export interface RecordingLuceneQuery {
   video?: boolean;
   artistId?: string;
   releaseGroupId?: string;
-  duration?: { min?: string; max?: string };
+  duration_min?: string;
+  duration_max?: string;
   tag?: string;
 }
 
@@ -210,7 +215,7 @@ export function buildRecordingLuceneQuery(query: RecordingLuceneQuery): string {
   if (query.video !== undefined) parts.push(`video:${query.video}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
-  addLuceneRange(parts, 'dur', query.duration);
+  addLuceneRange(parts, 'dur', { min: query.duration_min, max: query.duration_max });
   
   // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
   if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
@@ -371,7 +376,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.multiselect({
         id: 'primarytype',
         label: 'Release Type',
-        mapTo: 'primarytype',
+        transform: mapTo('primarytype'),
         options: [
           { label: 'Album', value: 'album' },
           { label: 'Single', value: 'single' },
@@ -396,7 +401,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.multiselect({
         id: 'secondarytype',
         label: 'Secondary Types',
-        mapTo: 'secondarytype',
+        transform: mapTo('secondarytype'),
         options: SECONDARY_TYPES.map(t => ({ label: t, value: t.toLowerCase() })),
         testCases: [
           {
@@ -414,7 +419,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.asyncSelect({
         id: 'artistId',
         label: 'Artist',
-        mapTo: 'artistId',
+        transform: mapTo('artistId'),
         targetEntityId: 'artist',
         testCases: [
           {
@@ -433,7 +438,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.select({
         id: 'status',
         label: 'Status',
-        mapTo: 'status',
+        transform: mapTo('status'),
         options: [
           { label: 'Any Status', value: '' },
           { label: 'Official', value: 'official' },
@@ -460,7 +465,12 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.range({
         id: 'firstreleasedate',
         label: 'Release Year Range',
-        transform: (val) => ({ firstreleasedate_min: val.min, firstreleasedate_max: val.max }),
+        transform: (val) => {
+          const params: Record<string, string> = {};
+          if (val.min) params.firstreleasedate_min = val.min;
+          if (val.max) params.firstreleasedate_max = val.max;
+          return params;
+        },
         minPlaceholder: 'From YYYY',
         maxPlaceholder: 'To YYYY',
         testCases: [
@@ -596,7 +606,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       musicBrainzArtistFilters.select({
         id: 'type',
         label: 'Artist Type',
-        mapTo: 'type',
+        transform: mapTo('type'),
         options: [
           { label: 'All Types', value: '' },
           { label: 'Person', value: 'person' },
@@ -617,8 +627,8 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       musicBrainzArtistFilters.text({
         id: 'country',
         label: 'Country (2-letter Code)',
-        mapTo: 'country',
-        placeholder: 'e.g. GB, US, FR',
+        transform: mapTo('country'),
+        placeholder: 'e.g. US, GB, JP',
         testCases: [
           {
             value: 'GB',
@@ -631,7 +641,12 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       musicBrainzArtistFilters.range({
         id: 'begin',
         label: 'Active Year Range',
-        transform: (val) => ({ begin_min: val.min, begin_max: val.max }),
+        transform: (val) => {
+          const params: Record<string, string> = {};
+          if (val.min) params.begin_min = val.min;
+          if (val.max) params.begin_max = val.max;
+          return params;
+        },
         minPlaceholder: 'From YYYY',
         maxPlaceholder: 'To YYYY',
         testCases: [
@@ -645,7 +660,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
               const yearMatch = beginStr.match(/^(\d{4})/);
               if (!yearMatch) return false;
               
-              const year = parseInt(yearMatch[1], 10);
+              const year = Number.parseInt(yearMatch[1], 10);
               return year >= 1990 && year <= 1999;
             },
             expectAllMessage: 'be active in the 1990s',
@@ -756,7 +771,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
       musicBrainzRecordingFilters.asyncSelect({
         id: 'artistId',
         label: 'Artist',
-        mapTo: 'artistId',
+        transform: mapTo('artistId'),
         targetEntityId: 'artist',
         testCases: [
           {
@@ -781,8 +796,8 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
       musicBrainzRecordingFilters.boolean({
         id: 'video',
         label: 'Is Video',
+        transform: mapTo('video'),
         defaultValue: false,
-        mapTo: 'video',
         testCases: [
           {
             value: true,
@@ -795,7 +810,12 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
       musicBrainzRecordingFilters.range({
         id: 'duration',
         label: 'Duration (ms)',
-        transform: (val) => ({ duration_min: val.min, duration_max: val.max }),
+        transform: (val) => {
+          const params: Record<string, string> = {};
+          if (val.min) params.duration_min = val.min;
+          if (val.max) params.duration_max = val.max;
+          return params;
+        },
         minPlaceholder: 'Min ms',
         maxPlaceholder: 'Max ms',
         testCases: [
@@ -812,9 +832,9 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
         ]
       }),
       musicBrainzRecordingFilters.asyncSelect({
-        id: 'albumId',
-        label: 'Album',
-        mapTo: 'releaseGroupId',
+        id: 'releaseGroupId',
+        label: 'Album (Release Group ID)',
+        transform: mapTo('releaseGroupId'),
         targetEntityId: 'album',
         testCases: [
           {
@@ -1009,7 +1029,8 @@ export class MusicBrainzDatabaseProvider implements Provider {
         primarytype: appliedFilters.primarytype as string | undefined,
         secondarytype: appliedFilters.secondarytype as string | string[] | undefined,
         status: appliedFilters.status as string | undefined,
-        firstreleasedate: { min: appliedFilters.firstreleasedate_min, max: appliedFilters.firstreleasedate_max },
+        firstreleasedate_min: appliedFilters.firstreleasedate_min as string | undefined,
+        firstreleasedate_max: appliedFilters.firstreleasedate_max as string | undefined,
         tag: appliedFilters.tag as string | undefined,
       });
 
@@ -1059,7 +1080,8 @@ export class MusicBrainzDatabaseProvider implements Provider {
         term: params.query,
         type: appliedFilters.type as string | undefined,
         country: appliedFilters.country as string | undefined,
-        begin: { min: appliedFilters.begin_min, max: appliedFilters.begin_max },
+        begin_min: appliedFilters.begin_min as string | undefined,
+        begin_max: appliedFilters.begin_max as string | undefined,
         tag: appliedFilters.tag as string | undefined,
       });
 
@@ -1130,7 +1152,8 @@ export class MusicBrainzDatabaseProvider implements Provider {
         releaseGroupId: appliedFilters.releaseGroupId as string | undefined,
         release: appliedFilters.release as string | undefined,
         video: appliedFilters.video !== undefined ? Boolean(appliedFilters.video) : undefined,
-        duration: { min: appliedFilters.duration_min, max: appliedFilters.duration_max },
+        duration_min: appliedFilters.duration_min as string | undefined,
+        duration_max: appliedFilters.duration_max as string | undefined,
         tag: appliedFilters.tag as string | undefined,
       });
 
