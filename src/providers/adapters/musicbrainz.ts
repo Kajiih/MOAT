@@ -20,6 +20,7 @@ import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
+import { RateLimiter } from '@/providers/rate-limiter';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/search/sort-schemas';
@@ -989,6 +990,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
   public status: ProviderStatus = ProviderStatus.IDLE;
 
   private fetcher: Fetcher = secureFetch;
+  private rateLimiter = new RateLimiter(700); //685 not fine
 
   public initialize = async (fetcher: Fetcher) => {
     this.fetcher = fetcher;
@@ -1135,6 +1137,9 @@ export class MusicBrainzDatabaseProvider implements Provider {
     const query = new URLSearchParams({ ...params, fmt: 'json' });
     const queryString = query.toString();
     const url = `${MUSICBRAINZ_BASE_URL}${endpoint}?${queryString}`;
+
+    // Respect the 1 req/sec limit before making the HTTP fetch
+    await this.rateLimiter.acquire(options?.signal);
 
     return this.fetcher<T>(url, {
       ...options,

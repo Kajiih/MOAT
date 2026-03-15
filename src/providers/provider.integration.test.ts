@@ -8,6 +8,7 @@ import { DEFAULT_PAGE_LIMIT, ProviderStatus } from '@/providers/types';
 import { FilterTestCase } from '@/search/filter-schemas';
 import { SearchResult } from '@/search/search-schemas';
 import { SortDirection } from '@/search/sort-schemas';
+import { logger } from '@/lib/logger';
 
 import { expectDistinctPages, expectSorted } from './test-utils';
 
@@ -38,10 +39,13 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
   for (const provider of providers) {
     describe(`Provider: ${provider.label} (${provider.id})`, () => {
       let fetchSpy: ReturnType<typeof vi.spyOn>;
+      let loggerWarnSpy: ReturnType<typeof vi.spyOn>;
 
       beforeAll(() => {
         fetchSpy = vi.spyOn(globalThis, 'fetch');
         fetchSpy.mockClear();
+        loggerWarnSpy = vi.spyOn(logger, 'warn');
+        loggerWarnSpy.mockClear();
       });
 
       afterAll(() => {
@@ -52,6 +56,20 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
           fetchCalls,
           `Provider ${provider.id} exceeded the absolute integration test limit of 120 API calls per run.`,
         ).toBeLessThan(120);
+
+        // Verify that we never hit a 429 or 503 rate limit/overload during the integration test
+        const rateLimitWarnings = loggerWarnSpy.mock.calls.filter((args: unknown[]) => {
+          return (
+            (typeof args[0] === 'string' && (args[0].includes('429') || args[0].includes('503'))) ||
+            (typeof args[1] === 'string' && (args[1].includes('429') || args[1].includes('503')))
+          );
+        });
+        expect(
+          rateLimitWarnings.length,
+          `Provider ${provider.id} hit a 429/503 error ${rateLimitWarnings.length} times during testing, indicating missing or misconfigured proactive rate limiting.`
+        ).toBe(0);
+
+        loggerWarnSpy.mockRestore();
         fetchSpy.mockRestore();
       });
 
