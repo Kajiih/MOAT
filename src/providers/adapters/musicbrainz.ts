@@ -1,6 +1,13 @@
 /**
  * @file MusicBrainz Provider Implementation
  * @description Provides support for Music (Albums and Artists) via the MusicBrainz API.
+ *
+ * Useful links:
+ *   - https://musicbrainz.org/doc/Indexed_Search_Syntax
+ *   - https://musicbrainz.org/doc/Search_Server
+ *   - https://musicbrainz.org/doc/MusicBrainz_API/Search
+ *   - https://musicbrainz.org/doc/Development/Search_Architecture
+ *   - https://lucene.apache.org/core/7_7_2/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description
  */
 
 import { Disc3, Mic2 } from 'lucide-react';
@@ -29,7 +36,7 @@ const SECONDARY_TYPES = [
   'Mixtape/Street',
 ];
 
-const musicBrainzArtistFilters = createFilterSuite<MusicBrainzArtist>();
+const musicBrainzArtistFilters = createFilterSuite<MusicBrainzArtist, ArtistLuceneQuery>();
 
 const MUSICBRAINZ_BASE_URL = 'https://musicbrainz.org/ws/2';
 const MUSICBRAINZ_USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
@@ -52,7 +59,7 @@ const addLuceneRange = (parts: string[], field: string, range?: { min?: string; 
 };
 
 /** Album search query model */
-export interface AlbumLuceneQuery {
+export type AlbumLuceneQuery = {
   term?: string;
   artist?: string;
   artistId?: string;
@@ -62,7 +69,7 @@ export interface AlbumLuceneQuery {
   firstreleasedate_min?: string;
   firstreleasedate_max?: string;
   tag?: string;
-}
+};
 
 /**
  * Escape a string for Lucene query parser to perform literal searches.
@@ -154,14 +161,14 @@ export function buildAlbumLuceneQuery(query: AlbumLuceneQuery): string {
 }
 
 /** Artist search query model */
-export interface ArtistLuceneQuery {
+export type ArtistLuceneQuery = {
   term?: string;
   country?: string;
   type?: string;
   begin_min?: string;
   begin_max?: string;
   tag?: string;
-}
+};
 
 /** 
  * Build an artist-specific lucene string 
@@ -187,7 +194,7 @@ export function buildArtistLuceneQuery(query: ArtistLuceneQuery): string {
 }
 
 /** Recording search query model */
-export interface RecordingLuceneQuery {
+export type RecordingLuceneQuery = {
   term?: string;
   artist?: string;
   release?: string;
@@ -197,7 +204,7 @@ export interface RecordingLuceneQuery {
   duration_min?: string;
   duration_max?: string;
   tag?: string;
-}
+};
 
 /** 
  * Build a recording-specific lucene string 
@@ -347,7 +354,7 @@ interface MusicBrainzRecordingListResponse extends MBListResponse {
 }
 
 const mbAlbumSorts = createSortSuite<MusicBrainzReleaseGroup>();
-const mbAlbumFilters = createFilterSuite<MusicBrainzReleaseGroup>();
+const mbAlbumFilters = createFilterSuite<MusicBrainzReleaseGroup, AlbumLuceneQuery>();
 
 // --- Album Entity ---
 // IDs for integration tests (e.g., Thriller, Abbey Road)
@@ -466,10 +473,10 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
         id: 'firstreleasedate',
         label: 'Release Year Range',
         transform: (val) => {
-          const params: Record<string, string> = {};
-          if (val.min) params.firstreleasedate_min = val.min;
-          if (val.max) params.firstreleasedate_max = val.max;
-          return params;
+          return {
+            ...(val.min && { firstreleasedate_min: val.min }),
+            ...(val.max && { firstreleasedate_max: val.max }),
+          };
         },
         minPlaceholder: 'From YYYY',
         maxPlaceholder: 'To YYYY',
@@ -642,10 +649,10 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
         id: 'begin',
         label: 'Active Year Range',
         transform: (val) => {
-          const params: Record<string, string> = {};
-          if (val.min) params.begin_min = val.min;
-          if (val.max) params.begin_max = val.max;
-          return params;
+          return {
+            ...(val.min && { begin_min: val.min }),
+            ...(val.max && { begin_max: val.max }),
+          };
         },
         minPlaceholder: 'From YYYY',
         maxPlaceholder: 'To YYYY',
@@ -745,7 +752,7 @@ function mapArtistToItem(artist: MusicBrainzArtist, databaseId: string): Item {
 
 // --- Recording Entity (Song) ---
 const mbRecordingSorts = createSortSuite<MusicBrainzRecording>();
-const musicBrainzRecordingFilters = createFilterSuite<MusicBrainzRecording>();
+const musicBrainzRecordingFilters = createFilterSuite<MusicBrainzRecording, RecordingLuceneQuery>();
 
 const SONG_CREEP_ID = '8ea89714-3742-4dce-8940-510480ae1372'; // A valid Radiohead - Creep recording MBID
 const SONG_BILLIE_JEAN_ID = '494c5a79-bc87-4a9f-8847-55122c7817b8'; // A valid Michael Jackson - Billie Jean recording MBID
@@ -811,10 +818,10 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
         id: 'duration',
         label: 'Duration (ms)',
         transform: (val) => {
-          const params: Record<string, string> = {};
-          if (val.min) params.duration_min = val.min;
-          if (val.max) params.duration_max = val.max;
-          return params;
+          return {
+            ...(val.min && { duration_min: val.min }),
+            ...(val.max && { duration_max: val.max }),
+          };
         },
         minPlaceholder: 'Min ms',
         maxPlaceholder: 'Max ms',

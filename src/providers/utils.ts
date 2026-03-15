@@ -12,6 +12,7 @@ import {
   ArrayValueSchema,
   BooleanValueSchema,
   FilterDefinition,
+  FilterOutputRecord,
   FilterValues,
   NumberValueSchema,
   RangeValueSchema,
@@ -112,7 +113,7 @@ export function handleProviderError(error: unknown, providerId: string): Provide
 function applyTransform<TRaw>(
   def: FilterDefinition<TRaw>,
   rawValue: NonNullable<FilterValues[string]>,
-): Record<string, string> | undefined {
+): FilterOutputRecord | undefined {
   try {
     switch (def.type) {
       case 'text':
@@ -160,8 +161,8 @@ function applyTransform<TRaw>(
 export function applyFilters<TRaw>(
   filterValues: FilterValues | undefined,
   definitions: FilterDefinition<TRaw>[],
-): Record<string, string> {
-  let apiParams: Record<string, string> = {};
+): FilterOutputRecord {
+  let apiParams: FilterOutputRecord = {};
   const values = filterValues || {};
 
   for (const def of definitions) {

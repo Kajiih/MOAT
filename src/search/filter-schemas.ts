@@ -42,6 +42,16 @@ export type FilterValues = Record<
   string | number | boolean | string[] | { min?: string; max?: string } | undefined
 >;
 
+/**
+ * A primitive value that can be cleanly serialized into an API query parameter.
+ */
+export type FilterOutputValue = string | number | boolean | string[];
+
+/**
+ * Valid output type mapping returned by a filter's transform function.
+ */
+export type FilterOutputRecord = Record<string, FilterOutputValue>;
+
 // --- Runtime Validation Schemas for Filter Values ---
 
 export const TextValueSchema = z.string();
@@ -143,7 +153,11 @@ export type FilterTestCase<TValue = unknown, TRaw = unknown> =
 /**
  * Definition for a filter that the UI should render.
  */
-export interface BaseFilterDefinition<TValue = unknown, TRaw = unknown> {
+export interface BaseFilterDefinition<
+  TValue = unknown,
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> {
   /** Unique ID for the filter (used as key in internal state) */
   id: string;
   /** Human readable label for the UI */
@@ -157,7 +171,7 @@ export interface BaseFilterDefinition<TValue = unknown, TRaw = unknown> {
    * The transformation function to convert the UI value to an API parameter.
    * Returns an object representing the API parameters to merge into the request payload.
    */
-  transform: (value: TValue) => Record<string, string>;
+  transform: (value: TValue) => TOutput;
   /**
    * Defines test cases to verify this filter correctly narrows results.
    */
@@ -165,49 +179,58 @@ export interface BaseFilterDefinition<TValue = unknown, TRaw = unknown> {
 }
 
 /** Defines a text-based filter mechanism */
-export interface TextFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<string, TRaw> {
+export interface TextFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<string, TRaw, TOutput> {
   type: 'text';
   /** Placeholder text for the input */
   placeholder?: string;
 }
 
 /** Defines a numerical filter mechanism */
-export interface NumberFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<number, TRaw> {
+export interface NumberFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<number, TRaw, TOutput> {
   type: 'number';
   /** Placeholder text for the input */
   placeholder?: string;
 }
 
 /** Defines a boolean toggle filter mechanism */
-export interface BooleanFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
-  boolean,
-  TRaw
-> {
+export interface BooleanFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<boolean, TRaw, TOutput> {
   type: 'boolean';
 }
 
 /** Defines a single-choice dropdown filter mechanism */
-export interface SelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<string, TRaw> {
+export interface SelectFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<string, TRaw, TOutput> {
   type: 'select';
   /** Available options for selection-based inputs */
   options: FilterOption[];
 }
 
 /** Defines a multiple-choice selection filter mechanism */
-export interface MultiSelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
-  string[],
-  TRaw
-> {
+export interface MultiSelectFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<string[], TRaw, TOutput> {
   type: 'multiselect';
   /** Available options for selection-based inputs */
   options: FilterOption[];
 }
 
 /** Defines an asynchronous single-choice dropdown fetching its options live */
-export interface AsyncSelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
-  string,
-  TRaw
-> {
+export interface AsyncSelectFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<string, TRaw, TOutput> {
   type: 'async-select';
   /**
    * Specifies the ID of the entity within the SAME provider to search against.
@@ -217,10 +240,10 @@ export interface AsyncSelectFilterDefinition<TRaw = unknown> extends BaseFilterD
 }
 
 /** Defines an asynchronous multiple-choice selection mechanism fetching its options live */
-export interface AsyncMultiSelectFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
-  string[],
-  TRaw
-> {
+export interface AsyncMultiSelectFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<string[], TRaw, TOutput> {
   type: 'async-multiselect';
   /**
    * Specifies the ID of the entity within the SAME provider to search against.
@@ -230,10 +253,10 @@ export interface AsyncMultiSelectFilterDefinition<TRaw = unknown> extends BaseFi
 }
 
 /** Defines a numeric range (min/max) filter mechanism */
-export interface RangeFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<
-  { min?: string; max?: string },
-  TRaw
-> {
+export interface RangeFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<{ min?: string; max?: string }, TRaw, TOutput> {
   type: 'range';
   /** Optional placeholder for the minimum input field */
   minPlaceholder?: string;
@@ -242,7 +265,10 @@ export interface RangeFilterDefinition<TRaw = unknown> extends BaseFilterDefinit
 }
 
 /** Defines a date string filter mechanism */
-export interface DateFilterDefinition<TRaw = unknown> extends BaseFilterDefinition<string, TRaw> {
+export interface DateFilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<string, TRaw, TOutput> {
   type: 'date';
   /** Placeholder text for the input */
   placeholder?: string;
@@ -253,16 +279,19 @@ export interface DateFilterDefinition<TRaw = unknown> extends BaseFilterDefiniti
  * By removing `TValue = any` here, consumers are forced to match the intrinsic
  * payload type (`string`, `string[]`, or `{min, max}`) based purely on the `type` tag.
  */
-export type FilterDefinition<TRaw = unknown> =
-  | TextFilterDefinition<TRaw>
-  | NumberFilterDefinition<TRaw>
-  | BooleanFilterDefinition<TRaw>
-  | SelectFilterDefinition<TRaw>
-  | MultiSelectFilterDefinition<TRaw>
-  | AsyncSelectFilterDefinition<TRaw>
-  | AsyncMultiSelectFilterDefinition<TRaw>
-  | RangeFilterDefinition<TRaw>
-  | DateFilterDefinition<TRaw>;
+export type FilterDefinition<
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> =
+  | TextFilterDefinition<TRaw, TOutput>
+  | NumberFilterDefinition<TRaw, TOutput>
+  | BooleanFilterDefinition<TRaw, TOutput>
+  | SelectFilterDefinition<TRaw, TOutput>
+  | MultiSelectFilterDefinition<TRaw, TOutput>
+  | AsyncSelectFilterDefinition<TRaw, TOutput>
+  | AsyncMultiSelectFilterDefinition<TRaw, TOutput>
+  | RangeFilterDefinition<TRaw, TOutput>
+  | DateFilterDefinition<TRaw, TOutput>;
 
 /**
  * An array of filter definitions that abstracts away the specific transformation types,
@@ -276,14 +305,16 @@ export type FilterDefinition<TRaw = unknown> =
  * This prevents repetitive `<any, RAWGGame>` boilerplate on every individual filter definition.
  * @returns An exact factory suite enforcing the TRaw constraints.
  */
-export function createFilterSuite<TRaw>() {
+export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord = FilterOutputRecord>() {
   return {
     /**
      * Build a text filter parameter
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed TextFilterDefinition.
      */
-    text: (config: Omit<TextFilterDefinition<TRaw>, 'type'>): TextFilterDefinition<TRaw> => {
+    text: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<TextFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): TextFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'text' };
     },
 
@@ -292,7 +323,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed NumberFilterDefinition.
      */
-    number: (config: Omit<NumberFilterDefinition<TRaw>, 'type'>): NumberFilterDefinition<TRaw> => {
+    number: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<NumberFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): NumberFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'number' };
     },
 
@@ -301,9 +334,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed BooleanFilterDefinition.
      */
-    boolean: (
-      config: Omit<BooleanFilterDefinition<TRaw>, 'type'>,
-    ): BooleanFilterDefinition<TRaw> => {
+    boolean: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<BooleanFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): BooleanFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'boolean' };
     },
 
@@ -312,7 +345,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed SelectFilterDefinition.
      */
-    select: (config: Omit<SelectFilterDefinition<TRaw>, 'type'>): SelectFilterDefinition<TRaw> => {
+    select: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<SelectFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): SelectFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'select' };
     },
 
@@ -321,9 +356,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed MultiSelectFilterDefinition.
      */
-    multiselect: (
-      config: Omit<MultiSelectFilterDefinition<TRaw>, 'type'>,
-    ): MultiSelectFilterDefinition<TRaw> => {
+    multiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<MultiSelectFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): MultiSelectFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'multiselect' };
     },
 
@@ -332,9 +367,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed AsyncSelectFilterDefinition.
      */
-    asyncSelect: (
-      config: Omit<AsyncSelectFilterDefinition<TRaw>, 'type'>,
-    ): AsyncSelectFilterDefinition<TRaw> => {
+    asyncSelect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<AsyncSelectFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): AsyncSelectFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'async-select' };
     },
 
@@ -343,9 +378,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed AsyncMultiSelectFilterDefinition.
      */
-    asyncMultiselect: (
-      config: Omit<AsyncMultiSelectFilterDefinition<TRaw>, 'type'>,
-    ): AsyncMultiSelectFilterDefinition<TRaw> => {
+    asyncMultiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<AsyncMultiSelectFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): AsyncMultiSelectFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'async-multiselect' };
     },
 
@@ -354,7 +389,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed RangeFilterDefinition.
      */
-    range: (config: Omit<RangeFilterDefinition<TRaw>, 'type'>): RangeFilterDefinition<TRaw> => {
+    range: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<RangeFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): RangeFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'range' };
     },
 
@@ -363,7 +400,9 @@ export function createFilterSuite<TRaw>() {
      * @param config - The filter configuration object without the literal type constraint.
      * @returns A strongly typed DateFilterDefinition.
      */
-    date: (config: Omit<DateFilterDefinition<TRaw>, 'type'>): DateFilterDefinition<TRaw> => {
+    date: <TOutput extends FilterOutputRecord = TSuiteOutput>(
+      config: Omit<DateFilterDefinition<TRaw, TOutput>, 'type'>,
+    ): DateFilterDefinition<TRaw, TOutput> => {
       return { ...config, type: 'date' };
     },
   };
@@ -375,6 +414,6 @@ export function createFilterSuite<TRaw>() {
  * @param key - The backend API parameter key to map to.
  * @returns A transform function returning a valid `Record<string, string>`
  */
-export const mapTo = <T>(key: string) => (val: T): Record<string, string> => ({
+export const mapTo = <T, K extends PropertyKey>(key: K) => (val: T): Record<K, string> => ({
   [key]: String(val),
-});
+} as Record<K, string>);
