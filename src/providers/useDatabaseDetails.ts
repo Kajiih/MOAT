@@ -23,6 +23,32 @@ interface UseDatabaseDetailsOptions {
  * @param options - Additional hook settings.
  * @returns An SWR response object containing the item details and fetching state.
  */
+export const fetchDatabaseDetails = async (
+  key: unknown[],
+  options?: { signal?: AbortSignal },
+): Promise<ItemDetails> => {
+  const signal = options?.signal;
+  const [, providerId, entityId, dbId] = key as [string, string | undefined, string | undefined, string | undefined];
+  
+  if (!providerId || !entityId || !dbId) {
+    throw new Error('Provider ID, Entity ID, and Database ID are required');
+  }
+
+  const searchParams = new URLSearchParams({
+    providerId,
+    entityId,
+    dbId,
+  });
+
+  const res = await fetch(`/api/details?${searchParams.toString()}`, { signal });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch item details');
+  }
+
+  return res.json();
+};
+
 export function useDatabaseDetails(
   providerId: string | undefined,
   entityId: string | undefined,
@@ -35,32 +61,8 @@ export function useDatabaseDetails(
   const cacheKey =
     enabled && providerId && entityId && dbId ? ['db-details', providerId, entityId, dbId] : null;
 
-  // 2. Define the fetcher that correctly delegates to our API Proxy
-  const fetcher = async (
-    _key: unknown[],
-    { signal }: { signal: AbortSignal },
-  ): Promise<ItemDetails> => {
-    if (!providerId || !entityId || !dbId) {
-      throw new Error('Provider ID, Entity ID, and Database ID are required');
-    }
-
-    const searchParams = new URLSearchParams({
-      providerId,
-      entityId,
-      dbId,
-    });
-
-    const res = await fetch(`/api/details?${searchParams.toString()}`, { signal });
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to fetch item details');
-    }
-
-    return res.json();
-  };
-
   // 3. Use SWR for fetching and caching
-  const { data, error, isLoading, isValidating, mutate } = useSWR<ItemDetails>(cacheKey, fetcher, {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ItemDetails>(cacheKey, fetchDatabaseDetails, {
     revalidateOnFocus: false,
     shouldRetryOnError: false,
   });

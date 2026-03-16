@@ -9,6 +9,7 @@ import { DEFAULT_PAGE_LIMIT, ProviderStatus } from '@/providers/types';
 import { FilterTestCase } from '@/search/filter-schemas';
 import { SearchResult } from '@/search/search-schemas';
 import { SortDirection } from '@/search/sort-schemas';
+import { ItemDetailsSchema } from '@/items/items';
 
 import { expectDistinctPages, expectSorted } from './test-utils';
 
@@ -288,7 +289,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
 
           describe('Details Fetching', () => {
             it.each(entity.testDetailsIds)(
-              `should fetch valid transformed details for ID %s`,
+              `should fetch valid transformed details for ID %s that match ItemDetailsSchema`,
               async (testId) => {
                 const details = await entity.getDetails(testId);
 
@@ -298,6 +299,13 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                 expect(details.identity.databaseId).toBe(provider.id);
                 expect(details.identity.entityId).toBe(entity.id);
                 expect(details.title, 'Details missing title').toBeTruthy();
+                
+                // Assert strict Zod schema compliance
+                const parseResult = ItemDetailsSchema.safeParse(details);
+                if (!parseResult.success) {
+                  console.error(`Schema validation failed for ${provider.id}/${entity.id}/${testId}:`, parseResult.error.format());
+                }
+                expect(parseResult.success, `Details for ${testId} must pass ItemDetailsSchema validation`).toBe(true);
 
                 // Transformation Quality
                 if (details.description) {
