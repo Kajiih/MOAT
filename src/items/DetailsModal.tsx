@@ -48,6 +48,12 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
     persist: true,
   });
 
+  useEffect(() => {
+    if (error) {
+      console.error('Failed to load item details:', error);
+    }
+  }, [error]);
+
   if (!isOpen || !resolvedItem) return null;
 
   const entityDef = registry.getEntity(
@@ -130,7 +136,10 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
 
           {error && (
             <div className="border-destructive/20 text-destructive rounded-md border bg-red-900/10 p-4 text-center">
-              Failed to load additional details.
+              <p className="font-semibold">Failed to load additional details.</p>
+              {error instanceof Error && (
+                <p className="mt-1 text-sm opacity-80">{error.message}</p>
+              )}
             </div>
           )}
 

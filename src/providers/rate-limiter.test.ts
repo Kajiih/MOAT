@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { RateLimiter } from './rate-limiter';
 
 describe('RateLimiter', () => {
@@ -12,7 +13,6 @@ describe('RateLimiter', () => {
 
   it('resolves immediately on the first call', async () => {
     const limiter = new RateLimiter(1000);
-    const start = Date.now();
     
     // In fake timers environment, Date.now() doesn't advance unless we tick,
     // but the limiter should resolve instantly anyway.
@@ -57,7 +57,7 @@ describe('RateLimiter', () => {
     const controller = new AbortController();
     
     let resolved = false;
-    let rejectedError: any = null;
+    let rejectedError: unknown = null;
 
     // First call consumes the immediate allowance
     limiter.acquire();
@@ -65,7 +65,7 @@ describe('RateLimiter', () => {
     // Second call goes into queue
     limiter.acquire(controller.signal)
       .then(() => { resolved = true; })
-      .catch((e) => { rejectedError = e; });
+      .catch((error) => { rejectedError = error; });
 
     // Abort before the delay passes
     controller.abort(new Error('Manual abort'));
@@ -74,7 +74,7 @@ describe('RateLimiter', () => {
 
     expect(resolved).toBe(false);
     expect(rejectedError).toBeInstanceOf(Error);
-    expect(rejectedError.message).toBe('Manual abort');
+    expect((rejectedError as Error).message).toBe('Manual abort');
   });
 
   it('rejects synchronously if already aborted when passed in', async () => {

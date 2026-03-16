@@ -132,16 +132,6 @@ describe('MusicBrainz Adapter', () => {
       const originalFetch = globalThis.fetch;
       globalThis.fetch = async () => ({ ok: false } as Response);
 
-      // Mock fetchMB through initialize
-      await provider.initialize((async (url: string) => {
-        if (url.includes('/artist/076caf66')) {
-          return {
-            relations: [{ type: 'wikidata', url: { resource: 'https://www.wikidata.org/wiki/Q123' } }]
-          };
-        }
-        return {};
-      }) as never);
-
       // Mock externalFetcher manually to return JSON (as secureFetch naturally does)
       (provider as unknown as { externalFetcher: unknown }).externalFetcher = async (url: string | URL | Request) => {
         const urlStr = url.toString();
@@ -149,15 +139,13 @@ describe('MusicBrainz Adapter', () => {
 
         if (urlStr.includes('fanart.tv')) {
           throw new Error('Not found'); // secureFetch throws generic/ProviderErrors
-        } else if (urlStr.includes('action=wbgetclaims&entity=Q123')) {
+        } else if (urlStr.includes('query.wikidata.org/sparql')) {
           data = {
-            claims: {
-              P18: [
+            results: {
+              bindings: [
                 {
-                  mainsnak: {
-                    datavalue: {
-                      value: 'Artist_Image.jpg'
-                    }
+                  image: {
+                    value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Artist_Image.jpg'
                   }
                 }
               ]

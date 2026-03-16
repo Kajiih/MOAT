@@ -4,7 +4,7 @@
  */
 
 export class RateLimiter {
-  private queue: Array<{ resolve: () => void; reject: (reason?: any) => void; signal?: AbortSignal }> = [];
+  private queue: Array<{ resolve: () => void; reject: (reason?: unknown) => void; signal?: AbortSignal }> = [];
   private isProcessing = false;
   private lastExecuted = 0;
 
@@ -18,7 +18,7 @@ export class RateLimiter {
    * If the limit hasn't been reached, it resolves immediately.
    * Otherwise, it queues the request and resolves it after the appropriate delay.
    * @param signal An optional AbortSignal to cancel waiting in the queue.
-   * @throws DOMException If the signal is aborted while waiting.
+   * @throws {DOMException} If the signal is aborted while waiting.
    */
   public async acquire(signal?: AbortSignal): Promise<void> {
     if (signal?.aborted) {
@@ -31,7 +31,7 @@ export class RateLimiter {
       const onAbort = () => {
         // Remove from queue
         const index = this.queue.indexOf(entry);
-        if (index > -1) {
+        if (index !== -1) {
           this.queue.splice(index, 1);
         }
         reject(signal!.reason || new DOMException('Aborted', 'AbortError'));
