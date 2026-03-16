@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 
 import { Item } from '@/board/types';
 import { ItemDetailsCoreSchema, ItemUpdate } from '@/items/items';
-import { useDatabaseDetails } from '@/providers/useDatabaseDetails';
+import { useItemDetails } from '@/providers/useItemDetails';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 
 interface UseItemResolverOptions {
@@ -36,7 +36,7 @@ export function useItemResolver(item: Item | null, options: UseItemResolverOptio
   const needsEnrichment = !!item && !item.details;
   const shouldFetch = enabled && needsEnrichment;
 
-  const { details, isLoading, error, isValidating } = useDatabaseDetails(
+  const { details, isLoading, error, isValidating } = useItemDetails(
     item?.identity.databaseId,
     item?.identity.entityId,
     item?.identity.dbId,

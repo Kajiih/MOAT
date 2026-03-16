@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { fetchDatabaseDetails } from './useDatabaseDetails';
+import { fetchItemDetails } from './useItemDetails';
 
-describe('fetchDatabaseDetails (SWR Fetcher)', () => {
+describe('fetchItemDetails (SWR Fetcher)', () => {
   beforeEach(() => {
     // Mock global fetch to succeed so we only test the function signature crash
     globalThis.fetch = vi.fn().mockResolvedValue({
@@ -21,7 +21,7 @@ describe('fetchDatabaseDetails (SWR Fetcher)', () => {
     const cacheKey = ['db-details', 'rawg', 'game', '123'];
 
     // Call the fetcher EXACTLY like SWR does when options are unexpectedly missing
-    const promise = fetchDatabaseDetails(cacheKey, undefined as any);
+    const promise = fetchItemDetails(cacheKey, undefined as any);
     
     // If the destructuring bug exists, this will reject with a TypeError.
     // If it's fixed, it will resolve successfully.
