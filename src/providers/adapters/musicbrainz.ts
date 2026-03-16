@@ -17,13 +17,14 @@ import { toCompositeId } from '@/items/identity';
 import { referenceImage, urlImage } from '@/items/images';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items';
 import { secureFetch } from '@/providers/api-client';
+import { RateLimiter } from '@/providers/rate-limiter';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
-import { RateLimiter } from '@/providers/rate-limiter';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/search/sort-schemas';
+import { logger } from '@/lib/logger';
 
 const SECONDARY_TYPES = [
   'Compilation',
@@ -996,8 +997,13 @@ export class MusicBrainzDatabaseProvider implements Provider {
     this.fetcher = fetcher;
     this.externalFetcher = fetcher;
     this.status = ProviderStatus.READY;
-  };
 
+    // Validate Fanart.tv key on startup
+    const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
+    if (!fanartKey) {
+      console.warn(`[MusicBrainz] No FANART_TV_API_KEY found in environment. Artist image resolution will fallback to Wikidata.`);
+    }
+  };
   public readonly testImageKeys = nonEmpty(ALBUM_THRILLER_ID, ARTIST_DAFT_PUNK_ID);
 
   private externalFetcher: Fetcher = secureFetch;
@@ -1211,26 +1217,25 @@ export class MusicBrainzDatabaseProvider implements Provider {
   ] as const;
   private async resolveImageFromWikidata(id: string): Promise<string | null> {
     try {
-      const mbRes = await this.fetchMusicBrainz<{ relations?: { type: string; url: { resource: string } }[] }>(
-        `/artist/${id}`,
-        { inc: 'url-rels' }
+      const query = `SELECT ?image WHERE { ?item wdt:P434 "${id}" . ?item wdt:P18 ?image . } LIMIT 1`;
+      const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}`;
+
+      const wdData = await this.externalFetcher<{ results?: { bindings?: { image?: { value: string } }[] } }>(
+        url,
+        {
+          headers: {
+            'User-Agent': MUSICBRAINZ_USER_AGENT,
+            Accept: 'application/sparql-results+json',
+          },
+        }
       );
 
-      const wikidataUrl = mbRes.relations?.find((r) => r.type === 'wikidata')?.url?.resource;
-      if (!wikidataUrl) return null;
-
-      const QID = wikidataUrl.split('/').pop();
-      if (!QID) return null;
-
-      const wdData = await this.externalFetcher<{ claims?: { P18?: [{ mainsnak?: { datavalue?: { value?: string } } }] } }>(
-        `https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${QID}&property=P18&format=json`,
-        { headers: { 'User-Agent': MUSICBRAINZ_USER_AGENT } }
-      );
-
-      const fileClaim = wdData?.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
-      if (fileClaim && typeof fileClaim === 'string') {
-        const fileName = fileClaim.replaceAll(' ', '_');
-        return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=800`;
+      const imageUrl = wdData?.results?.bindings?.[0]?.image?.value;
+      if (imageUrl && typeof imageUrl === 'string') {
+        const urlObj = new URL(imageUrl);
+        urlObj.protocol = 'https:';
+        urlObj.searchParams.set('width', '800');
+        return urlObj.toString();
       }
     } catch {
       // Fallthrough
@@ -1240,17 +1245,21 @@ export class MusicBrainzDatabaseProvider implements Provider {
 
   private async resolveImageFromFanart(id: string): Promise<string | null> {
     const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
-    if (fanartKey) {
-      try {
-        const data = await this.externalFetcher<{ artistthumb?: [{ url?: string }] }>(`https://webservice.fanart.tv/v3/music/${id}`, {
-          headers: { 'api-key': fanartKey, Accept: 'application/json' },
-        });
-        const url = data?.artistthumb?.[0]?.url;
-        if (url) return url;
-      } catch {
-        // Silently fallback on failure
-      }
+    
+    if (!fanartKey) {
+      return null;
     }
+
+    try {
+      const data = await this.externalFetcher<{ artistthumb?: [{ url?: string }] }>(`https://webservice.fanart.tv/v3/music/${id}`, {
+        headers: { 'api-key': fanartKey, Accept: 'application/json' },
+      });
+      const url = data?.artistthumb?.[0]?.url;
+      if (url) return url;
+    } catch (error) {
+      logger.debug(`[MusicBrainz] Fanart.tv lookup failed for ${id} (expected if the artist is not in the database): ${error}`);
+    }
+    
     return null;
   }
 }
