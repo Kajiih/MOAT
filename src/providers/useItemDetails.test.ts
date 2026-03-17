@@ -18,7 +18,7 @@ describe('fetchItemDetails (SWR Fetcher)', () => {
   });
 
   it('should safely handle undefined options from SWR without a destructuring TypeError', async () => {
-    const cacheKey = ['db-details', 'rawg', 'game', '123'];
+    const cacheKey = ['item-details', 'rawg', 'game', 'providerItemId-123'];
 
     // Call the fetcher EXACTLY like SWR does when options are unexpectedly missing
     const promise = fetchItemDetails(cacheKey, undefined as any);

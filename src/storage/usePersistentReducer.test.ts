@@ -64,7 +64,7 @@ describe('usePersistentReducer', () => {
       expect(result.current[2]).toBe(true);
     });
 
-    // Hydration triggers a save of initial state (since it wasn't in DB)
+    // Hydration triggers a save of initial state (since it wasn't in storage)
     // We wait for that first save to happen or clear it
     await waitFor(() => expect(storage.set).toHaveBeenCalled(), { timeout: 1000 });
     vi.mocked(storage.set).mockClear();

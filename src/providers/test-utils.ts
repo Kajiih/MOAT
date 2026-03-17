@@ -18,7 +18,7 @@ import { SortDirection } from '@/search/sort-schemas';
  * @param targetId - The canonical ID that must be present.
  */
 export function expectContainsCanonical(items: BaseItem[], targetId: string) {
-  const ids = items.map((i) => i.identity.dbId);
+  const ids = items.map((i) => i.identity.providerItemId);
   expect(ids, `Expected results to contain ID ${targetId}`).toContain(targetId);
 }
 
@@ -29,7 +29,7 @@ export function expectContainsCanonical(items: BaseItem[], targetId: string) {
  * @param excludedIds - Array of IDs that must not be present.
  */
 export function expectExcludesAnchors(items: BaseItem[], excludedIds: string[]) {
-  const foundIds = items.map((i) => i.identity.dbId);
+  const foundIds = items.map((i) => i.identity.providerItemId);
   for (const excludedId of excludedIds) {
     expect(foundIds, `Expected results to NOT contain ID ${excludedId}`).not.toContain(excludedId);
   }

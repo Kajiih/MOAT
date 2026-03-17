@@ -1,5 +1,5 @@
 /**
- * @file Database Details Hook
+ * @file Item Details Hook
  * @description SWR-based React hook for fetching and caching robust ItemDetails.
  */
 
@@ -19,7 +19,7 @@ interface UseItemDetailsOptions {
  * Custom hook for fetching full details for a Provider Item.
  * @param providerId - The ID of the provider.
  * @param entityId - The ID of the entity within the provider.
- * @param dbId - The unique ID of the item within that database.
+ * @param providerItemId - The unique ID of the item within that provider.
  * @param options - Additional hook settings.
  * @returns An SWR response object containing the item details and fetching state.
  */
@@ -28,16 +28,16 @@ export const fetchItemDetails = async (
   options?: { signal?: AbortSignal },
 ): Promise<ItemDetails> => {
   const signal = options?.signal;
-  const [, providerId, entityId, dbId] = key as [string, string | undefined, string | undefined, string | undefined];
+  const [, providerId, entityId, providerItemId] = key as [string, string | undefined, string | undefined, string | undefined];
   
-  if (!providerId || !entityId || !dbId) {
-    throw new Error('Provider ID, Entity ID, and Database ID are required');
+  if (!providerId || !entityId || !providerItemId) {
+    throw new Error('Provider ID, Entity ID, and Provider Item ID are required');
   }
 
   const searchParams = new URLSearchParams({
     providerId,
     entityId,
-    dbId,
+    providerItemId,
   });
 
   const res = await fetch(`/api/details?${searchParams.toString()}`, { signal });
@@ -52,14 +52,14 @@ export const fetchItemDetails = async (
 export function useItemDetails(
   providerId: string | undefined,
   entityId: string | undefined,
-  dbId: string | undefined,
+  providerItemId: string | undefined,
   options: UseItemDetailsOptions = {},
 ) {
   const { enabled = true } = options;
 
   // 1. Create a stable cache key
   const cacheKey =
-    enabled && providerId && entityId && dbId ? ['db-details', providerId, entityId, dbId] : null;
+    enabled && providerId && entityId && providerItemId ? ['item-details', providerId, entityId, providerItemId] : null;
 
   // 3. Use SWR for fetching and caching
   const { data, error, isLoading, isValidating, mutate } = useSWR<ItemDetails>(cacheKey, fetchItemDetails, {

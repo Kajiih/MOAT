@@ -11,9 +11,9 @@ import { z } from 'zod';
  */
 export const EntityIdentitySchema = z.object({
   /** The original ID in the source provider */
-  dbId: z.string(),
+  providerItemId: z.string(),
   /** The identifier of the provider (e.g., 'rawg', 'musicbrainz') */
-  databaseId: z.string(),
+  providerId: z.string(),
   /** The identifier of the entity type (e.g., 'game', 'album') */
   entityId: z.string(),
 });
@@ -22,10 +22,10 @@ export type EntityIdentity = z.infer<typeof EntityIdentitySchema>;
 
 /**
  * Derives a globally unique composite ID from an EntityIdentity.
- * Format: `${databaseId}:${entityId}:${dbId}`
+ * Format: `${providerId}:${entityId}:${providerItemId}`
  * @param identity - The entity identity object containing provider and native IDs.
  * @returns The composite string ID representing the entity globally.
  */
 export function toCompositeId(identity: EntityIdentity): string {
-  return `${identity.databaseId}:${identity.entityId}:${identity.dbId}`;
+  return `${identity.providerId}:${identity.entityId}:${identity.providerItemId}`;
 }

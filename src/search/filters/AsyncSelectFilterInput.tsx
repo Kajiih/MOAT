@@ -145,8 +145,8 @@ export function AsyncSelectFilterInput({
                 key={item.id}
                 item={item as Item}
                 onSelect={() => {
-                  setResolvedEntity({ id: item.identity.dbId, title: item.title, images: item.images || [] });
-                  onChange(item.identity.dbId);
+                  setResolvedEntity({ id: item.identity.providerItemId, title: item.title, images: item.images || [] });
+                  onChange(item.identity.providerItemId);
                   setIsOpen(false);
                   setQuery('');
                 }}

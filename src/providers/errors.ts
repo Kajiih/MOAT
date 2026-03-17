@@ -31,7 +31,7 @@ export class ProviderError extends Error {
     public readonly code: ProviderErrorCode,
     public readonly message: string,
     public readonly originalError?: unknown,
-    public readonly databaseId?: string,
+    public readonly providerId?: string,
   ) {
     super(message);
     this.name = 'ProviderError';

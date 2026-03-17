@@ -82,13 +82,13 @@ describe('MusicBrainz Adapter', () => {
     });
   });
 
-  describe('MusicBrainzDatabaseProvider Search Methods', () => {
+  describe('MusicBrainzProvider Search Methods', () => {
     it('should generate the correct URL containing the proper Lucene query', async () => {
       // We import here to avoid circular dep issues if any, but they are already imported above for query builders.
-      // Wait, we need to import MusicBrainzDatabaseProvider and MusicBrainzAlbumEntity
-      const { MusicBrainzDatabaseProvider, MusicBrainzAlbumEntity } = await import('./musicbrainz');
+      // Wait, we need to import MusicBrainzProvider and MusicBrainzAlbumEntity
+      const { MusicBrainzProvider, MusicBrainzAlbumEntity } = await import('./musicbrainz');
 
-      const provider = new MusicBrainzDatabaseProvider();
+      const provider = new MusicBrainzProvider();
       let fetchedUrl = '';
 
       // Mock fetcher that captures URL and returns empty response payload
@@ -111,10 +111,10 @@ describe('MusicBrainz Adapter', () => {
     });
   });
 
-  describe('MusicBrainzDatabaseProvider.resolveImage', () => {
+  describe('MusicBrainzProvider.resolveImage', () => {
     it('should resolve an album reference to coverartarchive', async () => {
-      const { MusicBrainzDatabaseProvider } = await import('./musicbrainz');
-      const provider = new MusicBrainzDatabaseProvider();
+      const { MusicBrainzProvider } = await import('./musicbrainz');
+      const provider = new MusicBrainzProvider();
 
       // Ensure no real network requests execute
       const originalFetch = globalThis.fetch;
@@ -126,8 +126,8 @@ describe('MusicBrainz Adapter', () => {
     });
 
     it('should successfully resolve an artist reference using Wikidata fallback', async () => {
-      const { MusicBrainzDatabaseProvider } = await import('./musicbrainz');
-      const provider = new MusicBrainzDatabaseProvider();
+      const { MusicBrainzProvider } = await import('./musicbrainz');
+      const provider = new MusicBrainzProvider();
 
       const originalFetch = globalThis.fetch;
       globalThis.fetch = async () => ({ ok: false } as Response);

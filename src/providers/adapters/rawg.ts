@@ -220,7 +220,7 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
   public readonly testDetailsIds = nonEmpty(THE_WITCHER_3_ID, ELDEN_RING_ID);
   public readonly edgeShortQuery = 'zzzzzzzzz';
 
-  public constructor(private provider: RAWGDatabaseProvider) {}
+  public constructor(private provider: RAWGProvider) {}
 
   public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
     query: '',
@@ -256,12 +256,12 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
   };
 
   public readonly getDetails = async (
-    dbId: string,
+    providerItemId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchRawg<unknown>(
-        `/games/${dbId}`,
+        `/games/${providerItemId}`,
         {},
         { signal: options?.signal },
       );
@@ -279,7 +279,7 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
       const relatedEntities = extractRelatedEntities(game.developers, (dev) => ({
         label: 'Developer',
         name: dev.name,
-        identity: { dbId: dev.id.toString(), databaseId: this.provider.id, entityId: 'developer' },
+        identity: { providerItemId: dev.id.toString(), providerId: this.provider.id, entityId: 'developer' },
       }));
 
       const item = mapGameToItem(game, this.provider.id);
@@ -301,15 +301,15 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
 /**
  * Maps a RAWG Game API response to our internal Item model.
  * @param game - The raw game object from the RAWG API.
- * @param databaseId - The provider ID this item belongs to.
+ * @param providerId - The provider ID this item belongs to.
  * @returns The standardized application Item representation.
  */
-function mapGameToItem(game: RAWGGame, databaseId: string): Item {
-  const identity = { dbId: game.id.toString(), databaseId, entityId: 'game' };
+function mapGameToItem(game: RAWGGame, providerId: string): Item {
+  const identity = { providerItemId: game.id.toString(), providerId, entityId: 'game' };
 
   const images = [
     ...(game.background_image ? [urlImage(game.background_image)] : []),
-    ...(game.slug ? [referenceImage(databaseId, game.slug)] : []),
+    ...(game.slug ? [referenceImage(providerId, game.slug)] : []),
   ];
 
   const item: Item = {
@@ -338,14 +338,14 @@ function mapGameToItem(game: RAWGGame, databaseId: string): Item {
 /**
  * Maps a RAWG Developer API object to our internal Item format.
  * @param dev - The raw developer object from the RAWG API.
- * @param databaseId - The provider ID this item belongs to.
+ * @param providerId - The provider ID this item belongs to.
  * @returns The standardized application Item representation.
  */
-function mapDeveloperToItem(dev: RAWGDeveloper, databaseId: string): Item {
+function mapDeveloperToItem(dev: RAWGDeveloper, providerId: string): Item {
   const identity = {
-    databaseId,
+    providerId,
     entityId: 'developer',
-    dbId: dev.id.toString(),
+    providerItemId: dev.id.toString(),
   };
 
   const item: Item = {
@@ -381,7 +381,7 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   public readonly testDetailsIds = nonEmpty(UBISOFT_ID, NINTENDO_ID);
   public readonly edgeShortQuery = 'zzzzzzzzz';
 
-  public constructor(private provider: RAWGDatabaseProvider) {}
+  public constructor(private provider: RAWGProvider) {}
 
   public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
     query: '',
@@ -417,12 +417,12 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   };
 
   public readonly getDetails = async (
-    dbId: string,
+    providerItemId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchRawg<unknown>(
-        `/developers/${dbId}`,
+        `/developers/${providerItemId}`,
         {},
         { signal: options?.signal },
       );
@@ -448,7 +448,7 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
 /**
  * RAWG Provider Implementation
  */
-export class RAWGDatabaseProvider implements Provider {
+export class RAWGProvider implements Provider {
   public readonly id = 'rawg';
   public readonly label = 'RAWG';
   public readonly icon = Gamepad2;

@@ -13,7 +13,7 @@ export interface FilterControlProps<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends BaseFilterDefinition<any, any> = FilterDefinition,
 > {
-  /** The provider ID context for the filter. Useful for referencing entities across databases. */
+  /** The provider ID context for the filter. Useful for referencing entities across providers. */
   providerId?: string;
   /** The filter definition object powering this control. */
   filter: T;

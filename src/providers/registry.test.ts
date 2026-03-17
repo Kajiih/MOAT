@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/images';
-import { RAWGDatabaseProvider } from '@/providers/adapters/rawg';
+import { RAWGProvider } from '@/providers/adapters/rawg';
 import { DEFAULT_PAGE_LIMIT, Entity, nonEmpty, Provider, ProviderStatus } from '@/providers/types';
 import { FilterDefinition } from '@/search/filter-schemas';
 import {
@@ -16,9 +16,30 @@ import { SortDirection } from '@/search/sort-schemas';
 
 import { ProviderErrorCode } from './errors';
 import { registry, RegistryStatus } from './registry';
+
+// Concrete implementations solely for testing
+class TestProviderOne implements Provider {
+  public id = 'p1';
+  public label = 'Provider One';
+  public status = ProviderStatus.IDLE;
+  public entities: Entity[] = [createMockEntity()];
+  public async initialize(): Promise<void> { /* noop */ }
+  public testImageKeys = nonEmpty('test-key');
+  public resolveImage = async () => null;
+}
+
+class TestProviderTwo implements Provider {
+  public id = 'p2';
+  public label = 'Provider Two';
+  public status = ProviderStatus.IDLE;
+  public entities: Entity[] = [createMockEntity()];
+  public async initialize(): Promise<void> { /* noop */ }
+  public testImageKeys = nonEmpty('test-key');
+  public resolveImage = async () => null;
+}
 import { handleProviderError } from './utils';
 
-const RAWGDatabase = new RAWGDatabaseProvider();
+const testRawgProvider = new RAWGProvider();
 
 // Shared test data
 
@@ -96,20 +117,20 @@ describe('Provider Design', () => {
     registry.clear();
   });
 
-  describe('DatabaseRegistry', () => {
+  describe('ProviderRegistry', () => {
     it('should have IDLE status initially', () => {
       expect(registry.getStatus()).toBe(RegistryStatus.IDLE);
     });
 
     it('should register and reach READY status', async () => {
-      const p = registry.register(new RAWGDatabaseProvider());
+      const p = registry.register(new RAWGProvider());
       expect(registry.getStatus()).toBe(RegistryStatus.INITIALIZING);
       await p;
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
     });
 
     it('should clear all state when clear() is called', async () => {
-      await registry.register(new RAWGDatabaseProvider());
+      await registry.register(new RAWGProvider());
       expect(registry.getStatus()).toBe(RegistryStatus.READY);
 
       registry.clear();
@@ -120,7 +141,7 @@ describe('Provider Design', () => {
     });
 
     it('should register and retrieve a provider', async () => {
-      await registry.register(new RAWGDatabaseProvider());
+      await registry.register(new RAWGProvider());
       const provider = registry.getProvider('rawg');
       expect(provider).toBeDefined();
       expect(provider.id).toBe('rawg');
@@ -128,7 +149,7 @@ describe('Provider Design', () => {
     });
 
     it('should list all providers', async () => {
-      await registry.register(RAWGDatabase);
+      await registry.register(testRawgProvider);
       const all = registry.getAllProviders();
       expect(all).toHaveLength(1);
       expect(all[0].id).toBe('rawg');
@@ -138,8 +159,8 @@ describe('Provider Design', () => {
       const mockFetcher = vi.fn().mockResolvedValue({ results: [], count: 0 });
       registry.setFetcher(mockFetcher);
 
-      await registry.register(RAWGDatabase);
-      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
+      await registry.register(testRawgProvider);
+      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game');
 
       await gameEntity?.search({ query: 'test', filters: {}, page: 1, limit: DEFAULT_PAGE_LIMIT });
       expect(mockFetcher).toHaveBeenCalled();
@@ -256,16 +277,16 @@ describe('Provider Design', () => {
       const abortError = new Error('The operation was aborted');
       abortError.name = 'AbortError';
 
-      const dbError = handleProviderError(abortError, 'test');
-      expect(dbError.code).toBe(ProviderErrorCode.TIMEOUT);
+      const providerError = handleProviderError(abortError, 'test');
+      expect(providerError.code).toBe(ProviderErrorCode.TIMEOUT);
     });
 
     it('should map TimeoutError to TIMEOUT', () => {
       const timeoutError = new Error('The operation timed out');
       timeoutError.name = 'TimeoutError';
 
-      const dbError = handleProviderError(timeoutError, 'test');
-      expect(dbError.code).toBe(ProviderErrorCode.TIMEOUT);
+      const providerError = handleProviderError(timeoutError, 'test');
+      expect(providerError.code).toBe(ProviderErrorCode.TIMEOUT);
     });
 
     it('should map 401/403 to AUTH_ERROR', () => {
@@ -368,11 +389,11 @@ describe('Provider Design', () => {
     });
   });
 
-  describe('RAWGDatabase Prototype', () => {
+  describe('RAWGProvider Prototype', () => {
     it('should have the correct entities', () => {
-      expect(RAWGDatabase.entities).toHaveLength(2);
-      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
-      const devEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'developer');
+      expect(testRawgProvider.entities).toHaveLength(2);
+      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game');
+      const devEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'developer');
 
       expect(gameEntity).toBeDefined();
       expect(devEntity).toBeDefined();
@@ -380,14 +401,14 @@ describe('Provider Design', () => {
     });
 
     it('should have filters and sort options for games', () => {
-      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
+      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game');
       expect(gameEntity?.filters).toHaveLength(2);
       expect(gameEntity?.searchOptions).toHaveLength(1);
       expect(gameEntity?.sortOptions).toHaveLength(8);
     });
 
     it('should validate search results using Zod', async () => {
-      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game');
+      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game');
       // This test actually calls the search method, we might need to mock fetch
       // But for design verification, we just check if the method exists and types match
       expect(gameEntity?.search).toBeDefined();
@@ -396,7 +417,7 @@ describe('Provider Design', () => {
 
   describe('Search Options', () => {
     it('should cleanly separate search modifiers from data filters', () => {
-      const gameEntity = RAWGDatabase.entities.find((e: Entity) => e.id === 'game')!;
+      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game')!;
 
       expect(gameEntity.searchOptions).toHaveLength(1);
       expect(gameEntity.searchOptions?.[0].id).toBe('precise');

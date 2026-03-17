@@ -33,8 +33,8 @@ export function createMockItem(overrides: Partial<Item> = {}): Item {
     id,
     title: faker.commerce.productName(),
     identity: {
-      dbId: id,
-      databaseId: 'mock-db',
+      providerItemId: id,
+      providerId: 'mock-provider',
       entityId: id,
     },
     images: [{ type: 'url', url: faker.image.url() }],

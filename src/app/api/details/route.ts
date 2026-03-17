@@ -20,10 +20,10 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const providerId = searchParams.get('providerId');
   const entityId = searchParams.get('entityId');
-  const dbId = searchParams.get('dbId');
+  const providerItemId = searchParams.get('providerItemId');
 
-  if (!providerId || !entityId || !dbId) {
-    return NextResponse.json({ error: 'Missing providerId, entityId, or dbId' }, { status: 400 });
+  if (!providerId || !entityId || !providerItemId) {
+    return NextResponse.json({ error: 'Missing providerId, entityId, or providerItemId' }, { status: 400 });
   }
 
   try {
@@ -37,10 +37,10 @@ export async function GET(request: Request) {
 
     await registry.waitUntilReady();
 
-    const result = await entity.getDetails(dbId, { signal: request.signal });
+    const result = await entity.getDetails(providerItemId, { signal: request.signal });
     return NextResponse.json(result);
   } catch (error) {
-    logger.error({ error, providerId, entityId, dbId }, 'Details API Error');
+    logger.error({ error, providerId, entityId, providerItemId }, 'Details API Error');
     return createErrorResponse(error);
   }
 }

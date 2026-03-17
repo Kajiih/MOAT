@@ -295,8 +295,8 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
 
                 // Basic Identity
                 expect(details).toBeDefined();
-                expect(details.identity.dbId).toBe(testId);
-                expect(details.identity.databaseId).toBe(provider.id);
+                expect(details.identity.providerItemId).toBe(testId);
+                expect(details.identity.providerId).toBe(provider.id);
                 expect(details.identity.entityId).toBe(entity.id);
                 expect(details.title, 'Details missing title').toBeTruthy();
                 

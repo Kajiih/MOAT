@@ -1,6 +1,6 @@
 /**
  * @file useItemSearch.ts
- * @description Hook for executing generic searches against Database Entities.
+ * @description Hook for executing generic searches against Provider Entities.
  */
 import deepEqual from 'fast-deep-equal';
 import { useMemo } from 'react';
@@ -12,7 +12,7 @@ import { SearchParams, SearchResult } from '@/search/search-schemas';
 /**
  * Hook configuration options.
  */
-interface UseDatabaseSearchOptions {
+interface UseItemSearchOptions {
   /** If false, the search will not be executed. */
   enabled?: boolean;
   /** Debounce delay in milliseconds (default: 300). */
@@ -33,7 +33,7 @@ export function useItemSearch(
   providerId: string | undefined,
   entityId: string | undefined,
   params: SearchParams,
-  options: UseDatabaseSearchOptions = {},
+  options: UseItemSearchOptions = {},
 ) {
   const { enabled = true, debounceMs = 300, keepPreviousData = true } = options;
 
@@ -49,7 +49,7 @@ export function useItemSearch(
     // We include all relevant params in the key for SWR
     // Strategy-blind: we just stringify the relevant parts of debouncedParams
     const { signal: _signal, ...serializableParams } = debouncedParams;
-    return ['db-search', providerId, entityId, JSON.stringify(serializableParams)];
+    return ['item-search', providerId, entityId, JSON.stringify(serializableParams)];
   }, [enabled, providerId, entityId, debouncedParams]);
 
   // 3. Define the fetcher that correctly delegates to our API Proxy

@@ -75,7 +75,7 @@ export function useBoardRegistry() {
     // 1. Optimistic UI update
     setBoards((prev) => [newMeta, ...prev]);
 
-    // 2. Atomic DB Transaction: Update Index, Meta, and Initial State
+    // 2. Atomic Storage Transaction: Update Index, Meta, and Initial State
     // We first need the current index to append.
     // NOTE: strict atomicity for "read-modify-write" of index across multiple tabs
     // would require a transaction block, which `idb-keyval` doesn't fully expose in `setMany`.

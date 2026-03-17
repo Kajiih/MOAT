@@ -59,7 +59,7 @@ export interface EntityBranding {
 }
 
 /**
- * Represents an entity within a database (e.g., "Game", "Developer").
+ * Represents an entity within a provider (e.g., "Game", "Developer").
  * Generic TRaw allows integration tests to access provider-specific raw results safely.
  *
  * Navigation is fully entity-driven: the UI treats SearchParams as an opaque blob
@@ -102,7 +102,7 @@ export interface Entity<TRaw = any> {
   /** Search for items within the entity. */
   readonly search: (params: SearchParams) => Promise<SearchResult<TRaw>>;
   /** Fetches and maps deep metadata for a single item. */
-  readonly getDetails: (dbId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
+  readonly getDetails: (providerItemId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
 }
 
 /**
@@ -114,7 +114,7 @@ export interface Fetcher {
 }
 
 /**
- * Represents an independent external database service provider.
+ * Represents an independent external service provider.
  * This is the top-level object registered in the application.
  *
  * Concrete classes narrow the `entities` type via their own annotations
@@ -124,14 +124,14 @@ export interface Fetcher {
 export interface Provider {
   /** Unique provider ID (e.g., 'rawg', 'igdb', 'musicbrainz') */
   readonly id: string;
-  /** Human readable name (e.g., 'RAWG Database') */
+  /** Human readable name (e.g., 'RAWG') */
   readonly label: string;
-  /** Optional description of what this database provides */
+  /** Optional description of what this provider provides */
   readonly description?: string;
   /** Optional icon representing the service provider */
   readonly icon?: LucideIcon;
 
-  /** The list of entities this database exposes to the user */
+  /** The list of entities this provider exposes to the user */
   readonly entities: readonly Entity[];
 
   /**

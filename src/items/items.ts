@@ -12,7 +12,7 @@ import { ImageSourceSchema } from './images';
  * Base properties for any item.
  */
 export const BaseItemSchema = z.object({
-  /** Globally unique app ID (e.g. `${databaseId}:${entityId}:${dbId}`) */
+  /** Globally unique app ID (e.g. `${providerId}:${entityId}:${providerItemId}`) */
   id: z.string(),
   /** Routing identity — where this item comes from */
   identity: EntityIdentitySchema,
@@ -36,7 +36,7 @@ export const BaseItemSchema = z.object({
 export type BaseItem = z.infer<typeof BaseItemSchema>;
 
 /**
- * A link to another entity within the same database.
+ * A link to another entity within the same provider.
  */
 export const EntityLinkSchema = z.object({
   /** Singular label for the entity type (e.g., 'Developer') */
@@ -81,7 +81,7 @@ export const ItemDetailsCoreSchema = z.object({
     .optional(),
   /** Flexible sections of data (Tracks, Cast, etc.) */
   sections: z.array(ItemSectionSchema).optional(),
-  /** Flexible record for any extra data specific to a database/entity */
+  /** Flexible record for any extra data specific to a provider/entity */
   extendedData: z.record(z.string(), z.unknown()).optional(),
 });
 

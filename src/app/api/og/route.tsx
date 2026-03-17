@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     // provide some mock items for the default view to make it look like a real tier list
     const createMockItem = (id: string, color: string): Item => ({
       id,
-      identity: { dbId: id, databaseId: 'mock', entityId: id },
+      identity: { providerItemId: id, providerId: 'mock', entityId: id },
       title: `Mock ${id}`,
       images: [
         {

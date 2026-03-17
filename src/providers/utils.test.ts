@@ -10,8 +10,8 @@ import { applyFilters, extractRelatedEntities, extractTags, handleProviderError 
 describe('Providers Utils', () => {
   describe('handleProviderError', () => {
     it('should return the original error if it is already a ProviderError', () => {
-      const original = new ProviderError(ProviderErrorCode.INTERNAL_ERROR, 'Test', null, 'test-db');
-      const result = handleProviderError(original, 'test-db');
+      const original = new ProviderError(ProviderErrorCode.INTERNAL_ERROR, 'Test', null, 'test-provider');
+      const result = handleProviderError(original, 'test-provider');
       expect(result).toBe(original);
     });
 
@@ -20,31 +20,31 @@ describe('Providers Utils', () => {
       // but utils.ts explicitly handles error.name === 'AbortError' if it looks like an error
       const abortError = new Error('Aborted');
       abortError.name = 'AbortError';
-      const result = handleProviderError(abortError, 'test-db');
+      const result = handleProviderError(abortError, 'test-provider');
       expect(result.code).toBe(ProviderErrorCode.TIMEOUT);
-      expect(result.databaseId).toBe('test-db');
+      expect(result.providerId).toBe('test-provider');
     });
 
     it('should translate ZodError to ProviderErrorCode.VALIDATION_ERROR', () => {
       const schema = z.object({ name: z.string() });
       const zodError = schema.safeParse({ name: 123 }).error!;
-      const result = handleProviderError(zodError, 'test-db');
+      const result = handleProviderError(zodError, 'test-provider');
       expect(result.code).toBe(ProviderErrorCode.VALIDATION_ERROR);
       expect(result.message).toContain('expected string, received number');
     });
 
     it('should translate a standard Error object to an INTERNAL_ERROR', () => {
       const error = new Error('Something went wrong');
-      const result = handleProviderError(error, 'test-db');
+      const result = handleProviderError(error, 'test-provider');
       expect(result.code).toBe(ProviderErrorCode.INTERNAL_ERROR);
       expect(result.message).toBe('Something went wrong');
     });
 
     it('should map standard HTTP status codes correctly', () => {
-      expect(handleProviderError({ status: 401 }, 'db').code).toBe(ProviderErrorCode.AUTH_ERROR);
-      expect(handleProviderError({ status: 404 }, 'db').code).toBe(ProviderErrorCode.NOT_FOUND);
-      expect(handleProviderError({ status: 429 }, 'db').code).toBe(ProviderErrorCode.RATE_LIMIT);
-      expect(handleProviderError({ status: 503 }, 'db').code).toBe(
+      expect(handleProviderError({ status: 401 }, 'prov').code).toBe(ProviderErrorCode.AUTH_ERROR);
+      expect(handleProviderError({ status: 404 }, 'prov').code).toBe(ProviderErrorCode.NOT_FOUND);
+      expect(handleProviderError({ status: 429 }, 'prov').code).toBe(ProviderErrorCode.RATE_LIMIT);
+      expect(handleProviderError({ status: 503 }, 'prov').code).toBe(
         ProviderErrorCode.SERVICE_UNAVAILABLE,
       );
     });
@@ -186,7 +186,7 @@ describe('Providers Utils', () => {
       const mappingFn = (item: { id: number; name: string }): EntityLink => ({
         label: 'Developer',
         name: item.name,
-        identity: { dbId: String(item.id), databaseId: 'test-db', entityId: 'dev' },
+        identity: { providerItemId: String(item.id), providerId: 'test-provider', entityId: 'dev' },
       });
 
       const result = extractRelatedEntities(source, mappingFn);
@@ -194,7 +194,7 @@ describe('Providers Utils', () => {
       expect(result[0]).toEqual({
         label: 'Developer',
         name: 'Dev 1',
-        identity: { dbId: '1', databaseId: 'test-db', entityId: 'dev' },
+        identity: { providerItemId: '1', providerId: 'test-provider', entityId: 'dev' },
       });
     });
   });

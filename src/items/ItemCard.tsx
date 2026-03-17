@@ -97,7 +97,7 @@ export function ItemCard({
   className,
 }: ItemCardProps) {
   // 1. Get configuration from registry
-  const entityDef = registry.getEntity(item.identity.databaseId, item.identity.entityId);
+  const entityDef = registry.getEntity(item.identity.providerId, item.identity.entityId);
   const TypeIcon = entityDef.branding.icon || Info;
 
   // 2. Setup Pragmatic Drag and Drop

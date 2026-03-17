@@ -57,7 +57,7 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
   if (!isOpen || !resolvedItem) return null;
 
   const entityDef = registry.getEntity(
-    resolvedItem.identity.databaseId,
+    resolvedItem.identity.providerId,
     resolvedItem.identity.entityId,
   );
   const PlaceholderIcon = (entityDef.branding.icon as LucideIcon) || Info;

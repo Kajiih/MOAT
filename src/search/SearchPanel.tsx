@@ -19,7 +19,7 @@ import { SearchTab } from './SearchTab';
 
 /**
  * The sidebar component responsible for searching and filtering items.
- * Driven entirely by the DatabaseRegistry and its registered providers.
+ * Driven entirely by the ProviderRegistry and its registered providers.
  * @returns The rendered search panel sidebar component.
  */
 export function SearchPanel() {

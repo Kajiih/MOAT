@@ -8,7 +8,7 @@ import { useSyncExternalStore } from 'react';
 import { registry, RegistrySnapshot, RegistryStatus } from '../registry';
 
 /**
- * Custom React hook that connects components reactively to the DatabaseRegistry singleton.
+ * Custom React hook that connects components reactively to the ProviderRegistry singleton.
  * Uses `useSyncExternalStore` to perfectly synchronize React renders with external mutations.
  * @returns A stable `RegistrySnapshot` object that updates immediately when providers load or fail.
  */

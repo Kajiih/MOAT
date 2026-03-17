@@ -1,6 +1,6 @@
 /**
  * @file Registry
- * @description Centralized singleton and React event emitter tracking loaded DatabaseProviders.
+ * @description Centralized singleton and React event emitter tracking loaded Providers.
  */
 import { logger } from '@/lib/logger';
 import { secureFetch } from '@/providers/api-client';
@@ -9,7 +9,7 @@ import { Entity, Fetcher, Provider, ProviderStatus } from '@/providers/types';
 import { handleProviderError } from '@/providers/utils';
 
 /**
- * Possible states for the DatabaseRegistry.
+ * Possible states for the ProviderRegistry.
  */
 export enum RegistryStatus {
   IDLE = 'IDLE',
@@ -19,7 +19,7 @@ export enum RegistryStatus {
 }
 
 /**
- * A reactive snapshot of the database registry state.
+ * A reactive snapshot of the provider registry state.
  */
 export interface RegistrySnapshot {
   status: RegistryStatus;
@@ -31,8 +31,8 @@ export interface RegistrySnapshot {
  * Registry for managing external providers.
  * Singleton pattern.
  */
-export class DatabaseRegistry {
-  private static instance: DatabaseRegistry;
+export class ProviderRegistry {
+  private static instance: ProviderRegistry;
   private providers: Map<string, Provider> = new Map();
   private fetcher: Fetcher = secureFetch;
 
@@ -43,11 +43,11 @@ export class DatabaseRegistry {
 
   private constructor() {}
 
-  public static getInstance(): DatabaseRegistry {
-    if (!DatabaseRegistry.instance) {
-      DatabaseRegistry.instance = new DatabaseRegistry();
+  public static getInstance(): ProviderRegistry {
+    if (!ProviderRegistry.instance) {
+      ProviderRegistry.instance = new ProviderRegistry();
     }
-    return DatabaseRegistry.instance;
+    return ProviderRegistry.instance;
   }
 
   /**
@@ -194,20 +194,20 @@ export class DatabaseRegistry {
 
   /**
    * Retrieves a specific entity from a specific provider.
-   * @param databaseId - The provider's unique identifier.
+   * @param providerId - The provider's unique identifier.
    * @param entityId - The entity's unique identifier within the provider.
    * @throws {ProviderError} If provider or entity is not found.
    * @returns The requested entity object.
    */
-  public getEntity(databaseId: string, entityId: string): Entity {
-    const provider = this.getProvider(databaseId);
+  public getEntity(providerId: string, entityId: string): Entity {
+    const provider = this.getProvider(providerId);
     const entity = provider.entities.find((e) => e.id === entityId);
     if (!entity) {
       throw new ProviderError(
         ProviderErrorCode.NOT_FOUND,
-        `Entity "${entityId}" not found in provider "${databaseId}"`,
+        `Entity "${entityId}" not found in provider "${providerId}"`,
         undefined,
-        databaseId,
+        providerId,
       );
     }
     return entity;
@@ -266,4 +266,4 @@ export class DatabaseRegistry {
   }
 }
 
-export const registry = DatabaseRegistry.getInstance();
+export const registry = ProviderRegistry.getInstance();

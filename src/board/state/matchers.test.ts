@@ -12,7 +12,7 @@ describe('TierList custom matchers', () => {
     itemEntities: {
       'item-1': {
         id: 'item-1',
-        identity: { dbId: 'item-1', databaseId: 'mock', entityId: 'item-1' },
+        identity: { providerItemId: 'item-1', providerId: 'mock', entityId: 'item-1' },
         title: 'Top Song',
         images: [],
       },

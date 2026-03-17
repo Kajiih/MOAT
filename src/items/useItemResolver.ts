@@ -37,9 +37,9 @@ export function useItemResolver(item: Item | null, options: UseItemResolverOptio
   const shouldFetch = enabled && needsEnrichment;
 
   const { details, isLoading, error, isValidating } = useItemDetails(
-    item?.identity.databaseId,
+    item?.identity.providerId,
     item?.identity.entityId,
-    item?.identity.dbId,
+    item?.identity.providerItemId,
     { enabled: shouldFetch },
   );
 

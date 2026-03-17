@@ -379,7 +379,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly testDetailsIds = nonEmpty(ALBUM_THRILLER_ID, ALBUM_ABBEY_ROAD_ID);
   public readonly edgeShortQuery = 'zzzzzzzzzzz';
 
-  public constructor(private provider: MusicBrainzDatabaseProvider) {
+  public constructor(private provider: MusicBrainzProvider) {
 
     this.filters = [
       mbAlbumFilters.multiselect({
@@ -509,12 +509,12 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
   public readonly getDetails = async (
-    dbId: string,
+    providerItemId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchMusicBrainz<unknown>(
-        `/release-group/${dbId}`,
+        `/release-group/${providerItemId}`,
         { inc: 'artist-credits+tags+url-rels' },
         { signal: options?.signal },
       );
@@ -547,8 +547,8 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
             label: 'Artist',
             name: c.artist!.name,
             identity: {
-              dbId: c.artist!.id,
-              databaseId: this.provider.id,
+              providerItemId: c.artist!.id,
+              providerId: this.provider.id,
               entityId: 'artist',
             },
           })) || [];
@@ -567,8 +567,8 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   };
 }
 
-function mapAlbumToItem(album: MusicBrainzReleaseGroup, databaseId: string): Item {
-  const identity = { dbId: album.id, databaseId, entityId: 'album' };
+function mapAlbumToItem(album: MusicBrainzReleaseGroup, providerId: string): Item {
+  const identity = { providerItemId: album.id, providerId, entityId: 'album' };
 
   // Try to use coverartarchive for the image
   const images = [urlImage(`https://coverartarchive.org/release-group/${album.id}/front`)];
@@ -610,7 +610,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   public readonly testDetailsIds = nonEmpty(ARTIST_DAFT_PUNK_ID, ARTIST_RADIOHEAD_ID);
   public readonly edgeShortQuery = 'zzzzzzz';
 
-  public constructor(private provider: MusicBrainzDatabaseProvider) {
+  public constructor(private provider: MusicBrainzProvider) {
     this.filters = [
       musicBrainzArtistFilters.select({
         id: 'type',
@@ -690,12 +690,12 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
   public readonly getDetails = async (
-    dbId: string,
+    providerItemId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchMusicBrainz<unknown>(
-        `/artist/${dbId}`,
+        `/artist/${providerItemId}`,
         { inc: 'tags+url-rels' },
         { signal: options?.signal },
       );
@@ -734,11 +734,11 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   };
 }
 
-function mapArtistToItem(artist: MusicBrainzArtist, databaseId: string): Item {
-  const identity = { dbId: artist.id, databaseId, entityId: 'artist' };
+function mapArtistToItem(artist: MusicBrainzArtist, providerId: string): Item {
+  const identity = { providerItemId: artist.id, providerId, entityId: 'artist' };
 
   // Resolve image order: Fanart.tv -> Wikidata P18 extraction
-  const images = [referenceImage(databaseId, `artist:${artist.id}`)];
+  const images = [referenceImage(providerId, `artist:${artist.id}`)];
 
   const item: Item = {
     id: toCompositeId(identity),
@@ -775,7 +775,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   public readonly testDetailsIds = nonEmpty(SONG_CREEP_ID, SONG_BILLIE_JEAN_ID);
   public readonly edgeShortQuery = 'zzzzzzzzzzzzzzzz';
 
-  public constructor(private provider: MusicBrainzDatabaseProvider) {
+  public constructor(private provider: MusicBrainzProvider) {
     this.filters = [
       musicBrainzRecordingFilters.asyncSelect({
         id: 'artistId',
@@ -874,12 +874,12 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
   public readonly getDetails = async (
-    dbId: string,
+    providerItemId: string,
     options?: { signal?: AbortSignal },
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchMusicBrainz<unknown>(
-        `/recording/${dbId}`,
+        `/recording/${providerItemId}`,
         { inc: 'artist-credits+tags+releases' },
         { signal: options?.signal },
       );
@@ -899,8 +899,8 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
               label: 'Artist',
               name: c.artist!.name,
               identity: {
-                dbId: c.artist!.id,
-                databaseId: this.provider.id,
+                providerItemId: c.artist!.id,
+                providerId: this.provider.id,
                 entityId: 'artist',
               },
             });
@@ -922,8 +922,8 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
             label: 'Album',
             name: title,
             identity: {
-              dbId: id,
-              databaseId: this.provider.id,
+              providerItemId: id,
+              providerId: this.provider.id,
               entityId: 'album',
             },
           });
@@ -944,8 +944,8 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   };
 }
 
-function mapRecordingToItem(recording: MusicBrainzRecording, databaseId: string): Item {
-  const identity = { dbId: recording.id, databaseId, entityId: 'song' };
+function mapRecordingToItem(recording: MusicBrainzRecording, providerId: string): Item {
+  const identity = { providerItemId: recording.id, providerId, entityId: 'song' };
 
   // For images, we try to use the first release-group associated with the recording
   const images: NonNullable<Item['images']> = [];
@@ -984,7 +984,7 @@ function mapRecordingToItem(recording: MusicBrainzRecording, databaseId: string)
   return ItemSchema.parse(item);
 }
 
-export class MusicBrainzDatabaseProvider implements Provider {
+export class MusicBrainzProvider implements Provider {
   public readonly id = 'musicbrainz';
   public readonly label = 'MusicBrainz';
   public readonly icon = Disc3;
@@ -1257,7 +1257,7 @@ export class MusicBrainzDatabaseProvider implements Provider {
       const url = data?.artistthumb?.[0]?.url;
       if (url) return url;
     } catch (error) {
-      logger.debug(`[MusicBrainz] Fanart.tv lookup failed for ${id} (expected if the artist is not in the database): ${error}`);
+      logger.debug(`[MusicBrainz] Fanart.tv lookup failed for ${id} (expected if the artist is not in Fanart.tv): ${error}`);
     }
     
     return null;
