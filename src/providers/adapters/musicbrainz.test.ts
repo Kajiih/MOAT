@@ -120,7 +120,8 @@ describe('MusicBrainz Adapter', () => {
       const originalFetch = globalThis.fetch;
       globalThis.fetch = async () => ({ ok: true, url: 'https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front' } as Response);
 
-      const url = await provider.resolveImage('album:2c55f39d-9cb3-401c-b218-2fc600d26ec5');
+      const albumEntity = provider.entities.find((e) => e.id === 'album')!;
+      const url = await albumEntity.resolveImage?.('2c55f39d-9cb3-401c-b218-2fc600d26ec5');
       expect(url).toBe('https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front');
       globalThis.fetch = originalFetch;
     });
@@ -156,7 +157,8 @@ describe('MusicBrainz Adapter', () => {
         return data; // returning raw parsed JSON
       };
 
-      const url = await provider.resolveImage('artist:076caf66-1bb1-4486-8f46-910c83441eab');
+      const artistEntity = provider.entities.find((e) => e.id === 'artist')!;
+      const url = await artistEntity.resolveImage?.('076caf66-1bb1-4486-8f46-910c83441eab');
       expect(url).toContain('Artist_Image.jpg');
       globalThis.fetch = originalFetch;
     });

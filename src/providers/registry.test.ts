@@ -22,20 +22,16 @@ class TestProviderOne implements Provider {
   public id = 'p1';
   public label = 'Provider One';
   public status = ProviderStatus.IDLE;
-  public entities: Entity[] = [createMockEntity()];
+  public entities: Entity[] = [createMockEntity({ id: 'mock', resolveImage: async () => null, testImageResolution: nonEmpty({ key: 'test-key', description: 'test' }) })];
   public async initialize(): Promise<void> { /* noop */ }
-  public testImageKeys = nonEmpty('test-key');
-  public resolveImage = async () => null;
 }
 
 class TestProviderTwo implements Provider {
   public id = 'p2';
   public label = 'Provider Two';
   public status = ProviderStatus.IDLE;
-  public entities: Entity[] = [createMockEntity()];
+  public entities: Entity[] = [createMockEntity({ id: 'mock', resolveImage: async () => null, testImageResolution: nonEmpty({ key: 'test-key', description: 'test' }) })];
   public async initialize(): Promise<void> { /* noop */ }
-  public testImageKeys = nonEmpty('test-key');
-  public resolveImage = async () => null;
 }
 import { handleProviderError } from './utils';
 
@@ -92,6 +88,7 @@ const createMockEntity = (overrides: Partial<Entity<MockItem>> = {}): Entity<Moc
   defaultTestQueries: nonEmpty('query'),
   testDetailsIds: nonEmpty('test-id'),
   edgeShortQuery: 'short',
+  resolveImage: async () => null,
   getInitialParams: (config: { limit: number }) => ({
     query: '',
     filters: {},
@@ -176,8 +173,6 @@ describe('Provider Design', () => {
         initialize: async () => {
           throw new Error('Auth failed');
         },
-        testImageKeys: nonEmpty('test-key'),
-        resolveImage: async () => null,
       };
 
       // Create a working provider
@@ -187,8 +182,6 @@ describe('Provider Design', () => {
         entities: [],
         status: ProviderStatus.IDLE,
         initialize: async () => {}, // success
-        testImageKeys: nonEmpty('test-key'),
-        resolveImage: async () => null,
       };
 
       await expect(registry.register(failingProvider)).rejects.toThrow('Initialization failed');
@@ -230,8 +223,6 @@ describe('Provider Design', () => {
           await new Promise((r) => setTimeout(r, 50));
           slowDone = true;
         },
-        testImageKeys: nonEmpty('test-key'),
-        resolveImage: async () => null,
       };
 
       const fastProvider: Provider = {
@@ -249,8 +240,6 @@ describe('Provider Design', () => {
           await new Promise((r) => setTimeout(r, 10));
           fastDone = true;
         },
-        testImageKeys: nonEmpty('test-key'),
-        resolveImage: async () => null,
       };
 
       // Start slow registration
@@ -370,11 +359,13 @@ describe('Provider Design', () => {
       const source = ImageSourceSchema.parse({
         type: 'reference',
         provider: 'wikidata',
+        entityId: 'game',
         key: 'elden-ring',
       });
       expect(source.type).toBe('reference');
       if (source.type === 'reference') {
         expect(source.provider).toBe('wikidata');
+        expect(source.entityId).toBe('game');
         expect(source.key).toBe('elden-ring');
       }
     });
@@ -383,7 +374,7 @@ describe('Provider Design', () => {
       const url = urlImage('https://example.com/img.jpg');
       expect(url.type).toBe('url');
 
-      const ref = referenceImage('fanart', 'album:123');
+      const ref = referenceImage('fanart', 'mock', 'album:123');
       expect(ref.type).toBe('reference');
       expect(ref.provider).toBe('fanart');
     });

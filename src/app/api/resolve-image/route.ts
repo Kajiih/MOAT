@@ -21,15 +21,16 @@ import { registry } from '@/providers/registry';
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const providerId = searchParams.get('providerId');
+  const entityId = searchParams.get('entityId');
   const key = searchParams.get('key');
 
-  if (!providerId || !key) {
-    return NextResponse.json({ error: 'Missing providerId or key' }, { status: 400 });
+  if (!providerId || !entityId || !key) {
+    return NextResponse.json({ error: 'Missing providerId, entityId, or key' }, { status: 400 });
   }
 
   try {
     await registry.waitUntilReady();
-    const url = await registry.resolveImageReference(providerId, key);
+    const url = await registry.resolveImageReference(providerId, entityId, key);
     
     if (!url) {
       return NextResponse.json({ error: 'Image not found' }, { status: 404 });

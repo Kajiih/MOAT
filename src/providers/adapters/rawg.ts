@@ -255,6 +255,25 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
     return { ...params, page: currentPage - 1 };
   };
 
+  public readonly testImageResolution = nonEmpty({
+    key: '3328', // The Witcher 3 ID
+    description: 'Resolves game screenshot from RAWG media CDN',
+    expectUrlContains: 'media.rawg.io/media/',
+  });
+
+  public readonly resolveImage = async (key: string): Promise<string | null> => {
+    try {
+      const details = await this.getDetails(key);
+      const urlSource = details.images?.find((img) => img.type === 'url') as any;
+      if (urlSource?.url) {
+        return urlSource.url;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   public readonly getDetails = async (
     providerItemId: string,
     options?: { signal?: AbortSignal },
@@ -309,7 +328,7 @@ function mapGameToItem(game: RAWGGame, providerId: string): Item {
 
   const images = [
     ...(game.background_image ? [urlImage(game.background_image)] : []),
-    ...(game.slug ? [referenceImage(providerId, game.slug)] : []),
+    ...(game.slug ? [referenceImage(providerId, 'game', game.slug)] : []),
   ];
 
   const item: Item = {
@@ -416,6 +435,8 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     return { ...params, page: currentPage - 1 };
   };
 
+  public readonly resolveImage = async (): Promise<string | null> => null;
+
   public readonly getDetails = async (
     providerItemId: string,
     options?: { signal?: AbortSignal },
@@ -463,19 +484,6 @@ export class RAWGProvider implements Provider {
 
   public initialize = async (fetcher: Fetcher) => {
     this.fetcher = fetcher;
-  };
-
-  public readonly testImageKeys = nonEmpty('3328'); // The Witcher 3 ID
-
-  public resolveImage = async (key: string): Promise<string | null> => {
-    try {
-      // While RAWG provides absolute URLs immediately in search results,
-      // we can implement resolveImage to fetch a game's main image by its ID or slug.
-      const game = await this.fetchRawg<{ background_image: string | null }>(`/games/${key}`);
-      return game.background_image || null;
-    } catch {
-      return null;
-    }
   };
 
   /**

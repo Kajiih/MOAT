@@ -508,6 +508,22 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
+  public readonly testImageResolution = nonEmpty({
+    key: '2c55f39d-9cb3-401c-b218-2fc600d26ec5',
+    description: 'Resolves primary album art successfully via CoverArtArchive',
+    expectUrlContains: 'coverartarchive.org/release-group/',
+  });
+
+  public readonly resolveImage = async (key: string): Promise<string | null> => {
+    try {
+      const caaRes = await fetch(`https://coverartarchive.org/release-group/${key}/front-500`, { method: 'HEAD' });
+      if (caaRes.ok) return caaRes.url;
+    } catch {
+      // Ignore
+    }
+    return null;
+  };
+
   public readonly getDetails = async (
     providerItemId: string,
     options?: { signal?: AbortSignal },
@@ -689,6 +705,18 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
+  public readonly testImageResolution = nonEmpty({
+    key: '076caf66-1bb1-4486-8f46-910c83441eab',
+    description: 'Resolves secondary fallback for artist image via Wikidata SPARQL',
+    expectUrlContains: 'commons.wikimedia.org',
+  });
+
+  public readonly resolveImage = async (key: string): Promise<string | null> => {
+    const fromFanart = await this.provider.resolveImageFromFanart(key);
+    if (fromFanart) return fromFanart;
+    return await this.provider.resolveImageFromWikidata(key);
+  };
+
   public readonly getDetails = async (
     providerItemId: string,
     options?: { signal?: AbortSignal },
@@ -738,7 +766,7 @@ function mapArtistToItem(artist: MusicBrainzArtist, providerId: string): Item {
   const identity = { providerItemId: artist.id, providerId, entityId: 'artist' };
 
   // Resolve image order: Fanart.tv -> Wikidata P18 extraction
-  const images = [referenceImage(providerId, `artist:${artist.id}`)];
+  const images = [referenceImage(providerId, 'artist', artist.id)];
 
   const item: Item = {
     id: toCompositeId(identity),
@@ -873,6 +901,8 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
+  public readonly resolveImage = async (): Promise<string | null> => null;
+
   public readonly getDetails = async (
     providerItemId: string,
     options?: { signal?: AbortSignal },
@@ -956,7 +986,7 @@ function mapRecordingToItem(recording: MusicBrainzRecording, providerId: string)
     ]?.id;
     if (firstReleaseGroupId) {
       // Create a reference via the album to hit the coverartarchive
-      images.push(referenceImage('album', firstReleaseGroupId));
+      images.push(referenceImage(providerId, 'album', firstReleaseGroupId));
     }
   }
 
@@ -992,6 +1022,7 @@ export class MusicBrainzProvider implements Provider {
 
   private fetcher: Fetcher = secureFetch;
   private rateLimiter = new RateLimiter(700); //685 not fine
+  public externalFetcher: Fetcher = secureFetch;
 
   public initialize = async (fetcher: Fetcher) => {
     this.fetcher = fetcher;
@@ -1004,31 +1035,6 @@ export class MusicBrainzProvider implements Provider {
       console.warn(`[MusicBrainz] No FANART_TV_API_KEY found in environment. Artist image resolution will fallback to Wikidata.`);
     }
   };
-  public readonly testImageKeys = nonEmpty(ALBUM_THRILLER_ID, ARTIST_DAFT_PUNK_ID);
-
-  private externalFetcher: Fetcher = secureFetch;
-
-  public async resolveImage(key: string): Promise<string | null> {
-    const id = key.replace(/^(album|artist|recording):/, '');
-
-    // 1. Try Cover Art Archive (Assuming it might be a release group)
-    try {
-      const caaRes = await fetch(`https://coverartarchive.org/release-group/${id}/front-500`, { method: 'HEAD' });
-      if (caaRes.ok) return caaRes.url;
-    } catch {
-      // Not a release group or no cover art
-    }
-
-    // 2. Try Fanart.tv (Artists/Albums)
-    const fromFanart = await this.resolveImageFromFanart(id);
-    if (fromFanart) return fromFanart;
-
-    // 3. Try Wikidata (Artists)
-    const fromWikidata = await this.resolveImageFromWikidata(id);
-    if (fromWikidata) return fromWikidata;
-
-    return null;
-  }
 
   public async searchAlbums(
     params: SearchParams,
@@ -1215,7 +1221,7 @@ export class MusicBrainzProvider implements Provider {
     new MusicBrainzArtistEntity(this),
     new MusicBrainzRecordingEntity(this),
   ] as const;
-  private async resolveImageFromWikidata(id: string): Promise<string | null> {
+  public async resolveImageFromWikidata(id: string): Promise<string | null> {
     try {
       const query = `SELECT ?image WHERE { ?item wdt:P434 "${id}" . ?item wdt:P18 ?image . } LIMIT 1`;
       const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}`;
@@ -1243,7 +1249,7 @@ export class MusicBrainzProvider implements Provider {
     return null;
   }
 
-  private async resolveImageFromFanart(id: string): Promise<string | null> {
+  public async resolveImageFromFanart(id: string): Promise<string | null> {
     const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
     
     if (!fanartKey) {

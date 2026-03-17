@@ -103,6 +103,27 @@ export interface Entity<TRaw = any> {
   readonly search: (params: SearchParams) => Promise<SearchResult<TRaw>>;
   /** Fetches and maps deep metadata for a single item. */
   readonly getDetails: (providerItemId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
+
+  /**
+   * Structured array of exact targets used to verify the resolveImage implementation natively in integration tests.
+   * If the entity supports image resolution, it must provide at least one valid test case.
+   */
+  readonly testImageResolution?: NonEmptyArray<{
+    /** The composite key or identity to resolve (e.g., specific DB ID) */
+    key: string;
+    /** Describes what this test accomplishes (e.g., 'Resolves secondary fallback via Wikidata') */
+    description: string;
+    /** If provided, asserts the resolved URL contains this substring (useful for ensuring it hit the right CDN) */
+    expectUrlContains?: string;
+  }>;
+
+  /**
+   * Method to resolve a stored reference image to a direct HTTP URL.
+   * Must be implemented by all entities natively. 
+   * @param key The provider-specific reference key (typically just the DB ID, previously it was prefixed).
+   * @returns The resolved image URL, or null if unresolvable.
+   */
+  readonly resolveImage: (key: string) => Promise<string | null>;
 }
 
 /**
@@ -145,19 +166,4 @@ export interface Provider {
    */
   initialize?: (fetcher: Fetcher) => Promise<void>;
 
-  /**
-   * Keys used to verify the resolveImage implementation in integration tests.
-   * If the provider supports image resolution, it must provide at least one valid key to test.
-   * Statically enforced to be non-empty.
-   */
-  readonly testImageKeys: NonEmptyArray<string>;
-
-  /**
-   * Method to resolve reference image sources.
-   * Must be implemented by all providers. If a provider does not support resolving images,
-   * it should return `null`.
-   * @param key The provider-specific reference key.
-   * @returns The resolved image URL, or null if unresolvable.
-   */
-  resolveImage: (key: string) => Promise<string | null>;
 }

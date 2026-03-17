@@ -219,18 +219,21 @@ export class ProviderRegistry {
    * @param key - The reference key to resolve.
    * @returns The resolved image URL, or null if resolution fails.
    */
-  public async resolveImageReference(providerId: string, key: string): Promise<string | null> {
+  public async resolveImageReference(providerId: string, entityId: string, key: string): Promise<string | null> {
     await this.waitUntilReady();
     const provider = this.getProvider(providerId);
+    const entity = provider.entities.find((e) => e.id === entityId);
+
+    if (!entity) return null;
 
     // If we get an auth error during resolution, we might want to try to recover
     try {
-      if (provider.resolveImage) {
-        return await provider.resolveImage(key);
+      if (entity.resolveImage) {
+        return await entity.resolveImage(key);
       }
     } catch (error) {
       const providerError = handleProviderError(error, providerId);
-      logger.error({ error: providerError, providerId, key }, 'Image resolution failed');
+      logger.error({ error: providerError, providerId, entityId, key }, 'Image resolution failed');
       throw providerError;
     }
     return null;

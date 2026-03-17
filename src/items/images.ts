@@ -14,9 +14,11 @@ export const UrlImageSourceSchema = z.object({
 /** A reference to an image that needs async resolution via a provider */
 export const ReferenceImageSourceSchema = z.object({
   type: z.literal('reference'),
-  /** The image provider (e.g. 'wikidata', 'fanart', 'caa') */
+  /** The image provider (e.g. 'rawg', 'musicbrainz') */
   provider: z.string(),
-  /** Provider-specific lookup key (e.g. 'elden-ring', 'album:123') */
+  /** The semantic domain entity within the provider (e.g. 'game', 'album') */
+  entityId: z.string(),
+  /** Provider-specific lookup key (e.g. '3328', '2c55f39d-...') */
   key: z.string(),
 });
 
@@ -42,9 +44,10 @@ export function urlImage(url: string): UrlImageSource {
 /**
  * Helper to create a reference image source
  * @param provider - The upstream metadata provider containing the source reference.
+ * @param entityId - The specific semantic entity within the provider.
  * @param key - The unique sub-key referencing the image payload via backend adapters.
  * @returns A strongly typed ReferenceImageSource variant payload.
  */
-export function referenceImage(provider: string, key: string): ReferenceImageSource {
-  return { type: 'reference', provider, key };
+export function referenceImage(provider: string, entityId: string, key: string): ReferenceImageSource {
+  return { type: 'reference', provider, entityId, key };
 }

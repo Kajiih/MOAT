@@ -33,7 +33,7 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
             targetUrl = source.url;
           } else {
             const res = await fetch(
-              `/api/resolve-image?providerId=${encodeURIComponent(source.provider)}&key=${encodeURIComponent(source.key)}`,
+              `/api/resolve-image?providerId=${encodeURIComponent(source.provider)}&entityId=${encodeURIComponent(source.entityId)}&key=${encodeURIComponent(source.key)}`,
             );
             
             if (res.ok) {

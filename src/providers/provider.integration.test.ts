@@ -82,29 +82,55 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
         });
 
         describe('Image Resolution', () => {
-          it('should expose the mandatory resolveImage method and testImageKeys array', () => {
-            expect(
-              typeof provider.resolveImage,
-              `Provider ${provider.id} must implement resolveImage.`,
-            ).toBe('function');
-            expect(
-              Array.isArray(provider.testImageKeys),
-              `Provider ${provider.id} must define a testImageKeys array.`,
-            ).toBe(true);
+          it('should expose the resolveImage method and testImageResolution array on entities if test images exist', () => {
+            for (const entity of provider.entities) {
+              if (entity.testImageResolution && entity.testImageResolution.length > 0) {
+                expect(
+                  typeof entity.resolveImage,
+                  `Entity ${entity.id} in Provider ${provider.id} must implement resolveImage.`,
+                ).toBe('function');
+                expect(
+                  Array.isArray(entity.testImageResolution),
+                  `Entity ${entity.id} in Provider ${provider.id} must define a testImageResolution array.`,
+                ).toBe(true);
+              }
+            }
           });
 
-          const keys = provider.testImageKeys || [];
-          if (keys.length > 0) {
-            it.each(keys)('should resolve test image key "%s" to a valid URL', async (key) => {
-              const url = await provider.resolveImage(key);
-              expect(typeof url, `Resolving image key "${key}" should yield a URL string.`).toBe(
+          const tests = provider.entities.flatMap(e => (e.testImageResolution || []).map((t: any) => ({ ...t, entityId: e.id })));
+          if (tests.length > 0) {
+            it.each(tests)('should functionally resolve image: $description ($key)', async (testCase) => {
+              const entity = provider.entities.find(e => e.id === testCase.entityId)!;
+              const url = await entity.resolveImage?.(testCase.key);
+              expect(typeof url, `Resolving image key "${testCase.key}" should yield a URL string.`).toBe(
                 'string',
               );
-              expect(url!.length, `Resolved URL for "${key}" is empty.`).toBeGreaterThan(10);
+              expect(url!.length, `Resolved URL for "${testCase.key}" is empty.`).toBeGreaterThan(10);
               expect(
                 url!.startsWith('http'),
-                `Resolved URL for "${key}" must be an absolute internet address.`,
+                `Resolved URL for "${testCase.key}" must be an absolute internet address.`,
               ).toBe(true);
+
+              if (testCase.expectUrlContains) {
+                expect(
+                  url,
+                  `Resolved URL for "${testCase.key}" expected to contain ${testCase.expectUrlContains}`
+                ).toContain(testCase.expectUrlContains);
+              }
+
+              // Fire a live HEAD request to mathematically prove reachability and MIME type
+              const res = await fetch(url!, { method: 'HEAD' });
+              
+              expect(
+                res.ok, 
+                `Expected image resolution for "${testCase.key}" to successfully ping the CDN (${url}), but received ${res.status} ${res.statusText}`
+              ).toBe(true);
+
+              const contentType = res.headers.get('content-type');
+              expect(
+                contentType,
+                `Expected the URL for "${testCase.key}" to serve a valid image payload, but received Content-Type: ${contentType}`
+              ).toMatch(/^image\//);
             });
           }
         });
