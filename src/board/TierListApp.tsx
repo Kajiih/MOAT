@@ -185,7 +185,7 @@ export default function TierListApp() {
     state,
     isHydrated,
     dragState: { activeItem, activeTier },
-    actions: { randomizeColors, removeItemFromTier, updateMediaItem },
+    actions: { randomizeColors, removeItemFromTier, updateItem },
 
     ui: { headerColors, detailsItem, showDetails, closeDetails, setShowShortcuts },
     history: { undo, redo, canUndo, canRedo },
@@ -256,7 +256,7 @@ export default function TierListApp() {
           item={detailsItem}
           isOpen={!!detailsItem}
           onClose={closeDetails}
-          onUpdateItem={updateMediaItem}
+          onUpdateItem={updateItem}
         />
 
         {/* Floating Randomize Colors Button */}

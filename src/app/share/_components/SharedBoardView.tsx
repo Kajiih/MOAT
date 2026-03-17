@@ -36,7 +36,7 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
   const [board, setBoard] = useState(initialBoard);
   const [detailsItem, setDetailsItem] = useState<Item | null>(null);
 
-  const handleUpdateMediaItem = (itemId: string, updates: Partial<Item>) => {
+  const handleUpdateItem = (itemId: string, updates: Partial<Item>) => {
     setBoard((prev) => ({
       ...prev,
       itemEntities: {
@@ -115,7 +115,7 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
             item={detailsItem}
             isOpen={!!detailsItem}
             onClose={() => setDetailsItem(null)}
-            onUpdateItem={handleUpdateMediaItem}
+            onUpdateItem={handleUpdateItem}
           />
         </div>
       </InteractionContext.Provider>

@@ -43,7 +43,7 @@ export function createMockItem(overrides: Partial<Item> = {}): Item {
 }
 
 /**
- * Creates a list of mock MediaItems of a given type.
+ * Creates a list of mock Items of a given type.
  * @param count - Number of items to create.
  * @param factory - Factory function to use.
  * @returns Array of items.

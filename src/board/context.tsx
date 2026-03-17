@@ -40,7 +40,7 @@ interface TierListContextType {
     clear: () => void;
     resetItems: () => void;
     updateTitle: (title: string) => void;
-    updateMediaItem: (itemId: string, updates: ItemUpdate) => void;
+    updateItem: (itemId: string, updates: ItemUpdate) => void;
     removeItemFromTier: (tierId: string, itemId: string) => void;
     locate: (id: string) => void;
     import: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -170,12 +170,12 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       actions: {
         ...actions,
         publish: ioRaw.handlePublish,
-        updateMediaItem: (itemId: string, updates: ItemUpdate) => {
+        updateItem: (itemId: string, updates: ItemUpdate) => {
           const item = state.itemEntities[itemId];
           if (!item) return;
 
           // 2. Dispatch to state
-          actions.updateMediaItem(itemId, updates);
+          actions.updateItem(itemId, updates);
 
           // 3. Register with standard registry
           registerItem({ ...item, ...updates } as Item);

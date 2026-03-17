@@ -113,7 +113,7 @@ export function useTierListNamespaces({
   /**
    * Updates item attributes.
    */
-  const updateMediaItem = useCallback(
+  const handleUpdateItem = useCallback(
     (itemId: string, updates: ItemUpdate) => {
       dispatch(updateItem({ itemId, updates }));
     },
@@ -137,7 +137,7 @@ export function useTierListNamespaces({
       randomizeColors: structureRaw.handleRandomizeColors,
       clear: structureRaw.handleClear,
       updateTitle: handleUpdateTitle,
-      updateMediaItem,
+      updateItem: handleUpdateItem,
       removeItemFromTier: removeItemFromTier,
       locate: utilsRaw.handleLocate,
       import: ioRaw.handleImport,
@@ -148,7 +148,7 @@ export function useTierListNamespaces({
     [
       structureRaw,
       handleUpdateTitle,
-      updateMediaItem,
+      handleUpdateItem,
       removeItemFromTier,
       utilsRaw.handleLocate,
       ioRaw,
