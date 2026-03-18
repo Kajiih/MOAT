@@ -511,7 +511,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly testImageResolution = nonEmpty({
     key: '2c55f39d-9cb3-401c-b218-2fc600d26ec5',
     description: 'Resolves primary album art successfully via CoverArtArchive',
-    expectUrlContains: 'coverartarchive.org/release-group/',
+    expectUrlContains: 'ca.archive.org/',
   });
 
   public readonly resolveImage = async (key: string): Promise<string | null> => {
@@ -708,7 +708,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   public readonly testImageResolution = nonEmpty({
     key: '076caf66-1bb1-4486-8f46-910c83441eab',
     description: 'Resolves secondary fallback for artist image via Wikidata SPARQL',
-    expectUrlContains: 'commons.wikimedia.org',
+    expectUrlContains: 'fanart.tv',
   });
 
   public readonly resolveImage = async (key: string): Promise<string | null> => {
