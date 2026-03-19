@@ -160,6 +160,8 @@ export function AsyncSelectFilterInput({
 
 function SelectedEntityDisplay({ entity }: { entity: { title: string; images: ImageSource[] } }) {
   const resolvedUrl = useResolvedImage(entity.images);
+
+
   return (
     <>
       {resolvedUrl && (
@@ -173,6 +175,8 @@ function SelectedEntityDisplay({ entity }: { entity: { title: string; images: Im
 
 function AsyncOption({ item, onSelect }: { item: Item; onSelect: () => void }) {
   const resolvedUrl = useResolvedImage(item.images || []);
+
+
   
   return (
     <button

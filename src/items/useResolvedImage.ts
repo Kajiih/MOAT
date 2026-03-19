@@ -6,6 +6,7 @@
 import useSWR from 'swr';
 
 import type { ImageSource } from '@/items/images';
+import { failedImages } from '@/items/image-cache';
 
 /**
  * Resolves an ordered list of ImageSource entries to the first working image URL.
@@ -16,9 +17,8 @@ import type { ImageSource } from '@/items/images';
  * @returns The first successfully resolved image URL, or undefined
  */
 export function useResolvedImage(sources: ImageSource[]): string | undefined {
-  // SWR automatically hashes the array into a stable string key.
-  // We use null to prevent fetching if there are no sources.
   const cacheKey = sources.length > 0 ? JSON.stringify(sources) : null;
+
 
   const { data: resolvedUrl } = useSWR<string | undefined>(
     cacheKey,
@@ -28,6 +28,7 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
       for (const source of activeSources) {
         try {
           let targetUrl: string | undefined;
+
 
           if (source.type === 'url') {
             targetUrl = source.url;
@@ -43,8 +44,16 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
           }
 
           if (targetUrl) {
+            if (failedImages.has(targetUrl)) {
+              continue; // Skip known broken URL candidates instantly
+            }
+
             const loaded = await loadImage(targetUrl);
-            if (loaded) return targetUrl;
+            if (loaded) {
+              return targetUrl;
+            } else {
+              failedImages.add(targetUrl); // Proactively blacklist asset
+            }
           }
         } catch {
           // Source failed, try the next one
@@ -55,7 +64,7 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
     {
       revalidateOnFocus: false, // Don't refetch simply because window gained focus
       dedupingInterval: 86_400_000, // Keep cached results alive for 24 hours
-      shouldRetryOnError: false, // Don't spam retries if all sources genuinely failed
+      shouldRetryOnError: false,
     },
   );
 

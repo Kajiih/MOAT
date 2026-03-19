@@ -20,8 +20,8 @@ import { useBoardRegistry } from '@/board/hooks/useBoardRegistry';
 import { useBrandColors } from '@/board/hooks/useBrandColors';
 import { useDynamicFavicon } from '@/board/hooks/useDynamicFavicon';
 import { BoardMetadata, PreviewItem, TierPreview } from '@/board/types';
-import { failedImages } from '@/items/image-cache';
 import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
+import { useResolvedImage } from '@/items/useResolvedImage';
 import { logger } from '@/lib/logger';
 
 // --- Sub-components for Dashboard ---
@@ -44,23 +44,26 @@ const CreateBoardCard = ({ onCreate }: { onCreate: (title: string) => void }) =>
 };
 
 const DashboardItem = ({ item }: { item: PreviewItem }) => {
-  const [error, setError] = React.useState(() =>
-    item.imageUrl ? failedImages.has(item.imageUrl) : false,
+  const sources = React.useMemo(
+    () => (item.imageUrl ? [{ type: 'url' as const, url: item.imageUrl }] : []),
+    [item.imageUrl],
   );
 
-  const showImage = item.imageUrl && !error;
+  const resolvedUrl = useResolvedImage(sources);
+  const [error, setError] = React.useState(false);
+
+  const showImage = resolvedUrl && !error;
 
   return (
     <div className="border-border bg-surface relative aspect-square h-full border-r">
       {showImage ? (
         <Image
-          src={item.imageUrl!}
+          src={resolvedUrl}
           alt=""
           fill
           className="object-cover"
           unoptimized
           onError={() => {
-            if (item.imageUrl) failedImages.add(item.imageUrl);
             setError(true);
           }}
         />

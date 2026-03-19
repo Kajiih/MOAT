@@ -10,7 +10,6 @@ import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { failedImages } from '@/items/image-cache';
 import { ITEM_CARD_DIMENSIONS } from '@/items/ItemCard';
 import { Item } from '@/items/items';
 import { useResolvedImage } from '@/items/useResolvedImage';
@@ -97,7 +96,6 @@ export function ItemImage({
             if (!retryUnoptimized) {
               setRetryUnoptimized(true);
             } else {
-              failedImages.add(displayUrl);
               setImageError(true);
             }
           }}
