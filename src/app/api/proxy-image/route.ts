@@ -7,9 +7,12 @@
  * @module ProxyImageAPI
  */
 
+import '@/providers/bootstrap';
+
 import { NextRequest, NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
+import { registry } from '@/providers/registry';
 
 /**
  * List of external hostnames that this proxy is allowed to fetch from.
@@ -18,6 +21,7 @@ import { logger } from '@/lib/logger';
 const ALLOWED_HOSTS = new Set([
   'assets.fanart.tv',
   'coverartarchive.org',
+  'ca.archive.org', // CoverArtArchive Redirect Destination
   'placehold.co',
   'commons.wikimedia.org',
   'upload.wikimedia.org',
@@ -35,10 +39,26 @@ const ALLOWED_HOSTS = new Set([
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const url = searchParams.get('url');
+  let url = searchParams.get('url');
+  const providerId = searchParams.get('providerId');
+  const entityId = searchParams.get('entityId');
+  const key = searchParams.get('key');
+
+  // 1. Resolve Reference dynamically if queried
+  if (providerId && entityId && key) {
+    try {
+      await registry.waitUntilReady();
+      const resolved = await registry.resolveImageReference(providerId, entityId, key);
+      if (resolved) {
+        url = resolved;
+      }
+    } catch (error) {
+      logger.error({ error, providerId, key }, 'Proxy: Failed to resolve reference');
+    }
+  }
 
   if (!url) {
-    return new NextResponse('Missing url parameter', { status: 400 });
+    return new NextResponse('Missing URL parameter', { status: 400 });
   }
 
   let targetUrl: URL;

@@ -10,8 +10,22 @@
 
 import download from 'downloadjs';
 import { toPng } from 'html-to-image';
-import { useCallback, useState } from 'react';
+import React, { createContext, useContext, ReactNode, useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+
+/**
+ * ScreenshotContext: stores pre-resolved Data URLs for instantaneous rendering offscreen.
+ * Key: stable string representing the source (url or stringified reference)
+ * Value: data:image/jpeg;base64,...
+ */
+const ScreenshotContext = createContext<Record<string, string>>({});
+
+export const ScreenshotProvider = ({ children, resolvedMap }: { children: ReactNode; resolvedMap: Record<string, string> }) => (
+  <ScreenshotContext.Provider value={resolvedMap}>{children}</ScreenshotContext.Provider>
+);
+
+export const useScreenshotContext = () => useContext(ScreenshotContext);
+
 
 import { ExportBoard } from '@/board/ExportBoard';
 import { TierListState } from '@/board/types';
@@ -31,17 +45,37 @@ import { useToast } from '@/lib/ui/ToastProvider';
  * @param url - The original image URL (external or local).
  * @returns A Promise resolving to a Base64 Data URL, or null if resolution fails.
  */
-async function resolveImageDataUrl(url: string): Promise<string | null> {
-  if (!url) return null;
-  if (url.startsWith('data:')) return url;
+import { ImageSource } from '@/items/images';
+
+/**
+ * Helper to convert an ImageSource to a Data URL
+ * This allows us to "hardcode" images into the DOM before capture,
+ * preventing various html-to-image duplication and hang bugs.
+ * @param source - The ImageSource object (url or reference).
+ * @returns A Promise resolving to a Base64 Data URL, or null if resolution fails.
+ */
+async function resolveImageDataUrl(source: ImageSource): Promise<string | null> {
+  if (!source) return null;
+
+  // 1. Build the correct proxy URL based on source type
+  let proxiedUrl = '';
+  let cacheKeyUrl = ''; // Used for known broken lookup
+
+  if (source.type === 'url') {
+    if (source.url.startsWith('data:')) return source.url;
+    proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(source.url)}`;
+    cacheKeyUrl = source.url;
+  } else {
+    proxiedUrl = `/api/proxy-image?providerId=${encodeURIComponent(source.provider)}&entityId=${encodeURIComponent(source.entityId)}&key=${encodeURIComponent(source.key)}`;
+    // We don't have a flat URL string for references prior to running, 
+    // but the backend will resolve and cache it anyway.
+  }
 
   // Check if this image is already known to be broken in the app
-  const isKnownBroken = failedImages.has(url);
+  const isKnownBroken = cacheKeyUrl ? failedImages.has(cacheKeyUrl) : false;
 
   /**
    * Internal fetcher with error handling
-   * @param target - The URL to fetch.
-   * @returns A Promise resolving to a Base64 Data URL.
    */
   const fetchAsDataUrl = async (target: string) => {
     const resp = await fetch(target);
@@ -57,38 +91,34 @@ async function resolveImageDataUrl(url: string): Promise<string | null> {
   };
 
   try {
-    const isExternal =
-      url.startsWith('http') && !url.includes('localhost') && !url.includes('127.0.0.1');
+    const isExternal = source.type === 'reference' || 
+      (source.type === 'url' && source.url.startsWith('http') && !source.url.includes('localhost') && !source.url.includes('127.0.0.1'));
 
     if (isExternal) {
       try {
-        // Attempt 1: Custom Proxy (CORS-safe, no optimization validation)
-        // We use our own proxy because /_next/image can be strict about domains/formats
-        // and return 400s for valid images (e.g. from fanart.tv).
-        const proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
         return await fetchAsDataUrl(proxiedUrl);
       } catch (proxyError) {
         if (!isKnownBroken) {
           logger.warn(
-            { error: proxyError, url },
-            'Screenshot Engine: Proxy failed. Switching to direct fetch.',
+            { error: proxyError, source },
+            'Screenshot Engine: Proxy failed.',
           );
         }
-        // Attempt 2: Direct Fetch (Works if CDN has CORS headers, e.g. coverartarchive)
-        return await fetchAsDataUrl(url);
+        // Fallback to direct fetch is only possible for type === 'url'
+        if (source.type === 'url') {
+          return await fetchAsDataUrl(source.url);
+        }
+        throw proxyError;
       }
     } else {
-      // Local URL, fetch directly
-      return await fetchAsDataUrl(url);
+      // Local or unsupported URL style
+      return source.type === 'url' ? await fetchAsDataUrl(source.url) : null;
     }
   } catch (error) {
-    // Differentiate between expected and unexpected failures
     if (isKnownBroken) {
-      // Expected failure - image was already broken in the app
-      logger.warn({ url }, 'Screenshot Engine: Skipping known broken image');
+      logger.warn({ source }, 'Screenshot Engine: Skipping known broken image');
     } else {
-      // Unexpected failure - image was working in the app but failed during screenshot
-      logger.error({ error, url }, 'Screenshot Engine: Unexpected failure resolving image');
+      logger.error({ error, source }, 'Screenshot Engine: Unexpected failure resolving image');
     }
     return null;
   }
@@ -115,30 +145,38 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
       setIsCapturing(true);
 
       // 1. Resolve all images to Data URLs BEFORE any DOM operations
-      const uniqueUrls = [
-        ...new Set(
-          Object.values(state.itemEntities).flatMap((item) => {
-            if (!item.images) return [];
-            return item.images.filter((img) => img.type === 'url').map((img) => img.url);
-          }),
-        ),
-      ];
+      // 1. Resolve all images to Data URLs BEFORE any DOM operations
+      const candidateSources = Object.values(state.itemEntities)
+        .map((item) => item.images?.[0])
+        .filter((source): source is ImageSource => !!source);
 
-      logger.info(`Screenshot Engine: Resolving ${uniqueUrls.length} unique images...`);
+      // Deduplicate by URL or stringified Reference definition
+      const uniqueSourcesMap = new Map<string, ImageSource>();
+      for (const source of candidateSources) {
+        const key = source.type === 'url' ? source.url : JSON.stringify(source);
+        if (!uniqueSourcesMap.has(key)) {
+          uniqueSourcesMap.set(key, source);
+        }
+      }
+
+      const uniqueSources = Array.from(uniqueSourcesMap.values());
+
+      logger.info(`Screenshot Engine: Resolving ${uniqueSources.length} unique images...`);
       const resolvedMap: Record<string, string> = {};
 
       await Promise.all(
-        uniqueUrls.map(async (url: string) => {
-          const dataUrl = await resolveImageDataUrl(url);
+        uniqueSources.map(async (source: ImageSource) => {
+          const dataUrl = await resolveImageDataUrl(source);
           if (dataUrl) {
-            resolvedMap[url] = dataUrl;
+            const key = source.type === 'url' ? source.url : JSON.stringify(source);
+            resolvedMap[key] = dataUrl;
           }
         }),
       );
 
       const resolvedCount = Object.keys(resolvedMap).length;
       logger.info(
-        `Screenshot Engine: Successfully resolved ${resolvedCount}/${uniqueUrls.length} images.`,
+        `Screenshot Engine: Successfully resolved ${resolvedCount}/${uniqueSources.length} images.`,
       );
 
       // 2. Create the hidden container
@@ -159,7 +197,11 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
 
       try {
         // 3. Render with resolved images
-        root.render(<ExportBoard state={state} brandColors={headerColors} />);
+        root.render(
+          <ScreenshotProvider resolvedMap={resolvedMap}>
+            <ExportBoard state={state} brandColors={headerColors} />
+          </ScreenshotProvider>,
+        );
 
         // 4. Wait for React to finish asynchronous mounting
         // React 18 createRoot renders asynchronously. We observe the container until
