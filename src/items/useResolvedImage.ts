@@ -7,6 +7,7 @@ import useSWR from 'swr';
 
 import type { ImageSource } from '@/items/images';
 import { failedImages } from '@/items/image-cache';
+import { batchResolver } from './batch-resolver';
 
 /**
  * Resolves an ordered list of ImageSource entries to the first working image URL.
@@ -33,14 +34,7 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
           if (source.type === 'url') {
             targetUrl = source.url;
           } else {
-            const res = await fetch(
-              `/api/resolve-image?providerId=${encodeURIComponent(source.provider)}&entityId=${encodeURIComponent(source.entityId)}&key=${encodeURIComponent(source.key)}`,
-            );
-            
-            if (res.ok) {
-              const data = await res.json();
-              targetUrl = data.url;
-            }
+            targetUrl = await batchResolver.load(source.provider, source.entityId, source.key);
           }
 
           if (targetUrl) {
