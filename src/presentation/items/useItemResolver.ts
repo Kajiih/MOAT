@@ -9,9 +9,9 @@
 import { useEffect, useMemo } from 'react';
 
 import { ItemDetailsCoreSchema, ItemUpdate } from '@/domain/items/items';
+import { useItemRegistry } from '@/infra/providers/useItemRegistry';
 import { Item } from '@/presentation/board/types';
-import { useItemDetails } from '@/providers/useItemDetails';
-import { useItemRegistry } from '@/providers/useItemRegistry';
+import { useItemDetails } from '@/presentation/items/useItemDetails';
 
 interface UseItemResolverOptions {
   /** If false, enrichment will not be attempted. Defaults to true. */

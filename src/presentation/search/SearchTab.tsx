@@ -10,13 +10,13 @@ import React, { useMemo, useState } from 'react';
 
 import { Item } from '@/domain/items/items';
 import { DEFAULT_PAGE_LIMIT } from '@/domain/providers/types';
+import { registry } from '@/infra/providers/registry';
 import { ItemCard } from '@/presentation/items/ItemCard';
 import { SkeletonCard } from '@/presentation/items/SkeletonCard';
 import { SearchParams } from '@/presentation/search/search-schemas';
 import { isSortReversible, SortDirection } from '@/presentation/search/sort-schemas';
 import { SortDropdown } from '@/presentation/search/SortDropdown';
 import { useItemSearch } from '@/presentation/search/useItemSearch';
-import { registry } from '@/providers/registry';
 
 import { FilterPanel } from './FilterPanel';
 

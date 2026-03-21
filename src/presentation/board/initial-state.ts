@@ -5,8 +5,8 @@
  * @module InitialState
  */
 
-import { DEFAULT_BRAND_COLORS } from '@/lib/colors';
 import { TierListState } from '@/presentation/board/types';
+import { DEFAULT_BRAND_COLORS } from '@/presentation/utils/colors';
 
 /**
  * Returns a fresh instance of the initial state to avoid shared reference mutations.

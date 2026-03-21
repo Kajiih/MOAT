@@ -3,13 +3,13 @@
  * @description Next.js API route securely fetching specific item details via registered providers.
  */
 
-import '@/providers/bootstrap'; // Ensure registry loads in node environment
+import '@/infra/providers/bootstrap'; // Ensure registry loads in node environment
 
 import { NextResponse } from 'next/server';
 
 import { createErrorResponse } from '@/app/api/utils';
-import { logger } from '@/lib/logger';
-import { registry } from '@/providers/registry';
+import { logger } from '@/infra/logger';
+import { registry } from '@/infra/providers/registry';
 
 /**
  * HTTP GET handler for details provider resolution.

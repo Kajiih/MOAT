@@ -8,7 +8,7 @@ import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closes
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { Item, ItemUpdate } from '@/domain/items/items';
-import { fromSearchId } from '@/lib/ids';
+import { fromSearchId } from '@/domain/utils/ids';
 import {
   BoardDispatch,
   moveItem,

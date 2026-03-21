@@ -6,7 +6,7 @@
  * @module BatchResolver
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
 
 interface BatchItem {
   providerId: string;

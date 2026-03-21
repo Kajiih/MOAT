@@ -8,7 +8,6 @@
 
 import { useCallback } from 'react';
 
-import { useToast } from '@/lib/ui/ToastProvider';
 import {
   addTier,
   BoardDispatch,
@@ -19,6 +18,7 @@ import {
   updateTier,
 } from '@/presentation/board/state/reducer';
 import { TierUpdate } from '@/presentation/board/types';
+import { useToast } from '@/presentation/ui/ToastProvider';
 
 /**
  * Hook to manage the structure of the tier list board (rows/tiers) and global board actions.

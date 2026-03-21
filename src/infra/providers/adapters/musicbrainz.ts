@@ -26,7 +26,10 @@ import {
 } from '@/domain/items/items';
 import { ProviderStatus } from '@/domain/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/domain/providers/types';
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
+import { secureFetch } from '@/infra/providers/api-client';
+import { RateLimiter } from '@/infra/providers/rate-limiter';
+import { applyFilters, handleProviderError } from '@/infra/providers/utils';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/presentation/search/filter-schemas';
 import {
   SearchParams,
@@ -34,9 +37,6 @@ import {
   SearchResultSchema,
 } from '@/presentation/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/presentation/search/sort-schemas';
-import { secureFetch } from '@/providers/api-client';
-import { RateLimiter } from '@/providers/rate-limiter';
-import { applyFilters, handleProviderError } from '@/providers/utils';
 
 export const ALBUM_FILTER_DEFAULTS = {
   primaryType: 'album',
@@ -1042,12 +1042,14 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
 
       const sections: ItemSection[] = [];
 
-      if (artist['release-groups'] && artist['release-groups'].length > 0) {
-        const topReleases = artist['release-groups'].filter(isStudioAlbum).sort((a, b) => {
-          const dateA = a['first-release-date'] || '9999';
-          const dateB = b['first-release-date'] || '9999';
-          return dateA.localeCompare(dateB);
-        });
+        if (artist['release-groups'] && artist['release-groups'].length > 0) {
+          const topReleases = artist['release-groups']
+            .filter((rg) => isStudioAlbum(rg))
+            .sort((a, b) => {
+              const dateA = a['first-release-date'] || '9999';
+              const dateB = b['first-release-date'] || '9999';
+              return dateA.localeCompare(dateB);
+            });
 
         if (topReleases.length > 0) {
           sections.push({

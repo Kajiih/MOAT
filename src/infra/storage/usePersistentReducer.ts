@@ -17,9 +17,18 @@ import { useStorageSync } from './useStorageSync';
 const HYDRATE_ACTION = '@@PERSIST/HYDRATE';
 
 /** Interface for the internal hydration action. */
+/** Interface for the internal hydration action. */
 interface HydrateAction<S> {
   type: typeof HYDRATE_ACTION;
   payload: S;
+}
+
+function isHydrateAction<S>(action: unknown): action is HydrateAction<S> {
+  return (
+    typeof action === 'object' &&
+    action !== null &&
+    (action as Record<string, unknown>).type === HYDRATE_ACTION
+  );
 }
 
 /**
@@ -55,10 +64,10 @@ export function usePersistentReducer<S, A>(
   const persistentReducer = useMemo(
     () =>
       (state: S, action: A | HydrateAction<S>): S => {
-        if ((action as HydrateAction<S>).type === HYDRATE_ACTION) {
-          return (action as HydrateAction<S>).payload;
+        if (isHydrateAction<S>(action)) {
+          return action.payload;
         }
-        return reducer(state, action as A);
+        return reducer(state, action);
       },
     [reducer],
   );

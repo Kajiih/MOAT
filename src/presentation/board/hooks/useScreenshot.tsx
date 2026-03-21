@@ -14,11 +14,11 @@ import React, { createContext, ReactNode, useCallback, useContext, useState } fr
 import { createRoot } from 'react-dom/client';
 
 import { ImageSource } from '@/domain/items/images';
-import { logger } from '@/lib/logger';
-import { useToast } from '@/lib/ui/ToastProvider';
+import { logger } from '@/infra/logger';
 import { ExportBoard } from '@/presentation/board/ExportBoard';
 import { TierListState } from '@/presentation/board/types';
 import { failedImages } from '@/presentation/items/image-cache';
+import { useToast } from '@/presentation/ui/ToastProvider';
 
 /**
  * ScreenshotContext: stores pre-resolved Data URLs for instantaneous rendering offscreen.

@@ -8,7 +8,7 @@ import { fromZodError } from 'zod-validation-error';
 
 import { EntityLink } from '@/domain/items/items';
 import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
-import { isObject } from '@/lib/type-guards';
+import { isObject } from '@/domain/utils/type-guards';
 import {
   ArrayValueSchema,
   BooleanValueSchema,
@@ -167,7 +167,7 @@ export function applyFilters<TRaw>(
 
     // Fallback to default if explicitly undefined in state (initial load)
     if (rawValue === undefined) {
-      rawValue = def.defaultValue as any;
+      rawValue = def.defaultValue as FilterValues[string];
     }
 
     // Skip if value is truly empty (null, undefined, or empty string)

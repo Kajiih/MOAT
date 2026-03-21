@@ -12,6 +12,8 @@ import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closes
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { Item, ItemUpdate } from '@/domain/items/items';
+import { useItemRegistry } from '@/infra/providers/useItemRegistry';
+import { usePersistentReducer } from '@/infra/storage/usePersistentReducer';
 import { useHistory } from '@/presentation/board/hooks/useHistory';
 import { useTierListDrag } from '@/presentation/board/hooks/useTierListDrag';
 import { useTierListIO } from '@/presentation/board/hooks/useTierListIO';
@@ -22,8 +24,6 @@ import { INITIAL_STATE } from '@/presentation/board/initial-state';
 import { syncBoardMetadata } from '@/presentation/board/registry-utils';
 import { BoardAction, setState, tierListReducer } from '@/presentation/board/state/reducer';
 import { TierDefinition, TierListState, TierUpdate } from '@/presentation/board/types';
-import { useItemRegistry } from '@/providers/useItemRegistry';
-import { usePersistentReducer } from '@/storage/usePersistentReducer';
 
 /**
  * Interface defining the shape of the Tier List Context.

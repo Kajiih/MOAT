@@ -7,7 +7,7 @@
 
 import React, { createContext, useContext } from 'react';
 
-import { usePersistentState } from '@/storage/usePersistentState';
+import { usePersistentState } from '@/infra/storage/usePersistentState';
 
 interface UserPreferencesContextType {
   /** Whether advanced UI features and settings are shown. */

@@ -1,12 +1,12 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { storage } from '@/storage/storage';
+import { storage } from '@/infra/storage/storage';
 
 import { useBoardRegistry } from './useBoardRegistry';
 
 // Mock the storage module
-vi.mock('@/storage/storage', () => ({
+vi.mock('@/infra/storage/storage', () => ({
   storage: {
     get: vi.fn(),
     set: vi.fn(),
@@ -19,7 +19,7 @@ vi.mock('@/storage/storage', () => ({
 }));
 
 // Mock logger to avoid console spam in tests
-vi.mock('@/lib/logger', () => ({
+vi.mock('@/infra/logger', () => ({
   logger: {
     error: vi.fn(),
     info: vi.fn(),

@@ -4,7 +4,7 @@
  * Primarily used to prevent OG image generation from crashing on broken images.
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
 import { Item, TierListState } from '@/presentation/board/types';
 
 /**

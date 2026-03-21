@@ -3,14 +3,14 @@
  * @description Next.js API route orchestrating cross-provider generic search proxying.
  */
 
-import '@/providers/bootstrap'; // Ensure registry loads in node environment
+import '@/infra/providers/bootstrap'; // Ensure registry loads in node environment
 
 import { NextResponse } from 'next/server';
 
 import { createErrorResponse } from '@/app/api/utils';
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
+import { registry } from '@/infra/providers/registry';
 import { SortDirection } from '@/presentation/search/sort-schemas';
-import { registry } from '@/providers/registry';
 
 /**
  * HTTP GET handler for global generic search proxying.

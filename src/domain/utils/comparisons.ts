@@ -8,7 +8,7 @@
 import fastDeepEqual from 'fast-deep-equal';
 
 import { Item, ItemUpdate } from '@/domain/items/items';
-import { isObject } from '@/lib/type-guards';
+import { isObject } from '@/domain/utils/type-guards';
 
 /**
  * Checks if a partial update actually changes any values in the current item.

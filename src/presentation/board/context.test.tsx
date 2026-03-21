@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TierListProvider, useTierListContext } from './context';
 
 // Mock logger
-vi.mock('@/lib/logger', () => ({
+vi.mock('@/infra/logger', () => ({
   logger: {
     error: vi.fn(),
     warn: vi.fn(),
@@ -14,7 +14,7 @@ vi.mock('@/lib/logger', () => ({
 }));
 
 // Mock dependencies
-vi.mock('@/lib/ui/ToastProvider', () => ({
+vi.mock('@/presentation/ui/ToastProvider', () => ({
   useToast: () => ({ showToast: vi.fn(), toastCount: 0 }),
 }));
 
@@ -27,7 +27,7 @@ vi.mock('@/presentation/board/hooks/useTierListDrag', () => ({
   }),
 }));
 
-vi.mock('@/providers/registry', () => ({
+vi.mock('@/infra/providers/registry', () => ({
   useItemRegistry: () => ({
     registerItems: vi.fn(),
     registerItem: vi.fn(),
@@ -36,7 +36,7 @@ vi.mock('@/providers/registry', () => ({
 }));
 
 // Mock storage
-vi.mock('@/storage/storage', () => ({
+vi.mock('@/infra/storage/storage', () => ({
   storage: {
     get: vi.fn().mockResolvedValue(null),
     set: vi.fn().mockImplementation(() => Promise.resolve()),
@@ -166,7 +166,7 @@ describe('TierListContext', () => {
     expect(result.current.state.tierDefs).toHaveLength(initialCount);
 
     // Verify logger was called
-    const { logger } = await import('@/lib/logger');
+    const { logger } = await import('@/infra/logger');
     expect(logger.error).toHaveBeenCalled();
   });
 

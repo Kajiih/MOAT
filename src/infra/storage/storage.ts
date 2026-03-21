@@ -26,7 +26,7 @@ export interface StorageBackend {
   keys: () => Promise<IDBValidKey[]>;
 }
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
 
 export const storage: StorageBackend = {
   get: async <T>(key: string) => {

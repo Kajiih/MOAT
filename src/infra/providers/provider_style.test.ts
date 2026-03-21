@@ -1,4 +1,4 @@
-import '@/providers/bootstrap';
+import '@/infra/providers/bootstrap';
 
 import { describe, expect, it } from 'vitest';
 
@@ -17,10 +17,7 @@ describe('Provider Style Guidelines', () => {
 
           if (isRelated) {
             // If we already found a non-related filter, then this related filter is in the wrong place.
-            expect(
-              foundNonRelated,
-              `Provider: "${provider.id}", Entity: "${entity.id}" - Related filter "${filter.id}" (${filter.label}) must appear BEFORE non-related filters.`,
-            ).toBe(false);
+            expect(foundNonRelated).toBe(false);
           } else {
             foundNonRelated = true;
           }
@@ -41,24 +38,15 @@ describe('Provider Style Guidelines', () => {
         const { label, icon, colorClass } = entity.branding;
 
         // Label Uniqueness
-        expect(
-          labels.has(label),
-          `Provider: "${provider.id}" - Duplicate entity label: "${label}"`,
-        ).toBe(false);
+        expect(labels.has(label)).toBe(false);
         labels.add(label);
 
         // Icon Uniqueness
-        expect(
-          icons.has(icon),
-          `Provider: "${provider.id}" - Duplicate entity icon on: "${label}"`,
-        ).toBe(false);
+        expect(icons.has(icon)).toBe(false);
         icons.add(icon);
 
         // Color Uniqueness
-        expect(
-          colors.has(colorClass),
-          `Provider: "${provider.id}" - Duplicate entity colorClass: "${colorClass}" on "${label}"`,
-        ).toBe(false);
+        expect(colors.has(colorClass)).toBe(false);
         colors.add(colorClass);
       }
     }

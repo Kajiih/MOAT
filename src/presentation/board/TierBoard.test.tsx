@@ -1,13 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ToastProvider } from '@/lib/ui/ToastProvider';
 import { TierListProvider } from '@/presentation/board/context';
+import { ToastProvider } from '@/presentation/ui/ToastProvider';
 
 import { TierBoard } from './TierBoard';
 
 // Mock storage to avoid indexedDB errors
-vi.mock('@/storage/storage', () => ({
+vi.mock('@/infra/storage/storage', () => ({
   storage: {
     get: vi.fn().mockResolvedValue(null),
     set: vi.fn().mockImplementation(() => Promise.resolve()),

@@ -7,11 +7,11 @@
 
 import { useCallback } from 'react';
 
-import { downloadJson, generateExportData, parseImportData } from '@/lib/io';
-import { logger } from '@/lib/logger';
-import { useToast } from '@/lib/ui/ToastProvider';
+import { downloadJson, generateExportData, parseImportData } from '@/infra/io';
+import { logger } from '@/infra/logger';
 import { BoardDispatch, importState } from '@/presentation/board/state/reducer';
 import { TierListState } from '@/presentation/board/types';
+import { useToast } from '@/presentation/ui/ToastProvider';
 
 /**
  * Hook to handle Import and Export operations for the Tier List.

@@ -8,8 +8,8 @@
 import { ArrowUpDown } from 'lucide-react';
 import { useState } from 'react';
 
-import { Popover } from '@/lib/ui/Popover';
 import { SortDirection } from '@/presentation/search/sort-schemas';
+import { Popover } from '@/presentation/ui/Popover';
 
 interface SortOptionItem {
   label: string;

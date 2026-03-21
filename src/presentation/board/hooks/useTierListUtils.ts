@@ -7,9 +7,9 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { arrayMove } from '@/lib/array';
-import { useToast } from '@/lib/ui/ToastProvider';
+import { arrayMove } from '@/domain/utils/array';
 import { TierListState } from '@/presentation/board/types';
+import { useToast } from '@/presentation/ui/ToastProvider';
 
 /**
  * Hook providing utility functions and derived state for the Tier List.

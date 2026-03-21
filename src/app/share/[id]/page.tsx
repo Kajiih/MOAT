@@ -9,7 +9,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { SharedBoardView } from '@/app/share/_components/SharedBoardView';
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
 import { TierListState } from '@/presentation/board/types';
 
 interface SharePageProps {

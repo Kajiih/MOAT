@@ -6,7 +6,7 @@
 
 import lucene, { LuceneAST } from 'lucene';
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
 
 /**
  * Checks if a mock item matches a Lucene query string.

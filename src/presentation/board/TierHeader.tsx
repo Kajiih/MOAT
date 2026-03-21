@@ -16,8 +16,8 @@
 import { memo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { getColorTheme } from '@/lib/colors';
 import { TierDefinition } from '@/presentation/board/types';
+import { getColorTheme } from '@/presentation/utils/colors';
 
 import { TierLabel } from './TierLabel';
 import { TierSettings } from './TierSettings';

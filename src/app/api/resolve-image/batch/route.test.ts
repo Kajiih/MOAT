@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { registry } from '@/providers/registry';
+import { registry } from '@/infra/providers/registry';
 
 import { POST } from './route';
 
-vi.mock('@/providers/registry', () => {
+vi.mock('@/infra/providers/registry', () => {
   return {
     registry: {
       waitUntilReady: vi.fn().mockResolvedValue(undefined),

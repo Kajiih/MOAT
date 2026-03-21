@@ -9,7 +9,7 @@
 
 import { useMemo } from 'react';
 
-import { getColorTheme } from '@/lib/colors';
+import { getColorTheme } from '@/presentation/utils/colors';
 
 /**
  * Generates the 5-color brand palette based on the provided tier colors.

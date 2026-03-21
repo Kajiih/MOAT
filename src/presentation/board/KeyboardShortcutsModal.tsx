@@ -6,7 +6,7 @@
 
 import { Command, Keyboard, X } from 'lucide-react';
 
-import { useEscapeKey } from '@/lib/ui/useEscapeKey';
+import { useEscapeKey } from '@/presentation/ui/useEscapeKey';
 
 /**
  * Props for the KeyboardShortcutsModal component.

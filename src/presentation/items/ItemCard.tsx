@@ -17,9 +17,9 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { getSubtitleString, Item } from '@/domain/items/items';
-import { InteractionContext } from '@/lib/ui/InteractionContext';
+import { registry } from '@/infra/providers/registry';
 import { useTierListContext } from '@/presentation/board/context';
-import { registry } from '@/providers/registry';
+import { InteractionContext } from '@/presentation/ui/InteractionContext';
 
 import { ItemImage } from './ItemImage';
 

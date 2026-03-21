@@ -5,15 +5,15 @@
 
 'use client';
 
-import '@/providers/bootstrap'; // Bootstrap all providers on first import
+import '@/infra/providers/bootstrap'; // Bootstrap all providers on first import
 
 import { Eye, EyeOff, Loader2, Search } from 'lucide-react';
 import React, { useMemo } from 'react';
 
+import { RegistryStatus } from '@/infra/providers/registry';
+import { usePersistentState } from '@/infra/storage/usePersistentState';
 import { useTierListContext } from '@/presentation/board/context';
-import { useRegistry } from '@/providers/hooks/useRegistry';
-import { RegistryStatus } from '@/providers/registry';
-import { usePersistentState } from '@/storage/usePersistentState';
+import { useRegistry } from '@/presentation/hooks/useRegistry';
 
 import { SearchTab } from './SearchTab';
 

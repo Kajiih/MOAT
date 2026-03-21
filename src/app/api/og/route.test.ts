@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  */
 vi.stubGlobal('fetch', vi.fn());
 
-vi.mock('@/lib/server/image-logic', () => ({
+vi.mock('@/infra/server/image-logic', () => ({
   scrubBoardImages: vi.fn((board) => Promise.resolve(board)),
 }));
 
@@ -24,7 +24,7 @@ vi.mock('next/og', () => {
   };
 });
 
-vi.mock('@/lib/logger', () => ({
+vi.mock('@/infra/logger', () => ({
   logger: {
     error: vi.fn(),
     info: vi.fn(),
@@ -40,7 +40,7 @@ import { kv } from '@vercel/kv';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-import { scrubBoardImages } from '@/lib/server/image-logic';
+import { scrubBoardImages } from '@/infra/server/image-logic';
 
 import { GET } from './route';
 

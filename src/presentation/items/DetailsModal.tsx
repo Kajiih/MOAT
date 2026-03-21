@@ -14,9 +14,9 @@ import {
   ItemSection,
   ItemUpdate,
 } from '@/domain/items/items';
-import { useEscapeKey } from '@/lib/ui/useEscapeKey';
+import { registry } from '@/infra/providers/registry';
 import { useItemResolver } from '@/presentation/items/useItemResolver';
-import { registry } from '@/providers/registry';
+import { useEscapeKey } from '@/presentation/ui/useEscapeKey';
 
 import { ExternalLinks } from './ExternalLinks';
 import { ItemImage } from './ItemImage';

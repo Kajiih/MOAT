@@ -1,12 +1,12 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { storage } from '@/storage/storage';
+import { storage } from '@/infra/storage/storage';
 
 import { usePersistentReducer } from './usePersistentReducer';
 
 // Mock storage
-vi.mock('@/storage/storage', () => ({
+vi.mock('@/infra/storage/storage', () => ({
   storage: {
     get: vi.fn(),
     set: vi.fn(),

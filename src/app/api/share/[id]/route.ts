@@ -6,7 +6,7 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
 import { TierListState } from '@/presentation/board/types';
 
 /**

@@ -3,8 +3,8 @@
  * @description A simplified, Satori-compatible board component for Open Graph image generation.
  */
 
-import { getColorTheme } from '@/lib/colors';
 import { Item, TierDefinition } from '@/presentation/board/types';
+import { getColorTheme } from '@/presentation/utils/colors';
 
 /**
  * Props for the LegacyOGBoard component.

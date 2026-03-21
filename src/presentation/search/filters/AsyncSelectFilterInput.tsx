@@ -9,10 +9,10 @@ import { useDebounce } from 'use-debounce';
 
 import { ImageSource } from '@/domain/items/images';
 import { getSubtitleString, Item } from '@/domain/items/items';
+import { registry } from '@/infra/providers/registry';
 import { useResolvedImage } from '@/presentation/items/useResolvedImage';
 import { AsyncSelectFilterDefinition } from '@/presentation/search/filter-schemas';
 import { useItemSearch } from '@/presentation/search/useItemSearch';
-import { registry } from '@/providers/registry';
 
 import { FilterControlProps } from './types';
 

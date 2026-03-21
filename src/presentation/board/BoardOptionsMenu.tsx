@@ -18,7 +18,7 @@ import {
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { Popover } from '@/lib/ui/Popover';
+import { Popover } from '@/presentation/ui/Popover';
 
 interface BoardOptionsMenuProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;

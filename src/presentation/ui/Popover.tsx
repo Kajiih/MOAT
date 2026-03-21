@@ -9,8 +9,8 @@
 import React, { useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { useClickOutside } from '@/lib/ui/useClickOutside';
-import { useEscapeKey } from '@/lib/ui/useEscapeKey';
+import { useClickOutside } from '@/presentation/ui/useClickOutside';
+import { useEscapeKey } from '@/presentation/ui/useEscapeKey';
 
 interface PopoverProps {
   /** The element that triggers the popover. */

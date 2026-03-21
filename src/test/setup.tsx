@@ -7,7 +7,7 @@ import './matchers/tierlist';
 
 import { vi } from 'vitest';
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
 
 /**
  * Global mock for next/image.

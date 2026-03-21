@@ -7,9 +7,9 @@
 
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { arrayMove } from '@/lib/array';
-import { TIER_COLORS } from '@/lib/colors';
+import { arrayMove } from '@/domain/utils/array';
 import { TierDefinition, TierId, TierListState, TierUpdate } from '@/presentation/board/types';
+import { TIER_COLORS } from '@/presentation/utils/colors';
 
 /**
  * RTK Case Reducer for adding a new tier with a unique ID and a random unused color.

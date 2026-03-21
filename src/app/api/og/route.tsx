@@ -10,8 +10,8 @@ import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 import { Item } from '@/domain/items/items';
-import { logger } from '@/lib/logger';
-import { scrubBoardImages } from '@/lib/server/image-logic';
+import { logger } from '@/infra/logger';
+import { scrubBoardImages } from '@/infra/server/image-logic';
 import { OGBoard } from '@/presentation/board/OGBoard';
 import { TierListState } from '@/presentation/board/types';
 

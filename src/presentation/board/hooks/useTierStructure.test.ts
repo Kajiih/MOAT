@@ -7,14 +7,14 @@ import { useTierStructure } from './useTierStructure';
 
 // Mock useToast
 const mockShowToast = vi.fn();
-vi.mock('@/lib/ui/ToastProvider', () => ({
+vi.mock('@/presentation/ui/ToastProvider', () => ({
   useToast: () => ({
     showToast: mockShowToast,
   }),
 }));
 
 // Mock Color Palette
-vi.mock('@/lib/colors', () => ({
+vi.mock('@/presentation/utils/colors', () => ({
   TIER_COLORS: [
     { id: 'red', label: 'Red' },
     { id: 'blue', label: 'Blue' },

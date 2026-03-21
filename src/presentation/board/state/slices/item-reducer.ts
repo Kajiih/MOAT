@@ -8,8 +8,8 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { ItemUpdate } from '@/domain/items/items';
-import { arrayMove } from '@/lib/array';
-import { hasItemUpdates } from '@/lib/comparisons';
+import { arrayMove } from '@/domain/utils/array';
+import { hasItemUpdates } from '@/domain/utils/comparisons';
 import { TierId, TierListState } from '@/presentation/board/types';
 
 import { MoveItemPayload } from '../reducer';

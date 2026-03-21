@@ -4,9 +4,9 @@
  */
 import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
 import { Entity, Fetcher, Provider, ProviderStatus } from '@/domain/providers/types';
-import { logger } from '@/lib/logger';
-import { secureFetch } from '@/providers/api-client';
-import { handleProviderError } from '@/providers/utils';
+import { logger } from '@/infra/logger';
+import { secureFetch } from '@/infra/providers/api-client';
+import { handleProviderError } from '@/infra/providers/utils';
 
 /**
  * Possible states for the ProviderRegistry.

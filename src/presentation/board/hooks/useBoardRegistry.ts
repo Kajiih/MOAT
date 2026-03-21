@@ -9,10 +9,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/infra/logger';
+import { storage } from '@/infra/storage/storage';
 import { INITIAL_STATE } from '@/presentation/board/initial-state';
 import { BoardMetadata } from '@/presentation/board/types';
-import { storage } from '@/storage/storage';
 
 /**
  * Hook for managing the application's board registry.

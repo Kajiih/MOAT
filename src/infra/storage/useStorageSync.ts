@@ -12,8 +12,8 @@ import deepEqual from 'fast-deep-equal';
 import { useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { logger } from '@/lib/logger';
-import { storage } from '@/storage/storage';
+import { logger } from '@/infra/logger';
+import { storage } from '@/infra/storage/storage';
 
 /**
  * Options for the useStorageSync hook.

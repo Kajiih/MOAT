@@ -4,13 +4,13 @@
  * @module BatchResolveImageAPI
  */
 
-import '@/providers/bootstrap';
+import '@/infra/providers/bootstrap';
 
 import { NextRequest, NextResponse } from 'next/server';
 
 import { createErrorResponse } from '@/app/api/utils';
-import { logger } from '@/lib/logger';
-import { registry } from '@/providers/registry';
+import { logger } from '@/infra/logger';
+import { registry } from '@/infra/providers/registry';
 
 interface BatchResolveRequestItem {
   providerId: string;

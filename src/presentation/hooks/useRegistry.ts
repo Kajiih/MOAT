@@ -5,7 +5,7 @@
 
 import { useSyncExternalStore } from 'react';
 
-import { registry, RegistrySnapshot, RegistryStatus } from '../registry';
+import { registry, RegistrySnapshot, RegistryStatus } from '@/infra/providers/registry';
 
 /**
  * Custom React hook that connects components reactively to the ProviderRegistry singleton.

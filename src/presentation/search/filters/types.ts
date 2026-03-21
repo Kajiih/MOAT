@@ -26,7 +26,7 @@ export interface FilterControlProps<
   value: T extends BaseFilterDefinition<infer V, any> ? V : any;
   /** Callback to notify the parent when the value changes. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange: (value: (T extends BaseFilterDefinition<infer V, any> ? V : any) | undefined) => void;
+  onChange: (value?: (T extends BaseFilterDefinition<infer V, any> ? V : any) | undefined) => void;
   /** The full current active filter states across sibling controls. */
   activeFilters?: FilterValues;
 }
