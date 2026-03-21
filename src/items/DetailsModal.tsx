@@ -30,6 +30,10 @@ interface DetailsModalProps {
   onUpdateItem?: (itemId: string, updates: ItemUpdate) => void;
   /** Optional callback to navigate to a related item. */
   onNavigate?: (item: Item) => void;
+  /** Whether the item is already added to the board. */
+  isAdded?: boolean;
+  /** Callback to add the item to the board. */
+  onAddToTierlist?: (item: Item) => void;
 }
 
 /**
@@ -47,7 +51,9 @@ export function DetailsModal({
   onClose,
   onUpdateItem,
   onNavigate,
-}: DetailsModalProps & { onNavigate?: (item: Item) => void }) {
+  isAdded = false,
+  onAddToTierlist,
+}: DetailsModalProps) {
   useEscapeKey(onClose, isOpen);
 
   const { resolvedItem, isLoading, error } = useItemResolver(isOpen ? item : null, {
@@ -70,8 +76,6 @@ export function DetailsModal({
   );
   const PlaceholderIcon = (entityDef.branding.icon as LucideIcon) || Info;
   const colorClass = entityDef.branding.colorClass || 'text-primary';
-
-  const subtitle = resolvedItem.subtitle || '';
 
   const details = resolvedItem.details;
 
@@ -148,6 +152,14 @@ export function DetailsModal({
                 </div>
               )}
             </div>
+            {!isAdded && onAddToTierlist && (
+              <button
+                onClick={() => onAddToTierlist(resolvedItem)}
+                className="bg-white hover:bg-neutral-200 text-black flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold shadow-[0_4px_12px_rgba(255,255,255,0.1)] transition-all hover:scale-105 active:scale-95"
+              >
+                <span>Add to Tierlist</span>
+              </button>
+            )}
           </div>
 
           <button
@@ -256,29 +268,57 @@ export function DetailsModal({
                         <p className="leading-relaxed">{section.content as string}</p>
                       )}
                       {section.type === 'list' && (
-                        <ul className="list-inside list-disc space-y-1">
-                          {(section.content as SubtitleToken[]).map((li, i) => (
-                            <li key={i}>
-                              {typeof li === 'string' ? (
-                                li
-                              ) : (
-                                <button
-                                  onClick={() => {
+                        <div className="bg-background border-border divide-border divide-y overflow-hidden rounded-lg border">
+                          {(section.content as SubtitleToken[]).map((li, i) => {
+                            const label = typeof li === 'string' ? li : li.name;
+                            const lastParen = label.lastIndexOf('(');
+                            const duration =
+                              lastParen !== -1 && label.endsWith(')')
+                                ? label.slice(lastParen + 1, -1)
+                                : null;
+                            const cleanLabel = duration
+                              ? label.slice(0, lastParen).trim()
+                              : label;
+
+                            const contentNode = (
+                              <div className="flex w-full items-center justify-between gap-4">
+                                <span className="truncate font-medium">{cleanLabel}</span>
+                                {duration && (
+                                  <span className="text-muted shrink-0 font-mono text-xs">
+                                    {duration}
+                                  </span>
+                                )}
+                              </div>
+                            );
+
+                            return (
+                              <div
+                                key={i}
+                                className="hover:bg-surface-hover flex items-center px-4 py-3 transition-colors text-sm"
+                              >
+                                {typeof li === 'string' ? (
+                                  <div className="text-secondary w-full">
+                                    {contentNode}
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => {
                                       onNavigate?.({
                                         id: `${li.identity.providerId}:${li.identity.entityId}:${li.identity.providerItemId}`,
                                         title: li.name,
                                         identity: li.identity,
                                         images: [],
                                       });
-                                  }}
-                                  className="hover:text-white hover:underline text-secondary text-left font-medium transition-colors"
-                                >
-                                  {li.name}
-                                </button>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
+                                    }}
+                                    className="hover:text-white text-secondary w-full text-left transition-colors"
+                                  >
+                                    {contentNode}
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
                   </div>

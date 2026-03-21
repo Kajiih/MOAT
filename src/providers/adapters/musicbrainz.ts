@@ -51,8 +51,8 @@ const SECONDARY_TYPES = ALBUM_FILTER_DEFAULTS.excludedSecondaryTypes;
 export const isStudioAlbum = (rg: MusicBrainzReleaseGroup): boolean => {
   const isAlbum = rg['primary-type']?.toLowerCase() === ALBUM_FILTER_DEFAULTS.primaryType;
   const secondaryTypes = rg['secondary-types'] || [];
-  const excludedLower = ALBUM_FILTER_DEFAULTS.excludedSecondaryTypes.map((t) => t.toLowerCase());
-  const isOk = !secondaryTypes.some((t) => excludedLower.includes(t.toLowerCase()));
+  const excludedLower = new Set(ALBUM_FILTER_DEFAULTS.excludedSecondaryTypes.map((t) => t.toLowerCase()));
+  const isOk = !secondaryTypes.some((t) => excludedLower.has(t.toLowerCase()));
 
   // If releases data is loaded, ensure at least one is "Official" index equivalence
   if (rg.releases && rg.releases.length > 0) {

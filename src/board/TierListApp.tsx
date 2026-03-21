@@ -185,9 +185,9 @@ export default function TierListApp() {
     state,
     isHydrated,
     dragState: { activeItem, activeTier },
-    actions: { randomizeColors, removeItemFromTier, updateItem },
+    actions: { randomizeColors, removeItemFromTier, updateItem, moveItem },
 
-    ui: { headerColors, detailsItem, showDetails, closeDetails, setShowShortcuts },
+    ui: { headerColors, detailsItem, showDetails, closeDetails, setShowShortcuts, addedItemIds },
     history: { undo, redo, canUndo, canRedo },
   } = useTierListContext();
 
@@ -258,6 +258,20 @@ export default function TierListApp() {
           onClose={closeDetails}
           onUpdateItem={updateItem}
           onNavigate={showDetails}
+          isAdded={detailsItem ? addedItemIds.has(detailsItem.id) : false}
+          onAddToTierlist={(item) => {
+            const unrankedTier = state.tierDefs.find(
+              (t) => t.label.toLowerCase() === 'unranked',
+            );
+            const overId = unrankedTier?.id || state.tierDefs.at(-1)?.id;
+            if (overId) {
+              moveItem({
+                activeId: item.id,
+                activeItem: item,
+                overId: overId,
+              });
+            }
+          }}
         />
 
         {/* Floating Randomize Colors Button */}
