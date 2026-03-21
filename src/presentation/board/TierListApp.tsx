@@ -260,9 +260,7 @@ export default function TierListApp() {
           onNavigate={showDetails}
           isAdded={detailsItem ? addedItemIds.has(detailsItem.id) : false}
           onAddToTierlist={(item) => {
-            const unrankedTier = state.tierDefs.find(
-              (t) => t.label.toLowerCase() === 'unranked',
-            );
+            const unrankedTier = state.tierDefs.find((t) => t.label.toLowerCase() === 'unranked');
             const overId = unrankedTier?.id || state.tierDefs.at(-1)?.id;
             if (overId) {
               moveItem({

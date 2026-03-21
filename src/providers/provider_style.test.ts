@@ -13,8 +13,7 @@ describe('Provider Style Guidelines', () => {
         let foundNonRelated = false;
 
         entity.filters.forEach((filter) => {
-          const isRelated =
-            filter.type === 'async-select' || filter.type === 'async-multiselect';
+          const isRelated = filter.type === 'async-select' || filter.type === 'async-multiselect';
 
           if (isRelated) {
             // If we already found a non-related filter, then this related filter is in the wrong place.
@@ -29,7 +28,7 @@ describe('Provider Style Guidelines', () => {
       }
     }
   });
-  
+
   it('should have unique colors, icons, and labels for each entity within a provider', () => {
     const providers = registry.getAllProviders();
 
@@ -44,21 +43,21 @@ describe('Provider Style Guidelines', () => {
         // Label Uniqueness
         expect(
           labels.has(label),
-          `Provider: "${provider.id}" - Duplicate entity label: "${label}"`
+          `Provider: "${provider.id}" - Duplicate entity label: "${label}"`,
         ).toBe(false);
         labels.add(label);
 
         // Icon Uniqueness
         expect(
           icons.has(icon),
-          `Provider: "${provider.id}" - Duplicate entity icon on: "${label}"`
+          `Provider: "${provider.id}" - Duplicate entity icon on: "${label}"`,
         ).toBe(false);
         icons.add(icon);
 
         // Color Uniqueness
         expect(
           colors.has(colorClass),
-          `Provider: "${provider.id}" - Duplicate entity colorClass: "${colorClass}" on "${label}"`
+          `Provider: "${provider.id}" - Duplicate entity colorClass: "${colorClass}" on "${label}"`,
         ).toBe(false);
         colors.add(colorClass);
       }

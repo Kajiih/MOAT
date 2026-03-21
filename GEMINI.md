@@ -30,7 +30,6 @@
 - When analysing, proposing solutions or writing a plan always consider every possible alternatives and trade-offs
   - Always present the pros, cons, benefits and risks associated with a given proposition and at least 2 alternatives.
 
-
 - When a fix didn't work, YOU NEED TO REVERT YOUR CHANGES BEFORE TRYING AGAIN.
 
 # Style

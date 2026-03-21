@@ -18,7 +18,11 @@ import {
   handleProviderError,
 } from '@/providers/utils';
 import { FilterDefinition } from '@/presentation/search/filter-schemas';
-import { SearchParams, SearchResult, SearchResultSchema } from '@/presentation/search/search-schemas';
+import {
+  SearchParams,
+  SearchResult,
+  SearchResultSchema,
+} from '@/presentation/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/presentation/search/sort-schemas';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';

@@ -283,7 +283,9 @@ export function ItemCard({
       />
 
       {/* Bottom Accent Strip */}
-      <div className={`absolute bottom-0 inset-x-0 h-[1.5px] ${baseColorClass} bg-current opacity-30 z-20 shadow-sm`} />
+      <div
+        className={`absolute inset-x-0 bottom-0 h-[1.5px] ${baseColorClass} z-20 bg-current opacity-30 shadow-sm`}
+      />
 
       {/* 2. The Visuals */}
       <div className="pointer-events-none">

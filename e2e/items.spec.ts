@@ -245,7 +245,10 @@ test.describe('Item Management', () => {
     },
   );
 
-  test('should navigate to linked entities from subtitle accurately', async ({ page, boardPage }) => {
+  test('should navigate to linked entities from subtitle accurately', async ({
+    page,
+    boardPage,
+  }) => {
     const card1 = boardPage.getItemCard('item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
@@ -256,13 +259,15 @@ test.describe('Item Management', () => {
           id: 'rawg:game:item-1',
           identity: { providerItemId: 'item-1', providerId: 'rawg', entityId: 'game' },
           title: 'First Item',
-          subtitle: [{
-            label: 'Developer',
-            name: 'Original Developer',
-            identity: { providerItemId: 'item-dev', providerId: 'rawg', entityId: 'developer' }
-          }],
+          subtitle: [
+            {
+              label: 'Developer',
+              name: 'Original Developer',
+              identity: { providerItemId: 'item-dev', providerId: 'rawg', entityId: 'developer' },
+            },
+          ],
           description: 'Details for Item 1',
-        }
+        },
       ],
       [
         'rawg:developer:item-dev',
@@ -272,8 +277,8 @@ test.describe('Item Management', () => {
           title: 'Original Developer',
           subtitle: 'Top Tier Developer',
           description: 'Details for Developer describing its full bio',
-        }
-      ]
+        },
+      ],
     ]);
 
     await page.route('**/api/details*', async (route) => {
@@ -284,7 +289,11 @@ test.describe('Item Management', () => {
       const key = `${providerId}:${entityId}:${providerItemId}`;
       const payload = detailsMap.get(key);
       if (payload) {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(payload) });
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(payload),
+        });
       } else {
         await route.fulfill({ status: 404 });
       }

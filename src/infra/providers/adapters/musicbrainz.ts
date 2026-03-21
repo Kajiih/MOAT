@@ -15,7 +15,15 @@ import { z } from 'zod';
 
 import { toCompositeId } from '@/domain/items/identity';
 import { referenceImage, urlImage } from '@/domain/items/images';
-import { Item, ItemDetails, ItemDetailsSchema, ItemSchema, ItemSection, Subtitle, SubtitleToken } from '@/domain/items/items';
+import {
+  Item,
+  ItemDetails,
+  ItemDetailsSchema,
+  ItemSchema,
+  ItemSection,
+  Subtitle,
+  SubtitleToken,
+} from '@/domain/items/items';
 import { logger } from '@/lib/logger';
 import { secureFetch } from '@/providers/api-client';
 import { RateLimiter } from '@/providers/rate-limiter';
@@ -23,7 +31,11 @@ import { ProviderStatus } from '@/domain/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/domain/providers/types';
 import { applyFilters, handleProviderError } from '@/providers/utils';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/presentation/search/filter-schemas';
-import { SearchParams, SearchResult, SearchResultSchema } from '@/presentation/search/search-schemas';
+import {
+  SearchParams,
+  SearchResult,
+  SearchResultSchema,
+} from '@/presentation/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/presentation/search/sort-schemas';
 
 export const ALBUM_FILTER_DEFAULTS = {
@@ -51,12 +63,16 @@ const SECONDARY_TYPES = ALBUM_FILTER_DEFAULTS.excludedSecondaryTypes;
 export const isStudioAlbum = (rg: MusicBrainzReleaseGroup): boolean => {
   const isAlbum = rg['primary-type']?.toLowerCase() === ALBUM_FILTER_DEFAULTS.primaryType;
   const secondaryTypes = rg['secondary-types'] || [];
-  const excludedLower = new Set(ALBUM_FILTER_DEFAULTS.excludedSecondaryTypes.map((t) => t.toLowerCase()));
+  const excludedLower = new Set(
+    ALBUM_FILTER_DEFAULTS.excludedSecondaryTypes.map((t) => t.toLowerCase()),
+  );
   const isOk = !secondaryTypes.some((t) => excludedLower.has(t.toLowerCase()));
 
   // If releases data is loaded, ensure at least one is "Official" index equivalence
   if (rg.releases && rg.releases.length > 0) {
-    const hasOfficial = rg.releases.some((r) => r.status?.toLowerCase() === ALBUM_FILTER_DEFAULTS.status);
+    const hasOfficial = rg.releases.some(
+      (r) => r.status?.toLowerCase() === ALBUM_FILTER_DEFAULTS.status,
+    );
     return isAlbum && isOk && hasOfficial;
   }
 
@@ -287,9 +303,11 @@ export function buildRecordingLuceneQuery(query: RecordingLuceneQuery): string {
 
   if (query.term?.trim()) parts.push(`${formatLuceneTerm(query.term, { fuzzy: true })}`);
   if (query.artistId?.trim()) parts.push(`arid:${query.artistId.trim()}`);
-  else if (query.artist?.trim()) parts.push(`artist:${formatLuceneTerm(query.artist, { fuzzy: true })}`);
+  else if (query.artist?.trim())
+    parts.push(`artist:${formatLuceneTerm(query.artist, { fuzzy: true })}`);
   if (query.releaseGroupId?.trim()) parts.push(`rgid:\"${query.releaseGroupId.trim()}\"`);
-  if (query.release?.trim()) parts.push(`release:${formatLuceneTerm(query.release, { fuzzy: true })}`);
+  if (query.release?.trim())
+    parts.push(`release:${formatLuceneTerm(query.release, { fuzzy: true })}`);
   if (query.video !== undefined) parts.push(`video:${query.video}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
@@ -727,15 +745,18 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
 
       if (album.releases && album.releases.length > 0) {
         // Find best release: Official, then prefer ones with date
-        const officialReleases = album.releases.filter((r) => r.status?.toLowerCase() === 'official');
-        const bestRelease = officialReleases.find((r) => r.date) || officialReleases[0] || album.releases[0];
+        const officialReleases = album.releases.filter(
+          (r) => r.status?.toLowerCase() === 'official',
+        );
+        const bestRelease =
+          officialReleases.find((r) => r.date) || officialReleases[0] || album.releases[0];
 
         if (bestRelease?.id) {
           try {
             const releaseData = await this.provider.fetchMusicBrainz<unknown>(
               `/release/${bestRelease.id}`,
               { inc: 'recordings' },
-              { signal }
+              { signal },
             );
             const release = MusicBrainzReleaseSchema.parse(releaseData);
 
@@ -776,7 +797,9 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
               extendedData['Country'] = release.country;
             }
           } catch (e) {
-            logger.warn(`[MusicBrainz] Failed to fetch tracklist for release ${bestRelease.id}: ${e}`);
+            logger.warn(
+              `[MusicBrainz] Failed to fetch tracklist for release ${bestRelease.id}: ${e}`,
+            );
           }
         }
       }
@@ -1020,20 +1043,20 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       const sections: ItemSection[] = [];
 
       if (artist['release-groups'] && artist['release-groups'].length > 0) {
-        const topReleases = artist['release-groups']
-          .filter(isStudioAlbum)
-          .sort((a, b) => {
-            const dateA = a['first-release-date'] || '9999';
-            const dateB = b['first-release-date'] || '9999';
-            return dateA.localeCompare(dateB);
-          });
+        const topReleases = artist['release-groups'].filter(isStudioAlbum).sort((a, b) => {
+          const dateA = a['first-release-date'] || '9999';
+          const dateB = b['first-release-date'] || '9999';
+          return dateA.localeCompare(dateB);
+        });
 
         if (topReleases.length > 0) {
           sections.push({
             title: 'Albums',
             type: 'list',
             content: topReleases.map((rg) => {
-              const year = rg['first-release-date'] ? ` (${rg['first-release-date'].split('-')[0]})` : '';
+              const year = rg['first-release-date']
+                ? ` (${rg['first-release-date'].split('-')[0]})`
+                : '';
               return {
                 label: 'Album',
                 name: `${rg.title}${year}`,

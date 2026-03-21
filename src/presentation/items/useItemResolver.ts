@@ -97,7 +97,7 @@ export function useItemResolver(item: Item | null, options: UseItemResolverOptio
       ...item,
       subtitle: item.subtitle || details?.subtitle,
       tertiaryText: item.tertiaryText || details?.tertiaryText,
-      images: item.images && item.images.length > 0 ? item.images : (details?.images || []),
+      images: item.images && item.images.length > 0 ? item.images : details?.images || [],
       details: item.details || details,
     };
   }, [item, details]);

@@ -3,7 +3,11 @@
  * @description Standardized generic properties for filter UI components.
  */
 
-import { BaseFilterDefinition, FilterDefinition, FilterValues } from '@/presentation/search/filter-schemas';
+import {
+  BaseFilterDefinition,
+  FilterDefinition,
+  FilterValues,
+} from '@/presentation/search/filter-schemas';
 
 /**
  * Standardized props for all filter input components.
