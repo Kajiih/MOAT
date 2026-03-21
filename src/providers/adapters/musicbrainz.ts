@@ -15,7 +15,7 @@ import { z } from 'zod';
 
 import { toCompositeId } from '@/items/identity';
 import { referenceImage, urlImage } from '@/items/images';
-import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items';
+import { Item, ItemDetails, ItemDetailsSchema, ItemSchema, Subtitle } from '@/items/items';
 import { logger } from '@/lib/logger';
 import { secureFetch } from '@/providers/api-client';
 import { RateLimiter } from '@/providers/rate-limiter';
@@ -425,6 +425,25 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
 
   public constructor(private provider: MusicBrainzProvider) {
     this.filters = [
+      mbAlbumFilters.asyncSelect({
+        id: 'artistId',
+        label: 'Artist',
+        transform: mapTo('artistId'),
+        targetEntityId: 'artist',
+        testCases: [
+          {
+            value: ARTIST_RADIOHEAD_ID,
+            query: 'OK Computer',
+            expectAll: (album: MusicBrainzReleaseGroup) => {
+              for (const credit of album['artist-credit'] ?? []) {
+                if (credit.artist?.id === ARTIST_RADIOHEAD_ID) return true;
+              }
+              return false;
+            },
+            expectAllMessage: 'be by Radiohead',
+          },
+        ],
+      }),
       mbAlbumFilters.select({
         id: 'primarytype',
         label: 'Release Type',
@@ -472,25 +491,6 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
               return false;
             },
             expectAllMessage: 'have secondary type "live"',
-          },
-        ],
-      }),
-      mbAlbumFilters.asyncSelect({
-        id: 'artistId',
-        label: 'Artist',
-        transform: mapTo('artistId'),
-        targetEntityId: 'artist',
-        testCases: [
-          {
-            value: ARTIST_RADIOHEAD_ID,
-            query: 'OK Computer',
-            expectAll: (album: MusicBrainzReleaseGroup) => {
-              for (const credit of album['artist-credit'] ?? []) {
-                if (credit.artist?.id === ARTIST_RADIOHEAD_ID) return true;
-              }
-              return false;
-            },
-            expectAllMessage: 'be by Radiohead',
           },
         ],
       }),
@@ -620,7 +620,16 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
 
       const relatedEntities =
         album['artist-credit']
-          ?.filter((c) => c.artist?.id)
+          ?.filter(
+            (c) =>
+              c.artist?.id &&
+              !(
+                Array.isArray(item.subtitle) &&
+                item.subtitle.some(
+                  (l) => typeof l !== 'string' && l.identity.providerItemId === c.artist!.id,
+                )
+              ),
+          )
           .map((c) => ({
             label: 'Artist',
             name: c.artist!.name,
@@ -654,12 +663,32 @@ function mapAlbumToItem(album: MusicBrainzReleaseGroup, providerId: string): Ite
   const artistName = album['artist-credit']?.[0]?.name;
   const year = album['first-release-date']?.split('-')[0];
 
+  const subtitle: Subtitle = [];
+  const primaryArtist = album['artist-credit']?.[0]?.artist;
+  if (primaryArtist?.id) {
+    subtitle.push({
+      label: 'Artist',
+      name: primaryArtist.name,
+      identity: {
+        providerItemId: primaryArtist.id,
+        providerId,
+        entityId: 'artist',
+      },
+    });
+  } else if (artistName) {
+    subtitle.push(artistName);
+  }
+
+  if (year) {
+    subtitle.push(year);
+  }
+
   const item: Item = {
     id: toCompositeId(identity),
     identity,
     title: album.title,
     images,
-    subtitle: [artistName, year].filter(Boolean).join(' • '),
+    subtitle,
     tertiaryText: album['primary-type'] || undefined,
   };
 
@@ -1001,10 +1030,19 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
 
       const relatedEntities: NonNullable<ItemDetails['relatedEntities']> = [];
 
-      // Link to artists
+      // Link to artists (skip subtitle links)
       if (recording['artist-credit']) {
         recording['artist-credit']
-          .filter((c) => c.artist?.id)
+          .filter(
+            (c) =>
+              c.artist?.id &&
+              !(
+                Array.isArray(item.subtitle) &&
+                item.subtitle.some(
+                  (l) => typeof l !== 'string' && l.identity.providerItemId === c.artist!.id,
+                )
+              ),
+          )
           .forEach((c) => {
             relatedEntities.push({
               label: 'Artist',
@@ -1029,6 +1067,13 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
         });
 
         groupedReleases.forEach((title, id) => {
+          // Skip the ones already in item.subtitle to prevent duplication
+          if (
+            Array.isArray(item.subtitle) &&
+            item.subtitle.some((l) => typeof l !== 'string' && l.identity.providerItemId === id)
+          )
+            return;
+
           relatedEntities.push({
             label: 'Album',
             name: title,
@@ -1083,12 +1128,43 @@ function mapRecordingToItem(recording: MusicBrainzRecording, providerId: string)
     tertiaryText += ` • ${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
+  const subtitle: Subtitle = [];
+  const primaryArtist = recording['artist-credit']?.[0]?.artist;
+  if (primaryArtist?.id) {
+    subtitle.push({
+      label: 'Artist',
+      name: primaryArtist.name,
+      identity: {
+        providerItemId: primaryArtist.id,
+        providerId,
+        entityId: 'artist',
+      },
+    });
+  } else if (artistName) {
+    subtitle.push(artistName);
+  }
+
+  const primaryAlbum = recording.releases?.[0]?.['release-group'];
+  if (primaryAlbum?.id) {
+    subtitle.push({
+      label: 'Album',
+      name: primaryAlbum.title,
+      identity: {
+        providerItemId: primaryAlbum.id,
+        providerId,
+        entityId: 'album',
+      },
+    });
+  } else if (albumTitle) {
+    subtitle.push(albumTitle);
+  }
+
   const item: Item = {
     id: toCompositeId(identity),
     identity,
     title: recording.title,
     images: images,
-    subtitle: [artistName, albumTitle].filter(Boolean).join(' • '),
+    subtitle,
     tertiaryText: tertiaryText,
   };
 

@@ -8,7 +8,7 @@
 import { Info, LucideIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Item, ItemSection, ItemUpdate } from '@/items/items';
+import { getSubtitleString, Item, ItemSection, ItemUpdate, SubtitleToken } from '@/items/items';
 import { useItemResolver } from '@/items/useItemResolver';
 import { useEscapeKey } from '@/lib/ui/useEscapeKey';
 import { registry } from '@/providers/registry';
@@ -28,6 +28,8 @@ interface DetailsModalProps {
   onClose: () => void;
   /** Optional callback to persist enriched metadata back to the parent state. */
   onUpdateItem?: (itemId: string, updates: ItemUpdate) => void;
+  /** Optional callback to navigate to a related item. */
+  onNavigate?: (item: Item) => void;
 }
 
 /**
@@ -39,7 +41,13 @@ interface DetailsModalProps {
  * @param props.onUpdateItem - Callback to persist updates to the item.
  * @returns The rendered DetailsModal component.
  */
-export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsModalProps) {
+export function DetailsModal({
+  item,
+  isOpen,
+  onClose,
+  onUpdateItem,
+  onNavigate,
+}: DetailsModalProps & { onNavigate?: (item: Item) => void }) {
   useEscapeKey(onClose, isOpen);
 
   const { resolvedItem, isLoading, error } = useItemResolver(isOpen ? item : null, {
@@ -100,16 +108,45 @@ export function DetailsModal({ item, isOpen, onClose, onUpdateItem }: DetailsMod
               <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
                 {resolvedItem.title}
               </h2>
-              <div className="text-secondary mt-1 flex items-center gap-2">
-                <PlaceholderIcon size={16} className={colorClass} />
-                <span className="font-medium">{subtitle}</span>
-                {resolvedItem.tertiaryText && (
-                  <>
-                    <span className="text-muted">•</span>
-                    <span className="text-secondary">{resolvedItem.tertiaryText}</span>
-                  </>
-                )}
-              </div>
+              {((resolvedItem.subtitle && resolvedItem.subtitle.length > 0) || resolvedItem.tertiaryText) && (
+                <div className="text-secondary mt-1 flex items-center gap-2">
+                  <PlaceholderIcon size={16} className={colorClass} />
+                  {Array.isArray(resolvedItem.subtitle) && resolvedItem.subtitle.length > 0 ? (
+                    <div className="flex items-center gap-1">
+                      {resolvedItem.subtitle.map((token, idx) => (
+                        <div key={idx} className="flex items-center">
+                          {idx > 0 && <span className="text-muted mr-1">•</span>}
+                          {typeof token === 'string' ? (
+                            <span className="text-secondary font-medium">{token}</span>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                onNavigate?.({
+                                  id: `${token.identity.providerId}:${token.identity.entityId}:${token.identity.providerItemId}`,
+                                  title: token.name,
+                                  identity: token.identity,
+                                  images: [],
+                                });
+                              }}
+                              className="hover:text-white hover:underline text-secondary text-left font-medium transition-colors"
+                            >
+                              {token.name}
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : resolvedItem.subtitle ? (
+                    <span className="font-medium">{getSubtitleString(resolvedItem.subtitle)}</span>
+                  ) : null}
+                  {resolvedItem.tertiaryText && (
+                    <>
+                      <span className="text-muted">•</span>
+                      <span className="text-secondary">{resolvedItem.tertiaryText}</span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

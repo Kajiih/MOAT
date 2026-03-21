@@ -9,6 +9,37 @@ import { EntityIdentitySchema } from './identity';
 import { ImageSourceSchema } from './images';
 
 /**
+ * A link to another entity within the same provider.
+ */
+export const EntityLinkSchema = z.object({
+  /** Singular label for the entity type (e.g., 'Developer') */
+  label: z.string(),
+  /** The display name of the target item (e.g., 'FromSoftware') */
+  name: z.string(),
+  /** Routing identity of the target entity */
+  identity: EntityIdentitySchema,
+});
+
+export type EntityLink = z.infer<typeof EntityLinkSchema>;
+
+export const SubtitleTokenSchema = z.union([z.string(), EntityLinkSchema]);
+
+export type SubtitleToken = z.infer<typeof SubtitleTokenSchema>;
+
+export const SubtitleSchema = z.union([z.string(), z.array(SubtitleTokenSchema)]);
+
+export type Subtitle = z.infer<typeof SubtitleSchema>;
+
+/**
+ * Resolves a sequence of subtitle tokens into a flat display string.
+ */
+export function getSubtitleString(subtitle: Subtitle | undefined): string {
+  if (!subtitle) return '';
+  if (typeof subtitle === 'string') return subtitle;
+  return subtitle.map((t) => (typeof t === 'string' ? t : t.name)).join(' • ');
+}
+
+/**
  * Base properties for any item.
  */
 export const BaseItemSchema = z.object({
@@ -23,7 +54,7 @@ export const BaseItemSchema = z.object({
   images: z.array(ImageSourceSchema).default([]),
 
   /** Pre-computed strings for the UI to avoid complex formatting logic in components */
-  subtitle: z.string().optional(),
+  subtitle: SubtitleSchema.optional(),
   tertiaryText: z.string().optional(),
 
   /** Normalized rating (usually 0-10 or 0-100) */
@@ -34,20 +65,6 @@ export const BaseItemSchema = z.object({
 });
 
 export type BaseItem = z.infer<typeof BaseItemSchema>;
-
-/**
- * A link to another entity within the same provider.
- */
-export const EntityLinkSchema = z.object({
-  /** Singular label for the entity type (e.g., 'Developer') */
-  label: z.string(),
-  /** The display name of the target item (e.g., 'FromSoftware') */
-  name: z.string(),
-  /** Routing identity of the target entity */
-  identity: EntityIdentitySchema,
-});
-
-export type EntityLink = z.infer<typeof EntityLinkSchema>;
 
 /**
  * A section of metadata for an item (e.g. "Tracks", "Awards").

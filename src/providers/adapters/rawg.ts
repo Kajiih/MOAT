@@ -7,7 +7,7 @@ import { Building2, Gamepad2 } from 'lucide-react';
 
 import { toCompositeId } from '@/items/identity';
 import { referenceImage, urlImage, UrlImageSource } from '@/items/images';
-import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items';
+import { Item, ItemDetails, ItemDetailsSchema, ItemSchema, Subtitle } from '@/items/items';
 import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/providers/types';
@@ -298,7 +298,9 @@ class RAWGGameEntity implements Entity<RAWGGame> {
         ),
       ].slice(0, 10);
 
-      const relatedEntities = extractRelatedEntities(game.developers, (dev) => ({
+      const primaryDev = game.developers?.[0];
+      const filteredDevelopers = game.developers?.filter((d) => d.id !== primaryDev?.id) || [];
+      const relatedEntities = extractRelatedEntities(filteredDevelopers, (dev) => ({
         label: 'Developer',
         name: dev.name,
         identity: {
@@ -338,14 +340,31 @@ function mapGameToItem(game: RAWGGame, providerId: string): Item {
     ...(game.slug ? [referenceImage(providerId, 'game', game.slug)] : []),
   ];
 
+  const subtitle: Subtitle = [];
+  const primaryDev = game.developers?.[0];
+  if (primaryDev) {
+    subtitle.push({
+      label: 'Developer',
+      name: primaryDev.name,
+      identity: {
+        providerItemId: primaryDev.id.toString(),
+        providerId,
+        entityId: 'developer',
+      },
+    });
+  }
+
+  const year = game.released?.split('-')[0];
+  if (year) {
+    subtitle.push(year);
+  }
+
   const item: Item = {
     id: toCompositeId(identity),
     identity,
     title: game.name,
     images,
-    subtitle: [game.developers?.[0]?.name, game.released?.split('-')[0]]
-      .filter(Boolean)
-      .join(' • '),
+    subtitle,
     tertiaryText: game.parent_platforms?.map((p) => p.platform.name).join(', '),
     rating: game.rating || undefined,
   };

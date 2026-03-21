@@ -257,6 +257,7 @@ export default function TierListApp() {
           isOpen={!!detailsItem}
           onClose={closeDetails}
           onUpdateItem={updateItem}
+          onNavigate={showDetails}
         />
 
         {/* Floating Randomize Colors Button */}

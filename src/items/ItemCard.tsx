@@ -17,7 +17,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { useTierListContext } from '@/board/context';
-import { Item } from '@/items/items';
+import { getSubtitleString, Item } from '@/items/items';
 import { InteractionContext } from '@/lib/ui/InteractionContext';
 import { registry } from '@/providers/registry';
 
@@ -296,9 +296,9 @@ export function ItemCard({
           <p className="text-caption line-clamp-2 leading-tight font-bold text-white">
             {item.title}
           </p>
-          {(item.subtitle || item.tertiaryText) && (
+          {((item.subtitle && item.subtitle.length > 0) || item.tertiaryText) && (
             <p className="text-caption text-secondary mt-0.5 line-clamp-1 leading-tight">
-              {item.subtitle || item.tertiaryText}
+              {getSubtitleString(item.subtitle) || item.tertiaryText}
             </p>
           )}
         </div>

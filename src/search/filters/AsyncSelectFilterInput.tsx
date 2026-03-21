@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { ImageSource } from '@/items/images';
-import { Item } from '@/items/items';
+import { getSubtitleString, Item } from '@/items/items';
 import { useResolvedImage } from '@/items/useResolvedImage';
 import { registry } from '@/providers/registry';
 import { AsyncSelectFilterDefinition } from '@/search/filter-schemas';
@@ -222,8 +222,10 @@ function AsyncOption({ item, onSelect }: { item: Item; onSelect: () => void }) {
       )}
       <div className="flex min-w-0 flex-col">
         <span className="w-full truncate font-medium">{item.title}</span>
-        {item.subtitle && (
-          <span className="text-muted w-full truncate text-[10px]">{item.subtitle}</span>
+        {item.subtitle && item.subtitle.length > 0 && (
+          <span className="text-muted w-full truncate text-[10px]">
+            {getSubtitleString(item.subtitle)}
+          </span>
         )}
       </div>
     </button>
