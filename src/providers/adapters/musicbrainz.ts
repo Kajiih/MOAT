@@ -262,7 +262,7 @@ const MusicBrainzUrlRelationSchema = z.object({
     .nullish(),
 });
 
-export const MusicBrainzArtistSchema = z.object({
+const MusicBrainzArtistSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string().nullish(),
@@ -274,9 +274,9 @@ export const MusicBrainzArtistSchema = z.object({
   tags: z.array(MusicBrainzTagSchema).nullish(),
   relations: z.array(MusicBrainzUrlRelationSchema).nullish(),
 });
-export type MusicBrainzArtist = z.infer<typeof MusicBrainzArtistSchema>;
+type MusicBrainzArtist = z.infer<typeof MusicBrainzArtistSchema>;
 
-export const MusicBrainzReleaseGroupSchema = z.object({
+const MusicBrainzReleaseGroupSchema = z.object({
   id: z.string(),
   title: z.string(),
   'primary-type': z.string().nullish(),
@@ -289,9 +289,9 @@ export const MusicBrainzReleaseGroupSchema = z.object({
   tags: z.array(MusicBrainzTagSchema).nullish(),
   relations: z.array(MusicBrainzUrlRelationSchema).nullish(),
 });
-export type MusicBrainzReleaseGroup = z.infer<typeof MusicBrainzReleaseGroupSchema>;
+type MusicBrainzReleaseGroup = z.infer<typeof MusicBrainzReleaseGroupSchema>;
 
-export const MusicBrainzRecordingSchema = z.object({
+const MusicBrainzRecordingSchema = z.object({
   id: z.string(),
   title: z.string(),
   length: z.number().nullish(),
@@ -313,7 +313,7 @@ export const MusicBrainzRecordingSchema = z.object({
     .nullish(),
   tags: z.array(MusicBrainzTagSchema).nullish(),
 });
-export type MusicBrainzRecording = z.infer<typeof MusicBrainzRecordingSchema>;
+type MusicBrainzRecording = z.infer<typeof MusicBrainzRecordingSchema>;
 
 // --- Shared Pagination Utilities ---
 const getMusicBrainzInitialParams = (
