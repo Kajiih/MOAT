@@ -385,6 +385,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.select({
         id: 'primarytype',
         label: 'Release Type',
+        defaultValue: 'album',
         transform: mapTo('primarytype'),
         options: [
           { label: 'Album', value: 'album' },
@@ -500,7 +501,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   }
 
   public readonly getInitialParams = (config: { limit: number }): SearchParams =>
-    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection, { primarytype: 'album' });
+    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection);
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzReleaseGroup>> => {
     return this.provider.searchAlbums(params, this.filters);

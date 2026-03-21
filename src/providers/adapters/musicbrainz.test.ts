@@ -107,7 +107,7 @@ describe('MusicBrainz Adapter', () => {
 
       const urlObj = new URL(fetchedUrl);
       const EXPECTED_NOT = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ\-mix OR Mixtape\/Street)`;
-      expect(urlObj.searchParams.get('query')).toBe(`release:"Billie Jean" AND ${EXPECTED_NOT}`);
+      expect(urlObj.searchParams.get('query')).toBe(`release:"Billie Jean" AND primarytype:album AND ${EXPECTED_NOT}`);
     });
   });
 

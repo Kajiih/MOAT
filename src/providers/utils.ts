@@ -166,9 +166,15 @@ export function applyFilters<TRaw>(
   const values = filterValues || {};
 
   for (const def of definitions) {
-    const rawValue = values[def.id];
+    let rawValue = values[def.id];
 
-    // Skip if value is "empty" (null, undefined, or empty string)
+    // Fallback to default if explicitly undefined in state (initial load)
+    if (rawValue === undefined) {
+      rawValue = def.defaultValue as typeof rawValue;
+    }
+
+    // Skip if value is truly empty (null, undefined, or empty string)
+    // Allows explicit empty strings (like clearing a filter) to be skipped.
     if (rawValue === undefined || rawValue === null || rawValue === '') continue;
 
     // Parse it securely through Zod based on the filter type
