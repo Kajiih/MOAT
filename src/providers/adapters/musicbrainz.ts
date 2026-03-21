@@ -907,7 +907,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
         testCases: [
           {
             value: true,
-            query: 'Thriller',
+            query: 'Creep',
             expectAll: (recording: MusicBrainzRecording) => recording.video === true,
             expectAllMessage: 'be video=true',
           },
@@ -1245,7 +1245,12 @@ export class MusicBrainzProvider implements Provider {
         artist: appliedFilters.artist as string | undefined,
         releaseGroupId: appliedFilters.releaseGroupId as string | undefined,
         release: appliedFilters.release as string | undefined,
-        video: appliedFilters.video !== undefined ? Boolean(appliedFilters.video) : undefined,
+        video:
+          appliedFilters.video === 'true'
+            ? true
+            : appliedFilters.video === 'false'
+              ? false
+              : undefined,
         duration_min: appliedFilters.duration_min as string | undefined,
         duration_max: appliedFilters.duration_max as string | undefined,
         tag: appliedFilters.tag as string | undefined,
