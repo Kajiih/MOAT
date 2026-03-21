@@ -244,4 +244,65 @@ test.describe('Item Management', () => {
       await expect(item2).toBeFocused();
     },
   );
+
+  test('should navigate to linked entities from subtitle accurately', async ({ page, boardPage }) => {
+    const card1 = boardPage.getItemCard('item-1');
+    await expect(card1).toBeVisible({ timeout: 15_000 });
+
+    const detailsMap = new Map<string, any>([
+      [
+        'rawg:game:item-1',
+        {
+          id: 'rawg:game:item-1',
+          identity: { providerItemId: 'item-1', providerId: 'rawg', entityId: 'game' },
+          title: 'First Item',
+          subtitle: [{
+            label: 'Developer',
+            name: 'Original Developer',
+            identity: { providerItemId: 'item-dev', providerId: 'rawg', entityId: 'developer' }
+          }],
+          description: 'Details for Item 1',
+        }
+      ],
+      [
+        'rawg:developer:item-dev',
+        {
+          id: 'rawg:developer:item-dev',
+          identity: { providerItemId: 'item-dev', providerId: 'rawg', entityId: 'developer' },
+          title: 'Original Developer',
+          subtitle: 'Top Tier Developer',
+          description: 'Details for Developer describing its full bio',
+        }
+      ]
+    ]);
+
+    await page.route('**/api/details*', async (route) => {
+      const url = new URL(route.request().url());
+      const providerId = url.searchParams.get('providerId');
+      const entityId = url.searchParams.get('entityId');
+      const providerItemId = url.searchParams.get('providerItemId');
+      const key = `${providerId}:${entityId}:${providerItemId}`;
+      const payload = detailsMap.get(key);
+      if (payload) {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(payload) });
+      } else {
+        await route.fulfill({ status: 404 });
+      }
+    });
+
+    // Open first details
+    await card1.hover();
+    await card1.getByRole('button', { name: /Details/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText('First Item');
+
+    // Click link
+    const link = dialog.getByRole('button', { name: 'Original Developer' });
+    await expect(link).toBeVisible();
+    await link.click();
+
+    // Verify next Details populate accurately
+    await expect(dialog).toContainText('Details for Developer describing its full bio');
+  });
 });

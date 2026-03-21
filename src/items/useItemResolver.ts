@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { Item } from '@/board/types';
 import { ItemDetailsCoreSchema, ItemUpdate } from '@/items/items';
@@ -73,6 +73,12 @@ export function useItemResolver(item: Item | null, options: UseItemResolverOptio
       if (parsed.success) {
         updates.details = parsed.data;
       }
+      if (details.subtitle) {
+        updates.subtitle = details.subtitle;
+      }
+      if (details.tertiaryText) {
+        updates.tertiaryText = details.tertiaryText;
+      }
     }
 
     // Propagate to Board
@@ -85,8 +91,20 @@ export function useItemResolver(item: Item | null, options: UseItemResolverOptio
     }
   }, [item, details, isLoading, error, shouldFetch, persist, registerItem, onUpdate]);
 
+  const resolvedItem = useMemo(() => {
+    if (!item) return null;
+    return {
+      ...item,
+      subtitle: item.subtitle || details?.subtitle,
+      tertiaryText: item.tertiaryText || details?.tertiaryText,
+      images: item.images && item.images.length > 0 ? item.images : (details?.images || []),
+      details: item.details || details,
+    };
+  }, [item, details]);
+
   return {
-    resolvedItem: item,
+    resolvedItem,
+    details: item?.details || details, // Buffer response to prevent state lag
     isLoading: isLoading && shouldFetch,
     isFetching: isValidating && shouldFetch,
     error: shouldFetch ? error : null,

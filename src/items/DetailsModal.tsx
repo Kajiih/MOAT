@@ -121,12 +121,12 @@ export function DetailsModal({
                           ) : (
                             <button
                               onClick={() => {
-                                onNavigate?.({
-                                  id: `${token.identity.providerId}:${token.identity.entityId}:${token.identity.providerItemId}`,
-                                  title: token.name,
-                                  identity: token.identity,
-                                  images: [],
-                                });
+                                  onNavigate?.({
+                                    id: `${token.identity.providerId}:${token.identity.entityId}:${token.identity.providerItemId}`,
+                                    title: token.name,
+                                    identity: token.identity,
+                                    images: [],
+                                  });
                               }}
                               className="hover:text-white hover:underline text-secondary text-left font-medium transition-colors"
                             >
@@ -198,7 +198,7 @@ export function DetailsModal({
                       Subjects / Tags
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {[...new Set(details.tags)].map((tag: string) => (
+                      {[...new Set(details.tags || [])].map((tag) => (
                         <span
                           key={tag}
                           className="border-border bg-surface-hover text-secondary rounded-md border px-2 py-1 text-xs"

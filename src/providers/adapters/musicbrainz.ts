@@ -1020,7 +1020,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
     try {
       const rawData = await this.provider.fetchMusicBrainz<unknown>(
         `/recording/${providerItemId}`,
-        { inc: 'artist-credits+tags+releases' },
+        { inc: 'artist-credits+tags+releases+release-groups' },
         { signal },
       );
       const recording = MusicBrainzRecordingSchema.parse(rawData);

@@ -37,6 +37,7 @@ The automated tests within this directory aim to perfectly replicate the followi
 - Drag and drop an item to a different tier
 - Reorder items in a tier
 - Open the details of an item
+- Navigate to related entities clicking on links inside detais
 - Remove an item from a tier
 - Unrank an item by moving it from a tier dropzone to the search list
 - Move and reorder items securely via Keyboard
