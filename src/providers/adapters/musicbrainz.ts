@@ -457,9 +457,9 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       mbAlbumFilters.select({
         id: 'status',
         label: 'Status',
+        defaultValue: 'official',
         transform: mapTo('status'),
         options: [
-          { label: 'Any Status', value: '' },
           { label: 'Official', value: 'official' },
           { label: 'Promotion', value: 'promotion' },
           { label: 'Bootleg', value: 'bootleg' },
