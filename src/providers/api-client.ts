@@ -4,7 +4,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { ProviderError, ProviderErrorCode } from '@/providers/errors';
+import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
 
 /** Options for secure fetch requests. */
 export interface RequestOptions extends RequestInit {

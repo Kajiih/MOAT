@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
-import { useBoardRegistry } from '@/board/hooks/useBoardRegistry';
+import { useBoardRegistry } from '@/presentation/board/hooks/useBoardRegistry';
 import { logger } from '@/lib/logger';
 
 /**

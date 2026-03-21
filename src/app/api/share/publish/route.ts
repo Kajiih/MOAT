@@ -7,7 +7,7 @@ import { kv } from '@vercel/kv';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { TierListSchema } from '@/board/types';
+import { TierListSchema } from '@/presentation/board/types';
 import { logger } from '@/lib/logger';
 
 /**

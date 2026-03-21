@@ -4,8 +4,8 @@
  */
 import { logger } from '@/lib/logger';
 import { secureFetch } from '@/providers/api-client';
-import { ProviderError, ProviderErrorCode } from '@/providers/errors';
-import { Entity, Fetcher, Provider, ProviderStatus } from '@/providers/types';
+import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
+import { Entity, Fetcher, Provider, ProviderStatus } from '@/domain/providers/types';
 import { handleProviderError } from '@/providers/utils';
 
 /**

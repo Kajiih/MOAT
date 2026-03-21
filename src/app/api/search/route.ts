@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { createErrorResponse } from '@/app/api/utils';
 import { logger } from '@/lib/logger';
 import { registry } from '@/providers/registry';
-import { SortDirection } from '@/search/sort-schemas';
+import { SortDirection } from '@/presentation/search/sort-schemas';
 
 /**
  * HTTP GET handler for global generic search proxying.

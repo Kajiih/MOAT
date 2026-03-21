@@ -23,7 +23,7 @@ vi.mock('next/navigation', () => ({
 
 // Mock the hooks and dependencies
 const mockCreateBoard = vi.fn(() => 'new-id');
-vi.mock('@/board/hooks/useBoardRegistry', () => ({
+vi.mock('@/presentation/board/hooks/useBoardRegistry', () => ({
   useBoardRegistry: () => ({
     boards: [],
     isLoading: false,
@@ -32,14 +32,14 @@ vi.mock('@/board/hooks/useBoardRegistry', () => ({
   }),
 }));
 
-vi.mock('@/board/hooks/useBrandColors', () => ({
+vi.mock('@/presentation/board/hooks/useBrandColors', () => ({
   useBrandColors: () => ({
     headerColors: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'],
     favicon: '',
   }),
 }));
 
-vi.mock('@/board/hooks', () => ({
+vi.mock('@/presentation/board/hooks', () => ({
   useDynamicFavicon: vi.fn(),
 }));
 

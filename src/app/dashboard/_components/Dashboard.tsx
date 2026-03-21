@@ -16,11 +16,11 @@ import React from 'react';
 
 import { BrandLogo } from '@/app/_components/BrandLogo';
 import { Footer } from '@/app/_components/Footer';
-import { useBoardRegistry } from '@/board/hooks/useBoardRegistry';
-import { useBrandColors } from '@/board/hooks/useBrandColors';
-import { useDynamicFavicon } from '@/board/hooks/useDynamicFavicon';
-import { BoardMetadata, PreviewItem, TierPreview } from '@/board/types';
-import { useResolvedImage } from '@/items/useResolvedImage';
+import { useBoardRegistry } from '@/presentation/board/hooks/useBoardRegistry';
+import { useBrandColors } from '@/presentation/board/hooks/useBrandColors';
+import { useDynamicFavicon } from '@/presentation/board/hooks/useDynamicFavicon';
+import { BoardMetadata, PreviewItem, TierPreview } from '@/presentation/board/types';
+import { useResolvedImage } from '@/presentation/items/useResolvedImage';
 import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
 import { logger } from '@/lib/logger';
 

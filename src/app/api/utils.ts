@@ -6,7 +6,7 @@
 import { NextResponse } from 'next/server';
 
 import { isObject } from '@/lib/type-guards';
-import { ProviderError, ProviderErrorCode } from '@/providers/errors';
+import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
 
 /**
  * Normalizes an unknown error from the provider layer into an appropriate Next.js HTTP response.

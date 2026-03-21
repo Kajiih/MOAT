@@ -7,7 +7,7 @@
 
 import fastDeepEqual from 'fast-deep-equal';
 
-import { Item, ItemUpdate } from '@/items/items';
+import { Item, ItemUpdate } from '@/domain/items/items';
 import { isObject } from '@/lib/type-guards';
 
 /**

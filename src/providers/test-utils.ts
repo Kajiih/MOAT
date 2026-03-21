@@ -5,8 +5,8 @@
 
 import { expect } from 'vitest';
 
-import { BaseItem } from '@/items/items';
-import { SortDirection } from '@/search/sort-schemas';
+import { BaseItem } from '@/domain/items/items';
+import { SortDirection } from '@/presentation/search/sort-schemas';
 
 /**
  * Shared test utilities for provider integration tests.

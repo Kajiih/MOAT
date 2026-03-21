@@ -9,9 +9,9 @@ import { kv } from '@vercel/kv';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-import { OGBoard } from '@/board/OGBoard';
-import { TierListState } from '@/board/types';
-import { Item } from '@/items/items';
+import { OGBoard } from '@/presentation/board/OGBoard';
+import { TierListState } from '@/presentation/board/types';
+import { Item } from '@/domain/items/items';
 import { logger } from '@/lib/logger';
 import { scrubBoardImages } from '@/lib/server/image-logic';
 

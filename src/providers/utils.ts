@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
-import { EntityLink } from '@/items/items';
+import { EntityLink } from '@/domain/items/items';
 import { isObject } from '@/lib/type-guards';
 import {
   ArrayValueSchema,
@@ -17,9 +17,9 @@ import {
   NumberValueSchema,
   RangeValueSchema,
   TextValueSchema,
-} from '@/search/filter-schemas';
+} from '@/presentation/search/filter-schemas';
 
-import { ProviderError, ProviderErrorCode } from './errors';
+import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
 
 /**
  * Handles error thrown by providers, converting them predictably into structured logs and standard errors.

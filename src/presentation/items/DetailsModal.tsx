@@ -1,0 +1,495 @@
+/**
+ * @file DetailsModal.tsx
+ * @description A modal component for displaying detailed information about a item.
+ */
+
+'use client';
+
+import { Info, LucideIcon, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+import { getSubtitleString, Item, ItemSection, ItemUpdate, SubtitleToken } from '@/domain/items/items';
+import { useItemResolver } from '@/presentation/items/useItemResolver';
+import { useEscapeKey } from '@/lib/ui/useEscapeKey';
+import { registry } from '@/providers/registry';
+
+import { ExternalLinks } from './ExternalLinks';
+import { ItemImage } from './ItemImage';
+
+/**
+ * Props for the DetailsModal component.
+ */
+interface DetailsModalProps {
+  /** The item to display details for, or null if closed. */
+  item: Item | null;
+  /** Whether the modal is currently visible. */
+  isOpen: boolean;
+  /** Callback fired when the modal should be closed. */
+  onClose: () => void;
+  /** Optional callback to persist enriched metadata back to the parent state. */
+  onUpdateItem?: (itemId: string, updates: ItemUpdate) => void;
+  /** Optional callback to navigate to a related item. */
+  onNavigate?: (item: Item) => void;
+  /** Whether the item is already added to the board. */
+  isAdded?: boolean;
+  /** Callback to add the item to the board. */
+  onAddToTierlist?: (item: Item) => void;
+}
+
+/**
+ * A comprehensive details view for native Items.
+ * @param props - The component properties.
+ * @param props.item - The item to display details for.
+ * @param props.isOpen - Whether the modal is currently open.
+ * @param props.onClose - Callback to close the modal.
+ * @param props.onUpdateItem - Callback to persist updates to the item.
+ * @returns The rendered DetailsModal component.
+ */
+export function DetailsModal({
+  item,
+  isOpen,
+  onClose,
+  onUpdateItem,
+  onNavigate,
+  isAdded = false,
+  onAddToTierlist,
+}: DetailsModalProps) {
+  useEscapeKey(onClose, isOpen);
+
+  const { resolvedItem, isLoading, error } = useItemResolver(isOpen ? item : null, {
+    enabled: isOpen,
+    onUpdate: onUpdateItem,
+    persist: true,
+  });
+
+  useEffect(() => {
+    if (error) {
+      console.error('Failed to load item details:', error);
+    }
+  }, [error]);
+
+  if (!isOpen || !resolvedItem) return null;
+
+  const entityDef = registry.getEntity(
+    resolvedItem.identity.providerId,
+    resolvedItem.identity.entityId,
+  );
+  const PlaceholderIcon = (entityDef.branding.icon as LucideIcon) || Info;
+  const colorClass = entityDef.branding.colorClass || 'text-primary';
+
+  const details = resolvedItem.details;
+
+  const renderSubtitle = () => {
+    if (Array.isArray(resolvedItem.subtitle) && resolvedItem.subtitle.length > 0) {
+      return (
+        <div className="flex items-center gap-1">
+          {resolvedItem.subtitle.map((token, idx) => (
+            <div key={idx} className="flex items-center">
+              {idx > 0 && <span className="text-muted mr-1">•</span>}
+              {typeof token === 'string' ? (
+                <span className="text-secondary font-medium">{token}</span>
+              ) : (
+                <button
+                  onClick={() => {
+                    onNavigate?.({
+                      id: `${token.identity.providerId}:${token.identity.entityId}:${token.identity.providerItemId}`,
+                      title: token.name,
+                      identity: token.identity,
+                      images: [],
+                    });
+                  }}
+                  className="hover:text-white hover:underline text-secondary text-left font-medium transition-colors"
+                >
+                  {token.name}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    if (resolvedItem.subtitle) {
+      return <span className="font-medium">{getSubtitleString(resolvedItem.subtitle)}</span>;
+    }
+    return null;
+  };
+
+  return (
+    <div
+      className="animate-in fade-in duration-fast fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div className="relative w-full max-w-4xl">
+        <div
+          className={`absolute -inset-24 ${colorClass} bg-current opacity-10 blur-[120px] rounded-full pointer-events-none z-0`}
+        />
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="animate-in zoom-in-95 border-border bg-neutral-950 shadow-floating duration-fast grid h-[85vh] max-h-[90vh] w-full grid-cols-1 overflow-hidden rounded-xl border md:grid-cols-[280px_1fr] relative z-10"
+          onClick={(e) => e.stopPropagation()}
+        >
+        {/* Left Sidebar Pane */}
+        <div className="bg-black/20 border-border/40 flex flex-col gap-6 border-r p-6 overflow-y-auto custom-scrollbar">
+          <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-surface-hover shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-white/10 shrink-0">
+            <ItemImage
+              item={resolvedItem}
+              TypeIcon={PlaceholderIcon}
+              priority
+              containerClassName="absolute inset-0"
+              imageClassName="object-cover"
+            />
+          </div>
+
+          <div className="space-y-4">
+            {isLoading && (
+              <div className="space-y-2 animate-pulse p-4 bg-white/[0.03] rounded-xl">
+                <div className="h-3 bg-white/10 rounded w-1/2"></div>
+                <div className="h-3 bg-white/10 rounded w-3/4"></div>
+              </div>
+            )}
+            {details?.extendedData && Object.keys(details.extendedData).length > 0 && (
+              <div className="space-y-3 bg-white/[0.03] p-4 rounded-xl border border-white/5">
+                <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                  Details
+                </h3>
+                <div className="grid grid-cols-[85px_1fr] gap-x-3 gap-y-1.5 text-xs">
+                  {Object.entries(details.extendedData).map(([key, value]) => (
+                    <div key={key} className="grid grid-cols-subgrid col-span-2 items-baseline py-0.5 border-b border-white/[0.02] last:border-0">
+                      <span className="text-secondary/80 font-medium tracking-tight">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </span>
+                      <span className="text-white/90 font-semibold break-all text-right">
+                        {String(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {details?.tags && details?.tags.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                  Tags
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {[...new Set(details?.tags || [])].map((tag) => (
+                    <span
+                      key={tag}
+                      className="border-border bg-white/[0.03] text-secondary/90 rounded-md border px-2 py-0.5 text-[11px]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {details?.urls && details.urls.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                  Links
+                </h3>
+                <ExternalLinks urls={details.urls} />
+              </div>
+            )}
+
+            {/* Notes Section in Sidebar */}
+            <div className="space-y-2 mt-4">
+              <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                Notes
+              </h3>
+              <LocalNotesEditor
+                key={resolvedItem.id}
+                initialNotes={resolvedItem.notes || ''}
+                itemId={resolvedItem.id}
+                onUpdate={onUpdateItem}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Main Pane */}
+        <div className="flex flex-col h-full min-h-0 overflow-hidden relative bg-neutral-900/40">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Header Title Space */}
+          <div className="p-8 pb-6 flex items-end justify-between border-b border-border/40 bg-gradient-to-b from-white/[0.02] to-transparent shrink-0">
+            <div className="min-w-0 flex-1 pr-6 pt-6">
+              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl drop-shadow-sm">
+                {resolvedItem.title}
+              </h1>
+              {((resolvedItem.subtitle && resolvedItem.subtitle.length > 0) || resolvedItem.tertiaryText) && (
+                <div className="text-secondary mt-1 flex items-center gap-2 text-sm">
+                  <PlaceholderIcon size={16} className={colorClass} />
+                  {renderSubtitle()}
+                  {resolvedItem.tertiaryText && (
+                    <>
+                      <span className="text-muted">•</span>
+                      <span className="text-secondary">{resolvedItem.tertiaryText}</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-6">
+              {!isAdded && onAddToTierlist && (
+                <button
+                  onClick={() => onAddToTierlist(resolvedItem)}
+                  className="bg-white hover:bg-neutral-200 text-black flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-xs font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
+                >
+                  <span>Add to Tierlist</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+        {/* Content Section */}
+        <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto p-6">
+          {isLoading && (
+            <div className="animate-pulse space-y-4">
+              <div className="bg-surface-hover h-4 w-1/3 rounded-md"></div>
+              <div className="space-y-2">
+                <div className="bg-surface-hover h-10 w-full rounded-md"></div>
+                <div className="bg-surface-hover h-10 w-full rounded-md"></div>
+                <div className="bg-surface-hover h-10 w-full rounded-md"></div>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="border-destructive/20 text-destructive rounded-md border bg-red-900/10 p-4 text-center">
+              <p className="font-semibold">Failed to load additional details.</p>
+              {error instanceof Error && <p className="mt-1 text-sm opacity-80">{error.message}</p>}
+            </div>
+          )}
+
+          {details && !isLoading && (
+            <>
+              <div className="space-y-6">
+                {details.description && (
+                  <div className="space-y-2">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
+                      Description
+                    </h3>
+                    <p className="text-secondary text-sm leading-relaxed whitespace-pre-wrap">
+                      {details.description}
+                    </p>
+                  </div>
+                )}
+
+
+
+                {details.relatedEntities && details.relatedEntities.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
+                      Related
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {details.relatedEntities.map((entity, idx) => {
+                        const provider = registry.getProvider(entity.identity.providerId);
+                        const entityMeta = provider?.entities.find((e) => e.id === entity.identity.entityId);
+                        const Icon = entityMeta?.branding.icon;
+                        const colorClass = entityMeta?.branding.colorClass || 'text-white/60';
+
+                        return (
+                          <div key={idx} className="flex flex-col">
+                            <span className="text-caption text-secondary font-bold tracking-tight uppercase">
+                              {entity.label}
+                            </span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {Icon && <Icon className={`w-3.5 h-3.5 ${colorClass} shrink-0`} />}
+                              <span className="text-foreground text-sm font-medium">{entity.name}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+
+
+                {details.sections?.map((section: ItemSection, idx: number) => (
+                  <div key={idx} className="space-y-2">
+                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
+                      {section.title}
+                    </h3>
+                    <div className="text-secondary text-sm">
+                      {section.type === 'text' && (
+                        <p className="leading-relaxed">{section.content}</p>
+                      )}
+                      {section.type === 'list' && (
+                        <div className="grid grid-cols-1 gap-1">
+                          {section.content.map((li, i) => {
+                            const label = typeof li === 'string' ? li : li.name;
+                            const lastParen = label.lastIndexOf('(');
+                            const duration =
+                              lastParen !== -1 && label.endsWith(')')
+                                ? label.slice(lastParen + 1, -1)
+                                : null;
+                            const cleanLabel = duration
+                              ? label.slice(0, lastParen).trim()
+                              : label;
+
+                            const numberMatch = cleanLabel.match(/^(\d+)\.\s+(.*)$/);
+                            const trackNumber = numberMatch ? numberMatch[1] : null;
+                            const trackTitle = numberMatch ? numberMatch[2].trim() : cleanLabel;
+
+                            const liEntity = typeof li === 'string' ? null : li;
+                            const liProvider = liEntity ? registry.getProvider(liEntity.identity.providerId) : null;
+                            const liMeta = liProvider?.entities.find((e) => e.id === liEntity?.identity.entityId);
+                            const LiIcon = liMeta?.branding.icon;
+                            const liColorClass = liMeta?.branding.colorClass || 'text-white/80';
+
+                            const contentNode = (
+                              <div className="flex w-full items-center justify-between gap-4 z-10 pl-2">
+                                <div className="flex items-center gap-3">
+                                  {trackNumber && (
+                                    <span className="text-secondary/40 font-mono text-xs w-5 text-right shrink-0">
+                                      {trackNumber}
+                                    </span>
+                                  )}
+                                  {LiIcon && (
+                                    <LiIcon className={`w-3.5 h-3.5 ${liColorClass} shrink-0`} />
+                                  )}
+                                  <span className="truncate font-semibold text-white/90 group-hover/item:text-white transition-all duration-200 group-hover/item:translate-x-1">
+                                    {trackTitle}
+                                  </span>
+                                </div>
+                                {duration && (
+                                  <span className="text-muted shrink-0 font-mono text-xs group-hover/item:text-secondary">
+                                    {duration}
+                                  </span>
+                                )}
+                              </div>
+                            );
+
+                            return (
+                              <div
+                                key={i}
+                                className="group/item hover:bg-white/[0.04] bg-white/[0.01] border border-white/5 flex items-center px-4 py-2 rounded-xl transition-all text-sm relative overflow-hidden shadow-sm"
+                              >
+
+
+                                {typeof li === 'string' ? (
+                                  <div className="text-secondary w-full">
+                                    {contentNode}
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => {
+                                      onNavigate?.({
+                                        id: `${li.identity.providerId}:${li.identity.entityId}:${li.identity.providerItemId}`,
+                                        title: li.name,
+                                        identity: li.identity,
+                                        images: [],
+                                      });
+                                    }}
+                                    className="hover:text-white text-secondary w-full text-left transition-colors"
+                                  >
+                                    {contentNode}
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+                {/* External Links Moved to Sidebar */}
+            </>
+          )}
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  );
+}
+
+/**
+ * Internal component to handle notes editing.
+ * @param props - Configuration properties.
+ * @param props.itemId - Target entity ID.
+ * @param props.initialNotes - The cached initial notes block.
+ * @param props.onUpdate - Callback emitted when a save completes.
+ * @returns The decoupled notes state and save handlers.
+ */
+function LocalNotesEditor({
+  initialNotes,
+  itemId,
+  onUpdate,
+}: {
+  initialNotes: string;
+  itemId: string;
+  onUpdate?: (id: string, updates: ItemUpdate) => void;
+}) {
+  // --- Idiomatic React Pattern: Render-Phase State Derivation ---
+  // We use this pattern for Controlled Draft Inputs (Inputs that buffer local keystrokes
+  // to avoid spamming Redux, but must also respect external Redux rollbacks like Undo).
+  const [notes, setNotes] = useState(initialNotes);
+  const [prevInitialNotes, setPrevInitialNotes] = useState(initialNotes);
+  const notesRef = useRef(notes);
+  const onUpdateRef = useRef(onUpdate);
+  const [lastPushedNotes, setLastPushedNotes] = useState(initialNotes);
+
+  if (initialNotes !== prevInitialNotes) {
+    setPrevInitialNotes(initialNotes);
+
+    // Only overwrite the user's active typing if the incoming external state change
+    // is DIFFERENT from the last string we successfully dispatched to Redux.
+    // This perfectly differentiates genuine Undo rollbacks from delayed Redux "echoes".
+    if (initialNotes !== lastPushedNotes) {
+      setNotes(initialNotes);
+    }
+  }
+
+  useEffect(() => {
+    notesRef.current = notes;
+  }, [notes]);
+
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+  }, [onUpdate]);
+
+  useEffect(() => {
+    if (notes === initialNotes) return;
+    const timeoutId = setTimeout(() => {
+      setLastPushedNotes(notes);
+      onUpdateRef.current?.(itemId, { notes });
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [notes, itemId, initialNotes]);
+
+  useEffect(() => {
+    return function flushNotesOnUnmount() {
+      if (notesRef.current !== initialNotes) {
+        setLastPushedNotes(notesRef.current);
+        onUpdateRef.current?.(itemId, { notes: notesRef.current });
+      }
+    };
+  }, [itemId, initialNotes]);
+
+  return (
+    <textarea
+      value={notes}
+      onChange={(e) => setNotes(e.target.value)}
+      placeholder="Write your thoughts about this item..."
+      className="bg-white/[0.03] border border-white/5 placeholder:text-white/20 focus:border-white/10 focus:outline-none text-white/80 rounded-xl p-3 text-xs min-h-[100px] focus:min-h-[220px] w-full resize-none custom-scrollbar transition-all duration-200"
+    />
+  );
+}

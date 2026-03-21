@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { EntityLink } from '@/items/items';
-import { createFilterSuite, FilterDefinition } from '@/search/filter-schemas';
+import { EntityLink } from '@/domain/items/items';
+import { createFilterSuite, FilterDefinition } from '@/presentation/search/filter-schemas';
 
-import { ProviderError, ProviderErrorCode } from './errors';
+import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
 import { applyFilters, extractRelatedEntities, extractTags, handleProviderError } from './utils';
 
 describe('Providers Utils', () => {

@@ -3,8 +3,8 @@
  * @description Central Node.js execution file instantiating API data adapters into the registry.
  */
 
-import { MusicBrainzProvider } from './adapters/musicbrainz';
-import { RAWGProvider } from './adapters/rawg';
+import { MusicBrainzProvider } from '@/infra/providers/adapters/musicbrainz';
+import { RAWGProvider } from '@/infra/providers/adapters/rawg';
 import { registry } from './registry';
 
 // Register all external data providers to the central registry

@@ -9,7 +9,7 @@
 
 import { createContext, useContext } from 'react';
 
-import { Item } from '@/board/types';
+import { Item } from '@/presentation/board/types';
 
 interface InteractionContextType {
   hoveredItem: Item | null;

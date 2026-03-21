@@ -2,19 +2,19 @@ import { Building2, Gamepad2 } from 'lucide-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { ImageSourceSchema, referenceImage, urlImage } from '@/items/images';
-import { RAWGProvider } from '@/providers/adapters/rawg';
-import { DEFAULT_PAGE_LIMIT, Entity, nonEmpty, Provider, ProviderStatus } from '@/providers/types';
-import { createFilterSuite, FilterDefinition } from '@/search/filter-schemas';
+import { ImageSourceSchema, referenceImage, urlImage } from '@/domain/items/images';
+import { RAWGProvider } from '@/infra/providers/adapters/rawg';
+import { DEFAULT_PAGE_LIMIT, Entity, nonEmpty, Provider, ProviderStatus } from '@/domain/providers/types';
+import { createFilterSuite, FilterDefinition } from '@/presentation/search/filter-schemas';
 import {
   SearchParams,
   SearchParamsSchema,
   SearchResult,
   SearchResultSchema,
-} from '@/search/search-schemas';
-import { SortDirection } from '@/search/sort-schemas';
+} from '@/presentation/search/search-schemas';
+import { SortDirection } from '@/presentation/search/sort-schemas';
 
-import { ProviderErrorCode } from './errors';
+import { ProviderErrorCode } from '@/domain/providers/errors';
 import { registry, RegistryStatus } from './registry';
 import { handleProviderError } from './utils';
 

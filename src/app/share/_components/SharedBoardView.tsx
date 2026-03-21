@@ -11,11 +11,11 @@ import { useState } from 'react';
 
 import { BrandLogo } from '@/app/_components/BrandLogo';
 import { Footer } from '@/app/_components/Footer';
-import { BoardTitle } from '@/board/BoardTitle';
-import { useBrandColors } from '@/board/hooks/useBrandColors';
-import { TierList } from '@/board/TierList';
-import { Item, TierListState } from '@/board/types';
-import { DetailsModal } from '@/items/DetailsModal';
+import { BoardTitle } from '@/presentation/board/BoardTitle';
+import { useBrandColors } from '@/presentation/board/hooks/useBrandColors';
+import { TierList } from '@/presentation/board/TierList';
+import { Item, TierListState } from '@/presentation/board/types';
+import { DetailsModal } from '@/presentation/items/DetailsModal';
 import { InteractionContext } from '@/lib/ui/InteractionContext';
 import { ToastProvider } from '@/lib/ui/ToastProvider';
 

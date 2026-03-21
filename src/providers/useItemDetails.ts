@@ -5,7 +5,7 @@
 
 import useSWR from 'swr';
 
-import { ItemDetails } from '@/items/items';
+import { ItemDetails } from '@/domain/items/items';
 
 /**
  * Hook configuration options.
