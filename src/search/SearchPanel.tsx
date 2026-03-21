@@ -73,7 +73,10 @@ export function SearchPanel() {
   }
 
   return (
-    <div className="border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 sm:max-h-[calc(100dvh-2rem)]">
+    <div
+      data-testid="search-panel"
+      className="border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 sm:max-h-[calc(100dvh-2rem)]"
+    >
       <div className="mb-4 flex shrink-0 flex-wrap items-center gap-4 text-white">
         <div className="flex items-center gap-2">
           <Search size={20} />

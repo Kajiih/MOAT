@@ -14,7 +14,7 @@ export class SearchPanel {
 
   constructor(page: Page) {
     this.page = page;
-    this.container = page.locator('.sticky');
+    this.container = page.getByTestId('search-panel');
     this.searchInput = page.locator('input[placeholder^="Search"]');
     this.tabButtons = page.locator('button[title^="Search"]');
     this.results = page.getByTestId('search-results');

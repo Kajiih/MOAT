@@ -56,14 +56,14 @@ export async function mockSearchResults(
 
   await page.route('**/api/search*', async (route) => {
     const normalised = items.map((item) => {
-      const databaseId = 'rawg';
+      const providerId = 'rawg';
       const entityId = 'game';
-      const dbId = item.id;
-      const identity = { dbId, databaseId, entityId };
-      const compositeId = `${databaseId}:${entityId}:${dbId}`;
+      const providerItemId = item.id;
+      const identity = { providerItemId, providerId, entityId };
+      const compositeId = `${providerId}:${entityId}:${providerItemId}`;
 
       return {
-        mbid: dbId,
+        mbid: providerItemId,
         subtitle: item.developer || 'Test Developer',
         images: [],
         ...item,
@@ -96,14 +96,14 @@ export async function mockSearchResults(
  * @param detail - The detail object to return.
  */
 export async function mockItemDetails(page: Page, detail: MockItemDetail) {
-  const databaseId = 'rawg';
+  const providerId = 'rawg';
   const entityId = 'game';
-  const dbId = detail.id;
-  const identity = { dbId, databaseId, entityId };
-  const compositeId = `${databaseId}:${entityId}:${dbId}`;
+  const providerItemId = detail.id;
+  const identity = { providerItemId, providerId, entityId };
+  const compositeId = `${providerId}:${entityId}:${providerItemId}`;
 
   const normalised = {
-    mbid: dbId,
+    mbid: providerItemId,
     subtitle: detail.developer || 'Test Developer',
     images: [],
     ...detail,
@@ -137,14 +137,14 @@ export async function mockSearchDynamic(
     let normalisedItems = [];
     if (Array.isArray(body.results)) {
       normalisedItems = body.results.map((item) => {
-        const databaseId = 'rawg';
+        const providerId = 'rawg';
         const entityId = 'game';
-        const dbId = item.id;
-        const identity = { dbId, databaseId, entityId };
-        const compositeId = `${databaseId}:${entityId}:${dbId}`;
+        const providerItemId = item.id;
+        const identity = { providerItemId, providerId, entityId };
+        const compositeId = `${providerId}:${entityId}:${providerItemId}`;
 
         return {
-          mbid: dbId,
+          mbid: providerItemId,
           subtitle: item.developer || 'Test Developer',
           images: [],
           ...item,
