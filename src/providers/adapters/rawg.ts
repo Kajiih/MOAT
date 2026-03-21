@@ -141,9 +141,9 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
   rawgGameFilters.select({
     id: 'platform',
     label: 'Platform',
+    emptyLabel: 'All Platforms',
     transform: mapTo('platforms'),
     options: [
-      { label: 'All Platforms', value: '' },
       { label: 'PC', value: '4' },
       { label: 'PlayStation 5', value: '187' },
       { label: 'Xbox Series S/X', value: '186' },
