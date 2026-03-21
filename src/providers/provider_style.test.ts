@@ -29,4 +29,39 @@ describe('Provider Style Guidelines', () => {
       }
     }
   });
+  
+  it('should have unique colors, icons, and labels for each entity within a provider', () => {
+    const providers = registry.getAllProviders();
+
+    for (const provider of providers) {
+      const labels = new Set<string>();
+      const icons = new Set<unknown>();
+      const colors = new Set<string>();
+
+      for (const entity of provider.entities) {
+        const { label, icon, colorClass } = entity.branding;
+
+        // Label Uniqueness
+        expect(
+          labels.has(label),
+          `Provider: "${provider.id}" - Duplicate entity label: "${label}"`
+        ).toBe(false);
+        labels.add(label);
+
+        // Icon Uniqueness
+        expect(
+          icons.has(icon),
+          `Provider: "${provider.id}" - Duplicate entity icon on: "${label}"`
+        ).toBe(false);
+        icons.add(icon);
+
+        // Color Uniqueness
+        expect(
+          colors.has(colorClass),
+          `Provider: "${provider.id}" - Duplicate entity colorClass: "${colorClass}" on "${label}"`
+        ).toBe(false);
+        colors.add(colorClass);
+      }
+    }
+  });
 });

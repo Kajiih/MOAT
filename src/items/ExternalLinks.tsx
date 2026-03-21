@@ -26,22 +26,19 @@ export function ExternalLinks({ urls }: ExternalLinksProps) {
   const uniqueUrls = [...new Map(urls.map((link) => [link.url, link])).values()];
 
   return (
-    <div className="mt-6">
-      <h3 className="text-secondary mb-2 text-sm font-bold tracking-wider uppercase">Links</h3>
-      <div className="flex flex-wrap gap-3">
-        {uniqueUrls.map((link) => (
-          <a
-            key={link.url}
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-surface-hover text-secondary hover:bg-surface hover:text-foreground flex items-center gap-1.5 rounded-md border border-white/5 px-3 py-1.5 text-xs transition-colors"
-          >
-            <ExternalLink size={12} />
-            <span className="capitalize">{link.type}</span>
-          </a>
-        ))}
-      </div>
+    <div className="flex flex-wrap gap-1.5">
+      {uniqueUrls.map((link) => (
+        <a
+          key={link.url}
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-white/[0.03] text-secondary/90 hover:bg-white/[0.08] hover:text-white flex items-center gap-1.5 rounded-md border border-white/5 px-2.5 py-1 text-[11px] transition-colors"
+        >
+          <ExternalLink size={11} />
+          <span className="capitalize">{link.type}</span>
+        </a>
+      ))}
     </div>
   );
 }

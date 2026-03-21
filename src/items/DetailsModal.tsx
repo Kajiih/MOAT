@@ -79,6 +79,41 @@ export function DetailsModal({
 
   const details = resolvedItem.details;
 
+  const renderSubtitle = () => {
+    if (Array.isArray(resolvedItem.subtitle) && resolvedItem.subtitle.length > 0) {
+      return (
+        <div className="flex items-center gap-1">
+          {resolvedItem.subtitle.map((token, idx) => (
+            <div key={idx} className="flex items-center">
+              {idx > 0 && <span className="text-muted mr-1">•</span>}
+              {typeof token === 'string' ? (
+                <span className="text-secondary font-medium">{token}</span>
+              ) : (
+                <button
+                  onClick={() => {
+                    onNavigate?.({
+                      id: `${token.identity.providerId}:${token.identity.entityId}:${token.identity.providerItemId}`,
+                      title: token.name,
+                      identity: token.identity,
+                      images: [],
+                    });
+                  }}
+                  className="hover:text-white hover:underline text-secondary text-left font-medium transition-colors"
+                >
+                  {token.name}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    if (resolvedItem.subtitle) {
+      return <span className="font-medium">{getSubtitleString(resolvedItem.subtitle)}</span>;
+    }
+    return null;
+  };
+
   return (
     <div
       className="animate-in fade-in duration-fast fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
@@ -87,62 +122,109 @@ export function DetailsModal({
       <div
         role="dialog"
         aria-modal="true"
-        className="animate-in zoom-in-95 border-border bg-surface shadow-floating duration-fast flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border"
+        className="animate-in zoom-in-95 border-border bg-neutral-950 shadow-floating duration-fast grid h-[85vh] max-h-[90vh] w-full max-w-4xl grid-cols-1 overflow-hidden rounded-xl border md:grid-cols-[280px_1fr] relative z-10"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Cover Art */}
-        <div className="bg-surface relative h-48 shrink-0 overflow-hidden sm:h-64">
-          <ItemImage
-            item={resolvedItem}
-            TypeIcon={PlaceholderIcon}
-            priority
-            containerClassName="absolute inset-0"
-            imageClassName="object-cover opacity-60 blur-sm"
-          />
-          <div className="from-background via-background/50 absolute inset-0 bg-gradient-to-t to-transparent" />
-
-          <div className="absolute bottom-0 left-0 flex w-full items-end gap-4 p-6 text-left">
+        {/* Left Sidebar Pane */}
+        <div className="bg-black/20 border-border/40 flex flex-col gap-6 border-r p-6 overflow-y-auto custom-scrollbar">
+          <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-surface-hover shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-white/10 shrink-0">
             <ItemImage
               item={resolvedItem}
               TypeIcon={PlaceholderIcon}
               priority
-              containerClassName="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-white/10 bg-surface-hover shadow-card sm:h-24 sm:w-24"
+              containerClassName="absolute inset-0"
+              imageClassName="object-cover"
             />
-            <div className="min-w-0 flex-1 pt-2">
-              <h2 className="truncate text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
-                {resolvedItem.title}
-              </h2>
-              {((resolvedItem.subtitle && resolvedItem.subtitle.length > 0) || resolvedItem.tertiaryText) && (
-                <div className="text-secondary mt-1 flex items-center gap-2">
-                  <PlaceholderIcon size={16} className={colorClass} />
-                  {Array.isArray(resolvedItem.subtitle) && resolvedItem.subtitle.length > 0 ? (
-                    <div className="flex items-center gap-1">
-                      {resolvedItem.subtitle.map((token, idx) => (
-                        <div key={idx} className="flex items-center">
-                          {idx > 0 && <span className="text-muted mr-1">•</span>}
-                          {typeof token === 'string' ? (
-                            <span className="text-secondary font-medium">{token}</span>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                  onNavigate?.({
-                                    id: `${token.identity.providerId}:${token.identity.entityId}:${token.identity.providerItemId}`,
-                                    title: token.name,
-                                    identity: token.identity,
-                                    images: [],
-                                  });
-                              }}
-                              className="hover:text-white hover:underline text-secondary text-left font-medium transition-colors"
-                            >
-                              {token.name}
-                            </button>
-                          )}
-                        </div>
-                      ))}
+          </div>
+
+          <div className="space-y-4">
+            {isLoading && (
+              <div className="space-y-2 animate-pulse p-4 bg-white/[0.03] rounded-xl">
+                <div className="h-3 bg-white/10 rounded w-1/2"></div>
+                <div className="h-3 bg-white/10 rounded w-3/4"></div>
+              </div>
+            )}
+            {details?.extendedData && Object.keys(details.extendedData).length > 0 && (
+              <div className="space-y-3 bg-white/[0.03] p-4 rounded-xl border border-white/5">
+                <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                  Details
+                </h3>
+                <div className="grid grid-cols-[85px_1fr] gap-x-3 gap-y-1.5 text-xs">
+                  {Object.entries(details.extendedData).map(([key, value]) => (
+                    <div key={key} className="grid grid-cols-subgrid col-span-2 items-baseline py-0.5 border-b border-white/[0.02] last:border-0">
+                      <span className="text-secondary/80 font-medium tracking-tight">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </span>
+                      <span className="text-white/90 font-semibold break-all text-right">
+                        {String(value)}
+                      </span>
                     </div>
-                  ) : resolvedItem.subtitle ? (
-                    <span className="font-medium">{getSubtitleString(resolvedItem.subtitle)}</span>
-                  ) : null}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {details?.tags && details?.tags.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                  Tags
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {[...new Set(details?.tags || [])].map((tag) => (
+                    <span
+                      key={tag}
+                      className="border-border bg-white/[0.03] text-secondary/90 rounded-md border px-2 py-0.5 text-[11px]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {details?.urls && details.urls.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                  Links
+                </h3>
+                <ExternalLinks urls={details.urls} />
+              </div>
+            )}
+
+            {/* Notes Section in Sidebar */}
+            <div className="space-y-2 mt-4">
+              <h3 className="text-secondary text-xs font-semibold tracking-wider uppercase">
+                Notes
+              </h3>
+              <LocalNotesEditor
+                key={resolvedItem.id}
+                initialNotes={resolvedItem.notes || ''}
+                itemId={resolvedItem.id}
+                onUpdate={onUpdateItem}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Main Pane */}
+        <div className="flex flex-col h-full min-h-0 overflow-hidden relative bg-neutral-900/40">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Header Title Space */}
+          <div className="p-8 pb-6 flex items-end justify-between border-b border-border/40 bg-gradient-to-b from-white/[0.02] to-transparent shrink-0">
+            <div className="min-w-0 flex-1 pr-6 pt-6">
+              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl drop-shadow-sm">
+                {resolvedItem.title}
+              </h1>
+              {((resolvedItem.subtitle && resolvedItem.subtitle.length > 0) || resolvedItem.tertiaryText) && (
+                <div className="text-secondary mt-1 flex items-center gap-2 text-sm">
+                  <PlaceholderIcon size={16} className={colorClass} />
+                  {renderSubtitle()}
                   {resolvedItem.tertiaryText && (
                     <>
                       <span className="text-muted">•</span>
@@ -152,23 +234,18 @@ export function DetailsModal({
                 </div>
               )}
             </div>
-            {!isAdded && onAddToTierlist && (
-              <button
-                onClick={() => onAddToTierlist(resolvedItem)}
-                className="bg-white hover:bg-neutral-200 text-black flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold shadow-[0_4px_12px_rgba(255,255,255,0.1)] transition-all hover:scale-105 active:scale-95"
-              >
-                <span>Add to Tierlist</span>
-              </button>
-            )}
-          </div>
 
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/80"
-          >
-            <X size={20} />
-          </button>
-        </div>
+            <div className="pt-6">
+              {!isAdded && onAddToTierlist && (
+                <button
+                  onClick={() => onAddToTierlist(resolvedItem)}
+                  className="bg-white hover:bg-neutral-200 text-black flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-xs font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
+                >
+                  <span>Add to Tierlist</span>
+                </button>
+              )}
+            </div>
+          </div>
 
         {/* Content Section */}
         <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto p-6">
@@ -204,23 +281,7 @@ export function DetailsModal({
                   </div>
                 )}
 
-                {details.tags && details.tags.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
-                      Subjects / Tags
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {[...new Set(details.tags || [])].map((tag) => (
-                        <span
-                          key={tag}
-                          className="border-border bg-surface-hover text-secondary rounded-md border px-2 py-1 text-xs"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
 
                 {details.relatedEntities && details.relatedEntities.length > 0 && (
                   <div className="space-y-2">
@@ -228,35 +289,29 @@ export function DetailsModal({
                       Related
                     </h3>
                     <div className="flex flex-wrap gap-3">
-                      {details.relatedEntities.map((entity, idx) => (
-                        <div key={idx} className="flex flex-col">
-                          <span className="text-caption text-secondary font-bold tracking-tight uppercase">
-                            {entity.label}
-                          </span>
-                          <span className="text-foreground text-sm">{entity.name}</span>
-                        </div>
-                      ))}
+                      {details.relatedEntities.map((entity, idx) => {
+                        const provider = registry.getProvider(entity.identity.providerId);
+                        const entityMeta = provider?.entities.find((e) => e.id === entity.identity.entityId);
+                        const Icon = entityMeta?.branding.icon;
+                        const colorClass = entityMeta?.branding.colorClass || 'text-white/60';
+
+                        return (
+                          <div key={idx} className="flex flex-col">
+                            <span className="text-caption text-secondary font-bold tracking-tight uppercase">
+                              {entity.label}
+                            </span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {Icon && <Icon className={`w-3.5 h-3.5 ${colorClass} shrink-0`} />}
+                              <span className="text-foreground text-sm font-medium">{entity.name}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {details.extendedData && Object.keys(details.extendedData).length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-secondary text-sm font-semibold tracking-wider uppercase">
-                      Additional Info
-                    </h3>
-                    <div className="bg-background border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
-                      {Object.entries(details.extendedData).map(([key, value]) => (
-                        <div key={key} className="flex flex-col">
-                          <span className="text-caption text-secondary font-bold tracking-tight uppercase">
-                            {key.replaceAll(/([A-Z])/g, ' $1').trim()}
-                          </span>
-                          <span className="text-foreground text-sm">{String(value)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
 
                 {details.sections?.map((section: ItemSection, idx: number) => (
                   <div key={idx} className="space-y-2">
@@ -268,7 +323,7 @@ export function DetailsModal({
                         <p className="leading-relaxed">{section.content as string}</p>
                       )}
                       {section.type === 'list' && (
-                        <div className="bg-background border-border divide-border divide-y overflow-hidden rounded-lg border">
+                        <div className="grid grid-cols-1 gap-1">
                           {(section.content as SubtitleToken[]).map((li, i) => {
                             const label = typeof li === 'string' ? li : li.name;
                             const lastParen = label.lastIndexOf('(');
@@ -280,11 +335,33 @@ export function DetailsModal({
                               ? label.slice(0, lastParen).trim()
                               : label;
 
+                            const numberMatch = cleanLabel.match(/^(\d+)\.\s+(.*)$/);
+                            const trackNumber = numberMatch ? numberMatch[1] : null;
+                            const trackTitle = numberMatch ? numberMatch[2].trim() : cleanLabel;
+
+                            const liEntity = typeof li === 'string' ? null : li;
+                            const liProvider = liEntity ? registry.getProvider(liEntity.identity.providerId) : null;
+                            const liMeta = liProvider?.entities.find((e) => e.id === liEntity?.identity.entityId);
+                            const LiIcon = liMeta?.branding.icon;
+                            const liColorClass = liMeta?.branding.colorClass || 'text-white/80';
+
                             const contentNode = (
-                              <div className="flex w-full items-center justify-between gap-4">
-                                <span className="truncate font-medium">{cleanLabel}</span>
+                              <div className="flex w-full items-center justify-between gap-4 z-10 pl-2">
+                                <div className="flex items-center gap-3">
+                                  {trackNumber && (
+                                    <span className="text-secondary/40 font-mono text-xs w-5 text-right shrink-0">
+                                      {trackNumber}
+                                    </span>
+                                  )}
+                                  {LiIcon && (
+                                    <LiIcon className={`w-3.5 h-3.5 ${liColorClass} shrink-0`} />
+                                  )}
+                                  <span className="truncate font-semibold text-white/90 group-hover/item:text-white transition-all duration-200 group-hover/item:translate-x-1">
+                                    {trackTitle}
+                                  </span>
+                                </div>
                                 {duration && (
-                                  <span className="text-muted shrink-0 font-mono text-xs">
+                                  <span className="text-muted shrink-0 font-mono text-xs group-hover/item:text-secondary">
                                     {duration}
                                   </span>
                                 )}
@@ -294,8 +371,10 @@ export function DetailsModal({
                             return (
                               <div
                                 key={i}
-                                className="hover:bg-surface-hover flex items-center px-4 py-3 transition-colors text-sm"
+                                className="group/item hover:bg-white/[0.04] bg-white/[0.01] border border-white/5 flex items-center px-4 py-2 rounded-xl transition-all text-sm relative overflow-hidden shadow-sm"
                               >
+
+
                                 {typeof li === 'string' ? (
                                   <div className="text-secondary w-full">
                                     {contentNode}
@@ -325,20 +404,11 @@ export function DetailsModal({
                 ))}
               </div>
 
-              {details.urls && details.urls.length > 0 && <ExternalLinks urls={details.urls} />}
+                {/* External Links Moved to Sidebar */}
             </>
           )}
 
-          <div className="border-border mt-8 border-t pt-6">
-            <h3 className="text-secondary mb-3 text-sm font-semibold tracking-wider uppercase">
-              Personal Notes
-            </h3>
-            <LocalNotesEditor
-              key={resolvedItem.id}
-              initialNotes={resolvedItem.notes || ''}
-              itemId={resolvedItem.id}
-              onUpdate={onUpdateItem}
-            />
+
           </div>
         </div>
       </div>
@@ -413,8 +483,8 @@ function LocalNotesEditor({
     <textarea
       value={notes}
       onChange={(e) => setNotes(e.target.value)}
-      placeholder="Write your thoughts about this item... (e.g. why it's in this tier)"
-      className="border-border bg-surface text-secondary placeholder:text-muted focus:border-border focus:ring-primary min-h-[120px] w-full rounded-lg border p-4 text-sm leading-relaxed transition-colors focus:ring-2 focus:outline-none"
+      placeholder="Write your thoughts about this item..."
+      className="bg-white/[0.03] border border-white/5 placeholder:text-white/20 focus:border-white/10 focus:outline-none text-white/80 rounded-xl p-3 text-xs min-h-[100px] focus:min-h-[220px] w-full resize-none custom-scrollbar transition-all duration-200"
     />
   );
 }

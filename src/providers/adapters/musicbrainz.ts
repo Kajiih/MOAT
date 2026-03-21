@@ -10,7 +10,7 @@
  *   - https://lucene.apache.org/core/7_7_2/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description
  */
 
-import { Disc3, Mic2 } from 'lucide-react';
+import { Disc3, Mic2, Music } from 'lucide-react';
 import { z } from 'zod';
 
 import { toCompositeId } from '@/items/identity';
@@ -850,7 +850,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
     label: 'Artist',
     labelPlural: 'Artists',
     icon: Mic2,
-    colorClass: 'text-rose-500',
+    colorClass: 'text-cyan-500',
   };
   public readonly searchOptions: FilterDefinition<MusicBrainzArtist>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzArtist>[] = [];
@@ -1034,10 +1034,9 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
             type: 'list',
             content: topReleases.map((rg) => {
               const year = rg['first-release-date'] ? ` (${rg['first-release-date'].split('-')[0]})` : '';
-              const type = rg['primary-type'] ? ` [${rg['primary-type']}]` : '';
               return {
                 label: 'Album',
-                name: `${rg.title}${year}${type}`,
+                name: `${rg.title}${year}`,
                 identity: {
                   providerItemId: rg.id,
                   providerId: this.provider.id,
@@ -1094,8 +1093,8 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   public readonly branding = {
     label: 'Song',
     labelPlural: 'Songs',
-    icon: Disc3, // We can reuse Disc3 or conceptually AudioLines if we had it, but Disc3 works for now
-    colorClass: 'text-rose-500',
+    icon: Music,
+    colorClass: 'text-purple-500',
   };
   public readonly searchOptions: FilterDefinition<MusicBrainzRecording>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzRecording>[];
