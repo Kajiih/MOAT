@@ -119,12 +119,16 @@ export function DetailsModal({
       className="animate-in fade-in duration-fast fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="animate-in zoom-in-95 border-border bg-neutral-950 shadow-floating duration-fast grid h-[85vh] max-h-[90vh] w-full max-w-4xl grid-cols-1 overflow-hidden rounded-xl border md:grid-cols-[280px_1fr] relative z-10"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="relative w-full max-w-4xl">
+        <div
+          className={`absolute -inset-24 ${colorClass} bg-current opacity-20 blur-[120px] rounded-full pointer-events-none z-0`}
+        />
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="animate-in zoom-in-95 border-border bg-neutral-950 shadow-floating duration-fast grid h-[85vh] max-h-[90vh] w-full grid-cols-1 overflow-hidden rounded-xl border md:grid-cols-[280px_1fr] relative z-10"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Left Sidebar Pane */}
         <div className="bg-black/20 border-border/40 flex flex-col gap-6 border-r p-6 overflow-y-auto custom-scrollbar">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-surface-hover shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-white/10 shrink-0">
@@ -413,6 +417,7 @@ export function DetailsModal({
         </div>
       </div>
     </div>
+  </div>
   );
 }
 

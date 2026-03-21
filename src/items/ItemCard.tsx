@@ -99,6 +99,7 @@ export function ItemCard({
   // 1. Get configuration from registry
   const entityDef = registry.getEntity(item.identity.providerId, item.identity.entityId);
   const TypeIcon = entityDef.branding.icon || Info;
+  const baseColorClass = entityDef?.branding.colorClass || '';
 
   // 2. Setup Pragmatic Drag and Drop
   const ref = useRef<HTMLDivElement>(null);
@@ -280,6 +281,9 @@ export function ItemCard({
         className="absolute inset-0 cursor-grab active:cursor-grabbing"
         aria-label={item.title}
       />
+
+      {/* Bottom Accent Strip */}
+      <div className={`absolute bottom-0 inset-x-0 h-[1.5px] ${baseColorClass} bg-current opacity-30 z-20 shadow-sm`} />
 
       {/* 2. The Visuals */}
       <div className="pointer-events-none">
