@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { ImageSourceSchema, referenceImage, urlImage } from '@/items/images';
 import { RAWGProvider } from '@/providers/adapters/rawg';
 import { DEFAULT_PAGE_LIMIT, Entity, nonEmpty, Provider, ProviderStatus } from '@/providers/types';
-import { FilterDefinition } from '@/search/filter-schemas';
+import { createFilterSuite, FilterDefinition } from '@/search/filter-schemas';
 import {
   SearchParams,
   SearchParamsSchema,
@@ -37,17 +37,19 @@ const createMockEntity = (overrides: Partial<Entity<MockItem>> = {}): Entity<Moc
     colorClass: 'text-purple-400',
   },
   searchOptions: [],
-  filters: [
-    { id: 'price', label: 'Price Range', type: 'range', transform: (val: { min?: string, max?: string }) => ({ price: String(val.min) }), testCases: [] as never },
-    { id: 'category', label: 'Category', type: 'select', options: [], transform: (val: string) => ({ category: String(val) }), testCases: [] as never },
-    {
-      id: 'inStock',
-      label: 'In Stock',
-      type: 'boolean',
-      transform: (val: boolean) => ({ inStock: String(val) }),
-      testCases: [] as never,
-    },
-  ],
+  filters: (() => {
+    const mockFilters = createFilterSuite<MockItem>();
+    return [
+      mockFilters.range({ id: 'price', label: 'Price Range', transform: (val: { min?: string, max?: string }) => ({ price: String(val.min) }), testCases: [] as never }),
+      mockFilters.select({ id: 'category', label: 'Category', options: [], transform: (val: string) => ({ category: String(val) }), testCases: [] as never }),
+      mockFilters.boolean({
+        id: 'inStock',
+        label: 'In Stock',
+        transform: (val: boolean) => ({ inStock: String(val) }),
+        testCases: [] as never,
+      }),
+    ];
+  })(),
   sortOptions: [
     {
       id: 'relevance',

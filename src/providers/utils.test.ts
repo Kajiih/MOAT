@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { EntityLink } from '@/items/items';
-import { FilterDefinition } from '@/search/filter-schemas';
+import { createFilterSuite, FilterDefinition } from '@/search/filter-schemas';
 
 import { ProviderError, ProviderErrorCode } from './errors';
 import { applyFilters, extractRelatedEntities, extractTags, handleProviderError } from './utils';
@@ -51,49 +51,34 @@ describe('Providers Utils', () => {
   });
 
   describe('applyFilters', () => {
-    const definitions: FilterDefinition<unknown>[] = [
-      { id: 'search', type: 'text', label: 'Search', transform: (val) => ({ q: String(val) }), testCases: [] as never },
-      {
-          id: 'category',
-          type: 'select',
-          label: 'Category',
-          options: [{ label: 'All', value: '' }],
-          transform: (val: unknown) => ({ cat: String(val) }),
-          testCases: [] as never,
-      },
-      {
-        id: 'status',
-        type: 'select',
-        label: 'Status',
-        options: [],
-        transform: (val) => ({ fq: `status:${val}` }),
-        testCases: [] as never,
-      },
-      {
-        id: 'isActive',
-        type: 'boolean',
-        label: 'Active',
-        transform: (val) => ({ active: val ? '1' : '0' }),
-        testCases: [] as never,
-      },
-    ];
+    const definitions = (() => {
+      const mockFilters = createFilterSuite<unknown>();
+      return [
+        mockFilters.text({ id: 'search', label: 'Search', transform: (val) => ({ q: String(val) }), testCases: [] as never }),
+        mockFilters.select({ id: 'category', label: 'Category', options: [{ label: 'All', value: '' }], transform: (val: unknown) => ({ cat: String(val) }), testCases: [] as never }),
+        mockFilters.select({ id: 'status', label: 'Status', options: [], transform: (val) => ({ fq: `status:${val}` }), testCases: [] as never }),
+        mockFilters.boolean({ id: 'isActive', label: 'Active', transform: (val) => ({ active: val ? '1' : '0' }), testCases: [] as never }),
+      ];
+    })();
 
     it('should map basic fields to a new object', () => {
       const filters = { search: 'test query' };
       const result = applyFilters(filters, definitions);
-      expect(result).toEqual({ q: 'test query' });
+      expect(result).toEqual({ q: 'test query', active: '0' });
     });
 
     it('should ignore undefined, null, or empty string values', () => {
       const filters = { search: '', status: undefined, isActive: null as unknown as string };
       const result = applyFilters(filters, definitions);
+      // isActive becomes false upon defaulting if it was invalid, or defaults to false if missing
+      // Actually if it passes null into values, rawValue is null, skipping, so no active!
       expect(result).toEqual({});
     });
 
     it('should handle complex object transforms', () => {
       const filters = { status: 'published' };
       const result = applyFilters(filters, definitions);
-      expect(result).toEqual({ fq: 'status:published' });
+      expect(result).toEqual({ fq: 'status:published', active: '0' });
     });
 
     it('should handle boolean transforms mapped to specific keys', () => {
@@ -109,9 +94,12 @@ describe('Providers Utils', () => {
     });
 
     it('should drop malformed number payloads safely without crashing', () => {
-      const numberDef: FilterDefinition<unknown>[] = [
-        { id: 'year', type: 'number', label: 'Year', transform: (val) => ({ y: String(val) }), testCases: [] as never },
-      ];
+      const numberDef = (() => {
+        const mockFilters = createFilterSuite<unknown>();
+        return [
+          mockFilters.number({ id: 'year', label: 'Year', transform: (val) => ({ y: String(val) }), testCases: [] as never }),
+        ];
+      })();
       const filters = { year: 'not-a-number' };
       const result = applyFilters(filters, numberDef);
 
@@ -120,15 +108,12 @@ describe('Providers Utils', () => {
     });
 
     it('should drop malformed range payloads safely without crashing', () => {
-      const rangeDef: FilterDefinition<unknown>[] = [
-        {
-          id: 'score',
-          type: 'range',
-          label: 'Score',
-          transform: (val: { min?: string; max?: string } | undefined) => val?.min ? ({ s: val.min }) : ({} as Record<string, string>),
-          testCases: [] as never,
-        },
-      ];
+      const rangeDef = (() => {
+        const mockFilters = createFilterSuite<unknown>();
+        return [
+          mockFilters.range({ id: 'score', label: 'Score', transform: (val: { min?: string; max?: string } | undefined) => val?.min ? ({ s: val.min }) : ({} as Record<string, string>), testCases: [] as never }),
+        ];
+      })();
       // Pass a string instead of the expected { min, max } object
       const filters = { score: 'just-string' };
       const result = applyFilters(filters, rangeDef);

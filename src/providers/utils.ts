@@ -170,7 +170,7 @@ export function applyFilters<TRaw>(
 
     // Fallback to default if explicitly undefined in state (initial load)
     if (rawValue === undefined) {
-      rawValue = def.defaultValue as typeof rawValue;
+      rawValue = def.defaultValue as any;
     }
 
     // Skip if value is truly empty (null, undefined, or empty string)

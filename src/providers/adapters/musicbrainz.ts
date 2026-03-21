@@ -644,9 +644,9 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       musicBrainzArtistFilters.select({
         id: 'type',
         label: 'Artist Type',
+        emptyLabel: 'All Types',
         transform: mapTo('type'),
         options: [
-          { label: 'All Types', value: '' },
           { label: 'Person', value: 'person' },
           { label: 'Group / Band', value: 'group' },
           { label: 'Choir', value: 'choir' },

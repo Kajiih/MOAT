@@ -163,7 +163,7 @@ export interface BaseFilterDefinition<
   /** Human readable label for the UI */
   label: string;
   /** Default value for the filter state */
-  defaultValue?: TValue;
+  defaultValue: TValue;
   /** Optional helper text shown to the user */
   helperText?: string;
 
@@ -206,16 +206,24 @@ export interface BooleanFilterDefinition<
   type: 'boolean';
 }
 
+/** Defines a base choice selection mechanism sharing empty options layout */
+export interface SelectableFilterDefinition<
+  TValue = string,
+  TRaw = unknown,
+  TOutput extends FilterOutputRecord = FilterOutputRecord,
+> extends BaseFilterDefinition<TValue, TRaw, TOutput> {
+  /** Label override for the default empty option ('Any') */
+  emptyLabel: string;
+}
+
 /** Defines a single-choice dropdown filter mechanism */
 export interface SelectFilterDefinition<
   TRaw = unknown,
   TOutput extends FilterOutputRecord = FilterOutputRecord,
-> extends BaseFilterDefinition<string, TRaw, TOutput> {
+> extends SelectableFilterDefinition<string, TRaw, TOutput> {
   type: 'select';
   /** Available options for selection-based inputs */
   options: FilterOption[];
-  /** Optional label override for the default empty option ('Any')*/
-  emptyLabel?: string;
 }
 
 /** Defines a multiple-choice selection filter mechanism */
@@ -232,7 +240,7 @@ export interface MultiSelectFilterDefinition<
 export interface AsyncSelectFilterDefinition<
   TRaw = unknown,
   TOutput extends FilterOutputRecord = FilterOutputRecord,
-> extends BaseFilterDefinition<string, TRaw, TOutput> {
+> extends SelectableFilterDefinition<string, TRaw, TOutput> {
   type: 'async-select';
   /**
    * Specifies the ID of the entity within the SAME provider to search against.
@@ -315,9 +323,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed TextFilterDefinition.
      */
     text: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<TextFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<TextFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string },
     ): TextFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'text' };
+      return { defaultValue: '', ...config, type: 'text' };
     },
 
     /**
@@ -326,9 +334,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed NumberFilterDefinition.
      */
     number: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<NumberFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<NumberFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: number },
     ): NumberFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'number' };
+      return { defaultValue: 0, ...config, type: 'number' };
     },
 
     /**
@@ -337,9 +345,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed BooleanFilterDefinition.
      */
     boolean: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<BooleanFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<BooleanFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: boolean },
     ): BooleanFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'boolean' };
+      return { defaultValue: false, ...config, type: 'boolean' };
     },
 
     /**
@@ -348,9 +356,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed SelectFilterDefinition.
      */
     select: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<SelectFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<SelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue' | 'emptyLabel'> & { defaultValue?: string; emptyLabel?: string },
     ): SelectFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'select' };
+      return { emptyLabel: 'Any', defaultValue: '', ...config, type: 'select' };
     },
 
     /**
@@ -359,9 +367,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed MultiSelectFilterDefinition.
      */
     multiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<MultiSelectFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<MultiSelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string[] },
     ): MultiSelectFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'multiselect' };
+      return { defaultValue: [], ...config, type: 'multiselect' };
     },
 
     /**
@@ -370,9 +378,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed AsyncSelectFilterDefinition.
      */
     asyncSelect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<AsyncSelectFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<AsyncSelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue' | 'emptyLabel'> & { defaultValue?: string; emptyLabel?: string },
     ): AsyncSelectFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'async-select' };
+      return { emptyLabel: 'Any', defaultValue: '', ...config, type: 'async-select' };
     },
 
     /**
@@ -381,9 +389,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed AsyncMultiSelectFilterDefinition.
      */
     asyncMultiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<AsyncMultiSelectFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<AsyncMultiSelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string[] },
     ): AsyncMultiSelectFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'async-multiselect' };
+      return { defaultValue: [], ...config, type: 'async-multiselect' };
     },
 
     /**
@@ -392,9 +400,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed RangeFilterDefinition.
      */
     range: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<RangeFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<RangeFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: { min?: string; max?: string } },
     ): RangeFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'range' };
+      return { defaultValue: {}, ...config, type: 'range' };
     },
 
     /**
@@ -403,9 +411,9 @@ export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord 
      * @returns A strongly typed DateFilterDefinition.
      */
     date: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<DateFilterDefinition<TRaw, TOutput>, 'type'>,
+      config: Omit<DateFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string },
     ): DateFilterDefinition<TRaw, TOutput> => {
-      return { ...config, type: 'date' };
+      return { defaultValue: '', ...config, type: 'date' };
     },
   };
 }
