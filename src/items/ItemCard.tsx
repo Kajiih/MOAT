@@ -60,8 +60,8 @@ export interface ItemCardProps {
  * will purge computed class names (e.g. `w-${px/4}`) from the production CSS bundle.
  */
 export const ITEM_CARD_DIMENSIONS = {
-  mobile: { px: 96, tw: 'w-24' },
-  desktop: { px: 112, tw: 'w-28' },
+  mobile: { px: 112, tw: 'w-28' },
+  desktop: { px: 128, tw: 'w-32' },
 } as const;
 
 /**
@@ -271,7 +271,7 @@ export function ItemCard({
       style={style}
       data-testid={`item-card-${item.id}`}
       className={twMerge(
-        `group duration-fast relative w-[var(--card-width-mobile)] transition-all hover:shadow-xl sm:w-[var(--card-width-desktop)] ${ITEM_CARD_BASE_CLASSES}`,
+        `group duration-fast relative transition-all hover:shadow-xl ${ITEM_CARD_BASE_CLASSES}`,
         isAdded ? 'ring-primary ring-2 ring-offset-2 ring-offset-black' : '',
         isOverLocal ? 'z-50 scale-105 ring-2 ring-emerald-500' : '',
         className,

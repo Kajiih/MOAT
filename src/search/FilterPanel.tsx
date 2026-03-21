@@ -43,13 +43,13 @@ export function FilterPanel({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-wrap gap-3 items-start">
       {allFilters.map((filter) => {
         const value = values[filter.id] ?? filter.defaultValue;
         const Component = FilterUIComponents[filter.type] || FallbackFilterInput;
 
         return (
-          <div key={filter.id} className="flex flex-col gap-1.5">
+          <div key={filter.id} className="flex flex-col gap-1.5 min-w-[160px] flex-initial">
             <label className="text-caption text-secondary font-bold uppercase">
               {filter.label}
             </label>
