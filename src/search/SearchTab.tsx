@@ -177,7 +177,7 @@ export function SearchTab({
             }}
           />
 
-          {entity && entity.sortOptions.length > 0 && (
+          {entity && entity.sortOptions.length > 1 && (
             <div className="border-border flex shrink-0 gap-1 rounded-md border bg-black p-1">
               <SortDropdown
                 sortOption={params.sort || ''}

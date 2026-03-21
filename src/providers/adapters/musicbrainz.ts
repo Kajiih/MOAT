@@ -382,7 +382,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public constructor(private provider: MusicBrainzProvider) {
 
     this.filters = [
-      mbAlbumFilters.multiselect({
+      mbAlbumFilters.select({
         id: 'primarytype',
         label: 'Release Type',
         transform: mapTo('primarytype'),
@@ -394,7 +394,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
           { label: 'Other', value: 'other' },
         ],
         testCases: [{
-            value: ['ep'],
+            value: 'ep',
             expectAll: (album: MusicBrainzReleaseGroup) => {
               const matchesPrimary = album['primary-type']?.toLowerCase() === 'ep';
               if (matchesPrimary) return true;
@@ -412,6 +412,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
         label: 'Secondary Types',
         transform: mapTo('secondarytype'),
         options: SECONDARY_TYPES.map(t => ({ label: t, value: t.toLowerCase() })),
+        helperText: 'Excluded by default (e.g., Live, Soundtrack). Select to include.',
         testCases: [
           {
             value: ['live'],
@@ -499,7 +500,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   }
 
   public readonly getInitialParams = (config: { limit: number }): SearchParams =>
-    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection, { primarytype: ['album'] });
+    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection, { primarytype: 'album' });
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzReleaseGroup>> => {
     return this.provider.searchAlbums(params, this.filters);

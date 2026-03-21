@@ -94,7 +94,16 @@ export function AsyncSelectFilterInput({
   return (
     <div className="relative w-full" ref={containerRef}>
       {value ? (
-        <div className="border-border text-foreground focus-within:border-primary focus-within:ring-primary flex w-full items-center justify-between rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus-within:ring-1">
+        <div
+          onClick={() => {
+            if (resolvedEntity) {
+              setQuery(resolvedEntity.title);
+              onChange(undefined);
+              setIsOpen(true);
+            }
+          }}
+          className="border-border text-foreground hover:border-primary/50 focus-within:border-primary focus-within:ring-primary flex w-full cursor-pointer items-center justify-between rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus-within:ring-1 transition-colors"
+        >
           <div className="flex min-w-0 items-center gap-2 pr-2">
             {resolvedEntity ? (
               <SelectedEntityDisplay entity={resolvedEntity} />
@@ -105,7 +114,8 @@ export function AsyncSelectFilterInput({
             )}
           </div>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               const clearValue = undefined;
               onChange(clearValue);
               setQuery('');
