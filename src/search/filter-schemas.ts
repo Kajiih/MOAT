@@ -247,6 +247,10 @@ export interface AsyncSelectFilterDefinition<
    * E.g., 'developer' or 'author'.
    */
   targetEntityId: string;
+  /**
+   * Optional sibling filter IDs this async list depends on.
+   */
+  dependsOn?: string[];
 }
 
 /** Defines an asynchronous multiple-choice selection mechanism fetching its options live */

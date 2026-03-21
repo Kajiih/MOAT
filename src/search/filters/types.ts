@@ -3,7 +3,7 @@
  * @description Standardized generic properties for filter UI components.
  */
 
-import { BaseFilterDefinition, FilterDefinition } from '@/search/filter-schemas';
+import { BaseFilterDefinition, FilterDefinition, FilterValues } from '@/search/filter-schemas';
 
 /**
  * Standardized props for all filter input components.
@@ -23,4 +23,6 @@ export interface FilterControlProps<
   /** Callback to notify the parent when the value changes. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (value: (T extends BaseFilterDefinition<infer V, any> ? V : any) | undefined) => void;
+  /** The full current active filter states across sibling controls. */
+  activeFilters?: FilterValues;
 }

@@ -61,6 +61,7 @@ export function FilterPanel({
               onChange={(val: unknown) =>
                 handleFilterChange(filter.id, val as FilterValues[string])
               }
+              activeFilters={values}
             />
 
             {filter.helperText && (

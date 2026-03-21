@@ -467,17 +467,17 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
         ],
         testCases: [
           {
-            value: 'official',
+            value: 'promotion',
             expectAll: (album: MusicBrainzReleaseGroup) => {
               const releases = album.releases;
               if (!releases) return true;
 
               for (const release of releases) {
-                if (release.status?.toLowerCase() === 'official') return true;
+                if (release.status?.toLowerCase() === 'promotion') return true;
               }
               return false;
             },
-            expectAllMessage: 'have official status in one of their releases',
+            expectAllMessage: 'have promotion status in one of their releases',
           },
         ],
       }),
@@ -843,6 +843,27 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
           },
         ],
       }),
+      musicBrainzRecordingFilters.asyncSelect({
+        id: 'releaseGroupId',
+        label: 'Album (Release Group ID)',
+        dependsOn: ['artistId'],
+        transform: mapTo('releaseGroupId'),
+        targetEntityId: 'album',
+        testCases: [
+          {
+            value: ALBUM_THRILLER_ID,
+            query: 'Billie Jean',
+            skipQueryDifferenceTest: true,
+            expectSome: (recording: MusicBrainzRecording) => {
+              for (const release of recording.releases ?? []) {
+                if (release['release-group']?.id === ALBUM_THRILLER_ID) return true;
+              }
+              return false;
+            },
+            expectSomeMessage: 'belong to Thriller release group',
+          },
+        ],
+      }),
       musicBrainzRecordingFilters.boolean({
         id: 'video',
         label: 'Is Video',
@@ -880,26 +901,6 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
             expectAllMessage: 'be between 3 and 4 minutes long',
           }
         ]
-      }),
-      musicBrainzRecordingFilters.asyncSelect({
-        id: 'releaseGroupId',
-        label: 'Album (Release Group ID)',
-        transform: mapTo('releaseGroupId'),
-        targetEntityId: 'album',
-        testCases: [
-          {
-            value: ALBUM_THRILLER_ID,
-            query: 'Billie Jean',
-            skipQueryDifferenceTest: true,
-            expectSome: (recording: MusicBrainzRecording) => {
-              for (const release of recording.releases ?? []) {
-                if (release['release-group']?.id === ALBUM_THRILLER_ID) return true;
-              }
-              return false;
-            },
-            expectSomeMessage: 'belong to Thriller release group',
-          },
-        ],
       }),
     ];
   }
@@ -1230,9 +1231,9 @@ export class MusicBrainzProvider implements Provider {
   }
 
   public readonly entities = [
+    new MusicBrainzRecordingEntity(this),
     new MusicBrainzAlbumEntity(this),
     new MusicBrainzArtistEntity(this),
-    new MusicBrainzRecordingEntity(this),
   ] as const;
   public async resolveImageFromWikidata(id: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> {
     try {

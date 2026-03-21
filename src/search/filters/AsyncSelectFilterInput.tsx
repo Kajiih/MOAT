@@ -30,6 +30,7 @@ export function AsyncSelectFilterInput({
   filter,
   value,
   onChange,
+  activeFilters,
 }: FilterControlProps<AsyncSelectFilterDefinition>) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -67,13 +68,26 @@ export function AsyncSelectFilterInput({
   }, [value, providerId, targetEntityId, resolvedEntity?.id]);
 
   const searchParams = useMemo(
-    () => ({
-      limit: 10,
-      page: 1,
-      query: debouncedQuery,
-      filters: filter.id && value ? { [filter.id]: value } : {},
-    }),
-    [debouncedQuery, filter.id, value],
+    () => {
+      const depFilters: Record<string, string> = {};
+      
+      if (filter.dependsOn) {
+        for (const depId of filter.dependsOn) {
+          const depVal = activeFilters?.[depId];
+          if (depVal) {
+            depFilters[depId] = String(depVal);
+          }
+        }
+      }
+
+      return {
+        limit: 10,
+        page: 1,
+        query: debouncedQuery,
+        filters: depFilters,
+      };
+    },
+    [debouncedQuery, filter.dependsOn, activeFilters],
   );
 
   const { results, isLoading } = useItemSearch(providerId || '', targetEntityId, searchParams, {
