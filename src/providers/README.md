@@ -43,6 +43,9 @@ If an API radically alters its detailed node structure, the data fails the bound
 
 ## Adding a New Provider Adapter
 
+For a detailed walkthrough, guidelines, and testing best practices, see the **[Adding a New Provider Guide](file:///Users/paquerot/Perso/dev_projects/tierlist/docs/dev/adding_a_new_provider.md)**.
+
+### Quick Checklist:
 1. Build a new folder entirely localized within `/adapters` outlining strict Domain/Entity Zod typing boundaries.
 2. Ensure you invoke `secureFetch` to wrap native backend connection endpoints natively against 503/429 crashes, rather than naive global `fetch` calls.
 3. Import the fully functional Provider directly into the singleton `src/providers/registry.ts` file, where it will instantly load and mount safely through `useRegistry()` without touching internal React code limits.
