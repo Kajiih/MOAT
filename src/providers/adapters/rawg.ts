@@ -32,7 +32,7 @@ const RAWGPlatformSchema = z.object({ id: z.number(), name: z.string(), slug: z.
 const RAWGNamedEntitySchema = z.object({ name: z.string() });
 const RAWGTaggableEntitySchema = z.object({ name: z.string(), language: z.string() });
 
-export const RAWGGameSchema = z.object({
+const RAWGGameSchema = z.object({
   id: z.number(),
   slug: z.string(),
   name: z.string(),
@@ -52,9 +52,9 @@ export const RAWGGameSchema = z.object({
   tags: z.array(RAWGTaggableEntitySchema).nullish(),
 });
 
-export type RAWGGame = z.infer<typeof RAWGGameSchema>;
+type RAWGGame = z.infer<typeof RAWGGameSchema>;
 
-export const RAWGDeveloperSchema = z.object({
+const RAWGDeveloperSchema = z.object({
   id: z.number(),
   name: z.string(),
   slug: z.string(),
@@ -159,7 +159,7 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
   }),
 ];
 
-export class RAWGGameEntity implements Entity<RAWGGame> {
+class RAWGGameEntity implements Entity<RAWGGame> {
   public readonly id = 'game';
   public readonly branding = {
     label: 'Video Game',
@@ -384,7 +384,7 @@ const NINTENDO_ID = '11';
 
 const rawgDevSorts = createSortSuite<RAWGDeveloper>();
 
-export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
+class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   public readonly id = 'developer';
   public readonly branding = {
     label: 'Developer',
