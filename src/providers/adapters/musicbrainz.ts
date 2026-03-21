@@ -99,12 +99,20 @@ const formatLuceneTerm = (str: string) => {
  * @returns A formatted clause or null
  */
 function buildTypeClause(field: string, values: string | string[] | undefined, defaultExclusions?: readonly string[]): string | null {
-  if (!values) {
+  if (values === 'any') {
+    return null;
+  }
+
+  if (values === 'none' || !values) {
     if (defaultExclusions) {
       const types = defaultExclusions.map((t) => formatLuceneTerm(t)).join(' OR ');
       return `NOT ${field}:(${types})`;
     }
     return null;
+  }
+
+  if (typeof values === 'string' && values.trim()) {
+    return `${field}:${formatLuceneTerm(values)}`;
   }
 
   if (Array.isArray(values)) {
@@ -119,9 +127,6 @@ function buildTypeClause(field: string, values: string | string[] | undefined, d
     return null;
   }
 
-  if (values.trim()) {
-    return `${field}:${formatLuceneTerm(values)}`;
-  }
   return null;
 }
 
@@ -408,15 +413,18 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
             expectAllMessage: 'have primary or secondary type "EP"',
           }],
       }),
-      mbAlbumFilters.multiselect({
+      mbAlbumFilters.select({
         id: 'secondarytype',
         label: 'Secondary Types',
+        emptyLabel: 'None',
         transform: mapTo('secondarytype'),
-        options: SECONDARY_TYPES.map(t => ({ label: t, value: t.toLowerCase() })),
-        helperText: 'Excluded by default (e.g., Live, Soundtrack). Select to include.',
+        options: [
+          { label: 'Any', value: 'any' },
+          ...SECONDARY_TYPES.map(t => ({ label: t, value: t.toLowerCase() })),
+        ],
         testCases: [
           {
-            value: ['live'],
+            value: 'live',
             expectAll: (album: MusicBrainzReleaseGroup) => {
               for (const type of album['secondary-types'] ?? []) {
                 if (type.toLowerCase() === 'live') return true;

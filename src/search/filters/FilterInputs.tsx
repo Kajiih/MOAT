@@ -58,7 +58,7 @@ export function SelectFilterInput({
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
     >
-      <option value="">Any</option>
+      <option value="">{filter.emptyLabel ?? 'Any'}</option>
       {filter.options?.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.label}

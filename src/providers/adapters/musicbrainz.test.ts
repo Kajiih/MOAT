@@ -36,6 +36,16 @@ describe('MusicBrainz Adapter', () => {
         expect(query).toBe('secondarytype:(Live OR Compilation)');
       });
 
+      it('should handle secondarytype "any"', () => {
+        const query = buildAlbumLuceneQuery({ term: 'thriller', secondarytype: 'any' });
+        expect(query).toBe('release:thriller');
+      });
+
+      it('should handle secondarytype "none"', () => {
+        const query = buildAlbumLuceneQuery({ term: 'thriller', secondarytype: 'none' });
+        expect(query).toBe(`release:thriller AND ${NOT_SECONDARY}`);
+      });
+
       it('should handle date ranges', () => {
         const query = buildAlbumLuceneQuery({ firstreleasedate_min: '1990', firstreleasedate_max: '2000' });
         expect(query).toBe(`${NOT_SECONDARY} AND firstreleasedate:[1990 TO 2000]`);

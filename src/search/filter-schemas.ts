@@ -214,6 +214,8 @@ export interface SelectFilterDefinition<
   type: 'select';
   /** Available options for selection-based inputs */
   options: FilterOption[];
+  /** Optional label override for the default empty option ('Any')*/
+  emptyLabel?: string;
 }
 
 /** Defines a multiple-choice selection filter mechanism */
