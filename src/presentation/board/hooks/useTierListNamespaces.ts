@@ -7,6 +7,8 @@
 import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { Item, ItemUpdate } from '@/domain/items/items';
+import { fromSearchId } from '@/lib/ids';
 import {
   BoardDispatch,
   moveItem,
@@ -15,8 +17,6 @@ import {
   updateTitle,
 } from '@/presentation/board/state/reducer';
 import { TierListState, TierUpdate } from '@/presentation/board/types';
-import { Item, ItemUpdate } from '@/domain/items/items';
-import { fromSearchId } from '@/lib/ids';
 
 /**
  * Props for the useTierListNamespaces hook.

@@ -3,8 +3,8 @@
  * @description Utilities for managing the board registry and syncing metadata.
  */
 
-import { BoardMetadata, TierListState } from '@/presentation/board/types';
 import { logger } from '@/lib/logger';
+import { BoardMetadata, TierListState } from '@/presentation/board/types';
 import { storage } from '@/storage/storage';
 
 /**

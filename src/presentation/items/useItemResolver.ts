@@ -8,8 +8,8 @@
 
 import { useEffect, useMemo } from 'react';
 
-import { Item } from '@/presentation/board/types';
 import { ItemDetailsCoreSchema, ItemUpdate } from '@/domain/items/items';
+import { Item } from '@/presentation/board/types';
 import { useItemDetails } from '@/providers/useItemDetails';
 import { useItemRegistry } from '@/providers/useItemRegistry';
 

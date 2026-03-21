@@ -9,9 +9,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+import { logger } from '@/lib/logger';
 import { INITIAL_STATE } from '@/presentation/board/initial-state';
 import { BoardMetadata } from '@/presentation/board/types';
-import { logger } from '@/lib/logger';
 import { storage } from '@/storage/storage';
 
 /**

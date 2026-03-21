@@ -8,15 +8,8 @@ import { Building2, Gamepad2 } from 'lucide-react';
 import { toCompositeId } from '@/domain/items/identity';
 import { referenceImage, urlImage, UrlImageSource } from '@/domain/items/images';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema, Subtitle } from '@/domain/items/items';
-import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/domain/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/domain/providers/types';
-import {
-  applyFilters,
-  extractRelatedEntities,
-  extractTags,
-  handleProviderError,
-} from '@/providers/utils';
 import { FilterDefinition } from '@/presentation/search/filter-schemas';
 import {
   SearchParams,
@@ -24,6 +17,13 @@ import {
   SearchResultSchema,
 } from '@/presentation/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/presentation/search/sort-schemas';
+import { secureFetch } from '@/providers/api-client';
+import {
+  applyFilters,
+  extractRelatedEntities,
+  extractTags,
+  handleProviderError,
+} from '@/providers/utils';
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api';
 

@@ -4,8 +4,8 @@
  * Primarily used to prevent OG image generation from crashing on broken images.
  */
 
-import { Item, TierListState } from '@/presentation/board/types';
 import { logger } from '@/lib/logger';
+import { Item, TierListState } from '@/presentation/board/types';
 
 /**
  * Validates if an image URL is reachable and returns an image content-type.

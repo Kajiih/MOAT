@@ -9,7 +9,6 @@ import { ItemDetails } from '@/domain/items/items';
 import { FilterDefinition } from '@/presentation/search/filter-schemas';
 import { SearchParams, SearchResult } from '@/presentation/search/search-schemas';
 import { SortDefinition } from '@/presentation/search/sort-schemas';
-
 import { RequestOptions } from '@/providers/api-client';
 
 /**

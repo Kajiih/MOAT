@@ -7,9 +7,9 @@ import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/ad
 import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { useEffect, useState } from 'react';
 
+import { Item } from '@/domain/items/items';
 import { BoardDispatch, moveItem, reorderTiers } from '@/presentation/board/state/reducer';
 import { TierDefinition, TierListState } from '@/presentation/board/types';
-import { Item } from '@/domain/items/items';
 
 /**
  * Provides access to the current drag state and wires up global drop monitors

@@ -14,6 +14,9 @@ import { useEffect, useState } from 'react';
 
 import { Footer } from '@/app/_components/Footer';
 import { Header } from '@/app/_components/Header';
+import { getColorTheme } from '@/lib/colors';
+import { InteractionContext } from '@/lib/ui/InteractionContext';
+import { useToast } from '@/lib/ui/ToastProvider';
 import { useTierListContext } from '@/presentation/board/context';
 import { DebugPanel } from '@/presentation/board/DebugPanel';
 import { ExportBoard } from '@/presentation/board/ExportBoard';
@@ -23,9 +26,6 @@ import { useScreenshot } from '@/presentation/board/hooks/useScreenshot';
 import { TierBoard } from '@/presentation/board/TierBoard';
 import { Item, TierListState } from '@/presentation/board/types';
 import { DetailsModal } from '@/presentation/items/DetailsModal';
-import { getColorTheme } from '@/lib/colors';
-import { InteractionContext } from '@/lib/ui/InteractionContext';
-import { useToast } from '@/lib/ui/ToastProvider';
 import { SearchPanel } from '@/presentation/search/SearchPanel';
 
 /**

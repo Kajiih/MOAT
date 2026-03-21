@@ -3,8 +3,8 @@
  * @description Generic HTTP client for external provider APIs with retry logic and standard logging.
  */
 
-import { logger } from '@/lib/logger';
 import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
+import { logger } from '@/lib/logger';
 
 /** Options for secure fetch requests. */
 export interface RequestOptions extends RequestInit {

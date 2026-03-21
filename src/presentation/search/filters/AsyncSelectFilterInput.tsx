@@ -10,9 +10,9 @@ import { useDebounce } from 'use-debounce';
 import { ImageSource } from '@/domain/items/images';
 import { getSubtitleString, Item } from '@/domain/items/items';
 import { useResolvedImage } from '@/presentation/items/useResolvedImage';
-import { registry } from '@/providers/registry';
 import { AsyncSelectFilterDefinition } from '@/presentation/search/filter-schemas';
 import { useItemSearch } from '@/presentation/search/useItemSearch';
+import { registry } from '@/providers/registry';
 
 import { FilterControlProps } from './types';
 
@@ -113,7 +113,7 @@ export function AsyncSelectFilterInput({
           onClick={() => {
             if (resolvedEntity) {
               setQuery(resolvedEntity.title);
-              onChange(undefined);
+              onChange();
               setIsOpen(true);
             }
           }}

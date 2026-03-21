@@ -13,10 +13,9 @@ import {
   Item,
   ItemSection,
   ItemUpdate,
-  SubtitleToken,
 } from '@/domain/items/items';
-import { useItemResolver } from '@/presentation/items/useItemResolver';
 import { useEscapeKey } from '@/lib/ui/useEscapeKey';
+import { useItemResolver } from '@/presentation/items/useItemResolver';
 import { registry } from '@/providers/registry';
 
 import { ExternalLinks } from './ExternalLinks';
@@ -166,7 +165,7 @@ export function DetailsModal({
                         className="col-span-2 grid grid-cols-subgrid items-baseline border-b border-white/[0.02] py-0.5 last:border-0"
                       >
                         <span className="text-secondary/80 font-medium tracking-tight">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                          {key.replaceAll(/([A-Z])/g, ' $1').trim()}
                         </span>
                         <span className="text-right font-semibold break-all text-white/90">
                           {String(value)}

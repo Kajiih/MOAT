@@ -5,6 +5,7 @@
 
 import { MusicBrainzProvider } from '@/infra/providers/adapters/musicbrainz';
 import { RAWGProvider } from '@/infra/providers/adapters/rawg';
+
 import { registry } from './registry';
 
 // Register all external data providers to the central registry

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { ImageSourceSchema, referenceImage, urlImage } from '@/domain/items/images';
-import { RAWGProvider } from '@/infra/providers/adapters/rawg';
+import { ProviderErrorCode } from '@/domain/providers/errors';
 import {
   DEFAULT_PAGE_LIMIT,
   Entity,
@@ -11,6 +11,7 @@ import {
   Provider,
   ProviderStatus,
 } from '@/domain/providers/types';
+import { RAWGProvider } from '@/infra/providers/adapters/rawg';
 import { createFilterSuite, FilterDefinition } from '@/presentation/search/filter-schemas';
 import {
   SearchParams,
@@ -20,7 +21,6 @@ import {
 } from '@/presentation/search/search-schemas';
 import { SortDirection } from '@/presentation/search/sort-schemas';
 
-import { ProviderErrorCode } from '@/domain/providers/errors';
 import { registry, RegistryStatus } from './registry';
 import { handleProviderError } from './utils';
 

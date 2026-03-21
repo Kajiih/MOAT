@@ -4,12 +4,12 @@ import '@/providers/bootstrap';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { ItemDetailsSchema } from '@/domain/items/items';
-import { logger } from '@/lib/logger';
-import { registry } from '@/providers/registry';
 import { DEFAULT_PAGE_LIMIT, ProviderStatus } from '@/domain/providers/types';
+import { logger } from '@/lib/logger';
 import { FilterTestCase } from '@/presentation/search/filter-schemas';
 import { SearchResult } from '@/presentation/search/search-schemas';
 import { SortDirection } from '@/presentation/search/sort-schemas';
+import { registry } from '@/providers/registry';
 
 import { expectDistinctPages, expectSorted } from './test-utils';
 

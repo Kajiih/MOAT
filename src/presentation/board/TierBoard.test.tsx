@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { TierListProvider } from '@/presentation/board/context';
 import { ToastProvider } from '@/lib/ui/ToastProvider';
+import { TierListProvider } from '@/presentation/board/context';
 
 import { TierBoard } from './TierBoard';
 

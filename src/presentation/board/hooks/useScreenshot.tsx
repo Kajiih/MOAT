@@ -13,12 +13,12 @@ import { toPng } from 'html-to-image';
 import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { ExportBoard } from '@/presentation/board/ExportBoard';
-import { TierListState } from '@/presentation/board/types';
-import { failedImages } from '@/presentation/items/image-cache';
 import { ImageSource } from '@/domain/items/images';
 import { logger } from '@/lib/logger';
 import { useToast } from '@/lib/ui/ToastProvider';
+import { ExportBoard } from '@/presentation/board/ExportBoard';
+import { TierListState } from '@/presentation/board/types';
+import { failedImages } from '@/presentation/items/image-cache';
 
 /**
  * ScreenshotContext: stores pre-resolved Data URLs for instantaneous rendering offscreen.

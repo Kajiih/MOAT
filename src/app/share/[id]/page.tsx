@@ -9,8 +9,8 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { SharedBoardView } from '@/app/share/_components/SharedBoardView';
-import { TierListState } from '@/presentation/board/types';
 import { logger } from '@/lib/logger';
+import { TierListState } from '@/presentation/board/types';
 
 interface SharePageProps {
   params: Promise<{ id: string }>;

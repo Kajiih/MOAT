@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
-import { secureFetch } from './api-client';
 import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
+
+import { secureFetch } from './api-client';
 
 describe('secureFetch', () => {
   let fetchMock: MockInstance;

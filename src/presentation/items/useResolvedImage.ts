@@ -5,8 +5,8 @@
  */
 import useSWR from 'swr';
 
-import { failedImages } from '@/presentation/items/image-cache';
 import type { ImageSource } from '@/domain/items/images';
+import { failedImages } from '@/presentation/items/image-cache';
 
 import { batchResolver } from './batch-resolver';
 

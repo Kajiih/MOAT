@@ -8,9 +8,9 @@
 import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+import { ItemUpdate } from '@/domain/items/items';
 import { INITIAL_STATE } from '@/presentation/board/initial-state';
 import { Item, TierId, TierListState, TierUpdate } from '@/presentation/board/types';
-import { ItemUpdate } from '@/domain/items/items';
 
 import { handleGlobalState } from './slices/global-reducer';
 import {

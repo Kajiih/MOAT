@@ -24,12 +24,9 @@ import {
   Subtitle,
   SubtitleToken,
 } from '@/domain/items/items';
-import { logger } from '@/lib/logger';
-import { secureFetch } from '@/providers/api-client';
-import { RateLimiter } from '@/providers/rate-limiter';
 import { ProviderStatus } from '@/domain/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/domain/providers/types';
-import { applyFilters, handleProviderError } from '@/providers/utils';
+import { logger } from '@/lib/logger';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/presentation/search/filter-schemas';
 import {
   SearchParams,
@@ -37,6 +34,9 @@ import {
   SearchResultSchema,
 } from '@/presentation/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/presentation/search/sort-schemas';
+import { secureFetch } from '@/providers/api-client';
+import { RateLimiter } from '@/providers/rate-limiter';
+import { applyFilters, handleProviderError } from '@/providers/utils';
 
 export const ALBUM_FILTER_DEFAULTS = {
   primaryType: 'album',
@@ -796,9 +796,9 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
             if (release.country) {
               extendedData['Country'] = release.country;
             }
-          } catch (e) {
+          } catch (error) {
             logger.warn(
-              `[MusicBrainz] Failed to fetch tracklist for release ${bestRelease.id}: ${e}`,
+              `[MusicBrainz] Failed to fetch tracklist for release ${bestRelease.id}: ${error}`,
             );
           }
         }

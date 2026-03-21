@@ -6,8 +6,8 @@
 
 import { memo, ReactNode } from 'react';
 
-import { ItemCard } from '@/presentation/items/ItemCard';
 import { Item } from '@/domain/items/items';
+import { ItemCard } from '@/presentation/items/ItemCard';
 
 import { VirtualGrid } from './VirtualGrid';
 

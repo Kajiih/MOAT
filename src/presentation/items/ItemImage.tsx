@@ -10,9 +10,9 @@ import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
+import { Item } from '@/domain/items/items';
 import { useScreenshotContext } from '@/presentation/board/hooks/useScreenshot';
 import { ITEM_CARD_DIMENSIONS } from '@/presentation/items/ItemCard';
-import { Item } from '@/domain/items/items';
 import { useResolvedImage } from '@/presentation/items/useResolvedImage';
 
 /**

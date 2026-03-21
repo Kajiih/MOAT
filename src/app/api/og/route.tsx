@@ -9,11 +9,11 @@ import { kv } from '@vercel/kv';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-import { OGBoard } from '@/presentation/board/OGBoard';
-import { TierListState } from '@/presentation/board/types';
 import { Item } from '@/domain/items/items';
 import { logger } from '@/lib/logger';
 import { scrubBoardImages } from '@/lib/server/image-logic';
+import { OGBoard } from '@/presentation/board/OGBoard';
+import { TierListState } from '@/presentation/board/types';
 
 /**
  * We use the 'nodejs' runtime instead of 'edge' because it is more stable

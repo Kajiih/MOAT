@@ -16,9 +16,9 @@ import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { useTierListContext } from '@/presentation/board/context';
 import { getSubtitleString, Item } from '@/domain/items/items';
 import { InteractionContext } from '@/lib/ui/InteractionContext';
+import { useTierListContext } from '@/presentation/board/context';
 import { registry } from '@/providers/registry';
 
 import { ItemImage } from './ItemImage';

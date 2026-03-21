@@ -2,10 +2,10 @@
  * @file Registry
  * @description Centralized singleton and React event emitter tracking loaded Providers.
  */
-import { logger } from '@/lib/logger';
-import { secureFetch } from '@/providers/api-client';
 import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
 import { Entity, Fetcher, Provider, ProviderStatus } from '@/domain/providers/types';
+import { logger } from '@/lib/logger';
+import { secureFetch } from '@/providers/api-client';
 import { handleProviderError } from '@/providers/utils';
 
 /**

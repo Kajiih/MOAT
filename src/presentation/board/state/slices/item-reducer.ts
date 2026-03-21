@@ -7,10 +7,10 @@
 
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { TierId, TierListState } from '@/presentation/board/types';
 import { ItemUpdate } from '@/domain/items/items';
 import { arrayMove } from '@/lib/array';
 import { hasItemUpdates } from '@/lib/comparisons';
+import { TierId, TierListState } from '@/presentation/board/types';
 
 import { MoveItemPayload } from '../reducer';
 
