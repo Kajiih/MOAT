@@ -309,6 +309,36 @@ export type FilterDefinition<
  */
 
 /**
+ * Configuration shapes for creators making certain fields optional.
+ */
+export type TextFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<TextFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue'> & { defaultValue?: string };
+
+export type NumberFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<NumberFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue'> & { defaultValue?: number };
+
+export type BooleanFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<BooleanFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue'> & { defaultValue?: boolean };
+
+export type SelectFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<SelectFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue' | 'emptyLabel'> & { defaultValue?: string; emptyLabel?: string };
+
+export type MultiSelectFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<MultiSelectFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue'> & { defaultValue?: string[] };
+
+export type AsyncSelectFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<AsyncSelectFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue' | 'emptyLabel'> & { defaultValue?: string; emptyLabel?: string };
+
+export type AsyncMultiSelectFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<AsyncMultiSelectFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue'> & { defaultValue?: string[] };
+
+export type RangeFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<RangeFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue'> & { defaultValue?: { min?: string; max?: string } };
+
+export type DateFilterConfig<TRaw, TOut extends FilterOutputRecord> = 
+  Omit<DateFilterDefinition<TRaw, TOut>, 'type' | 'defaultValue'> & { defaultValue?: string };
+
+/**
  * Creates a suite of filter building functions that are statically bound
  * to the generic type `TRaw` of the expected Provider responses.
  *
@@ -317,104 +347,41 @@ export type FilterDefinition<
  */
 export function createFilterSuite<TRaw, TSuiteOutput extends FilterOutputRecord = FilterOutputRecord>() {
   return {
-    /**
-     * Build a text filter parameter
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed TextFilterDefinition.
-     */
-    text: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<TextFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string },
-    ): TextFilterDefinition<TRaw, TOutput> => {
-      return { defaultValue: '', ...config, type: 'text' };
-    },
+    /** Build a text filter parameter */
+    text: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: TextFilterConfig<TRaw, TOutput>): TextFilterDefinition<TRaw, TOutput> => 
+      ({ defaultValue: '', ...config, type: 'text' }),
 
-    /**
-     * Build a numerical filter parameter
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed NumberFilterDefinition.
-     */
-    number: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<NumberFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: number },
-    ): NumberFilterDefinition<TRaw, TOutput> => {
-      return { defaultValue: 0, ...config, type: 'number' };
-    },
+    /** Build a numerical filter parameter */
+    number: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: NumberFilterConfig<TRaw, TOutput>): NumberFilterDefinition<TRaw, TOutput> => 
+      ({ defaultValue: 0, ...config, type: 'number' }),
 
-    /**
-     * Build a boolean toggle filter parameter
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed BooleanFilterDefinition.
-     */
-    boolean: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<BooleanFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: boolean },
-    ): BooleanFilterDefinition<TRaw, TOutput> => {
-      return { defaultValue: false, ...config, type: 'boolean' };
-    },
+    /** Build a boolean toggle filter parameter */
+    boolean: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: BooleanFilterConfig<TRaw, TOutput>): BooleanFilterDefinition<TRaw, TOutput> => 
+      ({ defaultValue: false, ...config, type: 'boolean' }),
 
-    /**
-     * Build a single-choice dropdown filter parameter
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed SelectFilterDefinition.
-     */
-    select: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<SelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue' | 'emptyLabel'> & { defaultValue?: string; emptyLabel?: string },
-    ): SelectFilterDefinition<TRaw, TOutput> => {
-      return { emptyLabel: 'Any', defaultValue: '', ...config, type: 'select' };
-    },
+    /** Build a single-choice dropdown filter parameter */
+    select: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: SelectFilterConfig<TRaw, TOutput>): SelectFilterDefinition<TRaw, TOutput> => 
+      ({ emptyLabel: 'Any', defaultValue: '', ...config, type: 'select' }),
 
-    /**
-     * Build a multiple-choice selection filter parameter
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed MultiSelectFilterDefinition.
-     */
-    multiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<MultiSelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string[] },
-    ): MultiSelectFilterDefinition<TRaw, TOutput> => {
-      return { defaultValue: [], ...config, type: 'multiselect' };
-    },
+    /** Build a multiple-choice selection filter parameter */
+    multiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: MultiSelectFilterConfig<TRaw, TOutput>): MultiSelectFilterDefinition<TRaw, TOutput> => 
+      ({ defaultValue: [], ...config, type: 'multiselect' }),
 
-    /**
-     * Build an asynchronous single-choice dropdown fetching its options live
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed AsyncSelectFilterDefinition.
-     */
-    asyncSelect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<AsyncSelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue' | 'emptyLabel'> & { defaultValue?: string; emptyLabel?: string },
-    ): AsyncSelectFilterDefinition<TRaw, TOutput> => {
-      return { emptyLabel: 'Any', defaultValue: '', ...config, type: 'async-select' };
-    },
+    /** Build an asynchronous single-choice dropdown fetching its options live */
+    asyncSelect: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: AsyncSelectFilterConfig<TRaw, TOutput>): AsyncSelectFilterDefinition<TRaw, TOutput> => 
+      ({ emptyLabel: 'Any', defaultValue: '', ...config, type: 'async-select' }),
 
-    /**
-     * Build an asynchronous multiple-choice selection parameter fetching its options live
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed AsyncMultiSelectFilterDefinition.
-     */
-    asyncMultiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<AsyncMultiSelectFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string[] },
-    ): AsyncMultiSelectFilterDefinition<TRaw, TOutput> => {
-      return { defaultValue: [], ...config, type: 'async-multiselect' };
-    },
+    /** Build an asynchronous multiple-choice selection parameter fetching its options live */
+    asyncMultiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: AsyncMultiSelectFilterConfig<TRaw, TOutput>): AsyncMultiSelectFilterDefinition<TRaw, TOutput> => 
+      ({ defaultValue: [], ...config, type: 'async-multiselect' }),
 
-    /**
-     * Build a max/min scope range filter parameter
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed RangeFilterDefinition.
-     */
-    range: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<RangeFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: { min?: string; max?: string } },
-    ): RangeFilterDefinition<TRaw, TOutput> => {
-      return { defaultValue: {}, ...config, type: 'range' };
-    },
+    /** Build a max/min scope range filter parameter */
+    range: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: RangeFilterConfig<TRaw, TOutput>): RangeFilterDefinition<TRaw, TOutput> => 
+      ({ defaultValue: {}, ...config, type: 'range' }),
 
-    /**
-     * Build a strict date constraint filter parameter
-     * @param config - The filter configuration object without the literal type constraint.
-     * @returns A strongly typed DateFilterDefinition.
-     */
-    date: <TOutput extends FilterOutputRecord = TSuiteOutput>(
-      config: Omit<DateFilterDefinition<TRaw, TOutput>, 'type' | 'defaultValue'> & { defaultValue?: string },
-    ): DateFilterDefinition<TRaw, TOutput> => {
-      return { defaultValue: '', ...config, type: 'date' };
-    },
+    /** Build a strict date constraint filter parameter */
+    date: <TOutput extends FilterOutputRecord = TSuiteOutput>(config: DateFilterConfig<TRaw, TOutput>): DateFilterDefinition<TRaw, TOutput> => 
+      ({ defaultValue: '', ...config, type: 'date' }),
   };
 }
 
