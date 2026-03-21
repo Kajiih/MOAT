@@ -13,17 +13,17 @@ describe('MusicBrainz Adapter', () => {
 
       it('should build a basic term query', () => {
         const query = buildAlbumLuceneQuery({ term: 'thriller' });
-        expect(query).toBe(`release:thriller AND ${NOT_SECONDARY}`);
+        expect(query).toBe(`release:(thriller*) OR (thriller~) AND ${NOT_SECONDARY}`);
       });
 
       it('should escape special characters in term', () => {
         const query = buildAlbumLuceneQuery({ term: 'AC/DC' });
-        expect(query).toBe(String.raw`release:AC\/DC AND ${NOT_SECONDARY}`);
+        expect(query).toBe(String.raw`release:(AC\/DC*) OR (AC\/DC~) AND ${NOT_SECONDARY}`);
       });
 
       it('should build an exact artistId query', () => {
         const query = buildAlbumLuceneQuery({ artistId: '1234-5678', term: 'album' });
-        expect(query).toBe(`release:album AND arid:1234-5678 AND ${NOT_SECONDARY}`);
+        expect(query).toBe(`release:(album*) OR (album~) AND arid:1234-5678 AND ${NOT_SECONDARY}`);
       });
 
       it('should prioritize artistId over artist text', () => {
@@ -38,12 +38,12 @@ describe('MusicBrainz Adapter', () => {
 
       it('should handle secondarytype "any"', () => {
         const query = buildAlbumLuceneQuery({ term: 'thriller', secondarytype: 'any' });
-        expect(query).toBe('release:thriller');
+        expect(query).toBe('release:(thriller*) OR (thriller~)');
       });
 
       it('should handle secondarytype "none"', () => {
         const query = buildAlbumLuceneQuery({ term: 'thriller', secondarytype: 'none' });
-        expect(query).toBe(`release:thriller AND ${NOT_SECONDARY}`);
+        expect(query).toBe(`release:(thriller*) OR (thriller~) AND ${NOT_SECONDARY}`);
       });
 
       it('should handle date ranges', () => {
@@ -63,12 +63,12 @@ describe('MusicBrainz Adapter', () => {
     describe('buildArtistLuceneQuery', () => {
       it('should build a basic term query', () => {
         const query = buildArtistLuceneQuery({ term: 'daft punk' });
-        expect(query).toBe('"daft punk"');
+        expect(query).toBe('(daft*) OR (daft~) AND (punk*) OR (punk~)');
       });
 
       it('should build country filter', () => {
         const query = buildArtistLuceneQuery({ country: 'GB', term: 'radiohead' });
-        expect(query).toBe('radiohead AND country:GB');
+        expect(query).toBe('(radiohead*) OR (radiohead~) AND country:GB');
       });
 
       it('should handle begin date ranges', () => {
@@ -80,12 +80,12 @@ describe('MusicBrainz Adapter', () => {
     describe('buildRecordingLuceneQuery', () => {
       it('should build a basic term query', () => {
         const query = buildRecordingLuceneQuery({ term: 'moonlight' });
-        expect(query).toBe('moonlight');
+        expect(query).toBe('(moonlight*) OR (moonlight~)');
       });
 
       it('should handle video boolean', () => {
         const query = buildRecordingLuceneQuery({ video: true, term: 'thriller' });
-        expect(query).toBe('thriller AND video:true');
+        expect(query).toBe('(thriller*) OR (thriller~) AND video:true');
       });
 
       it('should handle dur (duration) range', () => {
@@ -121,7 +121,7 @@ describe('MusicBrainz Adapter', () => {
       const urlObj = new URL(fetchedUrl);
       const EXPECTED_NOT = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ\-mix OR Mixtape\/Street)`;
       expect(urlObj.searchParams.get('query')).toBe(
-        `release:"Billie Jean" AND primarytype:album AND ${EXPECTED_NOT} AND status:official`,
+        `release:(Billie*) OR (Billie~) AND (Jean*) OR (Jean~) AND primarytype:album AND ${EXPECTED_NOT} AND status:official`,
       );
     });
   });

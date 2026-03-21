@@ -257,8 +257,26 @@ export function DetailsModal({
                       )}
                       {section.type === 'list' && (
                         <ul className="list-inside list-disc space-y-1">
-                          {(section.content as string[]).map((li, i) => (
-                            <li key={i}>{li}</li>
+                          {(section.content as SubtitleToken[]).map((li, i) => (
+                            <li key={i}>
+                              {typeof li === 'string' ? (
+                                li
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                      onNavigate?.({
+                                        id: `${li.identity.providerId}:${li.identity.entityId}:${li.identity.providerItemId}`,
+                                        title: li.name,
+                                        identity: li.identity,
+                                        images: [],
+                                      });
+                                  }}
+                                  className="hover:text-white hover:underline text-secondary text-left font-medium transition-colors"
+                                >
+                                  {li.name}
+                                </button>
+                              )}
+                            </li>
                           ))}
                         </ul>
                       )}

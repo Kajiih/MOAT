@@ -72,7 +72,7 @@ export type BaseItem = z.infer<typeof BaseItemSchema>;
 export const ItemSectionSchema = z.object({
   title: z.string(),
   type: z.enum(['text', 'list']),
-  content: z.union([z.string(), z.array(z.string())]),
+  content: z.union([z.string(), z.array(SubtitleTokenSchema)]),
 });
 
 export type ItemSection = z.infer<typeof ItemSectionSchema>;
