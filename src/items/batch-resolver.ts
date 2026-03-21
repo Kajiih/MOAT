@@ -76,7 +76,10 @@ class BatchResolver {
       this.resolvePendingItems(itemMap, results);
     } catch (error) {
       logger.error({ error }, 'BatchResolver flush failure');
-      this.rejectPendingItems(itemMap, error instanceof Error ? error : new Error('Batch Resolver Failed'));
+      this.rejectPendingItems(
+        itemMap,
+        error instanceof Error ? error : new Error('Batch Resolver Failed'),
+      );
     } finally {
       clearTimeout(timeoutId);
     }
@@ -97,7 +100,10 @@ class BatchResolver {
     return { itemMap, uniqueItems };
   }
 
-  private resolvePendingItems(itemMap: Map<string, BatchItem[]>, results: Record<string, string | null>) {
+  private resolvePendingItems(
+    itemMap: Map<string, BatchItem[]>,
+    results: Record<string, string | null>,
+  ) {
     for (const [cacheKey, items] of itemMap.entries()) {
       const url = results[cacheKey] ?? undefined;
       for (const item of items) {

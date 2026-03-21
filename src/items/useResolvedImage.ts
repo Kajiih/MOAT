@@ -21,7 +21,6 @@ import { batchResolver } from './batch-resolver';
 export function useResolvedImage(sources: ImageSource[]): string | undefined {
   const cacheKey = sources.length > 0 ? JSON.stringify(sources) : null;
 
-
   const { data: resolvedUrl } = useSWR<string | undefined>(
     cacheKey,
     async (key: string) => {
@@ -30,7 +29,6 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
       for (const source of activeSources) {
         try {
           let targetUrl: string | undefined;
-
 
           if (source.type === 'url') {
             targetUrl = source.url;

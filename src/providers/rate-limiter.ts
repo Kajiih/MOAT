@@ -4,7 +4,11 @@
  */
 
 export class RateLimiter {
-  private queue: Array<{ resolve: () => void; reject: (reason?: unknown) => void; signal?: AbortSignal }> = [];
+  private queue: Array<{
+    resolve: () => void;
+    reject: (reason?: unknown) => void;
+    signal?: AbortSignal;
+  }> = [];
   private isProcessing = false;
   private lastExecuted = 0;
 
@@ -27,7 +31,7 @@ export class RateLimiter {
 
     return new Promise<void>((resolve, reject) => {
       const entry = { resolve, reject, signal };
-      
+
       const onAbort = () => {
         // Remove from queue
         const index = this.queue.indexOf(entry);
@@ -39,7 +43,7 @@ export class RateLimiter {
 
       if (signal) {
         signal.addEventListener('abort', onAbort, { once: true });
-        
+
         // Wrap the original resolve/reject to also remove event listener
         entry.resolve = () => {
           signal.removeEventListener('abort', onAbort);
@@ -76,7 +80,7 @@ export class RateLimiter {
 
       const next = this.queue.shift();
       this.lastExecuted = Date.now(); // update based on reality, not prediction
-      
+
       // Resolve the next item
       if (next) {
         next.resolve();

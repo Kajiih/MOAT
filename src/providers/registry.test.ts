@@ -40,8 +40,19 @@ const createMockEntity = (overrides: Partial<Entity<MockItem>> = {}): Entity<Moc
   filters: (() => {
     const mockFilters = createFilterSuite<MockItem>();
     return [
-      mockFilters.range({ id: 'price', label: 'Price Range', transform: (val: { min?: string, max?: string }) => ({ price: String(val.min) }), testCases: [] as never }),
-      mockFilters.select({ id: 'category', label: 'Category', options: [], transform: (val: string) => ({ category: String(val) }), testCases: [] as never }),
+      mockFilters.range({
+        id: 'price',
+        label: 'Price Range',
+        transform: (val: { min?: string; max?: string }) => ({ price: String(val.min) }),
+        testCases: [] as never,
+      }),
+      mockFilters.select({
+        id: 'category',
+        label: 'Category',
+        options: [],
+        transform: (val: string) => ({ category: String(val) }),
+        testCases: [] as never,
+      }),
       mockFilters.boolean({
         id: 'inStock',
         label: 'In Stock',

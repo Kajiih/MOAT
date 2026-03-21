@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { registry } from '@/providers/registry';
 
@@ -27,16 +27,18 @@ describe('Batch Resolve Image API - Timeouts', () => {
 
   it('should resolve fast items and set null for items that time out', async () => {
     // 1. Mock registry behavior
-    registry.resolveImageReference = vi.fn().mockImplementation(async (providerId, entityId, key, options) => {
-      if (key === 'slow-entity') {
-        return new Promise((_, reject) => {
-          options?.signal?.addEventListener('abort', () => {
-            reject(new Error('Individual Item Timeout'));
+    registry.resolveImageReference = vi
+      .fn()
+      .mockImplementation(async (providerId, entityId, key, options) => {
+        if (key === 'slow-entity') {
+          return new Promise((_, reject) => {
+            options?.signal?.addEventListener('abort', () => {
+              reject(new Error('Individual Item Timeout'));
+            });
           });
-        });
-      }
-      return `http://resolved.com/${key}`;
-    });
+        }
+        return `http://resolved.com/${key}`;
+      });
 
     // 2. Prepare mock request
     const requestBody = [

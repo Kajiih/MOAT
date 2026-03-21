@@ -43,9 +43,8 @@ const musicBrainzArtistFilters = createFilterSuite<MusicBrainzArtist, ArtistLuce
 const MUSICBRAINZ_BASE_URL = 'https://musicbrainz.org/ws/2';
 const MUSICBRAINZ_USER_AGENT = 'MOAT/1.0.0 ( itskajih@gmail.com )';
 
-
-/** 
- * Helper to add a Lucene range to parts array 
+/**
+ * Helper to add a Lucene range to parts array
  * @param parts - Array of query string parts to mutate
  * @param field - Lucene field name
  * @param range - Object containing min and max string values
@@ -79,7 +78,8 @@ export type AlbumLuceneQuery = {
  * @param str - The string to escape
  * @returns The escaped string
  */
-const escapeLucene = (str: string) => str.replaceAll(/(["\\/;:!^()[\]{}~*?+\-&|])/g, String.raw`\$1`);
+const escapeLucene = (str: string) =>
+  str.replaceAll(/(["\\/;:!^()[\]{}~*?+\-&|])/g, String.raw`\$1`);
 
 /**
  * Wraps a term in double quotes only if it contains a space.
@@ -98,7 +98,11 @@ const formatLuceneTerm = (str: string) => {
  * @param defaultExclusions - Optional fallback NOT clauses
  * @returns A formatted clause or null
  */
-function buildTypeClause(field: string, values: string | string[] | undefined, defaultExclusions?: readonly string[]): string | null {
+function buildTypeClause(
+  field: string,
+  values: string | string[] | undefined,
+  defaultExclusions?: readonly string[],
+): string | null {
   if (values === 'any') {
     return null;
   }
@@ -130,8 +134,8 @@ function buildTypeClause(field: string, values: string | string[] | undefined, d
   return null;
 }
 
-/** 
- * Build an album-specific lucene string 
+/**
+ * Build an album-specific lucene string
  * @param query - The album search query model
  * @returns The compiled Lucene query string
  */
@@ -157,7 +161,10 @@ export function buildAlbumLuceneQuery(query: AlbumLuceneQuery): string {
   if (query.status?.trim()) parts.push(`status:${formatLuceneTerm(query.status)}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
-  addLuceneRange(parts, 'firstreleasedate', { min: query.firstreleasedate_min, max: query.firstreleasedate_max });
+  addLuceneRange(parts, 'firstreleasedate', {
+    min: query.firstreleasedate_min,
+    max: query.firstreleasedate_max,
+  });
 
   // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
   if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
@@ -177,8 +184,8 @@ export type ArtistLuceneQuery = {
   tag?: string;
 };
 
-/** 
- * Build an artist-specific lucene string 
+/**
+ * Build an artist-specific lucene string
  * @param query - The artist search query model
  * @returns The compiled Lucene query string
  */
@@ -213,8 +220,8 @@ export type RecordingLuceneQuery = {
   tag?: string;
 };
 
-/** 
- * Build a recording-specific lucene string 
+/**
+ * Build a recording-specific lucene string
  * @param query - The recording search query model
  * @returns The compiled Lucene query string
  */
@@ -230,7 +237,7 @@ export function buildRecordingLuceneQuery(query: RecordingLuceneQuery): string {
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
   addLuceneRange(parts, 'dur', { min: query.duration_min, max: query.duration_max });
-  
+
   // If no positive filter or term is present except exclusions, we should ensure the query doesn't become a broad NOT-only search
   if (parts.length === 0 || (parts.length === 1 && parts[0].startsWith('NOT '))) {
     return '*:*';
@@ -272,10 +279,12 @@ const MusicBrainzArtistSchema = z.object({
   name: z.string(),
   type: z.string().nullish(),
   country: z.string().nullish(),
-  'life-span': z.object({
-    begin: z.string().nullish(),
-    end: z.string().nullish(),
-  }).nullish(),
+  'life-span': z
+    .object({
+      begin: z.string().nullish(),
+      end: z.string().nullish(),
+    })
+    .nullish(),
   tags: z.array(MusicBrainzTagSchema).nullish(),
   relations: z.array(MusicBrainzUrlRelationSchema).nullish(),
 });
@@ -288,9 +297,13 @@ const MusicBrainzReleaseGroupSchema = z.object({
   'secondary-types': z.array(z.string()).nullish(),
   'first-release-date': z.string().nullish(),
   'artist-credit': z.array(MusicBrainzArtistCreditSchema).nullish(),
-  releases: z.array(z.object({
-    status: z.string().nullish(),
-  })).nullish(),
+  releases: z
+    .array(
+      z.object({
+        status: z.string().nullish(),
+      }),
+    )
+    .nullish(),
   tags: z.array(MusicBrainzTagSchema).nullish(),
   relations: z.array(MusicBrainzUrlRelationSchema).nullish(),
 });
@@ -335,7 +348,10 @@ const getMusicBrainzInitialParams = (
   page: 1,
 });
 
-const getMusicBrainzNextParams = (params: SearchParams, result: SearchResult): SearchParams | null => {
+const getMusicBrainzNextParams = (
+  params: SearchParams,
+  result: SearchResult,
+): SearchParams | null => {
   if (!result.pagination.hasNextPage) return null;
   return { ...params, page: (params.page || 1) + 1 };
 };
@@ -385,7 +401,6 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly edgeShortQuery = 'zzzzzzzzzzz';
 
   public constructor(private provider: MusicBrainzProvider) {
-
     this.filters = [
       mbAlbumFilters.select({
         id: 'primarytype',
@@ -399,7 +414,8 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
           { label: 'Broadcast', value: 'broadcast' },
           { label: 'Other', value: 'other' },
         ],
-        testCases: [{
+        testCases: [
+          {
             value: 'ep',
             expectAll: (album: MusicBrainzReleaseGroup) => {
               const matchesPrimary = album['primary-type']?.toLowerCase() === 'ep';
@@ -411,7 +427,8 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
               return false;
             },
             expectAllMessage: 'have primary or secondary type "EP"',
-          }],
+          },
+        ],
       }),
       mbAlbumFilters.select({
         id: 'secondarytype',
@@ -420,7 +437,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
         transform: mapTo('secondarytype'),
         options: [
           { label: 'Any', value: 'any' },
-          ...SECONDARY_TYPES.map(t => ({ label: t, value: t.toLowerCase() })),
+          ...SECONDARY_TYPES.map((t) => ({ label: t, value: t.toLowerCase() })),
         ],
         testCases: [
           {
@@ -432,7 +449,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
               return false;
             },
             expectAllMessage: 'have secondary type "live"',
-          }
+          },
         ],
       }),
       mbAlbumFilters.asyncSelect({
@@ -502,16 +519,22 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
               return year >= 1980 && year <= 1989;
             },
             expectAllMessage: 'be released in the 1980s',
-          }
-        ]
+          },
+        ],
       }),
     ];
   }
 
   public readonly getInitialParams = (config: { limit: number }): SearchParams =>
-    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection);
+    getMusicBrainzInitialParams(
+      config,
+      this.sortOptions[0]?.id,
+      this.sortOptions[0]?.defaultDirection,
+    );
 
-  public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzReleaseGroup>> => {
+  public readonly search = async (
+    params: SearchParams,
+  ): Promise<SearchResult<MusicBrainzReleaseGroup>> => {
     return this.provider.searchAlbums(params, this.filters);
   };
 
@@ -524,9 +547,12 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
     expectUrlContains: 'ca.archive.org/',
   });
 
-  public readonly resolveImage = async (key: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> => {
+  public readonly resolveImage = async (
+    key: string,
+    { signal }: { signal?: AbortSignal } = {},
+  ): Promise<string | null> => {
     try {
-      const caaRes = await fetch(`https://coverartarchive.org/release-group/${key}/front-500`, { 
+      const caaRes = await fetch(`https://coverartarchive.org/release-group/${key}/front-500`, {
         method: 'HEAD',
         signal,
       });
@@ -655,11 +681,11 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
           { label: 'Other', value: 'other' },
         ],
         testCases: [
-          { 
-            value: 'group', 
+          {
+            value: 'group',
             expectAll: (artist: MusicBrainzArtist) => artist.type?.toLowerCase() === 'group',
             expectAllMessage: 'have type "group"',
-          }
+          },
         ],
       }),
       musicBrainzArtistFilters.text({
@@ -694,24 +720,30 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
             expectAll: (artist: MusicBrainzArtist) => {
               const beginStr = artist['life-span']?.begin;
               if (!beginStr) return false;
-              
+
               const yearMatch = beginStr.match(/^(\d{4})/);
               if (!yearMatch) return false;
-              
+
               const year = Number.parseInt(yearMatch[1], 10);
               return year >= 1990 && year <= 1999;
             },
             expectAllMessage: 'be active in the 1990s',
-          }
-        ]
+          },
+        ],
       }),
     ];
   }
 
   public readonly getInitialParams = (config: { limit: number }): SearchParams =>
-    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection);
+    getMusicBrainzInitialParams(
+      config,
+      this.sortOptions[0]?.id,
+      this.sortOptions[0]?.defaultDirection,
+    );
 
-  public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzArtist>> => {
+  public readonly search = async (
+    params: SearchParams,
+  ): Promise<SearchResult<MusicBrainzArtist>> => {
     return this.provider.searchArtists(params, this.filters);
   };
 
@@ -724,7 +756,10 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
     expectUrlContains: 'fanart.tv',
   });
 
-  public readonly resolveImage = async (key: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> => {
+  public readonly resolveImage = async (
+    key: string,
+    { signal }: { signal?: AbortSignal } = {},
+  ): Promise<string | null> => {
     const fromFanart = await this.provider.resolveImageFromFanart(key, { signal });
     if (fromFanart) return fromFanart;
     return await this.provider.resolveImageFromWikidata(key, { signal });
@@ -830,7 +865,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
             expectAll: (recording: MusicBrainzRecording) => {
               for (const credit of recording['artist-credit'] ?? []) {
                 if (
-                  credit.name.toLowerCase().includes('radiohead') || 
+                  credit.name.toLowerCase().includes('radiohead') ||
                   credit.artist?.name.toLowerCase().includes('radiohead') ||
                   credit.artist?.id === ARTIST_RADIOHEAD_ID
                 ) {
@@ -899,23 +934,32 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
               return recording.length >= 180_000 && recording.length <= 240_000;
             },
             expectAllMessage: 'be between 3 and 4 minutes long',
-          }
-        ]
+          },
+        ],
       }),
     ];
   }
 
   public readonly getInitialParams = (config: { limit: number }): SearchParams =>
-    getMusicBrainzInitialParams(config, this.sortOptions[0]?.id, this.sortOptions[0]?.defaultDirection);
+    getMusicBrainzInitialParams(
+      config,
+      this.sortOptions[0]?.id,
+      this.sortOptions[0]?.defaultDirection,
+    );
 
-  public readonly search = async (params: SearchParams): Promise<SearchResult<MusicBrainzRecording>> => {
+  public readonly search = async (
+    params: SearchParams,
+  ): Promise<SearchResult<MusicBrainzRecording>> => {
     return this.provider.searchRecordings(params, this.filters);
   };
 
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
-  public readonly resolveImage = async (_key?: string, _options: { signal?: AbortSignal } = {}): Promise<string | null> => null;
+  public readonly resolveImage = async (
+    _key?: string,
+    _options: { signal?: AbortSignal } = {},
+  ): Promise<string | null> => null;
 
   public readonly getDetails = async (
     providerItemId: string,
@@ -993,7 +1037,7 @@ function mapRecordingToItem(recording: MusicBrainzRecording, providerId: string)
 
   // For images, we try to use the first release-group associated with the recording
   const images: NonNullable<Item['images']> = [];
-  
+
   if (recording.releases && recording.releases.length > 0) {
     const firstReleaseGroupId = recording.releases.find((r) => r['release-group']?.id)?.[
       'release-group'
@@ -1005,7 +1049,7 @@ function mapRecordingToItem(recording: MusicBrainzRecording, providerId: string)
   }
 
   const artistName = recording['artist-credit']?.[0]?.name;
-  
+
   // Try to find the first release title for the subtitle, fallback to length info
   const albumTitle = recording.releases?.[0]?.title;
   let tertiaryText = recording.video ? 'Video' : 'Audio';
@@ -1046,7 +1090,9 @@ export class MusicBrainzProvider implements Provider {
     // Validate Fanart.tv key on startup
     const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
     if (!fanartKey) {
-      console.warn(`[MusicBrainz] No FANART_TV_API_KEY found in environment. Artist image resolution will fallback to Wikidata.`);
+      console.warn(
+        `[MusicBrainz] No FANART_TV_API_KEY found in environment. Artist image resolution will fallback to Wikidata.`,
+      );
     }
   };
 
@@ -1078,10 +1124,16 @@ export class MusicBrainzProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMusicBrainz<MusicBrainzReleaseGroupListResponse>('/release-group', apiParams, {
-        signal: params.signal,
-      });
-      const parsedResults = z.array(MusicBrainzReleaseGroupSchema).parse(data['release-groups'] ?? []);
+      const data = await this.fetchMusicBrainz<MusicBrainzReleaseGroupListResponse>(
+        '/release-group',
+        apiParams,
+        {
+          signal: params.signal,
+        },
+      );
+      const parsedResults = z
+        .array(MusicBrainzReleaseGroupSchema)
+        .parse(data['release-groups'] ?? []);
       const items = parsedResults.map((item) => mapAlbumToItem(item, this.id));
 
       const currentPage = params.page || 1;
@@ -1110,7 +1162,7 @@ export class MusicBrainzProvider implements Provider {
   ): Promise<SearchResult<MusicBrainzArtist>> {
     try {
       const appliedFilters = applyFilters(params.filters, searchOptions);
-      
+
       const queryStr = buildArtistLuceneQuery({
         term: params.query,
         type: appliedFilters.type as string | undefined,
@@ -1129,9 +1181,13 @@ export class MusicBrainzProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMusicBrainz<MusicBrainzArtistListResponse>('/artist', apiParams, {
-        signal: params.signal,
-      });
+      const data = await this.fetchMusicBrainz<MusicBrainzArtistListResponse>(
+        '/artist',
+        apiParams,
+        {
+          signal: params.signal,
+        },
+      );
       const parsedResults = z.array(MusicBrainzArtistSchema).parse(data.artists ?? []);
       const items = parsedResults.map((item) => mapArtistToItem(item, this.id));
 
@@ -1204,9 +1260,13 @@ export class MusicBrainzProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMusicBrainz<MusicBrainzRecordingListResponse>('/recording', apiParams, {
-        signal: params.signal,
-      });
+      const data = await this.fetchMusicBrainz<MusicBrainzRecordingListResponse>(
+        '/recording',
+        apiParams,
+        {
+          signal: params.signal,
+        },
+      );
       const parsedResults = z.array(MusicBrainzRecordingSchema).parse(data.recordings ?? []);
       const items = parsedResults.map((item) => mapRecordingToItem(item, this.id));
 
@@ -1235,21 +1295,23 @@ export class MusicBrainzProvider implements Provider {
     new MusicBrainzAlbumEntity(this),
     new MusicBrainzArtistEntity(this),
   ] as const;
-  public async resolveImageFromWikidata(id: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> {
+  public async resolveImageFromWikidata(
+    id: string,
+    { signal }: { signal?: AbortSignal } = {},
+  ): Promise<string | null> {
     try {
       const query = `SELECT ?image WHERE { ?item wdt:P434 "${id}" . ?item wdt:P18 ?image . } LIMIT 1`;
       const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}`;
 
-      const wdData = await this.externalFetcher<{ results?: { bindings?: { image?: { value: string } }[] } }>(
-        url,
-        {
-          headers: {
-            'User-Agent': MUSICBRAINZ_USER_AGENT,
-            Accept: 'application/sparql-results+json',
-          },
-          signal,
-        }
-      );
+      const wdData = await this.externalFetcher<{
+        results?: { bindings?: { image?: { value: string } }[] };
+      }>(url, {
+        headers: {
+          'User-Agent': MUSICBRAINZ_USER_AGENT,
+          Accept: 'application/sparql-results+json',
+        },
+        signal,
+      });
 
       const imageUrl = wdData?.results?.bindings?.[0]?.image?.value;
       if (imageUrl && typeof imageUrl === 'string') {
@@ -1264,24 +1326,32 @@ export class MusicBrainzProvider implements Provider {
     return null;
   }
 
-  public async resolveImageFromFanart(id: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> {
+  public async resolveImageFromFanart(
+    id: string,
+    { signal }: { signal?: AbortSignal } = {},
+  ): Promise<string | null> {
     const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
-    
+
     if (!fanartKey) {
       return null;
     }
 
     try {
-      const data = await this.externalFetcher<{ artistthumb?: [{ url?: string }] }>(`https://webservice.fanart.tv/v3/music/${id}`, {
-        headers: { 'api-key': fanartKey, Accept: 'application/json' },
-        signal,
-      });
+      const data = await this.externalFetcher<{ artistthumb?: [{ url?: string }] }>(
+        `https://webservice.fanart.tv/v3/music/${id}`,
+        {
+          headers: { 'api-key': fanartKey, Accept: 'application/json' },
+          signal,
+        },
+      );
       const url = data?.artistthumb?.[0]?.url;
       if (url) return url;
     } catch (error) {
-      logger.debug(`[MusicBrainz] Fanart.tv lookup failed for ${id} (expected if the artist is not in Fanart.tv): ${error}`);
+      logger.debug(
+        `[MusicBrainz] Fanart.tv lookup failed for ${id} (expected if the artist is not in Fanart.tv): ${error}`,
+      );
     }
-    
+
     return null;
   }
 }

@@ -108,8 +108,6 @@ export function handleProviderError(error: unknown, providerId: string): Provide
   return new ProviderError(ProviderErrorCode.INTERNAL_ERROR, message, error, providerId);
 }
 
-
-
 function applyTransform<TRaw>(
   def: FilterDefinition<TRaw>,
   rawValue: NonNullable<FilterValues[string]>,

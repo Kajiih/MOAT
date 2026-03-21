@@ -19,7 +19,7 @@ describe('FailedImageCache', () => {
         mockStorage = {};
       }),
     });
-    
+
     // We mock Date.now() to control TTL tests
     vi.useFakeTimers();
   });
@@ -58,7 +58,7 @@ describe('FailedImageCache', () => {
 
     expect(failedImages.has('https://example.com/fresh.jpg')).toBe(true);
     expect(failedImages.has('https://example.com/expired.jpg')).toBe(false);
-    
+
     // Check that localStorage was updated to remove the expired item
     const saved = JSON.parse(mockStorage['moat_failed_images_v1']);
     expect(saved['https://example.com/fresh.jpg']).toBeDefined();
@@ -71,7 +71,7 @@ describe('FailedImageCache', () => {
     failedImages.add('https://example.com/new-fail.jpg');
 
     expect(failedImages.has('https://example.com/new-fail.jpg')).toBe(true);
-    
+
     const saved = JSON.parse(mockStorage['moat_failed_images_v1']);
     expect(saved['https://example.com/new-fail.jpg']).toBeDefined();
   });
@@ -100,7 +100,7 @@ describe('FailedImageCache', () => {
     expect(failedImages.has('https://example.com/img-1.jpg')).toBe(false);
     expect(failedImages.has('https://example.com/img-2.jpg')).toBe(true);
     expect(failedImages.has('https://example.com/img-1001.jpg')).toBe(true);
-    
+
     const saved = JSON.parse(mockStorage['moat_failed_images_v1']);
     expect(Object.keys(saved).length).toBe(MAX_ENTRIES);
     expect(saved['https://example.com/img-1.jpg']).toBeUndefined();
@@ -112,7 +112,7 @@ describe('FailedImageCache', () => {
     const { failedImages } = await import('./image-cache');
 
     expect(failedImages.has('https://example.com/anything.jpg')).toBe(false);
-    
+
     // Should self-heal with a fresh append
     failedImages.add('https://example.com/fresh-start.jpg');
     expect(failedImages.has('https://example.com/fresh-start.jpg')).toBe(true);

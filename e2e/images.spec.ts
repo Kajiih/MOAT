@@ -6,7 +6,6 @@ test.describe('Image Visibility', () => {
     boardPage,
     searchPanel,
   }) => {
-    
     await boardPage.goto();
 
     // --- 1. Test RAWG Database Image Rendering (Game Cover) ---
@@ -15,7 +14,7 @@ test.describe('Image Visibility', () => {
 
     const rawgCard = page.getByTestId('item-card-rawg:game:3498'); // GTA V ID
     await expect(rawgCard).toBeVisible({ timeout: 15_000 });
-    
+
     const rawgImg = rawgCard.locator('img');
     await expect(rawgImg).toBeVisible({ timeout: 10_000 });
 
@@ -26,7 +25,6 @@ test.describe('Image Visibility', () => {
       expect(isImageFullyLoaded).toBe(true);
     }).toPass({ timeout: 15_000 });
 
-
     // --- 2. Test MusicBrainz Database Image Rendering via Proxy ---
     await page.getByRole('button', { name: 'MusicBrainz' }).click();
 
@@ -34,7 +32,9 @@ test.describe('Image Visibility', () => {
     await searchPanel.switchTab('artist');
     await searchPanel.search('Linkin Park');
 
-    const artistCard = page.getByTestId('item-card-musicbrainz:artist:f59c5520-5f46-4d2c-b2c4-822eabf53419');
+    const artistCard = page.getByTestId(
+      'item-card-musicbrainz:artist:f59c5520-5f46-4d2c-b2c4-822eabf53419',
+    );
     await expect(artistCard).toBeVisible({ timeout: 15_000 });
 
     const artistImg = artistCard.locator('img');
@@ -50,9 +50,11 @@ test.describe('Image Visibility', () => {
     // 2b. Test Album (CoverArtArchive Redirect Proxy)
     await searchPanel.switchTab('album');
     await searchPanel.search('Meteora');
-    
+
     // UUID for Meteora release group
-    const albumCard = page.getByTestId('item-card-musicbrainz:album:14e449a5-aaeb-34dd-ba2f-04cbfa0e7fca');
+    const albumCard = page.getByTestId(
+      'item-card-musicbrainz:album:14e449a5-aaeb-34dd-ba2f-04cbfa0e7fca',
+    );
     await expect(albumCard).toBeVisible({ timeout: 15_000 });
 
     const albumImg = albumCard.locator('img');
@@ -64,6 +66,5 @@ test.describe('Image Visibility', () => {
       });
       expect(isImageFullyLoaded).toBe(true);
     }).toPass({ timeout: 15_000 });
-
   });
 });

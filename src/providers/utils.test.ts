@@ -10,7 +10,12 @@ import { applyFilters, extractRelatedEntities, extractTags, handleProviderError 
 describe('Providers Utils', () => {
   describe('handleProviderError', () => {
     it('should return the original error if it is already a ProviderError', () => {
-      const original = new ProviderError(ProviderErrorCode.INTERNAL_ERROR, 'Test', null, 'test-provider');
+      const original = new ProviderError(
+        ProviderErrorCode.INTERNAL_ERROR,
+        'Test',
+        null,
+        'test-provider',
+      );
       const result = handleProviderError(original, 'test-provider');
       expect(result).toBe(original);
     });
@@ -54,10 +59,32 @@ describe('Providers Utils', () => {
     const definitions = (() => {
       const mockFilters = createFilterSuite<unknown>();
       return [
-        mockFilters.text({ id: 'search', label: 'Search', transform: (val) => ({ q: String(val) }), testCases: [] as never }),
-        mockFilters.select({ id: 'category', label: 'Category', options: [{ label: 'All', value: '' }], transform: (val: unknown) => ({ cat: String(val) }), testCases: [] as never }),
-        mockFilters.select({ id: 'status', label: 'Status', options: [], transform: (val) => ({ fq: `status:${val}` }), testCases: [] as never }),
-        mockFilters.boolean({ id: 'isActive', label: 'Active', transform: (val) => ({ active: val ? '1' : '0' }), testCases: [] as never }),
+        mockFilters.text({
+          id: 'search',
+          label: 'Search',
+          transform: (val) => ({ q: String(val) }),
+          testCases: [] as never,
+        }),
+        mockFilters.select({
+          id: 'category',
+          label: 'Category',
+          options: [{ label: 'All', value: '' }],
+          transform: (val: unknown) => ({ cat: String(val) }),
+          testCases: [] as never,
+        }),
+        mockFilters.select({
+          id: 'status',
+          label: 'Status',
+          options: [],
+          transform: (val) => ({ fq: `status:${val}` }),
+          testCases: [] as never,
+        }),
+        mockFilters.boolean({
+          id: 'isActive',
+          label: 'Active',
+          transform: (val) => ({ active: val ? '1' : '0' }),
+          testCases: [] as never,
+        }),
       ];
     })();
 
@@ -97,7 +124,12 @@ describe('Providers Utils', () => {
       const numberDef = (() => {
         const mockFilters = createFilterSuite<unknown>();
         return [
-          mockFilters.number({ id: 'year', label: 'Year', transform: (val) => ({ y: String(val) }), testCases: [] as never }),
+          mockFilters.number({
+            id: 'year',
+            label: 'Year',
+            transform: (val) => ({ y: String(val) }),
+            testCases: [] as never,
+          }),
         ];
       })();
       const filters = { year: 'not-a-number' };
@@ -111,7 +143,13 @@ describe('Providers Utils', () => {
       const rangeDef = (() => {
         const mockFilters = createFilterSuite<unknown>();
         return [
-          mockFilters.range({ id: 'score', label: 'Score', transform: (val: { min?: string; max?: string } | undefined) => val?.min ? ({ s: val.min }) : ({} as Record<string, string>), testCases: [] as never }),
+          mockFilters.range({
+            id: 'score',
+            label: 'Score',
+            transform: (val: { min?: string; max?: string } | undefined) =>
+              val?.min ? { s: val.min } : ({} as Record<string, string>),
+            testCases: [] as never,
+          }),
         ];
       })();
       // Pass a string instead of the expected { min, max } object

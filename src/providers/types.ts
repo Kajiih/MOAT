@@ -102,7 +102,10 @@ export interface Entity<TRaw = any> {
   /** Search for items within the entity. */
   readonly search: (params: SearchParams) => Promise<SearchResult<TRaw>>;
   /** Fetches and maps deep metadata for a single item. */
-  readonly getDetails: (providerItemId: string, options?: { signal?: AbortSignal }) => Promise<ItemDetails>;
+  readonly getDetails: (
+    providerItemId: string,
+    options?: { signal?: AbortSignal },
+  ) => Promise<ItemDetails>;
 
   /**
    * Structured array of exact targets used to verify the resolveImage implementation natively in integration tests.
@@ -119,11 +122,14 @@ export interface Entity<TRaw = any> {
 
   /**
    * Method to resolve a stored reference image to a direct HTTP URL.
-   * Must be implemented by all entities natively. 
+   * Must be implemented by all entities natively.
    * @param key The provider-specific reference key (typically just the DB ID, previously it was prefixed).
    * @returns The resolved image URL, or null if unresolvable.
    */
-  readonly resolveImage: (key: string, options?: { signal?: AbortSignal }) => Promise<string | null>;
+  readonly resolveImage: (
+    key: string,
+    options?: { signal?: AbortSignal },
+  ) => Promise<string | null>;
 }
 
 /**
@@ -165,5 +171,4 @@ export interface Provider {
    * Receives a standard fetcher for dependency injection.
    */
   initialize?: (fetcher: Fetcher) => Promise<void>;
-
 }

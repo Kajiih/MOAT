@@ -23,7 +23,10 @@ export async function GET(request: Request) {
   const providerItemId = searchParams.get('providerItemId');
 
   if (!providerId || !entityId || !providerItemId) {
-    return NextResponse.json({ error: 'Missing providerId, entityId, or providerItemId' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Missing providerId, entityId, or providerItemId' },
+      { status: 400 },
+    );
   }
 
   try {

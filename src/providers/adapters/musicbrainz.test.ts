@@ -47,7 +47,10 @@ describe('MusicBrainz Adapter', () => {
       });
 
       it('should handle date ranges', () => {
-        const query = buildAlbumLuceneQuery({ firstreleasedate_min: '1990', firstreleasedate_max: '2000' });
+        const query = buildAlbumLuceneQuery({
+          firstreleasedate_min: '1990',
+          firstreleasedate_max: '2000',
+        });
         expect(query).toBe(`${NOT_SECONDARY} AND firstreleasedate:[1990 TO 2000]`);
       });
 
@@ -117,7 +120,9 @@ describe('MusicBrainz Adapter', () => {
 
       const urlObj = new URL(fetchedUrl);
       const EXPECTED_NOT = String.raw`NOT secondarytype:(Compilation OR Live OR Soundtrack OR Spokenword OR Interview OR Audiobook OR Demo OR DJ\-mix OR Mixtape\/Street)`;
-      expect(urlObj.searchParams.get('query')).toBe(`release:"Billie Jean" AND primarytype:album AND ${EXPECTED_NOT} AND status:official`);
+      expect(urlObj.searchParams.get('query')).toBe(
+        `release:"Billie Jean" AND primarytype:album AND ${EXPECTED_NOT} AND status:official`,
+      );
     });
   });
 
@@ -128,11 +133,17 @@ describe('MusicBrainz Adapter', () => {
 
       // Ensure no real network requests execute
       const originalFetch = globalThis.fetch;
-      globalThis.fetch = async () => ({ ok: true, url: 'https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front' } as Response);
+      globalThis.fetch = async () =>
+        ({
+          ok: true,
+          url: 'https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front',
+        }) as Response;
 
       const albumEntity = provider.entities.find((e) => e.id === 'album')!;
       const url = await albumEntity.resolveImage?.('2c55f39d-9cb3-401c-b218-2fc600d26ec5');
-      expect(url).toBe('https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front');
+      expect(url).toBe(
+        'https://coverartarchive.org/release-group/2c55f39d-9cb3-401c-b218-2fc600d26ec5/front',
+      );
       globalThis.fetch = originalFetch;
     });
 
@@ -141,10 +152,12 @@ describe('MusicBrainz Adapter', () => {
       const provider = new MusicBrainzProvider();
 
       const originalFetch = globalThis.fetch;
-      globalThis.fetch = async () => ({ ok: false } as Response);
+      globalThis.fetch = async () => ({ ok: false }) as Response;
 
       // Mock externalFetcher manually to return JSON (as secureFetch naturally does)
-      (provider as unknown as { externalFetcher: unknown }).externalFetcher = async (url: string | URL | Request) => {
+      (provider as unknown as { externalFetcher: unknown }).externalFetcher = async (
+        url: string | URL | Request,
+      ) => {
         const urlStr = url.toString();
         let data: Record<string, unknown> = {};
 
@@ -156,11 +169,11 @@ describe('MusicBrainz Adapter', () => {
               bindings: [
                 {
                   image: {
-                    value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Artist_Image.jpg'
-                  }
-                }
-              ]
-            }
+                    value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Artist_Image.jpg',
+                  },
+                },
+              ],
+            },
           };
         }
 

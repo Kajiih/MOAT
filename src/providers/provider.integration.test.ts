@@ -67,7 +67,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
         });
         expect(
           rateLimitWarnings.length,
-          `Provider ${provider.id} hit a 429/503 error ${rateLimitWarnings.length} times during testing, indicating missing or misconfigured proactive rate limiting.`
+          `Provider ${provider.id} hit a 429/503 error ${rateLimitWarnings.length} times during testing, indicating missing or misconfigured proactive rate limiting.`,
         ).toBe(0);
 
         loggerWarnSpy.mockRestore();
@@ -97,41 +97,49 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
             }
           });
 
-          const tests = provider.entities.flatMap(e => (e.testImageResolution || []).map((t: any) => ({ ...t, entityId: e.id })));
+          const tests = provider.entities.flatMap((e) =>
+            (e.testImageResolution || []).map((t: any) => ({ ...t, entityId: e.id })),
+          );
           if (tests.length > 0) {
-            it.each(tests)('should functionally resolve image: $description ($key)', async (testCase) => {
-              const entity = provider.entities.find(e => e.id === testCase.entityId)!;
-              const url = await entity.resolveImage?.(testCase.key);
-              expect(typeof url, `Resolving image key "${testCase.key}" should yield a URL string.`).toBe(
-                'string',
-              );
-              expect(url!.length, `Resolved URL for "${testCase.key}" is empty.`).toBeGreaterThan(10);
-              expect(
-                url!.startsWith('http'),
-                `Resolved URL for "${testCase.key}" must be an absolute internet address.`,
-              ).toBe(true);
-
-              if (testCase.expectUrlContains) {
+            it.each(tests)(
+              'should functionally resolve image: $description ($key)',
+              async (testCase) => {
+                const entity = provider.entities.find((e) => e.id === testCase.entityId)!;
+                const url = await entity.resolveImage?.(testCase.key);
                 expect(
-                  url,
-                  `Resolved URL for "${testCase.key}" expected to contain ${testCase.expectUrlContains}`
-                ).toContain(testCase.expectUrlContains);
-              }
+                  typeof url,
+                  `Resolving image key "${testCase.key}" should yield a URL string.`,
+                ).toBe('string');
+                expect(url!.length, `Resolved URL for "${testCase.key}" is empty.`).toBeGreaterThan(
+                  10,
+                );
+                expect(
+                  url!.startsWith('http'),
+                  `Resolved URL for "${testCase.key}" must be an absolute internet address.`,
+                ).toBe(true);
 
-              // Fire a live HEAD request to mathematically prove reachability and MIME type
-              const res = await fetch(url!, { method: 'HEAD' });
-              
-              expect(
-                res.ok, 
-                `Expected image resolution for "${testCase.key}" to successfully ping the CDN (${url}), but received ${res.status} ${res.statusText}`
-              ).toBe(true);
+                if (testCase.expectUrlContains) {
+                  expect(
+                    url,
+                    `Resolved URL for "${testCase.key}" expected to contain ${testCase.expectUrlContains}`,
+                  ).toContain(testCase.expectUrlContains);
+                }
 
-              const contentType = res.headers.get('content-type');
-              expect(
-                contentType,
-                `Expected the URL for "${testCase.key}" to serve a valid image payload, but received Content-Type: ${contentType}`
-              ).toMatch(/^image\//);
-            });
+                // Fire a live HEAD request to mathematically prove reachability and MIME type
+                const res = await fetch(url!, { method: 'HEAD' });
+
+                expect(
+                  res.ok,
+                  `Expected image resolution for "${testCase.key}" to successfully ping the CDN (${url}), but received ${res.status} ${res.statusText}`,
+                ).toBe(true);
+
+                const contentType = res.headers.get('content-type');
+                expect(
+                  contentType,
+                  `Expected the URL for "${testCase.key}" to serve a valid image payload, but received Content-Type: ${contentType}`,
+                ).toMatch(/^image\//);
+              },
+            );
           }
         });
       });
@@ -219,77 +227,80 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                 filter.testCases.forEach((testCase: FilterTestCase<any, any>) => {
                   const { value, query = '' } = testCase;
                   const programmableIt = testCase.expectToFail ? it.fails : it;
-                  programmableIt(`should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`, async () => {
-                    const res = await entity.search({
-                      query,
-                      filters: { [filter.id]: value },
-                      limit: DEFAULT_PAGE_LIMIT,
-                    });
+                  programmableIt(
+                    `should filter correctly for value: ${JSON.stringify(value)}${query ? ` (query: "${JSON.stringify(query)}")` : ''}`,
+                    async () => {
+                      const res = await entity.search({
+                        query,
+                        filters: { [filter.id]: value },
+                        limit: DEFAULT_PAGE_LIMIT,
+                      });
 
-                    const items = res.raw || [];
+                      const items = res.raw || [];
 
-                    // Every filter test case is expected to return some data to verify against
-                    expect(
-                      items.length,
-                      `Filter ${filter.id} for value ${JSON.stringify(value)} returned no results.`,
-                    ).toBeGreaterThan(0);
+                      // Every filter test case is expected to return some data to verify against
+                      expect(
+                        items.length,
+                        `Filter ${filter.id} for value ${JSON.stringify(value)} returned no results.`,
+                      ).toBeGreaterThan(0);
 
-                    // By default, assume filters MUST alter the query payload compared to a baseline.
-                    // This can be natively skipped by setting skipQueryDifferenceTest: true.
-                    if (!testCase.skipQueryDifferenceTest) {
-                      if (!baselineCache[query]) {
-                        baselineCache[query] = await entity.search({
-                          query,
-                          filters: {},
-                          limit: DEFAULT_PAGE_LIMIT,
+                      // By default, assume filters MUST alter the query payload compared to a baseline.
+                      // This can be natively skipped by setting skipQueryDifferenceTest: true.
+                      if (!testCase.skipQueryDifferenceTest) {
+                        if (!baselineCache[query]) {
+                          baselineCache[query] = await entity.search({
+                            query,
+                            filters: {},
+                            limit: DEFAULT_PAGE_LIMIT,
+                          });
+                        }
+
+                        const baselineRes = baselineCache[query]!;
+
+                        // A filter must demonstrably alter the result payload compared to the unfiltered baseline
+                        expect(
+                          JSON.stringify(items) !== JSON.stringify(baselineRes.raw),
+                          `Expected filter ${filter.id} to alter the search results compared to the baseline query, but the payloads were identical. Make sure this filter actually mutates the backend request. If this is intentional, set skipQueryDifferenceTest: true.`,
+                        ).toBe(true);
+                      }
+
+                      if ('expectAll' in testCase && testCase.expectAll) {
+                        items.forEach((item, i) => {
+                          expect(
+                            testCase.expectAll!(item),
+                            testCase.expectAllMessage
+                              ? `Expected all results to ${testCase.expectAllMessage}, but item at index ${i} doesn't: ${JSON.stringify(item)}`
+                              : `Item at index ${i} did not match expectAll for filter ${filter.id}`,
+                          ).toBe(true);
                         });
                       }
-                      
-                      const baselineRes = baselineCache[query]!;
-                      
-                      // A filter must demonstrably alter the result payload compared to the unfiltered baseline
-                      expect(
-                        JSON.stringify(items) !== JSON.stringify(baselineRes.raw),
-                        `Expected filter ${filter.id} to alter the search results compared to the baseline query, but the payloads were identical. Make sure this filter actually mutates the backend request. If this is intentional, set skipQueryDifferenceTest: true.`
-                      ).toBe(true);
-                    }
 
-                    if ('expectAll' in testCase && testCase.expectAll) {
-                      items.forEach((item, i) => {
+                      if ('expectSome' in testCase && testCase.expectSome) {
+                        const hasMatch = items.some((item) => testCase.expectSome!(item));
                         expect(
-                          testCase.expectAll!(item),
-                          testCase.expectAllMessage
-                            ? `Expected all results to ${testCase.expectAllMessage}, but item at index ${i} doesn't: ${JSON.stringify(item)}`
-                            : `Item at index ${i} did not match expectAll for filter ${filter.id}`,
+                          hasMatch,
+                          testCase.expectSomeMessage
+                            ? `Expected at least one result to ${testCase.expectSomeMessage}, but none did.`
+                            : `Filter ${filter.id} expectSome failed: No items matched the condition.`,
                         ).toBe(true);
-                      });
-                    }
+                      }
 
-                    if ('expectSome' in testCase && testCase.expectSome) {
-                      const hasMatch = items.some((item) => testCase.expectSome!(item));
-                      expect(
-                        hasMatch,
-                        testCase.expectSomeMessage
-                          ? `Expected at least one result to ${testCase.expectSomeMessage}, but none did.`
-                          : `Filter ${filter.id} expectSome failed: No items matched the condition.`,
-                      ).toBe(true);
-                    }
+                      if ('expectNone' in testCase && testCase.expectNone) {
+                        // Find the first matching item to show in the error message
+                        const matchedItem = items.find((item) => testCase.expectNone!(item));
+                        expect(
+                          matchedItem === undefined,
+                          testCase.expectNoneMessage
+                            ? `Expected no results to ${testCase.expectNoneMessage}, but this item did: ${JSON.stringify(matchedItem)}`
+                            : `Filter ${filter.id} expectNone failed: One or more items incorrectly matched the condition.`,
+                        ).toBe(true);
+                      }
 
-                    if ('expectNone' in testCase && testCase.expectNone) {
-                      // Find the first matching item to show in the error message
-                      const matchedItem = items.find((item) => testCase.expectNone!(item));
-                      expect(
-                        matchedItem === undefined,
-                        testCase.expectNoneMessage
-                          ? `Expected no results to ${testCase.expectNoneMessage}, but this item did: ${JSON.stringify(matchedItem)}`
-                          : `Filter ${filter.id} expectNone failed: One or more items incorrectly matched the condition.`,
-                      ).toBe(true);
-                    }
-
-                    if ('expectAggregate' in testCase && testCase.expectAggregate) {
-                      testCase.expectAggregate(items);
-                    }
-                  });
+                      if ('expectAggregate' in testCase && testCase.expectAggregate) {
+                        testCase.expectAggregate(items);
+                      }
+                    },
+                  );
                 });
               });
             });
@@ -325,13 +336,19 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                 expect(details.identity.providerId).toBe(provider.id);
                 expect(details.identity.entityId).toBe(entity.id);
                 expect(details.title, 'Details missing title').toBeTruthy();
-                
+
                 // Assert strict Zod schema compliance
                 const parseResult = ItemDetailsSchema.safeParse(details);
                 if (!parseResult.success) {
-                  console.error(`Schema validation failed for ${provider.id}/${entity.id}/${testId}:`, parseResult.error.format());
+                  console.error(
+                    `Schema validation failed for ${provider.id}/${entity.id}/${testId}:`,
+                    parseResult.error.format(),
+                  );
                 }
-                expect(parseResult.success, `Details for ${testId} must pass ItemDetailsSchema validation`).toBe(true);
+                expect(
+                  parseResult.success,
+                  `Details for ${testId} must pass ItemDetailsSchema validation`,
+                ).toBe(true);
 
                 // Transformation Quality
                 if (details.description) {
@@ -367,7 +384,9 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
               });
 
               expect(res.raw.length, 'Gibberish query should yield 0 results').toBe(0);
-              expect(res.pagination.hasNextPage, 'Empty queries cannot have a next page').toBe(false);
+              expect(res.pagination.hasNextPage, 'Empty queries cannot have a next page').toBe(
+                false,
+              );
             });
 
             it('Character Encoding: should safely transport symbols and non-latin scripts', async () => {

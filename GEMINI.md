@@ -28,7 +28,7 @@
   - Our UI and API should be simple, predictable and reliable, always focus on those aspects.
 
 - When analysing, proposing solutions or writing a plan always consider every possible alternatives and trade-offs
-  -  Always present the pros, cons, benefits and risks associated with a given proposition and at least 2 alternatives.
+  - Always present the pros, cons, benefits and risks associated with a given proposition and at least 2 alternatives.
 
 # Style
 

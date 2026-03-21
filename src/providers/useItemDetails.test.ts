@@ -1,4 +1,4 @@
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchItemDetails } from './useItemDetails';
 
@@ -9,8 +9,8 @@ describe('fetchItemDetails (SWR Fetcher)', () => {
       ok: true,
       json: async () => ({
         id: '123',
-        title: 'Test Title'
-      })
+        title: 'Test Title',
+      }),
     });
   });
 
@@ -23,7 +23,7 @@ describe('fetchItemDetails (SWR Fetcher)', () => {
 
     // Call the fetcher EXACTLY like SWR does when options are unexpectedly missing
     const promise = fetchItemDetails(cacheKey, undefined as unknown as { signal?: AbortSignal });
-    
+
     // If the destructuring bug exists, this will reject with a TypeError.
     // If it's fixed, it will resolve successfully.
     await expect(promise).resolves.toBeDefined();

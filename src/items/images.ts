@@ -48,6 +48,10 @@ export function urlImage(url: string): UrlImageSource {
  * @param key - The unique sub-key referencing the image payload via backend adapters.
  * @returns A strongly typed ReferenceImageSource variant payload.
  */
-export function referenceImage(provider: string, entityId: string, key: string): ReferenceImageSource {
+export function referenceImage(
+  provider: string,
+  entityId: string,
+  key: string,
+): ReferenceImageSource {
   return { type: 'reference', provider, entityId, key };
 }

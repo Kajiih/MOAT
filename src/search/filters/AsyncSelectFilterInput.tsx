@@ -35,7 +35,11 @@ export function AsyncSelectFilterInput({
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debouncedQuery] = useDebounce(query, 300);
-  const [resolvedEntity, setResolvedEntity] = useState<{ id: string; title: string; images: ImageSource[] } | null>(null);
+  const [resolvedEntity, setResolvedEntity] = useState<{
+    id: string;
+    title: string;
+    images: ImageSource[];
+  } | null>(null);
 
   const targetEntityId = filter.targetEntityId;
 
@@ -47,7 +51,7 @@ export function AsyncSelectFilterInput({
     }
 
     if (resolvedEntity?.id === value) {
-      return; 
+      return;
     }
 
     if (providerId && targetEntityId) {
@@ -67,28 +71,25 @@ export function AsyncSelectFilterInput({
     }
   }, [value, providerId, targetEntityId, resolvedEntity?.id]);
 
-  const searchParams = useMemo(
-    () => {
-      const depFilters: Record<string, string> = {};
-      
-      if (filter.dependsOn) {
-        for (const depId of filter.dependsOn) {
-          const depVal = activeFilters?.[depId];
-          if (depVal) {
-            depFilters[depId] = String(depVal);
-          }
+  const searchParams = useMemo(() => {
+    const depFilters: Record<string, string> = {};
+
+    if (filter.dependsOn) {
+      for (const depId of filter.dependsOn) {
+        const depVal = activeFilters?.[depId];
+        if (depVal) {
+          depFilters[depId] = String(depVal);
         }
       }
+    }
 
-      return {
-        limit: 10,
-        page: 1,
-        query: debouncedQuery,
-        filters: depFilters,
-      };
-    },
-    [debouncedQuery, filter.dependsOn, activeFilters],
-  );
+    return {
+      limit: 10,
+      page: 1,
+      query: debouncedQuery,
+      filters: depFilters,
+    };
+  }, [debouncedQuery, filter.dependsOn, activeFilters]);
 
   const { results, isLoading } = useItemSearch(providerId || '', targetEntityId, searchParams, {
     enabled: isOpen && !!providerId,
@@ -116,7 +117,7 @@ export function AsyncSelectFilterInput({
               setIsOpen(true);
             }
           }}
-          className="border-border text-foreground hover:border-primary/50 focus-within:border-primary focus-within:ring-primary flex w-full cursor-pointer items-center justify-between rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus-within:ring-1 transition-colors"
+          className="border-border text-foreground hover:border-primary/50 focus-within:border-primary focus-within:ring-primary flex w-full cursor-pointer items-center justify-between rounded-md border bg-black px-2 py-1.5 text-xs transition-colors outline-none focus-within:ring-1"
         >
           <div className="flex min-w-0 items-center gap-2 pr-2">
             {resolvedEntity ? (
@@ -169,7 +170,11 @@ export function AsyncSelectFilterInput({
                 key={item.id}
                 item={item as Item}
                 onSelect={() => {
-                  setResolvedEntity({ id: item.identity.providerItemId, title: item.title, images: item.images || [] });
+                  setResolvedEntity({
+                    id: item.identity.providerItemId,
+                    title: item.title,
+                    images: item.images || [],
+                  });
                   onChange(item.identity.providerItemId);
                   setIsOpen(false);
                   setQuery('');
@@ -185,12 +190,11 @@ export function AsyncSelectFilterInput({
 function SelectedEntityDisplay({ entity }: { entity: { title: string; images: ImageSource[] } }) {
   const resolvedUrl = useResolvedImage(entity.images);
 
-
   return (
     <>
       {resolvedUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={resolvedUrl} alt="" className="h-4 w-4 rounded-sm object-cover shrink-0" />
+        <img src={resolvedUrl} alt="" className="h-4 w-4 shrink-0 rounded-sm object-cover" />
       )}
       <span className="truncate">{entity.title}</span>
     </>
@@ -200,8 +204,6 @@ function SelectedEntityDisplay({ entity }: { entity: { title: string; images: Im
 function AsyncOption({ item, onSelect }: { item: Item; onSelect: () => void }) {
   const resolvedUrl = useResolvedImage(item.images || []);
 
-
-  
   return (
     <button
       onClick={onSelect}
@@ -210,14 +212,18 @@ function AsyncOption({ item, onSelect }: { item: Item; onSelect: () => void }) {
     >
       {resolvedUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={resolvedUrl} alt="" className="border-border h-8 w-8 shrink-0 rounded-sm border object-cover" />
+        <img
+          src={resolvedUrl}
+          alt=""
+          className="border-border h-8 w-8 shrink-0 rounded-sm border object-cover"
+        />
       ) : (
         <div className="bg-surface-hover border-border flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border"></div>
       )}
       <div className="flex min-w-0 flex-col">
-        <span className="font-medium truncate w-full">{item.title}</span>
+        <span className="w-full truncate font-medium">{item.title}</span>
         {item.subtitle && (
-          <span className="text-muted truncate text-[10px] w-full">{item.subtitle}</span>
+          <span className="text-muted w-full truncate text-[10px]">{item.subtitle}</span>
         )}
       </div>
     </button>

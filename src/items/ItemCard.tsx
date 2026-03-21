@@ -176,9 +176,7 @@ export function ItemCard({
   };
 
   const handleVerticalMove = (isUp: boolean, currentTier: HTMLElement) => {
-    const targetTier = isUp
-      ? currentTier.previousElementSibling
-      : currentTier.nextElementSibling;
+    const targetTier = isUp ? currentTier.previousElementSibling : currentTier.nextElementSibling;
 
     if (targetTier instanceof HTMLElement && Object.hasOwn(targetTier.dataset, 'tierId')) {
       const overTierId = targetTier.dataset.tierId;

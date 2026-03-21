@@ -142,7 +142,6 @@ test.describe('Item Management', () => {
   test('should move items vertically between tiers via Keyboard', async ({ page, boardPage }) => {
     // Both items are in Tier S.
 
-
     // 1. Focus on item-1
     const item1 = boardPage.getItemCard('item-1');
     await item1.focus();

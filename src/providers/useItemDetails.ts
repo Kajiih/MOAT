@@ -15,18 +15,23 @@ interface UseItemDetailsOptions {
   enabled?: boolean;
 }
 
- /**
-  * @param key - The SWR cache key tuple [prefix, providerId, entityId, providerItemId].
-  * @param options - Options configuration.
-  * @param options.signal - AbortSignal to cancel the fetch.
-  * @returns A Promise for the resolved item details.
-  */
+/**
+ * @param key - The SWR cache key tuple [prefix, providerId, entityId, providerItemId].
+ * @param options - Options configuration.
+ * @param options.signal - AbortSignal to cancel the fetch.
+ * @returns A Promise for the resolved item details.
+ */
 export const fetchItemDetails = async (
   key: unknown[],
   { signal }: { signal?: AbortSignal } = {},
 ): Promise<ItemDetails> => {
-  const [, providerId, entityId, providerItemId] = key as [string, string | undefined, string | undefined, string | undefined];
-  
+  const [, providerId, entityId, providerItemId] = key as [
+    string,
+    string | undefined,
+    string | undefined,
+    string | undefined,
+  ];
+
   if (!providerId || !entityId || !providerItemId) {
     throw new Error('Provider ID, Entity ID, and Provider Item ID are required');
   }
@@ -64,13 +69,19 @@ export function useItemDetails(
 
   // 1. Create a stable cache key
   const cacheKey =
-    enabled && providerId && entityId && providerItemId ? ['item-details', providerId, entityId, providerItemId] : null;
+    enabled && providerId && entityId && providerItemId
+      ? ['item-details', providerId, entityId, providerItemId]
+      : null;
 
   // 3. Use SWR for fetching and caching
-  const { data, error, isLoading, isValidating, mutate } = useSWR<ItemDetails>(cacheKey, fetchItemDetails, {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
-  });
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ItemDetails>(
+    cacheKey,
+    fetchItemDetails,
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+    },
+  );
 
   return {
     details: data,

@@ -27,12 +27,7 @@ interface FilterPanelProps {
  * @param props.onChange - Callback invoked when a filter value is changed.
  * @returns The rendered filter panel component.
  */
-export function FilterPanel({
-  providerId,
-  entity,
-  values,
-  onChange,
-}: FilterPanelProps) {
+export function FilterPanel({ providerId, entity, values, onChange }: FilterPanelProps) {
   const allFilters = [...entity.searchOptions, ...entity.filters];
 
   const handleFilterChange = (id: string, value: FilterValues[string]) => {
@@ -43,13 +38,13 @@ export function FilterPanel({
   };
 
   return (
-    <div className="flex flex-wrap gap-3 items-start">
+    <div className="flex flex-wrap items-start gap-3">
       {allFilters.map((filter) => {
         const value = values[filter.id] ?? filter.defaultValue;
         const Component = FilterUIComponents[filter.type] || FallbackFilterInput;
 
         return (
-          <div key={filter.id} className="flex flex-col gap-1.5 min-w-[160px] flex-initial">
+          <div key={filter.id} className="flex min-w-[160px] flex-initial flex-col gap-1.5">
             <label className="text-caption text-secondary font-bold uppercase">
               {filter.label}
             </label>

@@ -4,7 +4,7 @@ This guide walks you through implementing a new data source using the V3 Provide
 
 ## Overview
 
-A **Provider** is an independent service (e.g., `RAWGProvider`, `MusicBrainzProvider`) that exposes one or more **Entity** objects (e.g., `Game`, `Album`). 
+A **Provider** is an independent service (e.g., `RAWGProvider`, `MusicBrainzProvider`) that exposes one or more **Entity** objects (e.g., `Game`, `Album`).
 All logic—from API calls to UI branding and automated test triggers—lives encapsulated within the provider adapter.
 
 ---
@@ -16,7 +16,7 @@ Create a new file in `src/providers/adapters/`. Use the service name (e.g., `tmd
 ### Boilerplate
 
 ```typescript
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon } from "lucide-react";
 import { Provider, Entity, ProviderStatus, Fetcher } from "../types";
 import { secureFetch } from "../api-client";
 
@@ -30,9 +30,7 @@ export class MyServiceProvider implements Provider {
     this.fetcher = fetcher;
   };
 
-  public entities = [
-    new MyEntity(this),
-  ] as const;
+  public entities = [new MyEntity(this)] as const;
 }
 ```
 
@@ -47,7 +45,7 @@ An `Entity` models a searchable node (e.g., `Movie`, `Artist`).
 Use the Curried Suite Factory Pattern `createFilterSuite<TRaw>()` to maintain strict typing against your API response shape (`TRaw`).
 
 ```typescript
-import { createFilterSuite, mapTo } from '@/search/filter-schemas';
+import { createFilterSuite, mapTo } from "@/search/filter-schemas";
 
 const myFilters = createFilterSuite<MyRawItemType>();
 
@@ -57,8 +55,11 @@ const FILTERS: FilterDefinition<MyRawItemType>[] = [
     label: "Category",
     defaultValue: "all", // Single source of Truth for defaults!
     transform: mapTo("type"),
-    options: [{ label: "All", value: "all" }, { label: "Standard", value: "std" }]
-  })
+    options: [
+      { label: "All", value: "all" },
+      { label: "Standard", value: "std" },
+    ],
+  }),
 ];
 
 const SEARCH_OPTIONS: FilterDefinition<MyRawItemType>[] = [
@@ -69,7 +70,7 @@ const SEARCH_OPTIONS: FilterDefinition<MyRawItemType>[] = [
     defaultValue: true,
     transform: mapTo("search_precise"),
     helperText: "Disable fuzzy matching for exact results",
-  })
+  }),
 ];
 ```
 
@@ -78,7 +79,7 @@ const SEARCH_OPTIONS: FilterDefinition<MyRawItemType>[] = [
 ```typescript
 export class MyEntity implements Entity<MyRawItemType> {
   public readonly id = "my_entity";
-  
+
   public readonly branding = {
     label: "Item",
     labelPlural: "Items",
@@ -88,7 +89,7 @@ export class MyEntity implements Entity<MyRawItemType> {
 
   public readonly filters = FILTERS;
   public readonly searchOptions = SEARCH_OPTIONS;
-  
+
   public readonly sortOptions = [
     { id: "relevance", label: "Relevance" },
     { id: "date", label: "Release Date", defaultDirection: SortDirection.DESC },
@@ -101,14 +102,18 @@ export class MyEntity implements Entity<MyRawItemType> {
 
   public constructor(private provider: MyServiceProvider) {}
 
-  public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
+  public readonly getInitialParams = (config: {
+    limit: number;
+  }): SearchParams => ({
     query: "",
     filters: {}, // Defaults are applied automatically via applyFilters
     sort: this.sortOptions[0]?.id,
     limit: config.limit,
   });
 
-  public readonly search = async (params: SearchParams): Promise<SearchResult<MyRawItemType>> => {
+  public readonly search = async (
+    params: SearchParams,
+  ): Promise<SearchResult<MyRawItemType>> => {
     // 1. applyFilters fallback logic combines state and declarative defaultValue
     const apiParams = {
       ...applyFilters(params.filters, [...FILTERS, ...SEARCH_OPTIONS]),
@@ -128,10 +133,12 @@ Entities expose configuration targeting **integration verification natively**:
 2.  **`testDetailsIds`**: Feeds `getDetails()` to verify schema validation doesn't crash on incomplete API edge variables.
 3.  **Filter Tests (`testCases`)**: Inside `FilterDefinition`, feed automated assertion blocks:
     ```typescript
-    testCases: [{
-      value: "album",
-      expectAll: (item: TRaw) => item.type === 'album', // Native callback assertion
-    }]
+    testCases: [
+      {
+        value: "album",
+        expectAll: (item: TRaw) => item.type === "album", // Native callback assertion
+      },
+    ];
     ```
 
 ---
@@ -140,6 +147,6 @@ Entities expose configuration targeting **integration verification natively**:
 
 Automated tests cover endpoints and schemas. Developers must verify the **User Experience** before pushing:
 
-*   **Detail Hydration**: Open any item card; do descriptions, URLs, and subtitles render with safe defaults, avoiding `null` texts?
-*   **Sort Shifts**: Update sorting triggers correctly. Does adding a sort state fire immediate hydration loaders natively?
-*   **Async Click Modifier**: Ensure any Async Select component re-populates the input correctly upon clicking to facilitate modifier lookups.
+- **Detail Hydration**: Open any item card; do descriptions, URLs, and subtitles render with safe defaults, avoiding `null` texts?
+- **Sort Shifts**: Update sorting triggers correctly. Does adding a sort state fire immediate hydration loaders natively?
+- **Async Click Modifier**: Ensure any Async Select component re-populates the input correctly upon clicking to facilitate modifier lookups.

@@ -6,7 +6,7 @@
 import { Building2, Gamepad2 } from 'lucide-react';
 
 import { toCompositeId } from '@/items/identity';
-import { referenceImage, urlImage,UrlImageSource } from '@/items/images';
+import { referenceImage, urlImage, UrlImageSource } from '@/items/images';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items';
 import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
@@ -261,7 +261,10 @@ class RAWGGameEntity implements Entity<RAWGGame> {
     expectUrlContains: 'media.rawg.io/media/',
   });
 
-  public readonly resolveImage = async (key: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> => {
+  public readonly resolveImage = async (
+    key: string,
+    { signal }: { signal?: AbortSignal } = {},
+  ): Promise<string | null> => {
     try {
       const details = await this.getDetails(key, { signal });
       const urlSource = details.images?.find((img): img is UrlImageSource => img.type === 'url');
@@ -298,7 +301,11 @@ class RAWGGameEntity implements Entity<RAWGGame> {
       const relatedEntities = extractRelatedEntities(game.developers, (dev) => ({
         label: 'Developer',
         name: dev.name,
-        identity: { providerItemId: dev.id.toString(), providerId: this.provider.id, entityId: 'developer' },
+        identity: {
+          providerItemId: dev.id.toString(),
+          providerId: this.provider.id,
+          entityId: 'developer',
+        },
       }));
 
       const item = mapGameToItem(game, this.provider.id);
@@ -435,7 +442,10 @@ class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     return { ...params, page: currentPage - 1 };
   };
 
-  public readonly resolveImage = async (_key?: string, _options: { signal?: AbortSignal } = {}): Promise<string | null> => null;
+  public readonly resolveImage = async (
+    _key?: string,
+    _options: { signal?: AbortSignal } = {},
+  ): Promise<string | null> => null;
 
   public readonly getDetails = async (
     providerItemId: string,

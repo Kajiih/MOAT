@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   try {
     await registry.waitUntilReady();
     const url = await registry.resolveImageReference(providerId, entityId, key);
-    
+
     if (!url) {
       return NextResponse.json({ error: 'Image not found' }, { status: 404 });
     }
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         headers: {
           'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=43200',
         },
-      }
+      },
     );
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
