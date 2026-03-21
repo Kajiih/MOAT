@@ -3,13 +3,13 @@ import '@/providers/bootstrap';
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { ItemDetailsSchema } from '@/items/items';
 import { logger } from '@/lib/logger';
 import { registry } from '@/providers/registry';
 import { DEFAULT_PAGE_LIMIT, ProviderStatus } from '@/providers/types';
 import { FilterTestCase } from '@/search/filter-schemas';
 import { SearchResult } from '@/search/search-schemas';
 import { SortDirection } from '@/search/sort-schemas';
-import { ItemDetailsSchema } from '@/items/items';
 
 import { expectDistinctPages, expectSorted } from './test-utils';
 

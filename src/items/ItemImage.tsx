@@ -10,10 +10,10 @@ import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
+import { useScreenshotContext } from '@/board/hooks/useScreenshot';
 import { ITEM_CARD_DIMENSIONS } from '@/items/ItemCard';
 import { Item } from '@/items/items';
 import { useResolvedImage } from '@/items/useResolvedImage';
-import { useScreenshotContext } from '@/board/hooks/useScreenshot';
 
 /**
  * Props for the ItemImage component.
@@ -61,7 +61,11 @@ export function ItemImage({
   sizes = `(max-width: 640px) ${ITEM_CARD_DIMENSIONS.mobile.px}px, ${ITEM_CARD_DIMENSIONS.desktop.px}px`,
 }: ItemImageProps) {
   const screenshotContext = useScreenshotContext();
-  const contextKey = item.images?.[0]?.type === 'url' ? item.images[0].url : item.images?.[0] ? JSON.stringify(item.images[0]) : '';
+  const firstImage = item.images?.[0];
+  let contextKey = '';
+  if (firstImage) {
+    contextKey = firstImage.type === 'url' ? firstImage.url : JSON.stringify(firstImage);
+  }
   const contextUrl = screenshotContext[contextKey];
 
   const resolvedUrl = useResolvedImage(item.images);

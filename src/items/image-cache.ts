@@ -22,10 +22,10 @@ class FailedImageCache {
    * Rehydrates the cache from local storage and prunes expired entries.
    */
   private hydrate() {
-    if (typeof window === 'undefined' || !window.localStorage) return;
+    if (globalThis.window === undefined || !globalThis.localStorage) return;
 
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const data = globalThis.localStorage.getItem(STORAGE_KEY);
       if (!data) return;
 
       const parsed = JSON.parse(data) as Record<string, number>;
@@ -46,8 +46,8 @@ class FailedImageCache {
       }
     } catch (error) {
       console.warn('Failed to parse failed image cache from localStorage, clearing...', error);
-      if (typeof localStorage?.removeItem === 'function') {
-        localStorage.removeItem(STORAGE_KEY);
+      if (typeof globalThis.localStorage?.removeItem === 'function') {
+        globalThis.localStorage.removeItem(STORAGE_KEY);
       }
     }
   }
@@ -91,10 +91,10 @@ class FailedImageCache {
   }
 
   private saveToStorage() {
-    if (typeof window === 'undefined' || !window.localStorage) return;
+    if (globalThis.window === undefined || !globalThis.localStorage) return;
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.timestampMap));
+      globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.timestampMap));
     } catch (error) {
       console.error('Failed to save failed image cache to localStorage', error);
     }

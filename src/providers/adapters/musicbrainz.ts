@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { toCompositeId } from '@/items/identity';
 import { referenceImage, urlImage } from '@/items/images';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items';
+import { logger } from '@/lib/logger';
 import { secureFetch } from '@/providers/api-client';
 import { RateLimiter } from '@/providers/rate-limiter';
 import { ProviderStatus } from '@/providers/types';
@@ -24,7 +25,6 @@ import { applyFilters, handleProviderError } from '@/providers/utils';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/search/sort-schemas';
-import { logger } from '@/lib/logger';
 
 const SECONDARY_TYPES = [
   'Compilation',

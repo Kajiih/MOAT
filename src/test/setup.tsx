@@ -61,3 +61,14 @@ globalThis.fetch = async (...args) => {
 
   throw new Error(`Unmocked network request attempted in test environment targeting: ${target}`);
 };
+
+/**
+ * Global mock for localStorage.
+ * Prevents TypeError in jsdom environments during component/module initialization.
+ */
+vi.stubGlobal('localStorage', {
+  getItem: vi.fn(() => null),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+});

@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { registry } from '@/providers/registry';
+
 import { POST } from './route';
 
 vi.mock('@/providers/registry', () => {

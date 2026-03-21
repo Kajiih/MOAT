@@ -20,8 +20,8 @@ import { useBoardRegistry } from '@/board/hooks/useBoardRegistry';
 import { useBrandColors } from '@/board/hooks/useBrandColors';
 import { useDynamicFavicon } from '@/board/hooks/useDynamicFavicon';
 import { BoardMetadata, PreviewItem, TierPreview } from '@/board/types';
-import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
 import { useResolvedImage } from '@/items/useResolvedImage';
+import { DEFAULT_BRAND_COLORS, getColorTheme } from '@/lib/colors';
 import { logger } from '@/lib/logger';
 
 // --- Sub-components for Dashboard ---

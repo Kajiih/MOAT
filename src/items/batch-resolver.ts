@@ -60,7 +60,7 @@ class BatchResolver {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
     try {
       const response = await fetch('/api/resolve-image/batch', {

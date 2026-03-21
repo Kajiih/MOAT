@@ -1,4 +1,5 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { fetchItemDetails } from './useItemDetails';
 
 describe('fetchItemDetails (SWR Fetcher)', () => {

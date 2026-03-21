@@ -10,8 +10,15 @@
 
 import download from 'downloadjs';
 import { toPng } from 'html-to-image';
-import React, { createContext, useContext, ReactNode, useCallback, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+
+import { ExportBoard } from '@/board/ExportBoard';
+import { TierListState } from '@/board/types';
+import { failedImages } from '@/items/image-cache';
+import { ImageSource } from '@/items/images';
+import { logger } from '@/lib/logger';
+import { useToast } from '@/lib/ui/ToastProvider';
 
 /**
  * ScreenshotContext: stores pre-resolved Data URLs for instantaneous rendering offscreen.
@@ -20,32 +27,22 @@ import { createRoot } from 'react-dom/client';
  */
 const ScreenshotContext = createContext<Record<string, string>>({});
 
-export const ScreenshotProvider = ({ children, resolvedMap }: { children: ReactNode; resolvedMap: Record<string, string> }) => (
-  <ScreenshotContext.Provider value={resolvedMap}>{children}</ScreenshotContext.Provider>
-);
+/**
+ * Provider component for the ScreenshotContext.
+ * @param props - Component configuration settings.
+ * @param props.children - Child nodes to render.
+ * @param props.resolvedMap - Pre-resolved image hashmap.
+ * @returns The rendered provider element.
+ */
+export const ScreenshotProvider = ({
+  children,
+  resolvedMap,
+}: {
+  children: ReactNode;
+  resolvedMap: Record<string, string>;
+}) => <ScreenshotContext.Provider value={resolvedMap}>{children}</ScreenshotContext.Provider>;
 
 export const useScreenshotContext = () => useContext(ScreenshotContext);
-
-
-import { ExportBoard } from '@/board/ExportBoard';
-import { TierListState } from '@/board/types';
-import { failedImages } from '@/items/image-cache';
-import { logger } from '@/lib/logger';
-import { useToast } from '@/lib/ui/ToastProvider';
-
-/**
- * Custom hook to capture a high-quality screenshot of the tier list.
- * Uses a "Clean Room" approach: renders the board into a hidden DOM node to avoid
- * issues with interactive elements, next/image serialization, and CSS race conditions.
- */
-/**
- * Helper to convert an image URL to a Data URL
- * This allows us to "hardcode" images into the DOM before capture,
- * preventing various html-to-image duplication and hang bugs.
- * @param url - The original image URL (external or local).
- * @returns A Promise resolving to a Base64 Data URL, or null if resolution fails.
- */
-import { ImageSource } from '@/items/images';
 
 /**
  * Helper to convert an ImageSource to a Data URL
@@ -75,7 +72,9 @@ async function resolveImageDataUrl(source: ImageSource): Promise<string | null> 
   const isKnownBroken = cacheKeyUrl ? failedImages.has(cacheKeyUrl) : false;
 
   /**
-   * Internal fetcher with error handling
+   * Internal fetcher with error handling.
+   * @param target - URL or Data URL source to render.
+   * @returns Base64 encoded string response.
    */
   const fetchAsDataUrl = async (target: string) => {
     const resp = await fetch(target);
@@ -159,7 +158,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         }
       }
 
-      const uniqueSources = Array.from(uniqueSourcesMap.values());
+      const uniqueSources = [...uniqueSourcesMap.values()];
 
       logger.info(`Screenshot Engine: Resolving ${uniqueSources.length} unique images...`);
       const resolvedMap: Record<string, string> = {};
