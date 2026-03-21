@@ -514,9 +514,12 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
     expectUrlContains: 'ca.archive.org/',
   });
 
-  public readonly resolveImage = async (key: string): Promise<string | null> => {
+  public readonly resolveImage = async (key: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> => {
     try {
-      const caaRes = await fetch(`https://coverartarchive.org/release-group/${key}/front-500`, { method: 'HEAD' });
+      const caaRes = await fetch(`https://coverartarchive.org/release-group/${key}/front-500`, { 
+        method: 'HEAD',
+        signal,
+      });
       if (caaRes.ok) return caaRes.url;
     } catch {
       // Ignore
@@ -526,13 +529,13 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
 
   public readonly getDetails = async (
     providerItemId: string,
-    options?: { signal?: AbortSignal },
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchMusicBrainz<unknown>(
         `/release-group/${providerItemId}`,
         { inc: 'artist-credits+tags+url-rels' },
-        { signal: options?.signal },
+        { signal },
       );
       const album = MusicBrainzReleaseGroupSchema.parse(rawData);
 
@@ -711,21 +714,21 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
     expectUrlContains: 'fanart.tv',
   });
 
-  public readonly resolveImage = async (key: string): Promise<string | null> => {
-    const fromFanart = await this.provider.resolveImageFromFanart(key);
+  public readonly resolveImage = async (key: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> => {
+    const fromFanart = await this.provider.resolveImageFromFanart(key, { signal });
     if (fromFanart) return fromFanart;
-    return await this.provider.resolveImageFromWikidata(key);
+    return await this.provider.resolveImageFromWikidata(key, { signal });
   };
 
   public readonly getDetails = async (
     providerItemId: string,
-    options?: { signal?: AbortSignal },
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchMusicBrainz<unknown>(
         `/artist/${providerItemId}`,
         { inc: 'tags+url-rels' },
-        { signal: options?.signal },
+        { signal },
       );
       const artist = MusicBrainzArtistSchema.parse(rawData);
 
@@ -901,17 +904,17 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
-  public readonly resolveImage = async (): Promise<string | null> => null;
+  public readonly resolveImage = async (_key?: string, _options: { signal?: AbortSignal } = {}): Promise<string | null> => null;
 
   public readonly getDetails = async (
     providerItemId: string,
-    options?: { signal?: AbortSignal },
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchMusicBrainz<unknown>(
         `/recording/${providerItemId}`,
         { inc: 'artist-credits+tags+releases' },
-        { signal: options?.signal },
+        { signal },
       );
       const recording = MusicBrainzRecordingSchema.parse(rawData);
 
@@ -1221,7 +1224,7 @@ export class MusicBrainzProvider implements Provider {
     new MusicBrainzArtistEntity(this),
     new MusicBrainzRecordingEntity(this),
   ] as const;
-  public async resolveImageFromWikidata(id: string): Promise<string | null> {
+  public async resolveImageFromWikidata(id: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> {
     try {
       const query = `SELECT ?image WHERE { ?item wdt:P434 "${id}" . ?item wdt:P18 ?image . } LIMIT 1`;
       const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}`;
@@ -1233,6 +1236,7 @@ export class MusicBrainzProvider implements Provider {
             'User-Agent': MUSICBRAINZ_USER_AGENT,
             Accept: 'application/sparql-results+json',
           },
+          signal,
         }
       );
 
@@ -1249,7 +1253,7 @@ export class MusicBrainzProvider implements Provider {
     return null;
   }
 
-  public async resolveImageFromFanart(id: string): Promise<string | null> {
+  public async resolveImageFromFanart(id: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> {
     const fanartKey = typeof process !== 'undefined' ? process.env?.FANART_TV_API_KEY : null;
     
     if (!fanartKey) {
@@ -1259,6 +1263,7 @@ export class MusicBrainzProvider implements Provider {
     try {
       const data = await this.externalFetcher<{ artistthumb?: [{ url?: string }] }>(`https://webservice.fanart.tv/v3/music/${id}`, {
         headers: { 'api-key': fanartKey, Accept: 'application/json' },
+        signal,
       });
       const url = data?.artistthumb?.[0]?.url;
       if (url) return url;

@@ -123,7 +123,7 @@ export interface Entity<TRaw = any> {
    * @param key The provider-specific reference key (typically just the DB ID, previously it was prefixed).
    * @returns The resolved image URL, or null if unresolvable.
    */
-  readonly resolveImage: (key: string) => Promise<string | null>;
+  readonly resolveImage: (key: string, options?: { signal?: AbortSignal }) => Promise<string | null>;
 }
 
 /**

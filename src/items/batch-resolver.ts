@@ -59,6 +59,9 @@ class BatchResolver {
       itemMap.get(cacheKey)!.push(item);
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
       const response = await fetch('/api/resolve-image/batch', {
         method: 'POST',
@@ -66,6 +69,7 @@ class BatchResolver {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(uniqueItems),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -90,6 +94,8 @@ class BatchResolver {
           item.reject(error instanceof Error ? error : new Error('Batch Resolver Failed'));
         }
       }
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 }

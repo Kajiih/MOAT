@@ -25,9 +25,8 @@ interface UseItemDetailsOptions {
  */
 export const fetchItemDetails = async (
   key: unknown[],
-  options?: { signal?: AbortSignal },
+  { signal }: { signal?: AbortSignal } = {},
 ): Promise<ItemDetails> => {
-  const signal = options?.signal;
   const [, providerId, entityId, providerItemId] = key as [string, string | undefined, string | undefined, string | undefined];
   
   if (!providerId || !entityId || !providerItemId) {

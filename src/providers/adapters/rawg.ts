@@ -261,9 +261,9 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
     expectUrlContains: 'media.rawg.io/media/',
   });
 
-  public readonly resolveImage = async (key: string): Promise<string | null> => {
+  public readonly resolveImage = async (key: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> => {
     try {
-      const details = await this.getDetails(key);
+      const details = await this.getDetails(key, { signal });
       const urlSource = details.images?.find((img) => img.type === 'url') as any;
       if (urlSource?.url) {
         return urlSource.url;
@@ -276,13 +276,13 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
 
   public readonly getDetails = async (
     providerItemId: string,
-    options?: { signal?: AbortSignal },
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchRawg<unknown>(
         `/games/${providerItemId}`,
         {},
-        { signal: options?.signal },
+        { signal },
       );
       const game = RAWGGameSchema.parse(rawData);
 
@@ -435,17 +435,17 @@ export class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     return { ...params, page: currentPage - 1 };
   };
 
-  public readonly resolveImage = async (): Promise<string | null> => null;
+  public readonly resolveImage = async (_key?: string, _options: { signal?: AbortSignal } = {}): Promise<string | null> => null;
 
   public readonly getDetails = async (
     providerItemId: string,
-    options?: { signal?: AbortSignal },
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<ItemDetails> => {
     try {
       const rawData = await this.provider.fetchRawg<unknown>(
         `/developers/${providerItemId}`,
         {},
-        { signal: options?.signal },
+        { signal },
       );
       const dev = RAWGDeveloperSchema.parse(rawData);
 

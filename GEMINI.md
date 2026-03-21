@@ -27,6 +27,9 @@
   - We are in early development mode with no real users, so we can make breaking changes, ambitious refactoring, using cutting edge solutions, etc.
   - Our UI and API should be simple, predictable and reliable, always focus on those aspects.
 
+- When analysing, proposing solutions or writing a plan always consider every possible alternatives and trade-offs
+  -  Always present the pros, cons, benefits and risks associated with a given proposition and at least 2 alternatives.
+
 # Style
 
 - Always use the terminology defined in the [Glossary](docs/GLOSSARY.md).

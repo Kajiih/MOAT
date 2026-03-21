@@ -34,7 +34,12 @@ export async function POST(request: NextRequest) {
       items.map(async (item) => {
         const cacheKey = `${item.providerId}:${item.entityId}:${item.key}`;
         try {
-          const url = await registry.resolveImageReference(item.providerId, item.entityId, item.key);
+          const url = await registry.resolveImageReference(
+            item.providerId,
+            item.entityId,
+            item.key,
+            { signal: AbortSignal.timeout(3500) },
+          );
           results[cacheKey] = url || null;
         } catch (error) {
           logger.warn({ error, item }, 'Batch resolve individual item failure');
