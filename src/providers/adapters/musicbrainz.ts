@@ -86,9 +86,32 @@ const escapeLucene = (str: string) =>
  * @param str - The string to format
  * @returns The formatted string
  */
-const formatLuceneTerm = (str: string) => {
-  const escaped = escapeLucene(str.trim());
-  return escaped.includes(' ') ? `"${escaped}"` : escaped;
+const formatLuceneTerm = (str: string, options: { fuzzy?: boolean } = {}) => {
+  const trimmed = str.trim();
+  if (!trimmed) return '';
+
+  // Tokenize by spaces to support multi-word queries
+  const parts = trimmed.split(/\s+/);
+  const escapedParts = parts.map((p) => {
+    const escaped = escapeLucene(p);
+    // Only apply hybrid expansion if requested AND it doesn't already have wildcards/fuzzy
+    if (options.fuzzy && !escaped.endsWith('*') && !escaped.endsWith('~')) {
+      return `(${escaped}*) OR (${escaped}~)`;
+    }
+    return escaped;
+  });
+
+  // If not fuzzy, we still quote multi-word terms for phrase matching standardly
+  if (!options.fuzzy && parts.length > 1) {
+    const fullyEscaped = escapeLucene(trimmed);
+    return `"${fullyEscaped}"`;
+  }
+
+  // Join multiple words with AND for fuzzy/prefix match tolerance
+  if (escapedParts.length > 1) {
+    return escapedParts.join(' AND ');
+  }
+  return escapedParts[0];
 };
 
 /**
@@ -143,13 +166,13 @@ export function buildAlbumLuceneQuery(query: AlbumLuceneQuery): string {
   const parts: string[] = [];
 
   if (query.term?.trim()) {
-    parts.push(`release:${formatLuceneTerm(query.term)}`);
+    parts.push(`release:${formatLuceneTerm(query.term, { fuzzy: true })}`);
   }
 
   if (query.artistId?.trim()) {
     parts.push(`arid:${query.artistId.trim()}`);
   } else if (query.artist?.trim()) {
-    parts.push(`artist:${formatLuceneTerm(query.artist)}`);
+    parts.push(`artist:${formatLuceneTerm(query.artist, { fuzzy: true })}`);
   }
 
   const primaryClause = buildTypeClause('primarytype', query.primarytype);
@@ -192,7 +215,7 @@ export type ArtistLuceneQuery = {
 export function buildArtistLuceneQuery(query: ArtistLuceneQuery): string {
   const parts: string[] = [];
 
-  if (query.term?.trim()) parts.push(`${formatLuceneTerm(query.term)}`);
+  if (query.term?.trim()) parts.push(`${formatLuceneTerm(query.term, { fuzzy: true })}`);
   if (query.country?.trim()) parts.push(`country:${formatLuceneTerm(query.country)}`);
   if (query.type?.trim()) parts.push(`type:${formatLuceneTerm(query.type)}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
@@ -228,11 +251,11 @@ export type RecordingLuceneQuery = {
 export function buildRecordingLuceneQuery(query: RecordingLuceneQuery): string {
   const parts: string[] = [];
 
-  if (query.term?.trim()) parts.push(`${formatLuceneTerm(query.term)}`);
+  if (query.term?.trim()) parts.push(`${formatLuceneTerm(query.term, { fuzzy: true })}`);
   if (query.artistId?.trim()) parts.push(`arid:${query.artistId.trim()}`);
-  else if (query.artist?.trim()) parts.push(`artist:${formatLuceneTerm(query.artist)}`);
+  else if (query.artist?.trim()) parts.push(`artist:${formatLuceneTerm(query.artist, { fuzzy: true })}`);
   if (query.releaseGroupId?.trim()) parts.push(`rgid:\"${query.releaseGroupId.trim()}\"`);
-  if (query.release?.trim()) parts.push(`release:${formatLuceneTerm(query.release)}`);
+  if (query.release?.trim()) parts.push(`release:${formatLuceneTerm(query.release, { fuzzy: true })}`);
   if (query.video !== undefined) parts.push(`video:${query.video}`);
   if (query.tag?.trim()) parts.push(`tag:${formatLuceneTerm(query.tag)}`);
 
@@ -880,7 +903,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
       }),
       musicBrainzRecordingFilters.asyncSelect({
         id: 'releaseGroupId',
-        label: 'Album (Release Group ID)',
+        label: 'Album',
         dependsOn: ['artistId'],
         transform: mapTo('releaseGroupId'),
         targetEntityId: 'album',
