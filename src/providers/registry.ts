@@ -216,7 +216,10 @@ export class ProviderRegistry {
   /**
    * Resolves an image reference key globally via the correct provider.
    * @param providerId - The ID of the provider to use for resolution.
+   * @param entityId - The ID of the entity within the provider.
    * @param key - The reference key to resolve.
+   * @param options - Additional options.
+   * @param options.signal - AbortSignal to cancel resolution.
    * @returns The resolved image URL, or null if resolution fails.
    */
   public async resolveImageReference(

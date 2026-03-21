@@ -6,7 +6,7 @@
 import { Building2, Gamepad2 } from 'lucide-react';
 
 import { toCompositeId } from '@/items/identity';
-import { referenceImage, urlImage } from '@/items/images';
+import { referenceImage, urlImage,UrlImageSource } from '@/items/images';
 import { Item, ItemDetails, ItemDetailsSchema, ItemSchema } from '@/items/items';
 import { secureFetch } from '@/providers/api-client';
 import { ProviderStatus } from '@/providers/types';
@@ -264,7 +264,7 @@ export class RAWGGameEntity implements Entity<RAWGGame> {
   public readonly resolveImage = async (key: string, { signal }: { signal?: AbortSignal } = {}): Promise<string | null> => {
     try {
       const details = await this.getDetails(key, { signal });
-      const urlSource = details.images?.find((img) => img.type === 'url') as any;
+      const urlSource = details.images?.find((img): img is UrlImageSource => img.type === 'url');
       if (urlSource?.url) {
         return urlSource.url;
       }

@@ -15,14 +15,12 @@ interface UseItemDetailsOptions {
   enabled?: boolean;
 }
 
-/**
- * Custom hook for fetching full details for a Provider Item.
- * @param providerId - The ID of the provider.
- * @param entityId - The ID of the entity within the provider.
- * @param providerItemId - The unique ID of the item within that provider.
- * @param options - Additional hook settings.
- * @returns An SWR response object containing the item details and fetching state.
- */
+ /**
+  * @param key - The SWR cache key tuple [prefix, providerId, entityId, providerItemId].
+  * @param options - Options configuration.
+  * @param options.signal - AbortSignal to cancel the fetch.
+  * @returns A Promise for the resolved item details.
+  */
 export const fetchItemDetails = async (
   key: unknown[],
   { signal }: { signal?: AbortSignal } = {},
@@ -48,6 +46,14 @@ export const fetchItemDetails = async (
   return res.json();
 };
 
+/**
+ * Custom hook for fetching full details for a Provider Item.
+ * @param providerId - The ID of the provider.
+ * @param entityId - The ID of the entity within the provider.
+ * @param providerItemId - The unique ID of the item within that provider.
+ * @param options - Additional hook settings.
+ * @returns An SWR response object containing the item details and fetching state.
+ */
 export function useItemDetails(
   providerId: string | undefined,
   entityId: string | undefined,

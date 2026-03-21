@@ -45,6 +45,52 @@ export const ScreenshotProvider = ({
 export const useScreenshotContext = () => useContext(ScreenshotContext);
 
 /**
+ * Internal fetcher with error handling.
+ * @param target - URL or Data URL source to render.
+ * @returns Base64 encoded string response.
+ */
+async function fetchAsDataUrl(target: string): Promise<string> {
+  const resp = await fetch(target);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+  const blob = await resp.blob();
+  if (blob.size === 0) throw new Error('Empty response');
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('FileRead failed'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function buildProxyUrl(source: ImageSource): { proxiedUrl: string; cacheKeyUrl: string } {
+  let proxiedUrl = '';
+  let cacheKeyUrl = '';
+
+  if (source.type === 'url') {
+    proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(source.url)}`;
+    cacheKeyUrl = source.url;
+  } else {
+    proxiedUrl = `/api/proxy-image?providerId=${encodeURIComponent(source.provider)}&entityId=${encodeURIComponent(source.entityId)}&key=${encodeURIComponent(source.key)}`;
+  }
+  return { proxiedUrl, cacheKeyUrl };
+}
+
+function buildAttempts(
+  source: ImageSource,
+  isExternal: boolean,
+  proxiedUrl: string,
+): Array<() => Promise<string>> {
+  const attempts: Array<() => Promise<string>> = [];
+  if (isExternal) {
+    attempts.push(() => fetchAsDataUrl(proxiedUrl));
+  }
+  if (source.type === 'url') {
+    attempts.push(() => fetchAsDataUrl(source.url));
+  }
+  return attempts;
+}
+
+/**
  * Helper to convert an ImageSource to a Data URL
  * This allows us to "hardcode" images into the DOM before capture,
  * preventing various html-to-image duplication and hang bugs.
@@ -54,73 +100,37 @@ export const useScreenshotContext = () => useContext(ScreenshotContext);
 async function resolveImageDataUrl(source: ImageSource): Promise<string | null> {
   if (!source) return null;
 
-  // 1. Build the correct proxy URL based on source type
-  let proxiedUrl = '';
-  let cacheKeyUrl = ''; // Used for known broken lookup
+  if (source.type === 'url' && source.url.startsWith('data:')) return source.url;
+  const { proxiedUrl, cacheKeyUrl } = buildProxyUrl(source);
 
-  if (source.type === 'url') {
-    if (source.url.startsWith('data:')) return source.url;
-    proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(source.url)}`;
-    cacheKeyUrl = source.url;
-  } else {
-    proxiedUrl = `/api/proxy-image?providerId=${encodeURIComponent(source.provider)}&entityId=${encodeURIComponent(source.entityId)}&key=${encodeURIComponent(source.key)}`;
-    // We don't have a flat URL string for references prior to running, 
-    // but the backend will resolve and cache it anyway.
-  }
-
-  // Check if this image is already known to be broken in the app
   const isKnownBroken = cacheKeyUrl ? failedImages.has(cacheKeyUrl) : false;
 
-  /**
-   * Internal fetcher with error handling.
-   * @param target - URL or Data URL source to render.
-   * @returns Base64 encoded string response.
-   */
-  const fetchAsDataUrl = async (target: string) => {
-    const resp = await fetch(target);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
-    const blob = await resp.blob();
-    if (blob.size === 0) throw new Error('Empty response');
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error('FileRead failed'));
-      reader.readAsDataURL(blob);
-    });
-  };
+  const isExternal =
+    source.type === 'reference' ||
+    (source.type === 'url' &&
+      source.url.startsWith('http') &&
+      !source.url.includes('localhost') &&
+      !source.url.includes('127.0.0.1'));
 
-  try {
-    const isExternal = source.type === 'reference' || 
-      (source.type === 'url' && source.url.startsWith('http') && !source.url.includes('localhost') && !source.url.includes('127.0.0.1'));
+  const attempts = buildAttempts(source, isExternal, proxiedUrl);
 
-    if (isExternal) {
-      try {
-        return await fetchAsDataUrl(proxiedUrl);
-      } catch (proxyError) {
-        if (!isKnownBroken) {
-          logger.warn(
-            { error: proxyError, source },
-            'Screenshot Engine: Proxy failed.',
-          );
-        }
-        // Fallback to direct fetch is only possible for type === 'url'
-        if (source.type === 'url') {
-          return await fetchAsDataUrl(source.url);
-        }
-        throw proxyError;
+  for (const execute of attempts) {
+    try {
+      const result = await execute();
+      if (result) return result;
+    } catch (error) {
+      if (!isKnownBroken) {
+        logger.warn({ error, source }, 'Screenshot Engine: Attempt failed, falling back.');
       }
-    } else {
-      // Local or unsupported URL style
-      return source.type === 'url' ? await fetchAsDataUrl(source.url) : null;
     }
-  } catch (error) {
-    if (isKnownBroken) {
-      logger.warn({ source }, 'Screenshot Engine: Skipping known broken image');
-    } else {
-      logger.error({ error, source }, 'Screenshot Engine: Unexpected failure resolving image');
-    }
-    return null;
   }
+
+  if (source.type === 'url' && !isKnownBroken) {
+    logger.error({ source }, 'Screenshot Engine: All resolution attempts failed.');
+    failedImages.add(source.url);
+  }
+
+  return null;
 }
 
 /**
@@ -143,7 +153,6 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
     async (state: TierListState, headerColors: string[]) => {
       setIsCapturing(true);
 
-      // 1. Resolve all images to Data URLs BEFORE any DOM operations
       // 1. Resolve all images to Data URLs BEFORE any DOM operations
       const candidateSources = Object.values(state.itemEntities)
         .map((item) => item.images?.[0])

@@ -16,23 +16,6 @@ import { SortDirection } from '@/search/sort-schemas';
 
 import { ProviderErrorCode } from './errors';
 import { registry, RegistryStatus } from './registry';
-
-// Concrete implementations solely for testing
-class TestProviderOne implements Provider {
-  public id = 'p1';
-  public label = 'Provider One';
-  public status = ProviderStatus.IDLE;
-  public entities: Entity[] = [createMockEntity({ id: 'mock', resolveImage: async () => null, testImageResolution: nonEmpty({ key: 'test-key', description: 'test' }) })];
-  public async initialize(): Promise<void> { /* noop */ }
-}
-
-class TestProviderTwo implements Provider {
-  public id = 'p2';
-  public label = 'Provider Two';
-  public status = ProviderStatus.IDLE;
-  public entities: Entity[] = [createMockEntity({ id: 'mock', resolveImage: async () => null, testImageResolution: nonEmpty({ key: 'test-key', description: 'test' }) })];
-  public async initialize(): Promise<void> { /* noop */ }
-}
 import { handleProviderError } from './utils';
 
 const testRawgProvider = new RAWGProvider();

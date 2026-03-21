@@ -55,6 +55,7 @@ class FailedImageCache {
   /**
    * Checks if a URL is known to be broken.
    * @param url - The image URL to check.
+   * @returns True if the image is cached as broken, false otherwise.
    */
   public has(url: string): boolean {
     return this.inMemorySet.has(url);

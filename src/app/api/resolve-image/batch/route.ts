@@ -18,6 +18,11 @@ interface BatchResolveRequestItem {
   key: string;
 }
 
+/**
+ * Handles POST requests to resolve multiple reference image sources in batch.
+ * @param request - The NextRequest object containing the batched item payload.
+ * @returns A NextResponse containing the dictionary of resolved URLs.
+ */
 export async function POST(request: NextRequest) {
   try {
     const items = (await request.json()) as BatchResolveRequestItem[];
