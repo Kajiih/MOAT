@@ -43,7 +43,7 @@ If an API radically alters its detailed node structure, the data fails the bound
 
 ## Adding a New Provider Adapter
 
-For a detailed walkthrough, guidelines, and testing best practices, see the **[Adding a New Provider Guide](file:///Users/paquerot/Perso/dev_projects/tierlist/docs/dev/adding_a_new_provider.md)**.
+For a detailed walkthrough, guidelines, and testing best practices, see the **[Adding a New Provider Guide](adding_a_new_provider.md)**.
 
 ### Quick Checklist:
 
