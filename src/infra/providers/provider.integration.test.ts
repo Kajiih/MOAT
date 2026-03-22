@@ -36,6 +36,31 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
     console.log(`- TOTAL          : ${total} requests`);
     console.log('======================================\n');
   });
+  
+  const verifyImages = async (
+    images: any[],
+    resolveImage?: (key: string) => Promise<string | null | undefined>,
+  ) => {
+    for (const img of images) {
+      let url: string | undefined;
+      if (img.type === 'url') {
+        url = img.url;
+      } else if (img.type === 'reference' && resolveImage) {
+        const resUrl = await resolveImage(img.key);
+        url = resUrl ?? undefined;
+      }
+
+      if (url) {
+        expect(typeof url).toBe('string');
+        expect(url!.length).toBeGreaterThan(10);
+        expect(url!.startsWith('http')).toBe(true);
+
+        const res = await fetch(url!, { method: 'HEAD' });
+        expect(res.ok, `Image URL ${url} returned ${res.status}`).toBe(true);
+        expect(res.headers.get('content-type')).toMatch(/^image\//);
+      }
+    }
+  };
 
   for (const provider of providers) {
     describe(`Provider: ${provider.label} (${provider.id})`, () => {
@@ -367,9 +392,9 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
                   'Details yielded zero enrichment data (tags, relatedEntities, or urls)',
                 ).toBe(true);
 
-                // Image resolution (if applicable)
+                // Image verification
                 if (details.images && details.images.length > 0) {
-                  expect(details.images[0].type).toBeTruthy();
+                  await verifyImages(details.images, entity.resolveImage?.bind(entity));
                 }
               },
             );
