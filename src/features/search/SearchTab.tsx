@@ -72,7 +72,7 @@ export function SearchTab({
 
   const finalResults = useMemo(() => {
     if (showAdded) return results;
-    return (results as Item[]).filter((item: Item) => !addedItemIds.has(item.id));
+    return results.filter((item) => !addedItemIds.has(item.id));
   }, [results, showAdded, addedItemIds]);
 
   if (isHidden) return null;
@@ -107,7 +107,7 @@ export function SearchTab({
               return (
                 <ItemCard
                   key={`${item.id}-${isAdded}`}
-                  item={item as Item}
+                  item={item}
                   isAdded={isAdded}
                   onLocate={() => onLocate(item.id)}
                   onInfo={onInfo}

@@ -121,6 +121,28 @@ export const TierListSchema = z.object({
   tierLayout: z.record(z.string(), z.array(z.string())),
 });
 
+// --- Drag and Drop Types ---
+
+export type DragItemData = {
+  type: 'item';
+  item: Item;
+};
+
+export type DragTierData = {
+  type: 'tier';
+  tier: TierDefinition;
+};
+
+export type DragData = DragItemData | DragTierData;
+
+export function isDragItemData(data: Record<string, unknown>): data is DragItemData {
+  return data.type === 'item' && 'item' in data;
+}
+
+export function isDragTierData(data: Record<string, unknown>): data is DragTierData {
+  return data.type === 'tier' && 'tier' in data;
+}
+
 // --- Utilities ---
 
 /**
