@@ -28,6 +28,8 @@ interface BoardOptionsMenuProps {
   onShowShortcuts: () => void;
   showAdvanced: boolean;
   onToggleAdvanced: (value: boolean) => void;
+  cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean };
+  onToggleCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => void;
 }
 
 /**
@@ -50,6 +52,8 @@ export function BoardOptionsMenu({
   onShowShortcuts,
   showAdvanced,
   onToggleAdvanced,
+  cardPrefs,
+  onToggleCardPref,
 }: BoardOptionsMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -149,9 +153,87 @@ export function BoardOptionsMenu({
               </div>
             </label>
             <p className="text-secondary mt-1.5 text-[11px] leading-relaxed">
-              Enables technical configuration like fuzzy search and wildcard matching.
+              Currently just shows a few more stuff.
             </p>
           </div>
+
+          {showAdvanced && (
+            <>
+              <div className="bg-surface-hover my-2 h-px" />
+
+              {/* Card Visual Prefs */}
+              <div className="px-3 py-2 space-y-2">
+                <h4 className="text-secondary text-[10px] font-bold tracking-wider uppercase mb-1">
+                  Card Visuals
+                </h4>
+                
+                <label className="text-secondary flex cursor-pointer items-center justify-between text-sm">
+                  <span>Show Type Icon</span>
+                  <div
+                    className={twMerge(
+                      'relative h-5 w-9 rounded-full transition-colors cursor-pointer',
+                      cardPrefs.showIcon ? 'bg-primary' : 'bg-surface-hover',
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleCardPref('showIcon', !cardPrefs.showIcon);
+                    }}
+                  >
+                    <div
+                      className={twMerge(
+                        'absolute top-1 h-3 w-3 rounded-full bg-white transition-all',
+                        cardPrefs.showIcon ? 'left-5' : 'left-1',
+                      )}
+                    />
+                  </div>
+                </label>
+
+                {cardPrefs.showIcon && (
+                  <label className="text-secondary flex cursor-pointer items-center justify-between text-sm pl-4 border-l border-white/5 ml-1">
+                    <span className="text-[12px] text-muted">Colorize Icon</span>
+                    <div
+                      className={twMerge(
+                        'relative h-4 w-7 rounded-full transition-colors cursor-pointer',
+                        cardPrefs.coloredIcon ? 'bg-primary' : 'bg-surface-hover',
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleCardPref('coloredIcon', !cardPrefs.coloredIcon);
+                      }}
+                    >
+                      <div
+                        className={twMerge(
+                          'absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all',
+                          cardPrefs.coloredIcon ? 'left-3.5' : 'left-0.5',
+                        )}
+                      />
+                    </div>
+                  </label>
+                )}
+
+                <label className="text-secondary flex cursor-pointer items-center justify-between text-sm">
+                  <span>Show Accent Strip</span>
+                  <div
+                    className={twMerge(
+                      'relative h-5 w-9 rounded-full transition-colors cursor-pointer',
+                      cardPrefs.showUnderlay ? 'bg-primary' : 'bg-surface-hover',
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleCardPref('showUnderlay', !cardPrefs.showUnderlay);
+                    }}
+                  >
+                    <div
+                      className={twMerge(
+                        'absolute top-1 h-3 w-3 rounded-full bg-white transition-all',
+                        cardPrefs.showUnderlay ? 'left-5' : 'left-1',
+                      )}
+                    />
+                  </div>
+                </label>
+              </div>
+            </>
+          )}
 
           <div className="bg-surface-hover my-2 h-px" />
 

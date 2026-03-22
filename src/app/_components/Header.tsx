@@ -51,7 +51,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
       resetItems: handleResetItems,
       updateTitle,
     },
-    ui: { headerColors, showShortcuts, setShowShortcuts },
+    ui: { headerColors, showShortcuts, setShowShortcuts, cardPrefs, setCardPref },
     history: { undo, redo, canUndo, canRedo, push: pushHistory },
   } = useTierListContext();
 
@@ -144,6 +144,8 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
             onShowShortcuts={() => setShowShortcuts(true)}
             showAdvanced={showAdvanced}
             onToggleAdvanced={setShowAdvanced}
+            cardPrefs={cardPrefs}
+            onToggleCardPref={setCardPref}
           />
         </div>
 

@@ -115,6 +115,7 @@ export function ItemCard({
   const actions = tierListContext?.actions;
   const activeKeyboardDragId = tierListContext?.ui.activeKeyboardDragId;
   const setActiveKeyboardDragId = tierListContext?.ui.setActiveKeyboardDragId;
+  const cardPrefs = tierListContext?.ui.cardPrefs;
   const isKeyboardDragging =
     activeKeyboardDragId?.itemId === item.id && activeKeyboardDragId?.tierId === tierId;
 
@@ -304,9 +305,29 @@ export function ItemCard({
       {/* 2. The Visuals */}
       <div className="pointer-events-none absolute inset-1 overflow-hidden rounded-md bg-surface shadow-card">
         {/* Bottom Accent Strip */}
-        <div
-          className={`absolute inset-x-0 bottom-0 h-[1.5px] ${baseColorClass} z-20 bg-current opacity-30 shadow-sm`}
-        />
+        {cardPrefs?.showUnderlay !== false && (
+          <div
+            className={`absolute inset-x-0 bottom-0 h-[1.5px] ${baseColorClass} z-20 bg-current opacity-30 shadow-sm`}
+          />
+        )}
+        {/* Top Indicator & Icon Tray */}
+        {(item.rating !== undefined || (cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined)) && (
+          <div className="absolute top-1 left-1 flex items-center gap-1.5 z-20">
+            {cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined && (
+              <div className="bg-black/60 rounded-full p-1 backdrop-blur-sm border border-white/10 shadow-sm flex items-center justify-center">
+                <TypeIcon 
+                  size={12} 
+                  className={`opacity-90 ${cardPrefs?.coloredIcon !== false ? baseColorClass : 'text-white'}`} 
+                />
+              </div>
+            )}
+            {item.rating !== undefined && (
+              <div className="text-indicator rounded-md border border-white/10 bg-black/60 px-1 py-0.5 font-black text-white backdrop-blur-sm shadow-sm">
+                {item.rating.toFixed(1)}
+              </div>
+            )}
+          </div>
+        )}
         <ItemImage
           item={item}
           TypeIcon={TypeIcon}
@@ -371,12 +392,7 @@ export function ItemCard({
         </div>
       )}
 
-      {/* 4. Rating Indicator (If exists) */}
-      {item.rating !== undefined && (
-        <div className="text-indicator absolute top-1 left-1 rounded-md border border-white/10 bg-black/60 px-1 py-0.5 font-black text-white backdrop-blur-sm">
-          {item.rating.toFixed(1)}
-        </div>
-      )}
+
     </div>
   );
 }

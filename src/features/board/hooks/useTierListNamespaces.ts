@@ -58,6 +58,8 @@ interface UseTierListNamespacesProps {
     setActiveKeyboardDragId: React.Dispatch<
       React.SetStateAction<{ itemId: string; tierId: string } | null>
     >;
+    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean };
+    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => void;
   };
 }
 
@@ -188,6 +190,8 @@ export function useTierListNamespaces({
       allBoardItems,
       activeKeyboardDragId: uiState.activeKeyboardDragId,
       setActiveKeyboardDragId: uiState.setActiveKeyboardDragId,
+      cardPrefs: uiState.cardPrefs,
+      setCardPref: uiState.setCardPref,
     };
   }, [utilsRaw.headerColors, uiState, addedItemIds, allBoardItems]);
 

@@ -69,6 +69,8 @@ interface TierListContextType {
     allBoardItems: Item[];
     activeKeyboardDragId: { itemId: string; tierId: string } | null;
     setActiveKeyboardDragId: (state: { itemId: string; tierId: string } | null) => void;
+    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean };
+    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => void;
   };
   history: {
     undo: () => void;
@@ -108,6 +110,38 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     itemId: string;
     tierId: string;
   } | null>(null);
+
+  // --- Card UI Preferences ---
+  const [cardPrefs, setCardPrefs] = useState<{
+    showIcon: boolean;
+    showUnderlay: boolean;
+    coloredIcon: boolean;
+  }>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('moat-card-prefs');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          // ignore
+        }
+      }
+    }
+    return { showIcon: true, showUnderlay: true, coloredIcon: true };
+  });
+
+  const setCardPref = React.useCallback(
+    (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => {
+      setCardPrefs((p) => {
+        const next = { ...p, [pref]: value };
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('moat-card-prefs', JSON.stringify(next));
+        }
+        return next;
+      });
+    },
+    [],
+  );
 
   const { registerItem, registerItems } = useItemRegistry();
 
@@ -160,6 +194,8 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       setShowShortcuts,
       activeKeyboardDragId,
       setActiveKeyboardDragId,
+      cardPrefs,
+      setCardPref,
     },
   });
 
