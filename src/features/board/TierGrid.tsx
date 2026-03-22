@@ -6,7 +6,12 @@
 
 import { memo, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CARD_ANIMATION_TRANSITION, CARD_ANIMATION_VARIANTS } from '@/core/ui/animations';
+import {
+  CARD_ANIMATION_HOVER,
+  CARD_ANIMATION_TAP,
+  CARD_ANIMATION_TRANSITION,
+  CARD_ANIMATION_VARIANTS,
+} from '@/core/ui/animations';
 import { Item } from '@/domain/items/items';
 import { ItemCard } from '@/features/items/ItemCard';
 
@@ -70,6 +75,8 @@ export const TierGrid = memo(function TierGrid({
       initial={isExport ? undefined : 'initial'}
       animate={isExport ? undefined : 'animate'}
       exit={isExport ? undefined : 'exit'}
+      whileHover={isExport ? undefined : CARD_ANIMATION_HOVER}
+      whileTap={isExport ? undefined : CARD_ANIMATION_TAP}
       transition={CARD_ANIMATION_TRANSITION}
       className="inline-block"
     >

@@ -9,7 +9,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { CARD_ANIMATION_TRANSITION, CARD_ANIMATION_VARIANTS } from '@/core/ui/animations';
+import {
+  CARD_ANIMATION_HOVER,
+  CARD_ANIMATION_TAP,
+  CARD_ANIMATION_TRANSITION,
+  CARD_ANIMATION_VARIANTS,
+} from '@/core/ui/animations';
 import { Item } from '@/domain/items/items';
 import { DEFAULT_PAGE_LIMIT } from '@/domain/providers/types';
 import { ItemCard } from '@/features/items/ItemCard';
@@ -128,6 +133,8 @@ export function SearchTab({
                     initial="initial"
                     animate="animate"
                     exit="exit"
+                    whileHover={CARD_ANIMATION_HOVER}
+                    whileTap={CARD_ANIMATION_TAP}
                     transition={CARD_ANIMATION_TRANSITION}
                     className="inline-block"
                   >
