@@ -31,6 +31,7 @@ import { usePersistentReducer } from '@/infra/storage/usePersistentReducer';
  */
 export interface EpicAnimationEvent {
   itemId: string;
+  item: Item;
   animationId: string;
   start: { top: number; left: number; width: number; height: number };
   end: { top: number; left: number; width: number; height: number };

@@ -9,7 +9,7 @@ import { cardVariants } from './variants';
 
 export const PortalPreset: EpicAnimationPreset = {
   id: 'portal',
-  duration: 1000, // 1 second
+  duration: 1500, // Sync with absolute delay + expands buffer sizes
   cardVariants,
   CanvasOverlay,
 };

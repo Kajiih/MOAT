@@ -6,17 +6,13 @@
 import { Variants } from 'framer-motion';
 
 export const cardVariants: Variants = {
-  initial: { x: -60, scaleX: 0, opacity: 0 },
+  initial: { opacity: 0 },
   animate: {
-    x: 0,
-    scaleX: 1,
     opacity: 1,
-    transition: { duration: 0.6, ease: 'easeOut' },
+    transition: { duration: 0.4, ease: 'easeOut', delay: 0.94 }, // Instant take-over
   },
   exit: {
-    x: 60,
-    scaleX: 0,
     opacity: 0,
-    transition: { duration: 0.4, ease: 'easeIn' },
+    transition: { duration: 0.2 },
   },
 };

@@ -119,7 +119,7 @@ export function useTierListDrag(
  * @param probability - Probability (0-100).
  */
 function triggerRandomEpic(
-  itemId: string,
+  item: Item,
   startRect: DOMRect,
   endRect: DOMRect,
   triggerEpicFn?: (event: EpicAnimationEvent) => void,
@@ -134,7 +134,8 @@ function triggerRandomEpic(
 
   if (randomAnimation) {
     triggerEpicFn({
-      itemId,
+      itemId: item.id,
+      item,
       animationId: randomAnimation,
       start: {
         top: startRect.top,
@@ -216,7 +217,7 @@ function handleItemDrop(
     }),
   );
 
-  triggerRandomEpic(item.id, startRect, endRect, triggerEpic, epicProbability);
+  triggerRandomEpic(item, startRect, endRect, triggerEpic, epicProbability);
 }
 
 /**
