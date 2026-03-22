@@ -470,12 +470,23 @@ export const extractUrlsFromRelations = (
 
   for (const rel of relations) {
     if (rel.url?.resource) {
-      if (rel.type === 'official homepage') {
+      switch (rel.type) {
+      case 'official homepage': {
         urls.push({ type: 'homepage', url: rel.url.resource });
-      } else if (rel.type === 'wikipedia') {
+      
+      break;
+      }
+      case 'wikipedia': {
         urls.push({ type: 'wikipedia', url: rel.url.resource });
-      } else if (rel.type === 'wikidata') {
+      
+      break;
+      }
+      case 'wikidata': {
         urls.push({ type: 'wikidata', url: rel.url.resource });
+      
+      break;
+      }
+      // No default
       }
     }
   }

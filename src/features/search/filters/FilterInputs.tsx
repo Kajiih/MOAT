@@ -3,8 +3,8 @@
  * @description Low-level presentation components governing diverse individual filter mechanisms.
  */
 
-import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import React from 'react';
 
 import {
   BooleanFilterDefinition,

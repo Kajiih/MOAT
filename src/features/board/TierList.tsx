@@ -9,7 +9,9 @@
 
 import React from 'react';
 
+import { useTierListContext } from '@/features/board/context';
 import { Item, TierDefinition } from '@/features/board/types';
+import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
 
 import { TierRow } from './TierRow';
 
@@ -58,6 +60,10 @@ export function TierList({
   onDeleteTier,
   onInfo,
 }: TierListProps) {
+  const context = useTierListContext();
+  const activeEpic = context?.ui.activeEpic;
+  const activePreset = activeEpic ? EPIC_ANIMATION_PRESETS[activeEpic.animationId] : EPIC_ANIMATION_PRESETS.default;
+
   const content = tiers.map((tier) => (
     <TierRow
       key={tier.id}
@@ -77,5 +83,10 @@ export function TierList({
     return <div className="w-full space-y-4">{content}</div>;
   }
 
-  return <div className="w-full space-y-4">{content}</div>;
+  return (
+    <div className="w-full space-y-4">
+      {content}
+      <activePreset.CanvasOverlay activeEpic={activeEpic} />
+    </div>
+  );
 }

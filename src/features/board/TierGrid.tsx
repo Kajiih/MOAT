@@ -4,15 +4,17 @@
  * Handles performance for large tiers via virtualization.
  */
 
-import { memo, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { memo, ReactNode } from 'react';
+
 import {
   CARD_ANIMATION_HOVER,
   CARD_ANIMATION_TAP,
   CARD_ANIMATION_TRANSITION,
-  CARD_ANIMATION_VARIANTS,
 } from '@/core/ui/animations';
 import { Item } from '@/domain/items/items';
+import { useTierListContext } from '@/features/board/context';
+import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
 import { ItemCard } from '@/features/items/ItemCard';
 
 import { VirtualGrid } from './VirtualGrid';
@@ -51,6 +53,10 @@ export const TierGrid = memo(function TierGrid({
   isMiddleTier,
   isExport = false,
 }: TierGridProps) {
+  const context = useTierListContext();
+  const activeEpic = context?.ui.activeEpic;
+  const activePreset = activeEpic ? EPIC_ANIMATION_PRESETS[activeEpic.animationId] : EPIC_ANIMATION_PRESETS.default;
+
   // Use virtualization for very large tiers (e.g. > 100 items)
   const isLargeTier = !isExport && items.length > 100;
 
@@ -60,29 +66,34 @@ export const TierGrid = memo(function TierGrid({
         key={item.id}
         item={item}
         tierId={tierId}
-        onRemove={onRemoveItem}
+        onRemove={onRemoveItem ? () => onRemoveItem(item.id) : undefined}
         onInfo={onInfo}
         isExport={isExport}
       />
     );
   };
 
-  const cards = items.map((item) => (
-    <motion.div
-      key={item.id}
-      layout
-      variants={isExport ? undefined : CARD_ANIMATION_VARIANTS}
-      initial={isExport ? undefined : 'initial'}
-      animate={isExport ? undefined : 'animate'}
-      exit={isExport ? undefined : 'exit'}
-      whileHover={isExport ? undefined : CARD_ANIMATION_HOVER}
-      whileTap={isExport ? undefined : CARD_ANIMATION_TAP}
-      transition={CARD_ANIMATION_TRANSITION}
-      className="inline-block"
-    >
-      {renderCard(item)}
-    </motion.div>
-  ));
+  const cards = items.map((item) => {
+    const isEpicCard = activeEpic?.itemId === item.id;
+    const variants = isEpicCard ? activePreset.cardVariants : EPIC_ANIMATION_PRESETS.default.cardVariants;
+
+    return (
+      <motion.div
+        key={item.id}
+        layout
+        variants={isExport ? undefined : variants}
+        initial={isExport ? undefined : 'initial'}
+        animate={isExport ? undefined : 'animate'}
+        exit={isExport ? undefined : 'exit'}
+        whileHover={isExport ? undefined : CARD_ANIMATION_HOVER}
+        whileTap={isExport ? undefined : CARD_ANIMATION_TAP}
+        transition={CARD_ANIMATION_TRANSITION}
+        className="inline-block"
+      >
+        {renderCard(item)}
+      </motion.div>
+    );
+  });
 
   const content = isLargeTier ? (
     <VirtualGrid items={items} className="max-h-[500px] p-3" renderItem={renderCard} />

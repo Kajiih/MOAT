@@ -7,9 +7,9 @@
 
 import '@/infra/providers/bootstrap'; // Bootstrap all providers on first import
 
+import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Eye, EyeOff, Loader2, Search, Trash2 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 
 import { useTierListContext } from '@/features/board/context';
 import { RegistryStatus } from '@/infra/providers/registry';

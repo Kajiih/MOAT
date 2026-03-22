@@ -11,7 +11,7 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { Edge, attachClosestEdge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { attachClosestEdge, Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -391,8 +391,6 @@ export function ItemCard({
           )}
         </div>
       )}
-
-
     </div>
   );
 }

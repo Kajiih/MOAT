@@ -22,8 +22,16 @@ import { INITIAL_STATE } from '@/features/board/initial-state';
 import { syncBoardMetadata } from '@/features/board/registry-utils';
 import { BoardAction, setState, tierListReducer } from '@/features/board/state/reducer';
 import { TierDefinition, TierListState, TierUpdate } from '@/features/board/types';
+import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
 import { useItemRegistry } from '@/infra/providers/useItemRegistry';
 import { usePersistentReducer } from '@/infra/storage/usePersistentReducer';
+
+export interface EpicAnimationEvent {
+  itemId: string;
+  animationId: string;
+  start: { top: number; left: number; width: number; height: number };
+  end: { top: number; left: number; width: number; height: number };
+}
 
 /**
  * Interface defining the shape of the Tier List Context.
@@ -69,8 +77,10 @@ interface TierListContextType {
     allBoardItems: Item[];
     activeKeyboardDragId: { itemId: string; tierId: string } | null;
     setActiveKeyboardDragId: (state: { itemId: string; tierId: string } | null) => void;
-    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean };
-    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => void;
+    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean; epicProbability: number };
+    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => void;
+    activeEpic: EpicAnimationEvent | null;
+    triggerEpic: (event: EpicAnimationEvent) => void;
   };
   history: {
     undo: () => void;
@@ -111,13 +121,26 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     tierId: string;
   } | null>(null);
 
+  const [activeEpic, setActiveEpic] = useState<EpicAnimationEvent | null>(null);
+
+  const triggerEpic = React.useCallback((event: EpicAnimationEvent) => {
+    setActiveEpic(event);
+    const preset = EPIC_ANIMATION_PRESETS[event.animationId];
+    const duration = preset?.duration ?? 1000;
+
+    setTimeout(() => {
+      setActiveEpic(null);
+    }, duration);
+  }, []);
+
   // --- Card UI Preferences ---
   const [cardPrefs, setCardPrefs] = useState<{
     showIcon: boolean;
     showUnderlay: boolean;
     coloredIcon: boolean;
+    epicProbability: number;
   }>(() => {
-    if (typeof window !== 'undefined') {
+    if (globalThis.window !== undefined) {
       const saved = localStorage.getItem('moat-card-prefs');
       if (saved) {
         try {
@@ -127,14 +150,14 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
         }
       }
     }
-    return { showIcon: true, showUnderlay: true, coloredIcon: true };
+    return { showIcon: true, showUnderlay: true, coloredIcon: true, epicProbability: 5 };
   });
 
   const setCardPref = React.useCallback(
-    (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => {
+    (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => {
       setCardPrefs((p) => {
         const next = { ...p, [pref]: value };
-        if (typeof window !== 'undefined') {
+        if (globalThis.window !== undefined) {
           localStorage.setItem('moat-card-prefs', JSON.stringify(next));
         }
         return next;
@@ -174,7 +197,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
 
   // --- Sub-Hooks Integration ---
 
-  const dragState = useTierListDrag(state, dispatch, push);
+  const dragState = useTierListDrag(state, dispatch, push, triggerEpic, cardPrefs.epicProbability);
   const structureRaw = useTierStructure(dispatch, push);
   const ioRaw = useTierListIO(state, dispatch, push);
   const utilsRaw = useTierListUtils(state, null, null);
@@ -196,6 +219,8 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       setActiveKeyboardDragId,
       cardPrefs,
       setCardPref,
+      activeEpic,
+      triggerEpic,
     },
   });
 

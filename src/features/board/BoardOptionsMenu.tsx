@@ -28,8 +28,8 @@ interface BoardOptionsMenuProps {
   onShowShortcuts: () => void;
   showAdvanced: boolean;
   onToggleAdvanced: (value: boolean) => void;
-  cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean };
-  onToggleCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => void;
+  cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean; epicProbability: number };
+  onToggleCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => void;
 }
 
 /**
@@ -231,6 +231,24 @@ export function BoardOptionsMenu({
                     />
                   </div>
                 </label>
+
+                <div className="flex flex-col gap-1.5 pt-1">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Epic Animations Rate</span>
+                    <span className="font-bold text-primary">{cardPrefs.epicProbability}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={cardPrefs.epicProbability}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      onToggleCardPref('epicProbability', Number.parseInt(e.target.value));
+                    }}
+                    className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-surface-hover accent-primary"
+                  />
+                </div>
               </div>
             </>
           )}

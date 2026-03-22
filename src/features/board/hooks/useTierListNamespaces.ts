@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { Item, ItemUpdate } from '@/domain/items/items';
 import { fromSearchId } from '@/domain/utils/ids';
+import { EpicAnimationEvent } from '@/features/board/context';
 import {
   BoardDispatch,
   moveItem,
@@ -58,8 +59,10 @@ interface UseTierListNamespacesProps {
     setActiveKeyboardDragId: React.Dispatch<
       React.SetStateAction<{ itemId: string; tierId: string } | null>
     >;
-    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean };
-    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon', value: boolean) => void;
+    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean; epicProbability: number };
+    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => void;
+    activeEpic: EpicAnimationEvent | null;
+    triggerEpic: (event: EpicAnimationEvent) => void;
   };
 }
 
@@ -126,8 +129,10 @@ export function useTierListNamespaces({
     (payload: { activeId: string; overId: string; activeItem?: Item; edge?: Edge | null }) => {
       history.push();
       dispatch(moveItem(payload));
+
+
     },
-    [dispatch, history],
+    [dispatch, history, uiState.triggerEpic],
   );
 
   // Namespace: actions
@@ -192,6 +197,8 @@ export function useTierListNamespaces({
       setActiveKeyboardDragId: uiState.setActiveKeyboardDragId,
       cardPrefs: uiState.cardPrefs,
       setCardPref: uiState.setCardPref,
+      activeEpic: uiState.activeEpic,
+      triggerEpic: uiState.triggerEpic,
     };
   }, [utilsRaw.headerColors, uiState, addedItemIds, allBoardItems]);
 

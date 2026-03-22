@@ -8,8 +8,10 @@ import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/clo
 import { useEffect, useState } from 'react';
 
 import { Item } from '@/domain/items/items';
+import { EpicAnimationEvent } from '@/features/board/context';
 import { BoardDispatch, moveItem, reorderTiers } from '@/features/board/state/reducer';
 import { isDragItemData, isDragTierData, TierDefinition, TierListState } from '@/features/board/types';
+import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
 
 /**
  * Provides access to the current drag state and wires up global drop monitors
@@ -23,6 +25,8 @@ export function useTierListDrag(
   state: TierListState,
   dispatch: BoardDispatch,
   pushHistory: () => void,
+  triggerEpic?: (event: EpicAnimationEvent) => void,
+  epicProbability?: number,
 ) {
   const [activeItem, setActiveItem] = useState<Item | null>(null);
   const [activeTier, setActiveTier] = useState<TierDefinition | null>(null);
@@ -80,6 +84,9 @@ export function useTierListDrag(
           const item = sourceData.item;
           const edge = extractClosestEdge(dropTarget.data);
 
+          const startRect = source.element.getBoundingClientRect();
+          const endRect = dropTarget.element.getBoundingClientRect();
+
           pushHistory();
           dispatch(
             moveItem({
@@ -89,6 +96,33 @@ export function useTierListDrag(
               edge,
             }),
           );
+
+          if (triggerEpic && epicProbability !== undefined) {
+            const prob = epicProbability / 100;
+            if (Math.random() < prob) {
+              const epicKeys = Object.keys(EPIC_ANIMATION_PRESETS).filter((key) => key !== 'default');
+              const randomAnimation = epicKeys[Math.floor(Math.random() * epicKeys.length)];
+
+              if (randomAnimation) {
+                triggerEpic({
+                  itemId: item.id,
+                  animationId: randomAnimation,
+                  start: {
+                    top: startRect.top,
+                    left: startRect.left,
+                    width: startRect.width,
+                    height: startRect.height,
+                  },
+                  end: {
+                    top: endRect.top,
+                    left: endRect.left,
+                    width: endRect.width,
+                    height: endRect.height,
+                  },
+                });
+              }
+            }
+          }
         } else if (isDragTierData(sourceData)) {
           const sourceTier = sourceData.tier;
 
@@ -104,7 +138,7 @@ export function useTierListDrag(
         }
       },
     });
-  }, [dispatch, pushHistory]);
+  }, [dispatch, pushHistory, triggerEpic, epicProbability]);
 
   return { activeItem, activeTier, overId };
 }
