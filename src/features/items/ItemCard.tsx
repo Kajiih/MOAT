@@ -271,7 +271,7 @@ export function ItemCard({
       data-testid={`item-card-${item.id}`}
       className={twMerge(
         `group duration-fast relative transition-all hover:shadow-xl ${ITEM_CARD_BASE_CLASSES}`,
-        isAdded ? 'ring-primary ring-2 ring-offset-2 ring-offset-black' : '',
+        isAdded ? 'grayscale opacity-70' : '',
         isOverLocal ? 'z-50 scale-105 ring-2 ring-emerald-500' : '',
         className,
       )}
