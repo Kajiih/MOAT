@@ -217,7 +217,16 @@ function handleItemDrop(
     }),
   );
 
-  triggerRandomEpic(item, startRect, endRect, triggerEpic, epicProbability);
+  const sourceTierId = (source.data as { tierId?: string }).tierId;
+  const targetTierId = isDragItemData(dropTarget.data)
+    ? (dropTarget.data as { tierId?: string }).tierId
+    : finalTargetId;
+
+  const isSameTier = sourceTierId && targetTierId && sourceTierId === targetTierId;
+
+  if (!isSameTier) {
+    triggerRandomEpic(item, startRect, endRect, triggerEpic, epicProbability);
+  }
 }
 
 /**
