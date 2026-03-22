@@ -301,13 +301,12 @@ export function ItemCard({
         aria-label={item.title}
       />
 
-      {/* Bottom Accent Strip */}
-      <div
-        className={`absolute inset-x-0 bottom-0 h-[1.5px] ${baseColorClass} z-20 bg-current opacity-30 shadow-sm`}
-      />
-
       {/* 2. The Visuals */}
       <div className="pointer-events-none absolute inset-1 overflow-hidden rounded-md bg-surface shadow-card">
+        {/* Bottom Accent Strip */}
+        <div
+          className={`absolute inset-x-0 bottom-0 h-[1.5px] ${baseColorClass} z-20 bg-current opacity-30 shadow-sm`}
+        />
         <ItemImage
           item={item}
           TypeIcon={TypeIcon}
