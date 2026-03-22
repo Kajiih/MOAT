@@ -315,7 +315,7 @@ export function ItemCard({
         {/* Top Indicator & Icon Tray */}
         {(item.rating !== undefined ||
           (cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined)) && (
-          <div className="absolute top-1 left-1 z-20 flex items-center gap-1.5">
+          <div className="absolute top-1 left-1 z-20 flex flex-col items-center gap-1">
             {cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined && (
               <div className="flex items-center justify-center rounded-full border border-white/10 bg-black/60 p-1 shadow-sm backdrop-blur-sm">
                 <TypeIcon
