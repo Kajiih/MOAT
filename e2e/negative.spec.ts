@@ -28,7 +28,7 @@ test.describe('Resilience and Failure Modes', () => {
     await expect(errorToast).toBeVisible();
 
     // App should still be functional (empty state should render instead of exploding)
-    await expect(page.getByText('No results found.')).toBeVisible();
+    await expect(page.getByText(/No Results Found/i)).toBeVisible();
   });
 
   test('should display toast error when fetching item details fails', async ({

@@ -24,8 +24,11 @@ import { isSortReversible, SortDirection } from '@/features/search/sort-schemas'
 import { SortDropdown } from '@/features/search/SortDropdown';
 import { useItemSearch } from '@/features/search/useItemSearch';
 import { registry } from '@/infra/providers/registry';
+import { useTierListContext } from '@/features/board/context';
+import { getColorTheme } from '@/core/utils/colors';
 
 import { FilterPanel } from './FilterPanel';
+import { SearchEmptyState } from './SearchEmptyState';
 
 interface SearchTabProps {
   providerId: string;
@@ -58,7 +61,12 @@ export function SearchTab({
   showAdded,
   onInfo,
 }: SearchTabProps) {
+  const { state } = useTierListContext();
   const entity = useMemo(() => registry.getEntity(providerId, entityId), [providerId, entityId]);
+
+  const tierColors = useMemo(() => {
+    return state.tierDefs.map((t) => getColorTheme(t.color).hex);
+  }, [state.tierDefs]);
 
   // Use a unified params state initialized by the entity
   // We use PaginationStrategy union here because we don't know the specific one until the entity is resolved.
@@ -153,11 +161,14 @@ export function SearchTab({
       );
     }
 
+    const hasActiveFilters = Boolean(params.query || Object.keys(params.filters).length > 0);
+
     return (
-      <div className="custom-scrollbar flex-1 overflow-y-auto">
-        {(params.query || Object.keys(params.filters).length > 0) && (
-          <div className="text-muted mt-8 text-center text-sm italic">No results found.</div>
-        )}
+      <div className="custom-scrollbar flex-1 overflow-y-auto px-1 py-4">
+        <SearchEmptyState
+          type={hasActiveFilters ? 'no-results' : 'initial'}
+          tierColors={tierColors}
+        />
       </div>
     );
   };
