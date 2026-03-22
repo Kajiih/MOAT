@@ -8,8 +8,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { ToastProvider } from '@/presentation/ui/ToastProvider';
-import { UserPreferencesProvider } from '@/presentation/ui/UserPreferencesProvider';
+import { ToastProvider } from '@/core/ui/ToastProvider';
+import { UserPreferencesProvider } from '@/core/ui/UserPreferencesProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

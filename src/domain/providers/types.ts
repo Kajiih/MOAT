@@ -6,10 +6,10 @@
 import { LucideIcon } from 'lucide-react';
 
 import { ItemDetails } from '@/domain/items/items';
+import { FilterDefinition } from '@/features/search/filter-schemas';
+import { SearchParams, SearchResult } from '@/features/search/search-schemas';
+import { SortDefinition } from '@/features/search/sort-schemas';
 import { RequestOptions } from '@/infra/providers/api-client';
-import { FilterDefinition } from '@/presentation/search/filter-schemas';
-import { SearchParams, SearchResult } from '@/presentation/search/search-schemas';
-import { SortDefinition } from '@/presentation/search/sort-schemas';
 
 /**
  * Standard default page limit for fetching items from providers.

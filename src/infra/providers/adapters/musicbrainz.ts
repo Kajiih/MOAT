@@ -26,17 +26,17 @@ import {
 } from '@/domain/items/items';
 import { ProviderStatus } from '@/domain/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/domain/providers/types';
-import { logger } from '@/infra/logger';
-import { secureFetch } from '@/infra/providers/api-client';
-import { RateLimiter } from '@/infra/providers/rate-limiter';
-import { applyFilters, handleProviderError } from '@/infra/providers/utils';
-import { createFilterSuite, FilterDefinition, mapTo } from '@/presentation/search/filter-schemas';
+import { createFilterSuite, FilterDefinition, mapTo } from '@/features/search/filter-schemas';
 import {
   SearchParams,
   SearchResult,
   SearchResultSchema,
-} from '@/presentation/search/search-schemas';
-import { createSortSuite, SortDirection } from '@/presentation/search/sort-schemas';
+} from '@/features/search/search-schemas';
+import { createSortSuite, SortDirection } from '@/features/search/sort-schemas';
+import { logger } from '@/infra/logger';
+import { secureFetch } from '@/infra/providers/api-client';
+import { RateLimiter } from '@/infra/providers/rate-limiter';
+import { applyFilters, handleProviderError } from '@/infra/providers/utils';
 
 export const ALBUM_FILTER_DEFAULTS = {
   primaryType: 'album',

@@ -9,8 +9,8 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
+import { useBoardRegistry } from '@/features/board/hooks/useBoardRegistry';
 import { logger } from '@/infra/logger';
-import { useBoardRegistry } from '@/presentation/board/hooks/useBoardRegistry';
 
 /**
  * Root page component that handles redirection to the most recent board

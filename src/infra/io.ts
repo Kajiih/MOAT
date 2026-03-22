@@ -5,7 +5,7 @@
  * @module IO
  */
 
-import { Item, TierDefinition, TierListState } from '@/presentation/board/types';
+import { Item, TierDefinition, TierListState } from '@/features/board/types';
 
 const CURRENT_VERSION = 1;
 

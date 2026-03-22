@@ -18,7 +18,7 @@ import {
   NumberValueSchema,
   RangeValueSchema,
   TextValueSchema,
-} from '@/presentation/search/filter-schemas';
+} from '@/features/search/filter-schemas';
 
 /**
  * Handles error thrown by providers, converting them predictably into structured logs and standard errors.

@@ -13,12 +13,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { ShareModal } from '@/app/share/_components/ShareModal';
-import { BoardOptionsMenu } from '@/presentation/board/BoardOptionsMenu';
-import { BoardTitle } from '@/presentation/board/BoardTitle';
-import { useTierListContext } from '@/presentation/board/context';
-import { useBrandColors } from '@/presentation/board/hooks/useBrandColors';
-import { KeyboardShortcutsModal } from '@/presentation/board/KeyboardShortcutsModal';
-import { useUserPreferences } from '@/presentation/ui/UserPreferencesProvider';
+import { useUserPreferences } from '@/core/ui/UserPreferencesProvider';
+import { BoardOptionsMenu } from '@/features/board/BoardOptionsMenu';
+import { BoardTitle } from '@/features/board/BoardTitle';
+import { useTierListContext } from '@/features/board/context';
+import { useBrandColors } from '@/features/board/hooks/useBrandColors';
+import { KeyboardShortcutsModal } from '@/features/board/KeyboardShortcutsModal';
 
 import { BrandLogo } from './BrandLogo';
 

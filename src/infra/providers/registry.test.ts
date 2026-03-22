@@ -11,15 +11,15 @@ import {
   Provider,
   ProviderStatus,
 } from '@/domain/providers/types';
-import { RAWGProvider } from '@/infra/providers/adapters/rawg';
-import { createFilterSuite, FilterDefinition } from '@/presentation/search/filter-schemas';
+import { createFilterSuite, FilterDefinition } from '@/features/search/filter-schemas';
 import {
   SearchParams,
   SearchParamsSchema,
   SearchResult,
   SearchResultSchema,
-} from '@/presentation/search/search-schemas';
-import { SortDirection } from '@/presentation/search/sort-schemas';
+} from '@/features/search/search-schemas';
+import { SortDirection } from '@/features/search/sort-schemas';
+import { RAWGProvider } from '@/infra/providers/adapters/rawg';
 
 import { registry, RegistryStatus } from './registry';
 import { handleProviderError } from './utils';

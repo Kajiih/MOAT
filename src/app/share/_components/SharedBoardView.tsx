@@ -11,13 +11,13 @@ import { useState } from 'react';
 
 import { BrandLogo } from '@/app/_components/BrandLogo';
 import { Footer } from '@/app/_components/Footer';
-import { BoardTitle } from '@/presentation/board/BoardTitle';
-import { useBrandColors } from '@/presentation/board/hooks/useBrandColors';
-import { TierList } from '@/presentation/board/TierList';
-import { Item, TierListState } from '@/presentation/board/types';
-import { DetailsModal } from '@/presentation/items/DetailsModal';
-import { InteractionContext } from '@/presentation/ui/InteractionContext';
-import { ToastProvider } from '@/presentation/ui/ToastProvider';
+import { InteractionContext } from '@/core/ui/InteractionContext';
+import { ToastProvider } from '@/core/ui/ToastProvider';
+import { BoardTitle } from '@/features/board/BoardTitle';
+import { useBrandColors } from '@/features/board/hooks/useBrandColors';
+import { TierList } from '@/features/board/TierList';
+import { Item, TierListState } from '@/features/board/types';
+import { DetailsModal } from '@/features/items/DetailsModal';
 
 interface SharedBoardViewProps {
   board: TierListState;

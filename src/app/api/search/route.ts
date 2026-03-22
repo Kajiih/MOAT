@@ -8,9 +8,9 @@ import '@/infra/providers/bootstrap'; // Ensure registry loads in node environme
 import { NextResponse } from 'next/server';
 
 import { createErrorResponse } from '@/app/api/utils';
+import { SortDirection } from '@/features/search/sort-schemas';
 import { logger } from '@/infra/logger';
 import { registry } from '@/infra/providers/registry';
-import { SortDirection } from '@/presentation/search/sort-schemas';
 
 /**
  * HTTP GET handler for global generic search proxying.

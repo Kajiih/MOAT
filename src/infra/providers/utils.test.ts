@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { EntityLink } from '@/domain/items/items';
 import { ProviderError, ProviderErrorCode } from '@/domain/providers/errors';
-import { createFilterSuite } from '@/presentation/search/filter-schemas';
+import { createFilterSuite } from '@/features/search/filter-schemas';
 
 import { applyFilters, extractRelatedEntities, extractTags, handleProviderError } from './utils';
 

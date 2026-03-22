@@ -14,8 +14,8 @@ export interface StorageBackend {
   get: <T>(key: string) => Promise<T | undefined>;
   /** Persists a value by key. */
   set: <T>(key: string, value: T) => Promise<void>;
-  /** Safely updates a value using an atomic read-modify-write transaction. */
-  update: <T>(key: string, updater: (val: T | undefined) => T) => Promise<void>;
+  /** Safely updates a value using an atomic read-modify-write transaction. Return undefined to abort. */
+  update: <T>(key: string, updater: (val: T | undefined) => T | undefined) => Promise<void>;
   /** Persists multiple key-value pairs in a single transaction. */
   setMany: (entries: [string, unknown][]) => Promise<void>;
   /** Removes a value by key. */
@@ -44,10 +44,19 @@ export const storage: StorageBackend = {
       logger.error({ error, key }, 'Storage set error');
     }
   },
-  update: async <T>(key: string, updater: (val: T | undefined) => T) => {
+  update: async <T>(key: string, updater: (val: T | undefined) => T | undefined) => {
     try {
-      await update(key, updater);
+      await update(key, (current) => {
+        const result = updater(current);
+        if (result === undefined) {
+          throw new Error('AbortUpdate');
+        }
+        return result;
+      });
     } catch (error) {
+      if (error instanceof Error && error.message === 'AbortUpdate') {
+        return; // Aborted atomically
+      }
       logger.error({ error, key }, 'Storage update error');
     }
   },

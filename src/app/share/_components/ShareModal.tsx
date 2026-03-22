@@ -8,8 +8,8 @@
 import { Check, Copy, ExternalLink, Globe, X } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { useToast } from '@/core/ui/ToastProvider';
 import { logger } from '@/infra/logger';
-import { useToast } from '@/presentation/ui/ToastProvider';
 
 interface ShareModalProps {
   isOpen: boolean;

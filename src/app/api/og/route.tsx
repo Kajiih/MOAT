@@ -10,10 +10,10 @@ import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 import { Item } from '@/domain/items/items';
+import { OGBoard } from '@/features/board/OGBoard';
+import { TierListState } from '@/features/board/types';
 import { logger } from '@/infra/logger';
 import { scrubBoardImages } from '@/infra/server/image-logic';
-import { OGBoard } from '@/presentation/board/OGBoard';
-import { TierListState } from '@/presentation/board/types';
 
 /**
  * We use the 'nodejs' runtime instead of 'edge' because it is more stable

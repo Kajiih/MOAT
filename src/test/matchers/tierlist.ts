@@ -5,7 +5,7 @@
 
 import { expect } from 'vitest';
 
-import { TierListState } from '@/presentation/board/types';
+import { TierListState } from '@/features/board/types';
 
 /**
  * Custom Vitest matchers for TierListState.
