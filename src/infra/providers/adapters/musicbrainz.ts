@@ -456,6 +456,43 @@ const MusicBrainzRecordingSchema = z.object({
 });
 type MusicBrainzRecording = z.infer<typeof MusicBrainzRecordingSchema>;
 
+/**
+ * Extracts standard external URLs (Wikipedia, Wikidata, Homepage) from MusicBrainz relation items.
+ * @param relations - Array of UrlRelation nodes from API payload
+ * @param providerId - Explicit provider ID for backfilling canonical URLs
+ * @param options - Configuration for backfills
+ */
+export const extractUrlsFromRelations = (
+  relations?: z.infer<typeof MusicBrainzUrlRelationSchema>[] | null,
+): { type: string; url: string }[] => {
+  const urls: { type: string; url: string }[] = [];
+  if (!relations) return urls;
+
+  for (const rel of relations) {
+    if (rel.url?.resource) {
+      if (rel.type === 'official homepage') {
+        urls.push({ type: 'homepage', url: rel.url.resource });
+      } else if (rel.type === 'wikipedia') {
+        urls.push({ type: 'wikipedia', url: rel.url.resource });
+      } else if (rel.type === 'wikidata') {
+        urls.push({ type: 'wikidata', url: rel.url.resource });
+      }
+    }
+  }
+  return urls;
+};
+
+/**
+ * Extracts and trims tag lists up to a specified limit.
+ */
+export const extractTags = (
+  tags?: z.infer<typeof MusicBrainzTagSchema>[] | null,
+  limit = 10,
+): string[] => {
+  if (!tags) return [];
+  return tags.map((t) => t.name).slice(0, limit);
+};
+
 // --- Shared Pagination Utilities ---
 const getMusicBrainzInitialParams = (
   config: { limit: number },
@@ -699,24 +736,13 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       const album = MusicBrainzReleaseGroupSchema.parse(rawData);
 
       const item = mapAlbumToItem(album, this.provider.id);
-      const tags = (album.tags || []).map((t) => t.name).slice(0, 10);
+      const tags = extractTags(album.tags);
 
       // Extract official homepage, wikipedia, etc if available over the URL-rels
       const urls: { type: string; url: string }[] = [
         { type: 'musicbrainz', url: `https://musicbrainz.org/release-group/${album.id}` },
+        ...extractUrlsFromRelations(album.relations),
       ];
-
-      if (album.relations) {
-        for (const rel of album.relations) {
-          if (rel.url?.resource) {
-            if (rel.type === 'wikipedia') {
-              urls.push({ type: 'wikipedia', url: rel.url.resource });
-            } else if (rel.type === 'wikidata') {
-              urls.push({ type: 'wikidata', url: rel.url.resource });
-            }
-          }
-        }
-      }
 
       const relatedEntities =
         album['artist-credit']
@@ -996,24 +1022,13 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       const artist = MusicBrainzArtistSchema.parse(rawData);
 
       const item = mapArtistToItem(artist, this.provider.id);
-      const tags = (artist.tags || []).map((t) => t.name).slice(0, 10);
+      const tags = extractTags(artist.tags);
 
       // Extract official homepage, wikipedia, etc if available over the URL-rels
       const urls: { type: string; url: string }[] = [
         { type: 'musicbrainz', url: `https://musicbrainz.org/artist/${artist.id}` },
+        ...extractUrlsFromRelations(artist.relations),
       ];
-
-      if (artist.relations) {
-        for (const rel of artist.relations) {
-          if (rel.url?.resource) {
-            if (rel.type === 'official homepage') {
-              urls.push({ type: 'homepage', url: rel.url.resource });
-            } else if (rel.type === 'wikipedia') {
-              urls.push({ type: 'wikipedia', url: rel.url.resource });
-            }
-          }
-        }
-      }
 
       const extendedData: Record<string, unknown> = {};
 
@@ -1421,24 +1436,23 @@ export class MusicBrainzProvider implements Provider {
     }
   };
 
-  public async searchAlbums(
+  private async searchEntity<
+    TListResponse extends { count: number },
+    TSchema extends z.ZodTypeAny,
+  >(
+    endpoint: string,
+    listKey: string,
     params: SearchParams,
-    searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[],
-  ): Promise<SearchResult<MusicBrainzReleaseGroup>> {
+    options: {
+      filters: FilterDefinition<any>[];
+      buildQuery: (appliedFilters: any) => string;
+      schema: TSchema;
+      mapItem: (item: z.infer<TSchema>) => Item;
+    },
+  ): Promise<SearchResult<z.infer<TSchema>>> {
     try {
-      const appliedFilters = applyFilters(params.filters, searchOptions);
-
-      const queryStr = buildAlbumLuceneQuery({
-        term: params.query,
-        artistId: appliedFilters.artistId as string | undefined,
-        artist: appliedFilters.artist as string | undefined,
-        primarytype: appliedFilters.primarytype as string | undefined,
-        secondarytype: appliedFilters.secondarytype as string | string[] | undefined,
-        status: appliedFilters.status as string | undefined,
-        firstreleasedate_min: appliedFilters.firstreleasedate_min as string | undefined,
-        firstreleasedate_max: appliedFilters.firstreleasedate_max as string | undefined,
-        tag: appliedFilters.tag as string | undefined,
-      });
+      const appliedFilters = applyFilters(params.filters, options.filters);
+      const queryStr = options.buildQuery({ ...appliedFilters, term: params.query });
 
       const limit = params.limit || 20;
       const offset = ((params.page || 1) - 1) * limit;
@@ -1449,17 +1463,14 @@ export class MusicBrainzProvider implements Provider {
         offset: offset.toString(),
       };
 
-      const data = await this.fetchMusicBrainz<MusicBrainzReleaseGroupListResponse>(
-        '/release-group',
-        apiParams,
-        {
-          signal: params.signal,
-        },
-      );
-      const parsedResults = z
-        .array(MusicBrainzReleaseGroupSchema)
-        .parse(data['release-groups'] ?? []);
-      const items = parsedResults.map((item) => mapAlbumToItem(item, this.id));
+      const data = await this.fetchMusicBrainz<TListResponse>(endpoint, apiParams, {
+        signal: params.signal,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rawItems = (data as any)[listKey] ?? [];
+      const parsedResults = z.array(options.schema).parse(rawItems);
+      const items = parsedResults.map(options.mapItem);
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / limit);
@@ -1475,66 +1486,43 @@ export class MusicBrainzProvider implements Provider {
         },
       });
 
-      return result as SearchResult<MusicBrainzReleaseGroup>;
+      return result as SearchResult<z.infer<TSchema>>;
     } catch (error) {
       throw handleProviderError(error, this.id);
     }
   }
+
+  public async searchAlbums(
+     params: SearchParams,
+     searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[],
+   ): Promise<SearchResult<MusicBrainzReleaseGroup>> {
+     return this.searchEntity<
+       MusicBrainzReleaseGroupListResponse,
+       typeof MusicBrainzReleaseGroupSchema
+     >('/release-group', 'release-groups', params, {
+       filters: searchOptions,
+       buildQuery: buildAlbumLuceneQuery,
+       schema: MusicBrainzReleaseGroupSchema,
+       mapItem: (item) => mapAlbumToItem(item, this.id),
+     });
+   }
 
   public async searchArtists(
-    params: SearchParams,
-    searchOptions: FilterDefinition<MusicBrainzArtist>[],
-  ): Promise<SearchResult<MusicBrainzArtist>> {
-    try {
-      const appliedFilters = applyFilters(params.filters, searchOptions);
-
-      const queryStr = buildArtistLuceneQuery({
-        term: params.query,
-        type: appliedFilters.type as string | undefined,
-        country: appliedFilters.country as string | undefined,
-        begin_min: appliedFilters.begin_min as string | undefined,
-        begin_max: appliedFilters.begin_max as string | undefined,
-        tag: appliedFilters.tag as string | undefined,
-      });
-
-      const limit = params.limit || 20;
-      const offset = ((params.page || 1) - 1) * limit;
-
-      const apiParams: Record<string, string> = {
-        query: queryStr,
-        limit: limit.toString(),
-        offset: offset.toString(),
-      };
-
-      const data = await this.fetchMusicBrainz<MusicBrainzArtistListResponse>(
-        '/artist',
-        apiParams,
-        {
-          signal: params.signal,
-        },
-      );
-      const parsedResults = z.array(MusicBrainzArtistSchema).parse(data.artists ?? []);
-      const items = parsedResults.map((item) => mapArtistToItem(item, this.id));
-
-      const currentPage = params.page || 1;
-      const totalPages = Math.ceil(data.count / limit);
-
-      const result = SearchResultSchema.parse({
-        items,
-        raw: parsedResults,
-        pagination: {
-          currentPage,
-          totalPages,
-          totalCount: data.count,
-          hasNextPage: currentPage < totalPages,
-        },
-      });
-
-      return result as SearchResult<MusicBrainzArtist>;
-    } catch (error) {
-      throw handleProviderError(error, this.id);
-    }
-  }
+     params: SearchParams,
+     searchOptions: FilterDefinition<MusicBrainzArtist>[],
+   ): Promise<SearchResult<MusicBrainzArtist>> {
+     return this.searchEntity<MusicBrainzArtistListResponse, typeof MusicBrainzArtistSchema>(
+       '/artist',
+       'artists',
+       params,
+       {
+         filters: searchOptions,
+         buildQuery: buildArtistLuceneQuery,
+         schema: MusicBrainzArtistSchema,
+         mapItem: (item) => mapArtistToItem(item, this.id),
+       },
+     );
+   }
 
   public async fetchMusicBrainz<T>(
     endpoint: string,
@@ -1558,67 +1546,28 @@ export class MusicBrainzProvider implements Provider {
   }
 
   public async searchRecordings(
-    params: SearchParams,
-    searchOptions: FilterDefinition<MusicBrainzRecording>[],
-  ): Promise<SearchResult<MusicBrainzRecording>> {
-    try {
-      const appliedFilters = applyFilters(params.filters, searchOptions);
-
-      const queryStr = buildRecordingLuceneQuery({
-        term: params.query,
-        artistId: appliedFilters.artistId as string | undefined,
-        artist: appliedFilters.artist as string | undefined,
-        releaseGroupId: appliedFilters.releaseGroupId as string | undefined,
-        release: appliedFilters.release as string | undefined,
-        video:
-          appliedFilters.video === 'true'
-            ? true
-            : appliedFilters.video === 'false'
-              ? false
-              : undefined,
-        duration_min: appliedFilters.duration_min as string | undefined,
-        duration_max: appliedFilters.duration_max as string | undefined,
-        tag: appliedFilters.tag as string | undefined,
-      });
-
-      const limit = params.limit || 20;
-      const offset = ((params.page || 1) - 1) * limit;
-
-      const apiParams: Record<string, string> = {
-        query: queryStr,
-        limit: limit.toString(),
-        offset: offset.toString(),
-      };
-
-      const data = await this.fetchMusicBrainz<MusicBrainzRecordingListResponse>(
-        '/recording',
-        apiParams,
-        {
-          signal: params.signal,
-        },
-      );
-      const parsedResults = z.array(MusicBrainzRecordingSchema).parse(data.recordings ?? []);
-      const items = parsedResults.map((item) => mapRecordingToItem(item, this.id));
-
-      const currentPage = params.page || 1;
-      const totalPages = Math.ceil(data.count / limit);
-
-      const result = SearchResultSchema.parse({
-        items,
-        raw: parsedResults,
-        pagination: {
-          currentPage,
-          totalPages,
-          totalCount: data.count,
-          hasNextPage: currentPage < totalPages,
-        },
-      });
-
-      return result as SearchResult<MusicBrainzRecording>;
-    } catch (error) {
-      throw handleProviderError(error, this.id);
-    }
-  }
+     params: SearchParams,
+     searchOptions: FilterDefinition<MusicBrainzRecording>[],
+   ): Promise<SearchResult<MusicBrainzRecording>> {
+     return this.searchEntity<
+       MusicBrainzRecordingListResponse,
+       typeof MusicBrainzRecordingSchema
+     >('/recording', 'recordings', params, {
+       filters: searchOptions,
+       buildQuery: (applied) =>
+         buildRecordingLuceneQuery({
+           ...applied,
+           video:
+             applied.video === 'true'
+               ? true
+               : applied.video === 'false'
+                 ? false
+                 : undefined,
+         }),
+       schema: MusicBrainzRecordingSchema,
+       mapItem: (item) => mapRecordingToItem(item, this.id),
+     });
+   }
 
   public readonly entities = [
     new MusicBrainzRecordingEntity(this),
