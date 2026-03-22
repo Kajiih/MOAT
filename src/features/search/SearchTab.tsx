@@ -97,7 +97,7 @@ export function SearchTab({
           <div
             role="listbox"
             aria-label="Search Results"
-            className="flex flex-wrap justify-center gap-2"
+            className="flex flex-wrap justify-center p-1"
           >
             {Array.from({ length: 15 }).map((_, i) => (
               <SkeletonCard key={i} />
@@ -113,7 +113,7 @@ export function SearchTab({
           <div
             role="listbox"
             aria-label="Search Results"
-            className="flex flex-wrap justify-center gap-2"
+            className="flex flex-wrap justify-center p-1"
           >
             {finalResults.map((item) => {
               const isAdded = addedItemIds.has(item.id);

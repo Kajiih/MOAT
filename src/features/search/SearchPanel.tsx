@@ -7,8 +7,9 @@
 
 import '@/infra/providers/bootstrap'; // Bootstrap all providers on first import
 
-import { Eye, EyeOff, Loader2, Search } from 'lucide-react';
-import React, { useMemo } from 'react';
+import { Eye, EyeOff, Loader2, Search, Trash2 } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 
 import { useTierListContext } from '@/features/board/context';
 import { RegistryStatus } from '@/infra/providers/registry';
@@ -25,10 +26,36 @@ import { SearchTab } from './SearchTab';
 export function SearchPanel() {
   const {
     ui: { addedItemIds, showDetails: onInfo },
-    actions: { locate: handleLocate },
+    actions: { locate: handleLocate, removeItemFromTier },
   } = useTierListContext();
 
   const { availableProviders, status } = useRegistry();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDraggedOver, setIsDraggedOver] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    return dropTargetForElements({
+      element: el,
+      onDragEnter: ({ source }) => {
+        const data = source.data;
+        if (data.type === 'item' && data.tierId) {
+          setIsDraggedOver(true);
+        }
+      },
+      onDragLeave: () => setIsDraggedOver(false),
+      onDrop: ({ source }) => {
+        setIsDraggedOver(false);
+        const data = source.data;
+        if (data.type === 'item' && data.tierId && data.item) {
+          removeItemFromTier(data.tierId as string, (data.item as any).id);
+        }
+      },
+    });
+  }, [removeItemFromTier]);
 
   // 3. Provider selection
   const [providerId, setProviderId] = usePersistentState<string>(
@@ -74,9 +101,18 @@ export function SearchPanel() {
 
   return (
     <div
+      ref={containerRef}
       data-testid="search-panel"
-      className="border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 sm:max-h-[calc(100dvh-2rem)]"
+      className={`border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 sm:max-h-[calc(100dvh-2rem)] transition-colors ${isDraggedOver ? 'border-red-500/50 bg-red-950/10' : ''}`}
     >
+      {isDraggedOver && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center rounded-lg border-2 border-red-500/50 bg-red-950/60 backdrop-blur-[1px]">
+          <Trash2 size={40} className="animate-bounce text-red-400" />
+          <span className="mt-2 text-sm font-black uppercase tracking-wider text-red-200">
+            Drop to Delete
+          </span>
+        </div>
+      )}
       <div className="mb-4 flex shrink-0 flex-wrap items-center gap-4 text-white">
         <div className="flex items-center gap-2">
           <Search size={20} />

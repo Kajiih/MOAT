@@ -11,7 +11,7 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { Edge, attachClosestEdge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -67,7 +67,7 @@ export const ITEM_CARD_DIMENSIONS = {
 /**
  * Shared base classes for rendering item cards uniformly.
  */
-export const ITEM_CARD_BASE_CLASSES = `${ITEM_CARD_DIMENSIONS.mobile.tw} sm:${ITEM_CARD_DIMENSIONS.desktop.tw} aspect-square shrink-0 overflow-hidden rounded-md bg-surface shadow-card`;
+export const ITEM_CARD_BASE_CLASSES = `${ITEM_CARD_DIMENSIONS.mobile.tw} sm:${ITEM_CARD_DIMENSIONS.desktop.tw} aspect-square shrink-0`;
 
 /**
  * A standardized card component for displaying and interacting with items.
@@ -105,6 +105,7 @@ export function ItemCard({
   const ref = useRef<HTMLDivElement>(null);
   const [isDraggingLocal, setIsDraggingLocal] = useState(false);
   const [isOverLocal, setIsOverLocal] = useState(false);
+  const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
 
   const interactionContext = useContext(InteractionContext);
   const setHoveredItem = interactionContext?.setHoveredItem;
@@ -146,9 +147,21 @@ export function ItemCard({
           allowedEdges: ['left', 'right'],
         });
       },
-      onDragEnter: () => setIsOverLocal(true),
-      onDragLeave: () => setIsOverLocal(false),
-      onDrop: () => setIsOverLocal(false),
+      onDragEnter: ({ self }) => {
+        setIsOverLocal(true);
+        setClosestEdge(extractClosestEdge(self.data));
+      },
+      onDrag: ({ self }) => {
+        setClosestEdge(extractClosestEdge(self.data));
+      },
+      onDragLeave: () => {
+        setIsOverLocal(false);
+        setClosestEdge(null);
+      },
+      onDrop: () => {
+        setIsOverLocal(false);
+        setClosestEdge(null);
+      },
     });
 
     return () => {
@@ -270,13 +283,19 @@ export function ItemCard({
       style={style}
       data-testid={`item-card-${item.id}`}
       className={twMerge(
-        `group duration-fast relative transition-all hover:shadow-xl ${ITEM_CARD_BASE_CLASSES}`,
+        `group duration-fast relative transition-all p-1 ${ITEM_CARD_BASE_CLASSES}`,
         isAdded ? 'grayscale opacity-70' : '',
-        isOverLocal ? 'z-50 scale-105 ring-2 ring-emerald-500' : '',
+        isOverLocal ? 'z-40' : '',
         className,
       )}
     >
       {/* 1. Drag & Drop Interaction Layer (Separate from buttons) */}
+      {closestEdge && (
+        <div
+          data-testid="drop-indicator"
+          className={`absolute top-1 bottom-1 z-50 w-[2px] bg-emerald-500 shadow-[0_0_4px_theme(colors.emerald.400)] ${closestEdge === 'left' ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'}`}
+        />
+      )}
       <div
         className="absolute inset-0 cursor-grab active:cursor-grabbing"
         aria-label={item.title}
@@ -288,7 +307,7 @@ export function ItemCard({
       />
 
       {/* 2. The Visuals */}
-      <div className="pointer-events-none">
+      <div className="pointer-events-none absolute inset-1 overflow-hidden rounded-md bg-surface shadow-card">
         <ItemImage
           item={item}
           TypeIcon={TypeIcon}
