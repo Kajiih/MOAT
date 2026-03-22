@@ -66,7 +66,9 @@ export const TierRow = memo(function TierRow({
   isExport = false,
 }: TierRowProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const [dragHandle, setDragHandle] = useState<HTMLElement | null>(null);
+  const [isOverEmpty, setIsOverEmpty] = useState(false);
 
   const [isDraggingTier, setIsDraggingTier] = useState(false);
   const [isOverRow, setIsOverRow] = useState(false);
@@ -85,11 +87,21 @@ export const TierRow = memo(function TierRow({
     });
 
     const cleanupDropTarget = dropTargetForElements({
-      element: el,
+      element: gridRef.current!,
       getData: () => ({ type: 'tier', isTierContainer: true, tierId: tier.id }),
       onDragEnter: () => setIsOverRow(true),
-      onDragLeave: () => setIsOverRow(false),
-      onDrop: () => setIsOverRow(false),
+      onDragLeave: () => {
+        setIsOverRow(false);
+        setIsOverEmpty(false);
+      },
+      onDrag: ({ location }) => {
+        const isDirect = location.current.dropTargets[0].element === gridRef.current;
+        setIsOverEmpty(isDirect);
+      },
+      onDrop: () => {
+        setIsOverRow(false);
+        setIsOverEmpty(false);
+      },
     });
 
     return () => {
@@ -128,6 +140,7 @@ export const TierRow = memo(function TierRow({
 
       {/* Items Column */}
       <div
+        ref={gridRef}
         role="listbox"
         aria-label={`Tier ${tier.label}`}
         className="relative flex min-h-[100px] min-w-0 flex-1 flex-col"
@@ -143,6 +156,7 @@ export const TierRow = memo(function TierRow({
           isBoardEmpty={isBoardEmpty}
           isMiddleTier={isMiddleTier}
           isExport={isExport}
+          isOverEmpty={isOverEmpty}
         />
       </div>
     </div>

@@ -11,15 +11,12 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import {
-  attachClosestEdge,
-  Edge,
-  extractClosestEdge,
-} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { attachClosestEdge, Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+import { DropIndicator } from '@/core/ui/DropIndicator';
 import { InteractionContext } from '@/core/ui/InteractionContext';
 import { getSubtitleString, Item } from '@/domain/items/items';
 import { useTierListContext } from '@/features/board/context';
@@ -51,6 +48,8 @@ export interface ItemCardProps {
   onInfo?: (item: Item) => void;
   /** Callback to locate the item on the board. */
   onLocate?: () => void;
+  /** Optional override for the drop indicator edge, useful for append zones. */
+  overrideClosestEdge?: Edge | null;
   /** Optional class overrides. */
   className?: string;
 }
@@ -85,6 +84,7 @@ export const ITEM_CARD_BASE_CLASSES = `${ITEM_CARD_DIMENSIONS.mobile.tw} sm:${IT
  * @param props.priority - Whether the image should be loaded with priority.
  * @param props.onRemove - Callback to remove the item.
  * @param props.onInfo - Callback to show item details.
+ * @param props.overrideClosestEdge - Optional override for the drop indicator edge.
  * @param props.className - Optional class overrides.
  * @returns The rendered ItemCard component.
  */
@@ -98,6 +98,7 @@ export function ItemCard({
   priority,
   onRemove,
   onInfo,
+  overrideClosestEdge,
   className,
 }: ItemCardProps) {
   // 1. Get configuration from registry
@@ -176,6 +177,9 @@ export function ItemCard({
   }, [item, tierId, isExport]);
 
   const activeDragging = isDragging || isDraggingLocal || isKeyboardDragging;
+  const activeEdge = overrideClosestEdge !== undefined && overrideClosestEdge !== null
+    ? overrideClosestEdge
+    : closestEdge;
 
   const style: React.CSSProperties = {
     opacity: activeDragging ? 0.4 : 1,
@@ -295,12 +299,6 @@ export function ItemCard({
       )}
     >
       {/* 1. Drag & Drop Interaction Layer (Separate from buttons) */}
-      {closestEdge && (
-        <div
-          data-testid="drop-indicator"
-          className={`absolute top-1 bottom-1 z-50 w-[2px] bg-emerald-500 shadow-[0_0_4px_theme(colors.emerald.400)] ${closestEdge === 'left' ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'}`}
-        />
-      )}
       <div
         className="absolute inset-0 cursor-grab active:cursor-grabbing"
         aria-label={item.title}
@@ -396,6 +394,7 @@ export function ItemCard({
           )}
         </div>
       )}
+      {activeEdge && <DropIndicator edge={activeEdge} />}
     </div>
   );
 }

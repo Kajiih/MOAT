@@ -12,6 +12,7 @@ import {
   CARD_ANIMATION_TAP,
   CARD_ANIMATION_TRANSITION,
 } from '@/core/ui/animations';
+import { DropIndicator } from '@/core/ui/DropIndicator';
 import { Item } from '@/domain/items/items';
 import { useTierListContext } from '@/features/board/context';
 import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
@@ -37,6 +38,8 @@ interface TierGridProps {
   isMiddleTier?: boolean;
   /** Whether the component is being rendered for image export. */
   isExport?: boolean;
+  /** Whether a drag is currently over the empty space of this grid. */
+  isOverEmpty?: boolean;
 }
 
 /**
@@ -52,6 +55,7 @@ export const TierGrid = memo(function TierGrid({
   isBoardEmpty,
   isMiddleTier,
   isExport = false,
+  isOverEmpty = false,
 }: TierGridProps) {
   const context = useTierListContext();
   const activeEpic = context?.ui.activeEpic;
@@ -63,6 +67,7 @@ export const TierGrid = memo(function TierGrid({
   const isLargeTier = !isExport && items.length > 100;
 
   const renderCard = (item: Item): ReactNode => {
+    const isLastItem = items.length > 0 && item.id === items.at(-1)?.id;
     return (
       <ItemCard
         key={item.id}
@@ -71,6 +76,7 @@ export const TierGrid = memo(function TierGrid({
         onRemove={onRemoveItem ? () => onRemoveItem(item.id) : undefined}
         onInfo={onInfo}
         isExport={isExport}
+        overrideClosestEdge={isOverEmpty && isLastItem ? 'right' : null}
       />
     );
   };
@@ -106,8 +112,10 @@ export const TierGrid = memo(function TierGrid({
   );
 
   return (
-    <div className={`flex-1 ${!isLargeTier ? 'flex flex-wrap items-center p-2' : ''}`}>
+    <div className={`relative flex-1 ${!isLargeTier ? 'flex flex-wrap items-center p-2' : ''}`}>
       {isExport ? <>{cards}</> : content}
+      {items.length === 0 && isOverEmpty && <DropIndicator className="absolute left-2 top-2 bottom-2" />}
+
 
       {items.length === 0 && isBoardEmpty && isMiddleTier && (
         <div className="text-muted pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold italic select-none">

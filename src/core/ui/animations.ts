@@ -12,7 +12,7 @@ export const CARD_ANIMATION_VARIANTS = {
   exit: {
     x: 40,
     opacity: 0,
-    transition: { duration: 0.1, ease: 'easeIn' },
+    transition: { duration: 0.16, ease: 'easeIn' },
   },
 } as const;
 
