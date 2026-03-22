@@ -6,7 +6,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Item } from '@/domain/items/items';
 import { DEFAULT_PAGE_LIMIT } from '@/domain/providers/types';
@@ -65,6 +65,19 @@ export function SearchTab({
   );
 
   const [showFilters, setShowFilters] = useState(false);
+  const filterPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (filterPanelRef.current && !filterPanelRef.current.contains(e.target as Node)) {
+        setShowFilters(false);
+      }
+    }
+    if (showFilters) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showFilters]);
 
   const { results, pagination, isLoading, error } = useItemSearch(providerId, entityId, params, {
     enabled: !isHidden,
@@ -160,7 +173,7 @@ export function SearchTab({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="mb-4 grid shrink-0 grid-cols-1 gap-2">
+      <div className="relative mb-4 grid shrink-0 grid-cols-1 gap-2" ref={filterPanelRef}>
         <div className="flex gap-2">
           <input
             placeholder={`Search ${entity?.branding.labelPlural}...`}
@@ -241,7 +254,7 @@ export function SearchTab({
 
         {/* Advanced Filters Panel */}
         {showFilters && entity && (
-          <div className="border-border bg-surface rounded-md border p-2">
+          <div className="border-border bg-surface absolute left-0 right-0 top-full z-50 mt-1 rounded-md border p-4 shadow-xl max-h-[calc(100vh-16rem)] overflow-y-auto">
             <FilterPanel
               providerId={providerId}
               entity={entity}

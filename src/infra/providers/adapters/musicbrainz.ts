@@ -1470,7 +1470,7 @@ export class MusicBrainzProvider implements Provider {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rawItems = (data as any)[listKey] ?? [];
       const parsedResults = z.array(options.schema).parse(rawItems);
-      const items = parsedResults.map(options.mapItem);
+      const items = parsedResults.map((item) => options.mapItem(item));
 
       const currentPage = params.page || 1;
       const totalPages = Math.ceil(data.count / limit);

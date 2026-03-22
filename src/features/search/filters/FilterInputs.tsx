@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 
 import {
   BooleanFilterDefinition,
@@ -53,18 +54,23 @@ export function SelectFilterInput({
   onChange,
 }: FilterControlProps<SelectFilterDefinition>) {
   return (
-    <select
-      className="border-border text-foreground focus:border-primary focus:ring-primary w-full rounded-md border bg-black px-2 py-1.5 text-xs outline-none focus:ring-1"
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      <option value="">{filter.emptyLabel}</option>
-      {filter.options?.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <div className="relative w-full">
+      <select
+        className="border-border text-foreground focus:border-primary focus:ring-primary w-full appearance-none rounded-md border bg-black pl-2 pr-8 py-1.5 text-xs outline-none focus:ring-1"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">{filter.emptyLabel}</option>
+        {filter.options?.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-secondary">
+        <ChevronDown size={14} />
+      </div>
+    </div>
   );
 }
 
