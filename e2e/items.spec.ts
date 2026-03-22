@@ -252,7 +252,7 @@ test.describe('Item Management', () => {
     const card1 = boardPage.getItemCard('item-1');
     await expect(card1).toBeVisible({ timeout: 15_000 });
 
-    const detailsMap = new Map<string, any>([
+    const detailsMap = new Map<string, Record<string, unknown>>([
       [
         'rawg:game:item-1',
         {

@@ -43,6 +43,9 @@ interface DetailsModalProps {
  * @param props.isOpen - Whether the modal is currently open.
  * @param props.onClose - Callback to close the modal.
  * @param props.onUpdateItem - Callback to persist updates to the item.
+ * @param props.onNavigate - Optional callback to navigate to a related item.
+ * @param props.isAdded - Whether the item is already added to the board.
+ * @param props.onAddToTierlist - Callback to add the item to the board.
  * @returns The rendered DetailsModal component.
  */
 export function DetailsModal({
@@ -347,9 +350,9 @@ export function DetailsModal({
                                   ? label.slice(0, lastParen).trim()
                                   : label;
 
-                                const numberMatch = cleanLabel.match(/^(\d+)\.\s+(.*)$/);
-                                const trackNumber = numberMatch ? numberMatch[1] : null;
-                                const trackTitle = numberMatch ? numberMatch[2].trim() : cleanLabel;
+                                const match = /^(\d+)\.\s+/.exec(cleanLabel);
+                                const trackNumber = match ? match[1] : null;
+                                const trackTitle = match ? cleanLabel.slice(match[0].length) : cleanLabel;
 
                                 const liEntity = typeof li === 'string' ? null : li;
                                 const liProvider = liEntity

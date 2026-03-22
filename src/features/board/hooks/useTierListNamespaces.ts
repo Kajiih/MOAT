@@ -138,7 +138,7 @@ export function useTierListNamespaces({
       history.push();
       dispatch(moveItem(payload));
     },
-    [dispatch, history, uiState.triggerEpic],
+    [dispatch, history],
   );
 
   // Namespace: actions

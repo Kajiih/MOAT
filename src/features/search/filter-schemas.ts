@@ -371,17 +371,29 @@ export function createFilterSuite<
   TSuiteOutput extends FilterOutputRecord = FilterOutputRecord,
 >() {
   return {
-    /** Build a text filter parameter */
+    /**
+     * Build a text filter parameter
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     text: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: TextFilterConfig<TRaw, TOutput>,
     ): TextFilterDefinition<TRaw, TOutput> => ({ defaultValue: '', ...config, type: 'text' }),
 
-    /** Build a numerical filter parameter */
+    /**
+     * Build a numerical filter parameter
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     number: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: NumberFilterConfig<TRaw, TOutput>,
     ): NumberFilterDefinition<TRaw, TOutput> => ({ defaultValue: 0, ...config, type: 'number' }),
 
-    /** Build a boolean toggle filter parameter */
+    /**
+     * Build a boolean toggle filter parameter
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     boolean: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: BooleanFilterConfig<TRaw, TOutput>,
     ): BooleanFilterDefinition<TRaw, TOutput> => ({
@@ -390,7 +402,11 @@ export function createFilterSuite<
       type: 'boolean',
     }),
 
-    /** Build a single-choice dropdown filter parameter */
+    /**
+     * Build a single-choice dropdown filter parameter
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     select: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: SelectFilterConfig<TRaw, TOutput>,
     ): SelectFilterDefinition<TRaw, TOutput> => ({
@@ -400,7 +416,11 @@ export function createFilterSuite<
       type: 'select',
     }),
 
-    /** Build a multiple-choice selection filter parameter */
+    /**
+     * Build a multiple-choice selection filter parameter
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     multiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: MultiSelectFilterConfig<TRaw, TOutput>,
     ): MultiSelectFilterDefinition<TRaw, TOutput> => ({
@@ -409,7 +429,11 @@ export function createFilterSuite<
       type: 'multiselect',
     }),
 
-    /** Build an asynchronous single-choice dropdown fetching its options live */
+    /**
+     * Build an asynchronous single-choice dropdown fetching its options live
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     asyncSelect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: AsyncSelectFilterConfig<TRaw, TOutput>,
     ): AsyncSelectFilterDefinition<TRaw, TOutput> => ({
@@ -419,7 +443,11 @@ export function createFilterSuite<
       type: 'async-select',
     }),
 
-    /** Build an asynchronous multiple-choice selection parameter fetching its options live */
+    /**
+     * Build an asynchronous multiple-choice selection parameter fetching its options live
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     asyncMultiselect: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: AsyncMultiSelectFilterConfig<TRaw, TOutput>,
     ): AsyncMultiSelectFilterDefinition<TRaw, TOutput> => ({
@@ -428,12 +456,20 @@ export function createFilterSuite<
       type: 'async-multiselect',
     }),
 
-    /** Build a max/min scope range filter parameter */
+    /**
+     * Build a max/min scope range filter parameter
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     range: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: RangeFilterConfig<TRaw, TOutput>,
     ): RangeFilterDefinition<TRaw, TOutput> => ({ defaultValue: {}, ...config, type: 'range' }),
 
-    /** Build a strict date constraint filter parameter */
+    /**
+     * Build a strict date constraint filter parameter
+     * @param config - Filter configuration
+     * @returns Filter definition
+     */
     date: <TOutput extends FilterOutputRecord = TSuiteOutput>(
       config: DateFilterConfig<TRaw, TOutput>,
     ): DateFilterDefinition<TRaw, TOutput> => ({ defaultValue: '', ...config, type: 'date' }),

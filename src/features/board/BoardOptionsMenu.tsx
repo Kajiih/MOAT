@@ -50,6 +50,8 @@ interface BoardOptionsMenuProps {
  * @param props.onShowShortcuts - Callback fired when the user clicks the shortcuts button.
  * @param props.showAdvanced - Whether advanced mode is currently enabled.
  * @param props.onToggleAdvanced - Callback fired when the user toggles advanced mode.
+ * @param props.cardPrefs - Object containing card visual preferences (icons, accent strips, etc.).
+ * @param props.onToggleCardPref - Callback fired when a visual preference is toggled.
  * @returns The rendered dropdown menu.
  */
 export function BoardOptionsMenu({

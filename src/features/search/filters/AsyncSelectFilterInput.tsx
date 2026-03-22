@@ -23,6 +23,7 @@ import { FilterControlProps } from './types';
  * @param props.filter - The async selection definition details.
  * @param props.value - The currently selected entity ID or undefined.
  * @param props.onChange - Functional callback resolving the updated state.
+ * @param props.activeFilters - Currently applied filter values for dependencies.
  * @returns A fully bound async search-select popover.
  */
 export function AsyncSelectFilterInput({

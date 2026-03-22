@@ -26,6 +26,9 @@ import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
 import { useItemRegistry } from '@/infra/providers/useItemRegistry';
 import { usePersistentReducer } from '@/infra/storage/usePersistentReducer';
 
+/**
+ * Event representing an active Epic animation instance driving canvas rendering.
+ */
 export interface EpicAnimationEvent {
   itemId: string;
   animationId: string;

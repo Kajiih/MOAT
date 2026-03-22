@@ -123,9 +123,13 @@ export const TierListSchema = z.object({
 
 // --- Drag and Drop Types ---
 
+/**
+ * Data payload for an item being dragged in the board tree.
+ */
 export type DragItemData = {
   type: 'item';
   item: Item;
+  tierId?: string;
 };
 
 export type DragTierData = {

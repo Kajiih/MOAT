@@ -32,6 +32,8 @@ export type Subtitle = z.infer<typeof SubtitleSchema>;
 
 /**
  * Resolves a sequence of subtitle tokens into a flat display string.
+ * @param subtitle - The subtitle to format, either string or token array
+ * @returns The flattened string representation
  */
 export function getSubtitleString(subtitle: Subtitle | undefined): string {
   if (!subtitle) return '';

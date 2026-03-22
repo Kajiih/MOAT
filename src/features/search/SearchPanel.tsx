@@ -12,6 +12,7 @@ import { Eye, EyeOff, Loader2, Search, Trash2 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useTierListContext } from '@/features/board/context';
+import { isDragItemData } from '@/features/board/types';
 import { RegistryStatus } from '@/infra/providers/registry';
 import { usePersistentState } from '@/infra/storage/usePersistentState';
 import { useRegistry } from '@/presentation/hooks/useRegistry';
@@ -50,8 +51,8 @@ export function SearchPanel() {
       onDrop: ({ source }) => {
         setIsDraggedOver(false);
         const data = source.data;
-        if (data.type === 'item' && data.tierId && data.item) {
-          removeItemFromTier(data.tierId as string, (data.item as any).id);
+        if (isDragItemData(data) && data.tierId) {
+          removeItemFromTier(data.tierId, data.item.id);
         }
       },
     });

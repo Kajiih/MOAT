@@ -55,6 +55,8 @@ const SECONDARY_TYPES = ALBUM_FILTER_DEFAULTS.excludedSecondaryTypes;
 /**
  * Predicate to determine if a release group is a Studio Album.
  * Aligns with default search exclusions.
+ * @param rg - The release group to test.
+ * @returns True if it qualifies as a Studio Album.
  */
 export const isStudioAlbum = (rg: MusicBrainzReleaseGroup): boolean => {
   const isAlbum = rg['primary-type']?.toLowerCase() === ALBUM_FILTER_DEFAULTS.primaryType;
@@ -98,6 +100,8 @@ const addLuceneRange = (parts: string[], field: string, range?: { min?: string; 
 
 /**
  * Format milliseconds into M:SS string
+ * @param ms - Duration in milliseconds
+ * @returns Formatted duration string
  */
 export const formatDuration = (ms: number): string => {
   const mins = Math.floor(ms / 60_000);
@@ -130,6 +134,8 @@ const escapeLucene = (str: string) =>
 /**
  * Wraps a term in double quotes only if it contains a space.
  * @param str - The string to format
+ * @param options - Configuration options
+ * @param options.fuzzy - Whether to allow fuzzy matching
  * @returns The formatted string
  */
 const formatLuceneTerm = (str: string, options: { fuzzy?: boolean } = {}) => {
@@ -455,8 +461,7 @@ type MusicBrainzRecording = z.infer<typeof MusicBrainzRecordingSchema>;
 /**
  * Extracts standard external URLs (Wikipedia, Wikidata, Homepage) from MusicBrainz relation items.
  * @param relations - Array of UrlRelation nodes from API payload
- * @param providerId - Explicit provider ID for backfilling canonical URLs
- * @param options - Configuration for backfills
+ * @returns Array of typed URL objects
  */
 export const extractUrlsFromRelations = (
   relations?: z.infer<typeof MusicBrainzUrlRelationSchema>[] | null,
@@ -491,6 +496,9 @@ export const extractUrlsFromRelations = (
 
 /**
  * Extracts and trims tag lists up to a specified limit.
+ * @param tags - Array of tag objects from API
+ * @param limit - Maximum number of tags to return
+ * @returns Array of tag strings
  */
 export const extractTags = (
   tags?: z.infer<typeof MusicBrainzTagSchema>[] | null,
@@ -545,6 +553,126 @@ interface MusicBrainzRecordingListResponse extends MBListResponse {
 
 const mbAlbumSorts = createSortSuite<MusicBrainzReleaseGroup>();
 const mbAlbumFilters = createFilterSuite<MusicBrainzReleaseGroup, AlbumLuceneQuery>();
+
+// --- Helpers for MusicBrainzAlbumEntity ---
+
+function extractTracklistFromRelease(release: MusicBrainzRelease, providerId: string): SubtitleToken[] {
+  const tracks: SubtitleToken[] = [];
+  if (!release.media) return tracks;
+
+  release.media.forEach((medium) => {
+    if (!medium.tracks) return;
+
+    medium.tracks.forEach((track) => {
+      const duration = track.length ? formatDuration(track.length) : '';
+      const durationStr = duration ? ` (${duration})` : '';
+      tracks.push({
+        label: 'Song',
+        name: `${track.number}. ${track.title}${durationStr}`,
+        identity: {
+          providerItemId: track.recording?.id || track.id,
+          providerId,
+          entityId: 'song',
+        },
+      });
+    });
+  });
+  return tracks;
+}
+
+async function fetchTracklistForRelease(
+  provider: MusicBrainzProvider,
+  releaseId: string,
+  signal?: AbortSignal,
+): Promise<{ tracks: SubtitleToken[]; date?: string; country?: string }> {
+  try {
+    const releaseData = await provider.fetchMusicBrainz<unknown>(
+      `/release/${releaseId}`,
+      { inc: 'recordings' },
+      { signal },
+    );
+    const release = MusicBrainzReleaseSchema.parse(releaseData);
+    const tracks = extractTracklistFromRelease(release, provider.id);
+    return {
+      tracks,
+      date: release.date || undefined,
+      country: release.country || undefined,
+    };
+  } catch (error) {
+    logger.warn(`[MusicBrainz] Failed to fetch tracklist for release ${releaseId}: ${error}`);
+    return { tracks: [] };
+  }
+}
+
+// --- Helpers for MusicBrainzArtistEntity ---
+
+function buildArtistAlbumsSection(
+  releaseGroups: MusicBrainzReleaseGroup[],
+  providerId: string,
+): ItemSection | null {
+  if (!releaseGroups?.length) return null;
+
+  const topReleases = [...releaseGroups]
+    .filter((rg) => isStudioAlbum(rg))
+    .toSorted((a, b) => {
+    const dateA = a['first-release-date'] || '9999';
+    const dateB = b['first-release-date'] || '9999';
+    return dateA.localeCompare(dateB);
+  });
+
+  if (topReleases.length === 0) return null;
+
+  return {
+    title: 'Albums',
+    type: 'list',
+    content: topReleases.map((rg) => {
+      const year = rg['first-release-date']
+        ? ` (${rg['first-release-date'].split('-')[0]})`
+        : '';
+      return {
+        label: 'Album',
+        name: `${rg.title}${year}`,
+        identity: {
+          providerItemId: rg.id,
+          providerId,
+          entityId: 'album',
+        },
+      };
+    }),
+  };
+}
+
+// --- Helpers for MusicBrainz Album details ---
+function isArtistNotInSubtitle(artistId: string, subtitle?: Subtitle): boolean {
+  if (!Array.isArray(subtitle)) return true;
+  return !subtitle.some((l) => typeof l !== 'string' && l.identity.providerItemId === artistId);
+}
+
+async function processReleasesForAlbum(
+  provider: MusicBrainzProvider,
+  releases: NonNullable<z.infer<typeof MusicBrainzReleaseGroupSchema>['releases']>,
+  signal?: AbortSignal,
+): Promise<{ sections: ItemSection[]; extendedData: Record<string, unknown> }> {
+  const sections: ItemSection[] = [];
+  const extendedData: Record<string, unknown> = {};
+
+  const officialReleases = releases.filter((r) => r.status?.toLowerCase() === 'official');
+  const bestRelease = officialReleases.find((r) => r.date) || officialReleases[0] || releases[0];
+
+  if (bestRelease?.id) {
+    const { tracks, date, country } = await fetchTracklistForRelease(provider, bestRelease.id, signal);
+    if (tracks.length > 0) {
+      sections.push({
+        title: 'Tracklist',
+        type: 'list',
+        content: tracks,
+      });
+    }
+    if (date) extendedData['Release Date'] = date;
+    if (country) extendedData['Country'] = country;
+  }
+  return { sections, extendedData };
+}
 
 // --- Album Entity ---
 // IDs for integration tests (e.g., Thriller, Abbey Road)
@@ -753,16 +881,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
 
       const relatedEntities =
         album['artist-credit']
-          ?.filter(
-            (c) =>
-              c.artist?.id &&
-              !(
-                Array.isArray(item.subtitle) &&
-                item.subtitle.some(
-                  (l) => typeof l !== 'string' && l.identity.providerItemId === c.artist!.id,
-                )
-              ),
-          )
+          ?.filter((c) => c.artist?.id && isArtistNotInSubtitle(c.artist.id, item.subtitle))
           .map((c) => ({
             label: 'Artist',
             name: c.artist!.name,
@@ -777,64 +896,13 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
       const extendedData: Record<string, unknown> = {};
 
       if (album.releases && album.releases.length > 0) {
-        // Find best release: Official, then prefer ones with date
-        const officialReleases = album.releases.filter(
-          (r) => r.status?.toLowerCase() === 'official',
+        const { sections: s, extendedData: e } = await processReleasesForAlbum(
+          this.provider,
+          album.releases,
+          signal,
         );
-        const bestRelease =
-          officialReleases.find((r) => r.date) || officialReleases[0] || album.releases[0];
-
-        if (bestRelease?.id) {
-          try {
-            const releaseData = await this.provider.fetchMusicBrainz<unknown>(
-              `/release/${bestRelease.id}`,
-              { inc: 'recordings' },
-              { signal },
-            );
-            const release = MusicBrainzReleaseSchema.parse(releaseData);
-
-            if (release.media && release.media.length > 0) {
-              const tracks: SubtitleToken[] = [];
-              release.media.forEach((medium) => {
-                if (medium.tracks) {
-                  medium.tracks.forEach((track) => {
-                    const duration = track.length ? formatDuration(track.length) : '';
-                    const durationStr = duration ? ` (${duration})` : '';
-                    const trackLink: SubtitleToken = {
-                      label: 'Song',
-                      name: `${track.number}. ${track.title}${durationStr}`,
-                      identity: {
-                        providerItemId: track.recording?.id || track.id,
-                        providerId: this.provider.id,
-                        entityId: 'song',
-                      },
-                    };
-                    tracks.push(trackLink);
-                  });
-                }
-              });
-
-              if (tracks.length > 0) {
-                sections.push({
-                  title: 'Tracklist',
-                  type: 'list',
-                  content: tracks,
-                });
-              }
-            }
-
-            if (release.date) {
-              extendedData['Release Date'] = release.date;
-            }
-            if (release.country) {
-              extendedData['Country'] = release.country;
-            }
-          } catch (error) {
-            logger.warn(
-              `[MusicBrainz] Failed to fetch tracklist for release ${bestRelease.id}: ${error}`,
-            );
-          }
-        }
+        sections.push(...s);
+        Object.assign(extendedData, e);
       }
 
       const details: ItemDetails = {
@@ -1054,44 +1122,24 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
 
       if (artist['life-span']?.begin) {
         const begin = artist['life-span'].begin.split('-')[0];
-        const end = artist['life-span'].end
-          ? artist['life-span'].end.split('-')[0]
-          : artist['life-span'].ended
-            ? 'Past'
-            : 'Present';
+        let end = 'Present';
+        if (artist['life-span'].end) {
+          end = artist['life-span'].end.split('-')[0];
+        } else if (artist['life-span'].ended) {
+          end = 'Past';
+        }
         extendedData['Active'] = `${begin} - ${end}`;
       }
 
       const sections: ItemSection[] = [];
 
-      if (artist['release-groups'] && artist['release-groups'].length > 0) {
-        const topReleases = artist['release-groups']
-          .filter((rg) => isStudioAlbum(rg))
-          .sort((a, b) => {
-            const dateA = a['first-release-date'] || '9999';
-            const dateB = b['first-release-date'] || '9999';
-            return dateA.localeCompare(dateB);
-          });
-
-        if (topReleases.length > 0) {
-          sections.push({
-            title: 'Albums',
-            type: 'list',
-            content: topReleases.map((rg) => {
-              const year = rg['first-release-date']
-                ? ` (${rg['first-release-date'].split('-')[0]})`
-                : '';
-              return {
-                label: 'Album',
-                name: `${rg.title}${year}`,
-                identity: {
-                  providerItemId: rg.id,
-                  providerId: this.provider.id,
-                  entityId: 'album',
-                },
-              };
-            }),
-          });
+      if (artist['release-groups']) {
+        const albumSection = buildArtistAlbumsSection(
+          artist['release-groups'],
+          this.provider.id,
+        );
+        if (albumSection) {
+          sections.push(albumSection);
         }
       }
 
@@ -1448,8 +1496,8 @@ export class MusicBrainzProvider implements Provider {
     listKey: string,
     params: SearchParams,
     options: {
-      filters: FilterDefinition<any>[];
-      buildQuery: (appliedFilters: any) => string;
+      filters: FilterDefinition<z.infer<TSchema>>[];
+      buildQuery: (appliedFilters: Record<string, unknown>) => string;
       schema: TSchema;
       mapItem: (item: z.infer<TSchema>) => Item;
     },
@@ -1505,7 +1553,7 @@ export class MusicBrainzProvider implements Provider {
       typeof MusicBrainzReleaseGroupSchema
     >('/release-group', 'release-groups', params, {
       filters: searchOptions,
-      buildQuery: buildAlbumLuceneQuery,
+      buildQuery: (applied) => buildAlbumLuceneQuery(applied as AlbumLuceneQuery),
       schema: MusicBrainzReleaseGroupSchema,
       mapItem: (item) => mapAlbumToItem(item, this.id),
     });
@@ -1521,7 +1569,7 @@ export class MusicBrainzProvider implements Provider {
       params,
       {
         filters: searchOptions,
-        buildQuery: buildArtistLuceneQuery,
+        buildQuery: (applied) => buildArtistLuceneQuery(applied as ArtistLuceneQuery),
         schema: MusicBrainzArtistSchema,
         mapItem: (item) => mapArtistToItem(item, this.id),
       },
@@ -1559,11 +1607,16 @@ export class MusicBrainzProvider implements Provider {
       params,
       {
         filters: searchOptions,
-        buildQuery: (applied) =>
-          buildRecordingLuceneQuery({
+        buildQuery: (applied) => {
+          let video: boolean | undefined;
+          if (applied.video === 'true') video = true;
+          else if (applied.video === 'false') video = false;
+
+          return buildRecordingLuceneQuery({
             ...applied,
-            video: applied.video === 'true' ? true : applied.video === 'false' ? false : undefined,
-          }),
+            video,
+          } as RecordingLuceneQuery);
+        },
         schema: MusicBrainzRecordingSchema,
         mapItem: (item) => mapRecordingToItem(item, this.id),
       },

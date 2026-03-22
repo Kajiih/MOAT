@@ -24,6 +24,8 @@ import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
  * @param state - The current tier list state.
  * @param dispatch - The Redux dispatch function.
  * @param pushHistory - Callback to save a history snapshot before mutation.
+ * @param triggerEpic - Optional callback to trigger an epic animation.
+ * @param epicProbability - Optional probability (0-100) to trigger animation.
  * @returns The current drag state including active item, tier, and over ID.
  */
 export function useTierListDrag(
@@ -102,34 +104,13 @@ export function useTierListDrag(
             }),
           );
 
-          if (triggerEpic && epicProbability !== undefined) {
-            const prob = epicProbability / 100;
-            if (Math.random() < prob) {
-              const epicKeys = Object.keys(EPIC_ANIMATION_PRESETS).filter(
-                (key) => key !== 'default',
-              );
-              const randomAnimation = epicKeys[Math.floor(Math.random() * epicKeys.length)];
-
-              if (randomAnimation) {
-                triggerEpic({
-                  itemId: item.id,
-                  animationId: randomAnimation,
-                  start: {
-                    top: startRect.top,
-                    left: startRect.left,
-                    width: startRect.width,
-                    height: startRect.height,
-                  },
-                  end: {
-                    top: endRect.top,
-                    left: endRect.left,
-                    width: endRect.width,
-                    height: endRect.height,
-                  },
-                });
-              }
-            }
-          }
+          triggerRandomEpic(
+            item.id,
+            startRect,
+            endRect,
+            triggerEpic,
+            epicProbability,
+          );
         } else if (isDragTierData(sourceData)) {
           const sourceTier = sourceData.tier;
 
@@ -148,4 +129,46 @@ export function useTierListDrag(
   }, [dispatch, pushHistory, triggerEpic, epicProbability]);
 
   return { activeItem, activeTier, overId };
+}
+
+/**
+ * Triggers a random epic animation based on probability.
+ * @param itemId - The ID of the item.
+ * @param startRect - Starting bounding rect.
+ * @param endRect - Ending bounding rect.
+ * @param triggerEpicFn - Callback to trigger epic.
+ * @param probability - Probability (0-100).
+ */
+function triggerRandomEpic(
+  itemId: string,
+  startRect: DOMRect,
+  endRect: DOMRect,
+  triggerEpicFn?: (event: EpicAnimationEvent) => void,
+  probability?: number,
+) {
+  if (!triggerEpicFn || probability === undefined) return;
+  const prob = probability / 100;
+  if (Math.random() >= prob) return;
+
+  const epicKeys = Object.keys(EPIC_ANIMATION_PRESETS).filter((key) => key !== 'default');
+  const randomAnimation = epicKeys[Math.floor(Math.random() * epicKeys.length)];
+
+  if (randomAnimation) {
+    triggerEpicFn({
+      itemId,
+      animationId: randomAnimation,
+      start: {
+        top: startRect.top,
+        left: startRect.left,
+        width: startRect.width,
+        height: startRect.height,
+      },
+      end: {
+        top: endRect.top,
+        left: endRect.left,
+        width: endRect.width,
+        height: endRect.height,
+      },
+    });
+  }
 }
