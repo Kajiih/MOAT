@@ -5,9 +5,11 @@
 
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
+import { CARD_ANIMATION_TRANSITION, CARD_ANIMATION_VARIANTS } from '@/core/ui/animations';
 import { Item } from '@/domain/items/items';
 import { DEFAULT_PAGE_LIMIT } from '@/domain/providers/types';
 import { ItemCard } from '@/features/items/ItemCard';
@@ -115,18 +117,30 @@ export function SearchTab({
             aria-label="Search Results"
             className="flex flex-wrap justify-center p-1"
           >
-            {finalResults.map((item) => {
-              const isAdded = addedItemIds.has(item.id);
-              return (
-                <ItemCard
-                  key={`${item.id}-${isAdded}`}
-                  item={item}
-                  isAdded={isAdded}
-                  onLocate={() => onLocate(item.id)}
-                  onInfo={onInfo}
-                />
-              );
-            })}
+            <AnimatePresence>
+              {finalResults.map((item) => {
+                const isAdded = addedItemIds.has(item.id);
+                return (
+                  <motion.div
+                    key={`${item.id}-${isAdded}`}
+                    layout
+                    variants={CARD_ANIMATION_VARIANTS}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={CARD_ANIMATION_TRANSITION}
+                    className="inline-block"
+                  >
+                    <ItemCard
+                      item={item}
+                      isAdded={isAdded}
+                      onLocate={() => onLocate(item.id)}
+                      onInfo={onInfo}
+                    />
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
       );

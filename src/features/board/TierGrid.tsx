@@ -5,7 +5,8 @@
  */
 
 import { memo, ReactNode } from 'react';
-
+import { AnimatePresence, motion } from 'framer-motion';
+import { CARD_ANIMATION_TRANSITION, CARD_ANIMATION_VARIANTS } from '@/core/ui/animations';
 import { Item } from '@/domain/items/items';
 import { ItemCard } from '@/features/items/ItemCard';
 
@@ -61,12 +62,27 @@ export const TierGrid = memo(function TierGrid({
     );
   };
 
-  const cards = items.map((item) => renderCard(item));
+  const cards = items.map((item) => (
+    <motion.div
+      key={item.id}
+      layout
+      variants={isExport ? undefined : CARD_ANIMATION_VARIANTS}
+      initial={isExport ? undefined : 'initial'}
+      animate={isExport ? undefined : 'animate'}
+      exit={isExport ? undefined : 'exit'}
+      transition={CARD_ANIMATION_TRANSITION}
+      className="inline-block"
+    >
+      {renderCard(item)}
+    </motion.div>
+  ));
 
   const content = isLargeTier ? (
     <VirtualGrid items={items} className="max-h-[500px] p-3" renderItem={renderCard} />
   ) : (
-    cards
+    <AnimatePresence>
+      {cards}
+    </AnimatePresence>
   );
 
   return (
