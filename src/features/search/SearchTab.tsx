@@ -122,7 +122,7 @@ export function SearchTab({
                 const isAdded = addedItemIds.has(item.id);
                 return (
                   <motion.div
-                    key={`${item.id}-${isAdded}`}
+                    key={item.id}
                     layout
                     variants={CARD_ANIMATION_VARIANTS}
                     initial="initial"
