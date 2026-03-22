@@ -27,11 +27,7 @@ import {
 import { ProviderStatus } from '@/domain/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/domain/providers/types';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/features/search/filter-schemas';
-import {
-  SearchParams,
-  SearchResult,
-  SearchResultSchema,
-} from '@/features/search/search-schemas';
+import { SearchParams, SearchResult, SearchResultSchema } from '@/features/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/features/search/sort-schemas';
 import { logger } from '@/infra/logger';
 import { secureFetch } from '@/infra/providers/api-client';
@@ -471,22 +467,22 @@ export const extractUrlsFromRelations = (
   for (const rel of relations) {
     if (rel.url?.resource) {
       switch (rel.type) {
-      case 'official homepage': {
-        urls.push({ type: 'homepage', url: rel.url.resource });
-      
-      break;
-      }
-      case 'wikipedia': {
-        urls.push({ type: 'wikipedia', url: rel.url.resource });
-      
-      break;
-      }
-      case 'wikidata': {
-        urls.push({ type: 'wikidata', url: rel.url.resource });
-      
-      break;
-      }
-      // No default
+        case 'official homepage': {
+          urls.push({ type: 'homepage', url: rel.url.resource });
+
+          break;
+        }
+        case 'wikipedia': {
+          urls.push({ type: 'wikipedia', url: rel.url.resource });
+
+          break;
+        }
+        case 'wikidata': {
+          urls.push({ type: 'wikidata', url: rel.url.resource });
+
+          break;
+        }
+        // No default
       }
     }
   }
@@ -1068,14 +1064,14 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
 
       const sections: ItemSection[] = [];
 
-        if (artist['release-groups'] && artist['release-groups'].length > 0) {
-          const topReleases = artist['release-groups']
-            .filter((rg) => isStudioAlbum(rg))
-            .sort((a, b) => {
-              const dateA = a['first-release-date'] || '9999';
-              const dateB = b['first-release-date'] || '9999';
-              return dateA.localeCompare(dateB);
-            });
+      if (artist['release-groups'] && artist['release-groups'].length > 0) {
+        const topReleases = artist['release-groups']
+          .filter((rg) => isStudioAlbum(rg))
+          .sort((a, b) => {
+            const dateA = a['first-release-date'] || '9999';
+            const dateB = b['first-release-date'] || '9999';
+            return dateA.localeCompare(dateB);
+          });
 
         if (topReleases.length > 0) {
           sections.push({
@@ -1447,10 +1443,7 @@ export class MusicBrainzProvider implements Provider {
     }
   };
 
-  private async searchEntity<
-    TListResponse extends { count: number },
-    TSchema extends z.ZodTypeAny,
-  >(
+  private async searchEntity<TListResponse extends { count: number }, TSchema extends z.ZodTypeAny>(
     endpoint: string,
     listKey: string,
     params: SearchParams,
@@ -1504,36 +1497,36 @@ export class MusicBrainzProvider implements Provider {
   }
 
   public async searchAlbums(
-     params: SearchParams,
-     searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[],
-   ): Promise<SearchResult<MusicBrainzReleaseGroup>> {
-     return this.searchEntity<
-       MusicBrainzReleaseGroupListResponse,
-       typeof MusicBrainzReleaseGroupSchema
-     >('/release-group', 'release-groups', params, {
-       filters: searchOptions,
-       buildQuery: buildAlbumLuceneQuery,
-       schema: MusicBrainzReleaseGroupSchema,
-       mapItem: (item) => mapAlbumToItem(item, this.id),
-     });
-   }
+    params: SearchParams,
+    searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[],
+  ): Promise<SearchResult<MusicBrainzReleaseGroup>> {
+    return this.searchEntity<
+      MusicBrainzReleaseGroupListResponse,
+      typeof MusicBrainzReleaseGroupSchema
+    >('/release-group', 'release-groups', params, {
+      filters: searchOptions,
+      buildQuery: buildAlbumLuceneQuery,
+      schema: MusicBrainzReleaseGroupSchema,
+      mapItem: (item) => mapAlbumToItem(item, this.id),
+    });
+  }
 
   public async searchArtists(
-     params: SearchParams,
-     searchOptions: FilterDefinition<MusicBrainzArtist>[],
-   ): Promise<SearchResult<MusicBrainzArtist>> {
-     return this.searchEntity<MusicBrainzArtistListResponse, typeof MusicBrainzArtistSchema>(
-       '/artist',
-       'artists',
-       params,
-       {
-         filters: searchOptions,
-         buildQuery: buildArtistLuceneQuery,
-         schema: MusicBrainzArtistSchema,
-         mapItem: (item) => mapArtistToItem(item, this.id),
-       },
-     );
-   }
+    params: SearchParams,
+    searchOptions: FilterDefinition<MusicBrainzArtist>[],
+  ): Promise<SearchResult<MusicBrainzArtist>> {
+    return this.searchEntity<MusicBrainzArtistListResponse, typeof MusicBrainzArtistSchema>(
+      '/artist',
+      'artists',
+      params,
+      {
+        filters: searchOptions,
+        buildQuery: buildArtistLuceneQuery,
+        schema: MusicBrainzArtistSchema,
+        mapItem: (item) => mapArtistToItem(item, this.id),
+      },
+    );
+  }
 
   public async fetchMusicBrainz<T>(
     endpoint: string,
@@ -1557,28 +1550,25 @@ export class MusicBrainzProvider implements Provider {
   }
 
   public async searchRecordings(
-     params: SearchParams,
-     searchOptions: FilterDefinition<MusicBrainzRecording>[],
-   ): Promise<SearchResult<MusicBrainzRecording>> {
-     return this.searchEntity<
-       MusicBrainzRecordingListResponse,
-       typeof MusicBrainzRecordingSchema
-     >('/recording', 'recordings', params, {
-       filters: searchOptions,
-       buildQuery: (applied) =>
-         buildRecordingLuceneQuery({
-           ...applied,
-           video:
-             applied.video === 'true'
-               ? true
-               : applied.video === 'false'
-                 ? false
-                 : undefined,
-         }),
-       schema: MusicBrainzRecordingSchema,
-       mapItem: (item) => mapRecordingToItem(item, this.id),
-     });
-   }
+    params: SearchParams,
+    searchOptions: FilterDefinition<MusicBrainzRecording>[],
+  ): Promise<SearchResult<MusicBrainzRecording>> {
+    return this.searchEntity<MusicBrainzRecordingListResponse, typeof MusicBrainzRecordingSchema>(
+      '/recording',
+      'recordings',
+      params,
+      {
+        filters: searchOptions,
+        buildQuery: (applied) =>
+          buildRecordingLuceneQuery({
+            ...applied,
+            video: applied.video === 'true' ? true : applied.video === 'false' ? false : undefined,
+          }),
+        schema: MusicBrainzRecordingSchema,
+        mapItem: (item) => mapRecordingToItem(item, this.id),
+      },
+    );
+  }
 
   public readonly entities = [
     new MusicBrainzRecordingEntity(this),

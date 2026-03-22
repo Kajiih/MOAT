@@ -28,8 +28,16 @@ interface BoardOptionsMenuProps {
   onShowShortcuts: () => void;
   showAdvanced: boolean;
   onToggleAdvanced: (value: boolean) => void;
-  cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean; epicProbability: number };
-  onToggleCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => void;
+  cardPrefs: {
+    showIcon: boolean;
+    showUnderlay: boolean;
+    coloredIcon: boolean;
+    epicProbability: number;
+  };
+  onToggleCardPref: (
+    pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability',
+    value: boolean | number,
+  ) => void;
 }
 
 /**
@@ -162,16 +170,16 @@ export function BoardOptionsMenu({
               <div className="bg-surface-hover my-2 h-px" />
 
               {/* Card Visual Prefs */}
-              <div className="px-3 py-2 space-y-2">
-                <h4 className="text-secondary text-[10px] font-bold tracking-wider uppercase mb-1">
+              <div className="space-y-2 px-3 py-2">
+                <h4 className="text-secondary mb-1 text-[10px] font-bold tracking-wider uppercase">
                   Card Visuals
                 </h4>
-                
+
                 <label className="text-secondary flex cursor-pointer items-center justify-between text-sm">
                   <span>Show Type Icon</span>
                   <div
                     className={twMerge(
-                      'relative h-5 w-9 rounded-full transition-colors cursor-pointer',
+                      'relative h-5 w-9 cursor-pointer rounded-full transition-colors',
                       cardPrefs.showIcon ? 'bg-primary' : 'bg-surface-hover',
                     )}
                     onClick={(e) => {
@@ -189,11 +197,11 @@ export function BoardOptionsMenu({
                 </label>
 
                 {cardPrefs.showIcon && (
-                  <label className="text-secondary flex cursor-pointer items-center justify-between text-sm pl-4 border-l border-white/5 ml-1">
-                    <span className="text-[12px] text-muted">Colorize Icon</span>
+                  <label className="text-secondary ml-1 flex cursor-pointer items-center justify-between border-l border-white/5 pl-4 text-sm">
+                    <span className="text-muted text-[12px]">Colorize Icon</span>
                     <div
                       className={twMerge(
-                        'relative h-4 w-7 rounded-full transition-colors cursor-pointer',
+                        'relative h-4 w-7 cursor-pointer rounded-full transition-colors',
                         cardPrefs.coloredIcon ? 'bg-primary' : 'bg-surface-hover',
                       )}
                       onClick={(e) => {
@@ -215,7 +223,7 @@ export function BoardOptionsMenu({
                   <span>Show Accent Strip</span>
                   <div
                     className={twMerge(
-                      'relative h-5 w-9 rounded-full transition-colors cursor-pointer',
+                      'relative h-5 w-9 cursor-pointer rounded-full transition-colors',
                       cardPrefs.showUnderlay ? 'bg-primary' : 'bg-surface-hover',
                     )}
                     onClick={(e) => {
@@ -233,9 +241,9 @@ export function BoardOptionsMenu({
                 </label>
 
                 <div className="flex flex-col gap-1.5 pt-1">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center justify-between text-xs">
                     <span>Epic Animations Rate</span>
-                    <span className="font-bold text-primary">{cardPrefs.epicProbability}%</span>
+                    <span className="text-primary font-bold">{cardPrefs.epicProbability}%</span>
                   </div>
                   <input
                     type="range"
@@ -246,7 +254,7 @@ export function BoardOptionsMenu({
                       e.stopPropagation();
                       onToggleCardPref('epicProbability', Number.parseInt(e.target.value));
                     }}
-                    className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-surface-hover accent-primary"
+                    className="bg-surface-hover accent-primary h-1 w-full cursor-pointer appearance-none rounded-lg"
                   />
                 </div>
               </div>

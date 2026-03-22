@@ -10,7 +10,12 @@ import { useEffect, useState } from 'react';
 import { Item } from '@/domain/items/items';
 import { EpicAnimationEvent } from '@/features/board/context';
 import { BoardDispatch, moveItem, reorderTiers } from '@/features/board/state/reducer';
-import { isDragItemData, isDragTierData, TierDefinition, TierListState } from '@/features/board/types';
+import {
+  isDragItemData,
+  isDragTierData,
+  TierDefinition,
+  TierListState,
+} from '@/features/board/types';
 import { EPIC_ANIMATION_PRESETS } from '@/features/items/animations/registry';
 
 /**
@@ -100,7 +105,9 @@ export function useTierListDrag(
           if (triggerEpic && epicProbability !== undefined) {
             const prob = epicProbability / 100;
             if (Math.random() < prob) {
-              const epicKeys = Object.keys(EPIC_ANIMATION_PRESETS).filter((key) => key !== 'default');
+              const epicKeys = Object.keys(EPIC_ANIMATION_PRESETS).filter(
+                (key) => key !== 'default',
+              );
               const randomAnimation = epicKeys[Math.floor(Math.random() * epicKeys.length)];
 
               if (randomAnimation) {

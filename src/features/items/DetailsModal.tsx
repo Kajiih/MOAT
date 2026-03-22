@@ -9,12 +9,7 @@ import { Info, LucideIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { useEscapeKey } from '@/core/ui/useEscapeKey';
-import {
-  getSubtitleString,
-  Item,
-  ItemSection,
-  ItemUpdate,
-} from '@/domain/items/items';
+import { getSubtitleString, Item, ItemSection, ItemUpdate } from '@/domain/items/items';
 import { useItemResolver } from '@/features/items/useItemResolver';
 import { registry } from '@/infra/providers/registry';
 

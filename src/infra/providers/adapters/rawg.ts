@@ -11,11 +11,7 @@ import { Item, ItemDetails, ItemDetailsSchema, ItemSchema, Subtitle } from '@/do
 import { ProviderStatus } from '@/domain/providers/types';
 import { Entity, Fetcher, nonEmpty, Provider } from '@/domain/providers/types';
 import { FilterDefinition } from '@/features/search/filter-schemas';
-import {
-  SearchParams,
-  SearchResult,
-  SearchResultSchema,
-} from '@/features/search/search-schemas';
+import { SearchParams, SearchResult, SearchResultSchema } from '@/features/search/search-schemas';
 import { createSortSuite, SortDirection } from '@/features/search/sort-schemas';
 import { secureFetch } from '@/infra/providers/api-client';
 import {

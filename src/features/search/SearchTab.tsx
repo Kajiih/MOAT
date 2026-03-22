@@ -275,7 +275,7 @@ export function SearchTab({
 
         {/* Advanced Filters Panel */}
         {showFilters && entity && (
-          <div className="border-border bg-surface absolute left-0 right-0 top-full z-50 mt-1 rounded-md border p-4 shadow-xl max-h-[calc(100vh-16rem)] overflow-y-auto">
+          <div className="border-border bg-surface absolute top-full right-0 left-0 z-50 mt-1 max-h-[calc(100vh-16rem)] overflow-y-auto rounded-md border p-4 shadow-xl">
             <FilterPanel
               providerId={providerId}
               entity={entity}

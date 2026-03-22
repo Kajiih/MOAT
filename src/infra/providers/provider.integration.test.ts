@@ -36,7 +36,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
     console.log(`- TOTAL          : ${total} requests`);
     console.log('======================================\n');
   });
-  
+
   const verifyImages = async (
     images: any[],
     resolveImage?: (key: string) => Promise<string | null | undefined>,

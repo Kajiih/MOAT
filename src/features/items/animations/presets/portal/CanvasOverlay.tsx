@@ -19,37 +19,37 @@ export function CanvasOverlay({ activeEpic }: { activeEpic: EpicAnimationEvent |
   const { start, end } = activeEpic;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-visible">
+    <div className="pointer-events-none fixed inset-0 z-50 overflow-visible">
       {/* 1. Start Portal (Right edge of source) */}
       <motion.div
         initial={{ scaleY: 0, opacity: 0, scaleX: 1 }}
-        animate={{ 
-          scaleY: [0, 1.2, 1], 
-          opacity: [0, 1, 0], 
-          scaleX: [1, 1.5, 1] 
+        animate={{
+          scaleY: [0, 1.2, 1],
+          opacity: [0, 1, 0],
+          scaleX: [1, 1.5, 1],
         }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        style={{ 
-          top: start.top + start.height / 2, 
-          left: start.left + start.width 
+        style={{
+          top: start.top + start.height / 2,
+          left: start.left + start.width,
         }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-[6px] h-24 bg-cyan-400 rounded-full shadow-[0_0_20px_4px_rgba(34,211,238,0.7)]"
+        className="absolute h-24 w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400 shadow-[0_0_20px_4px_rgba(34,211,238,0.7)]"
       />
-      
+
       {/* 2. End Portal (Left edge of target) */}
       <motion.div
         initial={{ scaleY: 0, opacity: 0, scaleX: 1 }}
-        animate={{ 
-          scaleY: [0, 1.2, 1], 
-          opacity: [0, 1, 0], 
-          scaleX: [1, 1.5, 1] 
+        animate={{
+          scaleY: [0, 1.2, 1],
+          opacity: [0, 1, 0],
+          scaleX: [1, 1.5, 1],
         }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        style={{ 
-          top: end.top + end.height / 2, 
-          left: end.left 
+        style={{
+          top: end.top + end.height / 2,
+          left: end.left,
         }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-[6px] h-24 bg-amber-500 rounded-full shadow-[0_0_20px_4px_rgba(245,158,11,0.7)]"
+        className="absolute h-24 w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500 shadow-[0_0_20px_4px_rgba(245,158,11,0.7)]"
       />
     </div>
   );

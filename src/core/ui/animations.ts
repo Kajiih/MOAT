@@ -9,10 +9,10 @@
 export const CARD_ANIMATION_VARIANTS = {
   initial: { x: -40, opacity: 0 },
   animate: { x: 0, opacity: 1 },
-  exit: { 
-    x: 40, 
+  exit: {
+    x: 40,
     opacity: 0,
-    transition: { duration: 0.1, ease: 'easeIn' } 
+    transition: { duration: 0.1, ease: 'easeIn' },
   },
 } as const;
 
@@ -28,13 +28,13 @@ export const CARD_ANIMATION_TRANSITION = {
 /**
  * Micro-animations on interactive frames.
  */
-export const CARD_ANIMATION_HOVER = { 
-  scale: 1.04, 
-  y: -3, 
-  transition: { duration: 0.1, ease: 'easeOut' } 
+export const CARD_ANIMATION_HOVER = {
+  scale: 1.04,
+  y: -3,
+  transition: { duration: 0.1, ease: 'easeOut' },
 } as const;
 
-export const CARD_ANIMATION_TAP = { 
-  scale: 0.97, 
-  y: 0 
+export const CARD_ANIMATION_TAP = {
+  scale: 0.97,
+  y: 0,
 } as const;

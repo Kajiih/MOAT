@@ -11,7 +11,11 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { attachClosestEdge, Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import {
+  attachClosestEdge,
+  Edge,
+  extractClosestEdge,
+} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -284,8 +288,8 @@ export function ItemCard({
       style={style}
       data-testid={`item-card-${item.id}`}
       className={twMerge(
-        `group duration-fast relative transition-all p-1 ${ITEM_CARD_BASE_CLASSES}`,
-        isAdded ? 'grayscale opacity-70' : '',
+        `group duration-fast relative p-1 transition-all ${ITEM_CARD_BASE_CLASSES}`,
+        isAdded ? 'opacity-70 grayscale' : '',
         isOverLocal ? 'z-40' : '',
         className,
       )}
@@ -303,7 +307,7 @@ export function ItemCard({
       />
 
       {/* 2. The Visuals */}
-      <div className="pointer-events-none absolute inset-1 overflow-hidden rounded-md bg-surface shadow-card">
+      <div className="bg-surface shadow-card pointer-events-none absolute inset-1 overflow-hidden rounded-md">
         {/* Bottom Accent Strip */}
         {cardPrefs?.showUnderlay !== false && (
           <div
@@ -311,18 +315,19 @@ export function ItemCard({
           />
         )}
         {/* Top Indicator & Icon Tray */}
-        {(item.rating !== undefined || (cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined)) && (
-          <div className="absolute top-1 left-1 flex items-center gap-1.5 z-20">
+        {(item.rating !== undefined ||
+          (cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined)) && (
+          <div className="absolute top-1 left-1 z-20 flex items-center gap-1.5">
             {cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined && (
-              <div className="bg-black/60 rounded-full p-1 backdrop-blur-sm border border-white/10 shadow-sm flex items-center justify-center">
-                <TypeIcon 
-                  size={12} 
-                  className={`opacity-90 ${cardPrefs?.coloredIcon !== false ? baseColorClass : 'text-white'}`} 
+              <div className="flex items-center justify-center rounded-full border border-white/10 bg-black/60 p-1 shadow-sm backdrop-blur-sm">
+                <TypeIcon
+                  size={12}
+                  className={`opacity-90 ${cardPrefs?.coloredIcon !== false ? baseColorClass : 'text-white'}`}
                 />
               </div>
             )}
             {item.rating !== undefined && (
-              <div className="text-indicator rounded-md border border-white/10 bg-black/60 px-1 py-0.5 font-black text-white backdrop-blur-sm shadow-sm">
+              <div className="text-indicator rounded-md border border-white/10 bg-black/60 px-1 py-0.5 font-black text-white shadow-sm backdrop-blur-sm">
                 {item.rating.toFixed(1)}
               </div>
             )}

@@ -59,8 +59,16 @@ interface UseTierListNamespacesProps {
     setActiveKeyboardDragId: React.Dispatch<
       React.SetStateAction<{ itemId: string; tierId: string } | null>
     >;
-    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean; epicProbability: number };
-    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => void;
+    cardPrefs: {
+      showIcon: boolean;
+      showUnderlay: boolean;
+      coloredIcon: boolean;
+      epicProbability: number;
+    };
+    setCardPref: (
+      pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability',
+      value: boolean | number,
+    ) => void;
     activeEpic: EpicAnimationEvent | null;
     triggerEpic: (event: EpicAnimationEvent) => void;
   };
@@ -129,8 +137,6 @@ export function useTierListNamespaces({
     (payload: { activeId: string; overId: string; activeItem?: Item; edge?: Edge | null }) => {
       history.push();
       dispatch(moveItem(payload));
-
-
     },
     [dispatch, history, uiState.triggerEpic],
   );

@@ -77,8 +77,16 @@ interface TierListContextType {
     allBoardItems: Item[];
     activeKeyboardDragId: { itemId: string; tierId: string } | null;
     setActiveKeyboardDragId: (state: { itemId: string; tierId: string } | null) => void;
-    cardPrefs: { showIcon: boolean; showUnderlay: boolean; coloredIcon: boolean; epicProbability: number };
-    setCardPref: (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => void;
+    cardPrefs: {
+      showIcon: boolean;
+      showUnderlay: boolean;
+      coloredIcon: boolean;
+      epicProbability: number;
+    };
+    setCardPref: (
+      pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability',
+      value: boolean | number,
+    ) => void;
     activeEpic: EpicAnimationEvent | null;
     triggerEpic: (event: EpicAnimationEvent) => void;
   };
@@ -154,7 +162,10 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   });
 
   const setCardPref = React.useCallback(
-    (pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability', value: boolean | number) => {
+    (
+      pref: 'showIcon' | 'showUnderlay' | 'coloredIcon' | 'epicProbability',
+      value: boolean | number,
+    ) => {
       setCardPrefs((p) => {
         const next = { ...p, [pref]: value };
         if (globalThis.window !== undefined) {

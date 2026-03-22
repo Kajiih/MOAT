@@ -55,7 +55,9 @@ export const TierGrid = memo(function TierGrid({
 }: TierGridProps) {
   const context = useTierListContext();
   const activeEpic = context?.ui.activeEpic;
-  const activePreset = activeEpic ? EPIC_ANIMATION_PRESETS[activeEpic.animationId] : EPIC_ANIMATION_PRESETS.default;
+  const activePreset = activeEpic
+    ? EPIC_ANIMATION_PRESETS[activeEpic.animationId]
+    : EPIC_ANIMATION_PRESETS.default;
 
   // Use virtualization for very large tiers (e.g. > 100 items)
   const isLargeTier = !isExport && items.length > 100;
@@ -75,7 +77,9 @@ export const TierGrid = memo(function TierGrid({
 
   const cards = items.map((item) => {
     const isEpicCard = activeEpic?.itemId === item.id;
-    const variants = isEpicCard ? activePreset.cardVariants : EPIC_ANIMATION_PRESETS.default.cardVariants;
+    const variants = isEpicCard
+      ? activePreset.cardVariants
+      : EPIC_ANIMATION_PRESETS.default.cardVariants;
 
     return (
       <motion.div
@@ -98,9 +102,7 @@ export const TierGrid = memo(function TierGrid({
   const content = isLargeTier ? (
     <VirtualGrid items={items} className="max-h-[500px] p-3" renderItem={renderCard} />
   ) : (
-    <AnimatePresence>
-      {cards}
-    </AnimatePresence>
+    <AnimatePresence>{cards}</AnimatePresence>
   );
 
   return (

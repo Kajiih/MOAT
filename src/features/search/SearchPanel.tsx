@@ -103,12 +103,12 @@ export function SearchPanel() {
     <div
       ref={containerRef}
       data-testid="search-panel"
-      className={`border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 sm:max-h-[calc(100dvh-2rem)] transition-colors ${isDraggedOver ? 'border-red-500/50 bg-red-950/10' : ''}`}
+      className={`border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 transition-colors sm:max-h-[calc(100dvh-2rem)] ${isDraggedOver ? 'border-red-500/50 bg-red-950/10' : ''}`}
     >
       {isDraggedOver && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center rounded-lg border-2 border-red-500/50 bg-red-950/60 backdrop-blur-[1px]">
           <Trash2 size={40} className="animate-bounce text-red-400" />
-          <span className="mt-2 text-sm font-black uppercase tracking-wider text-red-200">
+          <span className="mt-2 text-sm font-black tracking-wider text-red-200 uppercase">
             Drop to Delete
           </span>
         </div>

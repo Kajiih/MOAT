@@ -7,8 +7,6 @@ Epic animations are fun animations that are triggered randomely when an item is 
 A portal appears on one of its side (left, right, top or bottom), and another one on the opposite side.
 The card is sucked into a portal to one of its side or up or falls into one on the bottom, and reappears from the other portal.
 
-## Dragon 
+## Dragon
 
 A dragon appears from one side of the tier, and eats the card, then spits it out in the new tier.
-
-

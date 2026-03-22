@@ -62,7 +62,9 @@ export function TierList({
 }: TierListProps) {
   const context = useTierListContext();
   const activeEpic = context?.ui.activeEpic;
-  const activePreset = activeEpic ? EPIC_ANIMATION_PRESETS[activeEpic.animationId] : EPIC_ANIMATION_PRESETS.default;
+  const activePreset = activeEpic
+    ? EPIC_ANIMATION_PRESETS[activeEpic.animationId]
+    : EPIC_ANIMATION_PRESETS.default;
 
   const content = tiers.map((tier) => (
     <TierRow

@@ -56,7 +56,7 @@ export function SelectFilterInput({
   return (
     <div className="relative w-full">
       <select
-        className="border-border text-foreground focus:border-primary focus:ring-primary w-full appearance-none rounded-md border bg-black pl-2 pr-8 py-1.5 text-xs outline-none focus:ring-1"
+        className="border-border text-foreground focus:border-primary focus:ring-primary w-full appearance-none rounded-md border bg-black py-1.5 pr-8 pl-2 text-xs outline-none focus:ring-1"
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -67,7 +67,7 @@ export function SelectFilterInput({
           </option>
         ))}
       </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-secondary">
+      <div className="text-secondary pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
         <ChevronDown size={14} />
       </div>
     </div>

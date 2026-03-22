@@ -76,13 +76,17 @@ A hook or service that takes an **Identity** or **Image Reference** and asynchro
 ## Animations & Visual Effects
 
 ### 1. Epic Animation
+
 A high-impact visual effect triggered by board interactions (e.g., cross-tier item drops). It typically utilizes coordinates from a starting position (source) and ending position (target) to render global viewport overlay effects.
 
 ### 2. Canvas Overlay
+
 A dedicated component rendered at the viewport level with safely managed absolute items, distinct from row flows. It hosts the particle or glow overlays for stationary Epic effects.
 
 ### 3. Animation Preset
+
 A self-contained modular bundle containing the global **Canvas Overlay** and synchronized local **Card Variants**. Presets can be registered in a dictionary for horizontal lookup dynamic lookups.
 
 ### 4. Card Variant
+
 Specific `framer-motion` variant dictionaries applied directly to the `ItemCard` container that complement the Canvas Overlay lifecycle (e.g., scale transitions syncing with rift triggers).
