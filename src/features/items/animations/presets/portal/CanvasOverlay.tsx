@@ -31,90 +31,58 @@ export function CanvasOverlay({ activeEpic }: { activeEpic: EpicAnimationEvent |
   const travelX = deltaX;
   const travelY = deltaY;
 
-  let direction: 'right' | 'left' | 'down' | 'up' = 'right';
+  let direction: 'right' | 'left' | 'down' | 'up';
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
     direction = deltaX >= 0 ? 'right' : 'left';
   } else {
     direction = deltaY >= 0 ? 'down' : 'up';
   }
 
-  // 2. Resolve Portal Styles & Anchor Coordinates
-  let startPortalStyle: React.CSSProperties = {};
-  let endPortalStyle: React.CSSProperties = {};
-
-  switch (direction) {
-    case 'right': {
-      startPortalStyle = { top: start.top + start.height / 2, left: start.left + start.width };
-      endPortalStyle = { top: end.top + end.height / 2, left: end.left };
-
-      break;
-    }
-    case 'left': {
-      startPortalStyle = { top: start.top + start.height / 2, left: start.left };
-      endPortalStyle = { top: end.top + end.height / 2, left: end.left + end.width };
-
-      break;
-    }
-    case 'down': {
-      startPortalStyle = { top: start.top + start.height, left: start.left + start.width / 2 };
-      endPortalStyle = { top: end.top, left: end.left + end.width / 2 };
-
-      break;
-    }
-    case 'up': {
-      startPortalStyle = { top: start.top, left: start.left + start.width / 2 };
-      endPortalStyle = { top: end.top + end.height, left: end.left + end.width / 2 };
-
-      break;
-    }
-    // No default
-  }
-
-  // 3. Resolve Traveling Card Clone Keyframes
-  let animateProps: any = {};
-  switch (direction) {
-    case 'right': {
-      animateProps = {
+  // 2. Resolve Styles & Keyframes
+  const config = {
+    right: {
+      startPortalStyle: { top: start.top + start.height / 2, left: start.left + start.width },
+      endPortalStyle: { top: end.top + end.height / 2, left: end.left },
+      animateProps: {
         x: [0, 40, travelX - 40, travelX, travelX],
         y: [0, 0, travelY, travelY, travelY],
         scaleX: [1, 0, 0, 1, 1],
         scaleY: [1, 0.8, 0.8, 1, 1],
-      };
-
-      break;
-    }
-    case 'left': {
-      animateProps = {
+      },
+    },
+    left: {
+      startPortalStyle: { top: start.top + start.height / 2, left: start.left },
+      endPortalStyle: { top: end.top + end.height / 2, left: end.left + end.width },
+      animateProps: {
         x: [0, -40, travelX + 40, travelX, travelX],
         y: [0, 0, travelY, travelY, travelY],
         scaleX: [1, 0, 0, 1, 1],
         scaleY: [1, 0.8, 0.8, 1, 1],
-      };
-
-      break;
-    }
-    case 'down': {
-      animateProps = {
+      },
+    },
+    down: {
+      startPortalStyle: { top: start.top + start.height, left: start.left + start.width / 2 },
+      endPortalStyle: { top: end.top, left: end.left + end.width / 2 },
+      animateProps: {
         x: [0, 0, travelX, travelX, travelX],
         y: [0, 40, travelY - 40, travelY, travelY],
         scaleX: [1, 0.8, 0.8, 1, 1],
         scaleY: [1, 0, 0, 1, 1],
-      };
-
-      break;
-    }
-    case 'up': {
-      animateProps = {
+      },
+    },
+    up: {
+      startPortalStyle: { top: start.top, left: start.left + start.width / 2 },
+      endPortalStyle: { top: end.top + end.height, left: end.left + end.width / 2 },
+      animateProps: {
         x: [0, 0, travelX, travelX, travelX],
         y: [0, -40, travelY + 40, travelY, travelY],
-        scaleX: [1, 0.8, 0.8, 1, 1], // squeeze opposite axis
+        scaleX: [1, 0.8, 0.8, 1, 1],
         scaleY: [1, 0, 0, 1, 1],
-      };
+      },
+    },
+  }[direction];
 
-      break;
-    }
-    // No default
-  }
+  const { startPortalStyle, endPortalStyle, animateProps } = config;
 
   const portalBaseClass = 'absolute -translate-x-1/2 -translate-y-1/2 rounded-full';
   const portalOrientationClass =

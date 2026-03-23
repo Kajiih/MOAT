@@ -36,6 +36,10 @@ const CONFIG = {
 
 /**
  * A rich placeholder view with mesh-gradient effects for search boundaries.
+ * @param props - Component props.
+ * @param props.type - The type of empty state to render.
+ * @param props.tierColors - Optional custom hex colors from the active board theme for ambient clouds.
+ * @returns The rendered empty state view.
  */
 export function SearchEmptyState({ type, tierColors }: SearchEmptyStateProps) {
   const { Icon, title, description, colors: configColors } = CONFIG[type];

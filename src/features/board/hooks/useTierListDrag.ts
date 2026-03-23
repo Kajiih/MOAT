@@ -112,7 +112,7 @@ export function useTierListDrag(
 
 /**
  * Triggers a random epic animation based on probability.
- * @param itemId - The ID of the item.
+ * @param item - The item model.
  * @param startRect - Starting bounding rect.
  * @param endRect - Ending bounding rect.
  * @param triggerEpicFn - Callback to trigger epic.
@@ -156,7 +156,11 @@ function triggerRandomEpic(
 /**
  * Handles the logic when an Item is dropped.
  * @param source - The drag source element and data.
+ * @param source.element - The drag source element.
+ * @param source.data - The drag source data.
  * @param dropTarget - The drop target element and data.
+ * @param dropTarget.element - The drop target element.
+ * @param dropTarget.data - The drop target data.
  * @param edge - The closest edge of the drop.
  * @param finalTargetId - The ID of the target tier.
  * @param dispatch - Redux dispatch function.
