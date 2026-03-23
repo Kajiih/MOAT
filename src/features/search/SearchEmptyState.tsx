@@ -27,7 +27,8 @@ const CONFIG = {
   'no-results': {
     Icon: SearchX,
     title: 'No Results Found',
-    description: 'We couldn\'t find anything matching your search. Try adjusting filters or typing something else.',
+    description:
+      "We couldn't find anything matching your search. Try adjusting filters or typing something else.",
     buttonText: 'Clear Filters',
     colors: ['#ef444426', '#a855f726'],
   },
@@ -67,17 +68,17 @@ export function SearchEmptyState({ type, tierColors }: SearchEmptyStateProps) {
           }}
           transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
           style={{ backgroundColor: finalColors[1] }}
-          className="absolute -bottom-12 -right-12 h-40 w-40 rounded-full blur-3xl"
+          className="absolute -right-12 -bottom-12 h-40 w-40 rounded-full blur-3xl"
         />
       </div>
 
       {/* 2. Visual Layer & Messaging (Static for headless/E2E stability checks) */}
-      <div className="relative z-10 flex flex-col items-center max-w-sm">
+      <div className="relative z-10 flex max-w-sm flex-col items-center">
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-white/5 bg-white/10 shadow-sm backdrop-blur-md">
           <Icon size={22} className="text-foreground/90" />
         </div>
 
-        <h3 className="text-base font-bold text-white mb-1.5">{title}</h3>
+        <h3 className="mb-1.5 text-base font-bold text-white">{title}</h3>
         <p className="text-secondary text-xs leading-normal">{description}</p>
       </div>
     </div>

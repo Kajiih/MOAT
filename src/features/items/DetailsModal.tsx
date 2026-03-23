@@ -352,7 +352,9 @@ export function DetailsModal({
 
                                 const match = /^(\d+)\.\s+/.exec(cleanLabel);
                                 const trackNumber = match ? match[1] : null;
-                                const trackTitle = match ? cleanLabel.slice(match[0].length) : cleanLabel;
+                                const trackTitle = match
+                                  ? cleanLabel.slice(match[0].length)
+                                  : cleanLabel;
 
                                 const liEntity = typeof li === 'string' ? null : li;
                                 const liProvider = liEntity

@@ -4,11 +4,10 @@
  */
 
 import { motion } from 'framer-motion';
+import { Info } from 'lucide-react';
 
 import { EpicAnimationEvent } from '@/features/board/context';
-import { ITEM_CARD_BASE_CLASSES } from '@/features/items/ItemCard';
 import { ItemImage } from '@/features/items/ItemImage';
-import { Info } from 'lucide-react';
 
 /**
  * Renders the global canvas overlay for the Portal animation preset.
@@ -22,7 +21,7 @@ export function CanvasOverlay({ activeEpic }: { activeEpic: EpicAnimationEvent |
   const { start, end } = activeEpic;
 
   // Animation Timings (in seconds)
-  const PORTAL_DURATION = 1.2; 
+  const PORTAL_DURATION = 1.2;
   const TRAVEL_DURATION = 0.6;
   const TRAVEL_DELAY = 0.3;
 
@@ -43,56 +42,83 @@ export function CanvasOverlay({ activeEpic }: { activeEpic: EpicAnimationEvent |
   let startPortalStyle: React.CSSProperties = {};
   let endPortalStyle: React.CSSProperties = {};
 
-  if (direction === 'right') {
-    startPortalStyle = { top: start.top + start.height / 2, left: start.left + start.width };
-    endPortalStyle = { top: end.top + end.height / 2, left: end.left };
-  } else if (direction === 'left') {
-    startPortalStyle = { top: start.top + start.height / 2, left: start.left };
-    endPortalStyle = { top: end.top + end.height / 2, left: end.left + end.width };
-  } else if (direction === 'down') {
-    startPortalStyle = { top: start.top + start.height, left: start.left + start.width / 2 };
-    endPortalStyle = { top: end.top, left: end.left + end.width / 2 };
-  } else if (direction === 'up') {
-    startPortalStyle = { top: start.top, left: start.left + start.width / 2 };
-    endPortalStyle = { top: end.top + end.height, left: end.left + end.width / 2 };
+  switch (direction) {
+    case 'right': {
+      startPortalStyle = { top: start.top + start.height / 2, left: start.left + start.width };
+      endPortalStyle = { top: end.top + end.height / 2, left: end.left };
+
+      break;
+    }
+    case 'left': {
+      startPortalStyle = { top: start.top + start.height / 2, left: start.left };
+      endPortalStyle = { top: end.top + end.height / 2, left: end.left + end.width };
+
+      break;
+    }
+    case 'down': {
+      startPortalStyle = { top: start.top + start.height, left: start.left + start.width / 2 };
+      endPortalStyle = { top: end.top, left: end.left + end.width / 2 };
+
+      break;
+    }
+    case 'up': {
+      startPortalStyle = { top: start.top, left: start.left + start.width / 2 };
+      endPortalStyle = { top: end.top + end.height, left: end.left + end.width / 2 };
+
+      break;
+    }
+    // No default
   }
 
   // 3. Resolve Traveling Card Clone Keyframes
   let animateProps: any = {};
-  if (direction === 'right') {
-    animateProps = {
-      x: [0, 40, travelX - 40, travelX, travelX],
-      y: [0, 0, travelY, travelY, travelY],
-      scaleX: [1, 0, 0, 1, 1],
-      scaleY: [1, 0.8, 0.8, 1, 1],
-    };
-  } else if (direction === 'left') {
-    animateProps = {
-      x: [0, -40, travelX + 40, travelX, travelX],
-      y: [0, 0, travelY, travelY, travelY],
-      scaleX: [1, 0, 0, 1, 1],
-      scaleY: [1, 0.8, 0.8, 1, 1],
-    };
-  } else if (direction === 'down') {
-    animateProps = {
-      x: [0, 0, travelX, travelX, travelX],
-      y: [0, 40, travelY - 40, travelY, travelY],
-      scaleX: [1, 0.8, 0.8, 1, 1],
-      scaleY: [1, 0, 0, 1, 1],
-    };
-  } else if (direction === 'up') {
-    animateProps = {
-      x: [0, 0, travelX, travelX, travelX],
-      y: [0, -40, travelY + 40, travelY, travelY],
-      scaleX: [1, 0.8, 0.8, 1, 1], // squeeze opposite axis
-      scaleY: [1, 0, 0, 1, 1],
-    };
+  switch (direction) {
+    case 'right': {
+      animateProps = {
+        x: [0, 40, travelX - 40, travelX, travelX],
+        y: [0, 0, travelY, travelY, travelY],
+        scaleX: [1, 0, 0, 1, 1],
+        scaleY: [1, 0.8, 0.8, 1, 1],
+      };
+
+      break;
+    }
+    case 'left': {
+      animateProps = {
+        x: [0, -40, travelX + 40, travelX, travelX],
+        y: [0, 0, travelY, travelY, travelY],
+        scaleX: [1, 0, 0, 1, 1],
+        scaleY: [1, 0.8, 0.8, 1, 1],
+      };
+
+      break;
+    }
+    case 'down': {
+      animateProps = {
+        x: [0, 0, travelX, travelX, travelX],
+        y: [0, 40, travelY - 40, travelY, travelY],
+        scaleX: [1, 0.8, 0.8, 1, 1],
+        scaleY: [1, 0, 0, 1, 1],
+      };
+
+      break;
+    }
+    case 'up': {
+      animateProps = {
+        x: [0, 0, travelX, travelX, travelX],
+        y: [0, -40, travelY + 40, travelY, travelY],
+        scaleX: [1, 0.8, 0.8, 1, 1], // squeeze opposite axis
+        scaleY: [1, 0, 0, 1, 1],
+      };
+
+      break;
+    }
+    // No default
   }
 
-  const portalBaseClass = "absolute -translate-x-1/2 -translate-y-1/2 rounded-full";
-  const portalOrientationClass = direction === 'right' || direction === 'left' 
-    ? "h-24 w-[6px]" 
-    : "w-24 h-[6px]";
+  const portalBaseClass = 'absolute -translate-x-1/2 -translate-y-1/2 rounded-full';
+  const portalOrientationClass =
+    direction === 'right' || direction === 'left' ? 'h-24 w-[6px]' : 'w-24 h-[6px]';
 
   return (
     <div className="pointer-events-none fixed inset-0 z-50 overflow-visible">
@@ -124,7 +150,7 @@ export function CanvasOverlay({ activeEpic }: { activeEpic: EpicAnimationEvent |
         transition={{
           duration: TRAVEL_DURATION + 0.2,
           delay: TRAVEL_DELAY,
-          times: [0, 0.15, 0.5, 0.85, 1], 
+          times: [0, 0.15, 0.5, 0.85, 1],
           ease: 'easeInOut',
         }}
         style={{
@@ -133,12 +159,12 @@ export function CanvasOverlay({ activeEpic }: { activeEpic: EpicAnimationEvent |
           width: start.width,
           height: start.height,
         }}
-        className="absolute p-1 overflow-visible"
+        className="absolute overflow-visible p-1"
       >
         <div className="bg-surface shadow-card absolute inset-1 overflow-hidden rounded-md">
           <ItemImage item={activeEpic.item} TypeIcon={Info} />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 flex items-end">
-            <p className="text-caption font-bold text-white line-clamp-1">
+          <div className="absolute inset-x-0 bottom-0 flex items-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2">
+            <p className="text-caption line-clamp-1 font-bold text-white">
               {activeEpic.item.title}
             </p>
           </div>

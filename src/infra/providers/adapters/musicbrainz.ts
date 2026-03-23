@@ -556,7 +556,10 @@ const mbAlbumFilters = createFilterSuite<MusicBrainzReleaseGroup, AlbumLuceneQue
 
 // --- Helpers for MusicBrainzAlbumEntity ---
 
-function extractTracklistFromRelease(release: MusicBrainzRelease, providerId: string): SubtitleToken[] {
+function extractTracklistFromRelease(
+  release: MusicBrainzRelease,
+  providerId: string,
+): SubtitleToken[] {
   const tracks: SubtitleToken[] = [];
   if (!release.media) return tracks;
 
@@ -615,10 +618,10 @@ function buildArtistAlbumsSection(
   const topReleases = [...releaseGroups]
     .filter((rg) => isStudioAlbum(rg))
     .toSorted((a, b) => {
-    const dateA = a['first-release-date'] || '9999';
-    const dateB = b['first-release-date'] || '9999';
-    return dateA.localeCompare(dateB);
-  });
+      const dateA = a['first-release-date'] || '9999';
+      const dateB = b['first-release-date'] || '9999';
+      return dateA.localeCompare(dateB);
+    });
 
   if (topReleases.length === 0) return null;
 
@@ -626,9 +629,7 @@ function buildArtistAlbumsSection(
     title: 'Albums',
     type: 'list',
     content: topReleases.map((rg) => {
-      const year = rg['first-release-date']
-        ? ` (${rg['first-release-date'].split('-')[0]})`
-        : '';
+      const year = rg['first-release-date'] ? ` (${rg['first-release-date'].split('-')[0]})` : '';
       return {
         label: 'Album',
         name: `${rg.title}${year}`,
@@ -660,7 +661,11 @@ async function processReleasesForAlbum(
   const bestRelease = officialReleases.find((r) => r.date) || officialReleases[0] || releases[0];
 
   if (bestRelease?.id) {
-    const { tracks, date, country } = await fetchTracklistForRelease(provider, bestRelease.id, signal);
+    const { tracks, date, country } = await fetchTracklistForRelease(
+      provider,
+      bestRelease.id,
+      signal,
+    );
     if (tracks.length > 0) {
       sections.push({
         title: 'Tracklist',
@@ -1134,10 +1139,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
       const sections: ItemSection[] = [];
 
       if (artist['release-groups']) {
-        const albumSection = buildArtistAlbumsSection(
-          artist['release-groups'],
-          this.provider.id,
-        );
+        const albumSection = buildArtistAlbumsSection(artist['release-groups'], this.provider.id);
         if (albumSection) {
           sections.push(albumSection);
         }

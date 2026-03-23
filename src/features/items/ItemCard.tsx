@@ -11,7 +11,11 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { attachClosestEdge, Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import {
+  attachClosestEdge,
+  Edge,
+  extractClosestEdge,
+} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { Info, X } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -177,9 +181,10 @@ export function ItemCard({
   }, [item, tierId, isExport]);
 
   const activeDragging = isDragging || isDraggingLocal || isKeyboardDragging;
-  const activeEdge = overrideClosestEdge !== undefined && overrideClosestEdge !== null
-    ? overrideClosestEdge
-    : closestEdge;
+  const activeEdge =
+    overrideClosestEdge !== undefined && overrideClosestEdge !== null
+      ? overrideClosestEdge
+      : closestEdge;
 
   const style: React.CSSProperties = {
     opacity: activeDragging ? 0.4 : 1,

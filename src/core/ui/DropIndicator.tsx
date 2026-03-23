@@ -29,7 +29,7 @@ export function DropIndicator({ edge, className }: DropIndicatorProps) {
     <div
       data-testid="drop-indicator"
       className={twMerge(
-        'absolute top-1 bottom-1 z-50 w-[3px] bg-emerald-500 shadow-[0_0_8px_theme(colors.emerald.400)] rounded-full',
+        'absolute top-1 bottom-1 z-50 w-[3px] rounded-full bg-emerald-500 shadow-[0_0_8px_theme(colors.emerald.400)]',
         edge === 'left' && 'left-0 -translate-x-1/2',
         edge === 'right' && 'right-0 translate-x-1/2',
         className,

@@ -114,8 +114,9 @@ export const TierGrid = memo(function TierGrid({
   return (
     <div className={`relative flex-1 ${!isLargeTier ? 'flex flex-wrap items-center p-2' : ''}`}>
       {isExport ? <>{cards}</> : content}
-      {items.length === 0 && isOverEmpty && <DropIndicator className="absolute left-2 top-2 bottom-2" />}
-
+      {items.length === 0 && isOverEmpty && (
+        <DropIndicator className="absolute top-2 bottom-2 left-2" />
+      )}
 
       {items.length === 0 && isBoardEmpty && isMiddleTier && (
         <div className="text-muted pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold italic select-none">

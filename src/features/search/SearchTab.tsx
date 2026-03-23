@@ -15,8 +15,10 @@ import {
   CARD_ANIMATION_TRANSITION,
   CARD_ANIMATION_VARIANTS,
 } from '@/core/ui/animations';
+import { getColorTheme } from '@/core/utils/colors';
 import { Item } from '@/domain/items/items';
 import { DEFAULT_PAGE_LIMIT } from '@/domain/providers/types';
+import { useTierListContext } from '@/features/board/context';
 import { ItemCard } from '@/features/items/ItemCard';
 import { SkeletonCard } from '@/features/items/SkeletonCard';
 import { SearchParams } from '@/features/search/search-schemas';
@@ -24,8 +26,6 @@ import { isSortReversible, SortDirection } from '@/features/search/sort-schemas'
 import { SortDropdown } from '@/features/search/SortDropdown';
 import { useItemSearch } from '@/features/search/useItemSearch';
 import { registry } from '@/infra/providers/registry';
-import { useTierListContext } from '@/features/board/context';
-import { getColorTheme } from '@/core/utils/colors';
 
 import { FilterPanel } from './FilterPanel';
 import { SearchEmptyState } from './SearchEmptyState';
