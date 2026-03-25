@@ -55,6 +55,8 @@ export interface EntityBranding {
   icon: LucideIcon;
   /** Tailwind color class for branding (e.g., 'text-purple-400') */
   colorClass: string;
+  /** Optional multiplier for image density resolutions natively (e.g., 2 for landscape cover-fit, defaults to 1) */
+  imageResolutionMultiplier?: number;
 }
 
 /**

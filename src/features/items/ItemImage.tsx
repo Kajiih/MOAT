@@ -14,6 +14,7 @@ import { Item } from '@/domain/items/items';
 import { useScreenshotContext } from '@/features/board/hooks/useScreenshot';
 import { ITEM_CARD_DIMENSIONS } from '@/features/items/ItemCard';
 import { useResolvedImage } from '@/features/items/useResolvedImage';
+import { registry } from '@/infra/providers/registry';
 
 /**
  * Props for the ItemImage component.
@@ -58,8 +59,14 @@ export function ItemImage({
   priority = false,
   containerClassName = 'absolute inset-0',
   imageClassName = 'object-cover',
-  sizes = `(max-width: 640px) ${ITEM_CARD_DIMENSIONS.mobile.px}px, ${ITEM_CARD_DIMENSIONS.desktop.px}px`,
+  sizes,
 }: ItemImageProps) {
+  const entityDef = registry.getEntity(item.identity.providerId, item.identity.entityId);
+  const multiplier = entityDef.branding.imageResolutionMultiplier || 1;
+  const resolvedSizes =
+    sizes ||
+    `(max-width: 640px) ${ITEM_CARD_DIMENSIONS.mobile.px * multiplier}px, ${ITEM_CARD_DIMENSIONS.desktop.px * multiplier}px`;
+
   const screenshotContext = useScreenshotContext();
   const firstImage = item.images?.[0];
   let contextKey = '';
@@ -97,7 +104,7 @@ export function ItemImage({
           src={displayUrl}
           alt={item.title}
           fill
-          sizes={sizes}
+          sizes={resolvedSizes}
           priority={priority}
           unoptimized={retryUnoptimized}
           className={`${imageClassName} duration-normal pointer-events-none transition-opacity`}

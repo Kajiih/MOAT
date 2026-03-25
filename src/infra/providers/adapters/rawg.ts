@@ -159,6 +159,9 @@ const GAME_FILTERS: FilterDefinition<RAWGGame>[] = [
   }),
 ];
 
+// TODO(P1): Check if this is the correct size and not too big.
+const RAWG_IMAGE_SIZE_MULTIPLIER = 2;
+
 class RAWGGameEntity implements Entity<RAWGGame> {
   public readonly id = 'game';
   public readonly branding = {
@@ -166,6 +169,7 @@ class RAWGGameEntity implements Entity<RAWGGame> {
     labelPlural: 'Video Games',
     icon: Gamepad2,
     colorClass: 'text-purple-400',
+    imageResolutionMultiplier: RAWG_IMAGE_SIZE_MULTIPLIER,
   };
   public readonly searchOptions = GAME_SEARCH_OPTIONS;
   public readonly filters = GAME_FILTERS;
@@ -417,6 +421,7 @@ class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     labelPlural: 'Developers',
     icon: Building2,
     colorClass: 'text-primary',
+    imageResolutionMultiplier: RAWG_IMAGE_SIZE_MULTIPLIER,
   };
   public readonly searchOptions: FilterDefinition<RAWGDeveloper>[] = [];
   public readonly filters: FilterDefinition<RAWGDeveloper>[] = [];
