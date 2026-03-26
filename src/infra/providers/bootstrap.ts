@@ -5,6 +5,7 @@
 
 import { MusicBrainzProvider } from '@/infra/providers/adapters/musicbrainz';
 import { RAWGProvider } from '@/infra/providers/adapters/rawg';
+import { TMDBProvider } from '@/infra/providers/adapters/tmdb';
 
 import { registry } from './registry';
 
@@ -15,6 +16,10 @@ const rawgProvider = new RAWGProvider({
   apiKey: process.env.RAWG_API_KEY || '',
 });
 const musicBrainzProvider = new MusicBrainzProvider();
+const tmdbProvider = new TMDBProvider({
+  apiKey: process.env.TMDB_API_KEY || '',
+});
 
 registry.register(rawgProvider);
 registry.register(musicBrainzProvider);
+registry.register(tmdbProvider);
