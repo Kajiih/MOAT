@@ -620,6 +620,7 @@ function mapPersonToItem(person: TMDBPerson, providerId: string): Item {
 export class TMDBProvider implements Provider {
   public readonly id = 'tmdb';
   public readonly label = 'TMDB';
+  public readonly isDevelopment = true;
   public status: ProviderStatus = ProviderStatus.IDLE;
 
   private fetcher: Fetcher = secureFetch;

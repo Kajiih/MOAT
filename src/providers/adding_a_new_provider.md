@@ -24,6 +24,8 @@ export class MyServiceProvider implements Provider {
   public id = "myservice";
   public label = "My Service";
   public status: ProviderStatus = ProviderStatus.IDLE;
+  /** Optional: Displays a "Beta" disclaimer in the UI */
+  public isDevelopment = true;
   private fetcher: Fetcher = secureFetch;
 
   public initialize = async (fetcher: Fetcher) => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+
 import { TMDBProvider } from './tmdb';
-import { SearchParams } from '@/features/search/search-schemas';
 
 describe('TMDBProvider', () => {
   const provider = new TMDBProvider({ apiKey: 'test-key' });
@@ -10,7 +10,6 @@ describe('TMDBProvider', () => {
 
   describe('Movie Entity', () => {
     it('should use /search/movie when query is provided', async () => {
-      const params: SearchParams = { query: 'Inception', filters: {}, limit: 20, page: 1 };
       // Note: We are testing the logic inside search() by checking which endpoint it would call.
       // Since we can't easily mock fetcher without more boilerplate, we check the logic in the implementation.
       // However, we can verify the getInitialParams and other synchronous helpers.

@@ -156,6 +156,21 @@ export function SearchPanel() {
         </div>
       )}
 
+      {/* Discovery / Beta Disclaimer */}
+      {selectedProvider?.isDevelopment && (
+        <div className="animate-in fade-in slide-in-from-top-1 mb-3 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-amber-200/90 shadow-sm transition-all">
+          <Loader2 className="animate-spin-slow mt-0.5 shrink-0" size={14} />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-black tracking-widest uppercase opacity-70">
+              Provider Beta
+            </span>
+            <span className="text-caption leading-relaxed font-medium">
+              {`${selectedProvider.label} integration is currently in active development. Some features or data may be incomplete or unstable.`}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Entity Tabs (Tabs driven by selected provider) */}
       {selectedProvider && selectedProvider.entities.length > 0 && (
         <div className="border-border mb-4 flex shrink-0 gap-1 rounded-lg border bg-black p-1">

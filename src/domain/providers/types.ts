@@ -158,6 +158,8 @@ export interface Provider {
   readonly description?: string;
   /** Optional icon representing the service provider */
   readonly icon?: LucideIcon;
+  /** Whether the provider is currently in active development/beta */
+  readonly isDevelopment?: boolean;
 
   /** The list of entities this provider exposes to the user */
   readonly entities: readonly Entity[];
