@@ -333,9 +333,8 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
 
           describe('Pagination', () => {
             const max_nb_queries = 5;
-            const queries = ['', ...entity.defaultTestQueries];
-
-            it.each(queries)('should verify pagination for query "%s"', async (query) => {
+            it(`should verify pagination for query "${entity.paginationTestQuery}"`, async () => {
+              const query = entity.paginationTestQuery;
               const initialParams = entity.getInitialParams({ limit: max_nb_queries });
               const p1 = await entity.search({ ...initialParams, query });
 

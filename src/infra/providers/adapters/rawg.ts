@@ -226,6 +226,7 @@ class RAWGGameEntity implements Entity<RAWGGame> {
 
   public readonly defaultTestQueries = nonEmpty("Baldur's Gate", 'Clair Obscur');
   public readonly emptyTestQuery = 'rawg_unlikely_games_zxyv';
+  public readonly paginationTestQuery = 'The Witcher 3';
   public readonly testDetailsIds = nonEmpty(THE_WITCHER_3_ID, ELDEN_RING_ID);
   public readonly edgeShortQuery = 'zzzzzzzzz';
 
@@ -434,6 +435,7 @@ class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
 
   public readonly defaultTestQueries = nonEmpty('Ubisoft', 'Nintendo');
   public readonly emptyTestQuery = 'rawg_unlikely_developers_zxyv';
+  public readonly paginationTestQuery = 'Ubisoft';
   public readonly testDetailsIds = nonEmpty(UBISOFT_ID, NINTENDO_ID);
   public readonly edgeShortQuery = 'zzzzzzzzz';
 

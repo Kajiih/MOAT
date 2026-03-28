@@ -699,6 +699,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
 
   public readonly defaultTestQueries = nonEmpty('Thriller', 'Abbey Road');
   public readonly emptyTestQuery = 'musicbrainz_unlikely_albums_zxyv';
+  public readonly paginationTestQuery = 'Thriller';
   public readonly testDetailsIds = nonEmpty(ALBUM_THRILLER_ID, ALBUM_ABBEY_ROAD_ID);
   public readonly edgeShortQuery = 'zzzzzzzzzzz';
 
@@ -990,6 +991,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
 
   public readonly defaultTestQueries = nonEmpty('Daft Punk', 'Radiohead');
   public readonly emptyTestQuery = 'musicbrainz_unlikely_artists_zxyv';
+  public readonly paginationTestQuery = 'Daft Punk';
   public readonly testDetailsIds = nonEmpty(ARTIST_DAFT_PUNK_ID, ARTIST_RADIOHEAD_ID);
   public readonly edgeShortQuery = 'zzzzzzz';
 
@@ -1204,6 +1206,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
 
   public readonly defaultTestQueries = nonEmpty('Creep', 'Billie Jean');
   public readonly emptyTestQuery = 'musicbrainz_unlikely_recordings_zxyv';
+  public readonly paginationTestQuery = 'Creep';
   public readonly testDetailsIds = nonEmpty(SONG_CREEP_ID, SONG_BILLIE_JEAN_ID);
   public readonly edgeShortQuery = 'zzzzzzzzzzzzzzzz';
 

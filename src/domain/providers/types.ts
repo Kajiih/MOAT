@@ -105,6 +105,8 @@ export interface Entity<TRaw = any> {
   readonly testDetailsIds: NonEmptyArray<string>;
   /** Query guaranteed to return 0 results. Used for edge case testing. */
   readonly emptyTestQuery: string;
+  /** Query guaranteed to return multiple pages of results. Used for standard pagination verification. */
+  readonly paginationTestQuery: string;
 
   /** Returns the starting parameters for this entity's search. */
   readonly getInitialParams: (config: { limit: number }) => SearchParams;
