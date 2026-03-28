@@ -1,6 +1,9 @@
 /**
  * @file Provider Types
  * @description Core types and protocol interfaces for the generic Provider orchestration layer.
+ *
+ * Test data are required and co-located with the provider implementation on purpose.
+ * Providers are expected to be self-contained in as single file and testable in isolation.
  */
 
 import { LucideIcon } from 'lucide-react';
