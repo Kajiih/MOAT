@@ -53,7 +53,12 @@ export function SearchEmptyState({
   title: propTitle,
   description: propDescription,
 }: SearchEmptyStateProps) {
-  const { Icon, title: configTitle, description: configDescription, colors: configColors } = CONFIG[type];
+  const {
+    Icon,
+    title: configTitle,
+    description: configDescription,
+    colors: configColors,
+  } = CONFIG[type];
 
   const title = propTitle || configTitle;
   const description = propDescription || configDescription;

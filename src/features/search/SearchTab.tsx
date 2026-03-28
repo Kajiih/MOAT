@@ -131,15 +131,15 @@ export function SearchTab({
       const provider = registry.getProvider(providerId);
 
       return (
-        <div className="relative custom-scrollbar flex-1 overflow-y-auto pr-1">
+        <div className="custom-scrollbar relative flex-1 overflow-y-auto pr-1">
           {isDiscoveryMode && (
             <div className="absolute top-2 right-2 z-50">
               <div className="group relative inline-block">
-                <div className="cursor-help flex items-center justify-center text-primary hover:text-primary/80 transition-colors">
+                <div className="text-primary hover:text-primary/80 flex cursor-help items-center justify-center transition-colors">
                   <Info className="h-4 w-4" />
                 </div>
-                <div className="invisible group-hover:visible absolute right-0 top-full mt-1 w-64 rounded-lg border border-secondary/50 bg-secondary p-3 text-xs text-muted-foreground shadow-lg z-50">
-                  <div className="font-semibold text-foreground mb-1">
+                <div className="border-secondary/50 bg-secondary text-muted-foreground invisible absolute top-full right-0 z-50 mt-1 w-64 rounded-lg border p-3 text-xs shadow-lg group-hover:visible">
+                  <div className="text-foreground mb-1 font-semibold">
                     Popular {entity?.branding.labelPlural} on {provider?.label}
                   </div>
                   Type or add filters to narrow down the results.
