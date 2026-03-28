@@ -192,21 +192,25 @@ class TMDBMovieEntity implements Entity<TMDBMovie> {
       id: 'popularity.desc',
       label: 'Popularity',
       defaultDirection: SortDirection.DESC,
+      extractValue: (movie) => movie.popularity ?? 0,
     }),
     movieSorts.create({
       id: 'primary_release_date.desc',
       label: 'Newest',
       defaultDirection: SortDirection.DESC,
+      extractValue: (movie) => movie.release_date ?? '',
     }),
     movieSorts.create({
       id: 'vote_average.desc',
       label: 'Best Rated',
       defaultDirection: SortDirection.DESC,
+      extractValue: (movie) => movie.vote_average ?? 0,
     }),
     movieSorts.create({
       id: 'revenue.desc',
       label: 'Box Office',
       defaultDirection: SortDirection.DESC,
+      skipSortingTest: true, // Revenue is not in search schema, cannot extract
     }),
   ];
 
@@ -315,16 +319,19 @@ class TMDBTVEntity implements Entity<TMDBTVShow> {
       id: 'popularity.desc',
       label: 'Popularity',
       defaultDirection: SortDirection.DESC,
+      extractValue: (tv) => tv.popularity ?? 0,
     }),
     tvSorts.create({
       id: 'first_air_date.desc',
       label: 'Newest',
       defaultDirection: SortDirection.DESC,
+      extractValue: (tv) => tv.first_air_date ?? '',
     }),
     tvSorts.create({
       id: 'vote_average.desc',
       label: 'Best Rated',
       defaultDirection: SortDirection.DESC,
+      extractValue: (tv) => tv.vote_average ?? 0,
     }),
   ];
 

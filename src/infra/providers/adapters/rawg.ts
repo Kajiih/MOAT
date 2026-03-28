@@ -178,13 +178,12 @@ class RAWGGameEntity implements Entity<RAWGGame> {
   public readonly searchOptions = GAME_SEARCH_OPTIONS;
   public readonly filters = GAME_FILTERS;
   public readonly sortOptions = [
-    rawgGameSorts.create({ id: 'relevance', label: 'Relevance' }),
+    rawgGameSorts.create({ id: 'relevance', label: 'Relevance', skipSortingTest: true }),
     rawgGameSorts.create({
       id: 'name',
       label: 'Name',
       defaultDirection: SortDirection.ASC,
-      // Name sorting is functional but we don't test it the RAWG API uses a custom collation (dealing with symbols and non-latin scripts) that doesn't match standard JS string comparison.
-      // extractValue: (raw) => raw.name ?? '' //
+      skipSortingTest: true, // Name uses custom collation (symbols/scripts), unstable for standard tests
     }),
     rawgGameSorts.create({
       id: 'rating',
@@ -431,7 +430,7 @@ class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   };
   public readonly searchOptions: FilterDefinition<RAWGDeveloper>[] = [];
   public readonly filters: FilterDefinition<RAWGDeveloper>[] = [];
-  public readonly sortOptions = [rawgDevSorts.create({ id: 'relevance', label: 'Relevance' })];
+  public readonly sortOptions = [rawgDevSorts.create({ id: 'relevance', label: 'Relevance', skipSortingTest: true })];
 
   public readonly defaultTestQueries = nonEmpty('Ubisoft', 'Nintendo');
   public readonly emptyTestQuery = 'rawg_unlikely_developers_zxyv';

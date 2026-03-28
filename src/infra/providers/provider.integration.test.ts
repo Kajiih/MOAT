@@ -172,7 +172,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
       for (const entity of provider.entities) {
         describe(`Entity: ${entity.branding.label} (${entity.id})`, () => {
           const sortableOptions = entity.sortOptions.filter(
-            (opt) => !!opt.extractValue && opt.id !== 'relevance',
+            (opt) => !opt.skipSortingTest,
           );
           const allFilters = [...entity.searchOptions, ...entity.filters];
 

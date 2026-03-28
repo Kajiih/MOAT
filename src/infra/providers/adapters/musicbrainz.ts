@@ -695,7 +695,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly capabilities = { supportsEmptyQueryBrowsing: false };
   public readonly searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzReleaseGroup>[] = [];
-  public readonly sortOptions = [mbAlbumSorts.create({ id: 'relevance', label: 'Relevance' })];
+  public readonly sortOptions = [mbAlbumSorts.create({ id: 'relevance', label: 'Relevance', skipSortingTest: true })];
 
   public readonly defaultTestQueries = nonEmpty('Thriller', 'Abbey Road');
   public readonly emptyTestQuery = 'musicbrainz_unlikely_albums_zxyv';
@@ -987,7 +987,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   public readonly capabilities = { supportsEmptyQueryBrowsing: false };
   public readonly searchOptions: FilterDefinition<MusicBrainzArtist>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzArtist>[] = [];
-  public readonly sortOptions = [mbArtistSorts.create({ id: 'relevance', label: 'Relevance' })];
+  public readonly sortOptions = [mbArtistSorts.create({ id: 'relevance', label: 'Relevance', skipSortingTest: true })];
 
   public readonly defaultTestQueries = nonEmpty('Daft Punk', 'Radiohead');
   public readonly emptyTestQuery = 'musicbrainz_unlikely_artists_zxyv';
@@ -1202,7 +1202,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   public readonly capabilities = { supportsEmptyQueryBrowsing: false };
   public readonly searchOptions: FilterDefinition<MusicBrainzRecording>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzRecording>[];
-  public readonly sortOptions = [mbRecordingSorts.create({ id: 'relevance', label: 'Relevance' })];
+  public readonly sortOptions = [mbRecordingSorts.create({ id: 'relevance', label: 'Relevance', skipSortingTest: true })];
 
   public readonly defaultTestQueries = nonEmpty('Creep', 'Billie Jean');
   public readonly emptyTestQuery = 'musicbrainz_unlikely_recordings_zxyv';

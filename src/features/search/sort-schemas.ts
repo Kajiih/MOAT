@@ -29,14 +29,20 @@ export const SortDefinitionSchema = z.object({
 
 /**
  * A generic sort definition tailored for a specific provider payload Type `TRaw`.
+ * 
+ * Only set `skipSortingTest` to true if the sort value cannot be extracted from the raw response (e.g. relevance).
  */
-export interface SortDefinition<TRaw = unknown> extends z.infer<typeof SortDefinitionSchema> {
-  /**
-   * Extract the raw value for comparison in integration tests.
-   * If not provided, the sort will not be tested.
-   */
-  extractValue?: (raw: TRaw) => string | number;
-}
+export type SortDefinition<TRaw = unknown> = 
+  | (z.infer<typeof SortDefinitionSchema> & {
+      /** Set this to true if the sort value cannot be extracted from the raw response (e.g. relevance) */
+      skipSortingTest: true;
+      extractValue?: never;
+    })
+  | (z.infer<typeof SortDefinitionSchema> & {
+      skipSortingTest?: false;
+      /** Extract the raw value for comparison in integration tests. */
+      extractValue: (raw: TRaw) => string | number;
+    });
 
 /**
  * Creates a suite of sort building functions that are statically bound
