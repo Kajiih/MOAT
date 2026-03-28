@@ -692,6 +692,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
     icon: Disc3,
     colorClass: 'text-rose-500',
   };
+  public readonly capabilities = { supportsEmptyQueryBrowsing: false };
   public readonly searchOptions: FilterDefinition<MusicBrainzReleaseGroup>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzReleaseGroup>[] = [];
   public readonly sortOptions = [mbAlbumSorts.create({ id: 'relevance', label: 'Relevance' })];
@@ -981,6 +982,7 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
     icon: Mic2,
     colorClass: 'text-cyan-500',
   };
+  public readonly capabilities = { supportsEmptyQueryBrowsing: false };
   public readonly searchOptions: FilterDefinition<MusicBrainzArtist>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzArtist>[] = [];
   public readonly sortOptions = [mbArtistSorts.create({ id: 'relevance', label: 'Relevance' })];
@@ -1193,6 +1195,7 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
     icon: Music,
     colorClass: 'text-purple-500',
   };
+  public readonly capabilities = { supportsEmptyQueryBrowsing: false };
   public readonly searchOptions: FilterDefinition<MusicBrainzRecording>[] = [];
   public readonly filters: FilterDefinition<MusicBrainzRecording>[];
   public readonly sortOptions = [mbRecordingSorts.create({ id: 'relevance', label: 'Relevance' })];

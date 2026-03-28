@@ -60,6 +60,14 @@ export interface EntityBranding {
 }
 
 /**
+ * Configuration for entity-specific behaviors and features.
+ */
+export interface EntityCapability {
+  /** If false, the search UI will not auto-fetch results when the query is empty. Defaults to true. */
+  readonly supportsEmptyQueryBrowsing?: boolean;
+}
+
+/**
  * Represents an entity within a provider (e.g., "Game", "Developer").
  * Generic TRaw allows integration tests to access provider-specific raw results safely.
  *
@@ -78,6 +86,8 @@ export interface Entity<TRaw = any> {
   readonly searchOptions: FilterDefinition<TRaw>[];
   /** Sort options available for this entity */
   readonly sortOptions: SortDefinition<TRaw>[];
+  /** Optional capabilities defining specific UI behaviors for the entity. */
+  readonly capabilities?: EntityCapability;
 
   /** String guaranteed to return 1-3 pages of results. Mandatory for boundary pagination integration testing. */
   readonly edgeShortQuery: string;

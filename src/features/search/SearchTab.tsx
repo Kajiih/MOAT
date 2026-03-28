@@ -94,8 +94,12 @@ export function SearchTab({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showFilters]);
 
+  const hasFilters = Object.keys(params.filters).length > 0;
+  const isDiscoveryDisabled =
+    entity?.capabilities?.supportsEmptyQueryBrowsing === false && !params.query && !hasFilters;
+
   const { results, pagination, isLoading, error } = useItemSearch(providerId, entityId, params, {
-    enabled: !isHidden,
+    enabled: !isHidden && !isDiscoveryDisabled,
   });
 
   const finalResults = useMemo(() => {
