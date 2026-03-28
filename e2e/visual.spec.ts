@@ -34,13 +34,12 @@ test.describe('Visual Regression', () => {
     });
   });
 
-  test('search panel snapshot', async ({ page }) => {
+  test('search panel snapshot', async ({ searchPanel }) => {
     // Open search panel by ensuring it's visible (it is persistent on desktop)
-    await expect(page.getByPlaceholder('Search Video Games...')).toBeVisible();
+    await expect(searchPanel.searchInput).toBeVisible();
 
-    // Snapshot of the search panel only
-    const searchPanel = page.locator('.sticky'); // The search panel container
-    await expect(searchPanel).toHaveScreenshot('search-panel-empty.png');
+    // Snapshot of the search panel only using POM container
+    await expect(searchPanel.container).toHaveScreenshot('search-panel-empty.png');
   });
 
   test('populated board snapshot', async ({ page }, testInfo) => {
@@ -67,6 +66,9 @@ test.describe('Visual Regression', () => {
 
     // Wait for the specific goal post (Visual S appearing)
     await expect(page.getByText('Visual S')).toBeVisible();
+
+    // Wait for import toast to disappear for clean visual test
+    await expect(page.getByText(/imported/i)).toBeHidden({ timeout: 10000 });
 
     // Ensure icons and layout are ready
     await page.evaluate(() => document.fonts.ready);
