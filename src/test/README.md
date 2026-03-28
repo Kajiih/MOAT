@@ -39,13 +39,13 @@ npm run test:integration -- --run
 npm run test:all
 
 # Target ONLY the RAWG provider integration
-npm run test:integration -- -t "(rawg)"
+npm run test:integration -- --run -t "(rawg)"
 
 # Target ONLY the Release Year filter on RAWG
-npm run test:integration -- -t "rawg.*yearRange"
+npm run test:integration -- --run -t "rawg.*yearRange"
 
 # Target ONLY Edge Cases for the rawg provider
-npm run test:integration -- -t "rawg.*Edge Cases"
+npm run test:integration -- --run -t "rawg.*Edge Cases"
 ```
 
 ## 4. API Metric Quotas (CI Protection)

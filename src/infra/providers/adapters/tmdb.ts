@@ -183,32 +183,6 @@ class TMDBMovieEntity implements Entity<TMDBMovie> {
         },
       ],
     }),
-    movieFilters.multiselect({
-      id: 'genres',
-      label: 'Genres',
-      options: MOVIE_GENRES,
-      transform: (values) => ({ with_genres: values.join(',') }),
-      testCases: [
-        {
-          value: ['28'], // Action
-          expectAll: (movie) => movie.genre_ids?.includes(28) ?? false,
-          expectAllMessage: 'include the Action genre ID (28)',
-        },
-      ],
-    }),
-    movieFilters.number({
-      id: 'rating',
-      label: 'Minimum Rating',
-      defaultValue: 0,
-      transform: mapTo('vote_average.gte'),
-      testCases: [
-        {
-          value: 8,
-          expectAll: (movie) => (movie.vote_average ?? 0) >= 8,
-          expectAllMessage: 'have a rating of at least 8',
-        },
-      ],
-    }),
   ];
 
   public readonly searchOptions: FilterDefinition<TMDBMovie>[] = [];
@@ -328,32 +302,6 @@ class TMDBTVEntity implements Entity<TMDBTVShow> {
           value: '2008',
           expectAll: (tv) => tv.first_air_date?.startsWith('2008') ?? false,
           expectAllMessage: 'have a first air date starting with 2008',
-        },
-      ],
-    }),
-    tvFilters.multiselect({
-      id: 'genres',
-      label: 'Genres',
-      options: TV_GENRES,
-      transform: (values) => ({ with_genres: values.join(',') }),
-      testCases: [
-        {
-          value: ['18'], // Drama
-          expectAll: (tv) => tv.genre_ids?.includes(18) ?? false,
-          expectAllMessage: 'include the Drama genre ID (18)',
-        },
-      ],
-    }),
-    tvFilters.number({
-      id: 'rating',
-      label: 'Minimum Rating',
-      defaultValue: 0,
-      transform: mapTo('vote_average.gte'),
-      testCases: [
-        {
-          value: 8,
-          expectAll: (tv) => (tv.vote_average ?? 0) >= 8,
-          expectAllMessage: 'have a rating of at least 8',
         },
       ],
     }),
