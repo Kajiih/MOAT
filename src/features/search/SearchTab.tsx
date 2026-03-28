@@ -6,7 +6,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, Info } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -131,14 +131,19 @@ export function SearchTab({
       const provider = registry.getProvider(providerId);
 
       return (
-        <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
+        <div className="relative custom-scrollbar flex-1 overflow-y-auto pr-1">
           {isDiscoveryMode && (
-            <div className="mx-1 mb-2 rounded-xl border border-secondary/50 bg-secondary/30 p-4 text-sm">
-              <div className="font-semibold text-foreground">
-                Popular {entity?.branding.labelPlural} on {provider?.label}
-              </div>
-              <div className="text-muted-foreground">
-                Type or add filters to narrow down the results.
+            <div className="absolute top-2 right-2 z-50">
+              <div className="group relative inline-block">
+                <div className="cursor-help flex items-center justify-center text-primary hover:text-primary/80 transition-colors">
+                  <Info className="h-4 w-4" />
+                </div>
+                <div className="invisible group-hover:visible absolute right-0 top-full mt-1 w-64 rounded-lg border border-secondary/50 bg-secondary p-3 text-xs text-muted-foreground shadow-lg z-50">
+                  <div className="font-semibold text-foreground mb-1">
+                    Popular {entity?.branding.labelPlural} on {provider?.label}
+                  </div>
+                  Type or add filters to narrow down the results.
+                </div>
               </div>
             </div>
           )}
