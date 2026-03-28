@@ -20,7 +20,7 @@ describe('TMDBProvider', () => {
       const params = movieEntity.getInitialParams({ limit: 20 });
       expect(params.query).toBe('');
       expect(params.page).toBe(1);
-      expect(params.sort).toBeDefined();
+      expect(params.sort).toBeUndefined();
     });
   });
 

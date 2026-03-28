@@ -20,7 +20,6 @@ import {
 import { Entity, Fetcher, nonEmpty, Provider, ProviderStatus } from '@/domain/providers/types';
 import { createFilterSuite, FilterDefinition, mapTo } from '@/features/search/filter-schemas';
 import { SearchParams, SearchResult, SearchResultSchema } from '@/features/search/search-schemas';
-import { createSortSuite, SortDirection } from '@/features/search/sort-schemas';
 import { secureFetch } from '@/infra/providers/api-client';
 import { applyFilters, handleProviderError } from '@/infra/providers/utils';
 
@@ -110,8 +109,6 @@ const movieFilters = createFilterSuite<TMDBMovie>();
 const tvFilters = createFilterSuite<TMDBTVShow>();
 const personFilters = createFilterSuite<TMDBPerson>();
 
-const movieSorts = createSortSuite<TMDBMovie>();
-const tvSorts = createSortSuite<TMDBTVShow>();
 
 /**
  * Genre Mappings
@@ -187,32 +184,8 @@ class TMDBMovieEntity implements Entity<TMDBMovie> {
 
   public readonly searchOptions: FilterDefinition<TMDBMovie>[] = [];
 
-  public readonly sortOptions = [
-    movieSorts.create({
-      id: 'popularity.desc',
-      label: 'Popularity',
-      defaultDirection: SortDirection.DESC,
-      extractValue: (movie) => movie.popularity ?? 0,
-    }),
-    movieSorts.create({
-      id: 'primary_release_date.desc',
-      label: 'Newest',
-      defaultDirection: SortDirection.DESC,
-      extractValue: (movie) => movie.release_date ?? '',
-    }),
-    movieSorts.create({
-      id: 'vote_average.desc',
-      label: 'Best Rated',
-      defaultDirection: SortDirection.DESC,
-      extractValue: (movie) => movie.vote_average ?? 0,
-    }),
-    movieSorts.create({
-      id: 'revenue.desc',
-      label: 'Box Office',
-      defaultDirection: SortDirection.DESC,
-      skipSortingTest: true, // Revenue is not in search schema, cannot extract
-    }),
-  ];
+  public readonly sortOptions = [];
+
 
   public readonly edgeShortQuery = 'Avatar';
   public readonly defaultTestQueries = nonEmpty('Inception', 'The Matrix');
@@ -225,8 +198,6 @@ class TMDBMovieEntity implements Entity<TMDBMovie> {
   public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
     query: '',
     filters: {},
-    sort: this.sortOptions[0].id,
-    sortDirection: this.sortOptions[0].defaultDirection,
     limit: config.limit,
     page: 1,
   });
@@ -314,26 +285,8 @@ class TMDBTVEntity implements Entity<TMDBTVShow> {
 
   public readonly searchOptions: FilterDefinition<TMDBTVShow>[] = [];
 
-  public readonly sortOptions = [
-    tvSorts.create({
-      id: 'popularity.desc',
-      label: 'Popularity',
-      defaultDirection: SortDirection.DESC,
-      extractValue: (tv) => tv.popularity ?? 0,
-    }),
-    tvSorts.create({
-      id: 'first_air_date.desc',
-      label: 'Newest',
-      defaultDirection: SortDirection.DESC,
-      extractValue: (tv) => tv.first_air_date ?? '',
-    }),
-    tvSorts.create({
-      id: 'vote_average.desc',
-      label: 'Best Rated',
-      defaultDirection: SortDirection.DESC,
-      extractValue: (tv) => tv.vote_average ?? 0,
-    }),
-  ];
+  public readonly sortOptions = [];
+
 
   public readonly edgeShortQuery = 'Breaking Bad';
   public readonly defaultTestQueries = nonEmpty('Breaking Bad', 'Succession');
@@ -346,8 +299,6 @@ class TMDBTVEntity implements Entity<TMDBTVShow> {
   public readonly getInitialParams = (config: { limit: number }): SearchParams => ({
     query: '',
     filters: {},
-    sort: this.sortOptions[0].id,
-    sortDirection: this.sortOptions[0].defaultDirection,
     limit: config.limit,
     page: 1,
   });
@@ -653,7 +604,10 @@ export class TMDBProvider implements Provider {
     const query = new URLSearchParams(params);
     query.append('api_key', this.apiKey);
 
-    return this.fetcher<T>(`${TMDB_BASE_URL}${endpoint}?${query.toString()}`, {
+    const url = `${TMDB_BASE_URL}${endpoint}?${query.toString()}`;
+    console.log(`TMDB FETCH: ${url}`);
+
+    return this.fetcher<T>(url, {
       signal: options?.signal,
     });
   }
