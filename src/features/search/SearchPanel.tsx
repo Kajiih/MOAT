@@ -26,9 +26,12 @@ import { SearchTab } from './SearchTab';
  */
 export function SearchPanel() {
   const {
+    activeDrag,
     ui: { addedItemIds, showDetails: onInfo },
     actions: { locate: handleLocate, removeItemFromTier },
   } = useTierListContext();
+
+  const isAmbientDragActive = activeDrag !== null;
 
   const { availableProviders, status } = useRegistry();
 
@@ -100,11 +103,18 @@ export function SearchPanel() {
     );
   }
 
+  let borderClass = 'border-border';
+  if (isDraggedOver) {
+    borderClass = 'border-red-500/50 bg-red-950/10';
+  } else if (isAmbientDragActive) {
+    borderClass = 'border-amber-500/50';
+  }
+
   return (
     <div
       ref={containerRef}
       data-testid="search-panel"
-      className={`border-border bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 transition-colors sm:max-h-[calc(100dvh-2rem)] ${isDraggedOver ? 'border-red-500/50 bg-red-950/10' : ''}`}
+      className={`bg-surface shadow-floating sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-lg border p-6 transition-colors sm:max-h-[calc(100dvh-2rem)] ${borderClass}`}
     >
       {isDraggedOver && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center rounded-lg border-2 border-red-500/50 bg-red-950/60 backdrop-blur-[1px]">

@@ -42,6 +42,11 @@ export interface EpicAnimationEvent {
  * Provides access to the board state, computed values, and helper methods.
  */
 interface TierListContextType {
+  activeDrag: {
+    itemId: string;
+    type: 'pointer' | 'keyboard';
+    tierId?: string;
+  } | null;
   state: TierListState;
   isHydrated: boolean;
   actions: {
@@ -239,8 +244,41 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
     },
   });
 
+  const activeDrag = React.useMemo(() => {
+    if (activeKeyboardDragId) {
+      let tierId: string | undefined;
+      for (const [tid, items] of Object.entries(state.tierLayout)) {
+        if (items.includes(activeKeyboardDragId.itemId)) {
+          tierId = tid;
+          break;
+        }
+      }
+      return {
+        itemId: activeKeyboardDragId.itemId,
+        type: 'keyboard' as const,
+        tierId,
+      };
+    }
+    if (dragState.activeItem) {
+      let tierId: string | undefined;
+      for (const [tid, items] of Object.entries(state.tierLayout)) {
+        if (items.includes(dragState.activeItem.id)) {
+          tierId = tid;
+          break;
+        }
+      }
+      return {
+        itemId: dragState.activeItem.id,
+        type: 'pointer' as const,
+        tierId,
+      };
+    }
+    return null;
+  }, [activeKeyboardDragId, dragState.activeItem, state.tierLayout]);
+
   const value = useMemo(
     () => ({
+      activeDrag,
       state,
       isHydrated,
       actions: {
@@ -261,7 +299,7 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       ui,
       history,
     }),
-    [state, isHydrated, actions, ui, history, registerItem, ioRaw.handlePublish, dragState],
+    [state, isHydrated, actions, ui, history, registerItem, ioRaw.handlePublish, dragState, activeDrag],
   );
 
   return <TierListContext.Provider value={value}>{children}</TierListContext.Provider>;

@@ -112,7 +112,6 @@ export function ItemCard({
 
   // 2. Setup Pragmatic Drag and Drop
   const ref = useRef<HTMLDivElement>(null);
-  const [isDraggingLocal, setIsDraggingLocal] = useState(false);
   const [isOverLocal, setIsOverLocal] = useState(false);
   const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
 
@@ -121,10 +120,13 @@ export function ItemCard({
 
   // 3. Global Keyboard State
   const tierListContext = useTierListContext();
+  const activeDrag = tierListContext?.activeDrag;
   const actions = tierListContext?.actions;
   const activeKeyboardDragId = tierListContext?.ui.activeKeyboardDragId;
   const setActiveKeyboardDragId = tierListContext?.ui.setActiveKeyboardDragId;
   const cardPrefs = tierListContext?.ui.cardPrefs;
+  
+  const isThisItemDragging = activeDrag?.itemId === item.id;
   const isKeyboardDragging =
     activeKeyboardDragId?.itemId === item.id && activeKeyboardDragId?.tierId === tierId;
 
@@ -143,8 +145,6 @@ export function ItemCard({
     const cleanupDraggable = draggable({
       element: el,
       getInitialData: () => ({ type: 'item', item, tierId }),
-      onDragStart: () => setIsDraggingLocal(true),
-      onDrop: () => setIsDraggingLocal(false),
     });
 
     const cleanupDropTarget = dropTargetForElements({
@@ -180,7 +180,7 @@ export function ItemCard({
     };
   }, [item, tierId, isExport]);
 
-  const activeDragging = isDragging || isDraggingLocal || isKeyboardDragging;
+  const activeDragging = isThisItemDragging || isKeyboardDragging;
   const activeEdge =
     overrideClosestEdge !== undefined && overrideClosestEdge !== null
       ? overrideClosestEdge
