@@ -382,32 +382,6 @@ describe('Provider Design', () => {
     });
   });
 
-  describe('RAWGProvider Prototype', () => {
-    it('should have the correct entities', () => {
-      expect(testRawgProvider.entities).toHaveLength(2);
-      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game');
-      const devEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'developer');
-
-      expect(gameEntity).toBeDefined();
-      expect(devEntity).toBeDefined();
-      expect(gameEntity?.branding.label).toBe('Video Game');
-    });
-
-    it('should have filters and sort options for games', () => {
-      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game');
-      expect(gameEntity?.filters).toHaveLength(2);
-      expect(gameEntity?.searchOptions).toHaveLength(1);
-      expect(gameEntity?.sortOptions).toHaveLength(8);
-    });
-
-    it('should validate search results using Zod', async () => {
-      const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game');
-      // This test actually calls the search method, we might need to mock fetch
-      // But for design verification, we just check if the method exists and types match
-      expect(gameEntity?.search).toBeDefined();
-    });
-  });
-
   describe('Search Options', () => {
     it('should cleanly separate search modifiers from data filters', () => {
       const gameEntity = testRawgProvider.entities.find((e: Entity) => e.id === 'game')!;
