@@ -127,8 +127,21 @@ export function SearchTab({
     }
 
     if (finalResults.length > 0) {
+      const isDiscoveryMode = !params.query && !hasFilters && finalResults.length > 0;
+      const provider = registry.getProvider(providerId);
+
       return (
         <div className="custom-scrollbar flex-1 overflow-y-auto pr-1">
+          {isDiscoveryMode && (
+            <div className="mx-1 mb-2 rounded-xl border border-secondary/50 bg-secondary/30 p-4 text-sm">
+              <div className="font-semibold text-foreground">
+                Popular {entity?.branding.labelPlural} on {provider?.label}
+              </div>
+              <div className="text-muted-foreground">
+                Type or add filters to narrow down the results.
+              </div>
+            </div>
+          )}
           <div
             role="listbox"
             aria-label="Search Results"
@@ -169,10 +182,26 @@ export function SearchTab({
 
     return (
       <div className="custom-scrollbar flex-1 overflow-y-auto px-1 py-4">
-        <SearchEmptyState
-          type={hasActiveFilters ? 'no-results' : 'initial'}
-          tierColors={tierColors}
-        />
+        {hasActiveFilters ? (
+          <SearchEmptyState
+            type="no-results"
+            title="No Results Found"
+            description="We couldn't find anything matching your filters. Try adjusting them or clear them to start over."
+            tierColors={tierColors}
+          />
+        ) : (
+          (() => {
+            const entityLabel = entity?.branding.labelPlural ?? 'topics';
+            return (
+              <SearchEmptyState
+                type="initial"
+                title={`Find ${entityLabel}`}
+                description={`Type in the search bar above or apply filters to find ${entityLabel.toLowerCase()} for your board.`}
+                tierColors={tierColors}
+              />
+            );
+          })()
+        )}
       </div>
     );
   };

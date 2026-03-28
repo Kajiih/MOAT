@@ -13,6 +13,10 @@ interface SearchEmptyStateProps {
   type: 'initial' | 'no-results';
   /** Optional custom hex colors from the active board theme for ambient clouds. */
   tierColors?: string[];
+  /** Optional custom title override */
+  title?: string;
+  /** Optional custom description override */
+  description?: string;
 }
 
 const CONFIG = {
@@ -39,10 +43,20 @@ const CONFIG = {
  * @param props - Component props.
  * @param props.type - The type of empty state to render.
  * @param props.tierColors - Optional custom hex colors from the active board theme for ambient clouds.
+ * @param props.title - Optional custom title override.
+ * @param props.description - Optional custom description override.
  * @returns The rendered empty state view.
  */
-export function SearchEmptyState({ type, tierColors }: SearchEmptyStateProps) {
-  const { Icon, title, description, colors: configColors } = CONFIG[type];
+export function SearchEmptyState({
+  type,
+  tierColors,
+  title: propTitle,
+  description: propDescription,
+}: SearchEmptyStateProps) {
+  const { Icon, title: configTitle, description: configDescription, colors: configColors } = CONFIG[type];
+
+  const title = propTitle || configTitle;
+  const description = propDescription || configDescription;
 
   // Derive final ambient colors, adding translucent opacity to tier colors if provided
   const finalColors =

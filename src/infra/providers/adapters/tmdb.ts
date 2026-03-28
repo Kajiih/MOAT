@@ -487,10 +487,13 @@ class TMDBPersonEntity implements Entity<TMDBPerson> {
   });
 
   public readonly search = async (params: SearchParams): Promise<SearchResult<TMDBPerson>> => {
+    const isDiscover = !params.query;
+    const endpoint = isDiscover ? '/person/popular' : '/search/person';
+
     return this.provider.searchEntities<TMDBPerson>(
       params,
       this.searchOptions,
-      '/search/person',
+      endpoint,
       TMDBPersonSchema,
       (person) => mapPersonToItem(person, this.provider.id),
     );
