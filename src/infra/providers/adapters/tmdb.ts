@@ -167,6 +167,7 @@ class TMDBMovieEntity implements Entity<TMDBMovie> {
   };
 
   public readonly filters = [
+    // TODO(P2): Make so that we don't send new requests for years that gets ignored like anything < 1000
     movieFilters.text({
       id: 'year',
       label: 'Release Year',
@@ -268,6 +269,7 @@ class TMDBTVEntity implements Entity<TMDBTVShow> {
   };
 
   public readonly filters = [
+    // TODO(P2): Make so that we don't send new requests for years that gets ignored like anything < 1000
     tvFilters.text({
       id: 'year',
       label: 'First Air Year',
