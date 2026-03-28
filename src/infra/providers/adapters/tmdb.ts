@@ -238,6 +238,7 @@ class TMDBMovieEntity implements Entity<TMDBMovie> {
 
   public readonly edgeShortQuery = 'Avatar';
   public readonly defaultTestQueries = nonEmpty('Inception', 'The Matrix');
+  public readonly emptyTestQuery = 'tmdb_unlikely_movies_zxyv';
   public readonly testDetailsIds = nonEmpty('27205', '603'); // Inception, The Matrix
 
   public constructor(private provider: TMDBProvider) {}
@@ -380,6 +381,7 @@ class TMDBTVEntity implements Entity<TMDBTVShow> {
 
   public readonly edgeShortQuery = 'Breaking Bad';
   public readonly defaultTestQueries = nonEmpty('Breaking Bad', 'Succession');
+  public readonly emptyTestQuery = 'tmdb_unlikely_tv_zxyv';
   public readonly testDetailsIds = nonEmpty('1396', '71446'); // Breaking Bad, Money Heist
 
   public constructor(private provider: TMDBProvider) {}
@@ -475,6 +477,7 @@ class TMDBPersonEntity implements Entity<TMDBPerson> {
 
   public readonly edgeShortQuery = 'Christopher Nolan';
   public readonly defaultTestQueries = nonEmpty('Christopher Nolan', 'Quentin Tarantino');
+  public readonly emptyTestQuery = 'tmdb_unlikely_person_zxyv';
   public readonly testDetailsIds = nonEmpty('525', '138'); // Christopher Nolan, Quentin Tarantino
 
   public constructor(private provider: TMDBProvider) {}

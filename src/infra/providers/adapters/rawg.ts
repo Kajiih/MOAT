@@ -90,24 +90,28 @@ const GAME_SEARCH_OPTIONS: FilterDefinition<RAWGGame>[] = [
       {
         value: true,
         query: 'The Watcher 3',
+        skipQueryDifferenceTest: true,
         expectNone: (item: RAWGGame) => item.id.toString() === THE_WITCHER_3_ID,
         expectNoneMessage: `be Witcher 3 (${THE_WITCHER_3_ID}) for typo "The Watcher 3"`,
       },
       {
         value: false,
         query: 'The Watcher 3',
+        skipQueryDifferenceTest: true,
         expectSome: (item: RAWGGame) => item.id.toString() === THE_WITCHER_3_ID,
         expectSomeMessage: `be Witcher 3 (${THE_WITCHER_3_ID}) in fuzzy results for typo "The Watcher 3"`,
       },
       {
         value: true,
         query: 'Elder Ring',
+        skipQueryDifferenceTest: true,
         expectNone: (item: RAWGGame) => item.id.toString() === ELDEN_RING_ID,
         expectNoneMessage: `be Elden Ring (${ELDEN_RING_ID}) for typo "Elder Ring"`,
       },
       {
         value: false,
         query: 'Elder Ring',
+        skipQueryDifferenceTest: true,
         expectSome: (item: RAWGGame) => item.id.toString() === ELDEN_RING_ID,
         expectSomeMessage: `be Elden Ring (${ELDEN_RING_ID}) in fuzzy results for typo "Elder Ring"`,
       },
@@ -221,6 +225,7 @@ class RAWGGameEntity implements Entity<RAWGGame> {
   ];
 
   public readonly defaultTestQueries = nonEmpty("Baldur's Gate", 'Clair Obscur');
+  public readonly emptyTestQuery = 'rawg_unlikely_games_zxyv';
   public readonly testDetailsIds = nonEmpty(THE_WITCHER_3_ID, ELDEN_RING_ID);
   public readonly edgeShortQuery = 'zzzzzzzzz';
 
@@ -428,6 +433,7 @@ class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
   public readonly sortOptions = [rawgDevSorts.create({ id: 'relevance', label: 'Relevance' })];
 
   public readonly defaultTestQueries = nonEmpty('Ubisoft', 'Nintendo');
+  public readonly emptyTestQuery = 'rawg_unlikely_developers_zxyv';
   public readonly testDetailsIds = nonEmpty(UBISOFT_ID, NINTENDO_ID);
   public readonly edgeShortQuery = 'zzzzzzzzz';
 

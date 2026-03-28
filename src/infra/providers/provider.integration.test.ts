@@ -403,7 +403,7 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
           describe('Edge Cases (Resilience)', () => {
             it('Empty States: should yield zero results gracefully without failing', async () => {
               const res = await entity.search({
-                query: '"NON EXISTENT GIBBERISH 123456789"',
+                query: entity.emptyTestQuery,
                 filters: {}, // Required by SearchParams typing
                 limit: 10,
               });

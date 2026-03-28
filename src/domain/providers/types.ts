@@ -103,6 +103,8 @@ export interface Entity<TRaw = any> {
    * Statically enforced to contain at least one ID.
    */
   readonly testDetailsIds: NonEmptyArray<string>;
+  /** Query guaranteed to return 0 results. Used for edge case testing. */
+  readonly emptyTestQuery: string;
 
   /** Returns the starting parameters for this entity's search. */
   readonly getInitialParams: (config: { limit: number }) => SearchParams;
