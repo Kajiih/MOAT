@@ -149,13 +149,15 @@ export class BoardPage {
   }
 
   /**
-   * Gets a media card locator by its ID.
+   * Gets a media card locator by its ID, optionally scoped to a specific tier.
    * @param id - The item ID.
+   * @param tierLabel - Optional tier label to scope the search.
    * @returns The media card locator.
    */
-  getItemCard(id: string) {
+  getItemCard(id: string, tierLabel?: string) {
     const fullId = id.includes(':') ? id : `rawg:game:${id}`;
-    return this.tierRows.getByTestId(`item-card-${fullId}`);
+    const parent = tierLabel ? this.getTierRow(tierLabel) : this.tierRows;
+    return parent.getByTestId(`item-card-${fullId}`);
   }
 
   /**

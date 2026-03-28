@@ -153,11 +153,11 @@ test.describe('Item Management', () => {
     // 3. Move it down securely using ArrowDown (should go from S to A)
     await page.keyboard.press('ArrowDown');
     await boardPage.expectItemInTier('item-1', 'A');
-    await expect(item1).toBeFocused();
+    await expect(boardPage.getItemCard('item-1', 'A')).toBeFocused();
 
     // 4. Drop the item using Space
     await page.keyboard.press('Space');
-    await expect(item1).toHaveAttribute('aria-selected', 'false');
+    await expect(boardPage.getItemCard('item-1', 'A')).toHaveAttribute('aria-selected', 'false');
 
     // Verify it remains in Tier A
     await boardPage.expectItemInTier('item-1', 'A');
@@ -169,10 +169,10 @@ test.describe('Item Management', () => {
 
     await page.keyboard.press('ArrowUp');
     await boardPage.expectItemInTier('item-1', 'S');
-    await expect(item1).toBeFocused();
+    await expect(boardPage.getItemCard('item-1', 'S')).toBeFocused();
 
     await page.keyboard.press('Space');
-    await expect(item1).toHaveAttribute('aria-selected', 'false');
+    await expect(boardPage.getItemCard('item-1', 'S')).toHaveAttribute('aria-selected', 'false');
 
     // Verify it moved back to Tier S
     await boardPage.expectItemInTier('item-1', 'S');
@@ -193,11 +193,11 @@ test.describe('Item Management', () => {
     // 3. Move it down two tiers continuously using ArrowDown (S -> A -> B)
     await page.keyboard.press('ArrowDown');
     await boardPage.expectItemInTier('item-1', 'A');
-    await expect(item1).toBeFocused();
+    await expect(boardPage.getItemCard('item-1', 'A')).toBeFocused();
 
     await page.keyboard.press('ArrowDown');
     await boardPage.expectItemInTier('item-1', 'B');
-    await expect(item1).toBeFocused();
+    await expect(boardPage.getItemCard('item-1', 'B')).toBeFocused();
 
     // 4. Drop the item using Space
     await page.keyboard.press('Space');

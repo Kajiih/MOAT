@@ -22,10 +22,11 @@ test.describe('Accessibility Requirements', () => {
   test('search panel should not have any automatically detectable accessibility issues', async ({
     page,
     boardPage,
+    searchPanel,
   }) => {
     await boardPage.goto();
     // Wait for the search panel to render
-    await expect(page.getByPlaceholder('Search Video Games...')).toBeVisible();
+    await expect(searchPanel.searchInput).toBeVisible();
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .include('.sticky') // Only check the search panel
