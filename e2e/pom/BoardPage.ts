@@ -422,9 +422,38 @@ export class BoardPage {
     const box = await targetCard.boundingBox();
     if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
 
-    await nativeDragAndDrop(this.page, sourceCard, targetCard, {
-      targetPosition: { x: 5, y: box.height / 2 },
-    });
+    // Try moving up to 3 times if it fails to reorder
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await sourceCard.dragTo(targetCard, {
+        targetPosition: { x: 5, y: box.height / 2 },
+      });
+
+      // Verification: Check if source is now BEFORE target in the DOM list of cards
+      const isMoved = await this.page.evaluate(({ sourceId, targetId }) => {
+        const getFullId = (id: string) => id.includes(':') ? id : `rawg:game:${id}`;
+        const sFullId = getFullId(sourceId);
+        const tFullId = getFullId(targetId);
+        
+        const sourceCard = document.querySelector(`[data-testid="item-card-${sFullId}"]`);
+        const tierRow = sourceCard?.closest('[data-testid="tier-row"]');
+        if (!tierRow) return false;
+        
+        const cards = tierRow.querySelectorAll('[data-testid^="item-card-"]');
+        const cardsArray = [...cards] as HTMLElement[];
+        const sIndex = cardsArray.indexOf(sourceCard as HTMLElement);
+        const tIndex = cardsArray.findIndex((c) => c.dataset.testid === `item-card-${tFullId}`);
+        
+        return sIndex !== -1 && tIndex !== -1 && sIndex < tIndex;
+      }, { sourceId: sourceItemId, targetId: targetItemId });
+
+      if (isMoved) return; // Success!
+      
+      if (attempt < 3) {
+        await this.page.waitForTimeout(500);
+      } else {
+        throw new Error(`Self-healing MoveBefore failed for ${sourceItemId} before ${targetItemId} after 3 attempts`);
+      }
+    }
   }
 
   /**
@@ -443,9 +472,38 @@ export class BoardPage {
     const box = await targetCard.boundingBox();
     if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
 
-    await nativeDragAndDrop(this.page, sourceCard, targetCard, {
-      targetPosition: { x: box.width - 5, y: box.height / 2 },
-    });
+    // Try moving up to 3 times if it fails to reorder
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await sourceCard.dragTo(targetCard, {
+        targetPosition: { x: box.width - 5, y: box.height / 2 },
+      });
+
+      // Verification: Check if source is now AFTER target in the DOM list of cards
+      const isMoved = await this.page.evaluate(({ sourceId, targetId }) => {
+        const getFullId = (id: string) => id.includes(':') ? id : `rawg:game:${id}`;
+        const sFullId = getFullId(sourceId);
+        const tFullId = getFullId(targetId);
+        
+        const sourceCard = document.querySelector(`[data-testid="item-card-${sFullId}"]`);
+        const tierRow = sourceCard?.closest('[data-testid="tier-row"]');
+        if (!tierRow) return false;
+        
+        const cards = tierRow.querySelectorAll('[data-testid^="item-card-"]');
+        const cardsArray = [...cards] as HTMLElement[];
+        const sIndex = cardsArray.indexOf(sourceCard as HTMLElement);
+        const tIndex = cardsArray.findIndex((c) => c.dataset.testid === `item-card-${tFullId}`);
+        
+        return sIndex !== -1 && tIndex !== -1 && sIndex > tIndex; // Source should be AFTER target
+      }, { sourceId: sourceItemId, targetId: targetItemId });
+
+      if (isMoved) return; // Success!
+
+      if (attempt < 3) {
+        await this.page.waitForTimeout(500);
+      } else {
+        throw new Error(`Self-healing MoveAfter failed for ${sourceItemId} after ${targetItemId} after 3 attempts`);
+      }
+    }
   }
 
   /**

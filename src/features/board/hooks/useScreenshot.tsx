@@ -211,41 +211,48 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
           </ScreenshotProvider>,
         );
 
-        // 4. Wait for React to finish asynchronous mounting
-        // React 18 createRoot renders asynchronously. We observe the container until
-        // child nodes appear, guaranteeing the render phase has committed.
-        await new Promise<void>((resolve) => {
-          if (container.childElementCount > 0) {
-            resolve();
-          } else {
-            const observer = new MutationObserver(() => {
-              if (container.childElementCount > 0) {
-                observer.disconnect();
-                resolve();
-              }
-            });
-            observer.observe(container, { childList: true });
-          }
-        });
+        // 4. Wait for React to finish asynchronous mounting (with a 5s timeout fallback)
+        await Promise.race([
+          new Promise<void>((resolve) => {
+            if (container.childElementCount > 0) {
+              resolve();
+            } else {
+              const observer = new MutationObserver(() => {
+                if (container.childElementCount > 0) {
+                  observer.disconnect();
+                  resolve();
+                }
+              });
+              observer.observe(container, { childList: true });
+            }
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Render timeout')), 5000)),
+        ]);
 
         // Yield to the browser's reflow/paint cycle to ensure CSS OM calculates bounding boxes
         await new Promise((resolve) => requestAnimationFrame(resolve));
 
-        // Ensure all rendered images are fully loaded and decoded
+        // Ensure all rendered images are fully loaded and decoded (with a 5s timeout fallback per image)
         const renderedImages = [...container.querySelectorAll('img')];
         await Promise.all(
           renderedImages.map((img) => {
             if (img.complete) return Promise.resolve();
-            return new Promise((resolve) => {
-              img.onload = resolve;
-              img.onerror = resolve; // Continue capture even if an image fails to load
-            });
+            return Promise.race([
+              new Promise<void>((resolve) => {
+                img.onload = () => resolve();
+                img.onerror = () => resolve(); // Continue capture even if an image fails to load
+              }),
+              new Promise<void>((resolve) => setTimeout(resolve, 5000)),
+            ]);
           }),
         );
 
-        // Ensure web fonts are completely loaded
+        // Ensure web fonts are completely loaded (with a 2s timeout fallback to prevent CI hangs)
         if (document.fonts) {
-          await document.fonts.ready;
+          await Promise.race([
+            document.fonts.ready,
+            new Promise((resolve) => setTimeout(resolve, 2000)),
+          ]);
         }
 
         const boardElement = container.querySelector('#export-board-surface') as HTMLElement;
@@ -261,26 +268,31 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         // Yield to the browser's paint cycle deterministically
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-        // 6. Capture the PNG
-        const dataUrl = await toPng(boardElement, {
-          backgroundColor: '#0a0a0a',
-          pixelRatio: 2,
-          width: 1200,
-          height: _height,
-          cacheBust: true,
-          fontEmbedCSS: '', // Skip font embedding to avoid Firefox font parsing bug ("font is undefined")
-          style: {
-            position: 'relative',
-            left: '0',
-            top: '0',
-            visibility: 'visible',
-            opacity: '1',
-            margin: '0',
-            padding: '0',
-            display: 'flex',
-            flexDirection: 'column',
-          },
-        });
+        // 6. Capture the PNG (with a 15s timeout fallback)
+        const dataUrl = await Promise.race([
+          toPng(boardElement, {
+            backgroundColor: '#0a0a0a',
+            pixelRatio: 2,
+            width: 1200,
+            height: _height,
+            cacheBust: true,
+            fontEmbedCSS: '', // Skip font embedding to avoid Firefox font parsing bug ("font is undefined")
+            style: {
+              position: 'relative',
+              left: '0',
+              top: '0',
+              visibility: 'visible',
+              opacity: '1',
+              margin: '0',
+              padding: '0',
+              display: 'flex',
+              flexDirection: 'column',
+            },
+          }),
+          new Promise<string>((_, reject) =>
+            setTimeout(() => reject(new Error('html-to-image capture timeout')), 15000),
+          ),
+        ]);
 
         const timestamp = new Date().toISOString().replaceAll(/[:.]/g, '-').slice(0, 19);
         const name = fileName.replace('.png', `-${timestamp}.png`);

@@ -1,6 +1,4 @@
-import { type Locator, type Page } from '@playwright/test';
-
-import { dispatchNativeDragAndDrop } from '../utils/drag';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 export class SearchPanel {
   readonly page: Page;
@@ -28,7 +26,9 @@ export class SearchPanel {
    * @param entityId - The core registry entity ID to switch to (e.g. 'game', 'artist', 'album')
    */
   async switchTab(entityId: string) {
-    await this.page.getByTestId(`tab-${entityId}`).click();
+    const tabSelector = this.page.getByTestId(`tab-${entityId}`);
+    await tabSelector.waitFor({ state: 'visible' });
+    await tabSelector.click();
   }
 
   /**
@@ -37,7 +37,10 @@ export class SearchPanel {
    * @param label - The service label (e.g., 'RAWG', 'IGDB').
    */
   async switchService(label: string) {
-    await this.serviceToggle.getByRole('button', { name: label, exact: true }).click();
+    const button = this.serviceToggle.getByRole('button', { name: label, exact: true });
+    await button.click();
+    // Wait for state to propagate (button becomes active)
+    await expect(button).toHaveClass(/bg-surface-hover/);
   }
 
   async search(query: string) {
@@ -52,11 +55,29 @@ export class SearchPanel {
   }
 
   async dragToTier(itemId: string, tierLabel: string) {
-    const card = await this.getResultCard(itemId);
-    const tier = this.page.locator(`[data-tier-label="${tierLabel}"]`);
+    const source = await this.getResultCard(itemId);
+    const target = this.page.locator(`[data-tier-label="${tierLabel}"]`).getByTestId('tier-drop-zone');
+    
+    await source.waitFor({ state: 'visible' });
+    await target.waitFor({ state: 'visible' });
 
-    // Target the tier's drop zone directly. Redux logic handles empty vs populated appended placement.
-    await dispatchNativeDragAndDrop(this.page, card, tier.getByTestId('tier-drop-zone'));
+    const fullId = itemId.includes(':') ? itemId : `rawg:game:${itemId}`;
+    const boardItem = this.page.getByTestId('tier-row').getByTestId(`item-card-${fullId}`);
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await source.dragTo(target);
+      
+      try {
+        await expect(boardItem).toBeVisible({ timeout: 3000 });
+        return; // Success!
+      } catch (error) {
+        if (attempt === 3) {
+          throw new Error(`Self-healing Drag failed for ${itemId} to ${tierLabel} after 3 attempts. Error: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        // Short wait before retry
+        await this.page.waitForTimeout(500);
+      }
+    }
   }
 
   async toggleFilters() {

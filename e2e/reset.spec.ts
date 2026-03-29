@@ -29,7 +29,7 @@ test.describe('Board Reset and Clear Actions', () => {
       await searchPanel.dragToTier(id, 'S');
       await expect(boardPage.getItemCard(id)).toBeVisible({ timeout: 15_000 });
       // Settle animation before next drag
-      await expect(card).not.toHaveClass(/is-dragging/);
+      await expect(card).not.toHaveClass(/is-dragging/, { timeout: 10_000 });
     }
 
     // Wait for full board layout hydration

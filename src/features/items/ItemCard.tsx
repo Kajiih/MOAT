@@ -134,7 +134,10 @@ export function ItemCard({
   // This listener immediately reclaims native DOM focus upon remount if context remembers the drag session.
   useEffect(() => {
     if (isKeyboardDragging) {
-      ref.current?.focus();
+      const timerId = setTimeout(() => {
+        ref.current?.focus();
+      }, 50);
+      return () => clearTimeout(timerId);
     }
   }, [isKeyboardDragging]);
 
@@ -216,19 +219,26 @@ export function ItemCard({
           edge: isUp ? 'right' : 'left',
         });
         setActiveKeyboardDragId?.({ itemId: item.id, tierId: overTierId });
-
-        setTimeout(() => {
-          ref.current?.focus();
-        }, 10);
       }
     }
   };
 
   const handleHorizontalMove = (isRight: boolean) => {
-    const targetEl = isRight
-      ? ref.current?.nextElementSibling
-      : ref.current?.previousElementSibling;
+    const card = ref.current;
+    if (!card) return;
 
+    const tierRow = card.closest('[data-testid="tier-row"]');
+    if (!tierRow) return;
+
+    const cards = tierRow.querySelectorAll('[data-testid^="item-card-"]') as NodeListOf<HTMLElement>;
+    const currentIndex = [...cards].indexOf(card);
+
+    if (currentIndex === -1) return;
+
+    const targetIndex = isRight ? currentIndex + 1 : currentIndex - 1;
+    if (targetIndex < 0 || targetIndex >= cards.length) return;
+
+    const targetEl = cards[targetIndex];
     if (targetEl instanceof HTMLElement && Object.hasOwn(targetEl.dataset, 'testid')) {
       const targetIdAttr = targetEl.dataset.testid;
       const overId = targetIdAttr?.replace('item-card-', '');
@@ -243,7 +253,7 @@ export function ItemCard({
         // Refocus item so they can chain moves
         setTimeout(() => {
           ref.current?.focus();
-        }, 10);
+        }, 50);
       }
     }
   };

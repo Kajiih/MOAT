@@ -163,9 +163,9 @@ test.describe('Item Management', () => {
     await boardPage.expectItemInTier('item-1', 'A');
 
     // 5. Move it back up using ArrowUp (should go from A to S)
-    await item1.focus();
+    await boardPage.getItemCard('item-1', 'A').focus();
     await page.keyboard.press('Space');
-    await expect(item1).toHaveAttribute('aria-selected', 'true');
+    await expect(boardPage.getItemCard('item-1', 'A')).toHaveAttribute('aria-selected', 'true');
 
     await page.keyboard.press('ArrowUp');
     await boardPage.expectItemInTier('item-1', 'S');
@@ -201,7 +201,7 @@ test.describe('Item Management', () => {
 
     // 4. Drop the item using Space
     await page.keyboard.press('Space');
-    await expect(item1).toHaveAttribute('aria-selected', 'false');
+    await expect(boardPage.getItemCard('item-1', 'B')).toHaveAttribute('aria-selected', 'false');
 
     // Verify it moved to Tier B
     await boardPage.expectItemInTier('item-1', 'B');
