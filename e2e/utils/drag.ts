@@ -35,7 +35,7 @@ export async function nativeDragAndDrop(
   await page.mouse.down();
 
   // Pragmatic Drag and Drop requires a threshold movement distance to trigger drag start
-  const DRAG_THRESHOLD_OFFSET = 5;
+  const DRAG_THRESHOLD_OFFSET = 10;
   await source.hover({ position: { x: DRAG_THRESHOLD_OFFSET, y: DRAG_THRESHOLD_OFFSET } });
   await page.evaluate(() => new Promise(requestAnimationFrame));
 
@@ -46,3 +46,53 @@ export async function nativeDragAndDrop(
   await page.mouse.up();
   await page.evaluate(() => new Promise(requestAnimationFrame));
 }
+
+/**
+ * Dispatches native HTML5 DragEvents to simulate drag-and-drop.
+ * This avoids hardcoded mouse positions and relies on DOM event lifecycle.
+ */
+export async function dispatchNativeDragAndDrop(
+  page: Page,
+  source: Locator,
+  target: Locator,
+) {
+  // Wait for elements to be present and stable
+  await source.waitFor({ state: 'visible' });
+  await target.waitFor({ state: 'visible' });
+
+  // Annotate elements for easy lookup in evaluate context
+  await source.evaluate((el) => el.setAttribute('data-test-drag-source', 'true'));
+  await target.evaluate((el) => el.setAttribute('data-test-drag-target', 'true'));
+
+  await page.evaluate(() => {
+    const sourceEl = document.querySelector('[data-test-drag-source]');
+    const targetEl = document.querySelector('[data-test-drag-target]');
+
+    if (!sourceEl || !targetEl) throw new Error('Could not find drag elements for dispatch');
+
+    const dataTransfer = new DataTransfer();
+
+    // Event sequence for native HTML5 drag and drop
+    const events = [
+      { type: 'dragstart', target: sourceEl },
+      { type: 'dragenter', target: targetEl },
+      { type: 'dragover', target: targetEl },
+      { type: 'drop', target: targetEl },
+      { type: 'dragend', target: sourceEl },
+    ];
+
+    for (const { type, target: el } of events) {
+      const event = new DragEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer,
+      });
+      el.dispatchEvent(event);
+    }
+  });
+
+  // Cleanup annotations to avoid side-effects or duplicate matches
+  await source.evaluate((el) => el.removeAttribute('data-test-drag-source'));
+  await target.evaluate((el) => el.removeAttribute('data-test-drag-target'));
+}
+

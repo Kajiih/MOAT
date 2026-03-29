@@ -11,6 +11,7 @@ test.describe('Search Functionality', () => {
       { id: 'item-1', title: 'Search Result', type: 'game', developer: 'Developer' },
     ]);
 
+    await searchPanel.switchService('RAWG');
     await searchPanel.switchTab('game');
     await searchPanel.search('Test');
     await searchPanel.dragToTier('item-1', 'S');
@@ -95,6 +96,7 @@ test.describe('Search Functionality', () => {
       await route.fulfill({ status: 200, body: JSON.stringify({ results: [], page: 1 }) });
     });
 
+    await searchPanel.switchService('RAWG');
     await searchPanel.switchTab('game');
     await searchPanel.toggleFilters();
 

@@ -13,11 +13,14 @@ test.describe('Service Toggle (Multi-Database)', () => {
     await expect(page.getByRole('button', { name: 'MUSICBRAINZ' })).toBeVisible();
   });
 
-  test('should show Game and Developer tabs for RAWG', async ({ page }) => {
+  test('should show Game and Developer tabs for RAWG', async ({ page, searchPanel }) => {
+    // Switch to RAWG database to see Games/Developers tabs
+    await searchPanel.switchService('RAWG');
+
     // RAWG supports Game + Developer
-    await expect(page.getByTitle('Search Video Games', { exact: false })).toBeVisible();
-    await expect(page.getByTitle('Search Developers', { exact: false })).toBeVisible();
+    await expect(page.getByTestId('tab-game')).toBeVisible();
+    await expect(page.getByTestId('tab-developer')).toBeVisible();
     // RAWG does NOT support Franchise
-    await expect(page.getByTitle('Search Franchises', { exact: false })).toBeHidden();
+    await expect(page.getByTestId('tab-franchise')).toBeHidden();
   });
 });

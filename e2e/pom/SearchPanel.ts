@@ -1,6 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
 
-import { nativeDragAndDrop } from '../utils/drag';
+import { dispatchNativeDragAndDrop } from '../utils/drag';
 
 export class SearchPanel {
   readonly page: Page;
@@ -20,7 +20,7 @@ export class SearchPanel {
     this.results = page.getByTestId('search-results');
     this.filterToggleButton = page.getByTitle('Toggle filters');
     this.showAddedButton = page.getByRole('button', { name: /(Show|Hide) Added/i });
-    this.serviceToggle = page.locator('text=Database:').locator('..');
+    this.serviceToggle = page.locator('text=Provider:').locator('..');
   }
 
   /**
@@ -56,9 +56,7 @@ export class SearchPanel {
     const tier = this.page.locator(`[data-tier-label="${tierLabel}"]`);
 
     // Target the tier's drop zone directly. Redux logic handles empty vs populated appended placement.
-    await nativeDragAndDrop(this.page, card, tier.getByTestId('tier-drop-zone'), {
-      targetPosition: { x: 5, y: 5 },
-    });
+    await dispatchNativeDragAndDrop(this.page, card, tier.getByTestId('tier-drop-zone'));
   }
 
   async toggleFilters() {
