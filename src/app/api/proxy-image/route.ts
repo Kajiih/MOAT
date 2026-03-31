@@ -27,6 +27,7 @@ const ALLOWED_HOSTS = new Set([
   'upload.wikimedia.org',
   'i.scdn.co', // Spotify
   'media.rawg.io', // RAWG video game covers
+  'image.tmdb.org', // TMDB movie posters
 ]);
 
 /**
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'TierListApp/1.0',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       },
     });
 

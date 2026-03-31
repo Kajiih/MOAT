@@ -41,7 +41,7 @@ export interface EpicAnimationEvent {
  * Interface defining the shape of the Tier List Context.
  * Provides access to the board state, computed values, and helper methods.
  */
-interface TierListContextType {
+export interface TierListContextType {
   activeDrag: {
     itemId: string;
     type: 'pointer' | 'keyboard';
@@ -108,7 +108,7 @@ interface TierListContextType {
   };
 }
 
-const TierListContext = createContext<TierListContextType | null>(null);
+export const TierListContext = createContext<TierListContextType | null>(null);
 
 /**
  * Provider component for the Tier List Context.

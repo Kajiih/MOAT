@@ -15,6 +15,7 @@ import { createRoot } from 'react-dom/client';
 
 import { useToast } from '@/core/ui/ToastProvider';
 import { ImageSource } from '@/domain/items/images';
+import { TierListContext, TierListContextType } from '@/features/board/context';
 import { ExportBoard } from '@/features/board/ExportBoard';
 import { TierListState } from '@/features/board/types';
 import { failedImages } from '@/features/items/image-cache';
@@ -26,6 +27,14 @@ import { logger } from '@/infra/logger';
  * Value: data:image/jpeg;base64,...
  */
 const ScreenshotContext = createContext<Record<string, string>>({});
+
+const SCREENSHOT_TIMEOUTS = {
+  RENDER: 5000,
+  IMAGE_LOAD: 5000,
+  FONT_LOAD: 2000,
+  CAPTURE: 15000,
+};
+
 
 /**
  * Provider component for the ScreenshotContext.
@@ -207,7 +216,9 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         // 3. Render with resolved images
         root.render(
           <ScreenshotProvider resolvedMap={resolvedMap}>
-            <ExportBoard state={state} brandColors={headerColors} />
+            <TierListContext.Provider value={{ ui: { activeEpic: null }, isHydrated: true } as unknown as TierListContextType}>
+              <ExportBoard state={state} brandColors={headerColors} />
+            </TierListContext.Provider>
           </ScreenshotProvider>,
         );
 
@@ -226,7 +237,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
               observer.observe(container, { childList: true });
             }
           }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Render timeout')), 5000)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Render timeout')), SCREENSHOT_TIMEOUTS.RENDER)),
         ]);
 
         // Yield to the browser's reflow/paint cycle to ensure CSS OM calculates bounding boxes
@@ -242,7 +253,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
                 img.onload = () => resolve();
                 img.onerror = () => resolve(); // Continue capture even if an image fails to load
               }),
-              new Promise<void>((resolve) => setTimeout(resolve, 5000)),
+              new Promise<void>((resolve) => setTimeout(resolve, SCREENSHOT_TIMEOUTS.IMAGE_LOAD)),
             ]);
           }),
         );
@@ -251,7 +262,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         if (document.fonts) {
           await Promise.race([
             document.fonts.ready,
-            new Promise((resolve) => setTimeout(resolve, 2000)),
+            new Promise((resolve) => setTimeout(resolve, SCREENSHOT_TIMEOUTS.FONT_LOAD)),
           ]);
         }
 
@@ -276,7 +287,6 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
             width: 1200,
             height: _height,
             cacheBust: true,
-            fontEmbedCSS: '', // Skip font embedding to avoid Firefox font parsing bug ("font is undefined")
             style: {
               position: 'relative',
               left: '0',
@@ -290,7 +300,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
             },
           }),
           new Promise<string>((_, reject) =>
-            setTimeout(() => reject(new Error('html-to-image capture timeout')), 15000),
+            setTimeout(() => reject(new Error('html-to-image capture timeout')), SCREENSHOT_TIMEOUTS.CAPTURE),
           ),
         ]);
 

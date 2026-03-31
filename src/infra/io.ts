@@ -5,28 +5,35 @@
  * @module IO
  */
 
+import { z } from 'zod';
+
 import { Item, TierDefinition, TierListState } from '@/features/board/types';
 
 const CURRENT_VERSION = 1;
 
 /**
- * Schema for the exported JSON file.
- * Designed to be portable and independent of internal IDs (which are regenerated on import).
+ * Zod Schema for the exported JSON file.
+ * We pass-through items to avoid tight coupling with heavy domain models,
+ * but enforce presence of an 'id'.
  */
-interface ExportData {
-  /** Schema version for future compatibility migrations. */
-  version: number;
-  /** ISO timestamp of when the export was created. */
-  createdAt: string;
-  /** The user-defined title of the tier list. */
-  title: string;
-  /** The ordered list of tiers containing their metadata and items. */
-  tiers: {
-    label: string;
-    color: string;
-    items: Item[];
-  }[];
-}
+const ExportItemSchema = z.object({
+  id: z.string(),
+}).passthrough();
+
+const ExportDataSchema = z.object({
+  version: z.number(),
+  createdAt: z.string(),
+  title: z.string(),
+  tiers: z.array(
+    z.object({
+      label: z.string(),
+      color: z.string(),
+      items: z.array(ExportItemSchema),
+    })
+  ),
+});
+
+interface ExportData extends z.infer<typeof ExportDataSchema> {}
 
 /**
  * Generates the exportable JSON object from the current state.
@@ -70,41 +77,36 @@ export function downloadJson(data: object, filename: string) {
  * @returns A normalized TierListState object.
  */
 export function parseImportData(jsonString: string, fallbackTitle: string): TierListState {
-  const data = JSON.parse(jsonString);
+  const parsedJson = JSON.parse(jsonString);
+  const data = ExportDataSchema.parse(parsedJson);
 
-  // 1. Handle ExportData Format
-  if (data.tiers && Array.isArray(data.tiers)) {
-    const newTierDefs: TierDefinition[] = [];
-    const itemEntities: Record<string, Item> = {};
-    const tierLayout: Record<string, string[]> = {
-      unranked: [],
-    };
+  const newTierDefs: TierDefinition[] = [];
+  const itemEntities: Record<string, Item> = {};
+  const tierLayout: Record<string, string[]> = {
+    unranked: [],
+  };
 
-    data.tiers.forEach((tier: { label: string; color: string; items: Item[] }) => {
-      const tierId = crypto.randomUUID();
-      newTierDefs.push({
-        id: tierId,
-        label: tier.label,
-        color: tier.color,
-      });
-
-      const itemIds: string[] = [];
-      if (tier.items && Array.isArray(tier.items)) {
-        tier.items.forEach((item) => {
-          itemEntities[item.id] = item;
-          itemIds.push(item.id);
-        });
-      }
-      tierLayout[tierId] = itemIds;
+  data.tiers.forEach((tier) => {
+    const tierId = crypto.randomUUID();
+    newTierDefs.push({
+      id: tierId,
+      label: tier.label,
+      color: tier.color,
     });
 
-    return {
-      title: data.title || fallbackTitle,
-      tierDefs: newTierDefs,
-      itemEntities,
-      tierLayout,
-    } as TierListState;
-  }
+    const itemIds: string[] = [];
+    tier.items.forEach((item) => {
+      itemEntities[item.id] = item as Item;
+      itemIds.push(item.id);
+    });
+    tierLayout[tierId] = itemIds;
+  });
 
-  throw new Error('Invalid tier list file format.');
+  return {
+    title: data.title || fallbackTitle,
+    tierDefs: newTierDefs,
+    itemEntities,
+    tierLayout,
+  } as TierListState;
 }
+

@@ -76,7 +76,10 @@ export function ItemImage({
   const contextUrl = screenshotContext[contextKey];
 
   const resolvedUrl = useResolvedImage(item.images);
-  const displayUrl = isExport ? contextUrl || exportUrl : resolvedUrl;
+  
+  const displayUrl = isExport 
+    ? contextUrl || exportUrl || (resolvedUrl && !resolvedUrl.startsWith('data:') ? `/api/proxy-image?url=${encodeURIComponent(resolvedUrl)}` : resolvedUrl)
+    : resolvedUrl;
 
   const [imageError, setImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);

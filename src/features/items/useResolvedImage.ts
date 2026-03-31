@@ -32,21 +32,23 @@ export function useResolvedImage(sources: ImageSource[]): string | undefined {
 
           if (source.type === 'url') {
             targetUrl = source.url;
+            // Trust standard URLs (Next.js Image Optimization handles hotlinking/CORS better)
+            return targetUrl;
           } else {
             targetUrl = await batchResolver.load(source.provider, source.entityId, source.key);
           }
 
-          if (targetUrl) {
-            if (failedImages.has(targetUrl)) {
-              continue; // Skip known broken URL candidates instantly
-            }
+          if (!targetUrl) continue;
 
-            const loaded = await loadImage(targetUrl);
-            if (loaded) {
-              return targetUrl;
-            } else {
-              failedImages.add(targetUrl); // Proactively blacklist asset
-            }
+          if (failedImages.has(targetUrl)) {
+            continue; // Skip known broken URL candidates instantly
+          }
+
+          const loaded = await loadImage(targetUrl);
+          if (loaded) {
+            return targetUrl;
+          } else {
+            failedImages.add(targetUrl); // Proactively blacklist asset
           }
         } catch {
           // Source failed, try the next one

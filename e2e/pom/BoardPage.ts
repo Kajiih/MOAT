@@ -110,6 +110,29 @@ export class BoardPage {
   }
 
   /**
+   * Opens the screenshot preview overlay via keyboard shortcut.
+   */
+  async openScreenshotPreview() {
+    await this.page.keyboard.press('Shift+P');
+    await expect(this.getScreenshotOverlay()).toBeVisible();
+  }
+
+  /**
+   * Gets the screenshot preview overlay locator.
+   */
+  getScreenshotOverlay() {
+    return this.page.locator('.z-overlay');
+  }
+
+  /**
+   * Gets the visual surface locator used for screenshots inside the overlay.
+   */
+  getScreenshotPreviewSurface() {
+    return this.getScreenshotOverlay().locator('#export-board-surface');
+  }
+
+
+  /**
    * Clears all items and tiers from the board after a confirmation dialog.
    */
   async clearBoard() {
