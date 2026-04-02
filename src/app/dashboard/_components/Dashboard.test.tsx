@@ -5,9 +5,10 @@
  * @module Dashboard.test
  */
 
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+
+import { renderWithProviders, screen } from '@/test/utils';
 
 import { Dashboard } from './Dashboard';
 
@@ -53,7 +54,7 @@ vi.mock('@/app/_components/Footer', () => ({
 
 describe('Dashboard - Create Board Card', () => {
   it('should display the create button', () => {
-    render(<Dashboard />);
+    renderWithProviders(<Dashboard />);
 
     const createButton = screen.getByTitle('New Tier List');
     expect(createButton).toBeDefined();
@@ -61,7 +62,7 @@ describe('Dashboard - Create Board Card', () => {
 
   it('should create a board immediately when the create button is clicked', async () => {
     const user = userEvent.setup();
-    render(<Dashboard />);
+    renderWithProviders(<Dashboard />);
 
     const createButton = screen.getByTitle('New Tier List');
     await user.click(createButton);

@@ -81,6 +81,13 @@ export function SearchTab({
 
   const [showFilters, setShowFilters] = useState(false);
   const filterPanelRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [params]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -131,7 +138,11 @@ export function SearchTab({
       const provider = registry.getProvider(providerId);
 
       return (
-        <div className="custom-scrollbar relative flex-1 overflow-y-auto pr-1">
+        <div
+          ref={scrollContainerRef}
+          data-testid="search-results-scroll-container"
+          className="custom-scrollbar relative flex-1 overflow-y-auto pr-1"
+        >
           {isDiscoveryMode && (
             <div className="absolute top-2 right-2 z-50">
               <div className="group relative inline-block">

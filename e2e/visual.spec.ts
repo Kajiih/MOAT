@@ -68,7 +68,7 @@ test.describe('Visual Regression', () => {
     await expect(page.getByText('Visual S')).toBeVisible();
 
     // Wait for import toast to disappear for clean visual test
-    await expect(page.getByText(/imported/i)).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText(/imported/i)).toBeHidden({ timeout: 10_000 });
 
     // Ensure icons and layout are ready
     await page.evaluate(() => document.fonts.ready);

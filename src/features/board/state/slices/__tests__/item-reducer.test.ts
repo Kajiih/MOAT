@@ -1,7 +1,11 @@
+import { PayloadAction } from '@reduxjs/toolkit';
 import { describe, expect, it } from 'vitest';
+
+import { createMockItem } from '@/test/factories';
 
 import { INITIAL_STATE } from '../../../initial-state';
 import { TierListState } from '../../../types';
+import { MoveItemPayload } from '../../reducer';
 import { handleMoveItem } from '../item-reducer';
 
 describe('itemReducer handleMoveItem', () => {
@@ -17,19 +21,19 @@ describe('itemReducer handleMoveItem', () => {
         A: [],
       },
       itemEntities: {
-        'rawg:game:item-1': { id: 'rawg:game:item-1', title: 'First Item', type: 'game' } as any,
+        'rawg:game:item-1': createMockItem({ id: 'rawg:game:item-1', title: 'First Item' }),
       },
     };
 
-    const action = {
+    const action: PayloadAction<MoveItemPayload> = {
       type: 'board/moveItem',
       payload: {
         activeId: 'rawg:game:item-1',
-        overId: 'A', // Moving to Tier A
+        overId: 'A',
       },
     };
 
-    handleMoveItem(state, action as any);
+    handleMoveItem(state, action);
 
     // Verify it is in A
     expect(state.tierLayout['A']).toContain('rawg:game:item-1');
@@ -44,12 +48,12 @@ describe('itemReducer handleMoveItem', () => {
         S: ['item-1', 'item-2'],
       },
       itemEntities: {
-        'item-1': { id: 'item-1' } as any,
-        'item-2': { id: 'item-2' } as any,
+        'item-1': createMockItem({ id: 'item-1' }),
+        'item-2': createMockItem({ id: 'item-2' }),
       },
     };
 
-    const action = {
+    const action: PayloadAction<MoveItemPayload> = {
       type: 'board/moveItem',
       payload: {
         activeId: 'item-2',
@@ -58,7 +62,7 @@ describe('itemReducer handleMoveItem', () => {
       },
     };
 
-    handleMoveItem(state, action as any);
+    handleMoveItem(state, action);
 
     expect(state.tierLayout['S']).toEqual(['item-2', 'item-1']);
   });

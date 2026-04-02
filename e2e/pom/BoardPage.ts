@@ -445,14 +445,12 @@ export class BoardPage {
     const box = await targetCard.boundingBox();
     if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
 
-    // Try moving up to 3 times if it fails to reorder
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    await expect.poll(async () => {
       await sourceCard.dragTo(targetCard, {
         targetPosition: { x: 5, y: box.height / 2 },
       });
 
-      // Verification: Check if source is now BEFORE target in the DOM list of cards
-      const isMoved = await this.page.evaluate(({ sourceId, targetId }) => {
+      return await this.page.evaluate(({ sourceId, targetId }) => {
         const getFullId = (id: string) => id.includes(':') ? id : `rawg:game:${id}`;
         const sFullId = getFullId(sourceId);
         const tFullId = getFullId(targetId);
@@ -468,15 +466,11 @@ export class BoardPage {
         
         return sIndex !== -1 && tIndex !== -1 && sIndex < tIndex;
       }, { sourceId: sourceItemId, targetId: targetItemId });
-
-      if (isMoved) return; // Success!
-      
-      if (attempt < 3) {
-        await this.page.waitForTimeout(500);
-      } else {
-        throw new Error(`Self-healing MoveBefore failed for ${sourceItemId} before ${targetItemId} after 3 attempts`);
-      }
-    }
+    }, {
+      message: `Self-healing MoveBefore failed for ${sourceItemId} before ${targetItemId}`,
+      timeout: 5000,
+      intervals: [500],
+    }).toBe(true);
   }
 
   /**
@@ -495,14 +489,12 @@ export class BoardPage {
     const box = await targetCard.boundingBox();
     if (!box) throw new Error(`Could not get target bounding box for item ${targetItemId}`);
 
-    // Try moving up to 3 times if it fails to reorder
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    await expect.poll(async () => {
       await sourceCard.dragTo(targetCard, {
         targetPosition: { x: box.width - 5, y: box.height / 2 },
       });
 
-      // Verification: Check if source is now AFTER target in the DOM list of cards
-      const isMoved = await this.page.evaluate(({ sourceId, targetId }) => {
+      return await this.page.evaluate(({ sourceId, targetId }) => {
         const getFullId = (id: string) => id.includes(':') ? id : `rawg:game:${id}`;
         const sFullId = getFullId(sourceId);
         const tFullId = getFullId(targetId);
@@ -518,15 +510,11 @@ export class BoardPage {
         
         return sIndex !== -1 && tIndex !== -1 && sIndex > tIndex; // Source should be AFTER target
       }, { sourceId: sourceItemId, targetId: targetItemId });
-
-      if (isMoved) return; // Success!
-
-      if (attempt < 3) {
-        await this.page.waitForTimeout(500);
-      } else {
-        throw new Error(`Self-healing MoveAfter failed for ${sourceItemId} after ${targetItemId} after 3 attempts`);
-      }
-    }
+    }, {
+      message: `Self-healing MoveAfter failed for ${sourceItemId} after ${targetItemId}`,
+      timeout: 5000,
+      intervals: [500],
+    }).toBe(true);
   }
 
   /**

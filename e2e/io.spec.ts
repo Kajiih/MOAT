@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 
 import { expect, test } from './fixtures';
-import { mockSearchResults } from './utils/mocks';
 
 test.describe('Import/Export/Share', () => {
   test.setTimeout(60_000);

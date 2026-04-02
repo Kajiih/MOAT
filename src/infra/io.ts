@@ -130,7 +130,7 @@ function migrateV1ToV2(raw: unknown): unknown {
       if (Array.isArray(migratedTier.items)) {
         migratedTier.items = migratedTier.items.map((item: LegacyItem) => {
           if (!item.identity && item.mbid && item.type) {
-            let entityId = item.type;
+            const entityId = item.type;
 
             const images = [];
             if (item.imageUrl) {

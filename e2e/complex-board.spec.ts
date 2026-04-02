@@ -14,10 +14,13 @@ test.describe('Complex Board Screenshot Verification', () => {
 
     // Verify a key item is visible (e.g. Witcher 3 in Tier A)
     const witcherCard = boardPage.getItemCard('rawg:game:3328', 'A');
-    await expect(witcherCard).toBeVisible({ timeout: 15000 });
+    await expect(witcherCard).toBeVisible({ timeout: 15_000 });
 
-    // Wait for other images to load (real network)
-    await page.waitForTimeout(5000);
+    // Wait for all images to complete loading (or fail)
+    await page.waitForFunction(() => {
+      const images = [...document.querySelectorAll('img')];
+      return images.every(img => img.complete);
+    });
 
     // Track console errors
     let consoleErrorEncountered = false;

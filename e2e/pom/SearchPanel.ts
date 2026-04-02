@@ -74,8 +74,6 @@ export class SearchPanel {
         if (attempt === 3) {
           throw new Error(`Self-healing Drag failed for ${itemId} to ${tierLabel} after 3 attempts. Error: ${error instanceof Error ? error.message : String(error)}`);
         }
-        // Short wait before retry
-        await this.page.waitForTimeout(500);
       }
     }
   }

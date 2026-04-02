@@ -60,7 +60,7 @@ test.describe('Visual Equivalence - Legacy vs Modern Import', () => {
 
     // Race success vs failure
     await Promise.race([
-      expect(boardPage.titleInput).toHaveValue('Equivalence Test Board'),
+      await expect(boardPage.titleInput).toHaveValue('Equivalence Test Board'),
       errorPromise,
     ]);
 

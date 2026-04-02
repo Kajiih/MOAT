@@ -1,7 +1,6 @@
 import path from 'node:path';
 
 import { expect, test } from './fixtures';
-
 import { BoardPage } from './pom/BoardPage';
 
 test.describe('Reload Item Stability', () => {

@@ -50,6 +50,9 @@ export async function nativeDragAndDrop(
 /**
  * Dispatches native HTML5 DragEvents to simulate drag-and-drop.
  * This avoids hardcoded mouse positions and relies on DOM event lifecycle.
+ * @param page
+ * @param source
+ * @param target
  */
 export async function dispatchNativeDragAndDrop(
   page: Page,
@@ -61,8 +64,8 @@ export async function dispatchNativeDragAndDrop(
   await target.waitFor({ state: 'visible' });
 
   // Annotate elements for easy lookup in evaluate context
-  await source.evaluate((el) => el.setAttribute('data-test-drag-source', 'true'));
-  await target.evaluate((el) => el.setAttribute('data-test-drag-target', 'true'));
+  await source.evaluate((el) => (el as HTMLElement).dataset.testDragSource = 'true');
+  await target.evaluate((el) => (el as HTMLElement).dataset.testDragTarget = 'true');
 
   await page.evaluate(() => {
     const sourceEl = document.querySelector('[data-test-drag-source]');
@@ -92,7 +95,7 @@ export async function dispatchNativeDragAndDrop(
   });
 
   // Cleanup annotations to avoid side-effects or duplicate matches
-  await source.evaluate((el) => el.removeAttribute('data-test-drag-source'));
-  await target.evaluate((el) => el.removeAttribute('data-test-drag-target'));
+  await source.evaluate((el) => delete (el as HTMLElement).dataset.testDragSource);
+  await target.evaluate((el) => delete (el as HTMLElement).dataset.testDragTarget);
 }
 

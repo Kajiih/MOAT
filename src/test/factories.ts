@@ -75,3 +75,32 @@ export function createTierListState(overrides: Partial<TierListState> = {}): Tie
     ...overrides,
   };
 }
+
+/**
+ * Creates a populated TierListState scenario with predictable, realistic data.
+ * Useful for tests that require a non-empty board without random Faker noise.
+ * @returns A populated TierListState.
+ */
+export function createPopulatedBoardScenario(): TierListState {
+  const item1 = createMockItem({ id: 'item-s-1', title: 'The Legend of Zelda' });
+  const item2 = createMockItem({ id: 'item-a-1', title: 'Super Mario Odyssey' });
+  const item3 = createMockItem({ id: 'item-a-2', title: 'Metroid Dread' });
+
+  const tierS = createTierDef({ id: 'tier-s', label: 'S' });
+  const tierA = createTierDef({ id: 'tier-a', label: 'A' });
+
+  return {
+    title: 'Top Nintendo Games',
+    tierDefs: [tierS, tierA],
+    itemEntities: {
+      [item1.id]: item1,
+      [item2.id]: item2,
+      [item3.id]: item3,
+    },
+    tierLayout: {
+      [tierS.id]: [item1.id],
+      [tierA.id]: [item2.id, item3.id],
+    },
+  };
+}
+
