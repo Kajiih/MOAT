@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { TierListState } from '@/features/board/types';
 
-import { generateExportData, parseImportData } from './io';
+import { deserializeBoardData, serializeBoardData } from './io';
 
 describe('io.ts', () => {
   const mockState: TierListState = {
@@ -15,12 +15,12 @@ describe('io.ts', () => {
       i1: {
         id: 'i1',
         title: 'Item 1',
-        identity: { providerId: 'test', entityId: 'track', key: '1' },
+        identity: { providerId: 'test', entityId: 'track', providerItemId: '1' },
       } as unknown as Item,
       i2: {
         id: 'i2',
         title: 'Item 2',
-        identity: { providerId: 'test', entityId: 'track', key: '2' },
+        identity: { providerId: 'test', entityId: 'track', providerItemId: '2' },
       } as unknown as Item,
     },
     tierLayout: {
@@ -30,20 +30,20 @@ describe('io.ts', () => {
     },
   };
 
-  it('generateExportData should create valid schema object', () => {
-    const data = generateExportData(mockState);
-    expect(data.version).toBe(1);
+  it('serializeBoardData should create valid schema object', () => {
+    const data = serializeBoardData(mockState);
+    expect(data.version).toBe(2);
     expect(data.title).toBe('Test Board');
     expect(data.tiers).toHaveLength(2);
     expect(data.tiers[0].label).toBe('S');
     expect(data.tiers[0].items[0].id).toBe('i1');
   });
 
-  it('parseImportData should parse valid export data', () => {
-    const exportData = generateExportData(mockState);
+  it('deserializeBoardData should parse valid export data', () => {
+    const exportData = serializeBoardData(mockState);
     const jsonString = JSON.stringify(exportData);
 
-    const importedState = parseImportData(jsonString, 'Fallback');
+    const importedState = deserializeBoardData(jsonString, 'Fallback');
     expect(importedState.title).toBe('Test Board');
     expect(importedState.tierDefs).toHaveLength(2);
     expect(importedState.tierDefs[0].label).toBe('S');
@@ -53,16 +53,16 @@ describe('io.ts', () => {
     expect(firstTierItems).toHaveLength(1);
   });
 
-  it('parseImportData should throw for missing version', () => {
+  it('deserializeBoardData should throw for missing version', () => {
     const invalidData = {
       title: 'Test',
       tiers: [],
       createdAt: 'now',
     };
-    expect(() => parseImportData(JSON.stringify(invalidData), 'Fallback')).toThrow();
+    expect(() => deserializeBoardData(JSON.stringify(invalidData), 'Fallback')).toThrow();
   });
 
-  it('parseImportData should throw for missing items inside tiers', () => {
+  it('deserializeBoardData should throw for missing items inside tiers', () => {
     const invalidData = {
       version: 1,
       title: 'Test',
@@ -71,10 +71,10 @@ describe('io.ts', () => {
         { label: 'S', color: '#fff' }, // missing items
       ],
     };
-    expect(() => parseImportData(JSON.stringify(invalidData), 'Fallback')).toThrow();
+    expect(() => deserializeBoardData(JSON.stringify(invalidData), 'Fallback')).toThrow();
   });
 
-  it('parseImportData should handle legacy data with auto-migration', () => {
+  it('deserializeBoardData should handle legacy data with auto-migration', () => {
     const legacyData = {
       version: 1,
       // missing createdAt and title
@@ -89,7 +89,7 @@ describe('io.ts', () => {
       ],
     };
 
-    const importedState = parseImportData(JSON.stringify(legacyData), 'Fallback Title');
+    const importedState = deserializeBoardData(JSON.stringify(legacyData), 'Fallback Title');
     
     expect(importedState.title).toBe('Untitled Board'); // Default applied
     expect(importedState.tierDefs).toHaveLength(1);
@@ -104,7 +104,7 @@ describe('io.ts', () => {
     expect(item.identity?.providerItemId).toBe('mbid-1');
   });
 
-  it('parseImportData should reject invalid modern data if migration fails', () => {
+  it('deserializeBoardData should reject invalid modern data if migration fails', () => {
     const invalidData = {
       version: 1,
       createdAt: 'now',
@@ -120,10 +120,10 @@ describe('io.ts', () => {
       ],
     };
 
-    expect(() => parseImportData(JSON.stringify(invalidData), 'Fallback')).toThrow();
+    expect(() => deserializeBoardData(JSON.stringify(invalidData), 'Fallback')).toThrow();
   });
 
-  it('parseImportData should migrate imageUrl to images array', () => {
+  it('deserializeBoardData should migrate imageUrl to images array', () => {
     const legacyData = {
       version: 1,
       title: 'Test',
@@ -138,7 +138,7 @@ describe('io.ts', () => {
       ],
     };
 
-    const importedState = parseImportData(JSON.stringify(legacyData), 'Fallback');
+    const importedState = deserializeBoardData(JSON.stringify(legacyData), 'Fallback');
     
     const firstTierId = importedState.tierDefs[0].id;
     const firstItemId = importedState.tierLayout[firstTierId][0];

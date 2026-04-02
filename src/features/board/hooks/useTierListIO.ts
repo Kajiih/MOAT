@@ -10,7 +10,7 @@ import { useCallback } from 'react';
 import { useToast } from '@/core/ui/ToastProvider';
 import { BoardDispatch, importState } from '@/features/board/state/reducer';
 import { TierListState } from '@/features/board/types';
-import { downloadJson, generateExportData, parseImportData } from '@/infra/io';
+import { deserializeBoardData, downloadJson, serializeBoardData } from '@/infra/io';
 import { logger } from '@/infra/logger';
 
 /**
@@ -32,7 +32,7 @@ export function useTierListIO(
    */
   const handleExport = useCallback(() => {
     try {
-      const exportData = generateExportData(state);
+      const exportData = serializeBoardData(state);
       const filename = `moat-${new Date().toISOString().slice(0, 10)}.json`;
       downloadJson(exportData, filename);
       showToast('Tier list exported successfully!', 'success');
@@ -58,7 +58,7 @@ export function useTierListIO(
           // Note: We might want to pass the initial title or handle it differently if needed,
           // but here we just use the current state's title or a default as fallback during parsing logic if implemented.
           // The original logic used INITIAL_STATE.title as fallback.
-          const newState = parseImportData(jsonString, 'Untitled Tier List');
+          const newState = deserializeBoardData(jsonString, 'Untitled Tier List');
 
           if (pushHistory) pushHistory();
           dispatch(importState({ state: newState }));

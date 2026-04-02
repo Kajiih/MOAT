@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 import { Item, TierDefinition, TierListState } from '@/features/board/types';
 
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
 
 /**
  * Zod Schema for the exported JSON file.
@@ -47,7 +47,7 @@ type ExportData = z.infer<typeof ExportDataSchema>;
  * @param state - The current state of the tier list.
  * @returns An `ExportData` object suitable for JSON serialization.
  */
-export function generateExportData(state: TierListState): ExportData {
+export function serializeBoardData(state: TierListState): ExportData {
   return {
     version: CURRENT_VERSION,
     createdAt: new Date().toISOString(),
@@ -107,7 +107,7 @@ interface LegacyExportData {
  * @param raw - The raw JSON data to migrate.
  * @returns The migrated JSON data.
  */
-function migrateLegacyData(raw: unknown): unknown {
+function migrateV1ToV2(raw: unknown): unknown {
   console.log('migrateLegacyData raw input:', JSON.stringify(raw));
   if (typeof raw !== 'object' || raw === null) return raw;
 
@@ -164,20 +164,18 @@ function migrateLegacyData(raw: unknown): unknown {
  * @param fallbackTitle - The title to use if the imported data has no title.
  * @returns A normalized TierListState object.
  */
-export function parseImportData(jsonString: string, fallbackTitle: string): TierListState {
+export function deserializeBoardData(jsonString: string, fallbackTitle: string): TierListState {
   const parsedJson = JSON.parse(jsonString);
   
-  let result = ExportDataSchema.safeParse(parsedJson);
+  let dataToValidate = parsedJson;
+  if (!parsedJson.version || parsedJson.version === 1) {
+    dataToValidate = migrateV1ToV2(parsedJson);
+  }
 
-    if (!result.success) {
-      // Attempt migration for legacy formats
-      const migratedJson = migrateLegacyData(parsedJson);
-      result = ExportDataSchema.safeParse(migratedJson);
-    
-    if (!result.success) {
-      console.error('Migration failed validation Zod message:', result.error.message);
-      throw result.error;
-    }
+  const result = ExportDataSchema.safeParse(dataToValidate);
+  if (!result.success) {
+    console.error('Import failed validation Zod message:', result.error.message);
+    throw result.error;
   }
 
   const data = result.data;
