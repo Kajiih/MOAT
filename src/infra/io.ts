@@ -22,7 +22,7 @@ const ExportItemSchema = z
     identity: z.object({
       providerId: z.string(),
       entityId: z.string(),
-      key: z.string(),
+      providerItemId: z.string(),
     }),
   })
   .passthrough();
@@ -78,13 +78,14 @@ export function downloadJson(data: object, filename: string) {
 
 interface LegacyItem {
   id: string;
+  imageUrl?: string;
+  mbid?: string;
+  type?: string;
   identity?: {
     providerId: string;
     entityId: string;
-    key: string;
+    providerItemId: string;
   };
-  mbid?: string;
-  type?: string;
 }
 
 interface LegacyTier {
@@ -131,10 +132,9 @@ function migrateLegacyData(raw: unknown): unknown {
           if (!item.identity && item.mbid && item.type) {
             let entityId = item.type;
 
-            // Migrate imageUrl to images array
-            const images = item.images || [];
-            if (!item.images && item.imageUrl) {
-              images.push({ type: 'url', url: item.imageUrl });
+            const images = [];
+            if (item.imageUrl) {
+              images.push({ type: 'url' as const, url: item.imageUrl });
             }
 
             return {
@@ -143,7 +143,7 @@ function migrateLegacyData(raw: unknown): unknown {
               identity: {
                 providerId: 'musicbrainz',
                 entityId,
-                key: item.mbid,
+                providerItemId: item.mbid,
               },
             };
           }

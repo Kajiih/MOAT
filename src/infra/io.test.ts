@@ -101,7 +101,7 @@ describe('io.ts', () => {
     expect(item.identity).toBeDefined();
     expect(item.identity?.providerId).toBe('musicbrainz');
     expect(item.identity?.entityId).toBe('album');
-    expect(item.identity?.key).toBe('mbid-1');
+    expect(item.identity?.providerItemId).toBe('mbid-1');
   });
 
   it('parseImportData should reject invalid modern data if migration fails', () => {
