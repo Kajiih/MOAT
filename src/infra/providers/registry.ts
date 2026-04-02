@@ -267,6 +267,20 @@ export class ProviderRegistry {
   }
 
   /**
+   * Aggregates all allowed image hosts from registered providers.
+   * @returns A Set of allowed hostnames.
+   */
+  public getAllowedImageHosts(): Set<string> {
+    const hosts = new Set<string>();
+    for (const provider of this.getAllProviders()) {
+      if (provider.allowedImageHosts) {
+        provider.allowedImageHosts.forEach((h) => hosts.add(h));
+      }
+    }
+    return hosts;
+  }
+
+  /**
    * Resets the registry (primarily for testing).
    */
   public clear(): void {

@@ -1482,6 +1482,13 @@ export class MusicBrainzProvider implements Provider {
   public readonly id = 'musicbrainz';
   public readonly label = 'MusicBrainz';
   public readonly icon = Disc3;
+  public readonly allowedImageHosts = [
+    'assets.fanart.tv',
+    'coverartarchive.org',
+    'ca.archive.org',
+    'commons.wikimedia.org',
+    'upload.wikimedia.org',
+  ];
   public status: ProviderStatus = ProviderStatus.IDLE;
 
   private fetcher: Fetcher = secureFetch;

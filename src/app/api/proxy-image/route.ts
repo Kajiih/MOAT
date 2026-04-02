@@ -14,21 +14,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/infra/logger';
 import { registry } from '@/infra/providers/registry';
 
-/**
- * List of external hostnames that this proxy is allowed to fetch from.
- * These match the primary metadata and image providers for the application.
- */
-const ALLOWED_HOSTS = new Set([
-  'assets.fanart.tv',
-  'coverartarchive.org',
-  'ca.archive.org', // CoverArtArchive Redirect Destination
-  'placehold.co',
-  'commons.wikimedia.org',
-  'upload.wikimedia.org',
-  'i.scdn.co', // Spotify
-  'media.rawg.io', // RAWG video game covers
-  'image.tmdb.org', // TMDB movie posters
-]);
 
 /**
  * GET handler for the image proxy.
@@ -69,8 +54,12 @@ export async function GET(request: NextRequest) {
     return new NextResponse('Invalid URL', { status: 400 });
   }
 
-  // Security check: Only proxy from trusted domains
-  if (!ALLOWED_HOSTS.has(targetUrl.hostname)) {
+  // Security check: Only proxy from trusted domains of registered providers
+  await registry.waitUntilReady();
+  const allowedHosts = registry.getAllowedImageHosts();
+  allowedHosts.add('placehold.co'); // Default fallback for tests and system placeholders
+
+  if (!allowedHosts.has(targetUrl.hostname)) {
     return new NextResponse('Domain not allowed', { status: 403 });
   }
 

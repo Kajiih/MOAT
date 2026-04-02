@@ -514,6 +514,7 @@ export class RAWGProvider implements Provider {
   public readonly id = 'rawg';
   public readonly label = 'RAWG';
   public readonly icon = Gamepad2;
+  public readonly allowedImageHosts = ['media.rawg.io'];
   public status: ProviderStatus = ProviderStatus.IDLE;
 
   private fetcher: Fetcher = secureFetch;

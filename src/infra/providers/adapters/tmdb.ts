@@ -538,6 +538,7 @@ export class TMDBProvider implements Provider {
   public readonly id = 'tmdb';
   public readonly label = 'TMDB';
   public readonly isDevelopment = true;
+  public readonly allowedImageHosts = ['image.tmdb.org'];
   public status: ProviderStatus = ProviderStatus.IDLE;
 
   private fetcher: Fetcher = secureFetch;

@@ -182,6 +182,12 @@ export interface Provider {
   readonly entities: readonly Entity[];
 
   /**
+   * List of external hostnames that this provider is allowed to fetch from.
+   * Used by the image proxy for security validation.
+   */
+  readonly allowedImageHosts?: string[];
+
+  /**
    * The current status of this specific provider.
    */
   status: ProviderStatus;
