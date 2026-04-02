@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "createdAt": "2026-04-02T12:00:00.000Z",
+  "title": "Equivalence Test Board",
+  "tiers": [
+    {
+      "label": "S",
+      "color": "red",
+      "items": [
+        {
+          "id": "musicbrainz:album:6ab3e5c0-0852-4879-91f2-f1d7bbd37139",
+          "identity": {
+            "providerId": "musicbrainz",
+            "entityId": "album",
+            "key": "6ab3e5c0-0852-4879-91f2-f1d7bbd37139"
+          },
+          "title": "Test Album",
+          "images": []
+        }
+      ]
+    }
+  ]
+}

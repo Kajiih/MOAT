@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "createdAt": "2026-03-17T14:39:53.578Z",
+  "title": "SA",
+  "tiers": [
+    {
+      "label": "S",
+      "color": "red",
+      "items": [
+        {
+          "id": "search-ad520805-a825-48d8-ac06-d3cd0096a16c",
+          "mbid": "ad520805-a825-48d8-ac06-d3cd0096a16c",
+          "type": "song",
+          "title": "Ma direction",
+          "artist": "Sexion d’Assaut",
+          "album": "Best Of",
+          "albumId": "2ebee55c-a78f-48ab-b5bf-703b091a5a5c",
+          "year": "2013",
+          "date": "2013-10-24",
+          "imageUrl": "https://coverartarchive.org/release-group/2ebee55c-a78f-48ab-b5bf-703b091a5a5c/front-250",
+          "details": {
+            "id": "search-ad520805-a825-48d8-ac06-d3cd0096a16c",
+            "mbid": "search-ad520805-a825-48d8-ac06-d3cd0096a16c",
+            "type": "song"
+          }
+        }
+      ]
+    }
+  ]
+}

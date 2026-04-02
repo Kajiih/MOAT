@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "title": "Equivalence Test Board",
+  "tiers": [
+    {
+      "label": "S",
+      "color": "red",
+      "items": [
+        {
+          "id": "musicbrainz:album:6ab3e5c0-0852-4879-91f2-f1d7bbd37139",
+          "mbid": "6ab3e5c0-0852-4879-91f2-f1d7bbd37139",
+          "type": "album",
+          "title": "Test Album",
+          "images": []
+        }
+      ]
+    }
+  ]
+}

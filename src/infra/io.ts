@@ -16,9 +16,16 @@ const CURRENT_VERSION = 1;
  * We pass-through items to avoid tight coupling with heavy domain models,
  * but enforce presence of an 'id'.
  */
-const ExportItemSchema = z.object({
-  id: z.string(),
-}).passthrough();
+const ExportItemSchema = z
+  .object({
+    id: z.string(),
+    identity: z.object({
+      providerId: z.string(),
+      entityId: z.string(),
+      key: z.string(),
+    }),
+  })
+  .passthrough();
 
 const ExportDataSchema = z.object({
   version: z.number(),
@@ -33,7 +40,7 @@ const ExportDataSchema = z.object({
   ),
 });
 
-interface ExportData extends z.infer<typeof ExportDataSchema> {}
+type ExportData = z.infer<typeof ExportDataSchema>;
 
 /**
  * Generates the exportable JSON object from the current state.
@@ -69,6 +76,87 @@ export function downloadJson(data: object, filename: string) {
   a.click();
 }
 
+interface LegacyItem {
+  id: string;
+  identity?: {
+    providerId: string;
+    entityId: string;
+    key: string;
+  };
+  mbid?: string;
+  type?: string;
+}
+
+interface LegacyTier {
+  label: string;
+  color: string;
+  items?: LegacyItem[];
+}
+
+interface LegacyExportData {
+  version?: number;
+  createdAt?: string;
+  title?: string;
+  tiers?: LegacyTier[];
+}
+
+/**
+ * Migrates legacy data to conform to the strict modern schema.
+ * This is only called if initial strict parsing fails.
+ * @param raw - The raw JSON data to migrate.
+ * @returns The migrated JSON data.
+ */
+function migrateLegacyData(raw: unknown): unknown {
+  console.log('migrateLegacyData raw input:', JSON.stringify(raw));
+  if (typeof raw !== 'object' || raw === null) return raw;
+
+  const data = { ...(raw as LegacyExportData) };
+
+  // 1. Synthesize createdAt if missing
+  if (!data.createdAt) {
+    data.createdAt = new Date().toISOString();
+  }
+
+  // 2. Synthesize title if missing
+  if (!data.title) {
+    data.title = 'Untitled Board';
+  }
+
+  // 3. Synthesize identity for items inside tiers if missing
+  if (Array.isArray(data.tiers)) {
+    data.tiers = data.tiers.map((tier: LegacyTier) => {
+      const migratedTier = { ...tier };
+      if (Array.isArray(migratedTier.items)) {
+        migratedTier.items = migratedTier.items.map((item: LegacyItem) => {
+          if (!item.identity && item.mbid && item.type) {
+            let entityId = item.type;
+
+            // Migrate imageUrl to images array
+            const images = item.images || [];
+            if (!item.images && item.imageUrl) {
+              images.push({ type: 'url', url: item.imageUrl });
+            }
+
+            return {
+              ...item,
+              images, // Ensure images array exists
+              identity: {
+                providerId: 'musicbrainz',
+                entityId,
+                key: item.mbid,
+              },
+            };
+          }
+          return item;
+        });
+      }
+      return migratedTier;
+    });
+  }
+
+  return data;
+}
+
 /**
  * Parses and validates imported JSON data.
  * Returns a normalized TierListState or throws an error.
@@ -78,7 +166,21 @@ export function downloadJson(data: object, filename: string) {
  */
 export function parseImportData(jsonString: string, fallbackTitle: string): TierListState {
   const parsedJson = JSON.parse(jsonString);
-  const data = ExportDataSchema.parse(parsedJson);
+  
+  let result = ExportDataSchema.safeParse(parsedJson);
+
+    if (!result.success) {
+      // Attempt migration for legacy formats
+      const migratedJson = migrateLegacyData(parsedJson);
+      result = ExportDataSchema.safeParse(migratedJson);
+    
+    if (!result.success) {
+      console.error('Migration failed validation Zod message:', result.error.message);
+      throw result.error;
+    }
+  }
+
+  const data = result.data;
 
   const newTierDefs: TierDefinition[] = [];
   const itemEntities: Record<string, Item> = {};
@@ -87,7 +189,10 @@ export function parseImportData(jsonString: string, fallbackTitle: string): Tier
   };
 
   data.tiers.forEach((tier) => {
-    const tierId = crypto.randomUUID();
+    const tierId =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : ('uuid-' + Math.random().toString(36).slice(2, 11));
     newTierDefs.push({
       id: tierId,
       label: tier.label,

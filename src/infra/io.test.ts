@@ -12,8 +12,16 @@ describe('io.ts', () => {
       { id: 't2', label: 'A', color: '#00ff00' },
     ],
     itemEntities: {
-      i1: { id: 'i1', title: 'Item 1' } as any,
-      i2: { id: 'i2', title: 'Item 2' } as any,
+      i1: {
+        id: 'i1',
+        title: 'Item 1',
+        identity: { providerId: 'test', entityId: 'track', key: '1' },
+      } as unknown as Item,
+      i2: {
+        id: 'i2',
+        title: 'Item 2',
+        identity: { providerId: 'test', entityId: 'track', key: '2' },
+      } as unknown as Item,
     },
     tierLayout: {
       t1: ['i1'],
@@ -64,5 +72,81 @@ describe('io.ts', () => {
       ],
     };
     expect(() => parseImportData(JSON.stringify(invalidData), 'Fallback')).toThrow();
+  });
+
+  it('parseImportData should handle legacy data with auto-migration', () => {
+    const legacyData = {
+      version: 1,
+      // missing createdAt and title
+      tiers: [
+        {
+          label: 'S',
+          color: '#ff0000',
+          items: [
+            { id: 'i1', mbid: 'mbid-1', type: 'album' }, // missing identity
+          ],
+        },
+      ],
+    };
+
+    const importedState = parseImportData(JSON.stringify(legacyData), 'Fallback Title');
+    
+    expect(importedState.title).toBe('Untitled Board'); // Default applied
+    expect(importedState.tierDefs).toHaveLength(1);
+    
+    const firstTierId = importedState.tierDefs[0].id;
+    const firstItemId = importedState.tierLayout[firstTierId][0];
+    const item = importedState.itemEntities[firstItemId];
+    
+    expect(item.identity).toBeDefined();
+    expect(item.identity?.providerId).toBe('musicbrainz');
+    expect(item.identity?.entityId).toBe('album');
+    expect(item.identity?.key).toBe('mbid-1');
+  });
+
+  it('parseImportData should reject invalid modern data if migration fails', () => {
+    const invalidData = {
+      version: 1,
+      createdAt: 'now',
+      title: 'Test',
+      tiers: [
+        {
+          label: 'S',
+          color: '#ff0000',
+          items: [
+            { id: 'i1' }, // missing identity AND missing mbid/type (cannot migrate!)
+          ],
+        },
+      ],
+    };
+
+    expect(() => parseImportData(JSON.stringify(invalidData), 'Fallback')).toThrow();
+  });
+
+  it('parseImportData should migrate imageUrl to images array', () => {
+    const legacyData = {
+      version: 1,
+      title: 'Test',
+      tiers: [
+        {
+          label: 'S',
+          color: '#ff0000',
+          items: [
+            { id: 'i1', mbid: 'mbid-1', type: 'song', imageUrl: 'http://example.com/image.jpg' },
+          ],
+        },
+      ],
+    };
+
+    const importedState = parseImportData(JSON.stringify(legacyData), 'Fallback');
+    
+    const firstTierId = importedState.tierDefs[0].id;
+    const firstItemId = importedState.tierLayout[firstTierId][0];
+    const item = importedState.itemEntities[firstItemId];
+    
+    expect(item.images).toBeDefined();
+    expect(item.images).toHaveLength(1);
+    expect(item.images[0].type).toBe('url');
+    expect(item.images[0].url).toBe('http://example.com/image.jpg');
   });
 });
