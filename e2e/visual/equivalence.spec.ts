@@ -3,8 +3,8 @@ import path from 'node:path';
 import { expect, test } from '../fixtures';
 
 test.describe('Visual Equivalence - Legacy vs Modern Import', () => {
-  const legacyFixturePath = path.join(__dirname, 'fixtures', 'legacy-equivalent.json');
-  const modernFixturePath = path.join(__dirname, 'fixtures', 'modern-equivalent.json');
+  const legacyFixturePath = path.join(__dirname, '..', 'fixtures', 'legacy-equivalent.json');
+  const modernFixturePath = path.join(__dirname, '..', 'fixtures', 'modern-equivalent.json');
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -75,7 +75,7 @@ test.describe('Visual Equivalence - Legacy vs Modern Import', () => {
   });
 
   test('legacy import with imageUrl renders correctly', async ({ page, boardPage }) => {
-    const legacyImageUrlPath = path.join(__dirname, 'fixtures', 'legacy-imageurl.json');
+    const legacyImageUrlPath = path.join(__dirname, '..', 'fixtures', 'legacy-imageurl.json');
     
     await boardPage.importJson(legacyImageUrlPath);
 

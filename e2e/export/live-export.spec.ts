@@ -30,7 +30,7 @@ test.describe('Live Export Verification (Unmocked)', () => {
     await expect(witcherImg).toBeVisible({ timeout: 15_000 });
 
     // Verify image from MusicBrainz (Album)
-    const michaelImg = exportSurface.getByRole('img', { name: 'Michael' });
+    const michaelImg = exportSurface.getByRole('img', { name: 'Michael', exact: true });
     await expect(michaelImg).toBeVisible({ timeout: 15_000 });
 
     // Verify image from TMDB (Movie)

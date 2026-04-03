@@ -20,7 +20,7 @@ test.describe('Reload Item Stability', () => {
     });
 
     // Import complex board
-    const fixturePath = path.resolve(__dirname, 'fixtures/complex-board.json');
+    const fixturePath = path.resolve(__dirname, '../fixtures/complex-board.json');
     await boardPage.importJson(fixturePath);
 
     // Verify initial load succeeds without errors

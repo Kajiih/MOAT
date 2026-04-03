@@ -27,6 +27,13 @@ interface MoatFixtures {
  * Playwright automatically clears storage between tests by using fresh contexts.
  */
 export const test = base.extend<MoatFixtures>({
+  page: async ({ page }, use) => {
+    await page.addInitScript(() => {
+      (window as any).isPlaywright = true;
+    });
+    await use(page);
+  },
+
   boardPage: async ({ page }, use) => {
     await use(new BoardPage(page));
   },

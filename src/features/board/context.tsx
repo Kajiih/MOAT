@@ -9,7 +9,7 @@
 'use client';
 
 import { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/dist/types/closest-edge';
-import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 import { Item, ItemUpdate } from '@/domain/items/items';
 import { useHistory } from '@/features/board/hooks/useHistory';
@@ -129,6 +129,16 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
       onSave: (s) => syncBoardMetadata(boardId, s),
     },
   );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).isPlaywright) {
+      (window as any).__TIERLIST_TEST_API__ = {
+        getState: () => state,
+        dispatch,
+        isHydrated,
+      };
+    }
+  }, [state, dispatch, isHydrated]);
 
   const historyRaw = useHistory<TierListState>();
   const [detailsItem, setDetailsItem] = useState<Item | null>(null);
