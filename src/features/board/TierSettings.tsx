@@ -80,7 +80,7 @@ export function TierSettings({
       }
     >
       <div
-        className="border-border bg-surface shadow-floating flex w-[280px] flex-col gap-3 rounded-lg border p-3"
+        className="border-border bg-surface shadow-floating w-settings flex flex-col gap-3 rounded-lg border p-3"
         style={{ transform: 'translate(10px, 10px)' }}
       >
         <div className="border-border flex items-center justify-between border-b pb-2">

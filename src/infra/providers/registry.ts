@@ -292,7 +292,7 @@ export class ProviderRegistry {
     if (!this.allowedHostsArrayCache) {
       const hosts = this.getAllowedImageHosts();
       hosts.add('placehold.co');
-      this.allowedHostsArrayCache = Array.from(hosts);
+      this.allowedHostsArrayCache = [...hosts];
     }
 
     return this.allowedHostsArrayCache.some(host => 

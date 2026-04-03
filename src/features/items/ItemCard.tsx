@@ -309,7 +309,7 @@ export function ItemCard({
       className={twMerge(
         `group duration-fast relative p-1 transition-all ${ITEM_CARD_BASE_CLASSES}`,
         isAdded ? 'opacity-70 grayscale' : '',
-        isOverLocal ? 'z-40' : '',
+        isOverLocal ? 'z-card-hover' : '',
         className,
       )}
     >
@@ -324,13 +324,13 @@ export function ItemCard({
         {/* Bottom Accent Strip */}
         {cardPrefs?.showUnderlay !== false && (
           <div
-            className={`absolute inset-x-0 bottom-0 h-[1.5px] ${baseColorClass} z-20 bg-current opacity-30 shadow-sm`}
+            className={`absolute inset-x-0 bottom-0 h-[1.5px] ${baseColorClass} z-card bg-current opacity-30 shadow-sm`}
           />
         )}
         {/* Top Indicator & Icon Tray */}
         {(item.rating !== undefined ||
           (cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined)) && (
-          <div className="absolute top-1 left-1 z-20 flex flex-col items-center gap-1">
+          <div className="absolute top-1 left-1 z-card flex flex-col items-center gap-1">
             {cardPrefs?.showIcon !== false && entityDef.branding.icon !== undefined && (
               <div className="flex items-center justify-center rounded-full border border-white/10 bg-black/60 p-1 shadow-sm backdrop-blur-sm">
                 <TypeIcon
@@ -370,7 +370,7 @@ export function ItemCard({
         {item.notes && (
           <div
             data-testid="notes-indicator"
-            className="bg-highlight/90 text-background absolute right-1 bottom-1 z-20 flex h-4 w-4 items-center justify-center rounded-sm shadow-sm transition-transform group-hover/card:scale-110"
+            className="bg-highlight/90 text-background absolute right-1 bottom-1 z-card flex h-4 w-4 items-center justify-center rounded-sm shadow-sm transition-transform group-hover/card:scale-110"
             title="Contains personal notes"
           >
             <div className="h-1.5 w-1.5 rounded-full bg-current" />

@@ -54,6 +54,7 @@
   
   --z-row: 10;
   --z-card: 20;
+  --z-card-hover: 40;
   
   --z-row-base: 0;
   --z-row-hover: 20;
@@ -120,6 +121,10 @@ html {
 
 .z-card {
   z-index: var(--z-card);
+}
+
+.z-card-hover {
+  z-index: var(--z-card-hover);
 }
 
 .w-settings {
