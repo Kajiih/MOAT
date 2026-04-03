@@ -110,48 +110,6 @@ const tvFilters = createFilterSuite<TMDBTVShow>();
 const personFilters = createFilterSuite<TMDBPerson>();
 
 
-/**
- * Genre Mappings
- */
-const MOVIE_GENRES = [
-  { label: 'Action', value: '28' },
-  { label: 'Adventure', value: '12' },
-  { label: 'Animation', value: '16' },
-  { label: 'Comedy', value: '35' },
-  { label: 'Crime', value: '80' },
-  { label: 'Documentary', value: '99' },
-  { label: 'Drama', value: '18' },
-  { label: 'Family', value: '10751' },
-  { label: 'Fantasy', value: '14' },
-  { label: 'History', value: '36' },
-  { label: 'Horror', value: '27' },
-  { label: 'Music', value: '10402' },
-  { label: 'Mystery', value: '9648' },
-  { label: 'Romance', value: '10749' },
-  { label: 'Science Fiction', value: '878' },
-  { label: 'Thriller', value: '539' },
-  { label: 'War', value: '10752' },
-  { label: 'Western', value: '37' },
-];
-
-const TV_GENRES = [
-  { label: 'Action & Adventure', value: '10759' },
-  { label: 'Animation', value: '16' },
-  { label: 'Comedy', value: '35' },
-  { label: 'Crime', value: '80' },
-  { label: 'Documentary', value: '99' },
-  { label: 'Drama', value: '18' },
-  { label: 'Family', value: '10751' },
-  { label: 'Kids', value: '10762' },
-  { label: 'Mystery', value: '9648' },
-  { label: 'News', value: '10763' },
-  { label: 'Reality', value: '10764' },
-  { label: 'Sci-Fi & Fantasy', value: '10765' },
-  { label: 'Soap', value: '10766' },
-  { label: 'Talk', value: '10767' },
-  { label: 'War & Politics', value: '10768' },
-  { label: 'Western', value: '37' },
-];
 
 /**
  * Entity Implementations

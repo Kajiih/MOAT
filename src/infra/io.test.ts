@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { Item } from '@/domain/items/items';
 import { TierListState } from '@/features/board/types';
 
 import { deserializeBoardData, serializeBoardData } from './io';
@@ -147,6 +148,11 @@ describe('io.ts', () => {
     expect(item.images).toBeDefined();
     expect(item.images).toHaveLength(1);
     expect(item.images[0].type).toBe('url');
-    expect(item.images[0].url).toBe('http://example.com/image.jpg');
+    const image = item.images[0];
+    if (image.type === 'url') {
+      expect(image.url).toBe('http://example.com/image.jpg');
+    } else {
+      throw new Error('Expected image to be of type url');
+    }
   });
 });

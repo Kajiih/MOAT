@@ -90,6 +90,8 @@ const createMockEntity = (overrides: Partial<Entity<MockItem>> = {}): Entity<Moc
   defaultTestQueries: nonEmpty('query'),
   testDetailsIds: nonEmpty('test-id'),
   edgeShortQuery: 'short',
+  emptyTestQuery: 'empty',
+  paginationTestQuery: 'pagination',
   resolveImage: async () => null,
   getInitialParams: (config: { limit: number }) => ({
     query: '',

@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures';
 
 test.describe('Complex Board Screenshot Verification', () => {
-  test.setTimeout(90_000); // Complex board might be slow to load images
+  test.setTimeout(15_000); // Complex board might be slow to load images
 
   test.beforeEach(async ({ page }) => {
     // Intercept image proxy to return a stable 1x1 pixel PNG

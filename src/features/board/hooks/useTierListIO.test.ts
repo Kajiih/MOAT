@@ -50,7 +50,13 @@ describe('useTierListIO', () => {
   });
 
   it('should trigger download on export', () => {
-    vi.mocked(serializeBoardData).mockReturnValue('{"serialized": "data"}');
+    const mockExportData = {
+      version: 2,
+      createdAt: '2026-04-03T23:00:35.788Z',
+      title: 'Exported Board',
+      tiers: [],
+    };
+    vi.mocked(serializeBoardData).mockReturnValue(mockExportData);
 
     const { result } = renderHook(() =>
       useTierListIO(mockState, mockDispatch, mockPushHistory)
@@ -61,7 +67,7 @@ describe('useTierListIO', () => {
     });
 
     expect(serializeBoardData).toHaveBeenCalledWith(mockState);
-    expect(downloadJson).toHaveBeenCalledWith('{"serialized": "data"}', expect.stringContaining('moat-'));
+    expect(downloadJson).toHaveBeenCalledWith(mockExportData, expect.stringContaining('moat-'));
   });
 
   it('should dispatch importState on successful import', async () => {

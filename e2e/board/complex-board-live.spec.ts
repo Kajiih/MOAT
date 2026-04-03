@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures';
 
 test.describe('Complex Board Screenshot Verification (Live)', () => {
-  test.setTimeout(90_000); // Complex board might be slow to load images
+  test.setTimeout(15_000); // Complex board might be slow to load images
 
   test('should import complex board and take screenshot', async ({ page, boardPage }, testInfo) => {
     test.skip(testInfo.project.name === 'firefox', 'Skipping due to known failure in hidden rendering on Firefox. Fix later.');

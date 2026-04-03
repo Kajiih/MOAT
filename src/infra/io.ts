@@ -108,7 +108,6 @@ interface LegacyExportData {
  * @returns The migrated JSON data.
  */
 function migrateV1ToV2(raw: unknown): unknown {
-  console.log('migrateLegacyData raw input:', JSON.stringify(raw));
   if (typeof raw !== 'object' || raw === null) return raw;
 
   const data = { ...(raw as LegacyExportData) };
@@ -174,7 +173,6 @@ export function deserializeBoardData(jsonString: string, fallbackTitle: string):
 
   const result = ExportDataSchema.safeParse(dataToValidate);
   if (!result.success) {
-    console.error('Import failed validation Zod message:', result.error.message);
     throw result.error;
   }
 

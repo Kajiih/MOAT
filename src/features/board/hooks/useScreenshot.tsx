@@ -145,7 +145,7 @@ async function resolveImageDataUrl(source: ImageSource): Promise<string | null> 
   }
 
   if (source.type === 'url' && !isKnownBroken) {
-    logger.error({ source }, 'Screenshot Engine: All resolution attempts failed.');
+    logger.error({ source }, 'Screenshot Engine: All resolution attempts failed');
     failedImages.add(source.url);
   }
 

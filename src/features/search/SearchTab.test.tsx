@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Entity } from '@/domain/providers/types';
 import { registry } from '@/infra/providers/registry';
@@ -62,10 +62,11 @@ describe('SearchTab Pagination', () => {
     vi.mocked(registry.getEntity).mockReturnValue(defaultMockEntity as unknown as Entity);
     vi.mocked(useItemSearch).mockReturnValue({
       results: [],
-      pagination: { totalPages: 1 },
+      pagination: { currentPage: 1, totalPages: 1, totalCount: 0, hasNextPage: false },
       isLoading: false,
       error: null,
       mutate: vi.fn(),
+      isValidating: false,
     });
   });
 
@@ -79,10 +80,11 @@ describe('SearchTab Pagination', () => {
           images: [],
         },
       ],
-      pagination: { totalPages: 2 },
+      pagination: { currentPage: 1, totalPages: 2, totalCount: 20, hasNextPage: true },
       isLoading: false,
       error: null,
       mutate: vi.fn(),
+      isValidating: false,
     });
 
     defaultMockEntity.getNextParams.mockReturnValue({ page: 2, limit: 10, query: '', filters: {} });
@@ -116,10 +118,11 @@ describe('SearchTab Pagination', () => {
           images: [],
         },
       ],
-      pagination: { totalPages: 2 },
+      pagination: { currentPage: 1, totalPages: 2, totalCount: 20, hasNextPage: true },
       isLoading: false,
       error: null,
       mutate: vi.fn(),
+      isValidating: false,
     });
 
     const mockNextParams = { page: 2, limit: 10, query: '', filters: {} };
@@ -153,10 +156,11 @@ describe('SearchTab Pagination', () => {
           images: [],
         },
       ],
-      pagination: { totalPages: 2 },
+      pagination: { currentPage: 1, totalPages: 2, totalCount: 20, hasNextPage: true },
       isLoading: false,
       error: null,
       mutate: vi.fn(),
+      isValidating: false,
     });
 
     const mockNextParams = { page: 2, limit: 10, query: '', filters: {} };
