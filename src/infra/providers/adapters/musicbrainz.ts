@@ -1485,7 +1485,7 @@ export class MusicBrainzProvider implements Provider {
   public readonly allowedImageHosts = [
     'assets.fanart.tv',
     'coverartarchive.org',
-    'ca.archive.org',
+    'archive.org',
     'commons.wikimedia.org',
     'upload.wikimedia.org',
   ];

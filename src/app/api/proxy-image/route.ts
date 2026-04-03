@@ -56,10 +56,8 @@ export async function GET(request: NextRequest) {
 
   // Security check: Only proxy from trusted domains of registered providers
   await registry.waitUntilReady();
-  const allowedHosts = registry.getAllowedImageHosts();
-  allowedHosts.add('placehold.co'); // Default fallback for tests and system placeholders
 
-  if (!allowedHosts.has(targetUrl.hostname)) {
+  if (!registry.isHostAllowed(targetUrl.hostname)) {
     return new NextResponse('Domain not allowed', { status: 403 });
   }
 

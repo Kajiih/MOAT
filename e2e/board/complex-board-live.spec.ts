@@ -1,24 +1,26 @@
 import { expect, test } from '../fixtures';
 
-test.describe('Complex Board Screenshot Verification', () => {
+test.describe('Complex Board Screenshot Verification (Live)', () => {
   test.setTimeout(90_000); // Complex board might be slow to load images
-
-  test.beforeEach(async ({ page }) => {
-    // Intercept image proxy to return a stable 1x1 pixel PNG
-    await page.route('**/api/proxy-image**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'image/png',
-        body: Buffer.from(
-          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-          'base64'
-        ),
-      });
-    });
-  });
 
   test('should import complex board and take screenshot', async ({ page, boardPage }, testInfo) => {
     test.skip(testInfo.project.name === 'firefox', 'Skipping due to known failure in hidden rendering on Firefox. Fix later.');
+    test.skip(!!process.env.CI, 'Skipping live test on CI to avoid external dependency flakiness');
+    
+    // Bypass hotlinking protection by stripping Referer header
+    await page.route('https://media.rawg.io/**', async (route) => {
+      const headers = { ...route.request().headers() };
+      delete headers['referer'];
+      await route.continue({ headers });
+    });
+
+    // Log failing network requests
+    page.on('response', response => {
+      if (response.status() >= 400) {
+        console.error(`Failed resource: ${response.url()} -> ${response.status()}`);
+      }
+    });
+
     await boardPage.goto();
 
     // Import the complex board fixture
@@ -54,7 +56,7 @@ test.describe('Complex Board Screenshot Verification', () => {
     expect(download.suggestedFilename()).toContain('.png');
 
     // Save the screenshot for manual inspection before checking for console errors
-    const savedPath = `e2e/screenshots/complex-board-export.png`;
+    const savedPath = `e2e/screenshots/complex-board-live-export.png`;
     await download.saveAs(savedPath);
 
     expect(consoleErrorEncountered).toBe(false);

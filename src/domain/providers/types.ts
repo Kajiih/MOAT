@@ -184,6 +184,7 @@ export interface Provider {
   /**
    * List of external hostnames that this provider is allowed to fetch from.
    * Used by the image proxy for security validation.
+   * Any subdomain of a listed host is also allowed (e.g., 'archive.org' allows '*.archive.org').
    */
   readonly allowedImageHosts?: string[];
 

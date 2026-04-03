@@ -40,6 +40,7 @@ export class ProviderRegistry {
   private pendingRegistrations: Set<Promise<void>> = new Set();
   private listeners: Set<() => void> = new Set();
   private snapshot: RegistrySnapshot | null = null;
+  private allowedHostsArrayCache: string[] | null = null;
 
   private constructor() {}
 
@@ -120,6 +121,7 @@ export class ProviderRegistry {
 
     // Always add the provider to the map so its status can be tracked by UI
     this.providers.set(provider.id, provider);
+    this.allowedHostsArrayCache = null;
     this.notify();
 
     const registration = (async () => {
@@ -281,10 +283,29 @@ export class ProviderRegistry {
   }
 
   /**
+   * Checks if a host is allowed by any registered provider or default fallback.
+   * Uses a cached array of allowed hosts for performance.
+   * @param hostname - The hostname to validate.
+   * @returns True if the host is allowed.
+   */
+  public isHostAllowed(hostname: string): boolean {
+    if (!this.allowedHostsArrayCache) {
+      const hosts = this.getAllowedImageHosts();
+      hosts.add('placehold.co');
+      this.allowedHostsArrayCache = Array.from(hosts);
+    }
+
+    return this.allowedHostsArrayCache.some(host => 
+      hostname === host || hostname.endsWith('.' + host)
+    );
+  }
+
+  /**
    * Resets the registry (primarily for testing).
    */
   public clear(): void {
     this.providers.clear();
+    this.allowedHostsArrayCache = null;
     this.status = RegistryStatus.IDLE;
     this.pendingRegistrations.clear();
     this.notify();
