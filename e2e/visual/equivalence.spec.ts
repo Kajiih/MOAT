@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Visual Equivalence - Legacy vs Modern Import', () => {
   const legacyFixturePath = path.join(__dirname, 'fixtures', 'legacy-equivalent.json');
@@ -60,7 +60,7 @@ test.describe('Visual Equivalence - Legacy vs Modern Import', () => {
 
     // Race success vs failure
     await Promise.race([
-      await expect(boardPage.titleInput).toHaveValue('Equivalence Test Board'),
+      (async () => await expect(boardPage.titleInput).toHaveValue('Equivalence Test Board'))(),
       errorPromise,
     ]);
 

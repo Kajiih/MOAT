@@ -1,7 +1,7 @@
 import path from 'node:path';
 
-import { expect, test } from './fixtures';
-import { BoardPage } from './pom/BoardPage';
+import { expect, test } from '../fixtures';
+import { BoardPage } from '../pom/BoardPage';
 
 test.describe('Reload Item Stability', () => {
   test('should persist items and images after page reload', async ({ page }) => {

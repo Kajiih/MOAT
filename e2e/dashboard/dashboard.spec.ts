@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Dashboard and Multi-Board', () => {
   test.setTimeout(60_000);

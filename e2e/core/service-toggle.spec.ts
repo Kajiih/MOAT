@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Service Toggle (Multi-Database)', () => {
   test.beforeEach(async ({ dashboardPage }) => {

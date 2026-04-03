@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
@@ -92,8 +92,6 @@ test.describe('Visual Regression', () => {
     });
 
     // Cleanup
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    fs.rmSync(filePath, { force: true });
   });
 });

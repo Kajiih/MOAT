@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures';
-import { mockItemDetails, mockSearchResults } from './utils/mocks';
+import { expect, test } from '../fixtures';
+import { mockItemDetails, mockSearchResults } from '../utils/mocks';
 
 test.describe('Item Management', () => {
   test.setTimeout(60_000);

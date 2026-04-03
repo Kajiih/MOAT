@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures';
-import { waitForStorageValue } from './utils/storage';
+import { expect, test } from '../fixtures';
+import { waitForStorageValue } from '../utils/storage';
 
 test.describe('General Board Actions', () => {
   test('should rename a tier list and reflect in document title', async ({ boardPage }) => {

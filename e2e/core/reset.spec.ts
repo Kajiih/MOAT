@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures';
-import { mockSearchResults } from './utils/mocks';
+import { expect, test } from '../fixtures';
+import { mockSearchResults } from '../utils/mocks';
 
 test.describe('Board Reset and Clear Actions', () => {
   test.setTimeout(60_000);

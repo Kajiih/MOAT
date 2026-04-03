@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Complex Board Screenshot Verification', () => {
   test.setTimeout(90_000); // Complex board might be slow to load images
@@ -41,7 +41,6 @@ test.describe('Complex Board Screenshot Verification', () => {
     // Save the screenshot for manual inspection before checking for console errors
     const savedPath = `e2e/screenshots/complex-board-export.png`;
     await download.saveAs(savedPath);
-    console.log(`Saved complex board export to ${savedPath}`);
 
     expect(consoleErrorEncountered).toBe(false);
   });

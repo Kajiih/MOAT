@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Live Export / Screenshot (Mocked)', () => {
   test.beforeEach(async ({ page }) => {

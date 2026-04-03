@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures';
-import { mockSearchDynamic, mockSearchResults } from './utils/mocks';
+import { expect, test } from '../fixtures';
+import { mockSearchDynamic, mockSearchResults } from '../utils/mocks';
 
 test.describe('Search Functionality', () => {
   test.beforeEach(async () => {});
@@ -109,9 +109,6 @@ test.describe('Search Functionality', () => {
 
     const requestPromise = page.waitForRequest((req) => {
       const url = req.url();
-      if (url.includes('/api/v2/search')) {
-        console.log('[DEBUG-REQ]', url);
-      }
       return url.includes('filters=') && url.includes('4');
     });
 

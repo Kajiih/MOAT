@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-import { expect, test } from './fixtures';
+import { expect, test } from '../fixtures';
 
 test.describe('Import/Export/Share', () => {
   test.setTimeout(60_000);

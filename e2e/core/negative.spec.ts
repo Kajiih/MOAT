@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures';
-import { mockSearchResults } from './utils/mocks';
+import { expect, test } from '../fixtures';
+import { mockSearchResults } from '../utils/mocks';
 
 test.describe('Resilience and Failure Modes', () => {
   test.beforeEach(async () => {});
