@@ -224,7 +224,7 @@ function AsyncOption({ item, onSelect }: { item: Item; onSelect: () => void }) {
       <div className="flex min-w-0 flex-col">
         <span className="w-full truncate font-medium">{item.title}</span>
         {item.subtitle && item.subtitle.length > 0 && (
-          <span className="text-muted w-full truncate text-[10px]">
+          <span className="text-muted w-full truncate text-caption">
             {getSubtitleString(item.subtitle)}
           </span>
         )}

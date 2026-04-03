@@ -50,9 +50,9 @@ export async function nativeDragAndDrop(
 /**
  * Dispatches native HTML5 DragEvents to simulate drag-and-drop.
  * This avoids hardcoded mouse positions and relies on DOM event lifecycle.
- * @param page
- * @param source
- * @param target
+ * @param page The Playwright Page object.
+ * @param source The locator for the element being dragged.
+ * @param target The locator for the drop target.
  */
 export async function dispatchNativeDragAndDrop(
   page: Page,

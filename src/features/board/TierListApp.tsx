@@ -238,7 +238,7 @@ export default function TierListApp() {
     <div className="text-foreground bg-background relative flex min-h-screen flex-col font-sans">
       <InteractionContext.Provider value={{ hoveredItem, setHoveredItem }}>
         <main className="flex-1 p-8 pb-0">
-          <div className="mx-auto max-w-[1600px]">
+          <div className="mx-auto max-w-app">
             <Header onScreenshot={handleScreenshot} isCapturing={isCapturing} />
 
             <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_450px]">

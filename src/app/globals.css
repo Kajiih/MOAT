@@ -61,6 +61,8 @@
   --z-row-settings: 30;
   
   --width-settings: 280px;
+  --width-app-max: 1600px;
+  --width-content-max: 1200px;
 
   --text-caption: 10px;
   --text-indicator: 8px;
@@ -129,6 +131,14 @@ html {
 
 .w-settings {
   width: var(--width-settings);
+}
+
+.max-w-app {
+  max-width: var(--width-app-max);
+}
+
+.max-w-content {
+  max-width: var(--width-content-max);
 }
 
 .z-header {

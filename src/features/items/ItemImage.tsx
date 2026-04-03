@@ -77,9 +77,15 @@ export function ItemImage({
 
   const resolvedUrl = useResolvedImage(item.images);
   
-  const displayUrl = isExport 
-    ? contextUrl || exportUrl || (resolvedUrl && !resolvedUrl.startsWith('data:') ? `/api/proxy-image?url=${encodeURIComponent(resolvedUrl)}` : resolvedUrl)
-    : resolvedUrl;
+  let displayUrl = resolvedUrl;
+  if (isExport) {
+    displayUrl = contextUrl || exportUrl;
+    if (!displayUrl && resolvedUrl) {
+      displayUrl = !resolvedUrl.startsWith('data:')
+        ? `/api/proxy-image?url=${encodeURIComponent(resolvedUrl)}`
+        : resolvedUrl;
+    }
+  }
 
   const [imageError, setImageError] = useState(false);
   const [retryUnoptimized, setRetryUnoptimized] = useState(false);

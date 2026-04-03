@@ -62,7 +62,7 @@ export function SharedBoardView({ board: initialBoard }: SharedBoardViewProps) {
     <ToastProvider>
       <InteractionContext.Provider value={{ hoveredItem: null, setHoveredItem: () => {} }}>
         <div className="bg-surface text-foreground relative flex min-h-screen flex-col items-center pt-8 pb-8 font-sans antialiased">
-          <div className="relative flex w-full max-w-[1200px] flex-col items-center px-4 md:px-8">
+          <div className="relative flex w-full max-w-content flex-col items-center px-4 md:px-8">
             {/* Header Section */}
             <div className="relative flex w-full flex-col items-center justify-center md:mb-12">
               {/* Logo: Absolute top-left on desktop, static centered on mobile */}

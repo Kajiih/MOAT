@@ -81,7 +81,6 @@ export const ITEM_CARD_BASE_CLASSES = `${ITEM_CARD_DIMENSIONS.mobile.tw} sm:${IT
  * @param props - The component props.
  * @param props.item - The item to display.
  * @param props.tierId - The ID of the tier this card belongs to.
- * @param props.isDragging - Whether the card is currently being dragged.
  * @param props.isAdded - Whether the item is already added to the board (from search).
  * @param props.isExport - Whether the component is being rendered for image export.
  * @param props.resolvedUrl - A pre-resolved URL for the image.
@@ -95,7 +94,6 @@ export const ITEM_CARD_BASE_CLASSES = `${ITEM_CARD_DIMENSIONS.mobile.tw} sm:${IT
 export function ItemCard({
   item,
   tierId,
-  isDragging,
   isAdded,
   isExport,
   resolvedUrl,

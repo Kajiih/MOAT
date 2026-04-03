@@ -131,8 +131,8 @@ export function TierListProvider({ children, boardId }: { children: ReactNode; b
   );
 
   useEffect(() => {
-    if (globalThis.window !== undefined && (globalThis as any).isPlaywright) {
-      (globalThis as any).__TIERLIST_TEST_API__ = {
+    if (globalThis.window !== undefined && globalThis.isPlaywright) {
+      globalThis.__TIERLIST_TEST_API__ = {
         getState: () => state,
         dispatch,
         isHydrated,

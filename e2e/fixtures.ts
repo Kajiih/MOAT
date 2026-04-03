@@ -29,7 +29,7 @@ interface MoatFixtures {
 export const test = base.extend<MoatFixtures>({
   page: async ({ page }, use) => {
     await page.addInitScript(() => {
-      (globalThis as any).isPlaywright = true;
+      globalThis.isPlaywright = true;
     });
     await use(page);
   },

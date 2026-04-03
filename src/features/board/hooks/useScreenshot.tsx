@@ -35,6 +35,16 @@ const SCREENSHOT_TIMEOUTS = {
   CAPTURE: 15_000,
 };
 
+function waitForImageLoad(img: HTMLImageElement): Promise<void> {
+  if (img.complete) return Promise.resolve();
+  return Promise.race([
+    new Promise<void>((resolve) => {
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+    }),
+    new Promise<void>((resolve) => setTimeout(resolve, SCREENSHOT_TIMEOUTS.IMAGE_LOAD)),
+  ]);
+}
 
 /**
  * Provider component for the ScreenshotContext.
@@ -245,18 +255,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
 
         // Ensure all rendered images are fully loaded and decoded (with a 5s timeout fallback per image)
         const renderedImages = [...container.querySelectorAll('img')];
-        await Promise.all(
-          renderedImages.map((img) => {
-            if (img.complete) return Promise.resolve();
-            return Promise.race([
-              new Promise<void>((resolve) => {
-                img.onload = () => resolve();
-                img.onerror = () => resolve(); // Continue capture even if an image fails to load
-              }),
-              new Promise<void>((resolve) => setTimeout(resolve, SCREENSHOT_TIMEOUTS.IMAGE_LOAD)),
-            ]);
-          }),
-        );
+        await Promise.all(renderedImages.map((img) => waitForImageLoad(img)));
 
         // Ensure web fonts are completely loaded (with a 2s timeout fallback to prevent CI hangs)
         if (document.fonts) {

@@ -171,7 +171,7 @@ export function SearchPanel() {
         <div className="animate-in fade-in slide-in-from-top-1 mb-3 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-amber-200/90 shadow-sm transition-all">
           <Loader2 className="animate-spin-slow mt-0.5 shrink-0" size={14} />
           <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-black tracking-widest uppercase opacity-70">
+            <span className="text-caption font-black tracking-widest uppercase opacity-70">
               Provider Beta
             </span>
             <span className="text-caption leading-relaxed font-medium">

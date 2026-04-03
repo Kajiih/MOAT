@@ -119,6 +119,7 @@ export class BoardPage {
 
   /**
    * Gets the screenshot preview overlay locator.
+   * @returns The screenshot overlay locator.
    */
   getScreenshotOverlay() {
     return this.page.locator('.z-overlay');
@@ -126,6 +127,7 @@ export class BoardPage {
 
   /**
    * Gets the visual surface locator used for screenshots inside the overlay.
+   * @returns The preview surface locator.
    */
   getScreenshotPreviewSurface() {
     return this.getScreenshotOverlay().locator('#export-board-surface');
