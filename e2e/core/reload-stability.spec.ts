@@ -10,12 +10,14 @@ test.describe('Reload Item Stability', () => {
 
     let consoleErrorEncountered = false;
     page.on('console', (msg) => {
-      // Ignore known warnings if any, but fail on errors
       if (msg.type() === 'error') {
-        // Specifically check for our Screenshot Engine errors if they leak to console,
-        // or standard Next.js image hydration failures.
+        const text = msg.text();
+        // Ignore BatchResolver flush failure due to fetch being canceled on reload
+        if (text.includes('BatchResolver flush failure') && text.includes('Failed to fetch')) {
+          return;
+        }
         consoleErrorEncountered = true;
-        console.error(`Console Error in Reload Test: ${msg.text()}`);
+        console.error(`Console Error in Reload Test: ${text}`);
       }
     });
 

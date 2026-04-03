@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "vitest --exclude '**/*.integration.test.ts'",
     "test:integration": "vitest integration.test.ts",
-    "test:all": "vitest"
+    "test:all": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:no-ws": "SKIP_WEBSERVER=true playwright test"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.9",
