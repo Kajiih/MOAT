@@ -119,9 +119,9 @@ export const TierRow = memo(function TierRow({
       className={twMerge(
         'bg-surface duration-fast relative mb-2 flex min-h-[7rem] rounded-lg border transition-all ease-out',
         isOverRow
-          ? 'border-primary/50 bg-surface-hover shadow-card ring-primary/30 z-20 scale-[1.01] ring-1'
+          ? 'border-primary/50 bg-surface-hover shadow-card ring-primary/30 z-row-hover scale-[1.01] ring-1'
           : 'border-border',
-        isSettingsOpen ? 'z-30' : 'z-0',
+        isSettingsOpen ? 'z-row-settings' : 'z-row-base',
         isDraggingTier && 'border-primary ring-primary/50 scale-95 opacity-50 ring-2',
       )}
     >
@@ -146,7 +146,7 @@ export const TierRow = memo(function TierRow({
         className="relative flex min-h-[100px] min-w-0 flex-1 flex-col"
         data-testid="tier-drop-zone"
       >
-        {isOverRow && <div className="pointer-events-none absolute inset-0 z-10 bg-blue-500/5" />}
+        {isOverRow && <div className="pointer-events-none absolute inset-0 z-row bg-blue-500/5" />}
 
         <TierGrid
           items={items}

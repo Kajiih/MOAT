@@ -183,7 +183,7 @@ export function DetailsModal({
                     {[...new Set(details?.tags || [])].map((tag) => (
                       <span
                         key={tag}
-                        className="border-border text-secondary/90 rounded-md border bg-white/[0.03] px-2 py-0.5 text-[11px]"
+                        className="border-border text-secondary/90 rounded-md border bg-white/[0.03] px-2 py-0.5 text-caption"
                       >
                         {tag}
                       </span>

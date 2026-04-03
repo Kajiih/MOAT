@@ -33,7 +33,7 @@ export function ExternalLinks({ urls }: ExternalLinksProps) {
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-secondary/90 flex items-center gap-1.5 rounded-md border border-white/5 bg-white/[0.03] px-2.5 py-1 text-[11px] transition-colors hover:bg-white/[0.08] hover:text-white"
+          className="text-secondary/90 flex items-center gap-1.5 rounded-md border border-white/5 bg-white/[0.03] px-2.5 py-1 text-caption transition-colors hover:bg-white/[0.08] hover:text-white"
         >
           <ExternalLink size={11} />
           <span className="capitalize">{link.type}</span>

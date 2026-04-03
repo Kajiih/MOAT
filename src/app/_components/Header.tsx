@@ -72,7 +72,7 @@ export function Header({ onScreenshot, isCapturing }: HeaderProps) {
   };
 
   return (
-    <header className="pointer-events-none relative z-50 mb-8 flex flex-col items-center gap-4 md:grid md:grid-cols-[auto_1fr_auto]">
+    <header className="pointer-events-none relative z-header mb-8 flex flex-col items-center gap-4 md:grid md:grid-cols-[auto_1fr_auto]">
       <div className="group pointer-events-auto flex items-center">
         <Link
           href="/dashboard"

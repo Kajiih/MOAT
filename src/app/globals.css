@@ -45,12 +45,21 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
 
-  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-
+ 
+  --z-header: 50;
   --z-overlay: 100;
   --z-modal: 200;
   --z-toast: 500;
+  
+  --z-row: 10;
+  --z-card: 20;
+  
+  --z-row-base: 0;
+  --z-row-hover: 20;
+  --z-row-settings: 30;
+  
+  --width-settings: 280px;
 
   --text-caption: 10px;
   --text-indicator: 8px;
@@ -83,4 +92,40 @@ body {
 
 html {
   min-height: 100vh;
+}
+
+.z-overlay {
+  z-index: var(--z-overlay);
+}
+
+.z-modal {
+  z-index: var(--z-modal);
+}
+
+.z-row {
+  z-index: var(--z-row);
+}
+
+.z-row-base {
+  z-index: var(--z-row-base);
+}
+
+.z-row-hover {
+  z-index: var(--z-row-hover);
+}
+
+.z-row-settings {
+  z-index: var(--z-row-settings);
+}
+
+.z-card {
+  z-index: var(--z-card);
+}
+
+.w-settings {
+  width: var(--width-settings);
+}
+
+.z-header {
+  z-index: var(--z-header);
 }

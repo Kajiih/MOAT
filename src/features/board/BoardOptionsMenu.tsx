@@ -162,7 +162,7 @@ export function BoardOptionsMenu({
                 />
               </div>
             </label>
-            <p className="text-secondary mt-1.5 text-[11px] leading-relaxed">
+            <p className="text-secondary mt-1.5 text-caption leading-relaxed">
               Currently just shows a few more stuff.
             </p>
           </div>
@@ -173,7 +173,7 @@ export function BoardOptionsMenu({
 
               {/* Card Visual Prefs */}
               <div className="space-y-2 px-3 py-2">
-                <h4 className="text-secondary mb-1 text-[10px] font-bold tracking-wider uppercase">
+                <h4 className="text-secondary mb-1 text-caption font-bold tracking-wider uppercase">
                   Card Visuals
                 </h4>
 
@@ -200,7 +200,7 @@ export function BoardOptionsMenu({
 
                 {cardPrefs.showIcon && (
                   <label className="text-secondary ml-1 flex cursor-pointer items-center justify-between border-l border-white/5 pl-4 text-sm">
-                    <span className="text-muted text-[12px]">Colorize Icon</span>
+                    <span className="text-muted text-xs">Colorize Icon</span>
                     <div
                       className={twMerge(
                         'relative h-4 w-7 cursor-pointer rounded-full transition-colors',
