@@ -3,7 +3,7 @@ import { expect, test } from '../fixtures';
 test.describe('Live Export Verification (Unmocked)', () => {
   test.setTimeout(60_000); // Live API might be slow
 
-  test('should render real images in export preview @smoke', async ({ page, boardPage }) => {
+  test('should render real images in export preview @smoke', async ({ page, boardPage }, testInfo) => {
     await boardPage.goto();
 
     await page.getByTestId('search-panel').waitFor({ state: 'visible' });
@@ -38,6 +38,6 @@ test.describe('Live Export Verification (Unmocked)', () => {
     await expect(shelterImg).toBeVisible({ timeout: 15_000 });
 
     // Take a screenshot for manual verification
-    await exportSurface.screenshot({ path: 'e2e/screenshots/live-export-preview.png' });
+    await exportSurface.screenshot({ path: testInfo.outputPath('live-export-preview.png') });
   });
 });

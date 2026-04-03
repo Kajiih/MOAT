@@ -54,7 +54,7 @@ test.describe('Complex Board Screenshot Verification', () => {
     expect(download.suggestedFilename()).toContain('.png');
 
     // Save the screenshot for manual inspection before checking for console errors
-    const savedPath = `e2e/screenshots/complex-board-export.png`;
+    const savedPath = testInfo.outputPath('complex-board-export.png');
     await download.saveAs(savedPath);
 
     expect(consoleErrorEncountered).toBe(false);
