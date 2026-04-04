@@ -1,7 +1,11 @@
+import { MusicBrainzProvider } from '../../src/infra/providers/adapters/musicbrainz';
+import { RAWGProvider } from '../../src/infra/providers/adapters/rawg';
+import { TMDBProvider } from '../../src/infra/providers/adapters/tmdb';
+
 export type KnownProviders = {
-  rawg: 'game' | 'developer';
-  musicbrainz: 'song' | 'album' | 'artist';
-  tmdb: 'movie' | 'tv' | 'person';
+  rawg: typeof RAWGProvider.prototype.entities[number]['id'];
+  musicbrainz: typeof MusicBrainzProvider.prototype.entities[number]['id'];
+  tmdb: typeof TMDBProvider.prototype.entities[number]['id'];
 };
 
 export class TestItemBuilder {
