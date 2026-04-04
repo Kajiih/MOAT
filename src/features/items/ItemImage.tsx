@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { Item } from '@/domain/items/items';
 import { useScreenshotContext } from '@/features/board/hooks/useScreenshot';
 import { ITEM_CARD_DIMENSIONS } from '@/features/items/ItemCard';
+import { failedImages } from '@/features/items/image-cache';
 import { useResolvedImage } from '@/features/items/useResolvedImage';
 import { registry } from '@/infra/providers/registry';
 
@@ -80,10 +81,15 @@ export function ItemImage({
   let displayUrl = resolvedUrl;
   if (isExport) {
     displayUrl = contextUrl || exportUrl;
+    // Avoid attempts at network URLs that are known to be broken
     if (!displayUrl && resolvedUrl) {
-      displayUrl = !resolvedUrl.startsWith('data:')
-        ? `/api/proxy-image?url=${encodeURIComponent(resolvedUrl)}`
-        : resolvedUrl;
+      if (failedImages.has(resolvedUrl)) {
+        displayUrl = undefined;
+      } else {
+        displayUrl = !resolvedUrl.startsWith('data:')
+          ? `/api/proxy-image?url=${encodeURIComponent(resolvedUrl)}`
+          : resolvedUrl;
+      }
     }
   }
 

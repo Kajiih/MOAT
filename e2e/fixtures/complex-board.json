@@ -1,12 +1,51 @@
 {
-  "version": 1,
-  "createdAt": "2026-03-30T09:50:19.060Z",
+  "version": 2,
+  "createdAt": "2026-04-04T08:45:46.961Z",
   "title": "Untitled Tier List",
   "tiers": [
     {
       "label": "S",
       "color": "red",
-      "items": []
+      "items": [
+        {
+          "id": "musicbrainz:song:dffe9621-e19a-4cfb-872b-e020a2446e6c",
+          "identity": {
+            "providerItemId": "dffe9621-e19a-4cfb-872b-e020a2446e6c",
+            "providerId": "musicbrainz",
+            "entityId": "song"
+          },
+          "title": "Aeroplane",
+          "images": [
+            {
+              "type": "reference",
+              "provider": "musicbrainz",
+              "entityId": "album",
+              "key": "11e5fd21-23fd-4cd8-ab50-fe8e2dbbed83"
+            }
+          ],
+          "subtitle": [
+            {
+              "label": "Artist",
+              "name": "Red Hot Chili Peppers",
+              "identity": {
+                "providerItemId": "8bfac288-ccc5-448d-9573-c33ea2aa5c30",
+                "providerId": "musicbrainz",
+                "entityId": "artist"
+              }
+            },
+            {
+              "label": "Album",
+              "name": "1997-07-26: Fuji Tenjinyama Ski Resort, Yamanashi, Japan",
+              "identity": {
+                "providerItemId": "11e5fd21-23fd-4cd8-ab50-fe8e2dbbed83",
+                "providerId": "musicbrainz",
+                "entityId": "album"
+              }
+            }
+          ],
+          "tertiaryText": "Audio"
+        }
+      ]
     },
     {
       "label": "A",
@@ -15,9 +54,9 @@
         {
           "id": "rawg:game:3328",
           "identity": {
-            "providerItemId": "3328",
             "providerId": "rawg",
-            "entityId": "game"
+            "entityId": "game",
+            "providerItemId": "3328"
           },
           "title": "The Witcher 3: Wild Hunt",
           "images": [
@@ -32,9 +71,7 @@
               "key": "the-witcher-3-wild-hunt"
             }
           ],
-          "subtitle": [
-            "2015"
-          ],
+          "subtitle": ["2015"],
           "tertiaryText": "PC, PlayStation, Xbox, Apple Macintosh, Nintendo",
           "rating": 4.64,
           "details": {
@@ -46,9 +83,9 @@
         {
           "id": "musicbrainz:song:920259bb-7ac3-4820-a46d-5c0b4be24a6e",
           "identity": {
-            "providerItemId": "920259bb-7ac3-4820-a46d-5c0b4be24a6e",
             "providerId": "musicbrainz",
-            "entityId": "song"
+            "entityId": "song",
+            "providerItemId": "920259bb-7ac3-4820-a46d-5c0b4be24a6e"
           },
           "title": "Micho Micha",
           "images": [
@@ -84,9 +121,9 @@
         {
           "id": "musicbrainz:song:b8d5244d-199f-4242-989b-e768c0a9009d",
           "identity": {
-            "providerItemId": "b8d5244d-199f-4242-989b-e768c0a9009d",
             "providerId": "musicbrainz",
-            "entityId": "song"
+            "entityId": "song",
+            "providerItemId": "b8d5244d-199f-4242-989b-e768c0a9009d"
           },
           "title": "Vendedor de caranguejo (Cemichemichango mix)",
           "images": [
@@ -122,9 +159,9 @@
         {
           "id": "musicbrainz:album:6ab3e5c0-0852-4879-91f2-f1d7bbd37139",
           "identity": {
-            "providerItemId": "6ab3e5c0-0852-4879-91f2-f1d7bbd37139",
             "providerId": "musicbrainz",
-            "entityId": "album"
+            "entityId": "album",
+            "providerItemId": "6ab3e5c0-0852-4879-91f2-f1d7bbd37139"
           },
           "title": "Michael",
           "images": [
@@ -150,9 +187,9 @@
         {
           "id": "musicbrainz:artist:89ad4ac3-39f7-470e-963a-56509c546377",
           "identity": {
-            "providerItemId": "89ad4ac3-39f7-470e-963a-56509c546377",
             "providerId": "musicbrainz",
-            "entityId": "song"
+            "entityId": "song",
+            "providerItemId": "89ad4ac3-39f7-470e-963a-56509c546377"
           },
           "title": "Various Artists",
           "images": [
@@ -168,9 +205,9 @@
         {
           "id": "musicbrainz:artist:9e53f84d-ef44-4c16-9677-5fd4d78cbd7d",
           "identity": {
-            "providerItemId": "9e53f84d-ef44-4c16-9677-5fd4d78cbd7d",
             "providerId": "musicbrainz",
-            "entityId": "artist"
+            "entityId": "artist",
+            "providerItemId": "9e53f84d-ef44-4c16-9677-5fd4d78cbd7d"
           },
           "title": "Wilco",
           "images": [
@@ -187,9 +224,9 @@
         {
           "id": "musicbrainz:artist:125ec42a-7229-4250-afc5-e057484327fe",
           "identity": {
-            "providerItemId": "125ec42a-7229-4250-afc5-e057484327fe",
             "providerId": "musicbrainz",
-            "entityId": "artist"
+            "entityId": "artist",
+            "providerItemId": "125ec42a-7229-4250-afc5-e057484327fe"
           },
           "title": "[unknown]",
           "images": [
@@ -212,9 +249,9 @@
         {
           "id": "rawg:game:3498",
           "identity": {
-            "providerItemId": "3498",
             "providerId": "rawg",
-            "entityId": "game"
+            "entityId": "game",
+            "providerItemId": "3498"
           },
           "title": "Grand Theft Auto V",
           "images": [
@@ -229,9 +266,7 @@
               "key": "grand-theft-auto-v"
             }
           ],
-          "subtitle": [
-            "2013"
-          ],
+          "subtitle": ["2013"],
           "tertiaryText": "PC, PlayStation, Xbox",
           "rating": 4.47,
           "details": {
@@ -243,9 +278,9 @@
         {
           "id": "rawg:developer:405",
           "identity": {
-            "providerItemId": "405",
             "providerId": "rawg",
-            "entityId": "developer"
+            "entityId": "developer",
+            "providerItemId": "405"
           },
           "title": "Ubisoft",
           "images": [
@@ -259,9 +294,9 @@
         {
           "id": "tmdb:movie:1290821",
           "identity": {
-            "providerItemId": "1290821",
             "providerId": "tmdb",
-            "entityId": "movie"
+            "entityId": "movie",
+            "providerItemId": "1290821"
           },
           "title": "Shelter",
           "images": [
@@ -270,17 +305,15 @@
               "url": "https://image.tmdb.org/t/p/w500/buPFnHZ3xQy6vZEHxbHgL1Pc6CR.jpg"
             }
           ],
-          "subtitle": [
-            "2026"
-          ],
+          "subtitle": ["2026"],
           "rating": 6.7
         },
         {
           "id": "tmdb:person:115440",
           "identity": {
-            "providerItemId": "115440",
             "providerId": "tmdb",
-            "entityId": "person"
+            "entityId": "person",
+            "providerItemId": "115440"
           },
           "title": "Sydney Sweeney",
           "images": [
@@ -294,9 +327,9 @@
         {
           "id": "tmdb:person:1362723",
           "identity": {
-            "providerItemId": "1362723",
             "providerId": "tmdb",
-            "entityId": "person"
+            "entityId": "person",
+            "providerItemId": "1362723"
           },
           "title": "Riley Hatch",
           "images": [
@@ -310,9 +343,9 @@
         {
           "id": "musicbrainz:album:e8a7fa70-c450-4b3f-8efd-af2745b24c29",
           "identity": {
-            "providerItemId": "e8a7fa70-c450-4b3f-8efd-af2745b24c29",
             "providerId": "musicbrainz",
-            "entityId": "album"
+            "entityId": "album",
+            "providerItemId": "e8a7fa70-c450-4b3f-8efd-af2745b24c29"
           },
           "title": "Oh Michael, Look What You've Done: Friends Play Michael Chapman",
           "images": [
@@ -338,9 +371,9 @@
         {
           "id": "musicbrainz:album:459202d2-ae60-4938-98d7-b6aac27f343a",
           "identity": {
-            "providerItemId": "459202d2-ae60-4938-98d7-b6aac27f343a",
             "providerId": "musicbrainz",
-            "entityId": "album"
+            "entityId": "album",
+            "providerItemId": "459202d2-ae60-4938-98d7-b6aac27f343a"
           },
           "title": "Michaelmas",
           "images": [
@@ -372,9 +405,9 @@
         {
           "id": "rawg:game:13536",
           "identity": {
-            "providerItemId": "13536",
             "providerId": "rawg",
-            "entityId": "game"
+            "entityId": "game",
+            "providerItemId": "13536"
           },
           "title": "Portal",
           "images": [
@@ -389,9 +422,7 @@
               "key": "portal"
             }
           ],
-          "subtitle": [
-            "2007"
-          ],
+          "subtitle": ["2007"],
           "tertiaryText": "PC, PlayStation, Xbox, Android, Apple Macintosh, Linux, Nintendo",
           "rating": 4.49,
           "details": {
@@ -403,9 +434,9 @@
         {
           "id": "rawg:developer:3709",
           "identity": {
-            "providerItemId": "3709",
             "providerId": "rawg",
-            "entityId": "developer"
+            "entityId": "developer",
+            "providerItemId": "3709"
           },
           "title": "Ubisoft Montreal",
           "images": [
@@ -419,9 +450,9 @@
         {
           "id": "tmdb:movie:1523145",
           "identity": {
-            "providerItemId": "1523145",
             "providerId": "tmdb",
-            "entityId": "movie"
+            "entityId": "movie",
+            "providerItemId": "1523145"
           },
           "title": "Your Heart Will Be Broken",
           "images": [
@@ -430,17 +461,15 @@
               "url": "https://image.tmdb.org/t/p/w500/iGpMm603GUKH2SiXB2S5m4sZ17t.jpg"
             }
           ],
-          "subtitle": [
-            "2026"
-          ],
+          "subtitle": ["2026"],
           "rating": 6.7
         },
         {
           "id": "tmdb:tv:94722",
           "identity": {
-            "providerItemId": "94722",
             "providerId": "tmdb",
-            "entityId": "tv"
+            "entityId": "tv",
+            "providerItemId": "94722"
           },
           "title": "Tagesschau",
           "images": [
@@ -449,17 +478,15 @@
               "url": "https://image.tmdb.org/t/p/w500/7dFZJ2ZJJdcmkp05B9NWlqTJ5tq.jpg"
             }
           ],
-          "subtitle": [
-            "1952"
-          ],
+          "subtitle": ["1952"],
           "rating": 6.8
         },
         {
           "id": "tmdb:tv:112527",
           "identity": {
-            "providerItemId": "112527",
             "providerId": "tmdb",
-            "entityId": "tv"
+            "entityId": "tv",
+            "providerItemId": "112527"
           },
           "title": "Obake no Q-tarō",
           "images": [
@@ -468,17 +495,15 @@
               "url": "https://image.tmdb.org/t/p/w500/acb9g0rlsFhy3LBPDvMF7Tso9Q0.jpg"
             }
           ],
-          "subtitle": [
-            "1985"
-          ],
+          "subtitle": ["1985"],
           "rating": 7
         },
         {
           "id": "musicbrainz:artist:f1bedf1f-4445-4651-9c35-f4a3f3860a13",
           "identity": {
-            "providerItemId": "f1bedf1f-4445-4651-9c35-f4a3f3860a13",
             "providerId": "musicbrainz",
-            "entityId": "artist"
+            "entityId": "artist",
+            "providerItemId": "f1bedf1f-4445-4651-9c35-f4a3f3860a13"
           },
           "title": "Giuseppe Verdi",
           "images": [
@@ -501,9 +526,9 @@
         {
           "id": "rawg:developer:109",
           "identity": {
-            "providerItemId": "109",
             "providerId": "rawg",
-            "entityId": "developer"
+            "entityId": "developer",
+            "providerItemId": "109"
           },
           "title": "Electronic Arts",
           "images": [
@@ -517,9 +542,9 @@
         {
           "id": "tmdb:movie:1084187",
           "identity": {
-            "providerItemId": "1084187",
             "providerId": "tmdb",
-            "entityId": "movie"
+            "entityId": "movie",
+            "providerItemId": "1084187"
           },
           "title": "Pretty Lethal",
           "images": [
@@ -528,17 +553,15 @@
               "url": "https://image.tmdb.org/t/p/w500/znTPnXCK3lEQJgqXCvP7e5FUz6f.jpg"
             }
           ],
-          "subtitle": [
-            "2026"
-          ],
+          "subtitle": ["2026"],
           "rating": 6.812
         },
         {
           "id": "tmdb:tv:456",
           "identity": {
-            "providerItemId": "456",
             "providerId": "tmdb",
-            "entityId": "tv"
+            "entityId": "tv",
+            "providerItemId": "456"
           },
           "title": "The Simpsons",
           "images": [
@@ -547,17 +570,15 @@
               "url": "https://image.tmdb.org/t/p/w500/uWpG7GqfKGQqX4YMAo3nv5OrglV.jpg"
             }
           ],
-          "subtitle": [
-            "1989"
-          ],
+          "subtitle": ["1989"],
           "rating": 8.013
         },
         {
           "id": "tmdb:person:227892",
           "identity": {
-            "providerItemId": "227892",
             "providerId": "tmdb",
-            "entityId": "person"
+            "entityId": "person",
+            "providerItemId": "227892"
           },
           "title": "Nicholas Soussanin",
           "images": [
@@ -577,9 +598,9 @@
         {
           "id": "rawg:game:4200",
           "identity": {
-            "providerItemId": "4200",
             "providerId": "rawg",
-            "entityId": "game"
+            "entityId": "game",
+            "providerItemId": "4200"
           },
           "title": "Portal 2",
           "images": [
@@ -594,9 +615,7 @@
               "key": "portal-2"
             }
           ],
-          "subtitle": [
-            "2011"
-          ],
+          "subtitle": ["2011"],
           "tertiaryText": "PC, PlayStation, Xbox, Apple Macintosh, Linux, Nintendo",
           "rating": 4.58,
           "details": {

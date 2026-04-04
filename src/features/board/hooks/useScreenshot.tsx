@@ -278,6 +278,8 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         // Yield to the browser's paint cycle deterministically
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
+        const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('firefox');
+
         // 6. Capture the PNG (with a 15s timeout fallback)
         const dataUrl = await Promise.race([
           toPng(boardElement, {
@@ -286,6 +288,8 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
             width: 1200,
             height: _height,
             cacheBust: true,
+            // Track: https://github.com/bubkoo/html-to-image/issues/508
+            skipFonts: isFirefox,
             style: {
               position: 'relative',
               left: '0',
@@ -299,7 +303,10 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
             },
           }),
           new Promise<string>((_, reject) =>
-            setTimeout(() => reject(new Error('html-to-image capture timeout')), SCREENSHOT_TIMEOUTS.CAPTURE),
+            setTimeout(
+              () => reject(new Error('html-to-image capture timeout')),
+              SCREENSHOT_TIMEOUTS.CAPTURE,
+            ),
           ),
         ]);
 
@@ -309,9 +316,7 @@ export function useScreenshot(fileName: string = 'tierlist.png') {
         download(dataUrl, name);
         showToast('Screenshot saved!', 'success');
       } catch (error) {
-        // Improved error reporting
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.error({ error, errorMessage }, 'Screenshot Engine: Error captured during capture');
+        logger.error({ error }, 'Screenshot Engine: Error captured during capture');
         showToast('Failed to save screenshot', 'error');
       } finally {
         // 5. Cleanup
