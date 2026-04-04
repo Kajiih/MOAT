@@ -107,62 +107,111 @@ describe('Generic Provider Integration', { timeout: 15_000 }, () => {
         });
 
         describe('Image Resolution', () => {
-          it('should expose the resolveImage method and testImageResolution array on entities if test images exist', () => {
+          it('should expose the resolveImage method and testAssetScenarios array on entities if test assets exist', () => {
             for (const entity of provider.entities) {
-              if (entity.testImageResolution && entity.testImageResolution.length > 0) {
+              const scenarios = entity.testAssetScenarios;
+              if (scenarios && scenarios.length > 0) {
                 expect(
                   typeof entity.resolveImage,
                   `Entity ${entity.id} in Provider ${provider.id} must implement resolveImage.`,
                 ).toBe('function');
                 expect(
-                  Array.isArray(entity.testImageResolution),
-                  `Entity ${entity.id} in Provider ${provider.id} must define a testImageResolution array.`,
+                  Array.isArray(scenarios),
+                  `Entity ${entity.id} in Provider ${provider.id} must define a testAssetScenarios array.`,
                 ).toBe(true);
               }
             }
           });
 
-          const tests = provider.entities.flatMap((e) =>
-            (e.testImageResolution || []).map((t: any) => ({ ...t, entityId: e.id })),
-          );
+          it('should satisfy scenario coverage rules', () => {
+            // Assert notFound for all entities with resolveImage
+            for (const entity of provider.entities) {
+              const scenarios = entity.testAssetScenarios || [];
+              if (entity.resolveImage) {
+                const hasNotFound = scenarios.some((s: any) => s.expectedOutcome === 'notFound');
+                expect(
+                  hasNotFound,
+                  `Entity ${entity.id} in Provider ${provider.id} must define at least one 'notFound' scenario.`,
+                ).toBe(true);
+              }
+            }
+
+            // Assert host coverage
+            const allowedHosts = provider.allowedImageHosts || [];
+            if (allowedHosts.length > 0) {
+              const coveredHosts = new Set<string>();
+              for (const entity of provider.entities) {
+                const scenarios = entity.testAssetScenarios || [];
+                for (const scenario of scenarios) {
+                  if (scenario.expectUrlContains) {
+                    coveredHosts.add(scenario.expectUrlContains);
+                  }
+                }
+              }
+
+              for (const host of allowedHosts) {
+                const isCovered = Array.from(coveredHosts).some(
+                  (item) => host.includes(item) || item.includes(host),
+                );
+                expect(
+                  isCovered,
+                  `Provider ${provider.id} lists allowed host '${host}' but no test scenario covers it via 'expectUrlContains'.`,
+                ).toBe(true);
+              }
+            }
+          });
+ 
+          const tests = provider.entities.flatMap((e) => {
+            const scenarios = e.testAssetScenarios || [];
+            return scenarios.map((t: any) => ({ ...t, entityId: e.id }));
+          });
           if (tests.length > 0) {
             it.each(tests)(
               'should functionally resolve image: $description ($key)',
               async (testCase) => {
                 const entity = provider.entities.find((e) => e.id === testCase.entityId)!;
                 const url = await entity.resolveImage?.(testCase.key);
-                expect(
-                  typeof url,
-                  `Resolving image key "${testCase.key}" should yield a URL string.`,
-                ).toBe('string');
-                expect(url!.length, `Resolved URL for "${testCase.key}" is empty.`).toBeGreaterThan(
-                  10,
-                );
-                expect(
-                  url!.startsWith('http'),
-                  `Resolved URL for "${testCase.key}" must be an absolute internet address.`,
-                ).toBe(true);
+                const outcome = testCase.expectedOutcome || 'success';
 
-                if (testCase.expectUrlContains) {
+                if (outcome === 'success') {
+                  expect(
+                    typeof url,
+                    `Resolving image key "${testCase.key}" should yield a URL string.`,
+                  ).toBe('string');
+                  expect(url!.length, `Resolved URL for "${testCase.key}" is empty.`).toBeGreaterThan(
+                    10,
+                  );
+                  expect(
+                    url!.startsWith('http'),
+                    `Resolved URL for "${testCase.key}" must be an absolute internet address.`,
+                  ).toBe(true);
+ 
+                  if (testCase.expectUrlContains) {
+                    expect(
+                      url,
+                      `Resolved URL for "${testCase.key}" expected to contain ${testCase.expectUrlContains}`,
+                    ).toContain(testCase.expectUrlContains);
+                  }
+ 
+                  // Fire a live HEAD request to mathematically prove reachability and MIME type
+                  const res = await fetch(url!, { method: 'HEAD' });
+ 
+                  expect(
+                    res.ok,
+                    `Expected image resolution for "${testCase.key}" to successfully ping the CDN (${url}), but received ${res.status} ${res.statusText}`,
+                  ).toBe(true);
+ 
+                  const contentType = res.headers.get('content-type');
+                  expect(
+                    contentType,
+                    `Expected the URL for "${testCase.key}" to serve a valid image payload, but received Content-Type: ${contentType}`,
+                  ).toMatch(/^image\//);
+                } else if (outcome === 'notFound') {
                   expect(
                     url,
-                    `Resolved URL for "${testCase.key}" expected to contain ${testCase.expectUrlContains}`,
-                  ).toContain(testCase.expectUrlContains);
+                    `Expected image resolution for "${testCase.key}" to return null (notFound), but received ${url}`,
+                  ).toBeNull();
                 }
-
-                // Fire a live HEAD request to mathematically prove reachability and MIME type
-                const res = await fetch(url!, { method: 'HEAD' });
-
-                expect(
-                  res.ok,
-                  `Expected image resolution for "${testCase.key}" to successfully ping the CDN (${url}), but received ${res.status} ${res.statusText}`,
-                ).toBe(true);
-
-                const contentType = res.headers.get('content-type');
-                expect(
-                  contentType,
-                  `Expected the URL for "${testCase.key}" to serve a valid image payload, but received Content-Type: ${contentType}`,
-                ).toMatch(/^image\//);
               },
             );
           }

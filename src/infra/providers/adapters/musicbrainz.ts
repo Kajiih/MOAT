@@ -844,19 +844,30 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
-  public readonly testImageResolution = nonEmpty({
-    key: '2c55f39d-9cb3-401c-b218-2fc600d26ec5',
-    description: 'Resolves primary album art successfully via CoverArtArchive',
-    expectUrlContains: 'ca.archive.org/',
-  });
+  private readonly PARADIZE_MBID = 'a8447ca4-c63a-30c0-9e1a-66c292a0a5c5';
+
+  public readonly testAssetScenarios = nonEmpty(
+    {
+      key: this.PARADIZE_MBID,
+      description: 'Resolves primary album art successfully via CoverArtArchive',
+      expectedOutcome: 'success' as const,
+      expectUrlContains: 'archive.org',
+    },
+    {
+      key: '00000000-0000-0000-0000-000000000000',
+      description: 'Fails to resolve image when key is invalid',
+      expectedOutcome: 'notFound' as const,
+    },
+  );
 
   public readonly resolveImage = async (
     key: string,
     { signal }: { signal?: AbortSignal } = {},
   ): Promise<string | null> => {
     try {
-      const caaRes = await fetch(`https://coverartarchive.org/release-group/${key}/front-500`, {
-        method: 'HEAD',
+      const url = `https://coverartarchive.org/release-group/${key}/front`;
+      const caaRes = await fetch(url, {
+        method: 'GET',
         signal,
       });
       if (caaRes.ok) return caaRes.url;
@@ -1080,11 +1091,28 @@ export class MusicBrainzArtistEntity implements Entity<MusicBrainzArtist> {
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
-  public readonly testImageResolution = nonEmpty({
-    key: '076caf66-1bb1-4486-8f46-910c83441eab',
-    description: 'Resolves secondary fallback for artist image via Wikidata SPARQL',
-    expectUrlContains: 'fanart.tv',
-  });
+  private readonly DAFT_PUNK_MBID = '076caf66-1bb1-4486-8f46-910c83441eab';
+  private readonly YODELICE_MBID = 'c250041c-a4d5-49f9-8400-c9575721b2dc';
+
+  public readonly testAssetScenarios = nonEmpty(
+    {
+      key: this.DAFT_PUNK_MBID,
+      description: 'Resolves artist image from Fanart.tv',
+      expectedOutcome: 'success' as const,
+      expectUrlContains: 'fanart.tv',
+    },
+    {
+      key: this.YODELICE_MBID,
+      description: 'Resolves artist image from Wikidata fallback (Wikimedia)',
+      expectedOutcome: 'success' as const,
+      expectUrlContains: 'wikimedia.org',
+    },
+    {
+      key: '00000000-0000-0000-0000-000000000000',
+      description: 'Fails to resolve image when key is invalid',
+      expectedOutcome: 'notFound' as const,
+    },
+  );
 
   public readonly resolveImage = async (
     key: string,
@@ -1315,6 +1343,12 @@ export class MusicBrainzRecordingEntity implements Entity<MusicBrainzRecording> 
   public readonly getNextParams = getMusicBrainzNextParams;
   public readonly getPreviousParams = getMusicBrainzPreviousParams;
 
+  public readonly testAssetScenarios = nonEmpty({
+    key: '00000000-0000-0000-0000-000000000000',
+    description: 'Songs do not resolve images currently',
+    expectedOutcome: 'notFound' as const,
+  });
+
   public readonly resolveImage = async (
     _key?: string,
     _options: { signal?: AbortSignal } = {},
@@ -1484,7 +1518,6 @@ export class MusicBrainzProvider implements Provider {
   public readonly icon = Disc3;
   public readonly allowedImageHosts = [
     'assets.fanart.tv',
-    'coverartarchive.org',
     'archive.org',
     'commons.wikimedia.org',
     'upload.wikimedia.org',

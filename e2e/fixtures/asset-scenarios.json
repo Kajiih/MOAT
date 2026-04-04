@@ -1,0 +1,65 @@
+{
+  "version": 2,
+  "createdAt": "2026-04-04T09:40:00.000Z",
+  "title": "Asset Scenarios Test Board",
+  "tiers": [
+    {
+      "label": "Scenarios",
+      "color": "blue",
+      "items": [
+        {
+          "id": "musicbrainz:album:2c55f39d-9cb3-401c-b218-2fc600d26ec5",
+          "identity": {
+            "providerItemId": "2c55f39d-9cb3-401c-b218-2fc600d26ec5",
+            "providerId": "musicbrainz",
+            "entityId": "album"
+          },
+          "title": "Success Album",
+          "images": [
+            {
+              "type": "reference",
+              "provider": "musicbrainz",
+              "entityId": "album",
+              "key": "2c55f39d-9cb3-401c-b218-2fc600d26ec5"
+            }
+          ]
+        },
+        {
+          "id": "musicbrainz:album:00000000-0000-0000-0000-000000000000",
+          "identity": {
+            "providerItemId": "00000000-0000-0000-0000-000000000000",
+            "providerId": "musicbrainz",
+            "entityId": "album"
+          },
+          "title": "NotFound Album",
+          "images": [
+            {
+              "type": "reference",
+              "provider": "musicbrainz",
+              "entityId": "album",
+              "key": "00000000-0000-0000-0000-000000000000"
+            }
+          ]
+        },
+        {
+          "id": "musicbrainz:artist:076caf66-1bb1-4486-8f46-910c83441eab",
+          "identity": {
+            "providerItemId": "076caf66-1bb1-4486-8f46-910c83441eab",
+            "providerId": "musicbrainz",
+            "entityId": "artist"
+          },
+          "title": "Fallback Artist",
+          "images": [
+            {
+              "type": "reference",
+              "provider": "musicbrainz",
+              "entityId": "artist",
+              "key": "076caf66-1bb1-4486-8f46-910c83441eab"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "uncategorizedItems": []
+}

@@ -188,6 +188,22 @@ class TMDBMovieEntity implements Entity<TMDBMovie> {
     return { ...params, page: currentPage - 1 };
   };
 
+  private readonly YOUR_HEART_WILL_BE_BROKEN_POSTER = '/7wIBfBl2gejt6xHxNSK0reVIm7E.jpg';
+
+  public readonly testAssetScenarios = nonEmpty(
+    {
+      key: this.YOUR_HEART_WILL_BE_BROKEN_POSTER,
+      description: 'Resolves movie poster from TMDB CDN',
+      expectedOutcome: 'success' as const,
+      expectUrlContains: 'image.tmdb.org/t/p/',
+    },
+    {
+      key: '',
+      description: 'Fails to resolve image when key is empty',
+      expectedOutcome: 'notFound' as const,
+    },
+  );
+
   public readonly resolveImage = async (key: string): Promise<string | null> => {
     return getImageUrl(key, 'w500');
   };
@@ -290,6 +306,22 @@ class TMDBTVEntity implements Entity<TMDBTVShow> {
     return { ...params, page: currentPage - 1 };
   };
 
+  private readonly PILI_POSTER = '/sBVfyRYPmKSARRTodsTbwHqgcRA.jpg';
+
+  public readonly testAssetScenarios = nonEmpty(
+    {
+      key: this.PILI_POSTER,
+      description: 'Resolves TV show poster from TMDB CDN',
+      expectedOutcome: 'success' as const,
+      expectUrlContains: 'image.tmdb.org/t/p/',
+    },
+    {
+      key: '',
+      description: 'Fails to resolve image when key is empty',
+      expectedOutcome: 'notFound' as const,
+    },
+  );
+
   public readonly resolveImage = async (key: string): Promise<string | null> => {
     return getImageUrl(key, 'w500');
   };
@@ -384,6 +416,22 @@ class TMDBPersonEntity implements Entity<TMDBPerson> {
     if (currentPage <= 1) return null;
     return { ...params, page: currentPage - 1 };
   };
+
+  private readonly AGNES_AYRES_PROFILE = '/mQObJxwBA3epElaMwpDsXCvaQeH.jpg';
+
+  public readonly testAssetScenarios = nonEmpty(
+    {
+      key: this.AGNES_AYRES_PROFILE,
+      description: 'Resolves person profile image from TMDB CDN',
+      expectedOutcome: 'success' as const,
+      expectUrlContains: 'image.tmdb.org/t/p/',
+    },
+    {
+      key: '',
+      description: 'Fails to resolve image when key is empty',
+      expectedOutcome: 'notFound' as const,
+    },
+  );
 
   public readonly resolveImage = async (key: string): Promise<string | null> => {
     return getImageUrl(key, 'w500');

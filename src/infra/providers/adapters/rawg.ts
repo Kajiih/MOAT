@@ -264,11 +264,21 @@ class RAWGGameEntity implements Entity<RAWGGame> {
     return { ...params, page: currentPage - 1 };
   };
 
-  public readonly testImageResolution = nonEmpty({
-    key: '3328', // The Witcher 3 ID
-    description: 'Resolves game screenshot from RAWG media CDN',
-    expectUrlContains: 'media.rawg.io/media/',
-  });
+  private readonly THE_WITCHER_3_ID = '3328';
+
+  public readonly testAssetScenarios = nonEmpty(
+    {
+      key: this.THE_WITCHER_3_ID,
+      description: 'Resolves game screenshot from RAWG media CDN',
+      expectedOutcome: 'success' as const,
+      expectUrlContains: 'media.rawg.io/media/',
+    },
+    {
+      key: '0', // Invalid ID or non-existent
+      description: 'Fails to resolve image when key is invalid',
+      expectedOutcome: 'notFound' as const,
+    },
+  );
 
   public readonly resolveImage = async (
     key: string,
@@ -472,6 +482,12 @@ class RAWGDeveloperEntity implements Entity<RAWGDeveloper> {
     if (currentPage <= 1) return null;
     return { ...params, page: currentPage - 1 };
   };
+
+  public readonly testAssetScenarios = nonEmpty({
+    key: 'dummy_dev',
+    description: 'Developers do not resolve images currently',
+    expectedOutcome: 'notFound' as const,
+  });
 
   public readonly resolveImage = async (
     _key?: string,

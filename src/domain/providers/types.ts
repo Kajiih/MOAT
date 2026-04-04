@@ -126,15 +126,17 @@ export interface Entity<TRaw = any> {
   ) => Promise<ItemDetails>;
 
   /**
-   * Structured array of exact targets used to verify the resolveImage implementation natively in integration tests.
-   * If the entity supports image resolution, it must provide at least one valid test case.
+   * Structured array of asset scenarios to verify image fetching and resolution.
+   * Replaces the old testImageResolution.
    */
-  readonly testImageResolution?: NonEmptyArray<{
-    /** The composite key or identity to resolve (e.g., specific DB ID) */
+  readonly testAssetScenarios?: NonEmptyArray<{
+    /** The composite key or identity to test */
     key: string;
-    /** Describes what this test accomplishes (e.g., 'Resolves secondary fallback via Wikidata') */
+    /** Describes what this test accomplishes */
     description: string;
-    /** If provided, asserts the resolved URL contains this substring (useful for ensuring it hit the right CDN) */
+    /** Expected outcome of the resolution or fetch */
+    expectedOutcome: 'success' | 'fallback' | 'notFound' | 'error';
+    /** If provided, asserts the resolved URL contains this substring */
     expectUrlContains?: string;
   }>;
 
