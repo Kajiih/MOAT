@@ -1,4 +1,7 @@
 import { expect, test } from '../fixtures';
+import * as fs from 'fs';
+import * as path from 'path';
+import { TestBoardBuilder, TestItemBuilder } from '../utils/board-builder';
 
 test.describe('Asset Scenarios Verification', () => {
   test.setTimeout(15_000);
@@ -38,10 +41,29 @@ test.describe('Asset Scenarios Verification', () => {
     });
   });
 
-  test('should load asset scenarios and verify rendering', async ({ page, boardPage }) => {
-    await boardPage.goto();
+  test('should load asset scenarios and verify rendering', async ({ page, boardPage }, testInfo) => {
+    // Generate Board JSON using builder
+    const board = new TestBoardBuilder()
+      .withTitle("Asset Scenarios Test Board")
+      .addTier("Scenarios", "blue", [
+        TestItemBuilder.create("musicbrainz", "album", "2c55f39d-9cb3-401c-b218-2fc600d26ec5")
+          .withTitle("Success Album")
+          .withReferenceImage("2c55f39d-9cb3-401c-b218-2fc600d26ec5"),
+        TestItemBuilder.create("musicbrainz", "album", "00000000-0000-0000-0000-000000000000")
+          .withTitle("NotFound Album")
+          .withReferenceImage("00000000-0000-0000-0000-000000000000"),
+        TestItemBuilder.create("musicbrainz", "artist", "076caf66-1bb1-4486-8f46-910c83441eab")
+          .withTitle("Fallback Artist")
+          .withReferenceImage("076caf66-1bb1-4486-8f46-910c83441eab")
+      ])
+      .build();
 
-    const fixturePath = 'e2e/fixtures/asset-scenarios.json';
+    // Write to temp file in test output directory
+    const fixturePath = testInfo.outputPath('asset-scenarios.json');
+    fs.mkdirSync(path.dirname(fixturePath), { recursive: true });
+    fs.writeFileSync(fixturePath, JSON.stringify(board, null, 2));
+
+    await boardPage.goto();
     await boardPage.importJson(fixturePath);
 
     // Verify Success Album has an image
@@ -63,5 +85,12 @@ test.describe('Asset Scenarios Verification', () => {
     const savedPath = 'test-results/asset-scenarios-export.png';
     await download.saveAs(savedPath);
     console.log(`Screenshot saved to: ${savedPath}`);
+
+    // Clean up temp file
+    try {
+      fs.unlinkSync(fixturePath);
+    } catch (e) {
+      console.warn('Failed to clean up temp file:', e);
+    }
   });
 });
