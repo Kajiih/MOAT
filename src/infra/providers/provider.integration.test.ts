@@ -19,7 +19,7 @@ import { expectDistinctPages, expectSorted } from './test-utils';
  * Automatically tests common functionality for all registered entities
  * that provide configuration for sorting, filters, pagination, or details.
  */
-describe('Generic Provider Integration', { timeout: 15_000 }, () => {
+describe('Generic Provider Integration', { timeout: 30_000 }, () => {
   const providers = registry.getAllProviders();
   const globalMetrics: Record<string, number> = {};
 

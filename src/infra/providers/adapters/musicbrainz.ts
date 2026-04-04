@@ -870,7 +870,7 @@ export class MusicBrainzAlbumEntity implements Entity<MusicBrainzReleaseGroup> {
         method: 'GET',
         signal,
       });
-      if (caaRes.ok) return caaRes.url;
+      if (caaRes.ok) return String(caaRes.url);
     } catch {
       // Ignore
     }
@@ -1521,6 +1521,7 @@ export class MusicBrainzProvider implements Provider {
     'archive.org',
     'commons.wikimedia.org',
     'upload.wikimedia.org',
+    'coverartarchive.org',
   ];
   public status: ProviderStatus = ProviderStatus.IDLE;
 

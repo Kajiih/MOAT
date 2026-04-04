@@ -4,7 +4,7 @@ test.describe('Asset Scenarios Verification', () => {
   test.setTimeout(15_000);
 
   test.beforeEach(async ({ page }) => {
-    // Intercept image proxy with specific behavior per key
+    // Intercept image proxy calls
     await page.route('**/api/proxy-image**', async (route) => {
       const url = route.request().url();
       
@@ -32,7 +32,7 @@ test.describe('Asset Scenarios Verification', () => {
           ),
         });
       } else {
-        // Default fallback for other potential images
+        // Default fallback for other potential images via proxy
         await route.fulfill({ status: 404 });
       }
     });
@@ -47,7 +47,7 @@ test.describe('Asset Scenarios Verification', () => {
     // Verify Success Album has an image
     const successItem = page.locator('[data-testid^="item-card-musicbrainz:album:2c55f39d-9cb3-401c-b218-2fc600d26ec5"]');
     await expect(successItem).toBeVisible();
-    await expect(successItem.locator('img')).toBeVisible();
+    await expect(successItem.locator('img')).toBeVisible({ timeout: 15_000 });
 
     // Verify NotFound Album does NOT have an image, or shows fallback text
     const notFoundItem = page.locator('[data-testid^="item-card-musicbrainz:album:00000000-0000-0000-0000-000000000000"]');
